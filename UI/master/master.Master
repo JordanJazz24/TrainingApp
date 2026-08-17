@@ -1,0 +1,215 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="master.master.cs" Inherits="MES_TRAINING.UI.master.master" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title>MES SIMULATOR</title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+    <link rel="shortcut icon" href="https://d8ejoa1fys2rk.cloudfront.net/5.0.5/includes/img/icons/philips.ico">
+
+    <!-- styles sheet -->
+   <link href="css/bootstrap.min.css" rel="stylesheet" />
+   <link href="css/fontawesome_all.css" rel="stylesheet" />
+   <link href="css/bootstrap-icons.css" rel="stylesheet" />
+   <link href="css/select2.min.css" rel="stylesheet" />
+   <link href="css/myStyles.css" rel="stylesheet" />
+
+    <!-- Important scripts -->
+      <script src="<%=ResolveClientUrl("~/UI/master/js/jquery-3.6.0.js") %>"></script>
+      <script src="<%=ResolveClientUrl("~/UI/master/js/master.js") %>"></script>
+      <script src="<%=ResolveClientUrl("~/UI/master/js/bootstrap.bundle.min.js") %>"></script>
+      <script src="<%=ResolveClientUrl("~/UI/master/js/select2.min.js") %>"></script>
+      <script src="<%=ResolveClientUrl("~/UI/master/js/sweetalert2.all.min.js") %>"></script>
+
+
+
+</head>
+<body >
+
+    <!-- Header Bar -->
+        <div class="header-bar py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <strong class="fw-semibold">Dashboard de operador de producción: Sitio - CR9A, Usuario - User number</strong>
+                <div class="header-controls d-flex align-items-center gap-3">
+                     <button id="btnGuideOpen" class="btnGuide">
+                         <img src="../master/imgs/clock-icon.png"class="h-100" alt="Start">
+                         Guia apertura de orden
+
+                     </button>
+                    <button id="btnGuideClose" class="btnGuide">
+                        <img src="../master/imgs/complete-icon.png" class="h-100" alt="Complete">Guia cierre de orden
+
+                    </button>
+                   
+                    <i class="fas fa-home"></i>
+                      <asp:HyperLink ID="HyperLink1"  runat="server" NavigateUrl="~/index.aspx" ForeColor="Black">
+                          <i class="fas fa-power-off" id="power_off">
+
+                          </i></asp:HyperLink>
+                    
+                    <i class="fas fa-question-circle text-info"></i>
+                </div>
+            </div>
+        </div>
+    <section class="dashboard_mensages position-fixed ">
+    
+      
+      </section>
+     <!-- Search Section -->
+        <div class="search-section py-2 px-3">
+            <div class="row align-items-center g-2">
+                <div class="col-12 col-md-2">
+                    <i class="fas fa-star text-danger"></i>
+                    <span class="text-muted ms-2 small">O_SRC_DWF_CUSHION_NIR</span>
+                </div>
+                <div class="col-12 col-md-3">
+                    <i class="fas fa-star text-danger"></i>
+                    <span class="text-muted ms-2 small">R_SRC_MOLDE_10021514_SFC:</span>
+                </div>
+                <div class="col-12 col-md-4 position-relative" data-bs-toggle="modal" data-bs-target="#searchModal" >
+                    <input type="text" class="form-control search-input" id="seach_order_input" readonly />
+                    <div class="position-absolute top-50 end-0 translate-middle-y pe-2">
+                        <i class="fas fa-copy text-muted"></i>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 text-md-end">
+                    <small class="text-muted">Orden de fabricación: <span class="fw-bold">Status (NCP)</span></small>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Action Buttons -->
+        <div class="action-buttons py-3">
+            <div class="row g-2 justify-content-center px-3 mx-0">
+                <div class="col-auto">
+                    <a href="#" class="action-btn btn d-flex align-items-center gap-2 " id="btnStartSection">
+                        <img src="../master/imgs/clock-icon.png" alt="Start" />
+                        <span>Start</span>
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="#" class="action-btn btn d-flex align-items-center gap-2 px-3">
+                        <img src="../master/imgs/ensamblar-icon.png" alt="Assemble" />
+                        <span>Assemble</span>
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="#" class="action-btn btn d-flex align-items-center gap-2 px-3" id="data_collection_btn" >
+                        <img src="../master/imgs/dc_collection-icon.png" alt="DC Collection" />
+                        <span>DC Collection</span>
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <a href="#" class="action-btn btn d-flex align-items-center gap-2 px-3"  id="btn-completar">
+                        <img src="../master/imgs/complete-icon.png" alt="Complete" />
+                        <span>Complete</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    <!--Content Render -->
+
+    <form id="form1" runat="server" class="h-100">
+    <div class="row h-100 w-100 ms-0 me-0">
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+        </asp:ContentPlaceHolder>
+         <!-- Sidebar Section -->
+            <div class="col-2 h-100 position-fixed end-0 p-0" id="sideBar">
+                <div class="sidebar d-flex flex-column gap-2 p-2 h-100">
+                    <button class="sidebar-btn btn d-flex align-items-center gap-2 p-2" type="button" id="btnSfc" data-bs-toggle="modal" data-bs-target="#modalSplit">
+                        <img src="../master/imgs/split-icon.png" alt="Split" class="flex-shrink-0" />
+                        <span>SFC Split</span>
+                    </button>
+                    
+                    <button class="sidebar-btn btn d-flex align-items-center gap-2 p-2" id="btn_logNC_dashboard" type="button">
+                        <img src="../master/imgs/log_NC-Icon.png" alt="Log NC" class="flex-shrink-0" />
+                        <span>Log NC</span>
+                    </button>
+                    
+                    <button class="sidebar-btn btn d-flex align-items-center gap-2 p-2">
+                        <img src="../master/imgs/intructions-icon.png" alt="Instructions" class="flex-shrink-0" />
+                        <span>Work instructions</span>
+                    </button>
+                    
+                    <button class="sidebar-btn btn d-flex align-items-center gap-2 p-2 btn_reports" id=" btnReports" type="button">
+                        <img src="../master/imgs/informes-icon.png" alt="Reports" class="flex-shrink-0" />
+                        <span>Reports</span>
+                    </button>
+                    
+                    <div class="list-group position-fixed d-flex group_reports shadow-lg invisible" id="groupReports" >
+                        <button type="button" class="list-group-item list-group-item-action">Activity Log Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">As-Built Summary Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">Comments Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">Hold Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">NC Log Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">SFC Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">Shop Order Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#lineClereanceReports">
+                            Data Collection Results Reports
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action">Device History Reports</button>
+                        <button type="button" class="list-group-item list-group-item-action">Show EPDR Info</button>
+                    </div>
+                    
+                    <button class="sidebar-btn btn d-flex align-items-center gap-2 p-2 btn_activities" id="btnActivities" type="button" ">
+                        <img src="../master/imgs/activities-icon.png" alt="Activities" class="flex-shrink-0" />
+                        <span>Activities</span>
+                    </button>
+                    
+                    <div class="list-group position-fixed d-flex group_activities shadow-lg invisible" id="groupActivities" >
+                        <button type="button" class="list-group-item list-group-item-action">As-Built Configuration</button>
+                        <button type="button" class="list-group-item list-group-item-action">Log Comment</button>
+                        <button type="button" class="list-group-item list-group-item-action">SFC Place Hold</button>
+                        <button type="button" class="list-group-item list-group-item-action">SFC Release Hold</button>
+                        <button type="button" class="list-group-item list-group-item-action">Remove Future Hold</button>
+                        <button type="button" class="list-group-item list-group-item-action">Change Equipment Status</button>
+                        <button type="button" class="list-group-item list-group-item-action">Time Sensitive Material Check In/Out</button>
+                        <button type="button" class="list-group-item list-group-item-action" id="btnStandAlone" data-bs-toggle="modal" data-bs-target="#modalColeccionDatos">
+                            Data Collection Standalone
+                        </button>
+                    </div>
+                    </div>
+                </div>
+
+    </div>
+</form>
+
+    
+
+    
+    <!--END Content Render -->
+     
+   
+          
+
+    <!-- Bottom Buttons -->
+        <div class="bottom-buttons py-3 text-center position-fixed bottom-0 w-100">
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn bottom-btn d-flex align-items-center gap-2 px-3" data-bs-toggle="modal" data-bs-target="#Resource-setup-modal" id="btnResourceSetUp">
+                    <img src="../master/imgs/resource-setup-icon.png" alt="Resource Setup" />
+                    <span>Resource Setup</span>
+                </button>
+                <button class="btn bottom-btn d-flex align-items-center gap-2 px-3">
+                    <img src="../master/imgs/tools-icon.png" alt="Tool List" />
+                    <span>Tool List</span>
+                </button>
+            </div>
+        </div>
+        <!-- END Bottom Buttons -->
+
+     <!-- Loader -->
+    <section class="loader-container" id="loader">
+        <span class="loader"></span>
+        <span class="loader2"></span>
+    </section>
+        <!--END Loader -->
+
+           <!--GUIDE SECTION-->
+
+    
+</body>
+</html>
