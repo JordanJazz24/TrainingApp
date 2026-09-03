@@ -1,0 +1,53 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+# SQL Server backups
+*.bak
+*.trn
+
+# LocalDB
+*.dbmdl
+
+# Logs
+*.log
+
+# NuGet
+packages/
+*.nupkg
+
+# Publish output
+publish/
+
+# Temporary files
+Temp/
+tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JetBrains
+.idea/
+
+# VS Code
+.vscode/
+
+# Node.js
+node_modules/
+
+# Environment files
+.env
+.env.*

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../TrainingApp.Test/TrainingApp.Test.csproj" Id="434c74f0-404d-4c33-95f5-340ac9588d66" />
+  <Project Path="TrainingApp.csproj" Id="8b18166a-686d-4576-af41-3850ef2dc705" />
+</Solution>
