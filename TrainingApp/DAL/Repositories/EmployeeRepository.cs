@@ -59,7 +59,12 @@ namespace TrainingApp.DAL.Repositories
 
         private static IList<Employee> FetchFromApi()
         {
-            string json = _http.GetStringAsync(Constants.EmployeeApiUrl).Result;
+            // ConfigureAwait(false) prevents capturing the ASP.NET synchronization context,
+            // avoiding the classic Web Forms deadlock when blocking on async via GetResult().
+            string json = _http.GetStringAsync(Constants.EmployeeApiUrl)
+                              .ConfigureAwait(false)
+                              .GetAwaiter()
+                              .GetResult();
             var dtos = JsonConvert.DeserializeObject<List<EmployeeDto>>(json);
             return dtos.Select(d => new Employee
             {
@@ -71,11 +76,11 @@ namespace TrainingApp.DAL.Repositories
 
         private class EmployeeDto
         {
-            [JsonProperty("code1")]
+            [JsonProperty("Code1")]
             public string Code1 { get; set; }
-            [JsonProperty("nombre")]
+            [JsonProperty("Name")]
             public string Nombre { get; set; }
-            [JsonProperty("apellidos")]
+            [JsonProperty("LastName")]
             public string Apellidos { get; set; }
         }
     }

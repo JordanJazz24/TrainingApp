@@ -42,9 +42,13 @@ namespace TrainingApp.DAL.Infrastructure
             return cmd;
         }
 
+        private bool _disposed;
+
         public void Dispose()
         {
+            if (_disposed) return;
             _connection?.Dispose();
+            _disposed = true;
         }
     }
 }

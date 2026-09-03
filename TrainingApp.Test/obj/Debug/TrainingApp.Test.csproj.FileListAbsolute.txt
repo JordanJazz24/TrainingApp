@@ -136,3 +136,12 @@ C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\Trainin
 C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\obj\Debug\Training.8FA98E0A.Up2Date
 C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\obj\Debug\TrainingApp.Test.dll
 C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\obj\Debug\TrainingApp.Test.pdb
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\TrainingApp.dll
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\System.Web.Optimization.dll
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\Microsoft.AspNet.FriendlyUrls.dll
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\Newtonsoft.Json.dll
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\TrainingApp.pdb
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\TrainingApp.dll.config
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\System.Web.Optimization.xml
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\Microsoft.AspNet.FriendlyUrls.xml
+C:\Users\320313439\Documents\GitHub\MES Simulator\MES Training Simulator\TrainingApp.Test\bin\Debug\Newtonsoft.Json.xml

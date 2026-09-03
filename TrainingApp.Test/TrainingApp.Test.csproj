@@ -117,6 +117,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TrainingApp\TrainingApp.csproj">
+      <Project>{8B18166A-686D-4576-AF41-3850EF2DC705}</Project>
+      <Name>TrainingApp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

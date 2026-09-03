@@ -23,6 +23,11 @@
                     ControlToValidate="TxtNewPassword"
                     ErrorMessage="Ingrese la nueva contraseña."
                     CssClass="text-danger small" Display="Dynamic" />
+                <asp:RegularExpressionValidator ID="RevPasswordLength" runat="server"
+                    ControlToValidate="TxtNewPassword"
+                    ValidationExpression=".{8,}"
+                    ErrorMessage="La contraseña debe tener al menos 8 caracteres."
+                    CssClass="text-danger small" Display="Dynamic" />
             </div>
 
             <div class="mb-4">

@@ -7,6 +7,7 @@ namespace TrainingApp.Pages.Auth
         protected global::System.Web.UI.WebControls.Label LblSuccess;
         protected global::System.Web.UI.WebControls.TextBox TxtNewPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvNewPassword;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator RevPasswordLength;
         protected global::System.Web.UI.WebControls.TextBox TxtConfirmPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvConfirmPassword;
         protected global::System.Web.UI.WebControls.CompareValidator CvPasswords;

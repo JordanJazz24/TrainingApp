@@ -9,16 +9,19 @@ namespace TrainingApp.DAL.Repositories
     {
         public int Insert(TrainingSession session)
         {
-            var id = DatabaseFactory.Create().ExecuteScalar("spTrainingSessionInsert", cmd =>
+            using (var db = DatabaseFactory.Create())
             {
-                cmd.Parameters.AddWithValue("@OperatorId",      session.OperatorId);
-                cmd.Parameters.AddWithValue("@TrainingGuideId", session.TrainingGuideId);
-                cmd.Parameters.AddWithValue("@Mode",            (int)session.Mode);
-                cmd.Parameters.AddWithValue("@Status",          (int)session.Status);
-                cmd.Parameters.AddWithValue("@CurrentStepOrder",session.CurrentStepOrder);
-                cmd.Parameters.AddWithValue("@StartedAt",       session.StartedAt);
-            });
-            return Convert.ToInt32(id);
+                var id = db.ExecuteScalar("spTrainingSessionInsert", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@OperatorId",       session.OperatorId);
+                    cmd.Parameters.AddWithValue("@TrainingGuideId",  session.TrainingGuideId);
+                    cmd.Parameters.AddWithValue("@Mode",             (int)session.Mode);
+                    cmd.Parameters.AddWithValue("@Status",           (int)session.Status);
+                    cmd.Parameters.AddWithValue("@CurrentStepOrder", session.CurrentStepOrder);
+                    cmd.Parameters.AddWithValue("@StartedAt",        session.StartedAt);
+                });
+                return Convert.ToInt32(id);
+            }
         }
 
         public TrainingSession GetById(int id)

@@ -21,15 +21,18 @@ namespace TrainingApp.DAL.Repositories
 
         public int Insert(Operator op)
         {
-            var id = DatabaseFactory.Create().ExecuteScalar("spOperatorInsert", cmd =>
+            using (var db = DatabaseFactory.Create())
             {
-                cmd.Parameters.AddWithValue("@Code1",        op.Code1);
-                cmd.Parameters.AddWithValue("@Name",         op.Name);
-                cmd.Parameters.AddWithValue("@PasswordHash", op.PasswordHash);
-                cmd.Parameters.AddWithValue("@IsFirstLogin", op.IsFirstLogin);
-                cmd.Parameters.AddWithValue("@CreatedAt",    op.CreatedAt);
-            });
-            return Convert.ToInt32(id);
+                var id = db.ExecuteScalar("spOperatorInsert", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@Code1",        op.Code1);
+                    cmd.Parameters.AddWithValue("@Name",         op.Name);
+                    cmd.Parameters.AddWithValue("@PasswordHash", op.PasswordHash);
+                    cmd.Parameters.AddWithValue("@IsFirstLogin", op.IsFirstLogin);
+                    cmd.Parameters.AddWithValue("@CreatedAt",    op.CreatedAt);
+                });
+                return Convert.ToInt32(id);
+            }
         }
 
         public void UpdatePassword(int operatorId, string passwordHash)
