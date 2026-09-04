@@ -56,6 +56,23 @@ namespace TrainingApp.DAL.Repositories
                 });
         }
 
+        public void Abandon(int sessionId)
+        {
+            using (var db = DatabaseFactory.Create())
+                db.ExecuteNonQuery("spTrainingSessionAbandon",
+                    cmd => cmd.Parameters.AddWithValue("@SessionId", sessionId));
+        }
+
+        public void DeleteActiveByOperator(int operatorId, int trainingGuideId)
+        {
+            using (var db = DatabaseFactory.Create())
+                db.ExecuteNonQuery("spTrainingSessionDeleteActiveByOperator", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@OperatorId",      operatorId);
+                    cmd.Parameters.AddWithValue("@TrainingGuideId", trainingGuideId);
+                });
+        }
+
         private static TrainingSession Map(SqlDataReader r) => new TrainingSession
         {
             Id              = Convert.ToInt32(r["Id"]),

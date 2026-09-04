@@ -1,6 +1,7 @@
 -- ============================================================
 -- 02_spTrainingGuide.sql
--- Stored procedures para TrainingGuides y TrainingSteps.
+-- Stored procedures para TrainingGuides, TrainingSteps,
+-- Areas, NCCodes y DataCollectionParameters.
 -- ============================================================
 
 -- -------------------------------------------------------
@@ -52,5 +53,98 @@ BEGIN
     WHERE  AreaId      = @AreaId
     AND    IsPublished = 1
     ORDER  BY CreatedAt DESC;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spProductGetAll
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spProductGetAll', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spProductGetAll;
+GO
+
+CREATE PROCEDURE dbo.spProductGetAll
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, Name
+    FROM   dbo.Products
+    ORDER  BY Name;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spAreaGetByProduct
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spAreaGetByProduct', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spAreaGetByProduct;
+GO
+
+CREATE PROCEDURE dbo.spAreaGetByProduct
+    @ProductId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection
+    FROM   dbo.Areas
+    WHERE  ProductId = @ProductId
+    ORDER  BY Name;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spAreaGetById
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spAreaGetById', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spAreaGetById;
+GO
+
+CREATE PROCEDURE dbo.spAreaGetById
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection
+    FROM   dbo.Areas
+    WHERE  Id = @Id;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spNCCodeGetByArea
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spNCCodeGetByArea', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spNCCodeGetByArea;
+GO
+
+CREATE PROCEDURE dbo.spNCCodeGetByArea
+    @AreaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, AreaId, Code, Description
+    FROM   dbo.NCCodes
+    WHERE  AreaId = @AreaId
+    ORDER  BY Code;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spDataCollectionParameterGetByArea
+-- Ordenado por DisplayOrder para respetar la secuencia operativa.
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spDataCollectionParameterGetByArea', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spDataCollectionParameterGetByArea;
+GO
+
+CREATE PROCEDURE dbo.spDataCollectionParameterGetByArea
+    @AreaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder
+    FROM   dbo.DataCollectionParameters
+    WHERE  AreaId = @AreaId
+    ORDER  BY DisplayOrder;
 END;
 GO

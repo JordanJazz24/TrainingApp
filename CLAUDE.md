@@ -41,14 +41,20 @@ Product (producto de más alto nivel — línea de manufactura)
 
 **Áreas objetivo del roadmap (en orden de migración):**
 
-| Área | Product | Fase | Notas |
+| Área | Product | Fase | Flags confirmados |
 |---|---|---|---|
-| **R&C** | Por determinar (ver legacy) | Fase 2 | Primera área real a auditar y migrar; catálogo construido desde el legacy. |
-| **LoFlo** | Sensores | Fase 7 | Segunda área; RequiresAssembly=true, RequiresDataCollection variable. Valida que el motor sea genérico. |
+| **Moldeo** | R&C | Fase 2 ✅ | NonSerialized, RequiresAssembly=false, RequiresDataCollection=true |
+| **LoFlo** | Sensores | Fase 7 | RequiresAssembly=true, RequiresDataCollection variable. Valida que el motor sea genérico. |
 
-> **Nota:** "Redefinity" solo existe como nombre de ejemplo en `05_SeedData.sql`
-> (marcado "DATOS DE EJEMPLO — NO USAR EN PRODUCCIÓN"). No representa una decisión
-> de negocio. El Product al que pertenece R&C se determina durante la auditoría del legacy.
+> **Notas de dominio:**
+> - "Redefinity" solo existe como nombre de ejemplo en `05_SeedData.sql`
+>   (marcado "DATOS DE EJEMPLO — NO USAR EN PRODUCCIÓN"). No representa una decisión de negocio.
+> - El catálogo real de R&C/Moldeo vive en `06_RCMoldeoCatalog.sql`.
+> - En R&C/Moldeo el ID del molde (DCGTM_ID_MOLDE/A) es un **DataCollectionParameter**,
+>   no Assembly. RequiresAssembly=false está confirmado con negocio.
+> - Las 3 preguntas de LC Moldeo (DCGTM_LC_MOLDEO/A, capturadas dentro del Start)
+>   NO son DataCollectionParameters — son un paso LineClearance adicional específico
+>   del Start de R&C. El StepValidator (Fase 3) las gestiona hardcodeadas por área.
 
 ### Ejes de variación — son independientes entre sí, no se derivan uno del otro
 
@@ -170,30 +176,59 @@ de primer acceso (API de empleados → Operator local → PBKDF2 → FormsAuth).
 
 ---
 
-### Fase 2 — Dominio y catálogo de R&C (siguiente)
+### Fase 2 — Dominio y catálogo de R&C ✅ (completada)
 **Objetivo:** Auditoría del legacy de R&C + script SQL con el catálogo real:
-`Products`, `Areas` (con sus flags correctos), `NCCodes`,
-`DataCollectionParameters`, `ExpectedComponentCount` para R&C.
-El script reemplaza o complementa `05_SeedData.sql` con datos validados.
+`Products` (R&C), `Areas` (Moldeo, NonSerialized, RequiresAssembly=false,
+RequiresDataCollection=true), `NCCodes` (30 códigos), `DataCollectionParameters`
+(15 parámetros: ID molde + 10 params MSS + verificación MSS + fecha kerosene +
+2 first-shot). Catálogo en `06_RCMoldeoCatalog.sql`.
+ExpectedComponentCount: N/A (RequiresAssembly=false).
+`DataCollectionParameters` schema evolucionado: columnas `DataType`, `DisplayOrder`
+añadidas; `MinValue`/`MaxValue` son ahora nullable (rangos pendientes de MSS D000281359).
 **No incluye:** UI, motor de validación de pasos, TrainingGuideService,
 ninguna pantalla de entrenamiento.
 
 ---
 
-### Fase 3 — Motor de TrainingGuide
-**Objetivo:** `TrainingGuideRepository` (con JOIN explícito que puebla `Steps`),
-`TrainingGuideService`, `StepValidator` completo (secuencia, bifurcación
-por `SerializationType`, condicionales `RequiresAssembly`/`RequiresDataCollection`).
-Probado contra el catálogo de R&C con tests NUnit.
-**No incluye:** TrainingSession, persistencia de intentos, UI, ScoreCalculator.
+### Fase 3 — Motor de TrainingGuide ✅ (completada)
+**Objetivo:** `TrainingGuideRepository` (dual result set puebla `Steps`),
+`TrainingGuideService` con `BuildValidatorForGuide`, `StepValidator` completo
+con constructor injection de `StepValidationContext` (Area + NCCodes + DCParams).
+Validación implementada para todos los StepTypes: DataCollection (JSON por
+param Id, tipado por DataType con InvariantCulture), LogNC (lookup en catálogo),
+Assembly (count vs ExpectedComponentCount), LineClearance ("true"), pasos de
+secuencia siempre true.
+Nuevos repositorios: `AreaRepository`, `NCCodeRepository`,
+`DataCollectionParameterRepository`. Nuevos SPs: `spAreaGetById`,
+`spNCCodeGetByArea`, `spDataCollectionParameterGetByArea`.
+Guía real de R&C/Moldeo publicada en `07_RCMoldeoGuide.sql` (8 pasos, pesos
+suman 1.00; Search hereda peso 0.15 de Assembly ausente; 3 LC instancias con
+pesos 0.04/0.03/0.03).
+LC Moldeo modelada como paso LineClearance en el guide seed (step 4, weight 0.03);
+la validación es idéntica al LC estándar — el contenido hardcodeado de sus 3
+preguntas es responsabilidad de la UI (Fase 6).
+`DataCollectionParameter` POCO evolucionado: añadidos `DataType`, `DisplayOrder`,
+`MinValue`/`MaxValue` como `decimal?`.
+Tests NUnit diferidos a Fase 5 (cobertura de ScoreCalculator y StepValidator).
+**No incluye:** TrainingSession con gate-keeping real, persistencia de intentos
+optimizada, UI, ScoreCalculator tests.
 
 ---
 
-### Fase 4 — TrainingSession y modos
-**Objetivo:** `TrainingSessionRepository`, `StepAttemptRepository`,
-`TrainingSessionService` con gate-keeping y reintentos (Guided + Assessment).
-`GuidedTest.aspx` como orquestador de UI — solo renderiza el estado del
-servidor, no contiene lógica de negocio.
+### Fase 4 — TrainingSession y modos ✅ (completada)
+**Objetivo:** `TrainingSessionService` extendido con gate-keeping real Guided vs.
+Assessment, `MemoryCache` de validator keyed por `AreaId` (TTL 60 min), método
+`Abandon`, score en tiempo real (`CurrentScore` en `StepSubmitResult`).
+`TrainingSessionRepository` extendido: `Abandon` + `DeleteActiveByOperator`.
+Nuevos SPs: `spTrainingSessionAbandon`, `spTrainingSessionDeleteActiveByOperator`,
+`spProductGetAll`, `spAreaGetByProduct`.
+`ProductRepository` nuevo; `AreaRepository` extendido con `GetByProduct`.
+`TrainingGuideService` extendido con `GetAllProducts` y `GetAreasByProduct`.
+`StartSession.aspx` — selección Product → Area → Guide → Mode, inicia sesión.
+`GuidedTest.aspx` — input genérico por paso, feedback + hint hardcodeado por
+`StepType`, score en vivo, abandon con confirm JS, panel de completion.
+Login redirige a `StartSession.aspx` tras autenticación exitosa.
+Spec de referencia: `docs/specs/003-training-session-y-modos.md` (Approved 2026-09-04).
 **No incluye:** UserControls por tipo de paso, ScoreCalculator tests, LoFlo.
 
 ---

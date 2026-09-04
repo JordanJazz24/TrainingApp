@@ -129,14 +129,20 @@ CREATE TABLE dbo.NCCodes (
 
 -- -------------------------------------------------------
 -- DataCollectionParameters  (varían por Area; a futuro por Operation)
+-- DataType: 'Numeric' | 'Boolean' | 'Date'
+-- MinValue/MaxValue: NULL para tipos no numéricos, o cuando el rango
+--   está pendiente de confirmación contra la MSS del área.
+-- DisplayOrder: orden de presentación al operador dentro del paso.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.DataCollectionParameters', 'U') IS NULL
 CREATE TABLE dbo.DataCollectionParameters (
-    Id          INT IDENTITY(1,1) PRIMARY KEY,
-    AreaId      INT            NOT NULL REFERENCES dbo.Areas(Id),
-    OperationId INT            NULL     REFERENCES dbo.Operations(Id),
-    Name        NVARCHAR(100)  NOT NULL,
-    Unit        NVARCHAR(50)   NOT NULL,
-    MinValue    DECIMAL(10,4)  NOT NULL,
-    MaxValue    DECIMAL(10,4)  NOT NULL
+    Id           INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId       INT            NOT NULL REFERENCES dbo.Areas(Id),
+    OperationId  INT            NULL     REFERENCES dbo.Operations(Id),
+    Name         NVARCHAR(200)  NOT NULL,
+    DataType     NVARCHAR(20)   NOT NULL DEFAULT 'Numeric',
+    Unit         NVARCHAR(50)   NOT NULL DEFAULT 'N/A',
+    MinValue     DECIMAL(10,4)  NULL,
+    MaxValue     DECIMAL(10,4)  NULL,
+    DisplayOrder INT            NOT NULL DEFAULT 0
 );

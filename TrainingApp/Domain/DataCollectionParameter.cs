@@ -6,8 +6,10 @@ namespace TrainingApp.Domain
         public int AreaId { get; set; }
         public int? OperationId { get; set; }
         public string Name { get; set; }
+        public string DataType { get; set; }   // 'Numeric' | 'Boolean' | 'Date'
         public string Unit { get; set; }
-        public string MinValue { get; set; }
-        public string MaxValue { get; set; }
+        public decimal? MinValue { get; set; }
+        public decimal? MaxValue { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

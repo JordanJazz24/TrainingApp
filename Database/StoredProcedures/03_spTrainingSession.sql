@@ -91,3 +91,45 @@ BEGIN
     WHERE  Id = @SessionId;
 END;
 GO
+
+-- -------------------------------------------------------
+-- spTrainingSessionAbandon
+-- Marca la sesión como abandonada (Status 2 = Abandoned).
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spTrainingSessionAbandon', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spTrainingSessionAbandon;
+GO
+
+CREATE PROCEDURE dbo.spTrainingSessionAbandon
+    @SessionId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.TrainingSessions
+    SET    Status      = 2,
+           CompletedAt = SYSUTCDATETIME()
+    WHERE  Id = @SessionId;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spTrainingSessionDeleteActiveByOperator
+-- Elimina sesiones InProgress (Status 0) del operador
+-- para una guía dada antes de iniciar una nueva.
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spTrainingSessionDeleteActiveByOperator', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spTrainingSessionDeleteActiveByOperator;
+GO
+
+CREATE PROCEDURE dbo.spTrainingSessionDeleteActiveByOperator
+    @OperatorId      INT,
+    @TrainingGuideId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM dbo.TrainingSessions
+    WHERE  OperatorId      = @OperatorId
+    AND    TrainingGuideId = @TrainingGuideId
+    AND    Status          = 0;
+END;
+GO

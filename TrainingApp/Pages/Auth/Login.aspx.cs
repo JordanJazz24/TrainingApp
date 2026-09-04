@@ -13,7 +13,7 @@ namespace TrainingApp.Pages.Auth
         protected void Page_Load(object sender, EventArgs e)
         {
             if (User.Identity.IsAuthenticated)
-                Response.Redirect("~/Pages/Training/Dashboard.aspx");
+                Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
         protected void BtnLogin_Click(object sender, EventArgs e)
@@ -50,7 +50,7 @@ namespace TrainingApp.Pages.Auth
                 case LoginStatus.Success:
                     FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
                     SetSession(result.Operator.Id, result.Operator.Code1, result.Operator.Name);
-                    Response.Redirect("~/Pages/Training/Dashboard.aspx");
+                    Response.Redirect("~/Pages/Training/StartSession.aspx");
                     break;
             }
         }

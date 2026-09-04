@@ -241,6 +241,12 @@
     <Content Include="Pages\Auth\ChangePassword.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Pages\Training\StartSession.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="Pages\Training\GuidedTest.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="UI\master\Site.Master" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
@@ -253,6 +259,10 @@
     <Compile Include="DAL\Repositories\EmployeeRepository.cs" />
     <Compile Include="DAL\Repositories\OperatorRepository.cs" />
     <Compile Include="DAL\Repositories\TrainingGuideRepository.cs" />
+    <Compile Include="DAL\Repositories\AreaRepository.cs" />
+    <Compile Include="DAL\Repositories\NCCodeRepository.cs" />
+    <Compile Include="DAL\Repositories\DataCollectionParameterRepository.cs" />
+    <Compile Include="DAL\Repositories\ProductRepository.cs" />
     <Compile Include="DAL\Repositories\TrainingSessionRepository.cs" />
     <Compile Include="DAL\Repositories\StepAttemptRepository.cs" />
     <Compile Include="Domain\Employee.cs" />
@@ -269,6 +279,7 @@
     <Compile Include="BLL\Auth\LoginResult.cs" />
     <Compile Include="BLL\Auth\AuthService.cs" />
     <Compile Include="BLL\Scoring\ScoreCalculator.cs" />
+    <Compile Include="BLL\Scoring\StepValidationContext.cs" />
     <Compile Include="BLL\Scoring\StepValidator.cs" />
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
     <Compile Include="BLL\Training\TrainingGuideService.cs" />
@@ -286,6 +297,20 @@
     </Compile>
     <Compile Include="Pages\Auth\ChangePassword.aspx.designer.cs">
       <DependentUpon>ChangePassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Training\StartSession.aspx.cs">
+      <DependentUpon>StartSession.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Training\StartSession.aspx.designer.cs">
+      <DependentUpon>StartSession.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Training\GuidedTest.aspx.cs">
+      <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Training\GuidedTest.aspx.designer.cs">
+      <DependentUpon>GuidedTest.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -306,7 +331,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Pages\Admin\" />
-    <Folder Include="Pages\Training\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
