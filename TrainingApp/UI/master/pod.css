@@ -1,0 +1,324 @@
+/* ============================================================
+   POD — Production Operator Dashboard styles
+   GuidedTest.aspx full-screen layout
+   ============================================================ */
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+/* ── Header bar ─────────────────────────────────────────── */
+.pod-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 44px;
+    background: #1a2332;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    justify-content: space-between;
+    z-index: 1050;
+    font-size: 0.82rem;
+}
+
+.pod-header .pod-header-title { font-weight: 600; }
+
+.pod-header .pod-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pod-header .pod-header-controls i { cursor: pointer; font-size: 1rem; }
+
+/* ── Score widget (top-right, below header) ─────────────── */
+.pod-score-widget {
+    position: fixed;
+    top: 50px;
+    right: 14px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    min-width: 120px;
+    text-align: center;
+    z-index: 1040;
+    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+}
+
+.pod-score-widget .score-value { font-weight: 700; font-size: 1rem; }
+
+.badge-guided    { background-color: #0d6efd; color: #fff; }
+.badge-assessment{ background-color: #dc3545; color: #fff; }
+
+/* ── Banner zone (between header and search) ────────────── */
+.pod-banner-zone {
+    position: fixed;
+    top: 44px; left: 0; right: 0;
+    z-index: 1045;
+    pointer-events: none;
+}
+
+.pod-banner-zone .pod-banner {
+    pointer-events: auto;
+    margin: 4px 8px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+/* ── Search section ─────────────────────────────────────── */
+.pod-search {
+    position: fixed;
+    top: 44px; left: 0; right: 0;
+    background: #e9ecef;
+    border-bottom: 1px solid #ced4da;
+    padding: 5px 12px;
+    z-index: 1030;
+    font-size: 0.8rem;
+}
+
+.pod-search .sfc-label { color: #6c757d; }
+.pod-search .sfc-input { max-width: 220px; height: 28px; font-size: 0.8rem; }
+
+/* ── Action buttons row ─────────────────────────────────── */
+.pod-actions {
+    position: fixed;
+    top: 88px; left: 0; right: 170px;
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 6px 10px;
+    display: flex;
+    gap: 6px;
+    z-index: 1020;
+}
+
+.pod-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #f8f9fa;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.pod-action-btn img { height: 20px; width: 20px; object-fit: contain; }
+
+.pod-action-btn:hover:not(:disabled) { background: #e2e6ea; }
+.pod-action-btn:disabled             { opacity: .45; cursor: not-allowed; }
+.pod-action-btn.active               { background: #d0e8ff; border-color: #0d6efd; }
+
+/* ── Main content (work list area) ─────────────────────── */
+.pod-main {
+    position: fixed;
+    top: 130px;
+    bottom: 56px;
+    left: 0;
+    right: 170px;
+    overflow-y: auto;
+    background: #fff;
+    padding: 0;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.pod-sidebar {
+    position: fixed;
+    top: 44px;
+    bottom: 56px;
+    right: 0;
+    width: 165px;
+    background: #f1f3f5;
+    border-left: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    overflow-y: auto;
+    z-index: 1020;
+}
+
+.pod-sidebar-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background: #fff;
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+}
+
+.pod-sidebar-btn img { height: 22px; width: 22px; object-fit: contain; flex-shrink: 0; }
+.pod-sidebar-btn:hover:not(:disabled) { background: #e2e6ea; }
+.pod-sidebar-btn:disabled             { opacity: .45; cursor: not-allowed; }
+.pod-sidebar-btn.active               { background: #d0e8ff; border-color: #0d6efd; }
+
+/* ── Footer ─────────────────────────────────────────────── */
+.pod-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 52px;
+    background: #f1f3f5;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    z-index: 1030;
+}
+
+.pod-footer-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 16px;
+    font-size: 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.pod-footer-btn img { height: 20px; width: 20px; object-fit: contain; }
+.pod-footer-btn:hover:not(:disabled) { background: #e2e6ea; }
+.pod-footer-btn:disabled             { opacity: .45; cursor: not-allowed; }
+.pod-footer-btn.active               { background: #d0e8ff; border-color: #0d6efd; }
+
+/* ── Abandon button (fixed bottom-left) ─────────────────── */
+.pod-abandon {
+    position: fixed;
+    bottom: 62px;
+    left: 10px;
+    z-index: 1040;
+}
+
+/* ── POD Work List table ────────────────────────────────── */
+.pod-work-list { width: 100%; font-size: 0.82rem; margin: 0; }
+
+.pod-work-list thead th {
+    background: #1a2332;
+    color: #fff;
+    padding: 7px 10px;
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.pod-work-list tbody tr { cursor: pointer; }
+.pod-work-list tbody tr:hover { background: #e8f0fe; }
+.pod-work-list tbody tr.selected { background: #cfe2ff; }
+
+.pod-work-list tbody td { padding: 6px 10px; vertical-align: middle; }
+
+.status-badge {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+.status-active  { background: #198754; }
+.status-default { background: #6c757d; }
+
+/* ── List views (Component List / DC List / NC Selection) ─ */
+.pod-list-view { padding: 0 10px 10px; }
+
+.pod-list-view .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 6px;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.pod-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 8px 4px;
+    font-size: 0.82rem;
+}
+
+.pod-list-row:hover { background: #f8f9fa; }
+
+.pod-pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    font-size: 0.78rem;
+}
+
+/* NC Selection 2-column grid */
+.nc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+}
+
+.nc-cell {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.nc-cell .nc-info { flex: 1; }
+.nc-cell .nc-code { font-weight: 600; font-size: 0.82rem; }
+.nc-cell .nc-desc { color: #6c757d; font-size: 0.76rem; margin-top: 2px; }
+
+/* ── Completion panel ────────────────────────────────────── */
+.pod-completion {
+    position: fixed;
+    top: 44px; bottom: 0; left: 0; right: 0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1060;
+}
+
+.pod-completion-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 40px 48px;
+    text-align: center;
+    min-width: 360px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+}
+
+/* ── Modal improvements ─────────────────────────────────── */
+.modal-header { background: #1a2332; color: #fff; }
+.modal-header .btn-close { filter: invert(1); }
+
+.required-star { color: #dc3545; font-weight: 700; }
+
+.record-change-banner {
+    background: #d1e7dd;
+    color: #0f5132;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+}

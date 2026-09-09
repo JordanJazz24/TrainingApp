@@ -248,6 +248,33 @@
       <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="UI\master\Site.Master" />
+    <Content Include="UI\master\Training.Master" />
+    <Content Include="UI\Controls\Training\LineClearanceControl.ascx" />
+    <Content Include="UI\Controls\Training\CompleteControl.ascx" />
+    <Content Include="UI\Controls\Training\ResourceSetupControl.ascx" />
+    <Content Include="UI\Controls\Training\SearchControl.ascx" />
+    <Content Include="UI\Controls\Training\AssemblyControl.ascx" />
+    <Content Include="UI\Controls\Training\DataCollectionControl.ascx" />
+    <Content Include="UI\Controls\Training\LogNCControl.ascx" />
+    <Content Include="UI\master\pod.css" />
+    <Content Include="Scripts\sweetalert2.all.min.js" />
+    <Content Include="UI\master\imgs\activities-icon.png" />
+    <Content Include="UI\master\imgs\anular-icon.png" />
+    <Content Include="UI\master\imgs\btn-save.png" />
+    <Content Include="UI\master\imgs\clock-icon.png" />
+    <Content Include="UI\master\imgs\complete-icon.png" />
+    <Content Include="UI\master\imgs\dc_collection-icon.png" />
+    <Content Include="UI\master\imgs\ensamblar-icon.png" />
+    <Content Include="UI\master\imgs\informes-icon.png" />
+    <Content Include="UI\master\imgs\intructions-icon.png" />
+    <Content Include="UI\master\imgs\lineClearence-save-icon.png" />
+    <Content Include="UI\master\imgs\log_NC-Icon.png" />
+    <Content Include="UI\master\imgs\play_back-icon.png" />
+    <Content Include="UI\master\imgs\record-icon.png" />
+    <Content Include="UI\master\imgs\resource-setup-icon.png" />
+    <Content Include="UI\master\imgs\retrieve-icon.png" />
+    <Content Include="UI\master\imgs\split-icon.png" />
+    <Content Include="UI\master\imgs\tools-icon.png" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
   </ItemGroup>
@@ -326,6 +353,62 @@
     </Compile>
     <Compile Include="UI\master\Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>
+    </Compile>
+    <Compile Include="UI\master\Training.master.cs">
+      <DependentUpon>Training.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\master\Training.master.designer.cs">
+      <DependentUpon>Training.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Training\Models\IStepControl.cs" />
+    <Compile Include="Pages\Training\Models\StepViewModel.cs" />
+    <Compile Include="Pages\Training\Models\PodWorkListRow.cs" />
+    <Compile Include="UI\Controls\Training\LineClearanceControl.ascx.cs">
+      <DependentUpon>LineClearanceControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\LineClearanceControl.ascx.designer.cs">
+      <DependentUpon>LineClearanceControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\CompleteControl.ascx.cs">
+      <DependentUpon>CompleteControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\ResourceSetupControl.ascx.cs">
+      <DependentUpon>ResourceSetupControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\ResourceSetupControl.ascx.designer.cs">
+      <DependentUpon>ResourceSetupControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\SearchControl.ascx.cs">
+      <DependentUpon>SearchControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\SearchControl.ascx.designer.cs">
+      <DependentUpon>SearchControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\AssemblyControl.ascx.cs">
+      <DependentUpon>AssemblyControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\AssemblyControl.ascx.designer.cs">
+      <DependentUpon>AssemblyControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\DataCollectionControl.ascx.cs">
+      <DependentUpon>DataCollectionControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\DataCollectionControl.ascx.designer.cs">
+      <DependentUpon>DataCollectionControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\LogNCControl.ascx.cs">
+      <DependentUpon>LogNCControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\LogNCControl.ascx.designer.cs">
+      <DependentUpon>LogNCControl.ascx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

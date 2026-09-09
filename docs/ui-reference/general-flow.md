@@ -1,0 +1,632 @@
+# UI Reference — General Training Flow
+
+Documento acumulativo. Flujo común a todas las áreas. Se actualiza pantalla por pantalla conforme se analiza el SAP MES real.
+Fuente de verdad para implementar Fase 6 (UserControls por tipo de paso).
+
+> Documentos por área (`moldeo-flow.md`, etc.) solo registrarán lo que difiere de este flujo general.
+
+---
+
+## Dashboard Operacional (POD)
+
+### Requisitos definitivos
+
+**Header bar**
+```
+Production Operator Dashboard: Site - {site}, User - {userName}    [Home] [Power] [Avatar]
+★ {operationName}    ★ {resourceName}    SFC: [input readonly → SearchModal]    Shop Order:    Status (SFC):
+```
+
+**Action buttons — una sola fila, 4 botones**
+```
+[Start]  [Assemble]  [DC Collection]  [Complete]
+```
+
+**Tabla POD — columnas (legacy, labels en inglés)**
+
+| Column | Notes |
+|---|---|
+| CP | SFC identifier |
+| Material Description | |
+| Qty | Cantidad |
+| Status | Con indicador de color (verde = Activo) |
+| Process Lot | Lote proc. |
+| Shop Order | Orden de fabricación |
+
+Estado de fila seleccionada: highlight azul. Una sola fila seleccionable a la vez.
+
+**Sidebar — orden definitivo**
+1. SFC Split
+2. Log NC
+3. Work Instruction
+4. Reports (con submenu expandible)
+5. Activities (con submenu expandible)
+6. Place Back in Queue
+
+Estilo de botones: tarjetas cuadradas grandes con ícono centrado + label debajo.
+
+**Footer (fijo, fondo)**
+```
+[Resource Setup]  [Tool List]
+```
+
+**Activities — submenu completo**
+1. As-Built Configuration
+2. Log Comment
+3. SFC Place Hold
+4. SFC Release Hold
+5. Remove Future Hold
+6. Change Equipment Status Tool
+7. Time Sensitive Material Check In/Out
+8. Data Collection Standalone
+
+---
+
+## Paso 1 — Resource Setup
+
+**StepType:** `ResourceSetup` | **StepWeight:** 20% | **Validación:** secuencia (contenido libre)
+
+**Acceso:** Footer → [Resource Setup]
+
+### Modal: Resource Setup
+
+**Chrome:** ventana popup con [↗ expand] [X close] en esquina superior derecha.
+
+**Estado 1 — antes de Retrieve**
+```
+[Resource Setup]                                      [↗][X]
+══════════════════════════════════════════════════════════
+  Resource Setup                                         [?]
+────────────────────────────────────────────────────────
+  * Site:         {site}
+  * Resource:     {resourceName}  [copy]  [Retrieve]
+    Setup State:  Open   ← texto plano, NO editable
+────────────────────────────────────────────────────────
+[INSERT NEW] [INSERT BEFORE] [INSERT AFTER] [REMOVE SELECTED] [REMOVE ALL]
+  ← todos deshabilitados
+────────────────────────────────────────────────────────
+  Setup Type                    Setup Type Value
+  (tabla vacía)
+────────────────────────────────────────────────────────
+                    [Save]  [Clear]
+```
+
+**Estado 2 — después de Retrieve**
+- Setup State cambia a dropdown editable con "Set Up" seleccionado
+- Toolbar habilitado
+- Tabla muestra filas existentes (si las hay)
+
+**Estructura de cada fila:**
+```
+[Setup Type ▼]          [valor texto libre          ] [copy]
+```
+Setup Type opciones: `Shop Order`, `Tool Number`
+
+**Estado 3 — después de Save**
+- Banner verde superior izquierdo: `✓ Record Change`
+- Modal permanece abierto — operador cierra con X manualmente
+
+### Flujo del operador
+1. [Resource Setup] desde footer
+2. Retrieve
+3. Verificar Setup State = "Set Up" (cambiarlo si dice "Open")
+4. REMOVE ALL — limpiar tabla
+5. INSERT NEW — agregar filas necesarias
+6. Primera fila: Setup Type = **Shop Order**, valor = número de orden (escaneo libre)
+7. Filas siguientes: Setup Type = **Tool Number**, valor = número de herramienta (escaneo libre)
+8. Save
+9. Confirmar banner "Record Change"
+10. Cerrar con X
+
+### Reglas de negocio
+- **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
+- **Primera fila DEBE ser Shop Order** — regla de procedimiento
+- **Setup State DEBE ser "Set Up"** antes de guardar
+- **Mínimo 2 filas**: 1 Shop Order + al menos 1 Tool Number
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| Setup State antes de Retrieve | Texto plano `Open` | Dropdown desde el inicio |
+| Toolbar labels | REMOVE SELECTED / REMOVE ALL | DELETE SELECTED / DELETE ALL |
+| Footer botones | Save · Clear | Save · Cancel |
+| Record Change | Banner verde in-modal, modal queda abierto | Texto flotante `position-fixed` |
+
+---
+
+## Paso 2 — Line Clearance
+
+**StepType:** `LineClearance` | **StepWeight:** 10% | **Validación:** respuesta = "Sí" (true)
+
+**Acceso:** Sidebar → Activities → Data Collection Standalone
+
+**Instancias en el flujo general:**
+- Paso 2: LC genérica de línea (esta — una pregunta boolean)
+- Paso 6 (Cierre): LC genérica de línea (misma estructura que Paso 2)
+
+> Algunas áreas agregan instancias adicionales dentro de otros pasos (ej. LC Moldeo dentro del Start). Esas variantes van en el doc de área correspondiente.
+
+### Jerarquía de navegación
+```
+Dashboard → Sidebar [Activities ▲] → "Data Collection Standalone" → modal
+                                                                      └─ sub-modal "Data Collection Entry"
+```
+
+### Modal: Data Collection Standalone
+
+**Chrome:** ventana popup con [↗][X]
+
+**Estado inicial (antes de Retrieve)**
+```
+[Data Collection Standalone]                          [↗][X]
+────────────────────────────────────────  [Clear]
+  Filter Operation:  {operationName}  [copy]
+  * Collect Data For: [Resource ▼]  {resourceName}  [copy]   [Retrieve]
+────────────────────────────────────────────────────────
+  (lista vacía o no renderizada)
+```
+
+**Estado después de Retrieve**
+```
+  DC_LC_DONE                      DC Group/Vers.: DCGTM_LC/A
+  Realizó la Limpieza de Linea?   {timestamp última colección}    [Collect]
+```
+
+**Estado después de Save**
+```
+  ◆ 1 DC Groups saved   ← banner dorado/naranja, top del modal
+  ...fila con timestamp actualizado...
+```
+
+### Sub-modal: Data Collection Entry
+
+Se abre sobre el Standalone (capas apiladas).
+
+```
+[Data Collection Entry]                               [↗][X]
+  Data Collection Entry
+────────────────────────────────────────────────────────
+  DC Group: DCGTM_LC/CA    Resource: {resourceName}
+────────────────────────────────────────────────────────
+  ★ La limpieza de linea se ejecuto?:
+                                    Data Type: Boolean    0 files attached
+    [ Seleccione ▼ ]
+    ┌──────────────┐
+    │ (blank)      │
+    │ NO           │
+    │ Si           │
+    └──────────────┘
+────────────────────────────────────────────────────────
+               [Save]  [Cancel]
+```
+
+### Flujo del operador
+1. Sidebar → Activities → Data Collection Standalone
+2. Retrieve
+3. Clic en [Collect] de la fila DC_LC_DONE
+4. Sub-modal abre: seleccionar "Sí"
+5. Save
+6. Sub-modal cierra — regresa a Standalone
+7. Confirmar banner "◆ 1 DC Groups saved"
+8. Cerrar Standalone con X
+
+### Reglas de negocio
+- Seleccionar "No" = respuesta incorrecta (en entrenamiento cuenta como intento fallido)
+- Dejar dropdown en blanco = no permite guardar (campo requerido ★)
+- Solo hay una pregunta en este paso (DC_LC_DONE)
+- El timestamp se actualiza en la fila al guardar correctamente
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| Confirmación post-save | `◆ 1 DC Groups saved` banner dorado en el modal | Texto + ícono `lineClearence-save-icon.png` |
+| Botón Cancel en Standalone | [Clear] (no Cancel) | Botón "Anular" con ícono |
+| Sub-modal | Ventana flotante independiente sobre el padre | `<article>` que swapea con `d-none` |
+
+---
+
+---
+
+## Paso 3 — Search / Start Order
+
+**StepType:** `Search` | **StepWeight:** 15% (hereda peso de Assembly cuando RequiresAssembly=false) | **Validación:** secuencia pura (siempre true)
+
+**Acceso:** directamente en el Dashboard — campo SFC en la search bar.
+
+> No abre modal propio. El operador carga la orden en el POD desde la pantalla principal.
+
+### Campo SFC (search bar)
+
+```
+★ {operationName}    ★ {resourceName}    SFC: [________________________] [browse]
+                                                ↑
+                                    Editable. Acepta escaneo o escritura manual.
+                                    Ícono browse a la derecha abre Browse Work List.
+```
+
+**Importante:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). No es readonly. El legacy lo tenía readonly — corrección para el nuevo sistema.
+
+### Sub-modal: Browse Work List (ruta alternativa)
+
+Se abre al hacer clic en el ícono browse cuando no es posible escanear.
+
+```
+[BROWSE WORK LIST - SFCS QUEUED - {operation},{resource},{userId}]    [↗][X]
+─────────────────────────────────────────────────────────────────────────────
+  SFC ↑    Material Description    Shop Order Schedule Start Date    Shop Order Planned Completion
+  ─────────────────────────────────────────────────────────────────────────────
+  {sfcCode}    {description}    {scheduleDate}    {plannedDate}
+  ...
+─────────────────────────────────────────────────────────────────────────────
+                                                        [✓ OK]  [✗ Cancel]
+```
+
+- Un clic = selecciona fila (highlight)
+- [OK] o doble clic = confirma selección, cierra modal, carga en POD
+- [Cancel] = cierra sin cambios
+
+### Estado del POD después de cargar la orden
+
+```
+★ {operationName}    ★ {resourceName}    SFC: {sfcCode}  [copy]    Shop Order: {shopOrder}    Status (SFC): Active
+```
+
+Tabla POD poblada con la fila del SFC cargado. Header top-right se actualiza con Shop Order + Status.
+
+Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de acción para iniciar la orden.
+
+### Flujo del operador
+1. Enfocar campo SFC en la search bar
+2a. Escanear SFC/etiqueta directamente → Enter → POD carga automáticamente
+2b. (alternativa) Clic en ícono browse → Browse Work List → seleccionar fila → OK
+3. Verificar que la tabla POD muestre la orden con Status: Active
+4. Si la orden no inició: clic en [Start]
+
+### Reglas de negocio
+- No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
+- La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
+- Bifurcación por SerializationType: Serialized = escaneo pieza por pieza; NonSerialized = selección de lote/batch (documentar en área específica)
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| Campo SFC | Editable, acepta escaneo directo | Readonly, solo abría el modal |
+| Nombre del modal | "BROWSE WORK LIST - SFCS QUEUED - {contexto}" | "BUSCAR POOL DE TRABAJO - SFC EN COLA" |
+| Columnas del Browse | SFC · Material Desc · Schedule Start · Planned Completion | CP · Order · State · Shop Order · Material Desc |
+| Footer del Browse | [✓ OK] [✗ Cancel] | [OK] [Cancelar] |
+| Shop Order en header | Actualiza top-right: `Shop Order: XXXXX  Status: Active` | `Orden de fabricación: Status (NCP)` |
+
+---
+
+---
+
+## Paso 4 — Assembly (condicional: RequiresAssembly = true)
+
+**StepType:** `Assembly` | **StepWeight:** 15% | **Validación:** conteo vs. `ExpectedComponentCount`
+
+**Acceso:** [Assemble] en la barra de acción (solo visible/habilitado si RequiresAssembly = true para el área).
+
+> **RequiresAssembly es independiente de SerializationType.** No derivar uno del otro.
+
+### Trigger
+
+El operador selecciona la fila del SFC o lote en la tabla POD → presiona **[Assemble]**.
+
+```
+Serialized:    SFC: 989600300020-451        (una pieza)
+NonSerialized: SFC: [250 SELECTED]          (lote completo)
+```
+
+### Vista: Component List (reemplaza POD Work List)
+
+Al presionar Assemble, la tabla principal cambia de título y contenido:
+
+```
+Component List                                                         [?] [X]
+─────────────────────────────────────────────────────────────────────────────
+  {componentCode/version}         Description: {description}
+  {requiredQty}                   Rem Qty: {remaining}
+                                                    [Assemble]  [Disassemble]
+  ...
+─────────────────────────────────────────────────────────────────────────────
+  [|< First]  [<< Prev]  [Next >>]  [Last >|]       Rows X-Y of Z
+```
+
+- **Rem Qty**: decrece conforme se agregan componentes
+- **[Assemble]** por fila: abre el modal para ese componente específico
+- **[Disassemble]**: revierte un componente ya ensamblado (fuera del flujo de evaluación)
+- Paginación si hay más componentes de los que caben en pantalla
+
+### Modal: Assemble Components
+
+Se abre automáticamente sobre el Component List para el primer componente pendiente.
+
+**Estado vacío (antes de escaneo)**
+```
+[Assemble Components]                                                  [↗][X]
+  Mode:    Choose                     Find component: [________________]
+  Action:  ● Assembly  ○ Removal      Barcode:        [________________]
+────────────────────────────────────────────────────────────────────────────
+  Component Details                   Assembly Data
+  (vacío)                             (vacío)
+────────────────────────────────────────────────────────────────────────────
+                              [✗ Return to POD]
+```
+
+**Estado con datos (después de escaneo)**
+```
+[Assemble Components]                                                  [↗][X]
+  Mode:    Choose                     Find component: [________________]
+  Action:  ● Assembly  ○ Removal      Barcode:        [________________]
+────────────────────────────────────────────────────────────────────────────
+  Component Details                   Assembly Data
+  Component:   {partNumber} [copy]    ★ Batch Number: {batchNumber}
+  Version:     {version}              (o ★ Material Document Number)
+  Description: {description}
+  Quantity:    {qty}
+────────────────────────────────────────────────────────────────────────────
+                      [✓ Add]    [✗ Return to POD]
+```
+
+- **Barcode**: campo de entrada del operador (escaneo del código 2D del componente)
+- **Component Details**: se autocompletan desde el barcode (Part Number, Version, Description, Quantity)
+- **Assembly Data**: ★ Batch Number o ★ Material Document Number — requerido, se autocompleta desde el barcode
+- **[✓ Add]**: aparece solo cuando hay datos populados
+- **[✗ Return to POD]**: siempre disponible como salida
+
+### Flujo del operador
+1. Seleccionar fila en POD → [Assemble]
+2. Component List se muestra; Assemble Components modal abre en el primer componente
+3. Escanear Barcode del código 2D → Component Details + Assembly Data autocompletan
+4. [Add] → Rem Qty decrementa; modal avanza al siguiente componente
+5. Repetir pasos 3-4 hasta completar todos los componentes
+6. Último componente → [Add] → modal cierra automáticamente → POD Work List se restaura
+
+### Reglas de negocio
+- **No se valida el contenido del barcode** — el simulador valida solo que se complete el conteo (`ExpectedComponentCount`)
+- `ExpectedComponentCount` vive en BD por área (catálogo), no hardcodeado en código
+- [Add] solo disponible cuando hay datos en Component Details + Assembly Data
+- El modal cierra automáticamente tras el último componente — no hay botón "Finish"
+- El orden de Assembly en el flujo es después de Search/Start y antes de Data Collection, pero el motor respeta `TrainingStep.Order` — puede cambiar por área
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| Component List | Reemplaza POD Work List en la misma área | No implementado |
+| Modal Assemble Components | Dos estados: vacío / con datos; Add condicional | No implementado |
+| Paginación Component List | First / Prev / Next / Last + contador | No implementado |
+| Botón Add | Solo aparece tras escaneo exitoso | No implementado |
+
+---
+
+---
+
+## Paso 5 — DC Collect (condicional: RequiresDataCollection = true)
+
+**StepType:** `DataCollection` | **StepWeight:** 30% | **Validación:** JSON `{"<paramId>": "<valor>"}` tipado por DataType
+
+**Acceso:** [DC Collect] en la barra de acción. Solo si `RequiresDataCollection = true` para el área.
+
+> Mismo patrón estructural que Assembly: botón → reemplaza POD Work List por lista → cada fila tiene [Collect] → abre modal de entrada.
+
+### Vista: Data Collection List (reemplaza POD Work List)
+
+```
+Data Collection List                                                   [?] [X]
+─────────────────────────────────────────────────────────────────────────────
+  {DC_GROUP_CODE}    {description}
+                     Collect Data At: {timing}                       [Collect]
+  ...
+─────────────────────────────────────────────────────────────────────────────
+  [|< First]  [<< Prev]  [Next >>]  [Last >|]       Rows X-Y of Z
+```
+
+- `{DC_GROUP_CODE}`: ej. `DCGTM_DETECTOR_BRD/A`
+- `Collect Data At`: metadata del grupo (Anytime / Complete / etc.) — no bloquea en el simulador
+- Paginación idéntica a Component List
+
+### Modal: Data Collection Entry
+
+```
+[Data Collection Entry]                                               [↗][X]
+  SFC: {sfcCode} ({current}/{total})
+  DC Group: {DC_GROUP_CODE}
+────────────────────────────────────────────────────────────────────────────
+  ★ {pregunta/label}:
+  Description: {descripción}              Data Type: {Text|Numeric|Boolean}    [Comments]
+  [_____________input_____________]
+
+  (repite por cada parámetro del grupo)
+────────────────────────────────────────────────────────────────────────────
+  [💾 Save]  [💾 Save Draft]  [🔴 Clear]  [✗ Return to POD]
+```
+
+**Contador `({current}/{total})`**: para lotes NonSerialized el modal itera por cada SFC del batch tras cada Save.
+
+**Input por DataType:**
+- `Text` → input libre
+- `Numeric` → input numérico
+- `Boolean` → dropdown (Sí / No)
+
+**[Comments]**: botón opcional por parámetro — no validado en entrenamiento.
+
+**Footer:**
+| Botón | Comportamiento |
+|---|---|
+| Save | Guarda el grupo para el SFC actual; avanza al siguiente si hay más en el lote |
+| Save Draft | Guarda parcialmente — no marca el grupo como completado |
+| Clear | Limpia campos sin cerrar |
+| Return to POD | Sale sin guardar |
+
+### Flujo del operador
+1. Seleccionar fila(s) en POD → [DC Collect]
+2. Data Collection List se muestra con todos los grupos del área
+3. Clic en [Collect] de un grupo → Data Collection Entry modal abre
+4. Completar cada parámetro según su DataType
+5. [Save] → si lote NonSerialized, modal avanza al siguiente SFC (2/29, 3/29...)
+6. Tras completar todos los SFCs del grupo, modal cierra; Data Collection List actualiza el grupo
+7. Repetir para cada grupo requerido
+
+### Patrón compartido: DC Collect vs. Assembly
+
+| Elemento | Assembly | DC Collect |
+|---|---|---|
+| Vista lista | Component List | Data Collection List |
+| Fila | Component + Rem Qty + [Assemble][Disassemble] | DC Group + Collect Data At + [Collect] |
+| Modal | Assemble Components | Data Collection Entry |
+| Contexto modal | Component code / version | SFC (N/total) + DC Group |
+| Footer modal | [Add] [Return to POD] | [Save] [Save Draft] [Clear] [Return to POD] |
+| Iteración por SFC | No | Sí — (N/total) automático tras Save |
+| Paginación en lista | Sí | Sí |
+
+### Reglas de negocio
+- Solo aplica si `RequiresDataCollection = true`
+- Parámetros viven en BD (`DataCollectionParameters` por área), con `DataType`, `DisplayOrder`, `MinValue?`, `MaxValue?`
+- Validación: Text = libre; Numeric = formato numérico; Boolean = true/false
+- Save Draft no completa el grupo — paso no se marca como correcto hasta Save definitivo
+- El paso finaliza cuando todos los grupos requeridos tienen Save (no Draft)
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| Vista Data Collection List | Reemplaza POD Work List en la misma área | Modal separado (`#dataCollection`) |
+| Contexto modal | SFC (N/total) + DC Group en header | Sin contador de iteración |
+| [Comments] por parámetro | Sí | No implementado |
+| Iteración por SFC lote | (1/29) automático tras Save | No implementado |
+| Footer | Save · Save Draft · Clear · Return to POD | Save · Save Draft · Cancel · Return to POD |
+
+---
+
+---
+
+## Paso 6 — Closing Line Clearance (condicional por área)
+
+**StepType:** `LineClearance` | **StepWeight:** 10% | **Validación:** respuesta = "Sí" (true)
+
+> **Estructura y flujo idénticos al Paso 2.** Ver sección "Paso 2 — Line Clearance" para la documentación completa de modales, estados y reglas.
+
+### Condicionalidad
+
+| Escenario | Comportamiento |
+|---|---|
+| Área **con** Closing LC | El flujo ejecuta este paso antes de Log NC y Complete |
+| Área **sin** Closing LC | El flujo omite este paso — el motor avanza directamente al Paso 7 |
+
+La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): si el área no tiene un `TrainingStep` de tipo `LineClearance` en la posición de cierre, no existe en la secuencia. No requiere cambio de código.
+
+---
+
+---
+
+## Paso 7 — Log NC / SFC Split
+
+**StepType:** `LogNC` | **StepWeight:** 15% | **Validación:** NC Code existe en catálogo del área
+
+**Acceso:** Sidebar → [Log NC]. Para NonSerialized, Sidebar → [SFC Split] primero.
+
+### Sub-flujo A: SFC Split (solo NonSerialized)
+
+**Modal: SFC Split Plug-In (Auto ID)**
+```
+  SFC to Split:   {sfcCode}      ← readonly
+  Available Qty:  {qty}          ← readonly
+  ★ Qty to Split: [_____] [X]    ← requerido, numérico
+  [Split]  [Close]
+```
+Confirmación en modal: `✓ New SFC {newCode} created with quantity {qty}`
+Operador verifica el nuevo SFC en el POD antes de continuar.
+
+### Vista: NC Selection (reemplaza POD Work List)
+
+Layout de **2 columnas**. Cada celda:
+```
+  {NC_CODE}              [↑ Log NC]
+  {descripción}
+```
+El botón [Log NC] es por código individual. NC Codes desde BD por área (`NCCodes`).
+
+### Modal: NC Data Entry
+
+```
+[NC Data Entry]                                                        [↗][X]
+  SFC: {sfcCode} ({current}/{total})
+────────────────────────────────────────────────────────────────────────────
+  ★ NC Code:   {codePreFilled}
+  ★ Component: [________________] [copy]   ← requerido
+    Comments:  [______________]            ← opcional
+────────────────────────────────────────────────────────────────────────────
+  [✓ Add]  [✓ Add-Done]  [✗ Return to POD]  [✓ Done]
+```
+
+| Botón | Comportamiento |
+|---|---|
+| Add | Registra NC, permanece en modal para agregar otro |
+| **Add-Done** | Registra NC y cierra — flujo normal |
+| Return to POD | Cancela sin registrar |
+| Done | Confirma y cierra sin agregar datos nuevos |
+
+**Confirmación en POD (banner verde, fuera del modal):**
+```
+✓  All of {SFCCode} scrapped
+```
+El campo SFC en la search bar queda vacío tras el scrap.
+
+### Flujo del operador
+**NonSerialized:** Sidebar [SFC Split] → Qty to Split → [Split] → confirmar → [Close] → verificar POD → Sidebar [Log NC] → NC Selection → [Log NC] del código → NC Data Entry → [Add-Done] → banner confirmación
+**Serialized:** Seleccionar SFC en POD → Sidebar [Log NC] → NC Selection → [Log NC] del código → NC Data Entry → [Add-Done] → banner confirmación
+
+### Reglas de negocio
+- SFC Split solo para NonSerialized — Serialized selecciona directamente del POD
+- NC Code y Component requeridos; Comments opcional
+- NC Codes desde catálogo BD por área — no hardcodeados
+- [Add-Done] = flujo normal del paso; [Add] = múltiples NCs al mismo SFC
+- El SFC field queda vacío en el POD tras el scrap
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| NC Selection | Reemplaza POD Work List, 2 columnas, [Log NC] por código | Modal flotante paginado (5 páginas) |
+| NC Data Entry footer | Add · Add-Done · Return to POD · Done | Add · Add Done · Return POD · Finished |
+| Confirmación scrap | Banner verde en POD "All of {SFC} scrapped" | Mensaje inline en modal |
+
+---
+
+---
+
+## Paso 8 — Complete
+
+**StepType:** `Complete` | **StepWeight:** 10% | **Validación:** secuencia pura (siempre true)
+
+**Acceso:** [Complete] en la barra de acción.
+
+> Paso más directo del flujo — sin modal propio, sin sub-ventanas.
+
+### Flujo del operador
+1. Seleccionar fila(s) del SFC u orden de planta en el POD Work List
+2. Clic en **[Complete]** en la barra de acción
+3. El sistema completa la orden y los SFCs seleccionados
+4. **Fin del proceso**
+
+### Reglas de negocio
+- No valida contenido — se califica por secuencia
+- El operador debe saber que este es el paso final del cierre
+- Todos los pasos anteriores deben estar completos antes de llegar aquí
+
+> **Diferencia con legacy:** el legacy implementaba un modal "Complete Section" + overlay "Log Buyoff" con credenciales (User ID + Password). El flujo real SAP es directo. Si alguna área requiere confirmación adicional (buyoff, firma), se documenta en su archivo de área.
+
+---
+
+## Flujo completo documentado ✓
+
+| Paso | StepType | Weight estándar | Condicional |
+|---|---|---|---|
+| 1 — Resource Setup | `ResourceSetup` | 20% | No |
+| 2 — Line Clearance apertura | `LineClearance` | 10% | No |
+| 3 — Search / Start Order | `Search` | 0% (secuencia pura) | No — absorbe peso de pasos ausentes a nivel de guía |
+| 4 — Assembly | `Assembly` | 15% | RequiresAssembly |
+| 5 — DC Collect | `DataCollection` | 30% | RequiresDataCollection |
+| 6 — Closing Line Clearance | `LineClearance` | 10% | Condicional por área |
+| 7 — Log NC / SFC Split | `LogNC` | 15% | No (SFC Split solo NonSerialized) |
+| 8 — Complete | `Complete` | 10% | No |
+
+> **Sobre los pesos:** los pesos fijos definidos en `CLAUDE.md` (ResourceSetup 20% + LC 10% + Assembly 15% + DataCollection 30% + NC 15% + Complete 10% = 100%) aplican cuando todos los pasos están presentes. Cuando un paso condicional está ausente (ej. Assembly en Moldeo), su peso se redistribuye a pasos de secuencia pura como Search — esto ocurre en el seed de la guía (`TrainingStep.Weight`), no en el `ScoreCalculator`. Los pesos de cada instancia de guía siempre suman 1.00.

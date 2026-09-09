@@ -1,0 +1,32 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Training.master.cs"
+    Inherits="TrainingApp.UI.Master.TrainingMaster" %>
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - MES Training</title>
+
+    <link href="<%=ResolveUrl("~/Content/bootstrap.min.css")%>" rel="stylesheet" />
+    <link href="<%=ResolveUrl("~/UI/master/pod.css")%>"          rel="stylesheet" />
+
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server" />
+</head>
+<body>
+<form id="MainForm" runat="server">
+    <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePartialRendering="false">
+        <Scripts>
+            <asp:ScriptReference Name="jquery" />
+            <asp:ScriptReference Name="WebForms.js" Assembly="System.Web"
+                Path="~/Scripts/WebForms/WebForms.js" />
+        </Scripts>
+    </asp:ScriptManager>
+
+    <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+
+</form>
+<script src="<%=ResolveUrl("~/Scripts/bootstrap.bundle.min.js")%>"></script>
+<script src="<%=ResolveUrl("~/Scripts/sweetalert2.all.min.js")%>"></script>
+<asp:ContentPlaceHolder ID="ScriptContent" runat="server" />
+</body>
+</html>
