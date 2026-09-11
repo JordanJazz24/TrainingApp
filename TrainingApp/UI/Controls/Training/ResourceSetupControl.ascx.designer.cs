@@ -8,6 +8,7 @@ namespace TrainingApp.UI.Controls.Training
         protected global::System.Web.UI.WebControls.DropDownList DdlSetupState;
         protected global::System.Web.UI.WebControls.HiddenField HfRows;
         protected global::System.Web.UI.WebControls.HiddenField HfSetupState;
+        protected global::System.Web.UI.WebControls.HiddenField HfRetrieved;
         protected global::System.Web.UI.WebControls.Button BtnSave;
         protected global::System.Web.UI.WebControls.Button BtnClear;
     }

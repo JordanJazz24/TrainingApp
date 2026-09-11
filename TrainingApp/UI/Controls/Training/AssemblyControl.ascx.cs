@@ -15,18 +15,20 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack && ViewModel != null)
-            {
-                int expected = GetExpectedCount();
-                HfExpectedCount.Value = expected.ToString();
-                HfScannedCount.Value  = "0";
+            if (!IsPostBack) Initialize();
+        }
 
-                var components = BuildComponentList(expected);
-                RptComponents.DataSource = components;
-                RptComponents.DataBind();
-                LitTotal.Text   = components.Count.ToString();
-                LitTotalOf.Text = components.Count.ToString();
-            }
+        public void Initialize()
+        {
+            if (ViewModel == null) return;
+            int expected = GetExpectedCount();
+            HfExpectedCount.Value = expected.ToString();
+            HfScannedCount.Value  = "0";
+            var components = BuildComponentList(expected);
+            RptComponents.DataSource = components;
+            RptComponents.DataBind();
+            LitTotal.Text   = components.Count.ToString();
+            LitTotalOf.Text = components.Count.ToString();
         }
 
         protected void BtnAdd_Click(object sender, EventArgs e)
@@ -59,7 +61,7 @@ namespace TrainingApp.UI.Controls.Training
             {
                 // More components to scan — keep modal open
                 Page.ClientScript.RegisterStartupScript(GetType(), "reopenAssemble",
-                    "$(document).ready(function(){var m=document.getElementById('modalAssemble');if(m)new bootstrap.Modal(m).show();});", true);
+                    "showModalSafe('modalAssemble');", true);
             }
         }
 

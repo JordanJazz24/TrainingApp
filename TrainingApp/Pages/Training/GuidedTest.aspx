@@ -12,9 +12,8 @@
             User - <asp:Literal ID="LitUserName" runat="server" />
         </span>
         <div class="pod-header-controls">
-            <asp:HyperLink ID="LnkLogout" runat="server"
-                NavigateUrl="~/Pages/Auth/Login.aspx"
-                ForeColor="White" title="Logout">&#9211;</asp:HyperLink>
+            <button id="BtnLogout" runat="server" title="Logout"
+                class="pod-header-logout" onserverclick="BtnLogout_ServerClick">&#9211;</button>
         </div>
     </div>
 
@@ -99,11 +98,31 @@
             <img src="<%=ResolveUrl("~/UI/master/imgs/informes-icon.png")%>" alt="" />
             <span>Reports</span>
         </button>
-        <button id="BtnActivities" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnActivities_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/activities-icon.png")%>" alt="" />
-            <span>Activities</span>
-        </button>
+        <%-- Activities: Bootstrap dropdown — toggle is client-side, items are server-side buttons --%>
+        <div class="dropdown">
+            <button type="button" class="pod-sidebar-btn dropdown-toggle"
+                    id="BtnActivitiesToggle" disabled
+                    data-bs-toggle="dropdown" data-bs-auto-close="true">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/activities-icon.png")%>" alt="" />
+                <span>Activities</span>
+            </button>
+            <ul class="dropdown-menu" id="activitiesMenu">
+                <li>
+                    <button id="BtnActivities" runat="server" class="dropdown-item"
+                        disabled="disabled" onserverclick="BtnActivities_ServerClick">
+                        Data Collection Standalone
+                    </button>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li><button type="button" class="dropdown-item" disabled>As-Built Configuration</button></li>
+                <li><button type="button" class="dropdown-item" disabled>Log Comment</button></li>
+                <li><button type="button" class="dropdown-item" disabled>SFC Place Hold</button></li>
+                <li><button type="button" class="dropdown-item" disabled>SFC Release Hold</button></li>
+                <li><button type="button" class="dropdown-item" disabled>Remove Future Hold</button></li>
+                <li><button type="button" class="dropdown-item" disabled>Change Equipment Status Tool</button></li>
+                <li><button type="button" class="dropdown-item" disabled>Time Sensitive Material Check In/Out</button></li>
+            </ul>
+        </div>
         <button type="button" class="pod-sidebar-btn" disabled>
             <img src="<%=ResolveUrl("~/UI/master/imgs/play_back-icon.png")%>" alt="" />
             <span>Place Back in Queue</span>
@@ -148,37 +167,40 @@
             </table>
         </asp:Panel>
 
-        <%-- UserControl area — controls loaded dynamically by code-behind --%>
-        <asp:Panel ID="PnlActiveControl" runat="server" Visible="false">
-        </asp:Panel>
-
-        <%-- Completion panel --%>
-        <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
-            <div class="pod-completion-card">
-                <h3 class="mb-4">Session Complete</h3>
-                <div class="mb-3 fs-4">
-                    Score: <strong><asp:Literal ID="LitFinalScore" runat="server" /></strong>
-                </div>
-                <div class="mb-2">
-                    Mode: <asp:Literal ID="LitFinalMode" runat="server" />
-                </div>
-                <div class="mb-2">
-                    Area: <asp:Literal ID="LitFinalArea" runat="server" />
-                    &nbsp;|&nbsp;
-                    Product: <asp:Literal ID="LitFinalProduct" runat="server" />
-                </div>
-                <asp:Panel ID="PnlFinalResult" runat="server" CssClass="mb-4">
-                    Result: <strong><asp:Literal ID="LitFinalResult" runat="server" /></strong>
-                </asp:Panel>
-                <asp:HyperLink ID="LnkNewSession" runat="server"
-                    NavigateUrl="~/Pages/Training/StartSession.aspx"
-                    CssClass="btn btn-primary">
-                    Start New Session
-                </asp:HyperLink>
-            </div>
-        </asp:Panel>
-
     </div>
+
+    <%-- ══ ACTIVE CONTROL AREA (outside pod-main so modals aren't clipped) ═ --%>
+    <%-- List-view controls (Assembly, DC, LogNC) render inline here.           --%>
+    <%-- Modal controls (ResourceSetup, LC, Search) render their Bootstrap      --%>
+    <%-- modals at body level — no overflow/fixed parent to clip them.          --%>
+    <asp:Panel ID="PnlActiveControl" runat="server" Visible="false" CssClass="pod-active-control">
+    </asp:Panel>
+
+    <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
+    <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
+        <div class="pod-completion-card">
+            <h3 class="mb-4">Session Complete</h3>
+            <div class="mb-3 fs-4">
+                Score: <strong><asp:Literal ID="LitFinalScore" runat="server" /></strong>
+            </div>
+            <div class="mb-2">
+                Mode: <asp:Literal ID="LitFinalMode" runat="server" />
+            </div>
+            <div class="mb-2">
+                Area: <asp:Literal ID="LitFinalArea" runat="server" />
+                &nbsp;|&nbsp;
+                Product: <asp:Literal ID="LitFinalProduct" runat="server" />
+            </div>
+            <asp:Panel ID="PnlFinalResult" runat="server" CssClass="mb-4">
+                Result: <strong><asp:Literal ID="LitFinalResult" runat="server" /></strong>
+            </asp:Panel>
+            <asp:HyperLink ID="LnkNewSession" runat="server"
+                NavigateUrl="~/Pages/Training/StartSession.aspx"
+                CssClass="btn btn-primary">
+                Start New Session
+            </asp:HyperLink>
+        </div>
+    </asp:Panel>
 
     <%-- ══ FOOTER ════════════════════════════════════════════════════════ --%>
     <div class="pod-footer">
@@ -196,8 +218,7 @@
     <%-- ══ ABANDON (fixed bottom-left) ══════════════════════════════════ --%>
     <div class="pod-abandon">
         <button id="BtnAbandon" runat="server" class="btn btn-sm btn-outline-danger"
-            onserverclick="BtnAbandon_ServerClick"
-            onclick="return confirmAbandon(event);">
+            onserverclick="BtnAbandon_Click" onclick="return confirmAbandon();">
             Abandon Session
         </button>
     </div>
@@ -250,6 +271,11 @@
 
     <asp:HiddenField ID="HfSelectedSFC" runat="server" />
 
+    <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance).  --%>
+    <%-- No positioning — modal HTML renders here then showModalSafe moves it  --%>
+    <%-- to document.forms[0] for proper Bootstrap stacking.                   --%>
+    <asp:Panel ID="PnlModalHost" runat="server" Visible="false" />
+
 </asp:Content>
 
 <asp:Content ID="ScriptContent" ContentPlaceHolderID="ScriptContent" runat="server">
@@ -283,8 +309,7 @@
     }
 
     // ── Abandon confirmation ─────────────────────────────────────────
-    function confirmAbandon(e) {
-        e.preventDefault();
+    function confirmAbandon() {
         Swal.fire({
             title: 'Abandon Session?',
             text:  'Progress will be lost.',
@@ -295,7 +320,7 @@
             confirmButtonColor:  '#dc3545'
         }).then(function(r) {
             if (r.isConfirmed) {
-                document.getElementById('<%= BtnAbandon.ClientID %>').click();
+                __doPostBack('<%= BtnAbandon.UniqueID %>', '');
             }
         });
         return false;

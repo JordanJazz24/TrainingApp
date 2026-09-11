@@ -2,18 +2,24 @@
     CodeBehind="LineClearanceControl.ascx.cs"
     Inherits="TrainingApp.UI.Controls.Training.LineClearanceControl" %>
 
-<%-- ── Data Collection Standalone modal ───────────────────────────── --%>
+<%-- ── Data Collection Standalone (modal principal) ───────────────── --%>
 <div class="modal fade" id="modalDCStandalone" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Standalone</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    onclick="closeLCModal()"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <%-- Filter / Collect For --%>
-                <div class="row g-2 mb-3">
+
+                <%-- Banner "dc group save" — top of modal, shown after successful Save --%>
+                <asp:Panel ID="PnlSavedBanner" runat="server" Visible="false"
+                    CssClass="lc-save-banner alert alert-warning py-1 px-2 mb-2">
+                    &#9670; dc group save
+                </asp:Panel>
+
+                <%-- Filter / Collect For + Retrieve + Clear --%>
+                <div class="row g-2 mb-3 align-items-end">
                     <div class="col-auto">
                         <label class="form-label small mb-0">Filter Operation:</label>
                         <span class="form-control-plaintext form-control-sm">
@@ -21,22 +27,23 @@
                         </span>
                     </div>
                     <div class="col-auto">
-                        <label class="form-label small mb-0">Collect Data For:</label>
+                        <label class="form-label small mb-0">* Collect Data For:</label>
                         <span class="form-control-plaintext form-control-sm">
                             <asp:Literal ID="LitResource" runat="server" />
                         </span>
                     </div>
-                    <div class="col-auto d-flex align-items-end">
+                    <div class="col-auto">
                         <button type="button" class="btn btn-sm btn-secondary"
                             onclick="retrieveLCStandalone()">Retrieve</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
-                            data-bs-dismiss="modal" onclick="closeLCModal()">Clear</button>
+                            data-bs-dismiss="modal">Clear</button>
                     </div>
                 </div>
 
                 <%-- DC list (hidden until Retrieve) --%>
-                <asp:Panel ID="PnlDCList" runat="server" CssClass="border rounded" style="display:none" ClientIDMode="Static">
-                    <div class="pod-list-row px-3">
+                <asp:Panel ID="PnlDCList" runat="server" ClientIDMode="Static"
+                    style="display:none" CssClass="border rounded">
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2">
                         <div>
                             <div class="fw-semibold small">DC_LC_DONE</div>
                             <div class="text-muted" style="font-size:0.78rem">
@@ -45,26 +52,23 @@
                             </div>
                         </div>
                         <button type="button" class="btn btn-sm btn-primary"
-                            onclick="openDCEntry()">Collect</button>
+                            onclick="lcOpenEntry()">Collect</button>
                     </div>
-                    <%-- Success banner (shown after save) --%>
-                    <asp:Panel ID="PnlSavedBanner" runat="server" Visible="false"
-                        CssClass="alert alert-warning m-2 p-2 small">
-                        &#9670; 1 DC Groups saved
-                    </asp:Panel>
                 </asp:Panel>
+
+                <%-- Hidden field: tracks whether Retrieve was clicked (persists across PostBack) --%>
+                <asp:HiddenField ID="HfRetrieved" runat="server" ClientIDMode="Static" Value="false" />
             </div>
         </div>
     </div>
 </div>
 
-<%-- ── Data Collection Entry sub-modal ────────────────────────────── --%>
+<%-- ── Data Collection Entry (sub-modal) ──────────────────────────── --%>
 <div class="modal fade" id="modalDCEntry" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
-                <button type="button" class="btn-close" onclick="closeDCEntry()"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-2 small text-muted">
@@ -74,49 +78,79 @@
                 <hr class="mt-1 mb-2" />
                 <div class="mb-3">
                     <label class="form-label">
-                        <span class="required-star">★</span>
+                        <span class="text-danger">&#9733;</span>
                         <asp:Literal ID="LitQuestion" runat="server" />
                     </label>
                     <div class="text-muted small mb-1">Data Type: Boolean &nbsp; 0 files attached</div>
                     <asp:DropDownList ID="DdlAnswer" runat="server" CssClass="form-select form-select-sm">
-                        <asp:ListItem Value="">( Select )</asp:ListItem>
+                        <asp:ListItem Value="">( Seleccione )</asp:ListItem>
                         <asp:ListItem Value="false">NO</asp:ListItem>
                         <asp:ListItem Value="true">Si</asp:ListItem>
                     </asp:DropDownList>
-                    <asp:RequiredFieldValidator ID="RfvAnswer" runat="server"
-                        ControlToValidate="DdlAnswer"
-                        InitialValue=""
-                        ErrorMessage="Selection required."
-                        CssClass="text-danger small"
-                        Display="Dynamic"
-                        ValidationGroup="lcGroup" />
                 </div>
             </div>
             <div class="modal-footer">
-                <asp:Button ID="BtnSave" runat="server" Text="💾 Save"
+                <asp:Button ID="BtnSave" runat="server" Text="Save"
                     CssClass="btn btn-sm btn-success"
-                    ValidationGroup="lcGroup"
-                    OnClick="BtnSave_Click" />
+                    OnClick="BtnSave_Click"
+                    OnClientClick="return lcValidateAnswer();"
+                    CausesValidation="false" />
                 <button type="button" class="btn btn-sm btn-secondary"
-                    onclick="closeDCEntry()">&#10007; Return to POD</button>
+                    data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function retrieveLCStandalone() {
+(function () {
+    // ── Retrieve ──────────────────────────────────────────────────────────
+    window.retrieveLCStandalone = function () {
+        document.getElementById('HfRetrieved').value = 'true';
         document.getElementById('PnlDCList').style.display = '';
-    }
-    function openDCEntry() {
-        new bootstrap.Modal(document.getElementById('modalDCEntry')).show();
-    }
-    function closeDCEntry() {
-        var m = bootstrap.Modal.getInstance(document.getElementById('modalDCEntry'));
-        if (m) m.hide();
-    }
-    function closeLCModal() {
-        var m = bootstrap.Modal.getInstance(document.getElementById('modalDCStandalone'));
-        if (m) m.hide();
-    }
+    };
+
+    // ── Open sub-modal ────────────────────────────────────────────────────
+    window.lcOpenEntry = function () {
+        showModalSafe('modalDCEntry');
+    };
+
+    // ── Restore retrieved state after PostBack ────────────────────────────
+    // Called via RegisterStartupScript when HfRetrieved == "true" on PostBack.
+    window.lcRestoreRetrievedState = function () {
+        document.getElementById('PnlDCList').style.display = '';
+    };
+
+    // ── Client-side validation before Save PostBack ───────────────────────
+    window.lcValidateAnswer = function () {
+        var ddl = document.getElementById('<%= DdlAnswer.ClientID %>');
+        var val = ddl ? ddl.value : '';
+
+        if (!val || val === '') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Selección requerida',
+                text: 'Debes seleccionar una respuesta antes de guardar.'
+            }).then(function () {
+                var el = document.getElementById('modalDCEntry');
+                if (el && !el.classList.contains('show')) showModalSafe('modalDCEntry');
+            });
+            return false;
+        }
+
+        if (val !== 'true') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Respuesta incorrecta',
+                text: "La respuesta debe ser 'Sí' para continuar. Seleccionar 'No' no permite avanzar el paso."
+            }).then(function () {
+                var el = document.getElementById('modalDCEntry');
+                if (el && !el.classList.contains('show')) showModalSafe('modalDCEntry');
+            });
+            return false;
+        }
+
+        return true;
+    };
+})();
 </script>

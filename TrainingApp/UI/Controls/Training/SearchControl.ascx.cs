@@ -14,11 +14,16 @@ namespace TrainingApp.UI.Controls.Training
         protected void Page_Load(object sender, EventArgs e)
         {
             if (ViewModel == null || ViewModel.CurrentSubStep == 0) return;
-
             PnlSubStep.Visible = true;
-
             if (!IsPostBack)
                 SetupSubStep(ViewModel.CurrentSubStep);
+        }
+
+        public void Initialize()
+        {
+            if (ViewModel == null || ViewModel.CurrentSubStep == 0) return;
+            PnlSubStep.Visible = true;
+            SetupSubStep(ViewModel.CurrentSubStep);
         }
 
         private void SetupSubStep(int subStep)

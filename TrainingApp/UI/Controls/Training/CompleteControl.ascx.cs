@@ -9,7 +9,6 @@ namespace TrainingApp.UI.Controls.Training
         public StepViewModel ViewModel { get; set; }
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
-        // Complete step has no modal — submit is triggered directly from BtnComplete_ServerClick
-        // in GuidedTest.aspx.cs without loading this control into the DOM.
+        public void Initialize() { }  // No visual setup — Complete has no modal
     }
 }

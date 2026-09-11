@@ -120,9 +120,45 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 
 ### Reglas de negocio
 - **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
-- **Primera fila DEBE ser Shop Order** — regla de procedimiento
+- **El orden de las filas es libre** — no se exige que Shop Order sea la primera fila
 - **Setup State DEBE ser "Set Up"** antes de guardar
-- **Mínimo 2 filas**: 1 Shop Order + al menos 1 Tool Number
+- **Exactamente 1 Shop Order** — ni 0 ni 2+
+- **Al menos 1 Tool Number**
+- **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
+
+### Validaciones del UserControl (lado cliente + servidor)
+
+**Precondición de Save:**
+- `[Save]` arranca **deshabilitado** — se habilita únicamente después de ejecutar `[Retrieve]`
+- Retrieve sin ninguna fila adicional NO completa el paso
+
+**Orden de validaciones al presionar Save (se detiene en la primera que falle):**
+
+| # | Validación | Mensaje al operador |
+|---|---|---|
+| 1 | Setup State == "Set Up" | "El Setup State debe estar en 'Set Up' antes de guardar." |
+| 2 | Al menos 1 fila existe | "No existen recursos creados. Agrega al menos un Shop Order y un Tool Number." |
+| 3 | Total filas ≥ 2 | "Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 Tool Number." |
+| 4 | Exactamente 1 Shop Order (0 filas SO) | "Debe existir exactamente 1 fila de tipo Shop Order." |
+| 5 | Exactamente 1 Shop Order (>1 filas SO) | "Solo puede existir 1 fila de tipo Shop Order." |
+| 6 | Al menos 1 Tool Number | "Debe existir al menos 1 fila de tipo Tool Number." |
+| 7 | Todas las filas con valor no vacío | "Todas las filas deben tener un valor. Ninguna fila puede estar vacía." |
+
+- Cada fallo muestra un **SweetAlert** (warning) y mantiene el modal abierto
+- Un fallo NO marca el paso como completado ni cierra el modal
+- Si todas las validaciones pasan → Save ejecuta el guardado
+
+**Comportamiento post-Save exitoso (BUG UI-1 corregido):**
+- El modal permanece abierto
+- Aparece banner verde `✓ Record Change` en la parte superior del modal body
+- Después de 5 segundos el banner se oculta automáticamente
+- El operador cierra el modal con [X] cuando quiera
+- El estado del paso ya avanzó en el servidor al momento del Save
+
+**Comportamiento de overlay (BUG UI-2 corregido):**
+- Al abrir Resource Setup el POD (tabla de órdenes) permanece visible detrás del modal
+- El modal se renderiza como overlay, NO reemplaza la vista del POD
+- Al cerrar con [X] el operador regresa exactamente al estado anterior — las órdenes cargadas siguen visibles
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
@@ -130,7 +166,9 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 | Setup State antes de Retrieve | Texto plano `Open` | Dropdown desde el inicio |
 | Toolbar labels | REMOVE SELECTED / REMOVE ALL | DELETE SELECTED / DELETE ALL |
 | Footer botones | Save · Clear | Save · Cancel |
-| Record Change | Banner verde in-modal, modal queda abierto | Texto flotante `position-fixed` |
+| Record Change | Banner verde in-modal, modal queda abierto 5s | Texto flotante `position-fixed` |
+| Orden de filas | Libre — no requiere Shop Order primero | No validado |
+| Save deshabilitado | Sí, hasta Retrieve | No |
 
 ---
 
@@ -138,7 +176,7 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 
 **StepType:** `LineClearance` | **StepWeight:** 10% | **Validación:** respuesta = "Sí" (true)
 
-**Acceso:** Sidebar → Activities → Data Collection Standalone
+**Acceso:** Sidebar → [Activities ▼] → "Data Collection Standalone"
 
 **Instancias en el flujo general:**
 - Paso 2: LC genérica de línea (esta — una pregunta boolean)
@@ -147,40 +185,61 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 > Algunas áreas agregan instancias adicionales dentro de otros pasos (ej. LC Moldeo dentro del Start). Esas variantes van en el doc de área correspondiente.
 
 ### Jerarquía de navegación
+
 ```
-Dashboard → Sidebar [Activities ▲] → "Data Collection Standalone" → modal
-                                                                      └─ sub-modal "Data Collection Entry"
+Sidebar [Activities ▼]
+  └─ Data Collection Standalone  → modal principal (modalDCStandalone)
+                                      └─ [Collect]  → sub-modal (modalDCEntry)
+                                                          └─ [Save] → cierra sub-modal
+                                                                       banner en modal principal 5s
+                                                                       operador cierra con [X]
 ```
 
-### Modal: Data Collection Standalone
+**Activities** es un dropdown Bootstrap en el sidebar. En Fase 6 solo "Data Collection Standalone" está habilitado; el resto de las 8 opciones están deshabilitadas.
+
+---
+
+### Modal principal: Data Collection Standalone
 
 **Chrome:** ventana popup con [↗][X]
 
-**Estado inicial (antes de Retrieve)**
+**Estado 1 — antes de Retrieve**
 ```
 [Data Collection Standalone]                          [↗][X]
 ────────────────────────────────────────  [Clear]
-  Filter Operation:  {operationName}  [copy]
-  * Collect Data For: [Resource ▼]  {resourceName}  [copy]   [Retrieve]
+  Filter Operation:  {operationName}
+  * Collect Data For: {resourceName}                  [Retrieve]
 ────────────────────────────────────────────────────────
-  (lista vacía o no renderizada)
+  (tabla vacía — sin filas)
 ```
 
-**Estado después de Retrieve**
+**Estado 2 — después de Retrieve**
 ```
+[Data Collection Standalone]                          [↗][X]
+────────────────────────────────────────  [Clear]
+  Filter Operation:  {operationName}
+  * Collect Data For: {resourceName}                  [Retrieve]
+────────────────────────────────────────────────────────
   DC_LC_DONE                      DC Group/Vers.: DCGTM_LC/A
   Realizó la Limpieza de Linea?   {timestamp última colección}    [Collect]
+────────────────────────────────────────────────────────
 ```
 
-**Estado después de Save**
+**Estado 3 — después de Save (regreso desde sub-modal)**
 ```
-  ◆ 1 DC Groups saved   ← banner dorado/naranja, top del modal
-  ...fila con timestamp actualizado...
+  dc group save   ← banner informativo, top del modal, desaparece a los 5s
+  DC_LC_DONE      DC Group/Vers.: DCGTM_LC/A     {timestamp actualizado}    [Collect]
 ```
+
+- El modal principal **permanece abierto** durante toda la interacción
+- El banner "dc group save" se muestra al regresar del sub-modal tras un Save exitoso
+- El operador cierra el modal principal con [X] cuando quiera
+
+---
 
 ### Sub-modal: Data Collection Entry
 
-Se abre sobre el Standalone (capas apiladas).
+Se abre **sobre** el modal principal (capas apiladas). El modal principal queda visible detrás.
 
 ```
 [Data Collection Entry]                               [↗][X]
@@ -200,28 +259,80 @@ Se abre sobre el Standalone (capas apiladas).
                [Save]  [Cancel]
 ```
 
+- [Cancel] cierra el sub-modal y regresa al modal principal sin cambiar estado
+- [Save] solo procede si la selección es "Si" (ver validaciones abajo)
+
+---
+
 ### Flujo del operador
-1. Sidebar → Activities → Data Collection Standalone
-2. Retrieve
-3. Clic en [Collect] de la fila DC_LC_DONE
-4. Sub-modal abre: seleccionar "Sí"
-5. Save
-6. Sub-modal cierra — regresa a Standalone
-7. Confirmar banner "◆ 1 DC Groups saved"
-8. Cerrar Standalone con X
+1. Sidebar → [Activities ▼] → "Data Collection Standalone"
+2. Modal principal abre — tabla vacía
+3. [Retrieve] — aparece la fila DC_LC_DONE con [Collect]
+4. Clic en [Collect]
+5. Sub-modal abre sobre el modal principal
+6. Seleccionar "Si" en el dropdown
+7. [Save]
+8. Sub-modal se cierra — regresa al modal principal
+9. Confirmar banner "dc group save" (desaparece en 5s)
+10. Cerrar modal principal con [X]
+
+---
+
+### Validaciones del UserControl
+
+**Validación en el sub-modal al presionar Save (cliente + servidor):**
+
+| # | Validación | Mensaje al operador |
+|---|---|---|
+| 1 | Dropdown seleccionado (no en blanco) | "Debes seleccionar una respuesta antes de guardar." |
+| 2 | Respuesta == "Si" | "La respuesta debe ser 'Sí' para continuar. Seleccionar 'No' no permite avanzar el paso." |
+
+- Cada fallo muestra un **SweetAlert** (warning); el sub-modal permanece abierto
+- Si la respuesta es "No": el intento se registra como fallido en el servidor (penalización en modo Assessment), el paso no avanza — el operador debe corregir y reintentar
+- Validación es idéntica en cliente (`OnClientClick`) y servidor (`BtnSave_Click`) — belt-and-suspenders
+
+**Comportamiento post-Save exitoso:**
+- Sub-modal se cierra (JS)
+- Modal principal queda visible con banner "dc group save"
+- Banner desaparece automáticamente a los 5s
+- Score actualizado en el widget top-right del POD
+- El operador cierra el modal principal con [X] cuando quiera
+
+---
 
 ### Reglas de negocio
-- Seleccionar "No" = respuesta incorrecta (en entrenamiento cuenta como intento fallido)
-- Dejar dropdown en blanco = no permite guardar (campo requerido ★)
-- Solo hay una pregunta en este paso (DC_LC_DONE)
-- El timestamp se actualiza en la fila al guardar correctamente
+- Seleccionar "No" = respuesta incorrecta, registra intento fallido
+- Dejar dropdown en blanco = no permite guardar
+- Solo hay una pregunta por instancia de LC (DC_LC_DONE)
+- Retrieve es obligatorio antes de poder interactuar con la fila — sin Retrieve el [Collect] no es visible
+
+---
+
+### Notas de implementación (Fase 6)
+
+`LineClearanceControl.ascx` contiene **ambos modales** en un solo UserControl:
+- `modalDCStandalone` — modal principal
+- `modalDCEntry` — sub-modal (oculto en DOM, JS lo abre al hacer Collect)
+
+**Modelo de PostBacks:**
+- PostBack #1: `BtnActivities_ServerClick` → carga el control, registra `showModalSafe('modalDCStandalone')`
+- Retrieve = **puro JS** (`lcRetrieve()`): la fila DC_LC_DONE está pre-renderizada en el DOM pero oculta; Retrieve solo la hace visible. No se consulta BD porque el contenido de LC es fijo (no varía por área). Mismo patrón que Resource Setup.
+- [Collect] = **puro JS** (`lcOpenEntry()`): abre el sub-modal pre-renderizado
+- PostBack #2: [Save] en sub-modal → `BtnSave_Click` — valida HfAnswer, llama `OnStepSubmit`, registra startup script: cerrar sub-modal + re-abrir modal principal + mostrar banner + auto-hide 5s
+
+Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere PostBack adicional para abrirse — solo JS.
+
+---
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
 |---|---|---|
-| Confirmación post-save | `◆ 1 DC Groups saved` banner dorado en el modal | Texto + ícono `lineClearence-save-icon.png` |
-| Botón Cancel en Standalone | [Clear] (no Cancel) | Botón "Anular" con ícono |
-| Sub-modal | Ventana flotante independiente sobre el padre | `<article>` que swapea con `d-none` |
+| Acceso a LC | Activities dropdown → Data Collection Standalone | Botón "LINE CLEARANCE" directo |
+| Modal principal | Muestra fila DC_LC_DONE con [Collect] inline | `<article>` único sin sub-modal separado |
+| Sub-modal | Ventana flotante independiente sobre el padre | Sección que swapea con `d-none` |
+| Confirmación post-save | Banner "dc group save" en modal principal 5s | Texto + ícono `lineClearence-save-icon.png` |
+| Retrieve | Requerido — muestra la fila DC_LC_DONE (puro JS en simulador) | Botón Retrieve requerido antes de interactuar |
+| Respuesta "No" | Registra intento fallido, no bloquea (Guided) | No contemplado |
 
 ---
 

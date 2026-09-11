@@ -23,11 +23,10 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack && ViewModel != null)
-                Initialize();
+            if (!IsPostBack) Initialize();
         }
 
-        private void Initialize()
+        public void Initialize()
         {
             string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")
                 ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";

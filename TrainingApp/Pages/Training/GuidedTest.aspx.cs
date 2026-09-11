@@ -43,10 +43,21 @@ namespace TrainingApp.Pages.Training
 
                 ((UserControl)ctrl).ID = "StepCtrl";
                 ctrl.OnStepSubmit += HandleControlSubmit;
-                PnlActiveControl.Controls.Add((UserControl)ctrl);
+
+                // Modal-overlay controls go to PnlModalHost (no positioning = no POD coverage).
+                // View-replacement controls (Assembly, DC, LogNC) go to PnlActiveControl.
+                if (IsModalOverlayPath(path))
+                    PnlModalHost.Controls.Add((UserControl)ctrl);
+                else
+                    PnlActiveControl.Controls.Add((UserControl)ctrl);
             }
             catch { /* control path stale — ignore */ }
         }
+
+        private static bool IsModalOverlayPath(string path) =>
+            path.IndexOf("ResourceSetupControl", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            path.IndexOf("LineClearanceControl", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            path.IndexOf("SearchControl",        StringComparison.OrdinalIgnoreCase) >= 0;
 
         // ── Page_Load ────────────────────────────────────────────────────
         protected void Page_Load(object sender, EventArgs e)
@@ -65,8 +76,11 @@ namespace TrainingApp.Pages.Training
                 BindBrowseList(area, session);
             }
 
-            // Set ViewModel on the active control (PostBack re-uses restored control)
-            var activeCtrl = PnlActiveControl.FindControl("StepCtrl") as IStepControl;
+            // Set ViewModel on the active control (PostBack re-uses restored control).
+            // Check both panels: view-replacement controls are in PnlActiveControl,
+            // modal-overlay controls (ResourceSetup, LC) are in PnlModalHost.
+            var activeCtrl = (PnlActiveControl.FindControl("StepCtrl")
+                           ?? PnlModalHost.FindControl("StepCtrl")) as IStepControl;
             if (activeCtrl != null)
             {
                 activeCtrl.ViewModel = BuildStepViewModel(step, area, session, guide);
@@ -108,8 +122,23 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            ClearActiveControl();
+            // Modal-overlay controls (ResourceSetup, LineClearance) show as Bootstrap modals
+            // over the POD — they must NOT hide the work list and must re-open after submit
+            // so the operator sees the confirmation banner before closing with X.
+            bool isModalOverlay = step.StepType == StepType.ResourceSetup ||
+                                  step.StepType == StepType.LineClearance;
+
+            if (isModalOverlay)
+                ClearActiveControlViewState();
+            else
+                ClearActiveControl();
+
             ProcessSubmit(session, guide, area, step, e.Answer);
+
+            if (step.StepType == StepType.ResourceSetup)
+                ReopenModal("modalResourceSetup");
+            else if (step.StepType == StepType.LineClearance)
+                ReopenModal("modalDCStandalone");
         }
 
         private void ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
@@ -122,20 +151,18 @@ namespace TrainingApp.Pages.Training
             switch (result.Outcome)
             {
                 case StepSubmitOutcome.Correct:
-                    HandleCorrectSubmit(session, guide, area, result);
+                    HandleCorrectSubmit(session, guide, area, step.StepType);
                     break;
 
                 case StepSubmitOutcome.Incorrect:
-                    ShowSweetAlert("warning", "Incorrect", step.StepType.ToString() + ": " +
-                        (string.IsNullOrEmpty(GetHint(step.StepType)) ? "Try again." : GetHint(step.StepType)));
+                    ShowSweetAlert("warning", "Incorrect",
+                        string.IsNullOrEmpty(GetHint(step.StepType)) ? "Try again." : GetHint(step.StepType));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
                     ShowSweetAlert("error", "Step Failed",
                         "Paso fallido — el sistema avanza automáticamente.");
-                    // Force advance: re-load for next step
-                    var refreshedSession = _sessionService.GetById(session.Id);
-                    HandleCorrectSubmit(refreshedSession, guide, area, result);
+                    HandleCorrectSubmit(_sessionService.GetById(session.Id), guide, area, step.StepType);
                     break;
 
                 case StepSubmitOutcome.SessionCompleted:
@@ -145,7 +172,7 @@ namespace TrainingApp.Pages.Training
         }
 
         private void HandleCorrectSubmit(TrainingSession session, TrainingGuide guide,
-            Area area, StepSubmitResult result)
+            Area area, StepType submittedStepType)
         {
             var refreshedSession = _sessionService.GetById(session.Id);
             if (refreshedSession.Status == SessionStatus.Completed)
@@ -157,14 +184,19 @@ namespace TrainingApp.Pages.Training
             var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
             if (nextStep == null) return;
 
-            // Detect Moldeo LC (after Search, before DC)
-            if (nextStep.StepType == StepType.LineClearance &&
+            // Moldeo LC 3-modal sequence triggers ONLY when:
+            // 1. The just-submitted step was Search (pressing [Start])
+            // 2. The next step is LineClearance
+            // 3. Area is Moldeo (RequiresDataCollection=true, RequiresAssembly=false)
+            if (submittedStepType == StepType.Search &&
+                nextStep.StepType == StepType.LineClearance &&
                 area.RequiresDataCollection && !area.RequiresAssembly &&
                 GetMoldeoSubStep() == 0)
             {
                 SetMoldeoSubStep(1);
                 LoadAndShowControl(
-                    "~/UI/Controls/Training/SearchControl.ascx", area, refreshedSession, guide, "modalMoldeoStart");
+                    "~/UI/Controls/Training/SearchControl.ascx",
+                    area, refreshedSession, guide, "modalMoldeoStart");
                 return;
             }
 
@@ -177,16 +209,18 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            // ResourceSetup is a modal overlay — POD work list must stay visible
             LoadAndShowControl("~/UI/Controls/Training/ResourceSetupControl.ascx",
-                area, session, guide, "modalResourceSetup");
+                area, session, guide, "modalResourceSetup", hideWorkList: false);
         }
 
         protected void BtnActivities_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            // LineClearance (Data Collection Standalone) is a modal overlay — POD stays visible
             LoadAndShowControl("~/UI/Controls/Training/LineClearanceControl.ascx",
-                area, session, guide, "modalDCStandalone");
+                area, session, guide, "modalDCStandalone", hideWorkList: false);
         }
 
         protected void BtnStart_ServerClick(object sender, EventArgs e)
@@ -247,7 +281,7 @@ namespace TrainingApp.Pages.Training
             ProcessSubmit(session, guide, area, step, "complete");
         }
 
-        protected void BtnAbandon_ServerClick(object sender, EventArgs e)
+        protected void BtnAbandon_Click(object sender, EventArgs e)
         {
             var session = LoadAndValidateSession();
             if (session == null) return;
@@ -255,18 +289,39 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
+        protected void BtnLogout_ServerClick(object sender, EventArgs e)
+        {
+            Session.Abandon();
+            System.Web.Security.FormsAuthentication.SignOut();
+            Response.Redirect("~/Pages/Auth/Login.aspx");
+        }
+
         // ── Control loading ──────────────────────────────────────────────
         private void LoadAndShowControl(string path, Area area, TrainingSession session,
-            TrainingGuide guide, string modalId)
+            TrainingGuide guide, string modalId, bool hideWorkList = true)
         {
             var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
-
             ViewState[ActiveCtrlPathKey] = path;
-            PnlWorkList.Visible          = false;
-            PnlActiveControl.Visible     = true;
 
-            // Re-create the control for THIS request (it's not in tree yet — first load)
-            var existing = PnlActiveControl.FindControl("StepCtrl");
+            // Modal-overlay controls (ResourceSetup, LC) use PnlModalHost — a plain div
+            // with no positioning — so the POD work list remains visible behind the Bootstrap modal.
+            // View-replacement controls (Assembly, DC, LogNC) use PnlActiveControl which has
+            // position:fixed and background:white to cover the work list area.
+            System.Web.UI.WebControls.Panel targetPanel;
+            if (hideWorkList)
+            {
+                PnlWorkList.Visible      = false;
+                PnlActiveControl.Visible = true;
+                targetPanel = PnlActiveControl;
+            }
+            else
+            {
+                PnlModalHost.Visible = true;
+                targetPanel = PnlModalHost;
+            }
+
+            // Re-create the control for THIS request if not already in tree
+            var existing = targetPanel.FindControl("StepCtrl");
             if (existing == null)
             {
                 var ctrl = LoadControl(path) as IStepControl;
@@ -284,7 +339,11 @@ namespace TrainingApp.Pages.Training
                 if (moldeoSub > 0)
                     ctrl.ViewModel.CurrentSubStep = moldeoSub;
 
-                PnlActiveControl.Controls.Add((UserControl)ctrl);
+                targetPanel.Controls.Add((UserControl)ctrl);
+
+                // Call Initialize() explicitly — Page_Load may have already passed
+                // when this control is added during an event handler
+                ctrl.Initialize();
             }
 
             if (!string.IsNullOrEmpty(modalId))
@@ -293,7 +352,6 @@ namespace TrainingApp.Pages.Training
 
         private void ReopenSearchControlForNextSubStep(Area area, TrainingSession session, TrainingGuide guide)
         {
-            int sub = GetMoldeoSubStep();
             ClearActiveControl();
             LoadAndShowControl("~/UI/Controls/Training/SearchControl.ascx",
                 area, session, guide, "modalMoldeoStart");
@@ -305,7 +363,17 @@ namespace TrainingApp.Pages.Training
             ViewState.Remove(ActiveCtrlModeKey);
             PnlActiveControl.Controls.Clear();
             PnlActiveControl.Visible = false;
-            PnlWorkList.Visible      = true;
+            PnlModalHost.Controls.Clear();
+            PnlModalHost.Visible = false;
+            PnlWorkList.Visible  = true;
+        }
+
+        // For modal-overlay controls: clears ViewState (control not restored next PostBack)
+        // but keeps the modal HTML in the response so ReopenModal can show the confirmation banner.
+        private void ClearActiveControlViewState()
+        {
+            ViewState.Remove(ActiveCtrlPathKey);
+            ViewState.Remove(ActiveCtrlModeKey);
         }
 
         // ── Completion panel ─────────────────────────────────────────────
@@ -518,7 +586,13 @@ namespace TrainingApp.Pages.Training
                     break;
                 case StepType.LineClearance:
                     if (GetMoldeoSubStep() == 0)
+                    {
                         BtnActivities.Disabled = false;
+                        // Enable the dropdown toggle so the Activities menu can open
+                        Page.ClientScript.RegisterStartupScript(GetType(), "enableActivitiesToggle",
+                            "var t=document.getElementById('BtnActivitiesToggle');" +
+                            "if(t) t.disabled=false;", true);
+                    }
                     // When MoldeoSubStep > 0: all buttons disabled — SearchControl handles interaction
                     break;
                 case StepType.Search:
@@ -584,9 +658,7 @@ namespace TrainingApp.Pages.Training
 
         protected void ReopenModal(string modalId)
         {
-            string script = string.Format(
-                "$(document).ready(function(){{var m=document.getElementById('{0}');if(m)new bootstrap.Modal(m).show();}});",
-                modalId);
+            string script = string.Format("showModalSafe('{0}');", modalId);
             ClientScript.RegisterStartupScript(GetType(), "modal_" + modalId, script, true);
         }
 

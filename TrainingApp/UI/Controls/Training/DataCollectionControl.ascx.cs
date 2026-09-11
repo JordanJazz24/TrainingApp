@@ -25,18 +25,17 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack && ViewModel != null)
-            {
-                BindGroupList();
-                string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")
-                    ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";
-                LitSFCCounter.Text = Page.Server.HtmlEncode(sfcCode + " (1/1)");
-            }
-            else if (IsPostBack && ActiveGroup != null)
-            {
-                // Re-render parameter inputs after PostBack
-                RenderParams(ActiveGroup);
-            }
+            if (!IsPostBack) Initialize();
+            else if (ActiveGroup != null) RenderParams(ActiveGroup);
+        }
+
+        public void Initialize()
+        {
+            if (ViewModel == null) return;
+            BindGroupList();
+            string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")
+                ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";
+            LitSFCCounter.Text = Page.Server.HtmlEncode(sfcCode + " (1/1)");
         }
 
         protected void BtnCollect_Click(object sender, EventArgs e)
@@ -51,7 +50,7 @@ namespace TrainingApp.UI.Controls.Training
             RenderParams(groupCode);
 
             Page.ClientScript.RegisterStartupScript(GetType(), "openDCEntry",
-                "$(document).ready(function(){var m=document.getElementById('modalDCEntry');if(m)new bootstrap.Modal(m).show();});", true);
+                "showModalSafe('modalDCEntry');", true);
         }
 
         protected void BtnSave_Click(object sender, EventArgs e)
@@ -65,7 +64,7 @@ namespace TrainingApp.UI.Controls.Training
         {
             // Save Draft — does NOT complete the step; keep modal open
             Page.ClientScript.RegisterStartupScript(GetType(), "reopenDCEntry",
-                "$(document).ready(function(){var m=document.getElementById('modalDCEntry');if(m)new bootstrap.Modal(m).show();});", true);
+                "showModalSafe('modalDCEntry');", true);
         }
 
         private void BindGroupList()

@@ -34,6 +34,16 @@ html, body {
 
 .pod-header .pod-header-controls i { cursor: pointer; font-size: 1rem; }
 
+.pod-header-logout {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+}
+
 /* ── Score widget (top-right, below header) ─────────────── */
 .pod-score-widget {
     position: fixed;
@@ -231,6 +241,20 @@ html, body {
 }
 .status-active  { background: #198754; }
 .status-default { background: #6c757d; }
+
+/* ── Active control overlay (list-view controls: Assembly, DC, LogNC) ─ */
+/* Modals from UserControls render at body level — no clipping.          */
+.pod-active-control {
+    position: fixed;
+    top: 130px;
+    bottom: 56px;
+    left: 0;
+    right: 170px;
+    background: #fff;
+    /* NO overflow — Bootstrap modals need position:fixed relative to viewport,
+       any overflow on an ancestor would clip them */
+    z-index: 1025;
+}
 
 /* ── List views (Component List / DC List / NC Selection) ─ */
 .pod-list-view { padding: 0 10px 10px; }

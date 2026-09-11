@@ -120,10 +120,7 @@
 </div>
 
 <script>
-function openAssembleModal(idx) {
-    var m = document.getElementById('modalAssemble');
-    if (m) new bootstrap.Modal(m).show();
-}
+function openAssembleModal(idx) { showModalSafe('modalAssemble'); }
 function closeAssemblyView() {
     // Signal to code-behind that user cancelled — PostBack with empty answer
 }

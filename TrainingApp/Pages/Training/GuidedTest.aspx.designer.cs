@@ -6,7 +6,7 @@ namespace TrainingApp.Pages.Training
         // Header
         protected global::System.Web.UI.WebControls.Literal LitSite;
         protected global::System.Web.UI.WebControls.Literal LitUserName;
-        protected global::System.Web.UI.WebControls.HyperLink LnkLogout;
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnLogout;
 
         // Score widget
         protected global::System.Web.UI.WebControls.Panel PnlScore;
@@ -41,6 +41,7 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.Repeater RptWorkList;
         protected global::System.Web.UI.WebControls.Repeater RptBrowseList;
         protected global::System.Web.UI.WebControls.Panel PnlActiveControl;
+        protected global::System.Web.UI.WebControls.Panel PnlModalHost;
 
         // Completion panel
         protected global::System.Web.UI.WebControls.Panel PnlCompleted;
