@@ -342,9 +342,9 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
 
 **StepType:** `Search` | **StepWeight:** 15% (hereda peso de Assembly cuando RequiresAssembly=false) | **Validación:** secuencia pura (siempre true)
 
-**Acceso:** directamente en el Dashboard — campo SFC en la search bar.
+**Acceso:** directamente en el Dashboard — campo SFC en la search bar + botón [Start].
 
-> No abre modal propio. El operador carga la orden en el POD desde la pantalla principal.
+> En áreas Moldeo/R&C (NonSerialized, RequiresDataCollection), presionar [Start] lanza una secuencia de **4 modales secuenciales** que capturan el proceso de inicio completo. La tabla POD **permanece visible** detrás de los modales en todo momento.
 
 ### Campo SFC (search bar)
 
@@ -355,7 +355,9 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
                                     Ícono browse a la derecha abre Browse Work List.
 ```
 
-**Importante:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). No es readonly. El legacy lo tenía readonly — corrección para el nuevo sistema.
+**Importante:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). No es readonly.
+
+**Validación del botón [Start]:** el botón solo permite avanzar si hay texto en el campo SFC. Si está vacío → SweetAlert warning y no avanza.
 
 ### Sub-modal: Browse Work List (ruta alternativa)
 
@@ -376,36 +378,197 @@ Se abre al hacer clic en el ícono browse cuando no es posible escanear.
 - [OK] o doble clic = confirma selección, cierra modal, carga en POD
 - [Cancel] = cierra sin cambios
 
-### Estado del POD después de cargar la orden
+---
+
+### Secuencia de 4 modales (Moldeo/R&C — NonSerialized)
+
+Se lanza al presionar [Start] con un SFC válido en el campo. Los modales son **secuenciales** — el operador no puede avanzar al siguiente sin completar el actual. La tabla POD permanece visible detrás de todos los modales.
+
+#### Modal 1: ID del Molde
+
+**Group CD:** `DCGTM_ID_MOLDE/A`
 
 ```
-★ {operationName}    ★ {resourceName}    SFC: {sfcCode}  [copy]    Shop Order: {shopOrder}    Status (SFC): Active
+[Data Collection Entry]                                               [↗][X]
+  DC Group: DCGTM_ID_MOLDE/A    Resource: {resourceName}
+────────────────────────────────────────────────────────────────────────────
+  ★ Ingrese el ID del molde:
+    Data Type: Numeric
+    [________________________________]
+────────────────────────────────────────────────────────────────────────────
+                                                    [Save]  [Cancel]
 ```
 
-Tabla POD poblada con la fila del SFC cargado. Header top-right se actualiza con Shop Order + Status.
+**Validaciones:**
+| # | Validación | SweetAlert |
+|---|---|---|
+| 1 | Campo no vacío | "Debes ingresar el ID del molde." |
+| 2 | Valor numérico | "El ID del molde debe ser un valor numérico." |
 
-Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de acción para iniciar la orden.
+- [Cancel] cierra el modal y aborta la secuencia (operador regresa al POD sin avanzar el paso)
+- [Save] válido → cierra Modal 1, abre Modal 2
 
-### Flujo del operador
+---
+
+#### Modal 2: Verificaciones de Etiquetas
+
+**Group CD:** `DCGTM_VERIFICACIONES/A`
+
+```
+[Data Collection Entry]                                               [↗][X]
+  DC Group: DCGTM_VERIFICACIONES/A    Resource: {resourceName}
+────────────────────────────────────────────────────────────────────────────
+  ★ ¿Se verificaron las etiquetas de calibración?
+    Data Type: Boolean
+    [ Seleccione ▼ ]  NO / Sí
+
+  ★ ¿Se verificó D000128682 o D000207232?
+    Data Type: Boolean
+    [ Seleccione ▼ ]  NO / Sí
+
+  ★ ¿Se verificó según D000128035 o D000207299?
+    Data Type: Boolean
+    [ Seleccione ▼ ]  NO / Sí
+────────────────────────────────────────────────────────────────────────────
+                                                    [Save]  [Cancel]
+```
+
+**Validaciones (se detiene en la primera que falle):**
+| # | Validación | SweetAlert |
+|---|---|---|
+| 1 | Todas las preguntas respondidas (no en blanco) | "Debes responder todas las preguntas antes de guardar." |
+| 2 | Todas las respuestas == "Sí" | "Todas las respuestas deben ser 'Sí' para continuar." |
+
+- Responder "No" en cualquiera = SweetAlert warning, modal permanece abierto
+- [Save] válido → cierra Modal 2, abre Modal 3
+
+---
+
+#### Modal 3: Parámetros Técnicos MSS
+
+**Group CD:** `DCGTM_PARAMETROS_MSS_D000281359/A`
+
+```
+[Data Collection Entry]                                               [↗][X]
+  DC Group: DCGTM_PARAMETROS_MSS_D000281359/A    Resource: {resourceName}
+────────────────────────────────────────────────────────────────────────────
+  ★ Cooling Time según MSS D000281359:          Data Type: Numeric    [___]
+  ★ Velocidad de inyección según MSS D000281359: Data Type: Numeric   [___]
+  ★ Intensidad de pad printing:                  Data Type: Numeric   [___]
+  ★ Temperatura Zona 1:                          Data Type: Numeric   [___]
+  ★ Temperatura Zona 2:                          Data Type: Numeric   [___]
+  ★ Temperatura Zona 3:                          Data Type: Numeric   [___]
+  ★ Temperatura Zona 4:                          Data Type: Numeric   [___]
+  ★ Temperatura Zona 5:                          Data Type: Numeric   [___]
+  ★ Temperatura Zona 6:                          Data Type: Numeric   [___]
+  ★ Tiempo de curado de pad printing:            Data Type: Numeric   [___]
+────────────────────────────────────────────────────────────────────────────
+                                                    [Save]  [Cancel]
+```
+
+**Validaciones (se validan todos los campos, no solo el primero fallido):**
+| # | Validación | SweetAlert |
+|---|---|---|
+| 1 | Todos los campos no vacíos | "Debes completar todos los parámetros antes de guardar." |
+| 2 | Todos los valores numéricos | "Los valores de {campo} deben ser numéricos." |
+
+- [Save] válido → cierra Modal 3, abre Modal 4
+
+---
+
+#### Modal 4: Verificación Final MSS
+
+**Group CD:** `DCGTM_VERIFICACION_FINAL/A`
+
+```
+[Data Collection Entry]                                               [↗][X]
+  DC Group: DCGTM_VERIFICACION_FINAL/A    Resource: {resourceName}
+────────────────────────────────────────────────────────────────────────────
+  ★ ¿Se verificó según D000128035 o D000207299?
+    Data Type: Boolean
+    [ Seleccione ▼ ]  NO / Sí
+────────────────────────────────────────────────────────────────────────────
+                                                    [Save]  [Cancel]
+```
+
+**Validaciones:**
+| # | Validación | SweetAlert |
+|---|---|---|
+| 1 | Dropdown seleccionado (no en blanco) | "Debes seleccionar una respuesta." |
+| 2 | Respuesta == "Sí" | "La respuesta debe ser 'Sí' para continuar." |
+
+- [Save] válido → cierra Modal 4 → secuencia completa
+
+---
+
+### Finalización del Start
+
+Tras cerrar Modal 4:
+- La tabla POD continúa visible (nunca se ocultó)
+- La orden seleccionada se carga en la tabla POD con su fila (SFC, Material Description, Qty, Status: Active, Process Lot, Shop Order)
+- Banner informativo en la zona entre header y search bar: **"✓ Start process completed successfully"** (5 segundos, luego desaparece)
+- El paso avanza en el servidor
+
+---
+
+### Flujo del operador (completo)
 1. Enfocar campo SFC en la search bar
-2a. Escanear SFC/etiqueta directamente → Enter → POD carga automáticamente
+2a. Escanear SFC/etiqueta directamente
 2b. (alternativa) Clic en ícono browse → Browse Work List → seleccionar fila → OK
-3. Verificar que la tabla POD muestre la orden con Status: Active
-4. Si la orden no inició: clic en [Start]
+3. Verificar que el campo SFC tenga valor
+4. Clic en **[Start]** en la barra de acción
+5. Modal 1 → ingresar ID del molde (numérico) → [Save]
+6. Modal 2 → responder 3 preguntas de verificación (todas "Sí") → [Save]
+7. Modal 3 → ingresar 10 parámetros MSS (todos numéricos) → [Save]
+8. Modal 4 → responder verificación final ("Sí") → [Save]
+9. Confirmar banner "Start process completed successfully"
+
+---
 
 ### Reglas de negocio
-- No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
-- La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
-- Bifurcación por SerializationType: Serialized = escaneo pieza por pieza; NonSerialized = selección de lote/batch (documentar en área específica)
+- [Start] no permite avanzar si el campo SFC está vacío
+- La tabla POD permanece visible en todo momento — los modales son overlay
+- [Cancel] en cualquier modal aborta la secuencia sin avanzar el paso
+- Todos los campos numéricos deben ser valores numéricos (no texto)
+- Todas las preguntas booleanas deben responderse "Sí"
+- La secuencia es estrictamente lineal (1→2→3→4), no se puede saltear
+
+---
+
+### Notas de implementación
+
+`SearchControl.ascx` contiene los **4 modales** pre-renderizados en el DOM. La secuencia se maneja con un HiddenField `HfSubStep` que rastrean qué modal está activo.
+
+**Modelo de PostBacks:**
+- PostBack #1: `BtnStart_ServerClick` → valida SFC no vacío → carga `SearchControl.ascx` → abre Modal 1 (`showModalSafe('modalSearch1')`)
+- Modal 1 [Save] = PostBack #2 → valida numérico → cierra Modal 1 → abre Modal 2
+- Modal 2 [Save] = PostBack #3 → valida todas "Sí" → cierra Modal 2 → abre Modal 3
+- Modal 3 [Save] = PostBack #4 → valida 10 numéricos → cierra Modal 3 → abre Modal 4
+- Modal 4 [Save] = PostBack #5 → valida "Sí" → llama `OnStepSubmit` → banner éxito
+- Todos los modales usan `data-bs-backdrop="static"` (no se cierran al hacer clic fuera)
+
+---
+
+### Resumen de validaciones
+
+| Modal | Tipo Dato | Validación | SweetAlert |
+|---|---|---|---|
+| 1 — ID del Molde | Numérico | Campo no vacío + es número | Sí |
+| 2 — Verificaciones | Boolean × 3 | Todas respondidas + todas "Sí" | Sí |
+| 3 — Parámetros MSS | Numérico × 10 | Todos llenos + todos números | Sí |
+| 4 — Verificación Final | Boolean | Respondida + "Sí" | Sí |
+
+---
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
 |---|---|---|
 | Campo SFC | Editable, acepta escaneo directo | Readonly, solo abría el modal |
-| Nombre del modal | "BROWSE WORK LIST - SFCS QUEUED - {contexto}" | "BUSCAR POOL DE TRABAJO - SFC EN COLA" |
-| Columnas del Browse | SFC · Material Desc · Schedule Start · Planned Completion | CP · Order · State · Shop Order · Material Desc |
-| Footer del Browse | [✓ OK] [✗ Cancel] | [OK] [Cancelar] |
-| Shop Order en header | Actualiza top-right: `Shop Order: XXXXX  Status: Active` | `Orden de fabricación: Status (NCP)` |
+| [Start] sin SFC | Bloqueado con SweetAlert | No validado |
+| Modales de inicio | 4 secuenciales (Data Collection Entry) | 1 modal combinado con mezcla de preguntas |
+| POD durante modales | Siempre visible (overlay) | Desaparecía al abrir modal |
+| Banner éxito | "Start process completed successfully" 5s | No implementado |
+| Browse Work List | Nombre · columnas en inglés | "BUSCAR POOL DE TRABAJO" en español |
 
 ---
 

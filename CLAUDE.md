@@ -58,9 +58,20 @@ Product (producto de más alto nivel — línea de manufactura)
 
 ### Ejes de variación — son independientes entre sí, no se derivan uno del otro
 
-- **SerializationType** (`Serialized | NonSerialized`): afecta únicamente el MODO DE
-  INTERACCIÓN en el paso de Búsqueda (pieza por pieza vs. lote/batch) y en el Cierre
-  (selección individual de piezas defectuosas vs. split de cantidad del lote).
+- **SerializationType** (`Serialized | NonSerialized`): la diferencia aparece en el paso
+  Search/Start Order — NO en Resource Setup. Resource Setup solo asocia el recurso
+  (estación) a la Shop Order y las herramientas requeridas; es idéntico en ambos tipos.
+
+  - `Serialized`: la Shop Order genera múltiples SFC individuales (ej. 989609001101-01,
+    989609001101-02, 989609001101-03). Cada SFC tiene identidad y trazabilidad propia.
+    El operador escanea SFCs individuales o selecciona varios desde Browse Work List.
+    MES mantiene cada SFC como entidad independiente. Al scrapear: selección individual.
+  - `NonSerialized`: la Shop Order genera un único SFC con una cantidad asociada (ej.
+    SFC = 50012345, Qty = 500). No existen SFCs individuales tipo 50012345-001.
+    El operador escanea o selecciona la Shop Order/SFC una vez. MES controla cantidad
+    total, no unidades. Al scrapear: split de cantidad del lote.
+
+  Afecta el modo de interacción en Search/Start y en el paso de Cierre/Scrap únicamente.
 - **RequiresAssembly** (`bool`) y **RequiresDataCollection** (`bool`): flags
   independientes, hoy a nivel `Area` (con intención de moverse a `Operation` cuando
   exista esa granularidad). NO se derivan de `SerializationType` — una operación
@@ -76,15 +87,25 @@ de Data Collection), nunca la secuencia de tipos de paso:
 
 ```
 Apertura:
-  1. Resource Setup      — captura libre (tool number = escaneo físico, sin
-                            validar contra catálogo). Se califica por SECUENCIA
-                            correcta, no por contenido.
+  1. Resource Setup      — asocia el recurso (estación) a la Shop Order y las
+                            herramientas/equipos requeridos para la operación.
+                            Ejemplo: Resource = R_SCN_MASK_1,
+                              Shop Order = 303406950, Tool = 10033058, Tool = 10087734.
+                            NO define qué piezas se van a procesar — eso es Search/Start.
+                            Captura libre (sin validar contra catálogo). Se califica
+                            por SECUENCIA correcta, no por contenido.
   2. Line Clearance      — pregunta sí/no.
-  3. Search/Start Order  — navegación pura, sin contenido. Se califica por
-                            SECUENCIA correcta (el operador debe saber que
-                            este es el paso que sigue).
-     ↳ Serialized:    escaneo pieza por pieza → POD
-     ↳ NonSerialized: selección de lote/batch → POD
+  3. Search/Start Order  — AQUÍ aparece la diferencia por SerializationType.
+                            Se califica por SECUENCIA correcta (el operador debe saber
+                            que este es el paso que sigue).
+     ↳ Serialized:    la Shop Order tiene múltiples SFC individuales. El operador
+                        escanea SFCs uno a uno o selecciona varios desde Browse
+                        Work List y ejecuta Start. El POD carga las piezas
+                        individuales seleccionadas.
+     ↳ NonSerialized: la Shop Order tiene un único SFC con cantidad total (ej.
+                        Qty=500). El operador escanea/selecciona ese SFC una vez
+                        y ejecuta Start. El POD carga ese único SFC con su
+                        cantidad.
   4. Assembly            — condicional a RequiresAssembly. Proceso genérico:
                             escanear y registrar N componentes (N = dato de
                             catálogo por Area). No valida contenido del
@@ -283,7 +304,7 @@ Términos del dominio MES que aplican tanto al legacy como a la nueva plataforma
 |---|---|
 | **SFC** | Shop Floor Control — unidad de trabajo que el operador abre y ejecuta (equivale a una orden de manufactura en piso) |
 | **LC** | Line Clearance — verificación de limpieza de línea; serie de preguntas booleanas que el operador debe responder antes de iniciar |
-| **Resource Setup** | Configuración previa al inicio: Shop Order, Tool y Material que se asignan a la operación |
+| **Resource Setup** | Asocia el recurso (estación de trabajo) a la Shop Order y las herramientas/equipos requeridos para la operación. No define qué piezas se procesan — eso ocurre en Search/Start. Ejemplo: Resource = R_SCN_MASK_1, Shop Order = 303406950, Tool = 10033058, Tool = 10087734. |
 | **DataCollection** | Captura de parámetros de proceso (temperatura, tiempo, presión, etc.) agrupados por tipo de proceso |
 | **NC / Scrap** | Registro de material no conforme o scrap con código de causa |
 | **TrainingGuide** | Plantilla de pasos ejecutables que define el flujo del operador: qué pasos, en qué orden, con qué validaciones. Es inmutable una vez publicada. |
@@ -296,7 +317,7 @@ Términos del dominio MES que aplican tanto al legacy como a la nueva plataforma
 | **Product** | Línea de producto de más alto nivel: Wires, Catéteres o Sensores. |
 | **Area** | Sublínea de ensamblaje dentro de un Product (ej. R&C, LoFlo). Unidad a la que hoy se asocia una TrainingGuide general. Las áreas reales del roadmap son R&C (Fase 2) y LoFlo/Sensores (Fase 7). |
 | **Operation** | [Futuro] Subdivisión de una Area — cada Area puede tener de 3 a 10 Operations, cada una con sus propios pasos específicos. Hoy no se usa para generar guías distintas, pero el esquema debe preverlo. |
-| **SerializationType** | `Serialized` (unidad individual, escaneo pieza por pieza) o `NonSerialized` (lote/batch, con split al scrapear). Determina el modo de interacción en Búsqueda y Cierre — no determina Assembly ni Data Collection. |
+| **SerializationType** | Determina cómo la Shop Order genera SFCs en Search/Start y cómo se scrappea en Cierre. `Serialized`: la Shop Order genera múltiples SFC individuales con identidad propia (ej. 989609001101-01, -02, -03); el operador puede procesar y scrapear unidades individualmente. `NonSerialized`: la Shop Order genera un único SFC con cantidad total (ej. SFC = 50012345, Qty = 500); MES controla cantidad total, no unidades. La diferencia NO aplica a Resource Setup — ese paso es idéntico en ambos tipos. |
 | **SessionMode** | `Guided` (reintentos ilimitados, sin penalización, práctica) o `Assessment` (puntaje mínimo de aprobación, penalización por reintento). |
 | **StepWeight** | Ponderación fija de cada tipo de paso sobre el puntaje final (no varía por Area). |
 

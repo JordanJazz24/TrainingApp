@@ -1,98 +1,156 @@
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Web.UI;
 using TrainingApp.Pages.Training.Models;
 
 namespace TrainingApp.UI.Controls.Training
 {
-    public partial class SearchControl : UserControl, TrainingApp.Pages.Training.Models.IStepControl
+    public partial class SearchControl : UserControl, IStepControl
     {
-        public StepViewModel ViewModel { get; set; }
+        private const string SubStepKey = "SearchCtrl_SubStep";
 
+        public StepViewModel ViewModel { get; set; }
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            if (ViewModel == null || ViewModel.CurrentSubStep == 0) return;
-            PnlSubStep.Visible = true;
-            if (!IsPostBack)
-                SetupSubStep(ViewModel.CurrentSubStep);
-        }
+        protected void Page_Load(object sender, EventArgs e) { }
 
         public void Initialize()
         {
-            if (ViewModel == null || ViewModel.CurrentSubStep == 0) return;
-            PnlSubStep.Visible = true;
-            SetupSubStep(ViewModel.CurrentSubStep);
+            if (ViewModel == null) return;
+
+            string resource = ViewModel.ExtraData.ContainsKey("ResourceName")
+                ? Page.Server.HtmlEncode(ViewModel.ExtraData["ResourceName"]?.ToString() ?? "")
+                : "";
+
+            LitResource1.Text = LitResource2.Text = LitResource3.Text = LitResource4.Text = resource;
+
+            ViewState[SubStepKey] = 1;
+            Page.ClientScript.RegisterStartupScript(GetType(), "searchOpen1",
+                "showModalSafe('modalSearch1');", true);
         }
 
-        private void SetupSubStep(int subStep)
+        protected void BtnSave1_Click(object sender, EventArgs e)
         {
-            LitResource.Text = Page.Server.HtmlEncode(
-                ViewModel.ExtraData.ContainsKey("ResourceName")
-                    ? ViewModel.ExtraData["ResourceName"]?.ToString() : "");
+            string v = TxtMoldeId.Text.Trim();
+            bool empty   = string.IsNullOrEmpty(v);
+            bool notNum  = !empty && !decimal.TryParse(v, NumberStyles.Number,
+                                CultureInfo.InvariantCulture, out _);
 
-            switch (subStep)
+            if (empty || notNum)
             {
-                case 1:
-                    LitDCGroup.Text    = "DCGTM_ID_MOLDE/A";
-                    LitParam1Label.Text = Page.Server.HtmlEncode(
-                        GetExtraString("Param1Label", "ID del molde"));
-                    PnlSubStep1.Visible = true;
-                    break;
-
-                case 2:
-                    LitDCGroup.Text = "DCGTM_LC_MOLDEO/A";
-                    var questions   = GetExtraList("LCQuestions");
-                    RptBoolQuestions.DataSource = questions;
-                    RptBoolQuestions.DataBind();
-                    PnlSubStep2.Visible = true;
-                    break;
-
-                case 3:
-                    LitDCGroup.Text    = "DCGTM_LC_MOLDEO/A";
-                    LitParam3Label.Text = Page.Server.HtmlEncode(
-                        GetExtraString("Param3Label", "¿Se verificó el IDMold & IDIMM según MSS?"));
-                    PnlSubStep3.Visible = true;
-                    break;
-            }
-        }
-
-        protected void BtnSave_Click(object sender, EventArgs e)
-        {
-            if (!Page.IsValid) return;
-
-            string answer;
-            switch (ViewModel.CurrentSubStep)
-            {
-                case 1:
-                    answer = TxtParam1.Text.Trim();
-                    break;
-                case 2:
-                    answer = HfBoolAnswers.Value;
-                    break;
-                case 3:
-                    answer = DdlParam3.SelectedValue;
-                    break;
-                default:
-                    answer = string.Empty;
-                    break;
+                string msg = empty
+                    ? "Debes ingresar el ID del molde."
+                    : "El ID del molde debe ser un valor num\u00e9rico.";
+                // Reopen modal first so it's visible behind the SweetAlert
+                Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                    "showModalSafe('modalSearch1');", true);
+                Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                    "Swal.fire({icon:'warning',title:'Valor inv\u00e1lido',text:'" + EscJs(msg) + "'});", true);
+                return;
             }
 
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer });
+            ViewState[SubStepKey] = 2;
+            Page.ClientScript.RegisterStartupScript(GetType(), "searchNext",
+                "showModalSafe('modalSearch2');", true);
         }
 
-        private string GetExtraString(string key, string defaultValue)
+        protected void BtnSave2_Click(object sender, EventArgs e)
         {
-            return ViewModel.ExtraData.ContainsKey(key)
-                ? ViewModel.ExtraData[key]?.ToString() ?? defaultValue
-                : defaultValue;
+            string[] vals = { DdlVerif1.SelectedValue, DdlVerif2.SelectedValue, DdlVerif3.SelectedValue };
+            foreach (var val in vals)
+            {
+                if (string.IsNullOrEmpty(val))
+                {
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                        "showModalSafe('modalSearch2');", true);
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                        "Swal.fire({icon:'warning',title:'Campo requerido'," +
+                        "text:'Debes responder todas las preguntas antes de guardar.'});", true);
+                    return;
+                }
+                if (val != "true")
+                {
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                        "showModalSafe('modalSearch2');", true);
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                        "Swal.fire({icon:'warning',title:'Respuesta incorrecta'," +
+                        "text:'Todas las respuestas deben ser \\u0022S\\u00ed\\u0022 para continuar.'});", true);
+                    return;
+                }
+            }
+
+            ViewState[SubStepKey] = 3;
+            Page.ClientScript.RegisterStartupScript(GetType(), "searchNext",
+                "showModalSafe('modalSearch3');", true);
         }
 
-        private IList<object> GetExtraList(string key)
+        protected void BtnSave3_Click(object sender, EventArgs e)
         {
-            if (!ViewModel.ExtraData.ContainsKey(key)) return new List<object>();
-            return ViewModel.ExtraData[key] as IList<object> ?? new List<object>();
+            System.Web.UI.WebControls.TextBox[] fields = {
+                TxtMss1, TxtMss2, TxtMss3, TxtMss4, TxtMss5,
+                TxtMss6, TxtMss7, TxtMss8, TxtMss9, TxtMss10
+            };
+            foreach (var f in fields)
+            {
+                string v = f.Text.Trim();
+                if (string.IsNullOrEmpty(v))
+                {
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                        "showModalSafe('modalSearch3');", true);
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                        "Swal.fire({icon:'warning',title:'Campos incompletos'," +
+                        "text:'Debes completar todos los par\\u00e1metros antes de guardar.'});", true);
+                    return;
+                }
+                if (!decimal.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
+                {
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                        "showModalSafe('modalSearch3');", true);
+                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                        "Swal.fire({icon:'warning',title:'Valor inv\\u00e1lido'," +
+                        "text:'Todos los par\\u00e1metros deben ser valores num\\u00e9ricos.'});", true);
+                    return;
+                }
+            }
+
+            ViewState[SubStepKey] = 4;
+            Page.ClientScript.RegisterStartupScript(GetType(), "searchNext",
+                "showModalSafe('modalSearch4');", true);
         }
+
+        protected void BtnSave4_Click(object sender, EventArgs e)
+        {
+            string v = DdlFinal.SelectedValue;
+            if (string.IsNullOrEmpty(v))
+            {
+                Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                    "showModalSafe('modalSearch4');", true);
+                Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                    "Swal.fire({icon:'warning',title:'Campo requerido'," +
+                    "text:'Debes seleccionar una respuesta.'});", true);
+                return;
+            }
+            if (v != "true")
+            {
+                Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
+                    "showModalSafe('modalSearch4');", true);
+                Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
+                    "Swal.fire({icon:'warning',title:'Respuesta incorrecta'," +
+                    "text:'La respuesta debe ser \\u0022S\\u00ed\\u0022 para continuar.'});", true);
+                return;
+            }
+
+            ViewState[SubStepKey] = 0;
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = "true" });
+        }
+
+        protected void BtnCancel_Click(object sender, EventArgs e)
+        {
+            ViewState[SubStepKey] = 0;
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = "CANCELLED" });
+        }
+
+        private static string EscJs(string s)
+            => s?.Replace("'", "\\'").Replace("\n", "\\n") ?? string.Empty;
     }
 }

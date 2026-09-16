@@ -22,7 +22,6 @@ namespace TrainingApp.Pages.Training
 
         private const string ActiveCtrlPathKey = "GDT_ActiveCtrlPath";
         private const string ActiveCtrlModeKey = "GDT_ActiveCtrlMode";
-        private const string MoldeoSubStepKey  = "GDT_MoldeoSubStep";
 
         // ── Dynamic control restoration (must run before ViewState is applied) ─
         protected override void CreateChildControls()
@@ -82,13 +81,7 @@ namespace TrainingApp.Pages.Training
             var activeCtrl = (PnlActiveControl.FindControl("StepCtrl")
                            ?? PnlModalHost.FindControl("StepCtrl")) as IStepControl;
             if (activeCtrl != null)
-            {
                 activeCtrl.ViewModel = BuildStepViewModel(step, area, session, guide);
-                // For Moldeo sub-steps, update CurrentSubStep
-                int moldeoSub = GetMoldeoSubStep();
-                if (moldeoSub > 0)
-                    activeCtrl.ViewModel.CurrentSubStep = moldeoSub;
-            }
 
             UpdateScoreWidget(session);
             SetActiveButton(step.StepType, area);
@@ -97,6 +90,12 @@ namespace TrainingApp.Pages.Training
         // ── Step submit handler (wired in CreateChildControls) ────────────
         private void HandleControlSubmit(object sender, StepSubmitEventArgs e)
         {
+            if (e.Answer == "CANCELLED")
+            {
+                ClearActiveControl();
+                return;
+            }
+
             var session = LoadAndValidateSession();
             if (session == null) return;
 
@@ -104,26 +103,7 @@ namespace TrainingApp.Pages.Training
             var area  = _areaRepo.GetById(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
-            // Moldeo sub-step handling
-            int moldeoSub = GetMoldeoSubStep();
-            if (moldeoSub > 0 && moldeoSub < 3)
-            {
-                SetMoldeoSubStep(moldeoSub + 1);
-                ReopenSearchControlForNextSubStep(area, session, guide);
-                return;
-            }
-            if (moldeoSub == 3)
-            {
-                // All sub-steps done: submit LC Moldeo step with "true"
-                SetMoldeoSubStep(0);
-                ClearActiveControl();
-                ProcessSubmit(session, guide, area, step, "true");
-                ShowBanner("✓ Start process completed successfully");
-                return;
-            }
-
-            // Modal-overlay controls (ResourceSetup, LineClearance) show as Bootstrap modals
-            // over the POD — they must NOT hide the work list and must re-open after submit
+            // Modal-overlay controls (ResourceSetup, LineClearance) must re-open after submit
             // so the operator sees the confirmation banner before closing with X.
             bool isModalOverlay = step.StepType == StepType.ResourceSetup ||
                                   step.StepType == StepType.LineClearance;
@@ -139,6 +119,8 @@ namespace TrainingApp.Pages.Training
                 ReopenModal("modalResourceSetup");
             else if (step.StepType == StepType.LineClearance)
                 ReopenModal("modalDCStandalone");
+            else if (step.StepType == StepType.Search)
+                ShowBanner("✓ Start process completed successfully");
         }
 
         private void ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
@@ -184,22 +166,6 @@ namespace TrainingApp.Pages.Training
             var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
             if (nextStep == null) return;
 
-            // Moldeo LC 3-modal sequence triggers ONLY when:
-            // 1. The just-submitted step was Search (pressing [Start])
-            // 2. The next step is LineClearance
-            // 3. Area is Moldeo (RequiresDataCollection=true, RequiresAssembly=false)
-            if (submittedStepType == StepType.Search &&
-                nextStep.StepType == StepType.LineClearance &&
-                area.RequiresDataCollection && !area.RequiresAssembly &&
-                GetMoldeoSubStep() == 0)
-            {
-                SetMoldeoSubStep(1);
-                LoadAndShowControl(
-                    "~/UI/Controls/Training/SearchControl.ascx",
-                    area, refreshedSession, guide, "modalMoldeoStart");
-                return;
-            }
-
             SetActiveButton(nextStep.StepType, area);
         }
 
@@ -228,14 +194,20 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
 
-            // Standard Search step: submit SFC value as answer
             string sfcValue = TxtSFC.Text.Trim();
             if (string.IsNullOrEmpty(sfcValue))
                 sfcValue = HfSelectedSFC.Value.Trim();
-            if (string.IsNullOrEmpty(sfcValue))
-                sfcValue = "ok";
 
-            ProcessSubmit(session, guide, area, step, sfcValue);
+            if (string.IsNullOrEmpty(sfcValue))
+            {
+                ShowSweetAlert("warning", "Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
+                return;
+            }
+
+            // Search/Start launches the 4-modal sequence (SearchControl) as a modal
+            // overlay — the POD work list must stay visible behind it.
+            LoadAndShowControl("~/UI/Controls/Training/SearchControl.ascx",
+                area, session, guide, modalId: null, hideWorkList: false);
         }
 
         protected void BtnAssemble_ServerClick(object sender, EventArgs e)
@@ -335,10 +307,6 @@ namespace TrainingApp.Pages.Training
                 ctrl.OnStepSubmit += HandleControlSubmit;
                 ctrl.ViewModel     = BuildStepViewModel(step, area, session, guide);
 
-                int moldeoSub = GetMoldeoSubStep();
-                if (moldeoSub > 0)
-                    ctrl.ViewModel.CurrentSubStep = moldeoSub;
-
                 targetPanel.Controls.Add((UserControl)ctrl);
 
                 // Call Initialize() explicitly — Page_Load may have already passed
@@ -348,13 +316,6 @@ namespace TrainingApp.Pages.Training
 
             if (!string.IsNullOrEmpty(modalId))
                 ReopenModal(modalId);
-        }
-
-        private void ReopenSearchControlForNextSubStep(Area area, TrainingSession session, TrainingGuide guide)
-        {
-            ClearActiveControl();
-            LoadAndShowControl("~/UI/Controls/Training/SearchControl.ascx",
-                area, session, guide, "modalMoldeoStart");
         }
 
         private void ClearActiveControl()
@@ -454,13 +415,8 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepType.Search:
-                    // For Moldeo sub-steps, populate based on current sub-step
-                    if (GetMoldeoSubStep() == 1)
-                        vm.ExtraData["Param1Label"] = "ID del molde";
-                    if (GetMoldeoSubStep() == 2)
-                        vm.ExtraData["LCQuestions"] = BuildMoldeoLCQuestions();
-                    if (GetMoldeoSubStep() == 3)
-                        vm.ExtraData["Param3Label"] = "¿Se verificó el IDMold & IDIMM según MSS?";
+                    // SearchControl owns its own 4-modal flow (labels hardcoded in the .ascx);
+                    // it only needs ResourceName, already populated above.
                     break;
             }
 
@@ -585,15 +541,11 @@ namespace TrainingApp.Pages.Training
                     BtnResourceSetup.Disabled = false;
                     break;
                 case StepType.LineClearance:
-                    if (GetMoldeoSubStep() == 0)
-                    {
-                        BtnActivities.Disabled = false;
-                        // Enable the dropdown toggle so the Activities menu can open
-                        Page.ClientScript.RegisterStartupScript(GetType(), "enableActivitiesToggle",
-                            "var t=document.getElementById('BtnActivitiesToggle');" +
-                            "if(t) t.disabled=false;", true);
-                    }
-                    // When MoldeoSubStep > 0: all buttons disabled — SearchControl handles interaction
+                    BtnActivities.Disabled = false;
+                    // Enable the dropdown toggle so the Activities menu can open
+                    Page.ClientScript.RegisterStartupScript(GetType(), "enableActivitiesToggle",
+                        "var t=document.getElementById('BtnActivitiesToggle');" +
+                        "if(t) t.disabled=false;", true);
                     break;
                 case StepType.Search:
                     BtnStart.Disabled = false;
@@ -623,17 +575,6 @@ namespace TrainingApp.Pages.Training
             ClientScript.RegisterStartupScript(GetType(), "hideBanner",
                 "setTimeout(function(){var b=document.querySelector('.pod-banner-zone');if(b)b.style.display='none';},3000);",
                 true);
-        }
-
-        // ── Moldeo sub-step helpers ──────────────────────────────────────
-        private int GetMoldeoSubStep()
-        {
-            return Session[MoldeoSubStepKey] is int v ? v : 0;
-        }
-
-        private void SetMoldeoSubStep(int value)
-        {
-            Session[MoldeoSubStepKey] = value;
         }
 
         // ── Context helper ───────────────────────────────────────────────
