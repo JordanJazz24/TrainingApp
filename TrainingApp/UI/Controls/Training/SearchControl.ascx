@@ -1,10 +1,14 @@
 <%@ Control Language="C#" AutoEventWireup="true"
     CodeBehind="SearchControl.ascx.cs"
-    Inherits="TrainingApp.UI.Controls.Training.SearchControl" %>
+    Inherits="TrainingApp.UI.Controls.Training.SearchControl"
+    EnableViewState="false" %>
 
 <%-- 4 modales secuenciales del proceso Start para Moldeo/R&C.
-     Toda la navegación entre modales (1→2→3→4) ocurre internamente —
-     GuidedTest solo sabe del resultado final (OnStepSubmit) o del cancel. --%>
+     La navegación 1→2→3→4 y las validaciones simples ocurren 100% en el cliente
+     (patrón 1 postback / paso: ver feedback-webforms-postback-discipline).
+     El ÚNICO postback de la secuencia es el [Save] del Modal 4 (BtnSave4),
+     que entrega el resultado al servidor vía OnStepSubmit — igual que
+     ResourceSetup/LineClearance. GuidedTest solo sabe del resultado final. --%>
 
 <%-- ══ Modal 1: ID del Molde ════════════════════════════════════════════ --%>
 <div class="modal fade" id="modalSearch1" tabindex="-1" data-bs-backdrop="static">
@@ -28,13 +32,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <asp:Button ID="BtnSave1" runat="server" Text="Save"
-                    CssClass="btn btn-sm btn-primary"
-                    OnClientClick="return searchValidate1();"
-                    OnClick="BtnSave1_Click" CausesValidation="false" />
-                <asp:Button ID="BtnCancel1" runat="server" Text="Cancel"
-                    CssClass="btn btn-sm btn-secondary"
-                    OnClick="BtnCancel_Click" CausesValidation="false" />
+                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext1()">Save</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
     </div>
@@ -88,13 +87,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <asp:Button ID="BtnSave2" runat="server" Text="Save"
-                    CssClass="btn btn-sm btn-primary"
-                    OnClientClick="return searchValidate2();"
-                    OnClick="BtnSave2_Click" CausesValidation="false" />
-                <asp:Button ID="BtnCancel2" runat="server" Text="Cancel"
-                    CssClass="btn btn-sm btn-secondary"
-                    OnClick="BtnCancel_Click" CausesValidation="false" />
+                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext2()">Save</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
     </div>
@@ -187,13 +181,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <asp:Button ID="BtnSave3" runat="server" Text="Save"
-                    CssClass="btn btn-sm btn-primary"
-                    OnClientClick="return searchValidate3();"
-                    OnClick="BtnSave3_Click" CausesValidation="false" />
-                <asp:Button ID="BtnCancel3" runat="server" Text="Cancel"
-                    CssClass="btn btn-sm btn-secondary"
-                    OnClick="BtnCancel_Click" CausesValidation="false" />
+                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext3()">Save</button>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
     </div>
@@ -225,19 +214,54 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <%-- Único postback de la secuencia (patrón 1 postback / paso).
+                     searchValidate4() valida en cliente; si pasa, postea a BtnSave4_Click. --%>
                 <asp:Button ID="BtnSave4" runat="server" Text="Save"
                     CssClass="btn btn-sm btn-primary"
                     OnClientClick="return searchValidate4();"
                     OnClick="BtnSave4_Click" CausesValidation="false" />
-                <asp:Button ID="BtnCancel4" runat="server" Text="Cancel"
-                    CssClass="btn btn-sm btn-secondary"
-                    OnClick="BtnCancel_Click" CausesValidation="false" />
+                <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+// ── Navegación 100% cliente entre los 4 modales ─────────────────────────
+// Los valores de TxtMoldeId/DdlVerif*/TxtMss*/DdlFinal se conservan en el DOM
+// y postean automáticamente en el único postback (el Save del Modal 4).
+var _searchOpenModalId = null;
+
+function _searchCloseAll() {
+    ['modalSearch1','modalSearch2','modalSearch3','modalSearch4'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) {
+            var inst = bootstrap.Modal.getInstance(el);
+            if (inst) inst.hide();
+        }
+    });
+}
+
+// Cierra el modal actual y, cuando su transición termina, abre el siguiente — evita
+// backdrops acumulados de Bootstrap al encadenar modales.
+function _searchGo(modalId) {
+    var current = _searchOpenModalId;
+    _searchOpenModalId = modalId;
+    if (!current || current === modalId) { showModalSafe(modalId); return; }
+
+    var el = document.getElementById(current);
+    var inst = el ? bootstrap.Modal.getInstance(el) : null;
+    if (inst) {
+        el.addEventListener('hidden.bs.modal', function handler() {
+            el.removeEventListener('hidden.bs.modal', handler);
+            showModalSafe(modalId);
+        });
+        inst.hide();
+    } else {
+        showModalSafe(modalId);
+    }
+}
+
 function searchValidate1() {
     var v = document.getElementById('<%= TxtMoldeId.ClientID %>').value.trim();
     if (!v) {
@@ -250,6 +274,7 @@ function searchValidate1() {
     }
     return true;
 }
+function searchNext1() { if (searchValidate1()) _searchGo('modalSearch2'); }
 
 function searchValidate2() {
     var ddls = [
@@ -269,6 +294,7 @@ function searchValidate2() {
     }
     return true;
 }
+function searchNext2() { if (searchValidate2()) _searchGo('modalSearch3'); }
 
 function searchValidate3() {
     var ids = [
@@ -290,7 +316,10 @@ function searchValidate3() {
     }
     return true;
 }
+function searchNext3() { if (searchValidate3()) _searchGo('modalSearch4'); }
 
+// Validación del Modal 4 — es el OnClientClick del asp:Button BtnSave4:
+// devuelve true para permitir el postback final, false para bloquearlo.
 function searchValidate4() {
     var v = document.getElementById('<%= DdlFinal.ClientID %>').value;
     if (!v) {
@@ -303,4 +332,8 @@ function searchValidate4() {
     }
     return true;
 }
+
+// Cancel puro de cliente: cierra los modales sin tocar el servidor. El paso NO
+// avanza; BtnStart crea un SearchControl fresco la próxima vez (ver GuidedTest).
+function searchCancel() { _searchOpenModalId = null; _searchCloseAll(); }
 </script>

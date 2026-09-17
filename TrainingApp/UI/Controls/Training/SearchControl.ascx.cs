@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using TrainingApp.Pages.Training.Models;
 
@@ -7,9 +9,8 @@ namespace TrainingApp.UI.Controls.Training
 {
     public partial class SearchControl : UserControl, IStepControl
     {
-        private const string SubStepKey = "SearchCtrl_SubStep";
-
         public StepViewModel ViewModel { get; set; }
+
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
         protected void Page_Load(object sender, EventArgs e) { }
@@ -24,133 +25,82 @@ namespace TrainingApp.UI.Controls.Training
 
             LitResource1.Text = LitResource2.Text = LitResource3.Text = LitResource4.Text = resource;
 
-            ViewState[SubStepKey] = 1;
+            // Abre el Modal 1. De aquí en adelante la navegación es 100% cliente
+            // (_searchGo) — el único postback de la secuencia es el Save del Modal 4.
             Page.ClientScript.RegisterStartupScript(GetType(), "searchOpen1",
-                "showModalSafe('modalSearch1');", true);
+                "_searchOpenModalId='modalSearch1'; showModalSafe('modalSearch1');", true);
         }
 
-        protected void BtnSave1_Click(object sender, EventArgs e)
-        {
-            string v = TxtMoldeId.Text.Trim();
-            bool empty   = string.IsNullOrEmpty(v);
-            bool notNum  = !empty && !decimal.TryParse(v, NumberStyles.Number,
-                                CultureInfo.InvariantCulture, out _);
-
-            if (empty || notNum)
-            {
-                string msg = empty
-                    ? "Debes ingresar el ID del molde."
-                    : "El ID del molde debe ser un valor num\u00e9rico.";
-                // Reopen modal first so it's visible behind the SweetAlert
-                Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                    "showModalSafe('modalSearch1');", true);
-                Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                    "Swal.fire({icon:'warning',title:'Valor inv\u00e1lido',text:'" + EscJs(msg) + "'});", true);
-                return;
-            }
-
-            ViewState[SubStepKey] = 2;
-            Page.ClientScript.RegisterStartupScript(GetType(), "searchNext",
-                "showModalSafe('modalSearch2');", true);
-        }
-
-        protected void BtnSave2_Click(object sender, EventArgs e)
-        {
-            string[] vals = { DdlVerif1.SelectedValue, DdlVerif2.SelectedValue, DdlVerif3.SelectedValue };
-            foreach (var val in vals)
-            {
-                if (string.IsNullOrEmpty(val))
-                {
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                        "showModalSafe('modalSearch2');", true);
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                        "Swal.fire({icon:'warning',title:'Campo requerido'," +
-                        "text:'Debes responder todas las preguntas antes de guardar.'});", true);
-                    return;
-                }
-                if (val != "true")
-                {
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                        "showModalSafe('modalSearch2');", true);
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                        "Swal.fire({icon:'warning',title:'Respuesta incorrecta'," +
-                        "text:'Todas las respuestas deben ser \\u0022S\\u00ed\\u0022 para continuar.'});", true);
-                    return;
-                }
-            }
-
-            ViewState[SubStepKey] = 3;
-            Page.ClientScript.RegisterStartupScript(GetType(), "searchNext",
-                "showModalSafe('modalSearch3');", true);
-        }
-
-        protected void BtnSave3_Click(object sender, EventArgs e)
-        {
-            System.Web.UI.WebControls.TextBox[] fields = {
-                TxtMss1, TxtMss2, TxtMss3, TxtMss4, TxtMss5,
-                TxtMss6, TxtMss7, TxtMss8, TxtMss9, TxtMss10
-            };
-            foreach (var f in fields)
-            {
-                string v = f.Text.Trim();
-                if (string.IsNullOrEmpty(v))
-                {
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                        "showModalSafe('modalSearch3');", true);
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                        "Swal.fire({icon:'warning',title:'Campos incompletos'," +
-                        "text:'Debes completar todos los par\\u00e1metros antes de guardar.'});", true);
-                    return;
-                }
-                if (!decimal.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-                {
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                        "showModalSafe('modalSearch3');", true);
-                    Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                        "Swal.fire({icon:'warning',title:'Valor inv\\u00e1lido'," +
-                        "text:'Todos los par\\u00e1metros deben ser valores num\\u00e9ricos.'});", true);
-                    return;
-                }
-            }
-
-            ViewState[SubStepKey] = 4;
-            Page.ClientScript.RegisterStartupScript(GetType(), "searchNext",
-                "showModalSafe('modalSearch4');", true);
-        }
-
+        // ── Único postback de la secuencia (patrón 1 postback / paso) ──────
+        // La navegación 1→2→3→4 y las validaciones simples ya ocurrieron en el
+        // cliente (searchValidate1..4). Aquí solo se re-valida como fallback
+        // (belt-and-suspenders) y se entrega el dato recolectado al servidor.
         protected void BtnSave4_Click(object sender, EventArgs e)
         {
-            string v = DdlFinal.SelectedValue;
-            if (string.IsNullOrEmpty(v))
+            string failingModal = ValidateAll();
+            if (failingModal != null)
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                    "showModalSafe('modalSearch4');", true);
+                    "showModalSafe('" + failingModal + "');", true);
                 Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                    "Swal.fire({icon:'warning',title:'Campo requerido'," +
-                    "text:'Debes seleccionar una respuesta.'});", true);
-                return;
-            }
-            if (v != "true")
-            {
-                Page.ClientScript.RegisterStartupScript(GetType(), "searchReopen",
-                    "showModalSafe('modalSearch4');", true);
-                Page.ClientScript.RegisterStartupScript(GetType(), "searchSwal",
-                    "Swal.fire({icon:'warning',title:'Respuesta incorrecta'," +
-                    "text:'La respuesta debe ser \\u0022S\\u00ed\\u0022 para continuar.'});", true);
+                    "Swal.fire({icon:'warning',title:'Valor inválido'," +
+                    "text:'Completa correctamente los campos del modal actual antes de guardar.'});", true);
                 return;
             }
 
-            ViewState[SubStepKey] = 0;
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = "true" });
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = BuildAnswerJson() });
         }
 
-        protected void BtnCancel_Click(object sender, EventArgs e)
+        // Devuelve el id del primer modal con datos inválidos, o null si todo OK.
+        private string ValidateAll()
         {
-            ViewState[SubStepKey] = 0;
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = "CANCELLED" });
+            string molde = TxtMoldeId.Text.Trim();
+            if (string.IsNullOrEmpty(molde) ||
+                !decimal.TryParse(molde, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
+                return "modalSearch1";
+
+            string[] verifs = { DdlVerif1.SelectedValue, DdlVerif2.SelectedValue, DdlVerif3.SelectedValue };
+            foreach (var val in verifs)
+                if (val != "true")
+                    return "modalSearch2";
+
+            string[] mss = {
+                TxtMss1.Text.Trim(), TxtMss2.Text.Trim(), TxtMss3.Text.Trim(), TxtMss4.Text.Trim(),
+                TxtMss5.Text.Trim(), TxtMss6.Text.Trim(), TxtMss7.Text.Trim(), TxtMss8.Text.Trim(),
+                TxtMss9.Text.Trim(), TxtMss10.Text.Trim()
+            };
+            foreach (var v in mss)
+                if (string.IsNullOrEmpty(v) ||
+                    !decimal.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
+                    return "modalSearch3";
+
+            if (DdlFinal.SelectedValue != "true")
+                return "modalSearch4";
+
+            return null;
         }
 
-        private static string EscJs(string s)
-            => s?.Replace("'", "\\'").Replace("\n", "\\n") ?? string.Empty;
+        // Datos recolectados de los 4 modales — quedan disponibles para el servidor
+        // (podrían persistirse en el intento del paso Search en un futuro).
+        private string BuildAnswerJson()
+        {
+            var dict = new Dictionary<string, object>();
+            dict.Add("moldeId",           TxtMoldeId.Text.Trim());
+            dict.Add("verifCalibracion",  DdlVerif1.SelectedValue == "true");
+            dict.Add("verifD0128682",     DdlVerif2.SelectedValue == "true");
+            dict.Add("verifD0128035",     DdlVerif3.SelectedValue == "true");
+            dict.Add("mss1",  TxtMss1.Text.Trim());
+            dict.Add("mss2",  TxtMss2.Text.Trim());
+            dict.Add("mss3",  TxtMss3.Text.Trim());
+            dict.Add("mss4",  TxtMss4.Text.Trim());
+            dict.Add("mss5",  TxtMss5.Text.Trim());
+            dict.Add("mss6",  TxtMss6.Text.Trim());
+            dict.Add("mss7",  TxtMss7.Text.Trim());
+            dict.Add("mss8",  TxtMss8.Text.Trim());
+            dict.Add("mss9",  TxtMss9.Text.Trim());
+            dict.Add("mss10", TxtMss10.Text.Trim());
+            dict.Add("verificacionFinal", DdlFinal.SelectedValue == "true");
+            return new JavaScriptSerializer().Serialize(dict);
+        }
     }
 }

@@ -537,14 +537,13 @@ Tras cerrar Modal 4:
 
 ### Notas de implementación
 
-`SearchControl.ascx` contiene los **4 modales** pre-renderizados en el DOM. La secuencia se maneja con un HiddenField `HfSubStep` que rastrean qué modal está activo.
+`SearchControl.ascx` contiene los **4 modales** pre-renderizados en el DOM. La navegación entre modales y el modal activo se manejan **en el cliente** (variable JS `_searchOpenModalId` + función `_searchGo()`), no con postbacks intermedios.
 
-**Modelo de PostBacks:**
-- PostBack #1: `BtnStart_ServerClick` → valida SFC no vacío → carga `SearchControl.ascx` → abre Modal 1 (`showModalSafe('modalSearch1')`)
-- Modal 1 [Save] = PostBack #2 → valida numérico → cierra Modal 1 → abre Modal 2
-- Modal 2 [Save] = PostBack #3 → valida todas "Sí" → cierra Modal 2 → abre Modal 3
-- Modal 3 [Save] = PostBack #4 → valida 10 numéricos → cierra Modal 3 → abre Modal 4
-- Modal 4 [Save] = PostBack #5 → valida "Sí" → llama `OnStepSubmit` → banner éxito
+**Modelo de PostBacks (patrón 1 postback / paso — `feedback-webforms-postback-discipline`):**
+- PostBack #1: `BtnStart_ServerClick` → valida SFC no vacío → `ClearActiveControl()` (idempotente tras Cancel) → carga `SearchControl.ascx` → abre Modal 1 (`showModalSafe('modalSearch1')`)
+- Modal 1→2→3→4: navegación **100% cliente**. `searchNext1/2/3()` validan el modal actual y avanzan (`_searchGo`); los valores de `TxtMoldeId`/`DdlVerif*`/`TxtMss*`/`DdlFinal` se conservan en el DOM
+- PostBack #2 (único envío): [Save] del Modal 4 — `searchValidate4()` valida en cliente; si pasa, postea a `BtnSave4_Click` → re-valida como fallback → `OnStepSubmit(answerJson)` → `SubmitStep` → banner éxito + se habilita el siguiente paso
+- [Cancel] en cualquier modal es **solo cliente** (`searchCancel()`): cierra los modales sin postback; el paso NO avanza y el siguiente [Start] re-crea el control fresco
 - Todos los modales usan `data-bs-backdrop="static"` (no se cierran al hacer clic fuera)
 
 ---

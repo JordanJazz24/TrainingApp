@@ -271,9 +271,9 @@
 
     <asp:HiddenField ID="HfSelectedSFC" runat="server" />
 
-    <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance).  --%>
-    <%-- No positioning — modal HTML renders here then showModalSafe moves it  --%>
-    <%-- to document.forms[0] for proper Bootstrap stacking.                   --%>
+    <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance, Search). --%>
+    <%-- No positioning — modal HTML renders here then showModalSafe moves it         --%>
+    <%-- to document.forms[0] for proper Bootstrap stacking.                          --%>
     <asp:Panel ID="PnlModalHost" runat="server" Visible="false" />
 
 </asp:Content>

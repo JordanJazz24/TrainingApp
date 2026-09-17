@@ -20,13 +20,30 @@ namespace TrainingApp.Pages.Training
         private readonly NCCodeRepository                   _ncRepo         = new NCCodeRepository();
         private readonly DataCollectionParameterRepository  _dcParamRepo    = new DataCollectionParameterRepository();
 
+
         private const string ActiveCtrlPathKey = "GDT_ActiveCtrlPath";
         private const string ActiveCtrlModeKey = "GDT_ActiveCtrlMode";
+        private const string PanelInstanceKey = "GDT_PanelInstance"; // Tracks which "generation" of the panel this is
 
         // ── Dynamic control restoration (must run before ViewState is applied) ─
         protected override void CreateChildControls()
         {
             base.CreateChildControls();
+
+            // Si BtnStart fue clickeado, NO restaurar el control previo — el handler
+            // creará uno fresco. Limpiar ViewState Y controles AQUÍ (antes de que ViewState se aplique).
+            if (Request.Form[BtnStart.UniqueID] != null)
+            {
+                ViewState.Remove(ActiveCtrlPathKey);
+                ViewState.Remove(ActiveCtrlModeKey);
+                // CRÍTICO: limpiar AMBOS paneles para que ASP.NET no intente aplicar
+                // ViewState de controles previos. Sin esto, el ViewState del request
+                // anterior causa conflicto al agregar el nuevo SearchControl.
+                PnlModalHost.Controls.Clear();
+                PnlActiveControl.Controls.Clear();
+                return;
+            }
+
             string path = ViewState[ActiveCtrlPathKey] as string;
             if (string.IsNullOrEmpty(path)) return;
 
@@ -90,12 +107,6 @@ namespace TrainingApp.Pages.Training
         // ── Step submit handler (wired in CreateChildControls) ────────────
         private void HandleControlSubmit(object sender, StepSubmitEventArgs e)
         {
-            if (e.Answer == "CANCELLED")
-            {
-                ClearActiveControl();
-                return;
-            }
-
             var session = LoadAndValidateSession();
             if (session == null) return;
 
@@ -103,10 +114,12 @@ namespace TrainingApp.Pages.Training
             var area  = _areaRepo.GetById(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
-            // Modal-overlay controls (ResourceSetup, LineClearance) must re-open after submit
-            // so the operator sees the confirmation banner before closing with X.
+            // Modal-overlay controls (ResourceSetup, LineClearance, Search) must NOT be
+            // restored on the next postback, but their HTML stays in this response so
+            // the operator sees the confirmation banner before closing the modal with X.
             bool isModalOverlay = step.StepType == StepType.ResourceSetup ||
-                                  step.StepType == StepType.LineClearance;
+                                  step.StepType == StepType.LineClearance ||
+                                  step.StepType == StepType.Search;
 
             if (isModalOverlay)
                 ClearActiveControlViewState();
@@ -206,6 +219,9 @@ namespace TrainingApp.Pages.Training
 
             // Search/Start launches the 4-modal sequence (SearchControl) as a modal
             // overlay — the POD work list must stay visible behind it.
+            // CreateChildControls() detecta el click de [Start] y NO restaura el control
+            // previo, limpiando ViewState antes de que ASP.NET lo aplique — solución
+            // canónica para evitar conflictos de ViewState en controles dinámicos.
             LoadAndShowControl("~/UI/Controls/Training/SearchControl.ascx",
                 area, session, guide, modalId: null, hideWorkList: false);
         }
@@ -436,6 +452,13 @@ namespace TrainingApp.Pages.Training
         // ── Session validation ───────────────────────────────────────────
         private TrainingSession LoadAndValidateSession()
         {
+            // Re-hidrata sesión si se perdió pero el usuario sigue autenticado
+            if (!SessionHelper.EnsureOperatorSession())
+            {
+                Response.Redirect("~/Pages/Auth/Login.aspx");
+                return null;
+            }
+
             if (!int.TryParse(Request.QueryString["sessionId"], out int sessionId))
             {
                 Response.Redirect("~/Pages/Training/StartSession.aspx");
@@ -443,7 +466,7 @@ namespace TrainingApp.Pages.Training
             }
 
             var session    = _sessionService.GetById(sessionId);
-            int operatorId = (int)Session[Constants.SessionKeys.OperatorId];
+            int operatorId = (int)Session[Constants.SessionKeys.OperatorId]; // Ahora seguro
 
             if (session == null ||
                 session.OperatorId != operatorId ||
