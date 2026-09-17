@@ -14,6 +14,13 @@ namespace TrainingApp.Pages.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Re-hidratar sesión si se perdió pero FormsAuth sigue válido
+            if (!SessionHelper.EnsureOperatorSession())
+            {
+                Response.Redirect("~/Pages/Auth/Login.aspx");
+                return;
+            }
+
             if (!IsPostBack)
                 LoadProducts();
         }
