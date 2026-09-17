@@ -342,9 +342,9 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
 
 **StepType:** `Search` | **StepWeight:** 15% (hereda peso de Assembly cuando RequiresAssembly=false) | **Validación:** secuencia pura (siempre true)
 
-**Acceso:** directamente en el Dashboard — campo SFC en la search bar + botón [Start].
+**Acceso:** directamente en el Dashboard — campo SFC en la search bar.
 
-> En áreas Moldeo/R&C (NonSerialized, RequiresDataCollection), presionar [Start] lanza una secuencia de **4 modales secuenciales** que capturan el proceso de inicio completo. La tabla POD **permanece visible** detrás de los modales en todo momento.
+> No abre modal propio. El operador carga la orden en el POD desde la pantalla principal.
 
 ### Campo SFC (search bar)
 
@@ -355,9 +355,7 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
                                     Ícono browse a la derecha abre Browse Work List.
 ```
 
-**Importante:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). No es readonly.
-
-**Validación del botón [Start]:** el botón solo permite avanzar si hay texto en el campo SFC. Si está vacío → SweetAlert warning y no avanza.
+**Importante:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). No es readonly. El legacy lo tenía readonly — corrección para el nuevo sistema.
 
 ### Sub-modal: Browse Work List (ruta alternativa)
 
@@ -378,9 +376,42 @@ Se abre al hacer clic en el ícono browse cuando no es posible escanear.
 - [OK] o doble clic = confirma selección, cierra modal, carga en POD
 - [Cancel] = cierra sin cambios
 
+### Estado del POD después de cargar la orden
+
+```
+★ {operationName}    ★ {resourceName}    SFC: {sfcCode}  [copy]    Shop Order: {shopOrder}    Status (SFC): Active
+```
+
+Tabla POD poblada con la fila del SFC cargado. Header top-right se actualiza con Shop Order + Status.
+
+Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de acción para iniciar la orden.
+
+### Flujo del operador
+1. Enfocar campo SFC en la search bar
+2a. Escanear SFC/etiqueta directamente → Enter → POD carga automáticamente
+2b. (alternativa) Clic en ícono browse → Browse Work List → seleccionar fila → OK
+3. Verificar que la tabla POD muestre la orden con Status: Active
+4. Si la orden no inició: clic en [Start]
+
+### Reglas de negocio
+- No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
+- La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
+- Bifurcación por SerializationType: Serialized = escaneo pieza por pieza; NonSerialized = selección de lote/batch (documentar en área específica)
+
+### Diferencias SAP real vs. Legacy
+| Elemento | SAP real | Legacy |
+|---|---|---|
+| Campo SFC | Editable, acepta escaneo directo | Readonly, solo abría el modal |
+| Nombre del modal | "BROWSE WORK LIST - SFCS QUEUED - {contexto}" | "BUSCAR POOL DE TRABAJO - SFC EN COLA" |
+| Columnas del Browse | SFC · Material Desc · Schedule Start · Planned Completion | CP · Order · State · Shop Order · Material Desc |
+| Footer del Browse | [✓ OK] [✗ Cancel] | [OK] [Cancelar] |
+| Shop Order en header | Actualiza top-right: `Shop Order: XXXXX  Status: Active` | `Orden de fabricación: Status (NCP)` |
+
 ---
 
-### Secuencia de 4 modales (Moldeo/R&C — NonSerialized)
+---
+
+## Paso 4 — Assembly (condicional: RequiresAssembly = true)
 
 Se lanza al presionar [Start] con un SFC válido en el campo. Los modales son **secuenciales** — el operador no puede avanzar al siguiente sin completar el actual. La tabla POD permanece visible detrás de todos los modales.
 

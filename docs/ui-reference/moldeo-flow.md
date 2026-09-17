@@ -26,9 +26,9 @@ Leer en paralelo con `general-flow.md` — este archivo solo documenta lo que ca
 1. Campo SFC → escanear o Browse Work List → seleccionar orden
 2. La orden se carga en el campo SFC de la search bar
 3. El operador presiona **[Start]** en la barra de acción (obligatorio en esta área)
-4. Se lanza la secuencia especial de 3 modales secuenciales (ver Paso 3.1)
+4. Se lanza la secuencia especial de 4 modales secuenciales (ver Paso 3.1)
 
-### Confirmación tras completar los 3 modales
+### Confirmación tras completar los 4 modales
 
 Banner informativo en la esquina superior derecha, entre el header bar y la search section:
 ```
@@ -39,17 +39,16 @@ Tras el banner, el POD se puebla y el flujo continúa normalmente (Paso 5 → DC
 
 ---
 
-## Paso 3.1 — LC Moldeo (secuencia especial dentro de Start)
+## Paso 3.1 — Secuencia de 4 modales (dentro de Start)
 
-**StepType:** `LineClearance` (en el seed: step 4 condicional, weight 0.03) \
-**Nota:** esta secuencia ocurre **dentro** del Start, no como un paso independiente del dashboard.
+**Nota:** esta secuencia ocurre **dentro** del paso Search/Start Order, como un flujo condicional específico de Moldeo/R&C.
 
-> Las 3 preguntas de LC Moldeo **no son DataCollectionParameters** — son un LineClearance
-> adicional específico de esta área. Su contenido está hardcodeado en el `StepValidator` por área.
+> **Importante:** La secuencia incluye 4 modales (no 3): ID del Molde → Verificaciones → Parámetros MSS → Verificación Final.  
+> Las 3 preguntas del Modal 2 (Verificaciones) son un LineClearance adicional específico de esta área, hardcodeado en `StepValidator`.
 
-### Estructura: 3 modales secuenciales
+### Estructura: 4 modales secuenciales
 
-Al presionar [Start], se abren los siguientes modales en orden. Cada uno debe completarse para avanzar al siguiente.
+Al presionar [Start] con un SFC válido en el campo, se abren los siguientes modales en orden. Cada uno debe completarse para avanzar al siguiente. La tabla POD permanece visible detrás de todos los modales en todo momento.
 
 ---
 
@@ -105,22 +104,50 @@ Contiene las primeras preguntas boolean del Line Clearance de Moldeo.
 
 ---
 
-#### Modal 3 — Validación IDMold & IDIMM
+#### Modal 3 — Parámetros Técnicos MSS (DCGTM_PARAMETROS_MSS_D000281359/A)
 
-Contiene la pregunta de verificación del IDMold e IDIMM según MSS.
+Captura 10 parámetros numéricos del proceso de moldeo según MSS D000281359.
 
 ```
 [Data Collection Entry]                                              [↗][X]
-  DC Group: DCGTM_LC_MOLDEO/A    Resource: {resourceName}
+  DC Group: DCGTM_PARAMETROS_MSS_D000281359/A    Resource: {resourceName}
 ──────────────────────────────────────────────────────────────────────────
-  ★ ¿Se verificó el IDMold & IDIMM según MSS?:
-  Data Type: Boolean    0 files attached
-  [ Seleccione ▼ ]  → opciones: (blank) | NO | Sí
+  ★ Cooling Time según MSS D000281359:              Data Type: Numeric  [___]
+  ★ Velocidad de inyección según MSS D000281359:    Data Type: Numeric  [___]
+  ★ Intensidad de pad printing:                     Data Type: Numeric  [___]
+  ★ Temperatura Zona 1:                             Data Type: Numeric  [___]
+  ★ Temperatura Zona 2:                             Data Type: Numeric  [___]
+  ★ Temperatura Zona 3:                             Data Type: Numeric  [___]
+  ★ Temperatura Zona 4:                             Data Type: Numeric  [___]
+  ★ Temperatura Zona 5:                             Data Type: Numeric  [___]
+  ★ Temperatura Zona 6:                             Data Type: Numeric  [___]
+  ★ Tiempo de curado de pad printing:               Data Type: Numeric  [___]
 ──────────────────────────────────────────────────────────────────────────
                              [💾 Save]  [✗ Return to POD]
 ```
 
-- **[Save]:** cierra la secuencia de 3 modales → aparece banner de confirmación → POD se puebla
+- **Validaciones:** Todos los campos no vacíos + todos valores numéricos
+- **[Save]:** avanza al Modal 4
+
+---
+
+#### Modal 4 — Verificación Final MSS (DCGTM_VERIFICACION_FINAL/A)
+
+Pregunta final de verificación según MSS.
+
+```
+[Data Collection Entry]                                              [↗][X]
+  DC Group: DCGTM_VERIFICACION_FINAL/A    Resource: {resourceName}
+──────────────────────────────────────────────────────────────────────────
+  ★ ¿Se verificó según D000128035 o D000207299?:
+  Data Type: Boolean    0 files attached
+  [ Seleccione ▼ ]  →  opciones: (blank) | NO | Sí
+──────────────────────────────────────────────────────────────────────────
+                             [💾 Save]  [✗ Return to POD]
+```
+
+- **Validación:** Dropdown seleccionado + respuesta = "Sí"
+- **[Save]:** cierra la secuencia de 4 modales → aparece banner de confirmación → POD se puebla
 
 ---
 
@@ -146,7 +173,7 @@ No hay diferencias adicionales respecto al flujo general.
 | Elemento | Flujo general | Moldeo (R&C) |
 |---|---|---|
 | Carga de orden al POD | Automática tras selección | Requiere presionar [Start] manualmente |
-| Secuencia especial en Start | No | 3 modales: ID Molde → LC preguntas → IDMold & IDIMM |
+| Secuencia especial en Start | No | 4 modales: ID Molde → Verificaciones → Parámetros MSS → Verificación Final |
 | Assembly | Condicional | Ausente (RequiresAssembly=false) |
 | SFC Split | Solo NonSerialized | Sí (área NonSerialized) |
 | DC Collect | Condicional | Presente (RequiresDataCollection=true) |
