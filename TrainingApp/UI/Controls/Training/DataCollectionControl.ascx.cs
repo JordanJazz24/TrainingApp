@@ -70,14 +70,19 @@ namespace TrainingApp.UI.Controls.Training
         private void BindGroupList()
         {
             var parameters = GetParameters();
-            // Group by DC Group (use first param's group or area name as group code)
-            string areaName = ViewModel.ExtraData.ContainsKey("AreaName")
-                ? ViewModel.ExtraData["AreaName"]?.ToString() : "AREA";
 
-            var groups = new List<object>
-            {
-                new { GroupCode = areaName + "/A", Description = "Data Collection - " + areaName, CollectDataAt = "Anytime" }
-            };
+            // Group by DC Group (real grouping from the catalog, not hardcoded per-area).
+            // Ordered by each group's lowest DisplayOrder to preserve operational sequence.
+            var groups = parameters
+                .GroupBy(p => p.DCGroup)
+                .OrderBy(g => g.Min(p => p.DisplayOrder))
+                .Select(g => new
+                {
+                    GroupCode     = g.Key,
+                    Description   = g.First().GroupDescription,
+                    CollectDataAt = g.First().CollectDataAt
+                })
+                .ToList();
 
             RptGroups.DataSource = groups;
             RptGroups.DataBind();
@@ -86,7 +91,9 @@ namespace TrainingApp.UI.Controls.Training
         private void RenderParams(string groupCode)
         {
             PhParameters.Controls.Clear();
-            var parameters = GetParameters();
+            var parameters = GetParameters()
+                .Where(p => p.DCGroup == groupCode)
+                .OrderBy(p => p.DisplayOrder);
 
             foreach (var param in parameters)
             {
@@ -118,6 +125,8 @@ namespace TrainingApp.UI.Controls.Training
                     txt.Attributes["data-paramid"] = param.Id.ToString();
                     if (param.DataType == "Numeric")
                         txt.Attributes["type"] = "number";
+                    else if (param.DataType == "Date")
+                        txt.Attributes["type"] = "date";
                     wrapper.Controls.Add(txt);
                 }
 

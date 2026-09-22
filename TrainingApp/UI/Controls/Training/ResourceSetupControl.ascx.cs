@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using TrainingApp.Pages.Training.Models;
+using TrainingApp.Shared;
 
 namespace TrainingApp.UI.Controls.Training
 {
@@ -68,6 +71,20 @@ namespace TrainingApp.UI.Controls.Training
                 return;
             }
 
+            // Server-side fallback: extraer y validar el Shop Order numérico (spec 005).
+            // rsPrepareSubmit() ya valida esto en cliente; aquí re-validamos igual que
+            // el resto de las reglas de este método (belt-and-suspenders).
+            string shopOrderInput = ExtractShopOrderValue(rowsJson);
+            if (string.IsNullOrEmpty(shopOrderInput) || !IsNumeric(shopOrderInput))
+            {
+                Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
+                    "Swal.fire({icon:'warning',title:'Shop Order inválido'," +
+                    "text:'El valor de Shop Order debe ser numérico.'});", true);
+                return;
+            }
+
+            SaveSimulatedOrder(shopOrderInput);
+
             // Build the answer JSON and submit the step
             string answer = string.Format("{{\"setupState\":\"{0}\",\"rows\":{1}}}",
                 setupState?.Replace("\"", "\\\"") ?? "",
@@ -91,6 +108,59 @@ namespace TrainingApp.UI.Controls.Training
             HfSetupState.Value = "Open";
             HfRetrieved.Value  = "false";
             BtnSave.Attributes["disabled"] = "disabled";
+        }
+
+        // ── Spec 005: captura dinámica de la orden ─────────────────────────
+
+        private static string ExtractShopOrderValue(string rowsJson)
+        {
+            var rows = new JavaScriptSerializer().Deserialize<List<Dictionary<string, string>>>(rowsJson);
+            foreach (var row in rows)
+            {
+                if (row.TryGetValue("type", out var type) && type == "Shop Order")
+                    return row.TryGetValue("value", out var value) ? value?.Trim() : null;
+            }
+            return null;
+        }
+
+        private static bool IsNumeric(string value)
+        {
+            return !string.IsNullOrEmpty(value) &&
+                   System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+$");
+        }
+
+        // Deriva el SFC a partir de los dígitos del Shop Order: pad-izquierda a 8
+        // si es más corto, o truncado a los primeros 8 si es más largo.
+        private static string DeriveSFCCode(string shopOrderInput)
+        {
+            string digits = shopOrderInput.Length > 8 ? shopOrderInput.Substring(0, 8) : shopOrderInput.PadLeft(8, '0');
+            return "CR9A" + digits;
+        }
+
+        private void SaveSimulatedOrder(string shopOrderInput)
+        {
+            int sessionId = ViewModel.ExtraData.ContainsKey("TrainingSessionId")
+                ? Convert.ToInt32(ViewModel.ExtraData["TrainingSessionId"]) : 0;
+            string materialDescription = ViewModel.ExtraData.ContainsKey("MaterialDescription")
+                ? ViewModel.ExtraData["MaterialDescription"]?.ToString() : "";
+            int initialQty = ViewModel.ExtraData.ContainsKey("InitialQty")
+                ? Convert.ToInt32(ViewModel.ExtraData["InitialQty"]) : 250;
+
+            var order = new SimulatedOrder
+            {
+                ShopOrderInput      = shopOrderInput,
+                SFCCode             = DeriveSFCCode(shopOrderInput),
+                MaterialDescription = materialDescription,
+                Status              = "Active",
+                ProcessLot          = "LOT-" + DateTime.Today.ToString("yyyyMMdd"),
+                Rows = new List<SimulatedOrderRow>
+                {
+                    new SimulatedOrderRow { RowId = Guid.NewGuid().ToString(), Qty = initialQty }
+                }
+            };
+
+            // Reemplaza cualquier orden previa de esta TrainingSession.
+            Page.Session[Constants.SessionKeys.SimulatedOrderPrefix + sessionId] = order;
         }
     }
 }

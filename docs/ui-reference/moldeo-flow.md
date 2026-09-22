@@ -158,13 +158,13 @@ Pregunta final de verificación según MSS.
 
 ---
 
-## Paso 7 — Log NC / SFC Split (VARIANTE NonSerialized)
+## Paso 6 — SFC Split (NonSerialized)
 
-Al ser NonSerialized, el flujo de cierre incluye el sub-paso SFC Split antes de Log NC.
+Moldeo incluye `SFC_Split` como paso independiente con peso 5%. Permite múltiples splits; la X vuelve al POD para seleccionar otra fila y [Close] avanza sólo después de un split exitoso.
 
-> El comportamiento de SFC Split y Log NC es idéntico al documentado en `general-flow.md` Paso 7 — Sub-flujo A: SFC Split (solo NonSerialized).
+## Paso 7 — Log NC
 
-No hay diferencias adicionales respecto al flujo general.
+`LogNC` conserva únicamente el flujo NC/scrap y pesa 10%. Al completarlo, avanza a Complete.
 
 ---
 

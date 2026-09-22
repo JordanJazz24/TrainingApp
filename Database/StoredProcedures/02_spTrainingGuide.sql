@@ -142,7 +142,8 @@ CREATE PROCEDURE dbo.spDataCollectionParameterGetByArea
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder
+    SELECT Id, AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder,
+           DCGroup, GroupDescription, CollectDataAt
     FROM   dbo.DataCollectionParameters
     WHERE  AreaId = @AreaId
     ORDER  BY DisplayOrder;

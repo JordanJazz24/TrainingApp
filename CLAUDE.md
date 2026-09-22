@@ -115,9 +115,8 @@ Apertura:
 
 Cierre:
   6. Line Clearance      — igual que el de apertura.
-  7. Selección de defecto:
-     ↳ Serialized:    selección individual de piezas defectuosas en el POD.
-     ↳ NonSerialized: split de cantidad del lote defectuoso.
+  7. SFC Split           — paso independiente sólo en guías NonSerialized;
+                            permite dividir filas del lote antes de continuar.
   8. Log NC/Scrap        — catálogo de códigos por Area.
   9. Complete            — cierra el proceso de manufactura.
 ```
@@ -153,7 +152,8 @@ Resource Setup:   20%
 Line Clearance:   10%
 Data Collection:  30%
 Assembly:         15%
-NC/Scrap:         15%
+SFC Split:         5% (sólo NonSerialized)
+NC/Scrap:         10%
 Complete:         10%
 ```
 

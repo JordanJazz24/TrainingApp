@@ -11,5 +11,8 @@ namespace TrainingApp.Domain
         public decimal? MinValue { get; set; }
         public decimal? MaxValue { get; set; }
         public int DisplayOrder { get; set; }
+        public string DCGroup { get; set; }
+        public string GroupDescription { get; set; }
+        public string CollectDataAt { get; set; }
     }
 }

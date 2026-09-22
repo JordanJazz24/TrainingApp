@@ -21,6 +21,7 @@ namespace TrainingApp.BLL.Scoring
         //   LineClearance                   : "true" | "false"
         //   Assembly                        : integer string  (e.g. "3")
         //   DataCollection                  : JSON {"<paramId>":"<value>", ...}
+        //   SFC_Split                       : "split-completed"
         //   LogNC                           : NC code string  (e.g. "F_FS_MANCHAS")
         public bool Validate(TrainingStep step, string submittedAnswer)
         {
@@ -39,6 +40,9 @@ namespace TrainingApp.BLL.Scoring
 
                 case StepType.DataCollection:
                     return ValidateDataCollection(submittedAnswer);
+
+                case StepType.SFC_Split:
+                    return submittedAnswer == "split-completed";
 
                 case StepType.LogNC:
                     return ValidateLogNC(submittedAnswer);

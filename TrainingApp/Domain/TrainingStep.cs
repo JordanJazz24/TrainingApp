@@ -2,13 +2,14 @@ namespace TrainingApp.Domain
 {
     public enum StepType
     {
-        ResourceSetup,
-        LineClearance,
-        Search,
-        Assembly,
-        DataCollection,
-        LogNC,
-        Complete
+        ResourceSetup = 0,
+        LineClearance = 1,
+        Search = 2,
+        Assembly = 3,
+        DataCollection = 4,
+        SFC_Split = 5,
+        LogNC = 6,
+        Complete = 7
     }
 
     public class TrainingStep

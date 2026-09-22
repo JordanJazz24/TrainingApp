@@ -266,14 +266,19 @@ IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId
     VALUES (@AreaId, NULL, 'Fecha de Expiración Kerosene', 'Date', 'MM/DD/AA', NULL, NULL, 13);
     -- DCGTM_FECHA_EXPIRACION_NIR/A
 
--- 14. First Shot entregado - OPE (DC post-Start)
+-- 14. First Shot entregado - OPE 
 IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId AND Name = 'First Shot entregado - OPE')
     INSERT INTO dbo.DataCollectionParameters (AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder)
     VALUES (@AreaId, NULL, 'First Shot entregado - OPE', 'Boolean', 'N/A', NULL, NULL, 14);
     -- DCGTM_ENTREGA_PRIMERA_PIEZA/A
 
--- 15. First Shot NIR entregado - OPE (DC post-Start)
+-- 15. First Shot NIR entregado - OPE 
 IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId AND Name = 'First Shot NIR entregado - OPE')
     INSERT INTO dbo.DataCollectionParameters (AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder)
     VALUES (@AreaId, NULL, 'First Shot NIR entregado - OPE', 'Boolean', 'N/A', NULL, NULL, 15);
     -- DCGTM_ENTREGA_PRIMERA_PIEZA_NIR/A
+-- 16. Fecha de Expiración de Tintas (DC post-Start)
+IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId AND Name = 'Fecha de Expiración de Tintas')
+    INSERT INTO dbo.DataCollectionParameters (AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder)
+    VALUES (@AreaId, NULL, 'Fecha de Expiración de Tintas', 'Date', 'MM/DD/AA', NULL, NULL, 16);
+    -- DCGTM_FECHA_EXPIRACION_NIR/A

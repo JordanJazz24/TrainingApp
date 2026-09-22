@@ -39,8 +39,10 @@
                 <asp:Literal ID="LitResourceName" runat="server" /></span>
             <div class="d-flex align-items-center gap-1">
                 <span class="sfc-label">SFC:</span>
+                <%-- Spec 005: TxtSFC ya no se edita a mano — la selección es solo vía
+                     Browse Work List (confirmBrowseSelection lo sigue completando). --%>
                 <asp:TextBox ID="TxtSFC" runat="server" CssClass="form-control sfc-input"
-                    placeholder="Scan or type..." />
+                    placeholder="Use Browse Work List..." ReadOnly="true" />
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                     data-bs-toggle="modal" data-bs-target="#modalBrowseWorkList"
                     title="Browse Work List">&#128269;</button>
@@ -67,7 +69,7 @@
             <span>Assemble</span>
         </button>
         <button id="BtnDCCollection" runat="server" class="pod-action-btn" disabled="disabled"
-            onserverclick="BtnDCCollection_ServerClick">
+            onserverclick="BtnDCCollection_ServerClick" onclick="if (!podValidateDCCollect()) return false;">
             <img src="<%=ResolveUrl("~/UI/master/imgs/dc_collection-icon.png")%>" alt="" />
             <span>DC Collection</span>
         </button>
@@ -81,7 +83,7 @@
     <%-- ══ SIDEBAR ════════════════════════════════════════════════════════ --%>
     <div class="pod-sidebar">
         <button id="BtnSFCSplit" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnSFCSplit_ServerClick">
+            onserverclick="BtnSFCSplit_ServerClick" onclick="if (!podValidateSFCSplit()) return false;">
             <img src="<%=ResolveUrl("~/UI/master/imgs/split-icon.png")%>" alt="" />
             <span>SFC Split</span>
         </button>
@@ -150,6 +152,7 @@
                         <ItemTemplate>
                             <tr class="<%# (bool)Eval("IsSelected") ? "selected" : "" %>"
                                 data-sfc="<%# Eval("SFCCode") %>"
+                                data-row-id="<%# Eval("RowId") %>"
                                 onclick="selectWorkListRow(this)">
                                 <td><%# Eval("SFCCode") %></td>
                                 <td><%# Eval("MaterialDescription") %></td>
@@ -248,6 +251,7 @@
                             <asp:Repeater ID="RptBrowseList" runat="server">
                                 <ItemTemplate>
                                     <tr class="browse-row" data-sfc="<%# Eval("SFCCode") %>"
+                                        data-row-id="<%# Eval("RowId") %>"
                                         onclick="selectBrowseRow(this)" style="cursor:pointer">
                                         <td><%# Eval("SFCCode") %></td>
                                         <td><%# Eval("MaterialDescription") %></td>
@@ -270,6 +274,13 @@
     </div>
 
     <asp:HiddenField ID="HfSelectedSFC" runat="server" />
+    <%-- Spec 005: distingue filas hermanas con el mismo SFC tras un SFC Split. --%>
+    <asp:HiddenField ID="HfSelectedRowId" runat="server" />
+
+    <%-- Path del UserControl dinámico activo. Viaja en un HiddenField y no en       --%>
+    <%-- ViewState porque el control debe reconstruirse en OnInit, y en esa fase     --%>
+    <%-- ViewState todavía no fue cargado — sólo Request.Form está disponible.       --%>
+    <asp:HiddenField ID="HfActiveCtrlPath" runat="server" />
 
     <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance, Search). --%>
     <%-- No positioning — modal HTML renders here then showModalSafe moves it         --%>
@@ -287,6 +298,31 @@
         row.classList.add('selected');
         var hf = document.getElementById('<%= HfSelectedSFC.ClientID %>');
         if (hf) hf.value = row.getAttribute('data-sfc');
+        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        if (hfRow) hfRow.value = row.getAttribute('data-row-id');
+    }
+
+    // Spec 005: DC Collect no puede iniciar sin una fila del POD seleccionada
+    // (gating 100% cliente — sin postback si no hay selección).
+    function podValidateDCCollect() {
+        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        if (!hfRow || !hfRow.value) {
+            Swal.fire({ icon: 'warning', title: 'Selecciona una fila',
+                text: 'Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.' });
+            return false;
+        }
+        return true;
+    }
+
+    // SFC Split requiere una selección explícita en cada división.
+    function podValidateSFCSplit() {
+        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        if (!hfRow || !hfRow.value) {
+            Swal.fire({ icon: 'warning', title: 'Selecciona una fila para dividir',
+                text: 'Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.' });
+            return false;
+        }
+        return true;
     }
 
     // ── Browse Work List selection ───────────────────────────────────
@@ -303,7 +339,9 @@
         var txt = document.getElementById('<%= TxtSFC.ClientID %>');
         if (txt) txt.value = _selectedBrowseSFC;
         var hf  = document.getElementById('<%= HfSelectedSFC.ClientID %>');
-        if (hf)  hf.value  = _selectedBrowseSFC;
+        if (hf) hf.value = _selectedBrowseSFC;
+        // Browse selecciona el SFC para Search/Start, no una fila del POD.
+        // HfSelectedRowId solo se llena con selectWorkListRow().
         bootstrap.Modal.getInstance(
             document.getElementById('modalBrowseWorkList')).hide();
     }

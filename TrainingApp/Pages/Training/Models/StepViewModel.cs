@@ -23,4 +23,13 @@ namespace TrainingApp.Pages.Training.Models
     {
         public string Answer { get; set; }
     }
+
+    public class SFCSplitRequestedEventArgs : System.EventArgs
+    {
+        public string RowId { get; set; }
+        public int Qty { get; set; }
+        public bool IsApplied { get; set; }
+        public int RemainingQty { get; set; }
+        public string ErrorMessage { get; set; }
+    }
 }

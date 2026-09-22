@@ -2,6 +2,8 @@ namespace TrainingApp.Pages.Training.Models
 {
     public class PodWorkListRow
     {
+        // Distingue filas hermanas con el mismo SFCCode tras un SFC Split (spec 005).
+        public string RowId               { get; set; }
         public string SFCCode             { get; set; }
         public string MaterialDescription { get; set; }
         public int    Qty                 { get; set; }

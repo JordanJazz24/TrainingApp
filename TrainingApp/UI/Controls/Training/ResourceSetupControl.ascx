@@ -226,6 +226,13 @@
             return false;
         }
 
+        // 4b. Shop Order value must be 100% numeric (spec 005 — semilla de SimulatedOrder)
+        if (!/^\d+$/.test((shopOrders[0].value || '').trim())) {
+            rsShowError('Shop Order inválido',
+                'El valor de Shop Order debe ser numérico.');
+            return false;
+        }
+
         // 5. At least 1 Tool Number
         var toolNumbers = rows.filter(function(r) { return r.type === 'Tool Number'; });
         if (toolNumbers.length === 0) {

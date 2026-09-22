@@ -255,6 +255,7 @@
     <Content Include="UI\Controls\Training\SearchControl.ascx" />
     <Content Include="UI\Controls\Training\AssemblyControl.ascx" />
     <Content Include="UI\Controls\Training\DataCollectionControl.ascx" />
+    <Content Include="UI\Controls\Training\SFCSplitControl.ascx" />
     <Content Include="UI\Controls\Training\LogNCControl.ascx" />
     <Content Include="UI\master\pod.css" />
     <Content Include="Scripts\sweetalert2.all.min.js" />
@@ -365,6 +366,8 @@
     <Compile Include="Pages\Training\Models\IStepControl.cs" />
     <Compile Include="Pages\Training\Models\StepViewModel.cs" />
     <Compile Include="Pages\Training\Models\PodWorkListRow.cs" />
+    <Compile Include="Pages\Training\Models\SimulatedOrder.cs" />
+    <Compile Include="Pages\Training\Models\SimulatedOrderRow.cs" />
     <Compile Include="UI\Controls\Training\LineClearanceControl.ascx.cs">
       <DependentUpon>LineClearanceControl.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -403,6 +406,13 @@
     </Compile>
     <Compile Include="UI\Controls\Training\DataCollectionControl.ascx.designer.cs">
       <DependentUpon>DataCollectionControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\SFCSplitControl.ascx.cs">
+      <DependentUpon>SFCSplitControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\SFCSplitControl.ascx.designer.cs">
+      <DependentUpon>SFCSplitControl.ascx</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\Training\LogNCControl.ascx.cs">
       <DependentUpon>LogNCControl.ascx</DependentUpon>

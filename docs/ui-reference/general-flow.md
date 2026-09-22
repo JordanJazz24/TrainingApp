@@ -413,199 +413,6 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 
 ## Paso 4 — Assembly (condicional: RequiresAssembly = true)
 
-Se lanza al presionar [Start] con un SFC válido en el campo. Los modales son **secuenciales** — el operador no puede avanzar al siguiente sin completar el actual. La tabla POD permanece visible detrás de todos los modales.
-
-#### Modal 1: ID del Molde
-
-**Group CD:** `DCGTM_ID_MOLDE/A`
-
-```
-[Data Collection Entry]                                               [↗][X]
-  DC Group: DCGTM_ID_MOLDE/A    Resource: {resourceName}
-────────────────────────────────────────────────────────────────────────────
-  ★ Ingrese el ID del molde:
-    Data Type: Numeric
-    [________________________________]
-────────────────────────────────────────────────────────────────────────────
-                                                    [Save]  [Cancel]
-```
-
-**Validaciones:**
-| # | Validación | SweetAlert |
-|---|---|---|
-| 1 | Campo no vacío | "Debes ingresar el ID del molde." |
-| 2 | Valor numérico | "El ID del molde debe ser un valor numérico." |
-
-- [Cancel] cierra el modal y aborta la secuencia (operador regresa al POD sin avanzar el paso)
-- [Save] válido → cierra Modal 1, abre Modal 2
-
----
-
-#### Modal 2: Verificaciones de Etiquetas
-
-**Group CD:** `DCGTM_VERIFICACIONES/A`
-
-```
-[Data Collection Entry]                                               [↗][X]
-  DC Group: DCGTM_VERIFICACIONES/A    Resource: {resourceName}
-────────────────────────────────────────────────────────────────────────────
-  ★ ¿Se verificaron las etiquetas de calibración?
-    Data Type: Boolean
-    [ Seleccione ▼ ]  NO / Sí
-
-  ★ ¿Se verificó D000128682 o D000207232?
-    Data Type: Boolean
-    [ Seleccione ▼ ]  NO / Sí
-
-  ★ ¿Se verificó según D000128035 o D000207299?
-    Data Type: Boolean
-    [ Seleccione ▼ ]  NO / Sí
-────────────────────────────────────────────────────────────────────────────
-                                                    [Save]  [Cancel]
-```
-
-**Validaciones (se detiene en la primera que falle):**
-| # | Validación | SweetAlert |
-|---|---|---|
-| 1 | Todas las preguntas respondidas (no en blanco) | "Debes responder todas las preguntas antes de guardar." |
-| 2 | Todas las respuestas == "Sí" | "Todas las respuestas deben ser 'Sí' para continuar." |
-
-- Responder "No" en cualquiera = SweetAlert warning, modal permanece abierto
-- [Save] válido → cierra Modal 2, abre Modal 3
-
----
-
-#### Modal 3: Parámetros Técnicos MSS
-
-**Group CD:** `DCGTM_PARAMETROS_MSS_D000281359/A`
-
-```
-[Data Collection Entry]                                               [↗][X]
-  DC Group: DCGTM_PARAMETROS_MSS_D000281359/A    Resource: {resourceName}
-────────────────────────────────────────────────────────────────────────────
-  ★ Cooling Time según MSS D000281359:          Data Type: Numeric    [___]
-  ★ Velocidad de inyección según MSS D000281359: Data Type: Numeric   [___]
-  ★ Intensidad de pad printing:                  Data Type: Numeric   [___]
-  ★ Temperatura Zona 1:                          Data Type: Numeric   [___]
-  ★ Temperatura Zona 2:                          Data Type: Numeric   [___]
-  ★ Temperatura Zona 3:                          Data Type: Numeric   [___]
-  ★ Temperatura Zona 4:                          Data Type: Numeric   [___]
-  ★ Temperatura Zona 5:                          Data Type: Numeric   [___]
-  ★ Temperatura Zona 6:                          Data Type: Numeric   [___]
-  ★ Tiempo de curado de pad printing:            Data Type: Numeric   [___]
-────────────────────────────────────────────────────────────────────────────
-                                                    [Save]  [Cancel]
-```
-
-**Validaciones (se validan todos los campos, no solo el primero fallido):**
-| # | Validación | SweetAlert |
-|---|---|---|
-| 1 | Todos los campos no vacíos | "Debes completar todos los parámetros antes de guardar." |
-| 2 | Todos los valores numéricos | "Los valores de {campo} deben ser numéricos." |
-
-- [Save] válido → cierra Modal 3, abre Modal 4
-
----
-
-#### Modal 4: Verificación Final MSS
-
-**Group CD:** `DCGTM_VERIFICACION_FINAL/A`
-
-```
-[Data Collection Entry]                                               [↗][X]
-  DC Group: DCGTM_VERIFICACION_FINAL/A    Resource: {resourceName}
-────────────────────────────────────────────────────────────────────────────
-  ★ ¿Se verificó según D000128035 o D000207299?
-    Data Type: Boolean
-    [ Seleccione ▼ ]  NO / Sí
-────────────────────────────────────────────────────────────────────────────
-                                                    [Save]  [Cancel]
-```
-
-**Validaciones:**
-| # | Validación | SweetAlert |
-|---|---|---|
-| 1 | Dropdown seleccionado (no en blanco) | "Debes seleccionar una respuesta." |
-| 2 | Respuesta == "Sí" | "La respuesta debe ser 'Sí' para continuar." |
-
-- [Save] válido → cierra Modal 4 → secuencia completa
-
----
-
-### Finalización del Start
-
-Tras cerrar Modal 4:
-- La tabla POD continúa visible (nunca se ocultó)
-- La orden seleccionada se carga en la tabla POD con su fila (SFC, Material Description, Qty, Status: Active, Process Lot, Shop Order)
-- Banner informativo en la zona entre header y search bar: **"✓ Start process completed successfully"** (5 segundos, luego desaparece)
-- El paso avanza en el servidor
-
----
-
-### Flujo del operador (completo)
-1. Enfocar campo SFC en la search bar
-2a. Escanear SFC/etiqueta directamente
-2b. (alternativa) Clic en ícono browse → Browse Work List → seleccionar fila → OK
-3. Verificar que el campo SFC tenga valor
-4. Clic en **[Start]** en la barra de acción
-5. Modal 1 → ingresar ID del molde (numérico) → [Save]
-6. Modal 2 → responder 3 preguntas de verificación (todas "Sí") → [Save]
-7. Modal 3 → ingresar 10 parámetros MSS (todos numéricos) → [Save]
-8. Modal 4 → responder verificación final ("Sí") → [Save]
-9. Confirmar banner "Start process completed successfully"
-
----
-
-### Reglas de negocio
-- [Start] no permite avanzar si el campo SFC está vacío
-- La tabla POD permanece visible en todo momento — los modales son overlay
-- [Cancel] en cualquier modal aborta la secuencia sin avanzar el paso
-- Todos los campos numéricos deben ser valores numéricos (no texto)
-- Todas las preguntas booleanas deben responderse "Sí"
-- La secuencia es estrictamente lineal (1→2→3→4), no se puede saltear
-
----
-
-### Notas de implementación
-
-`SearchControl.ascx` contiene los **4 modales** pre-renderizados en el DOM. La navegación entre modales y el modal activo se manejan **en el cliente** (variable JS `_searchOpenModalId` + función `_searchGo()`), no con postbacks intermedios.
-
-**Modelo de PostBacks (patrón 1 postback / paso — `feedback-webforms-postback-discipline`):**
-- PostBack #1: `BtnStart_ServerClick` → valida SFC no vacío → `ClearActiveControl()` (idempotente tras Cancel) → carga `SearchControl.ascx` → abre Modal 1 (`showModalSafe('modalSearch1')`)
-- Modal 1→2→3→4: navegación **100% cliente**. `searchNext1/2/3()` validan el modal actual y avanzan (`_searchGo`); los valores de `TxtMoldeId`/`DdlVerif*`/`TxtMss*`/`DdlFinal` se conservan en el DOM
-- PostBack #2 (único envío): [Save] del Modal 4 — `searchValidate4()` valida en cliente; si pasa, postea a `BtnSave4_Click` → re-valida como fallback → `OnStepSubmit(answerJson)` → `SubmitStep` → banner éxito + se habilita el siguiente paso
-- [Cancel] en cualquier modal es **solo cliente** (`searchCancel()`): cierra los modales sin postback; el paso NO avanza y el siguiente [Start] re-crea el control fresco
-- Todos los modales usan `data-bs-backdrop="static"` (no se cierran al hacer clic fuera)
-
----
-
-### Resumen de validaciones
-
-| Modal | Tipo Dato | Validación | SweetAlert |
-|---|---|---|---|
-| 1 — ID del Molde | Numérico | Campo no vacío + es número | Sí |
-| 2 — Verificaciones | Boolean × 3 | Todas respondidas + todas "Sí" | Sí |
-| 3 — Parámetros MSS | Numérico × 10 | Todos llenos + todos números | Sí |
-| 4 — Verificación Final | Boolean | Respondida + "Sí" | Sí |
-
----
-
-### Diferencias SAP real vs. Legacy
-| Elemento | SAP real | Legacy |
-|---|---|---|
-| Campo SFC | Editable, acepta escaneo directo | Readonly, solo abría el modal |
-| [Start] sin SFC | Bloqueado con SweetAlert | No validado |
-| Modales de inicio | 4 secuenciales (Data Collection Entry) | 1 modal combinado con mezcla de preguntas |
-| POD durante modales | Siempre visible (overlay) | Desaparecía al abrir modal |
-| Banner éxito | "Start process completed successfully" 5s | No implementado |
-| Browse Work List | Nombre · columnas en inglés | "BUSCAR POOL DE TRABAJO" en español |
-
----
-
----
-
-## Paso 4 — Assembly (condicional: RequiresAssembly = true)
-
 **StepType:** `Assembly` | **StepWeight:** 15% | **Validación:** conteo vs. `ExpectedComponentCount`
 
 **Acceso:** [Assemble] en la barra de acción (solo visible/habilitado si RequiresAssembly = true para el área).
@@ -822,13 +629,11 @@ La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): s
 
 ---
 
-## Paso 7 — Log NC / SFC Split
+## Paso 7 — SFC Split (solo NonSerialized)
 
-**StepType:** `LogNC` | **StepWeight:** 15% | **Validación:** NC Code existe en catálogo del área
+**StepType:** `SFC_Split` | **StepWeight:** 5% | **Validación:** al menos un split exitoso
 
-**Acceso:** Sidebar → [Log NC]. Para NonSerialized, Sidebar → [SFC Split] primero.
-
-### Sub-flujo A: SFC Split (solo NonSerialized)
+**Acceso:** seleccionar una fila del POD → Sidebar → [SFC Split]. Las guías Serialized omiten este paso.
 
 **Modal: SFC Split Plug-In (Auto ID)**
 ```
@@ -838,7 +643,19 @@ La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): s
   [Split]  [Close]
 ```
 Confirmación en modal: `✓ New SFC {newCode} created with quantity {qty}`
-Operador verifica el nuevo SFC en el POD antes de continuar.
+Operador verifica la nueva fila en el POD antes de continuar.
+
+- [Split] muta el POD sin registrar intento ni avanzar el TrainingStep.
+- La X superior cierra el modal para seleccionar otra fila original o derivada.
+- [Close] se habilita después del primer split exitoso y completa el paso.
+
+---
+
+## Paso 8 — Log NC
+
+**StepType:** `LogNC` | **StepWeight:** 10% | **Validación:** NC Code existe en catálogo del área
+
+**Acceso:** Sidebar → [Log NC].
 
 ### Vista: NC Selection (reemplaza POD Work List)
 
@@ -897,7 +714,7 @@ El campo SFC en la search bar queda vacío tras el scrap.
 
 ---
 
-## Paso 8 — Complete
+## Paso 9 — Complete
 
 **StepType:** `Complete` | **StepWeight:** 10% | **Validación:** secuencia pura (siempre true)
 
@@ -930,7 +747,8 @@ El campo SFC en la search bar queda vacío tras el scrap.
 | 4 — Assembly | `Assembly` | 15% | RequiresAssembly |
 | 5 — DC Collect | `DataCollection` | 30% | RequiresDataCollection |
 | 6 — Closing Line Clearance | `LineClearance` | 10% | Condicional por área |
-| 7 — Log NC / SFC Split | `LogNC` | 15% | No (SFC Split solo NonSerialized) |
-| 8 — Complete | `Complete` | 10% | No |
+| 7 — SFC Split | `SFC_Split` | 5% | Solo NonSerialized |
+| 8 — Log NC | `LogNC` | 10% | No |
+| 9 — Complete | `Complete` | 10% | No |
 
 > **Sobre los pesos:** los pesos fijos definidos en `CLAUDE.md` (ResourceSetup 20% + LC 10% + Assembly 15% + DataCollection 30% + NC 15% + Complete 10% = 100%) aplican cuando todos los pasos están presentes. Cuando un paso condicional está ausente (ej. Assembly en Moldeo), su peso se redistribuye a pasos de secuencia pura como Search — esto ocurre en el seed de la guía (`TrainingStep.Weight`), no en el `ScoreCalculator`. Los pesos de cada instancia de guía siempre suman 1.00.

@@ -21,30 +21,26 @@ namespace TrainingApp.Pages.Training
         private readonly DataCollectionParameterRepository  _dcParamRepo    = new DataCollectionParameterRepository();
 
 
-        private const string ActiveCtrlPathKey = "GDT_ActiveCtrlPath";
-        private const string ActiveCtrlModeKey = "GDT_ActiveCtrlMode";
-        private const string PanelInstanceKey = "GDT_PanelInstance"; // Tracks which "generation" of the panel this is
-
-        // ── Dynamic control restoration (must run before ViewState is applied) ─
-        protected override void CreateChildControls()
+        // ── Dynamic control restoration ──────────────────────────────────
+        // Va en OnInit, la última fase antes de LoadViewState: así el control dinámico
+        // ya está en el árbol cuando ASP.NET aplica el ViewState y resuelve el target
+        // del postback. CreateChildControls NO sirve para esto en un Page — el parser
+        // construye el árbol en FrameworkInitialize, deja ChildControlsCreated en true
+        // y EnsureChildControls() nunca llega a invocarlo.
+        protected override void OnInit(EventArgs e)
         {
-            base.CreateChildControls();
+            base.OnInit(e);
 
-            // Si BtnStart fue clickeado, NO restaurar el control previo — el handler
-            // creará uno fresco. Limpiar ViewState Y controles AQUÍ (antes de que ViewState se aplique).
-            if (Request.Form[BtnStart.UniqueID] != null)
-            {
-                ViewState.Remove(ActiveCtrlPathKey);
-                ViewState.Remove(ActiveCtrlModeKey);
-                // CRÍTICO: limpiar AMBOS paneles para que ASP.NET no intente aplicar
-                // ViewState de controles previos. Sin esto, el ViewState del request
-                // anterior causa conflicto al agregar el nuevo SearchControl.
-                PnlModalHost.Controls.Clear();
-                PnlActiveControl.Controls.Clear();
-                return;
-            }
+            if (!IsPostBack) return;
 
-            string path = ViewState[ActiveCtrlPathKey] as string;
+            // Los lanzadores construyen una instancia fresca en su ServerClick;
+            // restaurar la anterior dejaría un control de otro tipo en la misma
+            // posición del árbol y el ViewState se aplicaría sobre él.
+            if (IsStepLauncherPostBack()) return;
+
+            // En OnInit el ViewState aún no se cargó y LoadPostData todavía no corrió,
+            // así que el path se lee directo del form posteado.
+            string path = Request.Form[HfActiveCtrlPath.UniqueID];
             if (string.IsNullOrEmpty(path)) return;
 
             try
@@ -52,13 +48,8 @@ namespace TrainingApp.Pages.Training
                 var ctrl = LoadControl(path) as IStepControl;
                 if (ctrl == null) return;
 
-                // Apply mode for LogNCControl
-                string mode = ViewState[ActiveCtrlModeKey] as string;
-                if (ctrl is UI.Controls.Training.LogNCControl lnc && !string.IsNullOrEmpty(mode))
-                    lnc.Mode = mode;
-
                 ((UserControl)ctrl).ID = "StepCtrl";
-                ctrl.OnStepSubmit += HandleControlSubmit;
+                WireStepControl(ctrl);
 
                 // Modal-overlay controls go to PnlModalHost (no positioning = no POD coverage).
                 // View-replacement controls (Assembly, DC, LogNC) go to PnlActiveControl.
@@ -67,17 +58,65 @@ namespace TrainingApp.Pages.Training
                 else
                     PnlActiveControl.Controls.Add((UserControl)ctrl);
             }
-            catch { /* control path stale — ignore */ }
+            catch (Exception ex)
+            {
+                // Un fallo silencioso acá deja el control fuera del árbol y ASP.NET
+                // descarta el evento del postback sin señal alguna en la UI.
+                System.Diagnostics.Trace.WriteLine(
+                    "GuidedTest: fallo restaurando '" + path + "' — " + ex);
+                ShowSweetAlert("error", "No se pudo restaurar el paso", ex.Message);
+            }
         }
+
+        // Los botones de la botonera son HtmlButton (<button runat="server">), que hacen
+        // postback vía __doPostBack y no emiten atributo name — su UniqueID llega en
+        // __EVENTTARGET, nunca en Request.Form[UniqueID].
+        private bool IsPostBackFrom(System.Web.UI.HtmlControls.HtmlButton button)
+        {
+            if (button == null) return false;
+
+            string target = Request.Form["__EVENTTARGET"];
+            return (!string.IsNullOrEmpty(target) && target == button.UniqueID)
+                || Request.Form[button.UniqueID] != null;
+        }
+
+        private bool IsStepLauncherPostBack() =>
+            IsPostBackFrom(BtnResourceSetup) ||
+            IsPostBackFrom(BtnActivities)    ||
+            IsPostBackFrom(BtnStart)         ||
+            IsPostBackFrom(BtnAssemble)      ||
+            IsPostBackFrom(BtnDCCollection)  ||
+            IsPostBackFrom(BtnSFCSplit)      ||
+            IsPostBackFrom(BtnLogNC);
 
         private static bool IsModalOverlayPath(string path) =>
             path.IndexOf("ResourceSetupControl", StringComparison.OrdinalIgnoreCase) >= 0 ||
             path.IndexOf("LineClearanceControl", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            path.IndexOf("SearchControl",        StringComparison.OrdinalIgnoreCase) >= 0;
+            path.IndexOf("SearchControl",        StringComparison.OrdinalIgnoreCase) >= 0 ||
+            path.IndexOf("SFCSplitControl",      StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private void WireStepControl(IStepControl control)
+        {
+            control.OnStepSubmit += HandleControlSubmit;
+            if (control is UI.Controls.Training.SFCSplitControl splitControl)
+                splitControl.OnSplitRequested += HandleSplitRequested;
+        }
 
         // ── Page_Load ────────────────────────────────────────────────────
         protected void Page_Load(object sender, EventArgs e)
         {
+            // El banner de éxito persiste en ViewState entre postbacks (Visible=true
+            // queda grabado). Se resetea acá al inicio de cada request; si este mismo
+            // request debe mostrarlo, ShowBanner() lo vuelve a activar más abajo
+            // (en HandleControlSubmit, que corre después de Page_Load).
+            PnlBannerZone.Visible = false;
+
+            // LoadPostData ya repobló el HiddenField con el path posteado. Si este
+            // request es el click de un lanzador, ese path quedó obsoleto: el handler
+            // lo vuelve a escribir si efectivamente carga un control.
+            if (IsPostBack && IsStepLauncherPostBack())
+                HfActiveCtrlPath.Value = string.Empty;
+
             var session = LoadAndValidateSession();
             if (session == null) return;
 
@@ -88,7 +127,9 @@ namespace TrainingApp.Pages.Training
             if (!IsPostBack)
             {
                 PopulateHeader(session, area, guide);
-                BindWorkList(area, session);
+                // Spec 005: el POD arranca vacío — RptWorkList solo se llena tras
+                // completar Search/Start (ver HandleControlSubmit). El Browse Work
+                // List sí puede mostrar la orden si ya fue creada en Resource Setup.
                 BindBrowseList(area, session);
             }
 
@@ -114,12 +155,20 @@ namespace TrainingApp.Pages.Training
             var area  = _areaRepo.GetById(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
-            // Modal-overlay controls (ResourceSetup, LineClearance, Search) must NOT be
-            // restored on the next postback, but their HTML stays in this response so
-            // the operator sees the confirmation banner before closing the modal with X.
+            if (step.StepType == StepType.SFC_Split && !HasSuccessfulSplit(session))
+            {
+                ShowSweetAlert("warning", "Split requerido",
+                    "Debes completar al menos un split antes de cerrar el paso.");
+                ReopenModal("modalSFCSplit");
+                return;
+            }
+
+            // Modal-overlay controls remain in this response but are not restored on
+            // the following postback. View-replacement controls are removed immediately.
             bool isModalOverlay = step.StepType == StepType.ResourceSetup ||
                                   step.StepType == StepType.LineClearance ||
-                                  step.StepType == StepType.Search;
+                                  step.StepType == StepType.Search ||
+                                  step.StepType == StepType.SFC_Split;
 
             if (isModalOverlay)
                 ClearActiveControlViewState();
@@ -128,12 +177,71 @@ namespace TrainingApp.Pages.Training
 
             ProcessSubmit(session, guide, area, step, e.Answer);
 
+            var refreshedSession = _sessionService.GetById(session.Id);
+            if (refreshedSession.Status == SessionStatus.InProgress)
+            {
+                var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
+                if (nextStep != null)
+                {
+                    if (step.StepType == StepType.SFC_Split ||
+                        (step.StepType != StepType.SFC_Split && nextStep.StepType == StepType.SFC_Split))
+                    {
+                        HfSelectedRowId.Value = string.Empty;
+                        BindWorkList(area, refreshedSession);
+                    }
+
+                    SetActiveButton(nextStep.StepType, area);
+                }
+            }
+
             if (step.StepType == StepType.ResourceSetup)
+            {
+                BindBrowseList(area, session);
                 ReopenModal("modalResourceSetup");
+            }
             else if (step.StepType == StepType.LineClearance)
                 ReopenModal("modalDCStandalone");
             else if (step.StepType == StepType.Search)
+            {
+                HfSelectedRowId.Value = string.Empty;
+                BindWorkList(area, session);
                 ShowBanner("✓ Start process completed successfully");
+            }
+            else if (step.StepType == StepType.SFC_Split)
+                ShowBanner("✓ SFC Split completed successfully");
+        }
+
+        private void HandleSplitRequested(object sender, SFCSplitRequestedEventArgs e)
+        {
+            var session = LoadAndValidateSession();
+            if (session == null) return;
+
+            var guide = _guideService.GetById(session.TrainingGuideId);
+            var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            if (step.StepType != StepType.SFC_Split)
+            {
+                e.ErrorMessage = "SFC Split no es el paso activo.";
+                return;
+            }
+
+            var order = GetSimulatedOrder(session);
+            var row = order?.Rows.FirstOrDefault(r => r.RowId == e.RowId);
+            if (row == null || e.Qty <= 0 || e.Qty >= row.Qty)
+            {
+                e.ErrorMessage = "La fila o cantidad seleccionada ya no es válida.";
+                return;
+            }
+
+            row.Qty -= e.Qty;
+            order.Rows.Add(new SimulatedOrderRow
+            {
+                RowId = Guid.NewGuid().ToString(),
+                Qty = e.Qty
+            });
+
+            e.IsApplied = true;
+            e.RemainingQty = row.Qty;
+            BindWorkList(_areaRepo.GetById(guide.AreaId), session);
         }
 
         private void ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
@@ -207,6 +315,16 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
 
+            // Spec 005: sin SimulatedOrder guardada (Resource Setup nunca completado,
+            // o Session expirada a mitad de flujo) no hay nada que buscar en Search/Start.
+            // Defensivo — en el flujo normal Start ya requiere haber pasado ResourceSetup.
+            if (GetSimulatedOrder(session) == null)
+            {
+                ShowSweetAlert("warning", "Resource Setup requerido",
+                    "Debes completar Resource Setup antes de iniciar.");
+                return;
+            }
+
             string sfcValue = TxtSFC.Text.Trim();
             if (string.IsNullOrEmpty(sfcValue))
                 sfcValue = HfSelectedSFC.Value.Trim();
@@ -238,6 +356,18 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+
+            // Defensa en servidor: el HiddenField puede faltar, estar obsoleto o ser
+            // manipulado aunque la validación JavaScript haya sido omitida.
+            if (FindSelectedOrderRow(session) == null)
+            {
+                HfSelectedRowId.Value = string.Empty;
+                BindWorkList(area, session);
+                ShowSweetAlert("warning", "Selecciona una fila",
+                    "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.");
+                return;
+            }
+
             PnlWorkList.Visible       = false;
             PnlActiveControl.Visible  = true;
             LoadAndShowControl("~/UI/Controls/Training/DataCollectionControl.ascx",
@@ -248,16 +378,34 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            ViewState[ActiveCtrlModeKey] = "split";
-            LoadAndShowControl("~/UI/Controls/Training/LogNCControl.ascx",
-                area, session, guide, null);
+
+            if (step.StepType != StepType.SFC_Split ||
+                area.SerializationType != SerializationType.NonSerialized)
+            {
+                ShowSweetAlert("warning", "Acción no disponible",
+                    "SFC Split no es el paso activo para esta guía.");
+                return;
+            }
+
+            if (FindSelectedOrderRow(session) == null)
+            {
+                HfSelectedRowId.Value = string.Empty;
+                BindWorkList(area, session);
+                ShowSweetAlert("warning", "Selecciona una fila para dividir",
+                    "Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.");
+                return;
+            }
+
+            LoadAndShowControl("~/UI/Controls/Training/SFCSplitControl.ascx",
+                area, session, guide, "modalSFCSplit", hideWorkList: false);
         }
 
         protected void BtnLogNC_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            ViewState[ActiveCtrlModeKey] = "nc";
+            if (step.StepType != StepType.LogNC) return;
+
             LoadAndShowControl("~/UI/Controls/Training/LogNCControl.ascx",
                 area, session, guide, null);
         }
@@ -274,6 +422,11 @@ namespace TrainingApp.Pages.Training
             var session = LoadAndValidateSession();
             if (session == null) return;
             _sessionService.Abandon(session.Id);
+            // Spec 005: la SimulatedOrder vive solo en Session — al abandonar,
+            // se remueve explícitamente para no dejarla huérfana bajo su clave
+            // (a diferencia de completar la guía normalmente, donde sí queda huérfana
+            // por diseño, ver Deferred Decisions del spec 005).
+            Session.Remove(Constants.SessionKeys.SimulatedOrderPrefix + session.Id);
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
@@ -289,7 +442,6 @@ namespace TrainingApp.Pages.Training
             TrainingGuide guide, string modalId, bool hideWorkList = true)
         {
             var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
-            ViewState[ActiveCtrlPathKey] = path;
 
             // Modal-overlay controls (ResourceSetup, LC) use PnlModalHost — a plain div
             // with no positioning — so the POD work list remains visible behind the Bootstrap modal.
@@ -308,27 +460,30 @@ namespace TrainingApp.Pages.Training
                 targetPanel = PnlModalHost;
             }
 
-            // Re-create the control for THIS request if not already in tree
-            var existing = targetPanel.FindControl("StepCtrl");
-            if (existing == null)
-            {
-                var ctrl = LoadControl(path) as IStepControl;
-                if (ctrl == null) return;
+            // Siempre se crea una instancia fresca. Reutilizar un StepCtrl existente sería
+            // incorrecto: FindControl matchea por ID, no por tipo, así que un control de
+            // un paso anterior (otro .ascx, otro árbol) quedaría en el árbol mientras
+            // ViewState declara este path — y el próximo postback aplicaría el ViewState
+            // guardado sobre un control de tipo distinto.
+            RemoveStepControl(PnlModalHost);
+            RemoveStepControl(PnlActiveControl);
 
-                string mode = ViewState[ActiveCtrlModeKey] as string;
-                if (ctrl is UI.Controls.Training.LogNCControl lnc && !string.IsNullOrEmpty(mode))
-                    lnc.Mode = mode;
+            var ctrl = LoadControl(path) as IStepControl;
+            if (ctrl == null) return;
 
-                ((UserControl)ctrl).ID = "StepCtrl";
-                ctrl.OnStepSubmit += HandleControlSubmit;
-                ctrl.ViewModel     = BuildStepViewModel(step, area, session, guide);
+            ((UserControl)ctrl).ID = "StepCtrl";
+            WireStepControl(ctrl);
+            ctrl.ViewModel = BuildStepViewModel(step, area, session, guide);
 
-                targetPanel.Controls.Add((UserControl)ctrl);
+            targetPanel.Controls.Add((UserControl)ctrl);
 
-                // Call Initialize() explicitly — Page_Load may have already passed
-                // when this control is added during an event handler
-                ctrl.Initialize();
-            }
+            // Call Initialize() explicitly — Page_Load may have already passed
+            // when this control is added during an event handler
+            ctrl.Initialize();
+
+            // El path se graba sólo después de que el control existe realmente en el
+            // árbol, para que nunca se declare un control que no se materializó.
+            HfActiveCtrlPath.Value = path;
 
             if (!string.IsNullOrEmpty(modalId))
                 ReopenModal(modalId);
@@ -336,8 +491,7 @@ namespace TrainingApp.Pages.Training
 
         private void ClearActiveControl()
         {
-            ViewState.Remove(ActiveCtrlPathKey);
-            ViewState.Remove(ActiveCtrlModeKey);
+            HfActiveCtrlPath.Value = string.Empty;
             PnlActiveControl.Controls.Clear();
             PnlActiveControl.Visible = false;
             PnlModalHost.Controls.Clear();
@@ -349,8 +503,22 @@ namespace TrainingApp.Pages.Training
         // but keeps the modal HTML in the response so ReopenModal can show the confirmation banner.
         private void ClearActiveControlViewState()
         {
-            ViewState.Remove(ActiveCtrlPathKey);
-            ViewState.Remove(ActiveCtrlModeKey);
+            HfActiveCtrlPath.Value = string.Empty;
+
+            // El control sigue en el árbol para renderizar la confirmación de este
+            // response, pero el próximo postback ya no lo reconstruye. Si guardara
+            // ViewState, ASP.NET intentaría aplicarlo sobre lo que ocupe esa posición.
+            var residual = PnlModalHost.FindControl("StepCtrl")
+                        ?? PnlActiveControl.FindControl("StepCtrl");
+            if (residual != null)
+                residual.EnableViewState = false;
+        }
+
+        private static void RemoveStepControl(System.Web.UI.WebControls.Panel panel)
+        {
+            var existing = panel.FindControl("StepCtrl");
+            if (existing != null)
+                panel.Controls.Remove(existing);
         }
 
         // ── Completion panel ─────────────────────────────────────────────
@@ -397,7 +565,10 @@ namespace TrainingApp.Pages.Training
                 AttemptCount = 0
             };
 
-            string sfcCode    = BuildSimulatedSFCCode(session);
+            // Spec 005: BuildSimulatedSFCCode ya no existe — el SFC real vive en la
+            // SimulatedOrder de sesión. Antes de Resource Setup no hay orden aún,
+            // así que se usa un placeholder en vez de fallar.
+            string sfcCode    = GetSimulatedOrder(session)?.SFCCode ?? "—";
             string areaName   = area.Name;
             string resourceName = areaName + "-01";
             string opName     = guide.Title;
@@ -419,10 +590,15 @@ namespace TrainingApp.Pages.Training
                     vm.ExtraData["Parameters"] = dcParams;
                     break;
 
+                case StepType.SFC_Split:
+                    var selectedRow = FindSelectedOrderRow(session);
+                    vm.ExtraData["AvailableQty"] = selectedRow?.Qty ?? 0;
+                    vm.ExtraData["SelectedRowId"] = selectedRow?.RowId;
+                    vm.ExtraData["HasSuccessfulSplit"] = HasSuccessfulSplit(session);
+                    break;
+
                 case StepType.LogNC:
-                    var ncCodes = _ncRepo.GetByArea(area.Id);
-                    vm.ExtraData["NCCodes"]         = ncCodes;
-                    vm.ExtraData["IsNonSerialized"] = area.SerializationType == SerializationType.NonSerialized;
+                    vm.ExtraData["NCCodes"] = _ncRepo.GetByArea(area.Id);
                     break;
 
                 case StepType.Assembly:
@@ -433,6 +609,15 @@ namespace TrainingApp.Pages.Training
                 case StepType.Search:
                     // SearchControl owns its own 4-modal flow (labels hardcoded in the .ascx);
                     // it only needs ResourceName, already populated above.
+                    break;
+
+                case StepType.ResourceSetup:
+                    // Datos que ResourceSetupControl necesita para construir la
+                    // SimulatedOrder en Session al guardar (spec 005).
+                    var rsProduct = _productRepo.GetAll().FirstOrDefault(p => p.Id == area.ProductId);
+                    vm.ExtraData["TrainingSessionId"]    = session.Id;
+                    vm.ExtraData["MaterialDescription"]  = (rsProduct?.Name ?? "") + " / " + area.Name;
+                    vm.ExtraData["InitialQty"]           = area.SerializationType == SerializationType.NonSerialized ? 250 : 1;
                     break;
             }
 
@@ -493,47 +678,62 @@ namespace TrainingApp.Pages.Training
 
         private void BindWorkList(Area area, TrainingSession session)
         {
-            var rows = BuildSimulatedWorkList(area, session);
+            var rows = BuildPodWorkList(session);
             RptWorkList.DataSource = rows;
             RptWorkList.DataBind();
         }
 
         private void BindBrowseList(Area area, TrainingSession session)
         {
-            var rows = BuildSimulatedWorkList(area, session);
+            var rows = BuildPodWorkList(session);
             RptBrowseList.DataSource = rows;
             RptBrowseList.DataBind();
         }
 
-        private IList<PodWorkListRow> BuildSimulatedWorkList(Area area, TrainingSession session)
+        // Spec 005: la orden ya no es hardcodeada — se lee de la SimulatedOrder
+        // guardada en Session por ResourceSetupControl. Sin orden guardada, el
+        // POD y el Browse Work List quedan vacíos (ver Deferred Decisions del spec).
+        private SimulatedOrder GetSimulatedOrder(TrainingSession session)
         {
-            var products = _productRepo.GetAll();
-            var product  = products.FirstOrDefault(p => p.Id == area.ProductId);
-            string shopOrder = "SO-" + session.Id.ToString("D6");
-            string sfcCode   = BuildSimulatedSFCCode(session);
-            string matDesc   = (product?.Name ?? "") + " / " + area.Name;
-            int qty          = area.SerializationType == SerializationType.NonSerialized ? 250 : 1;
-
-            return new List<PodWorkListRow>
-            {
-                new PodWorkListRow
-                {
-                    SFCCode             = sfcCode,
-                    MaterialDescription = matDesc,
-                    Qty                 = qty,
-                    Status              = "Active",
-                    ProcessLot          = "LOT-" + DateTime.Today.ToString("yyyyMMdd"),
-                    ShopOrder           = shopOrder,
-                    IsSelected          = true,
-                    ScheduleStart       = DateTime.Today.ToString("MM/dd/yyyy"),
-                    PlannedCompletion   = DateTime.Today.AddDays(1).ToString("MM/dd/yyyy")
-                }
-            };
+            return Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] as SimulatedOrder;
         }
 
-        private string BuildSimulatedSFCCode(TrainingSession session)
+        // Spec 005: resuelve la fila del POD que el operador seleccionó (HfSelectedRowId,
+        // llenado en cliente por selectWorkListRow/confirmBrowseSelection). Usada por
+        // SFC Split para el tope de Qty y por el gating de DC Collect en el servidor.
+        private SimulatedOrderRow FindSelectedOrderRow(TrainingSession session)
         {
-            return "CR9A" + (session.Id * 1000 + 91).ToString("D8");
+            var order = GetSimulatedOrder(session);
+            if (order == null) return null;
+            string rowId = HfSelectedRowId.Value;
+            if (string.IsNullOrEmpty(rowId)) return null;
+            return order.Rows.FirstOrDefault(r => r.RowId == rowId);
+        }
+
+        private bool HasSuccessfulSplit(TrainingSession session)
+        {
+            var order = GetSimulatedOrder(session);
+            return order != null && order.Rows.Count > 1;
+        }
+
+        private IList<PodWorkListRow> BuildPodWorkList(TrainingSession session)
+        {
+            var order = GetSimulatedOrder(session);
+            if (order == null) return new List<PodWorkListRow>();
+
+            return order.Rows.Select(r => new PodWorkListRow
+            {
+                RowId               = r.RowId,
+                SFCCode             = order.SFCCode,
+                MaterialDescription = order.MaterialDescription,
+                Qty                 = r.Qty,
+                Status              = order.Status,
+                ProcessLot          = order.ProcessLot,
+                ShopOrder           = order.ShopOrderInput,
+                IsSelected          = false,
+                ScheduleStart       = DateTime.Today.ToString("MM/dd/yyyy"),
+                PlannedCompletion   = DateTime.Today.AddDays(1).ToString("MM/dd/yyyy")
+            }).ToList();
         }
 
         private void UpdateScoreWidget(TrainingSession session)
@@ -579,10 +779,12 @@ namespace TrainingApp.Pages.Training
                 case StepType.DataCollection:
                     BtnDCCollection.Disabled = false;
                     break;
-                case StepType.LogNC:
-                    BtnLogNC.Disabled = false;
+                case StepType.SFC_Split:
                     if (area.SerializationType == SerializationType.NonSerialized)
                         BtnSFCSplit.Disabled = false;
+                    break;
+                case StepType.LogNC:
+                    BtnLogNC.Disabled = false;
                     break;
                 case StepType.Complete:
                     BtnComplete.Disabled = false;
@@ -640,6 +842,7 @@ namespace TrainingApp.Pages.Training
                 case StepType.LineClearance:  return "Answer 'Sí' to confirm line clearance.";
                 case StepType.Search:         return "Enter or scan the SFC code, then press Start.";
                 case StepType.DataCollection: return "Fill all required parameters and press Save (not Draft).";
+                case StepType.SFC_Split:      return "Select a POD row, split a valid quantity, then press Close.";
                 case StepType.LogNC:          return "Select an NC code and enter the Component, then Add-Done.";
                 case StepType.Assembly:       return "Scan all required component barcodes and press Add for each.";
                 case StepType.Complete:       return "Press Complete to close the manufacturing order.";

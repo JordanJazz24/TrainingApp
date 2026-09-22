@@ -68,7 +68,7 @@ CREATE TABLE dbo.TrainingGuides (
 -- -------------------------------------------------------
 -- TrainingSteps
 -- StepType: 0=ResourceSetup, 1=LineClearance, 2=Search,
---           3=Assembly, 4=DataCollection, 5=LogNC, 6=Complete
+--           3=Assembly, 4=DataCollection, 5=SFC_Split, 6=LogNC, 7=Complete
 -- Weight: peso porcentual del paso (0.00-1.00), ej. 0.20
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSteps', 'U') IS NULL

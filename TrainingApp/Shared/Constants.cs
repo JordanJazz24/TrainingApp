@@ -15,6 +15,10 @@ namespace TrainingApp.Shared
             public const string OperatorId = "OperatorId";
             public const string Code1      = "Code1";
             public const string Name       = "Name";
+
+            // Prefijo de clave de Session para la SimulatedOrder del POD (spec 005).
+            // Clave completa: SimulatedOrderPrefix + TrainingSession.Id
+            public const string SimulatedOrderPrefix = "GDT_SimOrder_";
         }
     }
 }
