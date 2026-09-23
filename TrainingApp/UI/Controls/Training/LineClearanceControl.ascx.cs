@@ -12,17 +12,22 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-                Initialize();
-            else if (HfRetrieved.Value == "true")
+            // Control estático: corre en cada request. Invisible = otro paso activo,
+            // no debe registrar scripts contra un DOM que no se renderiza.
+            if (!Visible) return;
+
+            if (IsPostBack && HfRetrieved.Value == "true")
                 Page.ClientScript.RegisterStartupScript(GetType(), "lcRestoreUI",
                     "lcRestoreRetrievedState();", true);
         }
 
         public void Initialize()
         {
-            if (ViewModel == null) return;
             PnlSavedBanner.Visible = false;
+            HfRetrieved.Value      = "false";
+            DdlAnswer.ClearSelection();
+
+            if (ViewModel == null) return;
             LitOperation.Text     = Page.Server.HtmlEncode(ViewModel.ExtraData.ContainsKey("OperationName")
                 ? ViewModel.ExtraData["OperationName"]?.ToString() : "");
             LitResource.Text      = Page.Server.HtmlEncode(ViewModel.ExtraData.ContainsKey("ResourceName")

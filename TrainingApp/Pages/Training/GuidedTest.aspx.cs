@@ -21,85 +21,75 @@ namespace TrainingApp.Pages.Training
         private readonly DataCollectionParameterRepository  _dcParamRepo    = new DataCollectionParameterRepository();
 
 
-        // ── Dynamic control restoration ──────────────────────────────────
-        // Va en OnInit, la última fase antes de LoadViewState: así el control dinámico
-        // ya está en el árbol cuando ASP.NET aplica el ViewState y resuelve el target
-        // del postback. CreateChildControls NO sirve para esto en un Page — el parser
-        // construye el árbol en FrameworkInitialize, deja ChildControlsCreated en true
-        // y EnsureChildControls() nunca llega a invocarlo.
-        protected override void OnInit(EventArgs e)
+        // ── Controles de paso estáticos (spec 006) ───────────────────────
+        // Los 8 controles están declarados en el .aspx, así que el árbol es idéntico en
+        // todos los requests. Qué paso está abierto vive en el ViewState de la página
+        // (firmado con MAC) y ApplyStepControlVisibility es el único que toca Visible.
+        private const string OpenStepTypeKey = "GDT_OpenStepType";
+
+        private static readonly StepType[] AllStepTypes =
+            (StepType[])Enum.GetValues(typeof(StepType));
+
+        private StepType? OpenStepType
         {
-            base.OnInit(e);
+            get { return ViewState[OpenStepTypeKey] as StepType?; }
+            set { ViewState[OpenStepTypeKey] = value; }
+        }
 
-            if (!IsPostBack) return;
-
-            // Los lanzadores construyen una instancia fresca en su ServerClick;
-            // restaurar la anterior dejaría un control de otro tipo en la misma
-            // posición del árbol y el ViewState se aplicaría sobre él.
-            if (IsStepLauncherPostBack()) return;
-
-            // En OnInit el ViewState aún no se cargó y LoadPostData todavía no corrió,
-            // así que el path se lee directo del form posteado.
-            string path = Request.Form[HfActiveCtrlPath.UniqueID];
-            if (string.IsNullOrEmpty(path)) return;
-
-            try
+        private IStepControl GetStepControl(StepType stepType)
+        {
+            switch (stepType)
             {
-                var ctrl = LoadControl(path) as IStepControl;
-                if (ctrl == null) return;
-
-                ((UserControl)ctrl).ID = "StepCtrl";
-                WireStepControl(ctrl);
-
-                // Modal-overlay controls go to PnlModalHost (no positioning = no POD coverage).
-                // View-replacement controls (Assembly, DC, LogNC) go to PnlActiveControl.
-                if (IsModalOverlayPath(path))
-                    PnlModalHost.Controls.Add((UserControl)ctrl);
-                else
-                    PnlActiveControl.Controls.Add((UserControl)ctrl);
-            }
-            catch (Exception ex)
-            {
-                // Un fallo silencioso acá deja el control fuera del árbol y ASP.NET
-                // descarta el evento del postback sin señal alguna en la UI.
-                System.Diagnostics.Trace.WriteLine(
-                    "GuidedTest: fallo restaurando '" + path + "' — " + ex);
-                ShowSweetAlert("error", "No se pudo restaurar el paso", ex.Message);
+                case StepType.ResourceSetup:  return CtrlResourceSetup;
+                case StepType.LineClearance:  return CtrlLineClearance;
+                case StepType.Search:         return CtrlSearch;
+                case StepType.Assembly:       return CtrlAssembly;
+                case StepType.DataCollection: return CtrlDataCollection;
+                case StepType.SFC_Split:      return CtrlSFCSplit;
+                case StepType.LogNC:          return CtrlLogNC;
+                case StepType.Complete:       return CtrlComplete;
+                default: throw new ArgumentOutOfRangeException(nameof(stepType), stepType, null);
             }
         }
 
-        // Los botones de la botonera son HtmlButton (<button runat="server">), que hacen
-        // postback vía __doPostBack y no emiten atributo name — su UniqueID llega en
-        // __EVENTTARGET, nunca en Request.Form[UniqueID].
-        private bool IsPostBackFrom(System.Web.UI.HtmlControls.HtmlButton button)
-        {
-            if (button == null) return false;
+        // Modal-overlay: el POD queda visible detrás del modal. El resto reemplaza el POD Work List.
+        private static bool IsModalOverlay(StepType stepType) =>
+            stepType == StepType.ResourceSetup || stepType == StepType.LineClearance ||
+            stepType == StepType.Search        || stepType == StepType.SFC_Split;
 
-            string target = Request.Form["__EVENTTARGET"];
-            return (!string.IsNullOrEmpty(target) && target == button.UniqueID)
-                || Request.Form[button.UniqueID] != null;
+        // renderOnce: control ya cerrado que igual se renderiza en esta respuesta para
+        // mostrar su confirmación; en el request siguiente deja de estar visible.
+        private void ApplyStepControlVisibility(StepType? open, StepType? renderOnce = null)
+        {
+            StepType? shown = open ?? renderOnce;
+            foreach (var type in AllStepTypes)
+                ((Control)GetStepControl(type)).Visible = type == shown;
+
+            bool replacesWorkList = shown.HasValue && !IsModalOverlay(shown.Value);
+            PnlModalHost.Visible     = shown.HasValue && IsModalOverlay(shown.Value);
+            PnlActiveControl.Visible = replacesWorkList;
+            PnlWorkList.Visible      = !replacesWorkList;
         }
 
-        private bool IsStepLauncherPostBack() =>
-            IsPostBackFrom(BtnResourceSetup) ||
-            IsPostBackFrom(BtnActivities)    ||
-            IsPostBackFrom(BtnStart)         ||
-            IsPostBackFrom(BtnAssemble)      ||
-            IsPostBackFrom(BtnDCCollection)  ||
-            IsPostBackFrom(BtnSFCSplit)      ||
-            IsPostBackFrom(BtnLogNC);
-
-        private static bool IsModalOverlayPath(string path) =>
-            path.IndexOf("ResourceSetupControl", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            path.IndexOf("LineClearanceControl", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            path.IndexOf("SearchControl",        StringComparison.OrdinalIgnoreCase) >= 0 ||
-            path.IndexOf("SFCSplitControl",      StringComparison.OrdinalIgnoreCase) >= 0;
-
-        private void WireStepControl(IStepControl control)
+        private void OpenStepControl(StepType stepType, Area area, TrainingSession session,
+            TrainingGuide guide, string modalId)
         {
-            control.OnStepSubmit += HandleControlSubmit;
-            if (control is UI.Controls.Training.SFCSplitControl splitControl)
-                splitControl.OnSplitRequested += HandleSplitRequested;
+            var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            var ctrl = GetStepControl(stepType);
+            ctrl.ViewModel = BuildStepViewModel(step, area, session, guide);
+            ctrl.Initialize();
+
+            OpenStepType = stepType;
+            ApplyStepControlVisibility(stepType);
+
+            if (!string.IsNullOrEmpty(modalId))
+                ReopenModal(modalId);
+        }
+
+        private void CloseStepControl(StepType? renderOnce = null)
+        {
+            OpenStepType = null;
+            ApplyStepControlVisibility(null, renderOnce);
         }
 
         // ── Page_Load ────────────────────────────────────────────────────
@@ -110,12 +100,6 @@ namespace TrainingApp.Pages.Training
             // request debe mostrarlo, ShowBanner() lo vuelve a activar más abajo
             // (en HandleControlSubmit, que corre después de Page_Load).
             PnlBannerZone.Visible = false;
-
-            // LoadPostData ya repobló el HiddenField con el path posteado. Si este
-            // request es el click de un lanzador, ese path quedó obsoleto: el handler
-            // lo vuelve a escribir si efectivamente carga un control.
-            if (IsPostBack && IsStepLauncherPostBack())
-                HfActiveCtrlPath.Value = string.Empty;
 
             var session = LoadAndValidateSession();
             if (session == null) return;
@@ -133,20 +117,20 @@ namespace TrainingApp.Pages.Training
                 BindBrowseList(area, session);
             }
 
-            // Set ViewModel on the active control (PostBack re-uses restored control).
-            // Check both panels: view-replacement controls are in PnlActiveControl,
-            // modal-overlay controls (ResourceSetup, LC) are in PnlModalHost.
-            var activeCtrl = (PnlActiveControl.FindControl("StepCtrl")
-                           ?? PnlModalHost.FindControl("StepCtrl")) as IStepControl;
-            if (activeCtrl != null)
-                activeCtrl.ViewModel = BuildStepViewModel(step, area, session, guide);
+            // Corre antes del Page_Load de los controles: cada uno ya ve su Visible
+            // definitivo y el abierto tiene su ViewModel. Solo se arma el ViewModel del
+            // control abierto — BuildStepViewModel consulta la BD.
+            var open = OpenStepType;
+            ApplyStepControlVisibility(open);
+            if (open.HasValue)
+                GetStepControl(open.Value).ViewModel = BuildStepViewModel(step, area, session, guide);
 
             UpdateScoreWidget(session);
             SetActiveButton(step.StepType, area);
         }
 
-        // ── Step submit handler (wired in CreateChildControls) ────────────
-        private void HandleControlSubmit(object sender, StepSubmitEventArgs e)
+        // ── Step submit handler (cableado en el markup) ───────────────────
+        protected void HandleControlSubmit(object sender, StepSubmitEventArgs e)
         {
             var session = LoadAndValidateSession();
             if (session == null) return;
@@ -154,6 +138,11 @@ namespace TrainingApp.Pages.Training
             var guide = _guideService.GetById(session.TrainingGuideId);
             var area  = _areaRepo.GetById(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+
+            // Guard de sender (spec 006, E12): ASP.NET dispara eventos también en controles
+            // invisibles, y el Answer se evalúa contra el paso actual. Un click en el modal
+            // de confirmación de un paso ya completado penalizaría el paso siguiente.
+            if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
             if (step.StepType == StepType.SFC_Split && !HasSuccessfulSplit(session))
             {
@@ -163,35 +152,37 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            // Modal-overlay controls remain in this response but are not restored on
-            // the following postback. View-replacement controls are removed immediately.
-            bool isModalOverlay = step.StepType == StepType.ResourceSetup ||
-                                  step.StepType == StepType.LineClearance ||
-                                  step.StepType == StepType.Search ||
-                                  step.StepType == StepType.SFC_Split;
+            var outcome = ProcessSubmit(session, guide, area, step, e.Answer);
 
-            if (isModalOverlay)
-                ClearActiveControlViewState();
-            else
-                ClearActiveControl();
-
-            ProcessSubmit(session, guide, area, step, e.Answer);
+            // Spec 006 (E3): respuesta incorrecta → el control queda abierto en el modal
+            // donde se respondió y solo se ve el SweetAlert con el hint (de ProcessSubmit).
+            if (outcome == StepSubmitOutcome.Incorrect)
+            {
+                string answerModalId = GetAnswerModalId(step.StepType);
+                if (answerModalId != null) ReopenModal(answerModalId);
+                return;
+            }
 
             var refreshedSession = _sessionService.GetById(session.Id);
-            if (refreshedSession.Status == SessionStatus.InProgress)
-            {
-                var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
-                if (nextStep != null)
-                {
-                    if (step.StepType == StepType.SFC_Split ||
-                        (step.StepType != StepType.SFC_Split && nextStep.StepType == StepType.SFC_Split))
-                    {
-                        HfSelectedRowId.Value = string.Empty;
-                        BindWorkList(area, refreshedSession);
-                    }
 
-                    SetActiveButton(nextStep.StepType, area);
+            // Sesión completada: ShowCompletionPanel ya cerró todos los controles.
+            if (refreshedSession.Status != SessionStatus.InProgress) return;
+
+            // Modal-overlay: se renderiza en esta respuesta para mostrar su confirmación y
+            // queda cerrado para el request siguiente. El resto vuelve al POD de inmediato.
+            CloseStepControl(IsModalOverlay(step.StepType) ? step.StepType : (StepType?)null);
+
+            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
+            if (nextStep != null)
+            {
+                if (step.StepType == StepType.SFC_Split ||
+                    (step.StepType != StepType.SFC_Split && nextStep.StepType == StepType.SFC_Split))
+                {
+                    HfSelectedRowId.Value = string.Empty;
+                    BindWorkList(area, refreshedSession);
                 }
+
+                SetActiveButton(nextStep.StepType, area);
             }
 
             if (step.StepType == StepType.ResourceSetup)
@@ -211,7 +202,7 @@ namespace TrainingApp.Pages.Training
                 ShowBanner("✓ SFC Split completed successfully");
         }
 
-        private void HandleSplitRequested(object sender, SFCSplitRequestedEventArgs e)
+        protected void HandleSplitRequested(object sender, SFCSplitRequestedEventArgs e)
         {
             var session = LoadAndValidateSession();
             if (session == null) return;
@@ -244,7 +235,24 @@ namespace TrainingApp.Pages.Training
             BindWorkList(_areaRepo.GetById(guide.AreaId), session);
         }
 
-        private void ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
+        // Modal donde el operador ingresa la respuesta de cada paso. LineClearance responde
+        // en modalDCEntry, apilado sobre modalDCStandalone (que el control ya reabre).
+        // LogNC no usa uno: su entrada es un panel de servidor que conserva su estado.
+        private static string GetAnswerModalId(StepType stepType)
+        {
+            switch (stepType)
+            {
+                case StepType.ResourceSetup:  return "modalResourceSetup";
+                case StepType.LineClearance:  return "modalDCEntry";
+                case StepType.Search:         return "modalSearch4";
+                case StepType.Assembly:       return "modalAssemble";
+                case StepType.DataCollection: return "modalDCEntry";
+                case StepType.SFC_Split:      return "modalSFCSplit";
+                default:                      return null;
+            }
+        }
+
+        private StepSubmitOutcome ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
             TrainingStep step, string answer)
         {
             var result = _sessionService.SubmitStep(session.Id, step.Id, answer);
@@ -272,6 +280,8 @@ namespace TrainingApp.Pages.Training
                     ShowCompletionPanel(session, area, guide);
                     break;
             }
+
+            return result.Outcome;
         }
 
         private void HandleCorrectSubmit(TrainingSession session, TrainingGuide guide,
@@ -296,18 +306,15 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            // ResourceSetup is a modal overlay — POD work list must stay visible
-            LoadAndShowControl("~/UI/Controls/Training/ResourceSetupControl.ascx",
-                area, session, guide, "modalResourceSetup", hideWorkList: false);
+            OpenStepControl(StepType.ResourceSetup, area, session, guide, "modalResourceSetup");
         }
 
         protected void BtnActivities_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            // LineClearance (Data Collection Standalone) is a modal overlay — POD stays visible
-            LoadAndShowControl("~/UI/Controls/Training/LineClearanceControl.ascx",
-                area, session, guide, "modalDCStandalone", hideWorkList: false);
+            // LineClearance se abre como "Data Collection Standalone" desde Activities.
+            OpenStepControl(StepType.LineClearance, area, session, guide, "modalDCStandalone");
         }
 
         protected void BtnStart_ServerClick(object sender, EventArgs e)
@@ -335,21 +342,15 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            // Search/Start launches the 4-modal sequence (SearchControl) as a modal
-            // overlay — the POD work list must stay visible behind it.
-            // CreateChildControls() detecta el click de [Start] y NO restaura el control
-            // previo, limpiando ViewState antes de que ASP.NET lo aplique — solución
-            // canónica para evitar conflictos de ViewState en controles dinámicos.
-            LoadAndShowControl("~/UI/Controls/Training/SearchControl.ascx",
-                area, session, guide, modalId: null, hideWorkList: false);
+            // SearchControl abre su propio Modal 1 desde Initialize() (secuencia de 4 modales).
+            OpenStepControl(StepType.Search, area, session, guide, modalId: null);
         }
 
         protected void BtnAssemble_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            LoadAndShowControl("~/UI/Controls/Training/AssemblyControl.ascx",
-                area, session, guide, "modalAssemble");
+            OpenStepControl(StepType.Assembly, area, session, guide, "modalAssemble");
         }
 
         protected void BtnDCCollection_ServerClick(object sender, EventArgs e)
@@ -368,10 +369,7 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            PnlWorkList.Visible       = false;
-            PnlActiveControl.Visible  = true;
-            LoadAndShowControl("~/UI/Controls/Training/DataCollectionControl.ascx",
-                area, session, guide, null);
+            OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
         }
 
         protected void BtnSFCSplit_ServerClick(object sender, EventArgs e)
@@ -396,8 +394,7 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            LoadAndShowControl("~/UI/Controls/Training/SFCSplitControl.ascx",
-                area, session, guide, "modalSFCSplit", hideWorkList: false);
+            OpenStepControl(StepType.SFC_Split, area, session, guide, "modalSFCSplit");
         }
 
         protected void BtnLogNC_ServerClick(object sender, EventArgs e)
@@ -406,8 +403,7 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (step.StepType != StepType.LogNC) return;
 
-            LoadAndShowControl("~/UI/Controls/Training/LogNCControl.ascx",
-                area, session, guide, null);
+            OpenStepControl(StepType.LogNC, area, session, guide, modalId: null);
         }
 
         protected void BtnComplete_ServerClick(object sender, EventArgs e)
@@ -437,94 +433,10 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Auth/Login.aspx");
         }
 
-        // ── Control loading ──────────────────────────────────────────────
-        private void LoadAndShowControl(string path, Area area, TrainingSession session,
-            TrainingGuide guide, string modalId, bool hideWorkList = true)
-        {
-            var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
-
-            // Modal-overlay controls (ResourceSetup, LC) use PnlModalHost — a plain div
-            // with no positioning — so the POD work list remains visible behind the Bootstrap modal.
-            // View-replacement controls (Assembly, DC, LogNC) use PnlActiveControl which has
-            // position:fixed and background:white to cover the work list area.
-            System.Web.UI.WebControls.Panel targetPanel;
-            if (hideWorkList)
-            {
-                PnlWorkList.Visible      = false;
-                PnlActiveControl.Visible = true;
-                targetPanel = PnlActiveControl;
-            }
-            else
-            {
-                PnlModalHost.Visible = true;
-                targetPanel = PnlModalHost;
-            }
-
-            // Siempre se crea una instancia fresca. Reutilizar un StepCtrl existente sería
-            // incorrecto: FindControl matchea por ID, no por tipo, así que un control de
-            // un paso anterior (otro .ascx, otro árbol) quedaría en el árbol mientras
-            // ViewState declara este path — y el próximo postback aplicaría el ViewState
-            // guardado sobre un control de tipo distinto.
-            RemoveStepControl(PnlModalHost);
-            RemoveStepControl(PnlActiveControl);
-
-            var ctrl = LoadControl(path) as IStepControl;
-            if (ctrl == null) return;
-
-            ((UserControl)ctrl).ID = "StepCtrl";
-            WireStepControl(ctrl);
-            ctrl.ViewModel = BuildStepViewModel(step, area, session, guide);
-
-            targetPanel.Controls.Add((UserControl)ctrl);
-
-            // Call Initialize() explicitly — Page_Load may have already passed
-            // when this control is added during an event handler
-            ctrl.Initialize();
-
-            // El path se graba sólo después de que el control existe realmente en el
-            // árbol, para que nunca se declare un control que no se materializó.
-            HfActiveCtrlPath.Value = path;
-
-            if (!string.IsNullOrEmpty(modalId))
-                ReopenModal(modalId);
-        }
-
-        private void ClearActiveControl()
-        {
-            HfActiveCtrlPath.Value = string.Empty;
-            PnlActiveControl.Controls.Clear();
-            PnlActiveControl.Visible = false;
-            PnlModalHost.Controls.Clear();
-            PnlModalHost.Visible = false;
-            PnlWorkList.Visible  = true;
-        }
-
-        // For modal-overlay controls: clears ViewState (control not restored next PostBack)
-        // but keeps the modal HTML in the response so ReopenModal can show the confirmation banner.
-        private void ClearActiveControlViewState()
-        {
-            HfActiveCtrlPath.Value = string.Empty;
-
-            // El control sigue en el árbol para renderizar la confirmación de este
-            // response, pero el próximo postback ya no lo reconstruye. Si guardara
-            // ViewState, ASP.NET intentaría aplicarlo sobre lo que ocupe esa posición.
-            var residual = PnlModalHost.FindControl("StepCtrl")
-                        ?? PnlActiveControl.FindControl("StepCtrl");
-            if (residual != null)
-                residual.EnableViewState = false;
-        }
-
-        private static void RemoveStepControl(System.Web.UI.WebControls.Panel panel)
-        {
-            var existing = panel.FindControl("StepCtrl");
-            if (existing != null)
-                panel.Controls.Remove(existing);
-        }
-
         // ── Completion panel ─────────────────────────────────────────────
         private void ShowCompletionPanel(TrainingSession session, Area area, TrainingGuide guide)
         {
-            ClearActiveControl();
+            CloseStepControl();
             PnlWorkList.Visible  = false;
             PnlCompleted.Visible = true;
             PnlScore.Visible     = false;

@@ -13,13 +13,16 @@ namespace TrainingApp.UI.Controls.Training
 
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            if (!IsPostBack) Initialize();
-        }
-
         public void Initialize()
         {
+            TxtBarcode.Text             = string.Empty;
+            HfBarcodeData.Value         = string.Empty;
+            HfScannedCount.Value        = "0";
+            PnlComponentDetails.Visible = false;
+            PnlComponentEmpty.Visible   = true;
+            PnlAssemblyData.Visible     = false;
+            PnlAssemblyEmpty.Visible    = true;
+
             if (ViewModel == null) return;
             int expected = GetExpectedCount();
             HfExpectedCount.Value = expected.ToString();

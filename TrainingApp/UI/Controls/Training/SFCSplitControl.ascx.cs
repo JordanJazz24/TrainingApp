@@ -16,14 +16,12 @@ namespace TrainingApp.UI.Controls.Training
             set { ViewState["SFCSplit_HasSuccessfulSplit"] = value; }
         }
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            if (!IsPostBack)
-                Initialize();
-        }
-
         public void Initialize()
         {
+            TxtQtyToSplit.Text      = string.Empty;
+            LitNewQty.Text          = string.Empty;
+            PnlSplitConfirm.Visible = false;
+
             if (ViewModel == null) return;
 
             string sfcCode = GetExtraData("SFCCode", "—");
@@ -35,7 +33,6 @@ namespace TrainingApp.UI.Controls.Training
             CvQty.ValueToCompare = availableQty.ToString();
             HasSuccessfulSplit = hasSuccessfulSplit;
             BtnCloseSplit.Enabled = hasSuccessfulSplit;
-            PnlSplitConfirm.Visible = false;
         }
 
         protected void BtnSplit_Click(object sender, EventArgs e)

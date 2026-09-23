@@ -12,13 +12,15 @@ namespace TrainingApp.UI.Controls.Training
         public StepViewModel ViewModel { get; set; }
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-            if (!IsPostBack) Initialize();
-        }
-
         public void Initialize()
         {
+            PnlNCSelection.Visible = false;
+            PnlNCEntry.Visible     = false;
+            HfNCCodeId.Value       = string.Empty;
+            TxtNCCode.Text         = string.Empty;
+            TxtComponent.Text      = string.Empty;
+            TxtComments.Text       = string.Empty;
+
             if (ViewModel == null) return;
 
             string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")

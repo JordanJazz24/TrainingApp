@@ -13,10 +13,14 @@ namespace TrainingApp.UI.Controls.Training
 
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
-        protected void Page_Load(object sender, EventArgs e) { }
-
         public void Initialize()
         {
+            foreach (var txt in new[] { TxtMoldeId, TxtMss1, TxtMss2, TxtMss3, TxtMss4, TxtMss5,
+                                        TxtMss6, TxtMss7, TxtMss8, TxtMss9, TxtMss10 })
+                txt.Text = string.Empty;
+            foreach (var ddl in new[] { DdlVerif1, DdlVerif2, DdlVerif3, DdlFinal })
+                ddl.ClearSelection();
+
             if (ViewModel == null) return;
 
             string resource = ViewModel.ExtraData.ContainsKey("ResourceName")

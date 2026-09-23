@@ -222,6 +222,42 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.Panel PnlActiveControl;
 
         /// <summary>
+        /// CtrlAssembly control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.AssemblyControl CtrlAssembly;
+
+        /// <summary>
+        /// CtrlDataCollection control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.DataCollectionControl CtrlDataCollection;
+
+        /// <summary>
+        /// CtrlLogNC control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.LogNCControl CtrlLogNC;
+
+        /// <summary>
+        /// CtrlComplete control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.CompleteControl CtrlComplete;
+
+        /// <summary>
         /// PnlCompleted control.
         /// </summary>
         /// <remarks>
@@ -348,13 +384,40 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.HiddenField HfSelectedRowId;
 
         /// <summary>
-        /// HfActiveCtrlPath control.
+        /// CtrlResourceSetup control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.HiddenField HfActiveCtrlPath;
+        protected global::TrainingApp.UI.Controls.Training.ResourceSetupControl CtrlResourceSetup;
+
+        /// <summary>
+        /// CtrlLineClearance control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.LineClearanceControl CtrlLineClearance;
+
+        /// <summary>
+        /// CtrlSearch control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.SearchControl CtrlSearch;
+
+        /// <summary>
+        /// CtrlSFCSplit control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.SFCSplitControl CtrlSFCSplit;
 
         /// <summary>
         /// PnlModalHost control.

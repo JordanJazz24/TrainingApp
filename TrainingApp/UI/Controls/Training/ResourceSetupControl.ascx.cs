@@ -15,6 +15,10 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Control estático: corre en cada request. Invisible = otro paso activo,
+            // no debe registrar scripts contra un DOM que no se renderiza.
+            if (!Visible) return;
+
             // Restore disabled state from HfRetrieved (PostBack cycle only)
             // Uses Attributes["disabled"] — NOT Enabled=false — so ASP.NET keeps the button
             // registered in EventValidation and BtnSave_Click fires correctly.
@@ -23,28 +27,37 @@ namespace TrainingApp.UI.Controls.Training
             else
                 BtnSave.Attributes["disabled"] = "disabled";
 
-            if (!IsPostBack)
-                Initialize();
-            else if (HfRetrieved.Value == "true")
+            if (IsPostBack && HfRetrieved.Value == "true")
                 Page.ClientScript.RegisterStartupScript(GetType(), "rsRestoreUI",
                     "rsRestoreRetrievedState();", true);
         }
 
         public void Initialize()
         {
+            HfRows.Value            = string.Empty;
+            HfSetupState.Value      = string.Empty;
+            HfRetrieved.Value       = "false";
+            DdlSetupState.ClearSelection();
+            PnlRecordChange.Visible = false;
+
             if (ViewModel == null) return;
             LitSite.Text     = Page.Server.HtmlEncode(
                 ViewModel.ExtraData.ContainsKey("Site") ? ViewModel.ExtraData["Site"]?.ToString() : "CR9A");
             LitResource.Text = Page.Server.HtmlEncode(
                 ViewModel.ExtraData.ContainsKey("ResourceName") ? ViewModel.ExtraData["ResourceName"]?.ToString() : "");
 
-            // Disable Save until Retrieve is clicked (also covers first dynamic load
-            // where Page_Load doesn't fire because the control is added in an event handler)
+            // Disable Save until Retrieve is clicked (Page_Load ya corrió cuando el
+            // control se abre desde el handler del lanzador)
             BtnSave.Attributes["disabled"] = "disabled";
         }
 
         protected void BtnSave_Click(object sender, EventArgs e)
         {
+            // ASP.NET dispara el click aunque el control ya esté cerrado (su modal de
+            // confirmación se renderizó en la respuesta anterior). El guard de sender de
+            // GuidedTest llega tarde: SaveSimulatedOrder sobrescribiría la orden (spec 006, E12).
+            if (!Visible) return;
+
             string setupState = HfSetupState.Value;
             string rowsJson   = HfRows.Value;
 

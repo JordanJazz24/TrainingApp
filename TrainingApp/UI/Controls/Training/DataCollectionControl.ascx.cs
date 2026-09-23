@@ -25,12 +25,22 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack) Initialize();
-            else if (ActiveGroup != null) RenderParams(ActiveGroup);
+            // Control estático: corre en cada request. Invisible = otro paso activo.
+            if (!Visible) return;
+
+            // Los inputs de parámetros son dinámicos: se recrean en cada postback
+            // mientras hay un grupo abierto, para que Save lea sus valores.
+            if (ActiveGroup != null) RenderParams(ActiveGroup);
         }
 
         public void Initialize()
         {
+            ActiveGroup         = null;
+            HfActiveGroup.Value = string.Empty;
+            HfAnswers.Value     = string.Empty;
+            LitActiveGroup.Text = string.Empty;
+            PhParameters.Controls.Clear();
+
             if (ViewModel == null) return;
             BindGroupList();
             string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")

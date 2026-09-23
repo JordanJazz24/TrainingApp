@@ -6,8 +6,9 @@ namespace TrainingApp.Pages.Training.Models
     {
         StepViewModel ViewModel { get; set; }
         event EventHandler<StepSubmitEventArgs> OnStepSubmit;
-        // Called by the host (GuidedTest) after setting ViewModel — runs visual setup
-        // even when the control is added during an event handler (after Page_Load).
+        // Único punto de reinicio: el host (GuidedTest) lo llama al abrir el paso, después
+        // de asignar ViewModel. Debe dejar el control igual que una instancia nueva — el
+        // control es estático y su ViewState sobrevive entre aperturas (spec 006).
         void Initialize();
     }
 }

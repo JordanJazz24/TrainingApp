@@ -2,6 +2,15 @@
     AutoEventWireup="true" CodeBehind="GuidedTest.aspx.cs"
     Inherits="TrainingApp.Pages.Training.GuidedTest" %>
 
+<%@ Register Src="~/UI/Controls/Training/ResourceSetupControl.ascx"  TagPrefix="uc" TagName="ResourceSetupControl" %>
+<%@ Register Src="~/UI/Controls/Training/LineClearanceControl.ascx"  TagPrefix="uc" TagName="LineClearanceControl" %>
+<%@ Register Src="~/UI/Controls/Training/SearchControl.ascx"         TagPrefix="uc" TagName="SearchControl" %>
+<%@ Register Src="~/UI/Controls/Training/SFCSplitControl.ascx"       TagPrefix="uc" TagName="SFCSplitControl" %>
+<%@ Register Src="~/UI/Controls/Training/AssemblyControl.ascx"       TagPrefix="uc" TagName="AssemblyControl" %>
+<%@ Register Src="~/UI/Controls/Training/DataCollectionControl.ascx" TagPrefix="uc" TagName="DataCollectionControl" %>
+<%@ Register Src="~/UI/Controls/Training/LogNCControl.ascx"          TagPrefix="uc" TagName="LogNCControl" %>
+<%@ Register Src="~/UI/Controls/Training/CompleteControl.ascx"       TagPrefix="uc" TagName="CompleteControl" %>
+
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
 
     <%-- ══ HEADER BAR ═══════════════════════════════════════════════════ --%>
@@ -173,10 +182,15 @@
     </div>
 
     <%-- ══ ACTIVE CONTROL AREA (outside pod-main so modals aren't clipped) ═ --%>
-    <%-- List-view controls (Assembly, DC, LogNC) render inline here.           --%>
-    <%-- Modal controls (ResourceSetup, LC, Search) render their Bootstrap      --%>
-    <%-- modals at body level — no overflow/fixed parent to clip them.          --%>
+    <%-- Controles que reemplazan el POD Work List (Assembly, DC, LogNC).       --%>
+    <%-- Spec 006: declarados estáticos — el code-behind solo alterna Visible.  --%>
+    <%-- Los eventos custom se llaman OnStepSubmit/OnSplitRequested, por eso    --%>
+    <%-- el atributo declarativo lleva el prefijo "On" dos veces.              --%>
     <asp:Panel ID="PnlActiveControl" runat="server" Visible="false" CssClass="pod-active-control">
+        <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:CompleteControl       ID="CtrlComplete"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
     </asp:Panel>
 
     <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
@@ -276,16 +290,16 @@
     <asp:HiddenField ID="HfSelectedSFC" runat="server" />
     <%-- Spec 005: distingue filas hermanas con el mismo SFC tras un SFC Split. --%>
     <asp:HiddenField ID="HfSelectedRowId" runat="server" />
-
-    <%-- Path del UserControl dinámico activo. Viaja en un HiddenField y no en       --%>
-    <%-- ViewState porque el control debe reconstruirse en OnInit, y en esa fase     --%>
-    <%-- ViewState todavía no fue cargado — sólo Request.Form está disponible.       --%>
-    <asp:HiddenField ID="HfActiveCtrlPath" runat="server" />
-
-    <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance, Search). --%>
-    <%-- No positioning — modal HTML renders here then showModalSafe moves it         --%>
-    <%-- to document.forms[0] for proper Bootstrap stacking.                          --%>
-    <asp:Panel ID="PnlModalHost" runat="server" Visible="false" />
+    <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance, Search,  --%>
+    <%-- SFC Split). No positioning — modal HTML renders here then showModalSafe     --%>
+    <%-- moves it to document.forms[0] for proper Bootstrap stacking.                --%>
+    <asp:Panel ID="PnlModalHost" runat="server" Visible="false">
+        <uc:ResourceSetupControl ID="CtrlResourceSetup" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:LineClearanceControl ID="CtrlLineClearance" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:SearchControl        ID="CtrlSearch"        runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:SFCSplitControl      ID="CtrlSFCSplit"      runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                 OnOnSplitRequested="HandleSplitRequested" />
+    </asp:Panel>
 
 </asp:Content>
 

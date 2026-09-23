@@ -1,6 +1,6 @@
 # Spec 006: Controles de paso estáticos en GuidedTest
 
-**Status:** In Review
+**Status:** Approved (2026-09-22) — enmendada 2026-09-22: guard de sender (E12, AC-12), AC-11 limitado a build, submit incorrecto mantiene el control abierto (E3, AC-8)
 **Date:** 2026-09-22
 **Fase:** 6 (cierre)
 **Relacionada con:** Spec 004 (contrato de UserControls), Spec 005 (POD con orden dinámica)
@@ -125,7 +125,8 @@ intermedio.
 ### Out
 
 - Desarrollo del paso Complete (UI y comportamiento propios): tendrá su propia spec.
-- Cualquier cambio visible para el operador (**paridad total de UX**, ver AC-1).
+- Cualquier cambio visible para el operador (**paridad total de UX**, ver AC-1), con
+  una única excepción aprobada: el comportamiento ante un submit incorrecto (E3).
 - Cambios en BLL, DAL, Domain, scoring, stored procedures o catálogos reales.
 - Los huecos que ya existían en `AssemblyControl` y `ExpectedComponentCount`
   (ver Deferred Decisions).
@@ -165,7 +166,7 @@ Contrato de postback resultante:
 |---|---|
 | Click de un lanzador | Valida el paso activo y las precondiciones → arma `StepViewModel` → `Initialize()` → `Visible = true` → abre el modal si corresponde |
 | Postback interno de un control (Collect, Split, Add, 4 modales de Search) | El control sigue visible con su estado; no se reinicia |
-| `OnStepSubmit` | `TrainingSessionService.SubmitStep` → feedback igual que hoy → el control se oculta cuando corresponde (ver Edge Cases) |
+| `OnStepSubmit` | `TrainingSessionService.SubmitStep` → si es `Incorrect`, el control sigue abierto y se reabre su modal de respuesta (E3); si no, feedback igual que hoy y el control se cierra (E4, E5, E9) |
 
 `StepViewModel` se arma **solo para el control que se abre o que está visible**,
 nunca para los 8 en cada request (`BuildStepViewModel` consulta la BD).
@@ -180,8 +181,15 @@ sesión `InProgress`).
 - `EnableEventValidation` queda en su valor por defecto (`true`; verificado: no está
   desactivado en ningún archivo del proyecto). ASP.NET rechaza los eventos dirigidos
   a controles que no se renderizaron en la respuesta anterior.
-- La BLL (`SubmitStep`) sigue validando paso y secuencia. No se agrega un guard
-  explícito en `GuidedTest`.
+- La BLL (`SubmitStep`) sigue validando paso y secuencia.
+- **Guard de sender (enmienda 2026-09-22):** `HandleControlSubmit` descarta cualquier
+  submit cuyo `sender` no sea el control del `StepType` del paso activo. Motivo:
+  ASP.NET dispara eventos también en controles invisibles, y un control que se
+  renderizó en la respuesta anterior (confirmación de un modal-overlay, E9) pasa
+  EventValidation. Como `HandleControlSubmit` evalúa el Answer contra
+  `CurrentStepOrder` y no contra el control emisor, sin este guard un click repetido
+  en ese modal contaría como intento fallido del paso siguiente y penalizaría el
+  puntaje en Assessment (ver E12).
 - Desaparece la carga de un path enviado por el cliente (`HfActiveCtrlPath` → `LoadControl`).
 
 ---
@@ -192,7 +200,7 @@ sesión `InProgress`).
 |---|---|---|
 | E1 | El operador cierra un modal con la X (solo cliente) y vuelve a abrir el mismo paso | El control arranca limpio (`Initialize()`); lo que está en el servidor se conserva |
 | E2 | F5 / recarga por GET | POD sin ningún control abierto; progreso y puntaje intactos desde el servidor |
-| E3 | Submit incorrecto | Igual que hoy: el control sigue visible, se reabre el modal si aplica, SweetAlert con hint |
+| E3 | Submit incorrecto (outcome `Incorrect` de la BLL) | **Cambio deliberado respecto a hoy** (enmienda 2026-09-22): el control queda abierto, en el mismo modal donde se respondió, con los datos ingresados, y solo se muestra el SweetAlert con el hint. No se vuelve al POD. Antes, DC/Assembly/LogNC volvían al POD en cualquier submit |
 | E4 | Force-advance en Assessment (4º intento) | Igual que hoy: el paso se marca fallido, el control se oculta y se habilita el lanzador siguiente |
 | E5 | Sesión completada | Todos los controles ocultos, panel de completion visible |
 | E6 | Postback manipulado contra un control invisible | Rechazado por EventValidation o por la BLL; el progreso no cambia |
@@ -200,7 +208,8 @@ sesión `InProgress`).
 | E8 | Las dos instancias de Line Clearance (apertura y cierre) | Usan el mismo `LineClearanceControl`; cada apertura reconstruye su ViewModel |
 | E9 | Confirmación después del submit de un modal-overlay (ResourceSetup reabre su modal con banner; LC) | Igual que hoy: el control se muestra en esa respuesta y en el siguiente request ya no está visible |
 | E10 | Un bug del camino Serialized aparece con la guía de prueba | Se registra y queda fuera de alcance, salvo que lo cause la migración |
-| E11 | Un control invisible recorre Init/Load sin ViewModel | Sin excepción y sin consultas a BD (regla de Scope In #6) |
+| E11 | Un control invisible recorre Init/Load sin ViewModel | Sin excepción y sin consultas a BD (regla de Scope In #6); tampoco registra scripts de cliente |
+| E12 | El operador vuelve a hacer click en un botón de un modal-overlay ya confirmado (renderizado en E9, invisible en el request actual) | El submit se descarta por el guard de sender: no se registra intento ni cambia el puntaje |
 
 ---
 
@@ -246,15 +255,21 @@ Las páginas ASPX no se pueden testear con NUnit en este stack. La verificación
   vacíos y los datos del servidor se conservan (E1).
 - **AC-7 (F5):** Dado cualquier paso en curso, cuando el operador recarga la página,
   entonces ve el POD sin controles abiertos y el paso activo correcto (E2).
-- **AC-8 (incorrecto y force-advance):** Dado Assessment, cuando el operador falla un
-  paso 1, 2 y 3 veces, entonces ve el hint y el modal se reabre; al 4º intento el
-  sistema avanza forzado y habilita el lanzador siguiente (E3, E4).
+- **AC-8 (incorrecto y force-advance):** Dado Assessment en Data Collection, cuando el
+  operador guarda valores incorrectos 1, 2 y 3 veces, entonces cada vez ve solo el
+  SweetAlert con el hint y sigue en `modalDCEntry` con los valores que ingresó, sin volver
+  al POD; al 4º intento el sistema avanza forzado, vuelve al POD y habilita el lanzador
+  siguiente (E3, E4). En Guided, los intentos incorrectos se comportan igual pero sin límite.
 - **AC-9 (Assembly):** Dada la guía de prueba de Redefinity, cuando el operador abre
   Assemble, escanea y hace clic en *Add* hasta llegar al conteo esperado, entonces el
   paso se completa y se habilita el siguiente.
 - **AC-10 (completion):** Dada la última etapa, cuando se completa la sesión, entonces
   todos los controles de paso quedan ocultos y se ve el panel de completion (E5).
-- **AC-11 (build):** El proyecto compila sin errores y los tests NUnit existentes pasan.
+- **AC-11 (build):** El proyecto compila sin errores. (Ejecución de tests NUnit
+  diferida, ver Deferred Decisions.)
+- **AC-12 (guard de sender):** Dado Resource Setup recién completado con su modal de
+  confirmación visible, cuando el operador vuelve a hacer click en *Save* de ese modal,
+  entonces no se registra ningún intento sobre el paso activo y el puntaje no cambia (E12).
 
 ---
 
@@ -265,6 +280,7 @@ Las páginas ASPX no se pueden testear con NUnit en este stack. La verificación
 | X del Component List (`closeAssemblyView`) y `BtnReturnPOD_Click` están vacíos | Se mantienen como están (paridad) | Primera guía real con Assembly, o Fase 8 |
 | `ExpectedCount = 3` hardcodeado en `BuildStepViewModel`; el CLAUDE.md exige `ExpectedComponentCount` en BD por Area | Queda hardcodeado | Primera guía real con Assembly (antes de la Fase 7 si LoFlo lo requiere) |
 | `RequiresAssembly` de LoFlo: BD=false, CLAUDE.md=true | Sin cambio | Fase 7, al cargar el catálogo real de LoFlo |
+| Ejecución de los tests NUnit como criterio de aceptación | AC-11 exige solo build verde | Fase 5 (cobertura de ScoreCalculator), o antes de cerrar la Fase 6 si el usuario lo pide |
 | Desarrollo del paso Complete | `CompleteControl` declarado e implementando `IStepControl`, sin UI; `BtnComplete` hace submit directo | Spec propia del paso Complete |
 
 ---
