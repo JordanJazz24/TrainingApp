@@ -16,6 +16,9 @@ namespace TrainingApp.UI.Controls.Training
 
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
 
+        // El operador sale del Data Collection List sin responder: el host cierra el control.
+        public event EventHandler OnReturnToPod;
+
         // Active group stored in ViewState for PostBack persistence
         private string ActiveGroup
         {
@@ -70,11 +73,9 @@ namespace TrainingApp.UI.Controls.Training
             OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answersJson });
         }
 
-        protected void BtnSaveDraft_Click(object sender, EventArgs e)
+        protected void BtnReturnPOD_Click(object sender, EventArgs e)
         {
-            // Save Draft — does NOT complete the step; keep modal open
-            Page.ClientScript.RegisterStartupScript(GetType(), "reopenDCEntry",
-                "showModalSafe('modalDCEntry');", true);
+            OnReturnToPod?.Invoke(this, EventArgs.Empty);
         }
 
         private void BindGroupList()

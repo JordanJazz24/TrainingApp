@@ -227,9 +227,15 @@ html, body {
     z-index: 2;
 }
 
+/* Bootstrap 5.2 pinta cada celda con box-shadow inset var(--bs-table-accent-bg), que
+   tapa el background del <tr>: el color se define como variable en la fila. */
 .pod-work-list tbody tr { cursor: pointer; }
-.pod-work-list tbody tr:hover { background: #e8f0fe; }
-.pod-work-list tbody tr.selected { background: #cfe2ff; }
+.pod-work-list tbody tr:hover { --bs-table-accent-bg: #e8f0fe; }
+.pod-work-list tbody tr.selected {
+    --bs-table-accent-bg: #cfe2ff;
+    outline: 2px solid #0d6efd;
+    outline-offset: -2px;
+}
 
 .pod-work-list tbody td { padding: 6px 10px; vertical-align: middle; }
 

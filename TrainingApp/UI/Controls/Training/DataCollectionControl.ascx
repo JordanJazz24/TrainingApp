@@ -8,8 +8,9 @@
         <span>Data Collection List</span>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-sm btn-outline-secondary" title="Help">?</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary"
-                data-bs-dismiss="modal">&#10007;</button>
+            <asp:Button ID="BtnCloseList" runat="server" Text="✗"
+                CssClass="btn btn-sm btn-outline-secondary" ToolTip="Return to POD"
+                OnClick="BtnReturnPOD_Click" CausesValidation="false" />
         </div>
     </div>
     <asp:Repeater ID="RptGroups" runat="server">
@@ -65,15 +66,15 @@
                     CssClass="btn btn-sm btn-success"
                     OnClientClick="collectDCAnswers()"
                     OnClick="BtnSave_Click" />
-                <asp:Button ID="BtnSaveDraft" runat="server" Text="💾 Save Draft"
-                    CssClass="btn btn-sm btn-outline-secondary"
-                    OnClientClick="collectDCAnswers()"
-                    OnClick="BtnSaveDraft_Click"
-                    CausesValidation="false" />
+                <%-- Save Draft no guarda nada en el simulador: solo orienta al operador,
+                     sin postback para no perder los valores ya cargados. --%>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                    onclick="Swal.fire({icon:'info',title:'Save Draft',text:'Use \'Save\' to save'});">&#128190; Save Draft</button>
                 <button type="button" class="btn btn-sm btn-danger"
                     onclick="clearDCFields()">&#128308; Clear</button>
-                <button type="button" class="btn btn-sm btn-secondary"
-                    data-bs-dismiss="modal">&#10007; Return to POD</button>
+                <asp:Button ID="BtnReturnPOD" runat="server" Text="✗ Return to POD"
+                    CssClass="btn btn-sm btn-secondary"
+                    OnClick="BtnReturnPOD_Click" CausesValidation="false" />
             </div>
         </div>
     </div>

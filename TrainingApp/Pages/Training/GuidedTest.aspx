@@ -49,9 +49,11 @@
             <div class="d-flex align-items-center gap-1">
                 <span class="sfc-label">SFC:</span>
                 <%-- Spec 005: TxtSFC ya no se edita a mano — la selección es solo vía
-                     Browse Work List (confirmBrowseSelection lo sigue completando). --%>
+                     Browse Work List (confirmBrowseSelection lo sigue completando).
+                     readonly se aplica como atributo HTML desde el code-behind: la
+                     propiedad ReadOnly haría que ASP.NET descarte el valor posteado. --%>
                 <asp:TextBox ID="TxtSFC" runat="server" CssClass="form-control sfc-input"
-                    placeholder="Use Browse Work List..." ReadOnly="true" />
+                    placeholder="Use Browse Work List..." />
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                     data-bs-toggle="modal" data-bs-target="#modalBrowseWorkList"
                     title="Browse Work List">&#128269;</button>
@@ -188,7 +190,8 @@
     <%-- el atributo declarativo lleva el prefijo "On" dos veces.              --%>
     <asp:Panel ID="PnlActiveControl" runat="server" Visible="false" CssClass="pod-active-control">
         <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
-        <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                  OnOnReturnToPod="HandleReturnToPod" />
         <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
         <uc:CompleteControl       ID="CtrlComplete"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
     </asp:Panel>
@@ -306,15 +309,45 @@
 <asp:Content ID="ScriptContent" ContentPlaceHolderID="ScriptContent" runat="server">
 <script>
     // ── Work list row selection ──────────────────────────────────────
+    // Una sola fila seleccionada; click sobre la seleccionada la deselecciona.
     function selectWorkListRow(row) {
+        var hf    = document.getElementById('<%= HfSelectedSFC.ClientID %>');
+        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+
+        if (row.classList.contains('selected')) {
+            row.classList.remove('selected');
+            if (hf) hf.value = '';
+            if (hfRow) hfRow.value = '';
+            return;
+        }
+
         document.querySelectorAll('.pod-work-list tbody tr')
             .forEach(r => r.classList.remove('selected'));
         row.classList.add('selected');
-        var hf = document.getElementById('<%= HfSelectedSFC.ClientID %>');
         if (hf) hf.value = row.getAttribute('data-sfc');
-        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
         if (hfRow) hfRow.value = row.getAttribute('data-row-id');
     }
+
+    // El HTML del POD que vuelve de un postback no sabe qué fila estaba seleccionada:
+    // se reaplica desde HfSelectedRowId. Si la fila ya no existe, se limpia la selección.
+    function restoreWorkListSelection() {
+        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        if (!hfRow || !hfRow.value) return;
+
+        var found = false;
+        document.querySelectorAll('.pod-work-list tbody tr').forEach(function (r) {
+            var match = r.getAttribute('data-row-id') === hfRow.value;
+            r.classList.toggle('selected', match);
+            found = found || match;
+        });
+
+        if (!found) {
+            hfRow.value = '';
+            var hf = document.getElementById('<%= HfSelectedSFC.ClientID %>');
+            if (hf) hf.value = '';
+        }
+    }
+    document.addEventListener('DOMContentLoaded', restoreWorkListSelection);
 
     // Spec 005: DC Collect no puede iniciar sin una fila del POD seleccionada
     // (gating 100% cliente — sin postback si no hay selección).

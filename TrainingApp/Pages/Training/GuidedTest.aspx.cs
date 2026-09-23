@@ -101,6 +101,10 @@ namespace TrainingApp.Pages.Training
             // (en HandleControlSubmit, que corre después de Page_Load).
             PnlBannerZone.Visible = false;
 
+            // Atributo HTML y no la propiedad ReadOnly: con ReadOnly=true ASP.NET ignora
+            // el valor posteado y el SFC elegido en Browse se perdería en cada postback.
+            TxtSFC.Attributes["readonly"] = "readonly";
+
             var session = LoadAndValidateSession();
             if (session == null) return;
 
@@ -194,12 +198,31 @@ namespace TrainingApp.Pages.Training
                 ReopenModal("modalDCStandalone");
             else if (step.StepType == StepType.Search)
             {
+                // El SFC iniciado queda fijo en el header el resto de la sesión, tomado de
+                // la orden simulada (servidor) y no del valor que escribió el cliente.
+                var order = GetSimulatedOrder(session);
+                if (order != null) TxtSFC.Text = order.SFCCode;
+
                 HfSelectedRowId.Value = string.Empty;
                 BindWorkList(area, session);
                 ShowBanner("✓ Start process completed successfully");
             }
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("✓ SFC Split completed successfully");
+        }
+
+        // El operador sale del control sin responder (no cuenta como intento). Mismo
+        // criterio que el guard de sender: solo el control abierto puede cerrarse.
+        protected void HandleReturnToPod(object sender, EventArgs e)
+        {
+            var open = OpenStepType;
+            if (!open.HasValue || !ReferenceEquals(sender, GetStepControl(open.Value))) return;
+
+            var (session, guide, area, step) = GetContext();
+            if (session == null) return;
+
+            CloseStepControl();
+            BindWorkList(area, session);
         }
 
         protected void HandleSplitRequested(object sender, SFCSplitRequestedEventArgs e)
@@ -277,7 +300,9 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepSubmitOutcome.SessionCompleted:
-                    ShowCompletionPanel(session, area, guide);
+                    // Sesión recargada: la que llegó como parámetro es anterior al submit
+                    // y todavía no tiene FinalScore.
+                    ShowCompletionPanel(_sessionService.GetById(session.Id), area, guide);
                     break;
             }
 
