@@ -76,7 +76,7 @@ Spec de referencia: `docs/specs/003-training-session-y-modos.md` (Approved 2026-
 
 ---
 
-### Fase 5 — ScoreCalculator: cobertura de tests
+### Fase 5 — ScoreCalculator: cobertura de tests ⏸️ (en pausa)
 **Objetivo:** `ScoreCalculator` ya está implementado. Esta fase lo blinda
 con tests NUnit exhaustivos: todos los casos de penalización, force-advance,
 pasos opcionales ausentes, sesiones completadas vs. abandonadas.
@@ -86,7 +86,7 @@ antes de que usuarios reales generen puntajes.
 
 ---
 
-### Fase 6 — UserControls por tipo de paso
+### Fase 6 — UserControls por tipo de paso 🔄 (en curso, por cerrar)
 **Objetivo:** UserControls `.ascx` reutilizables para cada `StepType`:
 `ResourceSetup`, `LineClearance`, `SearchOrder`, `Assembly`,
 `DataCollection`, `NCScrap`, `Complete`. Cada control recibe el estado
