@@ -1,6 +1,6 @@
 # Spec 005: POD — Captura Dinámica de Orden (Resource Setup → Search → DC → Split)
 
-**Status:** Draft
+**Status:** Approved (2026-09-24) — aprobada retroactivamente al cierre de la Fase 6; ya estaba implementada y en uso
 **Date:** 2026-09-18
 
 ---

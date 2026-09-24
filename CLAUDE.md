@@ -171,11 +171,12 @@ Complete:         10%
 
 ## Roadmap
 
+- **Dónde quedamos:** al iniciar una sesión, leer primero `docs/roadmap.md` → sección **"📍 Estado actual"** (último commit, bloqueantes, deuda conocida y proceso acordado).
 - **Historial completo** (objetivo + "No incluye" de cada fase): `docs/roadmap.md`.
 - **Reglas de oro:** cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la causa principal de deuda técnica temprana es que features de fases futuras se filtran en fases anteriores. Respetar siempre el "No incluye" de la fase en curso.
-- **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos. **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
-- **Fase actual — 6 · UserControls por tipo de paso (por cerrar 🔄).** `.ascx` reutilizables por `StepType` (`ResourceSetup`, `LineClearance`, `SearchOrder`, `Assembly`, `DataCollection`, `NCScrap`, `Complete`). Cada control recibe el estado del servidor y emite un submit — sin lógica de negocio interna. *No incluye:* catálogo de LoFlo, nuevas áreas.
-- **Siguiente — 7 · Catálogo de LoFlo (segunda área).** Script SQL con el catálogo real de LoFlo (Sensores). Solo carga de datos — cero código nuevo; valida que el motor de Fases 3-4 es genérico y que `RequiresAssembly`/`RequiresDataCollection` funcionan con la configuración real. *No incluye:* cambios al motor, nuevas pantallas.
+- **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
+- **Ahora — bloqueantes de la Fase 7.** Antes de cargar LoFlo: (1) spec del Start de Serialized (una fila por pieza con SFC propio, txtSFC por fila, multi-selección); (2) Assembly completable (`ExpectedComponentCount` en BD + formato del Answer); (3) confirmar con negocio los flags reales de LoFlo. Detalle en `docs/roadmap.md`.
+- **Siguiente — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada.** Script SQL con el catálogo real de LoFlo (Sensores). Solo carga de datos — cero código nuevo; valida que el motor de Fases 3-4 es genérico y que `RequiresAssembly`/`RequiresDataCollection` funcionan con la configuración real. *No incluye:* cambios al motor, nuevas pantallas.
 - **En pausa ⏸️ — 5 · ScoreCalculator: cobertura de tests.** Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
 
 ## Domain Glossary
@@ -286,6 +287,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
   - **Limitación conocida y aceptada:** `_lastKnownGood` es una variable en memoria del proceso de IIS. Si el App Pool se recicla (restart programado, idle timeout, crash) mientras la API externa está caída, la variable se pierde y el siguiente request fallará hasta que la API vuelva a responder. Este riesgo es aceptable dado el contexto (simulador interno de entrenamiento — no es un sistema de producción crítico). Si en el futuro se requiere persistencia ante reciclo, la lista cacheada debería guardarse en disco o en un caché distribuido.
 - **Datos de simulación en stored procedures o scripts SQL** — preguntas LC, parámetros DataCollection, códigos NC van en `Database/StoredProcedures/`. No en arrays dentro de BLL ni en Web.config.
 - **Sin [WebMethod] para lógica de negocio** — si se necesita AJAX, usar un `IHttpHandler` (.ashx) o un endpoint mínimo. Nunca lógica de negocio en `[WebMethod]` de una página.
+- **Controles de paso estáticos (spec 006)** — los UserControls de paso se declaran en `GuidedTest.aspx` y se alterna `Visible`; nunca `LoadControl` dinámico. Cerrado: las decisiones de arquitectura de `GuidedTest` están en `docs/roadmap.md` → Fase 6.
 - **Nullable** — habilitar `<Nullable>enable</Nullable>` en csproj cuando sea posible, o usar comentarios de nullable si el proyecto no lo soporta. Evitar referencias nulas sin validar.
 
 ## Running Locally & Testing
@@ -294,6 +296,17 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 - `TrainingApp.Test/` — NUnit 4 (.NET FW 4.7.2). Integración DAL contra BD de test dedicada (LocalDB); Testcontainers descartado (fricción en FW 4.7.2).
 - Unit tests BLL (services, scoring) con datos en memoria, sin DB. Las ASPX no se prueban (no hay `WebApplicationFactory` en FW).
 - Correr tests: Visual Studio → Test > Run All Tests (Test Explorer).
+
+### Build y validación (proceso usado desde la Fase 6)
+
+1. **Rebuild completo** (el build incremental puede no recompilar; los warnings MSB3061 de `bin\roslyn` bloqueado por IIS Express/VS son inofensivos):
+   `& "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" "TrainingApp\TrainingApp.csproj" /t:Rebuild /p:Configuration=Debug /v:minimal /nologo "/clp:ErrorsOnly;Summary" /nowarn:MSB3061`
+2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup:
+   `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" "<carpeta temporal>"`
+3. **Compilar `TrainingApp.Test`** cuando cambie algo de la BLL o el Domain (hoy los tests no se ejecutan como criterio de aceptación; ver Fase 5 en pausa).
+4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario. Hay que indicarle el orden cuando importe (ej. migración `NN_...` antes de volver a correr `02_spTrainingGuide.sql`).
+5. **Verificación en navegador por el usuario**: se le entrega un checklist por criterio de aceptación; el usuario prueba y confirma ("funciona") **antes de cada commit**. Nunca afirmar que la UI funciona sin esa confirmación.
+6. **Commit** con mensaje que referencie la spec (`feat: ... (spec NNN)`) y la línea `Co-Authored-By` vigente.
 
 ## Skills Available
 
