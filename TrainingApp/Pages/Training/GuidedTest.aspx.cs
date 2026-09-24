@@ -119,6 +119,16 @@ namespace TrainingApp.Pages.Training
                 // completar Search/Start (ver HandleControlSubmit). El Browse Work
                 // List sí puede mostrar la orden si ya fue creada en Resource Setup.
                 BindBrowseList(area, session);
+
+                // Un F5 llega como GET (history.replaceState en el .aspx): si Start ya
+                // se completó, el POD y el SFC se reconstruyen desde la orden simulada.
+                // La selección de fila y el control abierto no se restauran.
+                if (IsSearchCompleted(guide, session))
+                {
+                    var order = GetSimulatedOrder(session);
+                    if (order != null) TxtSFC.Text = order.SFCCode;
+                    BindWorkList(area, session);
+                }
             }
 
             // Corre antes del Page_Load de los controles: cada uno ya ve su Visible
@@ -698,6 +708,12 @@ namespace TrainingApp.Pages.Training
             string rowId = HfSelectedRowId.Value;
             if (string.IsNullOrEmpty(rowId)) return null;
             return order.Rows.FirstOrDefault(r => r.RowId == rowId);
+        }
+
+        private static bool IsSearchCompleted(TrainingGuide guide, TrainingSession session)
+        {
+            var search = guide.Steps.FirstOrDefault(s => s.StepType == StepType.Search);
+            return search != null && session.CurrentStepOrder > search.Order;
         }
 
         private bool HasSuccessfulSplit(TrainingSession session)

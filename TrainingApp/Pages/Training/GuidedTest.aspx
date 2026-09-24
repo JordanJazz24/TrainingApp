@@ -309,6 +309,13 @@
 
 <asp:Content ID="ScriptContent" ContentPlaceHolderID="ScriptContent" runat="server">
 <script>
+    // F5 después de un postback reenviaría el último POST y volvería a ejecutar la
+    // acción (split duplicado, intento fallido extra, control reabierto). Reemplazar
+    // la entrada del historial hace que F5 sea un GET de esta misma URL (?sessionId=).
+    if (window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.href);
+    }
+
     // ── Work list row selection ──────────────────────────────────────
     // Una sola fila seleccionada; click sobre la seleccionada la deselecciona.
     function selectWorkListRow(row) {
