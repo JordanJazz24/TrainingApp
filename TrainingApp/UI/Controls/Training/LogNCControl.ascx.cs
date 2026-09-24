@@ -9,13 +9,19 @@ namespace TrainingApp.UI.Controls.Training
 {
     public partial class LogNCControl : UserControl, IStepControl
     {
+        private const string WrongButtonFeedback = "Not the correct button";
+
         public StepViewModel ViewModel { get; set; }
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
+
+        // El operador sale al POD sin responder: el host cierra el control.
+        public event EventHandler OnReturnToPod;
 
         public void Initialize()
         {
             PnlNCSelection.Visible = false;
             PnlNCEntry.Visible     = false;
+            HfNCPage.Value         = "0";
             HfNCCodeId.Value       = string.Empty;
             TxtNCCode.Text         = string.Empty;
             TxtComponent.Text      = string.Empty;
@@ -26,6 +32,14 @@ namespace TrainingApp.UI.Controls.Training
             string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")
                 ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";
             LitNCEntrySFC.Text = Page.Server.HtmlEncode(sfcCode);
+
+            // Spec 007: Component solo en áreas que lo usan (Area.RequiresNCComponent).
+            // Invisible + deshabilitado: el validador no se evalúa en Add-Done.
+            bool requiresComponent = !ViewModel.ExtraData.ContainsKey("RequiresNCComponent")
+                || Convert.ToBoolean(ViewModel.ExtraData["RequiresNCComponent"]);
+            PnlComponent.Visible = requiresComponent;
+            RfvComponent.Enabled = requiresComponent;
+
             PnlNCSelection.Visible = true;
             BindNCCodes();
         }
@@ -47,36 +61,35 @@ namespace TrainingApp.UI.Controls.Training
             string[] parts = btn.CommandArgument.Split('|');
             HfNCCodeId.Value = parts[0];
             TxtNCCode.Text = parts.Length > 1 ? parts[1] : parts[0];
-            PnlNCSelection.Visible = false;
+
+            // La NC Selection List queda visible detrás del modal (spec 007).
             PnlNCEntry.Visible = true;
         }
 
-        protected void BtnAdd_Click(object sender, EventArgs e)
+        protected void BtnCloseEntry_Click(object sender, EventArgs e)
         {
-            PnlNCEntry.Visible = true;
+            PnlNCEntry.Visible = false;
         }
 
         protected void BtnAddDone_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
-            EmitNCAnswer();
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = TxtNCCode.Text.Trim() });
+        }
+
+        // Add y Done no son el camino correcto del paso: registran un intento fallido.
+        protected void BtnWrongButton_Click(object sender, EventArgs e)
+        {
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs
+            {
+                Answer            = StepAnswers.Invalid,
+                IncorrectFeedback = WrongButtonFeedback
+            });
         }
 
         protected void BtnReturnPOD_Click(object sender, EventArgs e)
         {
-            PnlNCEntry.Visible = false;
-            PnlNCSelection.Visible = false;
-        }
-
-        protected void BtnDone_Click(object sender, EventArgs e)
-        {
-            EmitNCAnswer();
-        }
-
-        private void EmitNCAnswer()
-        {
-            string ncCode = TxtNCCode.Text.Trim();
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = ncCode });
+            OnReturnToPod?.Invoke(this, EventArgs.Empty);
         }
     }
 }

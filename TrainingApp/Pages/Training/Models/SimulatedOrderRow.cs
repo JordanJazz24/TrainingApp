@@ -11,5 +11,9 @@ namespace TrainingApp.Pages.Training.Models
     {
         public string RowId { get; set; }
         public int    Qty   { get; set; }
+
+        // true en las filas creadas por el SFC Split. En NonSerialized solo estas se
+        // pueden scrapear en Log NC; la fila original del lote no (spec 007).
+        public bool IsFromSplit { get; set; }
     }
 }

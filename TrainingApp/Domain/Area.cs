@@ -10,5 +10,6 @@ namespace TrainingApp.Domain
         public SerializationType SerializationType { get; set; }
         public bool RequiresAssembly { get; set; }
         public bool RequiresDataCollection { get; set; }
+        public bool RequiresNCComponent { get; set; }
     }
 }

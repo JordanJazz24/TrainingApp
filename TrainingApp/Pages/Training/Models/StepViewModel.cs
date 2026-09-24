@@ -22,6 +22,10 @@ namespace TrainingApp.Pages.Training.Models
     public class StepSubmitEventArgs : System.EventArgs
     {
         public string Answer { get; set; }
+
+        // Texto opcional que el host muestra en lugar del hint genérico si la BLL
+        // evalúa el Answer como incorrecto (ej. "Not the correct button").
+        public string IncorrectFeedback { get; set; }
     }
 
     public class SFCSplitRequestedEventArgs : System.EventArgs

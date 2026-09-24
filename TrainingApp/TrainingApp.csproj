@@ -368,6 +368,7 @@
     <Compile Include="Pages\Training\Models\PodWorkListRow.cs" />
     <Compile Include="Pages\Training\Models\SimulatedOrder.cs" />
     <Compile Include="Pages\Training\Models\SimulatedOrderRow.cs" />
+    <Compile Include="Pages\Training\Models\StepAnswers.cs" />
     <Compile Include="UI\Controls\Training\LineClearanceControl.ascx.cs">
       <DependentUpon>LineClearanceControl.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

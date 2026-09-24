@@ -24,7 +24,8 @@ CREATE TABLE dbo.Areas (
     Name                  NVARCHAR(100) NOT NULL,
     SerializationType     TINYINT NOT NULL DEFAULT 0,
     RequiresAssembly      BIT NOT NULL DEFAULT 0,
-    RequiresDataCollection BIT NOT NULL DEFAULT 0
+    RequiresDataCollection BIT NOT NULL DEFAULT 0,
+    RequiresNCComponent   BIT NOT NULL CONSTRAINT DF_Areas_RequiresNCComponent DEFAULT 1  -- spec 007
 );
 
 -- -------------------------------------------------------

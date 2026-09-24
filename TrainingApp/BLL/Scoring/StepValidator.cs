@@ -17,20 +17,24 @@ namespace TrainingApp.BLL.Scoring
         }
 
         // submittedAnswer formats by StepType:
-        //   ResourceSetup, Search, Complete : "ok"            (sequence-only; reaching the step is enough)
+        //   ResourceSetup, Search           : any             (sequence-only; reaching the step is enough)
+        //   Complete                        : "complete"      (any other value = incorrect, e.g. no row selected — spec 007)
         //   LineClearance                   : "true" | "false"
         //   Assembly                        : integer string  (e.g. "3")
         //   DataCollection                  : JSON {"<paramId>":"<value>", ...}
         //   SFC_Split                       : "split-completed"
-        //   LogNC                           : NC code string  (e.g. "F_FS_MANCHAS")
+        //   LogNC                           : NC code string  (e.g. "F_FS_MANCHAS"); a value outside the
+        //                                     catalog is incorrect (wrong button / invalid row — spec 007)
         public bool Validate(TrainingStep step, string submittedAnswer)
         {
             switch (step.StepType)
             {
                 case StepType.ResourceSetup:
                 case StepType.Search:
-                case StepType.Complete:
                     return true;
+
+                case StepType.Complete:
+                    return submittedAnswer == "complete";
 
                 case StepType.LineClearance:
                     return submittedAnswer == "true";

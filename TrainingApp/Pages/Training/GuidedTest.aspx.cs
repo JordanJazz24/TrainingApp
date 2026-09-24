@@ -156,7 +156,7 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            var outcome = ProcessSubmit(session, guide, area, step, e.Answer);
+            var outcome = ProcessSubmit(session, guide, area, step, e.Answer, e.IncorrectFeedback);
 
             // Spec 006 (E3): respuesta incorrecta → el control queda abierto en el modal
             // donde se respondió y solo se ve el SweetAlert con el hint (de ProcessSubmit).
@@ -209,6 +209,34 @@ namespace TrainingApp.Pages.Training
             }
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("✓ SFC Split completed successfully");
+            else if (step.StepType == StepType.LogNC)
+                ScrapSelectedRow(area, session);
+        }
+
+        // Spec 007: el scrap elimina la fila de la orden simulada, tanto en Correct como en
+        // FailedForced. Sin fila válida (force-advance por el gate de LogNC) no se toca nada.
+        private void ScrapSelectedRow(Area area, TrainingSession session)
+        {
+            var row = FindScrappableRow(session, area);
+            if (row == null) return;
+
+            var order = GetSimulatedOrder(session);
+            order.Rows.Remove(row);
+
+            HfSelectedRowId.Value = string.Empty;
+            HfSelectedSFC.Value   = string.Empty;
+            BindWorkList(area, session);
+            ShowBanner("✓ All of " + order.SFCCode + " scrapped", hideAfterMs: 5000);
+        }
+
+        // NonSerialized: solo las filas creadas por el SFC Split se pueden scrapear; la fila
+        // original del lote no. Serialized: cualquier fila seleccionada.
+        private SimulatedOrderRow FindScrappableRow(TrainingSession session, Area area)
+        {
+            var row = FindSelectedOrderRow(session);
+            if (row == null) return null;
+            if (area.SerializationType == SerializationType.NonSerialized && !row.IsFromSplit) return null;
+            return row;
         }
 
         // El operador sale del control sin responder (no cuenta como intento). Mismo
@@ -249,8 +277,9 @@ namespace TrainingApp.Pages.Training
             row.Qty -= e.Qty;
             order.Rows.Add(new SimulatedOrderRow
             {
-                RowId = Guid.NewGuid().ToString(),
-                Qty = e.Qty
+                RowId       = Guid.NewGuid().ToString(),
+                Qty         = e.Qty,
+                IsFromSplit = true
             });
 
             e.IsApplied = true;
@@ -275,8 +304,9 @@ namespace TrainingApp.Pages.Training
             }
         }
 
+        // incorrectFeedback: texto que reemplaza al hint genérico si el Answer resulta incorrecto.
         private StepSubmitOutcome ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
-            TrainingStep step, string answer)
+            TrainingStep step, string answer, string incorrectFeedback = null)
         {
             var result = _sessionService.SubmitStep(session.Id, step.Id, answer);
 
@@ -289,8 +319,10 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepSubmitOutcome.Incorrect:
-                    ShowSweetAlert("warning", "Incorrect",
-                        string.IsNullOrEmpty(GetHint(step.StepType)) ? "Try again." : GetHint(step.StepType));
+                    string feedback = !string.IsNullOrEmpty(incorrectFeedback) ? incorrectFeedback
+                                    : !string.IsNullOrEmpty(GetHint(step.StepType)) ? GetHint(step.StepType)
+                                    : "Try again.";
+                    ShowSweetAlert("warning", "Incorrect", feedback);
                     break;
 
                 case StepSubmitOutcome.FailedForced:
@@ -428,6 +460,17 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (step.StepType != StepType.LogNC) return;
 
+            // Spec 007: abrir Log NC sin una fila scrapeable es un intento fallido del paso.
+            // No hay gate en el cliente: el click tiene que llegar acá para registrarse.
+            if (FindScrappableRow(session, area) == null)
+            {
+                string feedback = area.SerializationType == SerializationType.NonSerialized
+                    ? "Selecciona una fila creada por el split para scrapear"
+                    : "Selecciona una fila para scrapear";
+                ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, feedback);
+                return;
+            }
+
             OpenStepControl(StepType.LogNC, area, session, guide, modalId: null);
         }
 
@@ -435,7 +478,16 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            ProcessSubmit(session, guide, area, step, "complete");
+            if (step.StepType != StepType.Complete) return;
+
+            // Spec 007: Complete sin fila seleccionada es un intento fallido del paso.
+            if (FindSelectedOrderRow(session) == null)
+            {
+                ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, "Select 1 row to complete");
+                return;
+            }
+
+            ProcessSubmit(session, guide, area, step, StepAnswers.Complete);
         }
 
         protected void BtnAbandon_Click(object sender, EventArgs e)
@@ -536,6 +588,7 @@ namespace TrainingApp.Pages.Training
 
                 case StepType.LogNC:
                     vm.ExtraData["NCCodes"] = _ncRepo.GetByArea(area.Id);
+                    vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
                     break;
 
                 case StepType.Assembly:
@@ -729,13 +782,13 @@ namespace TrainingApp.Pages.Training
             }
         }
 
-        private void ShowBanner(string message)
+        private void ShowBanner(string message, int hideAfterMs = 3000)
         {
             PnlBannerZone.Visible = true;
             LitBanner.Text        = HttpUtility.HtmlEncode(message);
-            // Auto-hide after 3 seconds
             ClientScript.RegisterStartupScript(GetType(), "hideBanner",
-                "setTimeout(function(){var b=document.querySelector('.pod-banner-zone');if(b)b.style.display='none';},3000);",
+                "setTimeout(function(){var b=document.querySelector('.pod-banner-zone');if(b)b.style.display='none';}," +
+                hideAfterMs + ");",
                 true);
         }
 

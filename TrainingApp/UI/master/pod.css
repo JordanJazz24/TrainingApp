@@ -318,14 +318,17 @@ html, body {
 .nc-cell .nc-desc { color: #6c757d; font-size: 0.76rem; margin-top: 2px; }
 
 /* ── Completion panel ────────────────────────────────────── */
+/* Overlay de resumen a pantalla completa (spec 007): tapa también el header (1050) y los
+   modales de Bootstrap (1055), pero queda debajo de SweetAlert2 (1060) para que el
+   alert de un force-advance en Complete siga visible. */
 .pod-completion {
     position: fixed;
-    top: 44px; bottom: 0; left: 0; right: 0;
+    inset: 0;
     background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1060;
+    z-index: 1058;
 }
 
 .pod-completion-card {

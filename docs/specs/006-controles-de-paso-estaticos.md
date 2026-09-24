@@ -279,6 +279,7 @@ Las páginas ASPX no se pueden testear con NUnit en este stack. La verificación
 |---|---|---|
 | X del Component List (`closeAssemblyView`) y `BtnReturnPOD_Click` están vacíos | Se mantienen como están (paridad) | Primera guía real con Assembly, o Fase 8 |
 | `ExpectedCount = 3` hardcodeado en `BuildStepViewModel`; el CLAUDE.md exige `ExpectedComponentCount` en BD por Area | Queda hardcodeado | Primera guía real con Assembly (antes de la Fase 7 si LoFlo lo requiere) |
+| **Bug conocido (2026-09-23): Assembly nunca puede completarse.** `AssemblyControl` envía `{"scannedCount":N}` pero `StepValidator.ValidateAssembly` espera un entero; además `TrainingGuideService` arma el contexto con `ExpectedComponentCount = null`, lo que lanzaría `InvalidOperationException` aunque el formato fuera correcto | Diferido por decisión del usuario; **AC-9 queda bloqueado** por este bug | Mismo disparador que la fila anterior: se resuelven juntos (columna en Areas + formato del Answer) |
 | `RequiresAssembly` de LoFlo: BD=false, CLAUDE.md=true | Sin cambio | Fase 7, al cargar el catálogo real de LoFlo |
 | Ejecución de los tests NUnit como criterio de aceptación | AC-11 exige solo build verde | Fase 5 (cobertura de ScoreCalculator), o antes de cerrar la Fase 6 si el usuario lo pide |
 | Desarrollo del paso Complete | `CompleteControl` declarado e implementando `IStepControl`, sin UI; `BtnComplete` hace submit directo | Spec propia del paso Complete |

@@ -85,7 +85,8 @@ CREATE PROCEDURE dbo.spAreaGetByProduct
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection
+    SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection,
+           RequiresNCComponent
     FROM   dbo.Areas
     WHERE  ProductId = @ProductId
     ORDER  BY Name;
@@ -104,7 +105,8 @@ CREATE PROCEDURE dbo.spAreaGetById
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection
+    SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection,
+           RequiresNCComponent
     FROM   dbo.Areas
     WHERE  Id = @Id;
 END;

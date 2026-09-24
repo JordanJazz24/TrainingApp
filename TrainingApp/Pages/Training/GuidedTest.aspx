@@ -192,7 +192,8 @@
         <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
         <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
                                   OnOnReturnToPod="HandleReturnToPod" />
-        <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                  OnOnReturnToPod="HandleReturnToPod" />
         <uc:CompleteControl       ID="CtrlComplete"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
     </asp:Panel>
 
@@ -330,9 +331,12 @@
 
     // El HTML del POD que vuelve de un postback no sabe qué fila estaba seleccionada:
     // se reaplica desde HfSelectedRowId. Si la fila ya no existe, se limpia la selección.
+    // Si el POD no está en pantalla (lo reemplaza DC o NC Selection) no se toca nada:
+    // el servidor todavía necesita la fila seleccionada (ej. para el scrap de Log NC).
     function restoreWorkListSelection() {
         var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
         if (!hfRow || !hfRow.value) return;
+        if (!document.querySelector('.pod-work-list')) return;
 
         var found = false;
         document.querySelectorAll('.pod-work-list tbody tr').forEach(function (r) {
