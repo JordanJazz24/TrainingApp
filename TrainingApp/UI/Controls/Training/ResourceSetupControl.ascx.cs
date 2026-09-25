@@ -67,15 +67,8 @@ namespace TrainingApp.UI.Controls.Training
                 "showModalSafe('modalResourceSetup'); rsRestoreRetrievedState();", true);
 
             // Server-side validation (primary gate: client rsPrepareSubmit() should catch
-            // these first, but we validate here as a reliable fallback)
-            if (setupState != "Set Up")
-            {
-                Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
-                    "Swal.fire({icon:'warning',title:'Setup State incorrecto'," +
-                    "text:'El Setup State debe estar en \"Set Up\" antes de guardar.'});", true);
-                return;
-            }
-
+            // these first, but we validate here as a reliable fallback). Solo formato: el
+            // Setup State es una decisión del operador y lo califica StepValidator.
             if (string.IsNullOrEmpty(rowsJson) || rowsJson == "[]")
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
@@ -103,16 +96,22 @@ namespace TrainingApp.UI.Controls.Training
                 setupState?.Replace("\"", "\\\"") ?? "",
                 rowsJson);
 
-            // Show Record Change banner + restore rows (BUG 3: rows are DOM-only, lost on PostBack)
-            PnlRecordChange.Visible = true;
+            // Restore rows (BUG 3: rows are DOM-only, lost on PostBack)
             Page.ClientScript.RegisterStartupScript(GetType(), "rsAfterSave",
-                "rsRestoreRows(" + rowsJson + ");" +
+                "rsRestoreRows(" + rowsJson + ");", true);
+
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer });
+        }
+
+        // Banner "Record change": lo muestra GuidedTest solo cuando el servidor aceptó el paso.
+        public void ShowSaveConfirmation()
+        {
+            PnlRecordChange.Visible = true;
+            Page.ClientScript.RegisterStartupScript(GetType(), "rsSavedBanner",
                 "setTimeout(function(){" +
                 "  var b=document.querySelector('.record-change-banner');" +
                 "  if(b) b.style.display='none';" +
                 "},5000);", true);
-
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer });
         }
 
         protected void BtnClear_Click(object sender, EventArgs e)

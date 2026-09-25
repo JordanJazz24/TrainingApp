@@ -6,6 +6,17 @@ namespace TrainingApp.BLL.Scoring
 {
     public class ScoreCalculator
     {
+        // Assessment: puntaje final mínimo (0..1) para aprobar.
+        public const decimal PassingScore = 0.70m;
+
+        // Assessment: último intento con puntaje; el siguiente fallo fuerza el avance.
+        public const int MaxScoredAttempts = 3;
+
+        public static bool IsPassed(decimal finalScore)
+        {
+            return finalScore >= PassingScore;
+        }
+
         public decimal CalculateSessionScore(
             IList<TrainingStep> steps,
             IList<TrainingSessionStepAttempt> attempts)
@@ -43,7 +54,7 @@ namespace TrainingApp.BLL.Scoring
 
         public static bool ShouldForceAdvance(int attemptNumber, SessionMode mode)
         {
-            return mode == SessionMode.Assessment && attemptNumber >= 4;
+            return mode == SessionMode.Assessment && attemptNumber > MaxScoredAttempts;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
@@ -172,6 +173,13 @@ namespace TrainingApp.Pages.Training
             // donde se respondió y solo se ve el SweetAlert con el hint (de ProcessSubmit).
             if (outcome == StepSubmitOutcome.Incorrect)
             {
+                // Search tiene 4 modales: el control sabe cuál contiene la respuesta a corregir.
+                if (step.StepType == StepType.Search)
+                {
+                    CtrlSearch.ReopenForRetry();
+                    return;
+                }
+
                 string answerModalId = GetAnswerModalId(step.StepType);
                 if (answerModalId != null) ReopenModal(answerModalId);
                 return;
@@ -199,13 +207,20 @@ namespace TrainingApp.Pages.Training
                 SetActiveButton(nextStep.StepType, area);
             }
 
+            // El banner de guardado confirma una respuesta correcta; no se muestra en FailedForced.
+            bool accepted = outcome == StepSubmitOutcome.Correct;
+
             if (step.StepType == StepType.ResourceSetup)
             {
                 BindBrowseList(area, session);
+                if (accepted) CtrlResourceSetup.ShowSaveConfirmation();
                 ReopenModal("modalResourceSetup");
             }
             else if (step.StepType == StepType.LineClearance)
+            {
+                if (accepted) CtrlLineClearance.ShowSaveConfirmation();
                 ReopenModal("modalDCStandalone");
+            }
             else if (step.StepType == StepType.Search)
             {
                 // El SFC iniciado queda fijo en el header el resto de la sesión, tomado de
@@ -329,10 +344,8 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepSubmitOutcome.Incorrect:
-                    string feedback = !string.IsNullOrEmpty(incorrectFeedback) ? incorrectFeedback
-                                    : !string.IsNullOrEmpty(GetHint(step.StepType)) ? GetHint(step.StepType)
-                                    : "Try again.";
-                    ShowSweetAlert("warning", "Incorrect", feedback);
+                    ShowSweetAlert("warning", "Incorrect",
+                        BuildIncorrectFeedback(session.Mode, step.StepType, result.AttemptNumber, incorrectFeedback));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
@@ -349,6 +362,24 @@ namespace TrainingApp.Pages.Training
             }
 
             return result.Outcome;
+        }
+
+        // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
+        // respuesta, solo cuántos intentos con puntaje le quedan antes del avance forzado.
+        private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType,
+            int attemptNumber, string incorrectFeedback)
+        {
+            if (mode == SessionMode.Assessment)
+            {
+                int remaining = ScoreCalculator.MaxScoredAttempts - attemptNumber;
+                return remaining > 0
+                    ? string.Format("Respuesta incorrecta. Te quedan {0} intento(s) con puntaje.", remaining)
+                    : "Respuesta incorrecta. Si vuelves a fallar, el paso se marca fallido y avanza.";
+            }
+
+            if (!string.IsNullOrEmpty(incorrectFeedback)) return incorrectFeedback;
+            string hint = GetHint(stepType);
+            return !string.IsNullOrEmpty(hint) ? hint : "Try again.";
         }
 
         private void HandleCorrectSubmit(TrainingSession session, TrainingGuide guide,
@@ -541,7 +572,7 @@ namespace TrainingApp.Pages.Training
             if (session.Mode == SessionMode.Assessment)
             {
                 PnlFinalResult.Visible = true;
-                LitFinalResult.Text    = finalScore >= 70m
+                LitFinalResult.Text    = ScoreCalculator.IsPassed(session.FinalScore)
                     ? "<span class=\"text-success\">✓ APROBADO</span>"
                     : "<span class=\"text-danger\">✗ REPROBADO</span>";
             }
@@ -846,7 +877,7 @@ namespace TrainingApp.Pages.Training
             {
                 case StepType.ResourceSetup:  return "Complete Resource Setup: Retrieve, set state to 'Set Up', add rows, Save.";
                 case StepType.LineClearance:  return "Answer 'Sí' to confirm line clearance.";
-                case StepType.Search:         return "Enter or scan the SFC code, then press Start.";
+                case StepType.Search:         return "Confirm the Line Clearance checks and the final verification with 'Sí', then Save.";
                 case StepType.DataCollection: return "Fill all required parameters and press Save (not Draft).";
                 case StepType.SFC_Split:      return "Select a POD row, split a valid quantity, then press Close.";
                 case StepType.LogNC:          return "Select an NC code and enter the Component, then Add-Done.";

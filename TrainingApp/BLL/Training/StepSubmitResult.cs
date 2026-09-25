@@ -11,6 +11,7 @@ namespace TrainingApp.BLL.Training
     public class StepSubmitResult
     {
         public StepSubmitOutcome Outcome { get; set; }
+        public int AttemptNumber { get; set; }
         public int NextStepOrder { get; set; }
         public decimal CurrentScore { get; set; }
         public decimal SessionScore { get; set; }

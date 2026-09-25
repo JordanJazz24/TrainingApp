@@ -138,18 +138,7 @@
             return false;
         }
 
-        if (val !== 'true') {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Respuesta incorrecta',
-                text: "La respuesta debe ser 'Sí' para continuar. Seleccionar 'No' no permite avanzar el paso."
-            }).then(function () {
-                var el = document.getElementById('modalDCEntry');
-                if (el && !el.classList.contains('show')) showModalSafe('modalDCEntry');
-            });
-            return false;
-        }
-
+        // 'No' es una decisión del operador: se envía y la califica el servidor.
         return true;
     };
 })();

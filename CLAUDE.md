@@ -99,7 +99,9 @@ Apertura:
                               Shop Order = 303406950, Tool = 10033058, Tool = 10087734.
                             NO define qué piezas se van a procesar — eso es Search/Start.
                             Captura libre (sin validar contra catálogo). Se califica
-                            por SECUENCIA correcta, no por contenido.
+                            por SECUENCIA correcta y por Setup State = "Set Up"
+                            (guardar en "Open" es intento fallido); los recursos
+                            capturados no se califican.
   2. Line Clearance      — pregunta sí/no.
   3. Search/Start Order  — AQUÍ aparece la diferencia por SerializationType.
                             Se califica por SECUENCIA correcta (el operador debe saber
@@ -287,6 +289,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
   - **Limitación conocida y aceptada:** `_lastKnownGood` es una variable en memoria del proceso de IIS. Si el App Pool se recicla (restart programado, idle timeout, crash) mientras la API externa está caída, la variable se pierde y el siguiente request fallará hasta que la API vuelva a responder. Este riesgo es aceptable dado el contexto (simulador interno de entrenamiento — no es un sistema de producción crítico). Si en el futuro se requiere persistencia ante reciclo, la lista cacheada debería guardarse en disco o en un caché distribuido.
 - **Datos de simulación en stored procedures o scripts SQL** — preguntas LC, parámetros DataCollection, códigos NC van en `Database/StoredProcedures/`. No en arrays dentro de BLL ni en Web.config.
 - **Sin [WebMethod] para lógica de negocio** — si se necesita AJAX, usar un `IHttpHandler` (.ashx) o un endpoint mínimo. Nunca lógica de negocio en `[WebMethod]` de una página.
+- **Formato vs. decisión en los controles de paso** — el control (JS + code-behind) solo bloquea errores de *formato* (campo requerido vacío, Shop Order no numérico, filas faltantes); no cuentan como intento. Toda *decisión* del operador (Sí/No, Setup State, código NC, valores de DC) se envía siempre al servidor y la califica `StepValidator`. Nunca rechazar una decisión en el control ni revelar la respuesta correcta en Assessment. Excepción aceptada: en Data Collection un campo vacío sí cuenta como intento fallido.
 - **Controles de paso estáticos (spec 006)** — los UserControls de paso se declaran en `GuidedTest.aspx` y se alterna `Visible`; nunca `LoadControl` dinámico. Cerrado: las decisiones de arquitectura de `GuidedTest` están en `docs/roadmap.md` → Fase 6.
 - **Nullable** — habilitar `<Nullable>enable</Nullable>` en csproj cuando sea posible, o usar comentarios de nullable si el proyecto no lo soporta. Evitar referencias nulas sin validar.
 

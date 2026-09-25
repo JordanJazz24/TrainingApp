@@ -181,14 +181,9 @@
 
     // ── Validation + submit preparation ──────────────────────────────────────
     window.rsPrepareSubmit = function() {
-        // 1. Status validation (highest priority)
+        // 1. Setup State: es una decisión del operador — se envía y la califica el servidor.
         var ddl = document.getElementById('DdlSetupState');
         var setupState = ddl ? ddl.value : 'Open';
-        if (setupState !== 'Set Up') {
-            rsShowError('Setup State incorrecto',
-                'El Setup State debe estar en "Set Up" antes de guardar.');
-            return false;
-        }
 
         // Collect rows
         var rows = [];

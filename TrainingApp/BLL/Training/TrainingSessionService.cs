@@ -91,6 +91,7 @@ namespace TrainingApp.BLL.Training
                 return new StepSubmitResult
                 {
                     Outcome      = StepSubmitOutcome.Incorrect,
+                    AttemptNumber = attemptNumber,
                     CurrentScore = _scoreCalc.CalculateSessionScore(guide.Steps, allAttemptsForScore)
                 };
             }
@@ -106,6 +107,7 @@ namespace TrainingApp.BLL.Training
                 return new StepSubmitResult
                 {
                     Outcome      = StepSubmitOutcome.SessionCompleted,
+                    AttemptNumber = attemptNumber,
                     CurrentScore = finalScore,
                     SessionScore = finalScore
                 };
@@ -119,6 +121,7 @@ namespace TrainingApp.BLL.Training
             return new StepSubmitResult
             {
                 Outcome       = forceAdvance ? StepSubmitOutcome.FailedForced : StepSubmitOutcome.Correct,
+                AttemptNumber = attemptNumber,
                 NextStepOrder = nextOrder,
                 CurrentScore  = currentScore
             };

@@ -16,7 +16,18 @@ se filtran en fases anteriores.
 **Última actualización:** 2026-09-24 · **Branch:** `TrainingApp` · **Último commit de código:** `3a38b86` (después hay solo commits de docs; `git log --oneline -5` para ver el estado real)
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
-  funciona de punta a punta en Guided y Assessment, verificado en navegador por el usuario.
+  funciona de punta a punta en Guided y Assessment (penalización, force-advance y
+  aprobado/reprobado), verificado en navegador por el usuario.
+- **Assessment real (S1 + S4, sin spec):** al probar Assessment se vio que el 50% del
+  puntaje nunca podía fallar porque los controles rechazaban las decisiones antes de
+  enviarlas. Se separó formato de decisión (ver `CLAUDE.md` → Key Conventions): LC "No",
+  Setup State "Open" y los "No" de Start ahora llegan a `StepValidator` y cuentan como
+  intento. En Assessment el mensaje de error no revela la respuesta (muestra los intentos
+  restantes). El 70% de aprobación pasó a `ScoreCalculator.PassingScore`. Los banners de
+  guardado (Record change, DC group saved) solo aparecen si el servidor aceptó el paso.
+  Verificado en navegador por el usuario (2026-09-25).
+- **S2 (siguiente, requiere spec):** en Assessment todos los botones del POD habilitados;
+  un click fuera de secuencia cuenta como intento fallido del paso actual.
 - **Siguiente:** resolver los **bloqueantes de la Fase 7** (sección siguiente). La Fase 7
   está definida como "solo datos, cero código nuevo", y hoy LoFlo no se podría cargar
   sin escribir código.

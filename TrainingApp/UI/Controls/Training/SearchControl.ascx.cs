@@ -63,9 +63,10 @@ namespace TrainingApp.UI.Controls.Training
                 !decimal.TryParse(molde, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
                 return "modalSearch1";
 
+            // Sí/No: solo se exige respuesta (formato). Si es correcta lo decide StepValidator.
             string[] verifs = { DdlVerif1.SelectedValue, DdlVerif2.SelectedValue, DdlVerif3.SelectedValue };
             foreach (var val in verifs)
-                if (val != "true")
+                if (string.IsNullOrEmpty(val))
                     return "modalSearch2";
 
             string[] mss = {
@@ -78,10 +79,23 @@ namespace TrainingApp.UI.Controls.Training
                     !decimal.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
                     return "modalSearch3";
 
-            if (DdlFinal.SelectedValue != "true")
+            if (string.IsNullOrEmpty(DdlFinal.SelectedValue))
                 return "modalSearch4";
 
             return null;
+        }
+
+        // Respuesta calificada incorrecta: reabre el primer modal con un "No" para que el
+        // operador lo corrija; los valores ya capturados se conservan por ViewState.
+        public void ReopenForRetry()
+        {
+            bool verifsConfirmed = DdlVerif1.SelectedValue == "true" &&
+                                  DdlVerif2.SelectedValue == "true" &&
+                                  DdlVerif3.SelectedValue == "true";
+            string modalId = verifsConfirmed ? "modalSearch4" : "modalSearch2";
+
+            Page.ClientScript.RegisterStartupScript(GetType(), "searchRetry",
+                "_searchOpenModalId='" + modalId + "'; showModalSafe('" + modalId + "');", true);
         }
 
         // Datos recolectados de los 4 modales — quedan disponibles para el servidor

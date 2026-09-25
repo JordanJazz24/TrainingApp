@@ -17,7 +17,10 @@ namespace TrainingApp.BLL.Scoring
         }
 
         // submittedAnswer formats by StepType:
-        //   ResourceSetup, Search           : any             (sequence-only; reaching the step is enough)
+        //   ResourceSetup                   : JSON {"setupState":"...","rows":[...]} — correct only with
+        //                                     setupState "Set Up" (rows/Shop Order are format, validated by the control)
+        //   Search                          : JSON from SearchControl — correct only if the LC Moldeo answers
+        //                                     (verif*) and the final verification are all true
         //   Complete                        : "complete"      (any other value = incorrect, e.g. no row selected — spec 007)
         //   LineClearance                   : "true" | "false"
         //   Assembly                        : integer string  (e.g. "3")
@@ -30,8 +33,10 @@ namespace TrainingApp.BLL.Scoring
             switch (step.StepType)
             {
                 case StepType.ResourceSetup:
+                    return ValidateResourceSetup(submittedAnswer);
+
                 case StepType.Search:
-                    return true;
+                    return ValidateSearch(submittedAnswer);
 
                 case StepType.Complete:
                     return submittedAnswer == "complete";
@@ -53,6 +58,45 @@ namespace TrainingApp.BLL.Scoring
 
                 default:
                     return false;
+            }
+        }
+
+        private static readonly string[] SearchRequiredConfirmations =
+            { "verifCalibracion", "verifD0128682", "verifD0128035", "verificacionFinal" };
+
+        private static bool ValidateResourceSetup(string submittedAnswer)
+        {
+            var answer = TryParseObject(submittedAnswer);
+            object setupState;
+            return answer != null
+                && answer.TryGetValue("setupState", out setupState)
+                && setupState as string == "Set Up";
+        }
+
+        private static bool ValidateSearch(string submittedAnswer)
+        {
+            var answer = TryParseObject(submittedAnswer);
+            if (answer == null) return false;
+
+            foreach (var key in SearchRequiredConfirmations)
+            {
+                object value;
+                if (!answer.TryGetValue(key, out value) || !(value is bool) || !(bool)value)
+                    return false;
+            }
+            return true;
+        }
+
+        private static Dictionary<string, object> TryParseObject(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return null;
+            try
+            {
+                return JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+            }
+            catch (JsonException)
+            {
+                return null;
             }
         }
 

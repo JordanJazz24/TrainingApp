@@ -276,6 +276,7 @@ function searchValidate1() {
 }
 function searchNext1() { if (searchValidate1()) _searchGo('modalSearch2'); }
 
+// Sí/No son decisiones del operador: solo se exige responder; el servidor las califica.
 function searchValidate2() {
     var ddls = [
         document.getElementById('<%= DdlVerif1.ClientID %>'),
@@ -285,10 +286,6 @@ function searchValidate2() {
     for (var i = 0; i < ddls.length; i++) {
         if (!ddls[i].value) {
             Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Debes responder todas las preguntas antes de guardar.' });
-            return false;
-        }
-        if (ddls[i].value !== 'true') {
-            Swal.fire({ icon: 'warning', title: 'Respuesta incorrecta', text: 'Todas las respuestas deben ser “Sí” para continuar.' });
             return false;
         }
     }
@@ -324,10 +321,6 @@ function searchValidate4() {
     var v = document.getElementById('<%= DdlFinal.ClientID %>').value;
     if (!v) {
         Swal.fire({ icon: 'warning', title: 'Campo requerido', text: 'Debes seleccionar una respuesta.' });
-        return false;
-    }
-    if (v !== 'true') {
-        Swal.fire({ icon: 'warning', title: 'Respuesta incorrecta', text: 'La respuesta debe ser “Sí” para continuar.' });
         return false;
     }
     return true;
