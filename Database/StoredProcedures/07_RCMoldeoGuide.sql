@@ -9,7 +9,7 @@
 --   1. ResourceSetup      0.20  — configuración previa al inicio
 --   2. LineClearance      0.05  — LC estándar de apertura
 --   3. Search             0.15  — navegación al Start Order
---   4. DataCollection     0.30  — 15 parámetros del catálogo Moldeo
+--   4. DataCollection     0.30  — 16 parámetros del catálogo Moldeo
 --   5. LineClearance      0.05  — LC de cierre
 --   6. SFC_Split          0.05  — división de lote NonSerialized
 --   7. LogNC              0.10  — selección de NC code del catálogo Moldeo

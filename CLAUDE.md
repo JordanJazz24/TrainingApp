@@ -307,7 +307,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup:
    `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" "<carpeta temporal>"`
 3. **Compilar `TrainingApp.Test`** cuando cambie algo de la BLL o el Domain (hoy los tests no se ejecutan como criterio de aceptación; ver Fase 5 en pausa).
-4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario. Hay que indicarle el orden cuando importe (ej. migración `NN_...` antes de volver a correr `02_spTrainingGuide.sql`).
+4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`). No hay scripts de migración: los cambios de esquema van directo a `00_Schema.sql` y el `ALTER` para la BD existente se le entrega al usuario aparte (indicando si después hay que volver a correr algún script de SPs).
 5. **Verificación en navegador por el usuario**: se le entrega un checklist por criterio de aceptación; el usuario prueba y confirma ("funciona") **antes de cada commit**. Nunca afirmar que la UI funciona sin esa confirmación.
 6. **Commit** con mensaje que referencie la spec (`feat: ... (spec NNN)`) y la línea `Co-Authored-By` vigente.
 

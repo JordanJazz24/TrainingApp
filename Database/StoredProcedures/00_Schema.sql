@@ -1,7 +1,20 @@
 -- ============================================================
 -- 00_Schema.sql
--- Crea todas las tablas del esquema TrainingApp.
+-- Crea todas las tablas del esquema TrainingApp (esquema definitivo).
 -- Seguro para re-ejecución: usa IF NOT EXISTS / IF OBJECT_ID.
+--
+-- Los cambios de esquema se integran directamente en este script;
+-- no se mantienen scripts de migración en el repositorio.
+--
+-- Orden de ejecución en una BD nueva:
+--   00_Schema.sql            — tablas
+--   01_spOperator.sql        — SPs de Operators
+--   02_spTrainingGuide.sql   — SPs de guías, pasos y catálogos
+--   03_spTrainingSession.sql — SPs de sesiones
+--   04_spStepAttempt.sql     — SPs de intentos por paso
+--   05_SeedData.sql          — DATOS DE EJEMPLO (solo desarrollo)
+--   06_RCMoldeoCatalog.sql   — catálogo real de R&C / Moldeo
+--   07_RCMoldeoGuide.sql     — guía real de R&C / Moldeo
 -- ============================================================
 
 -- -------------------------------------------------------
@@ -16,16 +29,18 @@ CREATE TABLE dbo.Products (
 -- -------------------------------------------------------
 -- Areas
 -- SerializationType: 0=Serialized, 1=NonSerialized
+-- RequiresNCComponent: NC Data Entry pide el campo Component
+--   (la norma es pedirlo; Moldeo es la excepción).
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.Areas', 'U') IS NULL
 CREATE TABLE dbo.Areas (
-    Id                    INT IDENTITY(1,1) PRIMARY KEY,
-    ProductId             INT NOT NULL REFERENCES dbo.Products(Id),
-    Name                  NVARCHAR(100) NOT NULL,
-    SerializationType     TINYINT NOT NULL DEFAULT 0,
-    RequiresAssembly      BIT NOT NULL DEFAULT 0,
+    Id                     INT IDENTITY(1,1) PRIMARY KEY,
+    ProductId              INT NOT NULL REFERENCES dbo.Products(Id),
+    Name                   NVARCHAR(100) NOT NULL,
+    SerializationType      TINYINT NOT NULL DEFAULT 0,
+    RequiresAssembly       BIT NOT NULL DEFAULT 0,
     RequiresDataCollection BIT NOT NULL DEFAULT 0,
-    RequiresNCComponent   BIT NOT NULL CONSTRAINT DF_Areas_RequiresNCComponent DEFAULT 1  -- spec 007
+    RequiresNCComponent    BIT NOT NULL CONSTRAINT DF_Areas_RequiresNCComponent DEFAULT 1
 );
 
 -- -------------------------------------------------------
@@ -134,16 +149,22 @@ CREATE TABLE dbo.NCCodes (
 -- MinValue/MaxValue: NULL para tipos no numéricos, o cuando el rango
 --   está pendiente de confirmación contra la MSS del área.
 -- DisplayOrder: orden de presentación al operador dentro del paso.
+-- DCGroup / GroupDescription: DC Group al que pertenece el parámetro;
+--   "Collect" muestra solo las preguntas del grupo seleccionado.
+-- CollectDataAt: 'Pre-Start' | 'Post-Start' | 'Anytime'.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.DataCollectionParameters', 'U') IS NULL
 CREATE TABLE dbo.DataCollectionParameters (
-    Id           INT IDENTITY(1,1) PRIMARY KEY,
-    AreaId       INT            NOT NULL REFERENCES dbo.Areas(Id),
-    OperationId  INT            NULL     REFERENCES dbo.Operations(Id),
-    Name         NVARCHAR(200)  NOT NULL,
-    DataType     NVARCHAR(20)   NOT NULL DEFAULT 'Numeric',
-    Unit         NVARCHAR(50)   NOT NULL DEFAULT 'N/A',
-    MinValue     DECIMAL(10,4)  NULL,
-    MaxValue     DECIMAL(10,4)  NULL,
-    DisplayOrder INT            NOT NULL DEFAULT 0
+    Id               INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId           INT            NOT NULL REFERENCES dbo.Areas(Id),
+    OperationId      INT            NULL     REFERENCES dbo.Operations(Id),
+    Name             NVARCHAR(200)  NOT NULL,
+    DataType         NVARCHAR(20)   NOT NULL DEFAULT 'Numeric',
+    Unit             NVARCHAR(50)   NOT NULL DEFAULT 'N/A',
+    MinValue         DECIMAL(10,4)  NULL,
+    MaxValue         DECIMAL(10,4)  NULL,
+    DisplayOrder     INT            NOT NULL DEFAULT 0,
+    DCGroup          NVARCHAR(100)  NOT NULL CONSTRAINT DF_DCParam_DCGroup          DEFAULT 'DCGTM_GENERAL/A',
+    GroupDescription NVARCHAR(200)  NOT NULL CONSTRAINT DF_DCParam_GroupDescription DEFAULT 'Data Collection General',
+    CollectDataAt    NVARCHAR(50)   NOT NULL CONSTRAINT DF_DCParam_CollectDataAt    DEFAULT 'Anytime'
 );

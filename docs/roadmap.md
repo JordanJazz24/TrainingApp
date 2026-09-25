@@ -67,10 +67,6 @@ se filtran en fases anteriores.
 - **Checklist de la spec 006 sin verificar:** el punto 5 (force-advance en DC) y el
   punto 6 (volver a guardar Resource Setup → AC-12). El punto 7 (Assembly en
   Redefinity) está bloqueado por el bloqueante #2.
-- **Instalación limpia de BD:** `02_spTrainingGuide.sql` crea SPs que seleccionan
-  `DCGroup`, pero la columna la agrega recién `08_AddDCGroupToParameters.sql` y
-  `00_Schema.sql` no la tiene → en una BD vacía, `02` falla. Resolver antes de la
-  **Fase 9 (deploy)**. (`RequiresNCComponent` ya está en `00` y en `11`.)
 - **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
   resuelto (`history.replaceState`). Riesgo aceptado.
 - **Fase 5 en pausa:** `ScoreCalculator` y `StepValidator` sin cobertura NUnit. La spec
@@ -80,12 +76,18 @@ se filtran en fases anteriores.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007), hasta que lo pida un instructor o la Fase 8.
 
-### Datos de prueba en la BD de desarrollo
+### Scripts de BD (`Database/StoredProcedures/`)
 
-- `10_DevTestGuideRedefinity.sql` — guía de Redefinity (Serialized, con Assembly),
-  **solo para dev**. Existe para probar Assembly (hoy bloqueado por el bloqueante #2).
-- Orden de ejecución en una BD existente: `11_AddRequiresNCComponentToAreas.sql` y
-  después `02_spTrainingGuide.sql`.
+- **Limpieza 2026-09-25:** las migraciones (`08`–`11` y los ALTER de `06`) se
+  integraron al esquema original y se borraron. Quedan 8 scripts definitivos, que se
+  ejecutan en orden numérico (`00` tablas → `01`–`04` SPs → `05` datos de ejemplo →
+  `06`–`07` catálogo y guía reales de R&C/Moldeo). Instalación limpia y re-ejecución
+  verificadas en LocalDB; el resultado es idéntico a la BD de desarrollo.
+- `05_SeedData.sql` — **solo dev**: áreas de ejemplo (Redefinity, LoFlo provisoria,
+  Subensamble 1) y la guía publicada de Redefinity (Serialized, con Assembly) para
+  probar Assembly (hoy bloqueado por el bloqueante #2).
+- Los cambios de esquema futuros se escriben directo en `00_Schema.sql`; el `ALTER`
+  para la BD existente se le entrega al usuario aparte y no se guarda como script.
 
 ### Fase 0 — Setup ✅ (completada)
 **Objetivo:** Proyecto Web Forms creado, N-Tier scaffolded, build verde.
@@ -177,8 +179,8 @@ del servidor y emite un submit — sin lógica de negocio interna.
 **Specs:**
 - `004-fase6-dashboard-usercontrols.md` (Approved 2026-09-09): POD, botonera y contrato de UserControls.
 - `005-pod-orden-dinamica.md` (Approved 2026-09-24, de forma retroactiva): orden simulada en Session creada
-  por Resource Setup; SFC Split como paso propio (`09_MigrateSFCSplitStep.sql`); DC
-  agrupado por DC Group (`08_AddDCGroupToParameters.sql`).
+  por Resource Setup; SFC Split como paso propio (StepType 5); DC agrupado por DC Group
+  (columnas `DCGroup`/`GroupDescription`/`CollectDataAt`, hoy en `00_Schema.sql`).
 - `006-controles-de-paso-estaticos.md` (Approved 2026-09-22).
 - `007-cierre-flujo-lognc-complete.md` (Approved 2026-09-24).
 
