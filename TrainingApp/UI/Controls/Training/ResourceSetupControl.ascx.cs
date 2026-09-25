@@ -141,14 +141,6 @@ namespace TrainingApp.UI.Controls.Training
                    System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+$");
         }
 
-        // Deriva el SFC a partir de los dígitos del Shop Order: pad-izquierda a 8
-        // si es más corto, o truncado a los primeros 8 si es más largo.
-        private static string DeriveSFCCode(string shopOrderInput)
-        {
-            string digits = shopOrderInput.Length > 8 ? shopOrderInput.Substring(0, 8) : shopOrderInput.PadLeft(8, '0');
-            return "CR9A" + digits;
-        }
-
         private void SaveSimulatedOrder(string shopOrderInput)
         {
             int sessionId = ViewModel.ExtraData.ContainsKey("TrainingSessionId")
@@ -158,18 +150,7 @@ namespace TrainingApp.UI.Controls.Training
             int initialQty = ViewModel.ExtraData.ContainsKey("InitialQty")
                 ? Convert.ToInt32(ViewModel.ExtraData["InitialQty"]) : 250;
 
-            var order = new SimulatedOrder
-            {
-                ShopOrderInput      = shopOrderInput,
-                SFCCode             = DeriveSFCCode(shopOrderInput),
-                MaterialDescription = materialDescription,
-                Status              = "Active",
-                ProcessLot          = "LOT-" + DateTime.Today.ToString("yyyyMMdd"),
-                Rows = new List<SimulatedOrderRow>
-                {
-                    new SimulatedOrderRow { RowId = Guid.NewGuid().ToString(), Qty = initialQty }
-                }
-            };
+            var order = SimulatedOrder.Create(shopOrderInput, materialDescription, initialQty);
 
             // Reemplaza cualquier orden previa de esta TrainingSession.
             Page.Session[Constants.SessionKeys.SimulatedOrderPrefix + sessionId] = order;

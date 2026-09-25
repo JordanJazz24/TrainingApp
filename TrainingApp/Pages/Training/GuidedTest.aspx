@@ -103,11 +103,13 @@
             <img src="<%=ResolveUrl("~/UI/master/imgs/log_NC-Icon.png")%>" alt="" />
             <span>Log NC</span>
         </button>
-        <button type="button" class="pod-sidebar-btn" disabled>
+        <button id="BtnWorkInstructions" runat="server" class="pod-sidebar-btn" disabled="disabled"
+            onserverclick="BtnNonStepAction_ServerClick">
             <img src="<%=ResolveUrl("~/UI/master/imgs/intructions-icon.png")%>" alt="" />
             <span>Work Instructions</span>
         </button>
-        <button type="button" class="pod-sidebar-btn" disabled>
+        <button id="BtnReports" runat="server" class="pod-sidebar-btn" disabled="disabled"
+            onserverclick="BtnNonStepAction_ServerClick">
             <img src="<%=ResolveUrl("~/UI/master/imgs/informes-icon.png")%>" alt="" />
             <span>Reports</span>
         </button>
@@ -127,16 +129,24 @@
                     </button>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
-                <li><button type="button" class="dropdown-item" disabled>As-Built Configuration</button></li>
-                <li><button type="button" class="dropdown-item" disabled>Log Comment</button></li>
-                <li><button type="button" class="dropdown-item" disabled>SFC Place Hold</button></li>
-                <li><button type="button" class="dropdown-item" disabled>SFC Release Hold</button></li>
-                <li><button type="button" class="dropdown-item" disabled>Remove Future Hold</button></li>
-                <li><button type="button" class="dropdown-item" disabled>Change Equipment Status Tool</button></li>
-                <li><button type="button" class="dropdown-item" disabled>Time Sensitive Material Check In/Out</button></li>
+                <li><button id="BtnAsBuiltConfig" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">As-Built Configuration</button></li>
+                <li><button id="BtnLogComment" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">Log Comment</button></li>
+                <li><button id="BtnSfcPlaceHold" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">SFC Place Hold</button></li>
+                <li><button id="BtnSfcReleaseHold" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">SFC Release Hold</button></li>
+                <li><button id="BtnRemoveFutureHold" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">Remove Future Hold</button></li>
+                <li><button id="BtnChangeEquipmentStatus" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">Change Equipment Status Tool</button></li>
+                <li><button id="BtnTimeSensitiveMaterial" runat="server" class="dropdown-item" disabled="disabled"
+                    onserverclick="BtnNonStepAction_ServerClick">Time Sensitive Material Check In/Out</button></li>
             </ul>
         </div>
-        <button type="button" class="pod-sidebar-btn" disabled>
+        <button id="BtnPlaceBackInQueue" runat="server" class="pod-sidebar-btn" disabled="disabled"
+            onserverclick="BtnNonStepAction_ServerClick">
             <img src="<%=ResolveUrl("~/UI/master/imgs/play_back-icon.png")%>" alt="" />
             <span>Place Back in Queue</span>
         </button>
@@ -230,7 +240,8 @@
             <img src="<%=ResolveUrl("~/UI/master/imgs/resource-setup-icon.png")%>" alt="" />
             <span>Resource Setup</span>
         </button>
-        <button type="button" class="pod-footer-btn" disabled>
+        <button id="BtnToolList" runat="server" class="pod-footer-btn" disabled="disabled"
+            onserverclick="BtnNonStepAction_ServerClick">
             <img src="<%=ResolveUrl("~/UI/master/imgs/tools-icon.png")%>" alt="" />
             <span>Tool List</span>
         </button>

@@ -14,6 +14,10 @@ namespace TrainingApp.Pages.Training
 {
     public partial class GuidedTest : Page
     {
+        // Shop Order de ejemplo para la orden por defecto cuando Resource Setup se fuerza sin
+        // haberse guardado nunca (S2). Dato de simulación, no de negocio.
+        private const string DefaultShopOrder = "303406950";
+
         private readonly TrainingGuideService               _guideService   = new TrainingGuideService();
         private readonly TrainingSessionService             _sessionService = new TrainingSessionService();
         private readonly AreaRepository                     _areaRepo       = new AreaRepository();
@@ -141,7 +145,7 @@ namespace TrainingApp.Pages.Training
                 GetStepControl(open.Value).ViewModel = BuildStepViewModel(step, area, session, guide);
 
             UpdateScoreWidget(session);
-            SetActiveButton(step.StepType, area);
+            SetActiveButton(step.StepType, area, session.Mode);
         }
 
         // ── Step submit handler (cableado en el markup) ───────────────────
@@ -204,7 +208,7 @@ namespace TrainingApp.Pages.Training
                     BindWorkList(area, refreshedSession);
                 }
 
-                SetActiveButton(nextStep.StepType, area);
+                SetActiveButton(nextStep.StepType, area, refreshedSession.Mode);
             }
 
             // El banner de guardado confirma una respuesta correcta; no se muestra en FailedForced.
@@ -334,7 +338,13 @@ namespace TrainingApp.Pages.Training
             TrainingStep step, string answer, string incorrectFeedback = null)
         {
             var result = _sessionService.SubmitStep(session.Id, step.Id, answer);
+            ApplySubmitResult(result, session, guide, area, step, incorrectFeedback);
+            return result.Outcome;
+        }
 
+        private void ApplySubmitResult(StepSubmitResult result, TrainingSession session, TrainingGuide guide,
+            Area area, TrainingStep step, string incorrectFeedback)
+        {
             UpdateScoreWidget(session);
 
             switch (result.Outcome)
@@ -360,8 +370,44 @@ namespace TrainingApp.Pages.Training
                     ShowCompletionPanel(_sessionService.GetById(session.Id), area, guide);
                     break;
             }
+        }
 
-            return result.Outcome;
+        // Assessment (S2): todos los botones del POD están habilitados y un click en uno que
+        // no es el del paso actual es un intento fallido de ese paso (lo registra la BLL).
+        // Se evalúa antes que cualquier aviso de formato del botón. Devuelve true si el click
+        // fue fuera de secuencia; en Guided esos botones están deshabilitados y se ignora.
+        private bool HandleOutOfSequence(StepType? clicked, TrainingSession session, TrainingGuide guide,
+            Area area, TrainingStep step)
+        {
+            if (step.StepType == clicked) return false;
+
+            var result = _sessionService.RegisterOutOfSequence(session.Id, clicked);
+            if (result == null) return true;
+
+            ApplySubmitResult(result, session, guide, area, step, incorrectFeedback: null);
+            if (result.Outcome == StepSubmitOutcome.FailedForced)
+                RestorePodAfterForcedAdvance(step.StepType, session, area);
+            return true;
+        }
+
+        // Un paso forzado por errores de secuencia nunca abrió su control. Resource Setup sin
+        // orden guardada recibe una orden por defecto, y Start forzado carga el POD como si se
+        // hubiera ejecutado, para que el resto de la evaluación se pueda completar.
+        private void RestorePodAfterForcedAdvance(StepType forcedStep, TrainingSession session, Area area)
+        {
+            if (forcedStep == StepType.ResourceSetup && GetSimulatedOrder(session) == null)
+            {
+                Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] =
+                    SimulatedOrder.Create(DefaultShopOrder, BuildMaterialDescription(area), GetInitialQty(area));
+                BindBrowseList(area, session);
+            }
+            else if (forcedStep == StepType.Search)
+            {
+                var order = GetSimulatedOrder(session);
+                if (order != null) TxtSFC.Text = order.SFCCode;
+                HfSelectedRowId.Value = string.Empty;
+                BindWorkList(area, session);
+            }
         }
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
@@ -395,7 +441,7 @@ namespace TrainingApp.Pages.Training
             var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
             if (nextStep == null) return;
 
-            SetActiveButton(nextStep.StepType, area);
+            SetActiveButton(nextStep.StepType, area, refreshedSession.Mode);
         }
 
         // ── Button ServerClick handlers ───────────────────────────────────
@@ -404,6 +450,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            if (HandleOutOfSequence(StepType.ResourceSetup, session, guide, area, step)) return;
             OpenStepControl(StepType.ResourceSetup, area, session, guide, "modalResourceSetup");
         }
 
@@ -411,6 +458,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            if (HandleOutOfSequence(StepType.LineClearance, session, guide, area, step)) return;
             // LineClearance se abre como "Data Collection Standalone" desde Activities.
             OpenStepControl(StepType.LineClearance, area, session, guide, "modalDCStandalone");
         }
@@ -419,6 +467,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            if (HandleOutOfSequence(StepType.Search, session, guide, area, step)) return;
 
             // Spec 005: sin SimulatedOrder guardada (Resource Setup nunca completado,
             // o Session expirada a mitad de flujo) no hay nada que buscar en Search/Start.
@@ -448,6 +497,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            if (HandleOutOfSequence(StepType.Assembly, session, guide, area, step)) return;
             OpenStepControl(StepType.Assembly, area, session, guide, "modalAssemble");
         }
 
@@ -455,6 +505,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
+            if (HandleOutOfSequence(StepType.DataCollection, session, guide, area, step)) return;
 
             // Defensa en servidor: el HiddenField puede faltar, estar obsoleto o ser
             // manipulado aunque la validación JavaScript haya sido omitida.
@@ -474,14 +525,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-
-            if (step.StepType != StepType.SFC_Split ||
-                area.SerializationType != SerializationType.NonSerialized)
-            {
-                ShowSweetAlert("warning", "Acción no disponible",
-                    "SFC Split no es el paso activo para esta guía.");
-                return;
-            }
+            if (HandleOutOfSequence(StepType.SFC_Split, session, guide, area, step)) return;
 
             if (FindSelectedOrderRow(session) == null)
             {
@@ -499,7 +543,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (step.StepType != StepType.LogNC) return;
+            if (HandleOutOfSequence(StepType.LogNC, session, guide, area, step)) return;
 
             // Spec 007: abrir Log NC sin una fila scrapeable es un intento fallido del paso.
             // No hay gate en el cliente: el click tiene que llegar acá para registrarse.
@@ -515,11 +559,28 @@ namespace TrainingApp.Pages.Training
             OpenStepControl(StepType.LogNC, area, session, guide, modalId: null);
         }
 
+        // Acciones de MES que nunca son un paso de la guía (Work Instructions, Reports, Place
+        // Back in Queue, Tool List y las opciones de relleno de Activities). No tienen lógica:
+        // en Assessment el click es un intento fallido del paso actual (S2).
+        protected void BtnNonStepAction_ServerClick(object sender, EventArgs e)
+        {
+            var (session, guide, area, step) = GetContext();
+            if (session == null) return;
+            HandleOutOfSequence(null, session, guide, area, step);
+        }
+
+        private System.Web.UI.HtmlControls.HtmlButton[] NonStepActionButtons => new[]
+        {
+            BtnWorkInstructions, BtnReports, BtnPlaceBackInQueue, BtnToolList,
+            BtnAsBuiltConfig, BtnLogComment, BtnSfcPlaceHold, BtnSfcReleaseHold,
+            BtnRemoveFutureHold, BtnChangeEquipmentStatus, BtnTimeSensitiveMaterial
+        };
+
         protected void BtnComplete_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (step.StepType != StepType.Complete) return;
+            if (HandleOutOfSequence(StepType.Complete, session, guide, area, step)) return;
 
             // Spec 007: Complete sin fila seleccionada es un intento fallido del paso.
             if (FindSelectedOrderRow(session) == null)
@@ -645,15 +706,23 @@ namespace TrainingApp.Pages.Training
                 case StepType.ResourceSetup:
                     // Datos que ResourceSetupControl necesita para construir la
                     // SimulatedOrder en Session al guardar (spec 005).
-                    var rsProduct = _productRepo.GetAll().FirstOrDefault(p => p.Id == area.ProductId);
                     vm.ExtraData["TrainingSessionId"]    = session.Id;
-                    vm.ExtraData["MaterialDescription"]  = (rsProduct?.Name ?? "") + " / " + area.Name;
-                    vm.ExtraData["InitialQty"]           = area.SerializationType == SerializationType.NonSerialized ? 250 : 1;
+                    vm.ExtraData["MaterialDescription"]  = BuildMaterialDescription(area);
+                    vm.ExtraData["InitialQty"]           = GetInitialQty(area);
                     break;
             }
 
             return vm;
         }
+
+        private string BuildMaterialDescription(Area area)
+        {
+            var product = _productRepo.GetAll().FirstOrDefault(p => p.Id == area.ProductId);
+            return (product?.Name ?? "") + " / " + area.Name;
+        }
+
+        private static int GetInitialQty(Area area)
+            => area.SerializationType == SerializationType.NonSerialized ? 250 : 1;
 
         private static IList<object> BuildMoldeoLCQuestions()
         {
@@ -784,16 +853,32 @@ namespace TrainingApp.Pages.Training
                 "<span class=\"{0}\">{1}</span>", badgeClass, modeLabel);
         }
 
-        private void SetActiveButton(StepType stepType, Area area)
+        private void SetActiveButton(StepType stepType, Area area, SessionMode mode)
         {
-            BtnResourceSetup.Disabled = true;
-            BtnStart.Disabled         = true;
-            BtnAssemble.Disabled      = true;
-            BtnDCCollection.Disabled  = true;
-            BtnComplete.Disabled      = true;
-            BtnActivities.Disabled    = true;
-            BtnSFCSplit.Disabled      = true;
-            BtnLogNC.Disabled         = true;
+            // Assessment (S2): todo habilitado — elegir el botón correcto es parte de la evaluación.
+            bool enableAll = mode == SessionMode.Assessment;
+
+            BtnResourceSetup.Disabled = !enableAll;
+            BtnStart.Disabled         = !enableAll;
+            BtnAssemble.Disabled      = !enableAll;
+            BtnDCCollection.Disabled  = !enableAll;
+            BtnComplete.Disabled      = !enableAll;
+            BtnActivities.Disabled    = !enableAll;
+            BtnSFCSplit.Disabled      = !enableAll;
+            BtnLogNC.Disabled         = !enableAll;
+            foreach (var decoy in NonStepActionButtons)
+                decoy.Disabled = !enableAll;
+
+            // La validación de fila en cliente (formato) solo aplica al botón del paso actual:
+            // un click fuera de secuencia tiene que llegar al servidor para contar.
+            SetClientRowCheck(BtnDCCollection, "podValidateDCCollect", stepType == StepType.DataCollection);
+            SetClientRowCheck(BtnSFCSplit, "podValidateSFCSplit", stepType == StepType.SFC_Split);
+
+            if (enableAll)
+            {
+                EnableActivitiesToggle();
+                return;
+            }
 
             switch (stepType)
             {
@@ -802,10 +887,7 @@ namespace TrainingApp.Pages.Training
                     break;
                 case StepType.LineClearance:
                     BtnActivities.Disabled = false;
-                    // Enable the dropdown toggle so the Activities menu can open
-                    Page.ClientScript.RegisterStartupScript(GetType(), "enableActivitiesToggle",
-                        "var t=document.getElementById('BtnActivitiesToggle');" +
-                        "if(t) t.disabled=false;", true);
+                    EnableActivitiesToggle();
                     break;
                 case StepType.Search:
                     BtnStart.Disabled = false;
@@ -827,6 +909,24 @@ namespace TrainingApp.Pages.Training
                     BtnComplete.Disabled = false;
                     break;
             }
+        }
+
+        // Enable the dropdown toggle so the Activities menu can open
+        private void EnableActivitiesToggle()
+        {
+            Page.ClientScript.RegisterStartupScript(GetType(), "enableActivitiesToggle",
+                "var t=document.getElementById('BtnActivitiesToggle');" +
+                "if(t) t.disabled=false;", true);
+        }
+
+        // Se asigna en cada request: los atributos de un HtmlControl persisten en ViewState.
+        private static void SetClientRowCheck(System.Web.UI.HtmlControls.HtmlButton button,
+            string validatorFunction, bool isCurrentStep)
+        {
+            if (isCurrentStep)
+                button.Attributes["onclick"] = "if (!" + validatorFunction + "()) return false;";
+            else
+                button.Attributes.Remove("onclick");
         }
 
         private void ShowBanner(string message, int hideAfterMs = 3000)

@@ -26,8 +26,23 @@ se filtran en fases anteriores.
   restantes). El 70% de aprobación pasó a `ScoreCalculator.PassingScore`. Los banners de
   guardado (Record change, DC group saved) solo aparecen si el servidor aceptó el paso.
   Verificado en navegador por el usuario (2026-09-25).
-- **S2 (siguiente, requiere spec):** en Assessment todos los botones del POD habilitados;
-  un click fuera de secuencia cuenta como intento fallido del paso actual.
+- **S2 — secuencia en Assessment (sin spec, decisiones cerradas con el usuario 2026-09-25):**
+  - En Assessment todos los botones del POD están habilitados, incluidos los que no aplican
+    al área (Assemble en Moldeo, SFC Split en Serialized). Guided sin cambios.
+  - Un click en un botón que no es el del paso actual es un intento fallido **del paso
+    actual** (`TrainingSessionService.RegisterOutOfSequence`), con la misma penalización y
+    force-advance. El control del botón equivocado no se abre.
+  - Mismo mensaje genérico que una respuesta incorrecta (no revela que fue de secuencia).
+  - La secuencia se evalúa antes que los avisos de formato del botón (SFC vacío, fila sin
+    seleccionar).
+  - Activities → LC entra en la regla; Browse Work List, selección de filas, Abandon y
+    Logout son navegación y nunca cuentan.
+  - Las acciones de MES sin lógica (Work Instructions, Reports, Place Back in Queue, Tool
+    List y las 7 opciones de relleno de Activities) también se habilitan en Assessment y
+    su click es siempre un intento fallido del paso actual.
+  - Resource Setup forzado sin orden guardada → orden por defecto (Shop Order `303406950`).
+    Start forzado → el POD se carga como si Start se hubiera ejecutado.
+  Verificado en navegador por el usuario (2026-09-25).
 - **Siguiente:** resolver los **bloqueantes de la Fase 7** (sección siguiente). La Fase 7
   está definida como "solo datos, cero código nuevo", y hoy LoFlo no se podría cargar
   sin escribir código.

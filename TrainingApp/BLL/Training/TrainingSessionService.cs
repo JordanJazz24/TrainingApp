@@ -69,10 +69,37 @@ namespace TrainingApp.BLL.Training
             var step    = guide.Steps.First(s => s.Id == stepId);
 
             var validator = GetOrBuildValidator(guide);
+            bool isCorrect = validator.Validate(step, submittedAnswer);
+
+            return RecordAttempt(session, guide, step, isCorrect);
+        }
+
+        // Assessment: un click en un botón del POD que no corresponde al paso actual
+        // es un intento fallido del paso actual (misma penalización y force-advance).
+        // clickedStepType null = acción de MES que no es ningún paso (Work Instructions, Reports…).
+        // Devuelve null si no es un error de secuencia (Guided, o el botón es el del paso actual).
+        public StepSubmitResult RegisterOutOfSequence(int sessionId, StepType? clickedStepType)
+        {
+            var session = _sessionRepo.GetById(sessionId);
+            if (session.Mode != SessionMode.Assessment || session.Status != SessionStatus.InProgress)
+                return null;
+
+            var guide = _guideService.GetById(session.TrainingGuideId);
+            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            if (step.StepType == clickedStepType)
+                return null;
+
+            return RecordAttempt(session, guide, step, isCorrect: false);
+        }
+
+        private StepSubmitResult RecordAttempt(TrainingSession session, TrainingGuide guide,
+            TrainingStep step, bool isCorrect)
+        {
+            int sessionId = session.Id;
+            int stepId    = step.Id;
 
             var previousAttempts = _attemptRepo.GetBySessionAndStep(sessionId, stepId);
             int attemptNumber    = previousAttempts.Count + 1;
-            bool isCorrect       = validator.Validate(step, submittedAnswer);
 
             _attemptRepo.Insert(new TrainingSessionStepAttempt
             {
