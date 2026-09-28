@@ -32,9 +32,7 @@ namespace TrainingApp.DAL.Repositories
             MinValue     = r["MinValue"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(r["MinValue"]),
             MaxValue     = r["MaxValue"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(r["MaxValue"]),
             DisplayOrder = Convert.ToInt32(r["DisplayOrder"]),
-            DCGroup          = r["DCGroup"].ToString(),
-            GroupDescription = r["GroupDescription"].ToString(),
-            CollectDataAt    = r["CollectDataAt"].ToString()
+            DataCollectionGroupId = Convert.ToInt32(r["DataCollectionGroupId"])
         };
     }
 }

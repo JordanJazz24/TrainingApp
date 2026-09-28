@@ -80,18 +80,14 @@ namespace TrainingApp.UI.Controls.Training
 
         private void BindGroupList()
         {
-            var parameters = GetParameters();
-
-            // Group by DC Group (real grouping from the catalog, not hardcoded per-area).
-            // Ordered by each group's lowest DisplayOrder to preserve operational sequence.
-            var groups = parameters
-                .GroupBy(p => p.DCGroup)
-                .OrderBy(g => g.Min(p => p.DisplayOrder))
+            // DC Groups del catálogo (spec 008), ya ordenados por DisplayOrder. La lista no
+            // indica cuáles son obligatorios: saberlo es parte de lo que se entrena.
+            var groups = GetGroups()
                 .Select(g => new
                 {
-                    GroupCode     = g.Key,
-                    Description   = g.First().GroupDescription,
-                    CollectDataAt = g.First().CollectDataAt
+                    GroupCode     = g.Code,
+                    Description   = g.Description,
+                    CollectDataAt = g.CollectDataAt
                 })
                 .ToList();
 
@@ -102,8 +98,11 @@ namespace TrainingApp.UI.Controls.Training
         private void RenderParams(string groupCode)
         {
             PhParameters.Controls.Clear();
+            var group = GetGroups().FirstOrDefault(g => g.Code == groupCode);
+            if (group == null) return;
+
             var parameters = GetParameters()
-                .Where(p => p.DCGroup == groupCode)
+                .Where(p => p.DataCollectionGroupId == group.Id)
                 .OrderBy(p => p.DisplayOrder);
 
             foreach (var param in parameters)
@@ -143,6 +142,14 @@ namespace TrainingApp.UI.Controls.Training
 
                 PhParameters.Controls.Add(wrapper);
             }
+        }
+
+        private IList<DataCollectionGroup> GetGroups()
+        {
+            if (ViewModel?.ExtraData?.ContainsKey("Groups") == true)
+                return ViewModel.ExtraData["Groups"] as IList<DataCollectionGroup>
+                    ?? new List<DataCollectionGroup>();
+            return new List<DataCollectionGroup>();
         }
 
         private IList<DataCollectionParameter> GetParameters()

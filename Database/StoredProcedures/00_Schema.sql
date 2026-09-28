@@ -31,6 +31,8 @@ CREATE TABLE dbo.Products (
 -- SerializationType: 0=Serialized, 1=NonSerialized
 -- RequiresNCComponent: NC Data Entry pide el campo Component
 --   (la norma es pedirlo; Moldeo es la excepción).
+-- RequiresStartChecklist: Start abre la secuencia de 4 modales
+--   (ID de molde, LC, MSS, verificación); 0 = Start directo (spec 008).
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.Areas', 'U') IS NULL
 CREATE TABLE dbo.Areas (
@@ -40,7 +42,8 @@ CREATE TABLE dbo.Areas (
     SerializationType      TINYINT NOT NULL DEFAULT 0,
     RequiresAssembly       BIT NOT NULL DEFAULT 0,
     RequiresDataCollection BIT NOT NULL DEFAULT 0,
-    RequiresNCComponent    BIT NOT NULL CONSTRAINT DF_Areas_RequiresNCComponent DEFAULT 1
+    RequiresNCComponent    BIT NOT NULL CONSTRAINT DF_Areas_RequiresNCComponent DEFAULT 1,
+    RequiresStartChecklist BIT NOT NULL CONSTRAINT DF_Areas_RequiresStartChecklist DEFAULT 0
 );
 
 -- -------------------------------------------------------
@@ -144,27 +147,65 @@ CREATE TABLE dbo.NCCodes (
 );
 
 -- -------------------------------------------------------
+-- DataCollectionGroups  (DC Groups por Area; a futuro por Operation)
+-- Code: código MES del grupo (ej. 'DCGTM_ID_MOLDE/A'); único por Area.
+-- CollectDataAt: 'Pre-Start' | 'Post-Start' | 'Anytime'.
+-- IsRequired: la pieza queda completa cuando guardó todos los grupos
+--   obligatorios; si el área no tiene ninguno, basta un grupo cualquiera
+--   (spec 008). La UI no indica cuáles son obligatorios.
+-- DisplayOrder: orden en la Data Collection List.
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.DataCollectionGroups', 'U') IS NULL
+CREATE TABLE dbo.DataCollectionGroups (
+    Id            INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId        INT            NOT NULL REFERENCES dbo.Areas(Id),
+    OperationId   INT            NULL     REFERENCES dbo.Operations(Id),
+    Code          NVARCHAR(100)  NOT NULL,
+    Description   NVARCHAR(200)  NOT NULL,
+    CollectDataAt NVARCHAR(50)   NOT NULL CONSTRAINT DF_DCGroup_CollectDataAt DEFAULT 'Anytime',
+    IsRequired    BIT            NOT NULL CONSTRAINT DF_DCGroup_IsRequired    DEFAULT 0,
+    DisplayOrder  INT            NOT NULL CONSTRAINT DF_DCGroup_DisplayOrder  DEFAULT 0,
+    CONSTRAINT UQ_DCGroup_Area_Code UNIQUE (AreaId, Code)
+);
+
+-- -------------------------------------------------------
 -- DataCollectionParameters  (varían por Area; a futuro por Operation)
 -- DataType: 'Numeric' | 'Boolean' | 'Date'
 -- MinValue/MaxValue: NULL para tipos no numéricos, o cuando el rango
 --   está pendiente de confirmación contra la MSS del área.
 -- DisplayOrder: orden de presentación al operador dentro del paso.
--- DCGroup / GroupDescription: DC Group al que pertenece el parámetro;
+-- DataCollectionGroupId: DC Group al que pertenece el parámetro;
 --   "Collect" muestra solo las preguntas del grupo seleccionado.
--- CollectDataAt: 'Pre-Start' | 'Post-Start' | 'Anytime'.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.DataCollectionParameters', 'U') IS NULL
 CREATE TABLE dbo.DataCollectionParameters (
-    Id               INT IDENTITY(1,1) PRIMARY KEY,
-    AreaId           INT            NOT NULL REFERENCES dbo.Areas(Id),
-    OperationId      INT            NULL     REFERENCES dbo.Operations(Id),
-    Name             NVARCHAR(200)  NOT NULL,
-    DataType         NVARCHAR(20)   NOT NULL DEFAULT 'Numeric',
-    Unit             NVARCHAR(50)   NOT NULL DEFAULT 'N/A',
-    MinValue         DECIMAL(10,4)  NULL,
-    MaxValue         DECIMAL(10,4)  NULL,
-    DisplayOrder     INT            NOT NULL DEFAULT 0,
-    DCGroup          NVARCHAR(100)  NOT NULL CONSTRAINT DF_DCParam_DCGroup          DEFAULT 'DCGTM_GENERAL/A',
-    GroupDescription NVARCHAR(200)  NOT NULL CONSTRAINT DF_DCParam_GroupDescription DEFAULT 'Data Collection General',
-    CollectDataAt    NVARCHAR(50)   NOT NULL CONSTRAINT DF_DCParam_CollectDataAt    DEFAULT 'Anytime'
+    Id                    INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId                INT            NOT NULL REFERENCES dbo.Areas(Id),
+    OperationId           INT            NULL     REFERENCES dbo.Operations(Id),
+    DataCollectionGroupId INT            NOT NULL REFERENCES dbo.DataCollectionGroups(Id),
+    Name                  NVARCHAR(200)  NOT NULL,
+    DataType              NVARCHAR(20)   NOT NULL DEFAULT 'Numeric',
+    Unit                  NVARCHAR(50)   NOT NULL DEFAULT 'N/A',
+    MinValue              DECIMAL(10,4)  NULL,
+    MaxValue              DECIMAL(10,4)  NULL,
+    DisplayOrder          INT            NOT NULL DEFAULT 0
+);
+
+-- -------------------------------------------------------
+-- AssemblyComponents  (BOM de la operación; hoy por Area, a futuro
+--   por Operation — spec 008). La Component List de Assembly muestra
+--   PartNumber/Revision, Qty por unidad y Description.
+-- Qty: decimal (materiales por peso o longitud, ej. 0.0001).
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.AssemblyComponents', 'U') IS NULL
+CREATE TABLE dbo.AssemblyComponents (
+    Id           INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId       INT            NOT NULL REFERENCES dbo.Areas(Id),
+    OperationId  INT            NULL     REFERENCES dbo.Operations(Id),
+    PartNumber   NVARCHAR(50)   NOT NULL,
+    Revision     NVARCHAR(10)   NOT NULL CONSTRAINT DF_AsmComp_Revision     DEFAULT 'A',
+    Description  NVARCHAR(200)  NOT NULL,
+    Qty          DECIMAL(18,6)  NOT NULL CONSTRAINT DF_AsmComp_Qty          DEFAULT 1,
+    DisplayOrder INT            NOT NULL CONSTRAINT DF_AsmComp_DisplayOrder DEFAULT 0,
+    CONSTRAINT UQ_AsmComp_Area_Part UNIQUE (AreaId, PartNumber, Revision)
 );

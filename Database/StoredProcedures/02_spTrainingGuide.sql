@@ -1,7 +1,8 @@
 -- ============================================================
 -- 02_spTrainingGuide.sql
 -- Stored procedures para TrainingGuides, TrainingSteps,
--- Areas, NCCodes y DataCollectionParameters.
+-- Areas, NCCodes, DataCollectionGroups, DataCollectionParameters
+-- y AssemblyComponents.
 -- ============================================================
 
 -- -------------------------------------------------------
@@ -86,7 +87,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection,
-           RequiresNCComponent
+           RequiresNCComponent, RequiresStartChecklist
     FROM   dbo.Areas
     WHERE  ProductId = @ProductId
     ORDER  BY Name;
@@ -106,7 +107,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection,
-           RequiresNCComponent
+           RequiresNCComponent, RequiresStartChecklist
     FROM   dbo.Areas
     WHERE  Id = @Id;
 END;
@@ -132,6 +133,26 @@ END;
 GO
 
 -- -------------------------------------------------------
+-- spDataCollectionGroupGetByArea
+-- DC Groups del área en el orden de la Data Collection List.
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spDataCollectionGroupGetByArea', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spDataCollectionGroupGetByArea;
+GO
+
+CREATE PROCEDURE dbo.spDataCollectionGroupGetByArea
+    @AreaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, AreaId, OperationId, Code, Description, CollectDataAt, IsRequired, DisplayOrder
+    FROM   dbo.DataCollectionGroups
+    WHERE  AreaId = @AreaId
+    ORDER  BY DisplayOrder, Id;
+END;
+GO
+
+-- -------------------------------------------------------
 -- spDataCollectionParameterGetByArea
 -- Ordenado por DisplayOrder para respetar la secuencia operativa.
 -- -------------------------------------------------------
@@ -144,10 +165,30 @@ CREATE PROCEDURE dbo.spDataCollectionParameterGetByArea
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder,
-           DCGroup, GroupDescription, CollectDataAt
+    SELECT Id, AreaId, OperationId, DataCollectionGroupId, Name, DataType, Unit,
+           MinValue, MaxValue, DisplayOrder
     FROM   dbo.DataCollectionParameters
     WHERE  AreaId = @AreaId
     ORDER  BY DisplayOrder;
+END;
+GO
+
+-- -------------------------------------------------------
+-- spAssemblyComponentGetByArea
+-- BOM de la operación (hoy por Area) en el orden de la Component List.
+-- -------------------------------------------------------
+IF OBJECT_ID('dbo.spAssemblyComponentGetByArea', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spAssemblyComponentGetByArea;
+GO
+
+CREATE PROCEDURE dbo.spAssemblyComponentGetByArea
+    @AreaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, AreaId, OperationId, PartNumber, Revision, Description, Qty, DisplayOrder
+    FROM   dbo.AssemblyComponents
+    WHERE  AreaId = @AreaId
+    ORDER  BY DisplayOrder, Id;
 END;
 GO

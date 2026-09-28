@@ -679,6 +679,7 @@ namespace TrainingApp.Pages.Training
                 case StepType.DataCollection:
                     var dcParams = _dcParamRepo.GetByArea(area.Id);
                     vm.ExtraData["Parameters"] = dcParams;
+                    vm.ExtraData["Groups"]     = _guideService.GetDataCollectionGroups(area.Id);
                     break;
 
                 case StepType.SFC_Split:

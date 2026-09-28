@@ -290,6 +290,8 @@
     <Compile Include="DAL\Repositories\AreaRepository.cs" />
     <Compile Include="DAL\Repositories\NCCodeRepository.cs" />
     <Compile Include="DAL\Repositories\DataCollectionParameterRepository.cs" />
+    <Compile Include="DAL\Repositories\DataCollectionGroupRepository.cs" />
+    <Compile Include="DAL\Repositories\AssemblyComponentRepository.cs" />
     <Compile Include="DAL\Repositories\ProductRepository.cs" />
     <Compile Include="DAL\Repositories\TrainingSessionRepository.cs" />
     <Compile Include="DAL\Repositories\StepAttemptRepository.cs" />
@@ -302,6 +304,8 @@
     <Compile Include="Domain\TrainingSession.cs" />
     <Compile Include="Domain\NCCode.cs" />
     <Compile Include="Domain\DataCollectionParameter.cs" />
+    <Compile Include="Domain\DataCollectionGroup.cs" />
+    <Compile Include="Domain\AssemblyComponent.cs" />
     <Compile Include="Domain\Operation.cs" />
     <Compile Include="Domain\TrainingSessionStepAttempt.cs" />
     <Compile Include="BLL\Auth\LoginResult.cs" />

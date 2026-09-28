@@ -12,15 +12,31 @@ namespace TrainingApp.BLL.Training
         private readonly AreaRepository _areaRepo;
         private readonly NCCodeRepository _ncCodeRepo;
         private readonly DataCollectionParameterRepository _dcParamRepo;
+        private readonly DataCollectionGroupRepository _dcGroupRepo;
+        private readonly AssemblyComponentRepository _componentRepo;
         private readonly ProductRepository _productRepo;
 
         public TrainingGuideService()
         {
-            _guideRepo   = new TrainingGuideRepository();
-            _areaRepo    = new AreaRepository();
-            _ncCodeRepo  = new NCCodeRepository();
-            _dcParamRepo = new DataCollectionParameterRepository();
-            _productRepo = new ProductRepository();
+            _guideRepo     = new TrainingGuideRepository();
+            _areaRepo      = new AreaRepository();
+            _ncCodeRepo    = new NCCodeRepository();
+            _dcParamRepo   = new DataCollectionParameterRepository();
+            _dcGroupRepo   = new DataCollectionGroupRepository();
+            _componentRepo = new AssemblyComponentRepository();
+            _productRepo   = new ProductRepository();
+        }
+
+        // DC Groups del área, en el orden de la Data Collection List (spec 008).
+        public IList<DataCollectionGroup> GetDataCollectionGroups(int areaId)
+        {
+            return _dcGroupRepo.GetByArea(areaId);
+        }
+
+        // BOM de la operación (hoy por área) para la Component List de Assembly (spec 008).
+        public IList<AssemblyComponent> GetAssemblyComponents(int areaId)
+        {
+            return _componentRepo.GetByArea(areaId);
         }
 
         public IList<Product> GetAllProducts()

@@ -40,7 +40,8 @@ namespace TrainingApp.DAL.Repositories
             SerializationType      = (SerializationType)Convert.ToInt32(r["SerializationType"]),
             RequiresAssembly       = Convert.ToBoolean(r["RequiresAssembly"]),
             RequiresDataCollection = Convert.ToBoolean(r["RequiresDataCollection"]),
-            RequiresNCComponent    = Convert.ToBoolean(r["RequiresNCComponent"])
+            RequiresNCComponent    = Convert.ToBoolean(r["RequiresNCComponent"]),
+            RequiresStartChecklist = Convert.ToBoolean(r["RequiresStartChecklist"])
         };
     }
 }

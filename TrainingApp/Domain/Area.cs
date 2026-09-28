@@ -11,5 +11,8 @@ namespace TrainingApp.Domain
         public bool RequiresAssembly { get; set; }
         public bool RequiresDataCollection { get; set; }
         public bool RequiresNCComponent { get; set; }
+
+        // Start abre la secuencia de 4 modales (Moldeo); false = Start directo (spec 008).
+        public bool RequiresStartChecklist { get; set; }
     }
 }
