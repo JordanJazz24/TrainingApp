@@ -211,7 +211,7 @@ Sin cambios: solo el operador autenticado dueño de la `TrainingSession`.
 | E5 | 4.º fallo en DC a mitad de las piezas (Assessment) | Force-advance del paso completo, como hoy; el avance parcial se descarta |
 | E6 | F5 a mitad de DC o Assembly | El avance en Session sobrevive. Igual que hoy, la selección de filas y el control abierto no se restauran |
 | E7 | Session perdida (reciclo del App Pool, timeout) | **No se implementa ahora.** Se pierden la orden simulada y el avance, igual que hoy con la orden. Queda documentado como caso especial a analizar (ver Deferred Decisions) |
-| E8 | Resource Setup forzado sin orden (S2) en Serialized | La orden por defecto también genera 3-5 SFCs |
+| E8 | Resource Setup forzado (por secuencia o por Setup State incorrecto) | Siempre se usa la orden por defecto con la Shop Order genérica, ignorando lo que el operador capturó en un intento fallido (corrección del usuario 2026-09-28). En Serialized también genera 3-5 SFCs |
 | E9 | Start forzado (S2) en Serialized | Se cargan **todas** las piezas como `Active` en el POD |
 | E10 | Selección de filas en NonSerialized | Sin cambios: máximo 1 fila |
 | E11 | Click fuera de secuencia con filas faltantes | Cuenta como intento fallido de secuencia (S2 primero) |

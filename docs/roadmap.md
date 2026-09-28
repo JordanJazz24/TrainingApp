@@ -40,7 +40,8 @@ se filtran en fases anteriores.
   - Las acciones de MES sin lógica (Work Instructions, Reports, Place Back in Queue, Tool
     List y las 7 opciones de relleno de Activities) también se habilitan en Assessment y
     su click es siempre un intento fallido del paso actual.
-  - Resource Setup forzado sin orden guardada → orden por defecto (Shop Order `303406950`).
+  - Resource Setup forzado → siempre la orden por defecto (Shop Order genérica `303406950`),
+    ignorando lo capturado en intentos fallidos (spec 008, E8).
     Start forzado → el POD se carga como si Start se hubiera ejecutado.
   Verificado en navegador por el usuario (2026-09-25).
 - **Siguiente:** resolver los **bloqueantes de la Fase 7** (sección siguiente). La Fase 7

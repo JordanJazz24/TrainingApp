@@ -14,8 +14,8 @@ namespace TrainingApp.Pages.Training
 {
     public partial class GuidedTest : Page
     {
-        // Shop Order de ejemplo para la orden por defecto cuando Resource Setup se fuerza sin
-        // haberse guardado nunca (S2). Dato de simulación, no de negocio.
+        // Shop Order genérica de la orden por defecto cuando Resource Setup avanza forzado
+        // (S2 / spec 008, E8). Dato de simulación, no de negocio.
         private const string DefaultShopOrder = "303406950";
 
         private readonly TrainingGuideService               _guideService   = new TrainingGuideService();
@@ -40,6 +40,10 @@ namespace TrainingApp.Pages.Training
             get { return ViewState[OpenStepTypeKey] as StepType?; }
             set { ViewState[OpenStepTypeKey] = value; }
         }
+
+        // Serialized (spec 008): el POD y Browse Work List permiten varias filas y TxtSFC
+        // muestra "[N SELECTED]". NonSerialized: como máximo 1 fila (spec 007).
+        protected bool PodMultiSelect { get; private set; }
 
         private IStepControl GetStepControl(StepType stepType)
         {
@@ -116,6 +120,8 @@ namespace TrainingApp.Pages.Training
             var guide = _guideService.GetById(session.TrainingGuideId);
             var area  = _areaRepo.GetById(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+
+            PodMultiSelect = area.SerializationType == SerializationType.Serialized;
 
             if (!IsPostBack)
             {
@@ -204,7 +210,7 @@ namespace TrainingApp.Pages.Training
                 if (step.StepType == StepType.SFC_Split ||
                     (step.StepType != StepType.SFC_Split && nextStep.StepType == StepType.SFC_Split))
                 {
-                    HfSelectedRowId.Value = string.Empty;
+                    ClearRowSelection();
                     BindWorkList(area, refreshedSession);
                 }
 
@@ -216,6 +222,8 @@ namespace TrainingApp.Pages.Training
 
             if (step.StepType == StepType.ResourceSetup)
             {
+                if (outcome == StepSubmitOutcome.FailedForced)
+                    ReplaceWithDefaultOrder(session, area);
                 BindBrowseList(area, session);
                 if (accepted) CtrlResourceSetup.ShowSaveConfirmation();
                 ReopenModal("modalResourceSetup");
@@ -227,13 +235,7 @@ namespace TrainingApp.Pages.Training
             }
             else if (step.StepType == StepType.Search)
             {
-                // El SFC iniciado queda fijo en el header el resto de la sesión, tomado de
-                // la orden simulada (servidor) y no del valor que escribió el cliente.
-                var order = GetSimulatedOrder(session);
-                if (order != null) TxtSFC.Text = order.SFCCode;
-
-                HfSelectedRowId.Value = string.Empty;
-                BindWorkList(area, session);
+                LoadStartedOrderOnPod(session, area);
                 ShowBanner("✓ Start process completed successfully");
             }
             else if (step.StepType == StepType.SFC_Split)
@@ -252,8 +254,7 @@ namespace TrainingApp.Pages.Training
             var order = GetSimulatedOrder(session);
             order.Rows.Remove(row);
 
-            HfSelectedRowId.Value = string.Empty;
-            HfSelectedSFC.Value   = string.Empty;
+            ClearRowSelection();
             BindWorkList(area, session);
             ShowBanner("✓ All of " + order.SFCCode + " scrapped", hideAfterMs: 5000);
         }
@@ -307,7 +308,9 @@ namespace TrainingApp.Pages.Training
             order.Rows.Add(new SimulatedOrderRow
             {
                 RowId       = Guid.NewGuid().ToString(),
+                SFCCode     = order.SFCCode,
                 Qty         = e.Qty,
+                Status      = SimulatedOrderRow.StatusActive,
                 IsFromSplit = true
             });
 
@@ -395,19 +398,26 @@ namespace TrainingApp.Pages.Training
         // hubiera ejecutado, para que el resto de la evaluación se pueda completar.
         private void RestorePodAfterForcedAdvance(StepType forcedStep, TrainingSession session, Area area)
         {
-            if (forcedStep == StepType.ResourceSetup && GetSimulatedOrder(session) == null)
+            if (forcedStep == StepType.ResourceSetup)
             {
-                Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] =
-                    SimulatedOrder.Create(DefaultShopOrder, BuildMaterialDescription(area), GetInitialQty(area));
-                BindBrowseList(area, session);
+                ReplaceWithDefaultOrder(session, area);
             }
             else if (forcedStep == StepType.Search)
             {
-                var order = GetSimulatedOrder(session);
-                if (order != null) TxtSFC.Text = order.SFCCode;
-                HfSelectedRowId.Value = string.Empty;
-                BindWorkList(area, session);
+                // E9 (spec 008): Start forzado inicia todas las piezas.
+                LoadStartedOrderOnPod(session, area, startAllPieces: true);
             }
+        }
+
+        // Resource Setup forzado (por secuencia o por Setup State incorrecto): la orden sale
+        // siempre de la Shop Order genérica, ignorando lo que el operador capturó en un
+        // intento fallido. En Serialized también genera sus piezas (E8, spec 008).
+        private void ReplaceWithDefaultOrder(TrainingSession session, Area area)
+        {
+            Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] =
+                SimulatedOrder.Create(DefaultShopOrder, BuildMaterialDescription(area),
+                    GetInitialQty(area), area.SerializationType);
+            BindBrowseList(area, session);
         }
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
@@ -472,11 +482,47 @@ namespace TrainingApp.Pages.Training
             // Spec 005: sin SimulatedOrder guardada (Resource Setup nunca completado,
             // o Session expirada a mitad de flujo) no hay nada que buscar en Search/Start.
             // Defensivo — en el flujo normal Start ya requiere haber pasado ResourceSetup.
-            if (GetSimulatedOrder(session) == null)
+            var order = GetSimulatedOrder(session);
+            if (order == null)
             {
                 ShowSweetAlert("warning", "Resource Setup requerido",
                     "Debes completar Resource Setup antes de iniciar.");
                 return;
+            }
+
+            if (!ValidateStartSelection(area, order)) return;
+
+            // Checklist (Moldeo): SearchControl abre su propio Modal 1 desde Initialize()
+            // (secuencia de 4 modales); el Start se completa en HandleControlSubmit.
+            if (area.RequiresStartChecklist)
+            {
+                OpenStepControl(StepType.Search, area, session, guide, modalId: null);
+                return;
+            }
+
+            // Start directo (spec 008): sin modales, se califica solo por secuencia.
+            var outcome = ProcessSubmit(session, guide, area, step, StepAnswers.Start);
+            if (outcome == StepSubmitOutcome.Incorrect) return;
+            LoadStartedOrderOnPod(session, area);
+            ShowBanner("✓ Start process completed successfully");
+        }
+
+        private const string AllPiecesTitle   = "Selecciona todas las piezas";
+        private const string AllPiecesMessage =
+            "En el simulador se trabajan todas las piezas juntas: selecciona todas las filas.";
+
+        // Aviso de formato, sin intento: Serialized exige todas las piezas de la orden en
+        // Browse Work List (spec 008); NonSerialized, el SFC del lote.
+        private bool ValidateStartSelection(Area area, SimulatedOrder order)
+        {
+            if (area.SerializationType == SerializationType.Serialized)
+            {
+                var result = PieceSelectionRule.Evaluate(StepType.Search,
+                    FindBrowseSelectedRows(order).Count, order.Rows.Count);
+                if (result == PieceSelectionResult.Valid) return true;
+
+                ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
+                return false;
             }
 
             string sfcValue = TxtSFC.Text.Trim();
@@ -486,11 +532,39 @@ namespace TrainingApp.Pages.Training
             if (string.IsNullOrEmpty(sfcValue))
             {
                 ShowSweetAlert("warning", "Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
-                return;
+                return false;
+            }
+            return true;
+        }
+
+        // Start completado (directo, con checklist o forzado): las piezas iniciadas pasan a
+        // Active y el POD las carga. Serialized: las elegidas en Browse Work List (todas si
+        // el Start fue forzado, E9) y quedan seleccionadas, como en el POD real.
+        // NonSerialized: el SFC del lote queda fijo en el header, tomado de la orden (servidor).
+        private void LoadStartedOrderOnPod(TrainingSession session, Area area, bool startAllPieces = false)
+        {
+            ClearRowSelection();
+
+            var order = GetSimulatedOrder(session);
+            if (order != null)
+            {
+                if (area.SerializationType == SerializationType.Serialized)
+                {
+                    var started = startAllPieces ? order.Rows : FindBrowseSelectedRows(order);
+                    foreach (var row in started)
+                        row.Status = SimulatedOrderRow.StatusActive;
+
+                    var active = order.Rows.Where(IsActive).ToList();
+                    HfSelectedRowIds.Value = string.Join(",", active.Select(r => r.RowId));
+                    TxtSFC.Text            = DescribeSelection(active);
+                }
+                else
+                {
+                    TxtSFC.Text = order.SFCCode;
+                }
             }
 
-            // SearchControl abre su propio Modal 1 desde Initialize() (secuencia de 4 modales).
-            OpenStepControl(StepType.Search, area, session, guide, modalId: null);
+            BindWorkList(area, session);
         }
 
         protected void BtnAssemble_ServerClick(object sender, EventArgs e)
@@ -511,7 +585,7 @@ namespace TrainingApp.Pages.Training
             // manipulado aunque la validación JavaScript haya sido omitida.
             if (FindSelectedOrderRow(session) == null)
             {
-                HfSelectedRowId.Value = string.Empty;
+                ClearRowSelection();
                 BindWorkList(area, session);
                 ShowSweetAlert("warning", "Selecciona una fila",
                     "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.");
@@ -529,7 +603,7 @@ namespace TrainingApp.Pages.Training
 
             if (FindSelectedOrderRow(session) == null)
             {
-                HfSelectedRowId.Value = string.Empty;
+                ClearRowSelection();
                 BindWorkList(area, session);
                 ShowSweetAlert("warning", "Selecciona una fila para dividir",
                     "Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.");
@@ -710,6 +784,7 @@ namespace TrainingApp.Pages.Training
                     vm.ExtraData["TrainingSessionId"]    = session.Id;
                     vm.ExtraData["MaterialDescription"]  = BuildMaterialDescription(area);
                     vm.ExtraData["InitialQty"]           = GetInitialQty(area);
+                    vm.ExtraData["SerializationType"]    = area.SerializationType;
                     break;
             }
 
@@ -777,16 +852,19 @@ namespace TrainingApp.Pages.Training
                 Session[Constants.SessionKeys.Code1]?.ToString() ?? "");
         }
 
+        // El POD solo muestra las filas iniciadas (Active). En NonSerialized el lote ya
+        // nace Active; en Serialized cada pieza pasa a Active con el Start (spec 008).
         private void BindWorkList(Area area, TrainingSession session)
         {
-            var rows = BuildPodWorkList(session);
+            var rows = BuildPodWorkList(session, onlyActive: true);
             RptWorkList.DataSource = rows;
             RptWorkList.DataBind();
         }
 
+        // Browse Work List muestra todas las filas de la orden (sin columna Status).
         private void BindBrowseList(Area area, TrainingSession session)
         {
-            var rows = BuildPodWorkList(session);
+            var rows = BuildPodWorkList(session, onlyActive: false);
             RptBrowseList.DataSource = rows;
             RptBrowseList.DataBind();
         }
@@ -799,16 +877,54 @@ namespace TrainingApp.Pages.Training
             return Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] as SimulatedOrder;
         }
 
-        // Spec 005: resuelve la fila del POD que el operador seleccionó (HfSelectedRowId,
-        // llenado en cliente por selectWorkListRow/confirmBrowseSelection). Usada por
-        // SFC Split para el tope de Qty y por el gating de DC Collect en el servidor.
-        private SimulatedOrderRow FindSelectedOrderRow(TrainingSession session)
+        // Filas del POD que el operador seleccionó (HfSelectedRowIds, llenado en cliente por
+        // selectWorkListRow). El cliente puede mandar cualquier cosa: solo cuentan los ids que
+        // existen en la orden y están Active (spec 008).
+        private IList<SimulatedOrderRow> FindSelectedOrderRows(TrainingSession session)
         {
             var order = GetSimulatedOrder(session);
-            if (order == null) return null;
-            string rowId = HfSelectedRowId.Value;
-            if (string.IsNullOrEmpty(rowId)) return null;
-            return order.Rows.FirstOrDefault(r => r.RowId == rowId);
+            if (order == null) return new List<SimulatedOrderRow>();
+            var ids = ParseRowIds(HfSelectedRowIds.Value);
+            return order.Rows.Where(r => IsActive(r) && ids.Contains(r.RowId)).ToList();
+        }
+
+        // Pasos de una sola fila (NonSerialized: DC, SFC Split, Log NC, Complete): la fila
+        // seleccionada solo si hay exactamente una.
+        private SimulatedOrderRow FindSelectedOrderRow(TrainingSession session)
+        {
+            var rows = FindSelectedOrderRows(session);
+            return rows.Count == 1 ? rows[0] : null;
+        }
+
+        // Piezas elegidas en Browse Work List para el Start (HfBrowseRowIds).
+        private IList<SimulatedOrderRow> FindBrowseSelectedRows(SimulatedOrder order)
+        {
+            var ids = ParseRowIds(HfBrowseRowIds.Value);
+            return order.Rows.Where(r => ids.Contains(r.RowId)).ToList();
+        }
+
+        private static HashSet<string> ParseRowIds(string value)
+        {
+            return new HashSet<string>((value ?? string.Empty)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(id => id.Trim()));
+        }
+
+        private static bool IsActive(SimulatedOrderRow row)
+            => (row.Status ?? SimulatedOrderRow.StatusActive) == SimulatedOrderRow.StatusActive;
+
+        private void ClearRowSelection()
+        {
+            HfSelectedRowIds.Value = string.Empty;
+            HfSelectedSFC.Value    = string.Empty;
+        }
+
+        // Texto de TxtSFC para una selección (spec 008): el SFC si es una fila, "[N SELECTED]"
+        // si son varias (igual que el POD real). selectWorkListRow hace lo mismo en el cliente.
+        private static string DescribeSelection(IList<SimulatedOrderRow> rows)
+        {
+            if (rows.Count == 0) return string.Empty;
+            return rows.Count == 1 ? rows[0].SFCCode : "[" + rows.Count + " SELECTED]";
         }
 
         private static bool IsSearchCompleted(TrainingGuide guide, TrainingSession session)
@@ -823,18 +939,18 @@ namespace TrainingApp.Pages.Training
             return order != null && order.Rows.Count > 1;
         }
 
-        private IList<PodWorkListRow> BuildPodWorkList(TrainingSession session)
+        private IList<PodWorkListRow> BuildPodWorkList(TrainingSession session, bool onlyActive)
         {
             var order = GetSimulatedOrder(session);
             if (order == null) return new List<PodWorkListRow>();
 
-            return order.Rows.Select(r => new PodWorkListRow
+            return order.Rows.Where(r => !onlyActive || IsActive(r)).Select(r => new PodWorkListRow
             {
                 RowId               = r.RowId,
-                SFCCode             = order.SFCCode,
+                SFCCode             = r.SFCCode ?? order.SFCCode,
                 MaterialDescription = order.MaterialDescription,
                 Qty                 = r.Qty,
-                Status              = order.Status,
+                Status              = r.Status ?? order.Status,
                 ProcessLot          = order.ProcessLot,
                 ShopOrder           = order.ShopOrderInput,
                 IsSelected          = false,

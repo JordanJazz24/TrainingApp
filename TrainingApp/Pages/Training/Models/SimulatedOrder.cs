@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using TrainingApp.BLL.Training;
+using TrainingApp.Domain;
 
 namespace TrainingApp.Pages.Training.Models
 {
@@ -12,6 +14,8 @@ namespace TrainingApp.Pages.Training.Models
     public class SimulatedOrder
     {
         public string ShopOrderInput       { get; set; }
+
+        // SFC del lote (NonSerialized). En Serialized es null: cada pieza tiene el suyo.
         public string SFCCode              { get; set; }
         public string MaterialDescription  { get; set; }
         public string Status               { get; set; }
@@ -19,22 +23,44 @@ namespace TrainingApp.Pages.Training.Models
 
         public List<SimulatedOrderRow> Rows { get; set; } = new List<SimulatedOrderRow>();
 
-        // Orden recién creada: una sola fila con la cantidad inicial. shopOrderInput ya
-        // viene validado como numérico por quien llama.
-        public static SimulatedOrder Create(string shopOrderInput, string materialDescription, int initialQty)
+        // shopOrderInput ya viene validado como numérico por quien llama.
+        //   NonSerialized: una sola fila con la cantidad inicial, ya Active (el lote).
+        //   Serialized (spec 008): entre 3 y 5 piezas con SFC propio, en New hasta el Start.
+        public static SimulatedOrder Create(string shopOrderInput, string materialDescription,
+            int initialQty, SerializationType serializationType)
         {
-            return new SimulatedOrder
+            var order = new SimulatedOrder
             {
                 ShopOrderInput      = shopOrderInput,
-                SFCCode             = DeriveSFCCode(shopOrderInput),
                 MaterialDescription = materialDescription,
-                Status              = "Active",
-                ProcessLot          = "LOT-" + DateTime.Today.ToString("yyyyMMdd"),
-                Rows = new List<SimulatedOrderRow>
-                {
-                    new SimulatedOrderRow { RowId = Guid.NewGuid().ToString(), Qty = initialQty }
-                }
+                Status              = SimulatedOrderRow.StatusActive,
+                ProcessLot          = "LOT-" + DateTime.Today.ToString("yyyyMMdd")
             };
+
+            if (serializationType == SerializationType.Serialized)
+            {
+                foreach (var sfc in SerialSfcGenerator.Generate(shopOrderInput, new Random()))
+                    order.Rows.Add(new SimulatedOrderRow
+                    {
+                        RowId   = Guid.NewGuid().ToString(),
+                        SFCCode = sfc,
+                        Qty     = 1,
+                        Status  = SimulatedOrderRow.StatusNew
+                    });
+            }
+            else
+            {
+                order.SFCCode = DeriveSFCCode(shopOrderInput);
+                order.Rows.Add(new SimulatedOrderRow
+                {
+                    RowId   = Guid.NewGuid().ToString(),
+                    SFCCode = order.SFCCode,
+                    Qty     = initialQty,
+                    Status  = SimulatedOrderRow.StatusActive
+                });
+            }
+
+            return order;
         }
 
         // Deriva el SFC a partir de los dígitos del Shop Order: pad-izquierda a 8

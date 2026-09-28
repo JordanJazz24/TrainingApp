@@ -42,19 +42,24 @@ ese paso. Cada entrega: build + precompilación de markup → checklist → el u
       completitud todavía no cambia).
 - [x] Script `ALTER` para la BD de desarrollo, entregado aparte (no va al repo).
 - [x] CLAUDE.md → "Catálogos en BD".
-- [ ] **Checklist del usuario:** Moldeo completo sin cambios; la lista de grupos DC se ve igual.
+- [x] **Checklist del usuario:** Moldeo completo sin cambios; la lista de grupos DC se ve
+      igual. Verificado y BD confirmada (commit `9f2bd34`).
 
-### Entrega 2 — Piezas Serialized y Start (AC-1 a AC-5)
-- [ ] BLL: generador de SFCs + regla de selección de filas (con tests).
-- [ ] `SimulatedOrderRow` con `SFCCode` y `Status` (`New`/`Active`); `SimulatedOrder.Create`
+### Entrega 2 — Piezas Serialized y Start (AC-1 a AC-5) — verificada
+- [x] BLL: `SerialSfcGenerator` + `PieceSelectionRule` (con tests).
+- [x] `SimulatedOrderRow` con `SFCCode` y `Status` (`New`/`Active`); `SimulatedOrder.Create`
       genera piezas en Serialized.
-- [ ] Browse Work List multi-selección en Serialized (**sin columna Status**); `TxtSFC`
+- [x] Browse Work List multi-selección en Serialized (**sin columna Status**); `TxtSFC`
       con SFC o `[{N} SELECTED]`; POD solo con piezas `Active`, multi-selección
       (NonSerialized: máx. 1).
-- [ ] Start directo si `RequiresStartChecklist = 0` (todas las piezas o aviso; pasa a
+- [x] Start directo si `RequiresStartChecklist = 0` (todas las piezas o aviso; pasa a
       `Active`; `SubmitStep`); `StepValidator` da Search por correcto sin checklist.
-- [ ] S2: orden por defecto genera piezas (E8); Start forzado activa todas (E9).
-- [ ] Refactor de selección (`HfSelectedRowIds`) + regresión de Moldeo.
+      Tras el Start, las piezas iniciadas quedan seleccionadas en el POD.
+- [x] S2: orden por defecto genera piezas (E8); Start forzado activa todas (E9).
+- [x] Refactor de selección (`HfSelectedRowIds`, `HfBrowseRowIds`).
+- [x] **Checklist del usuario** (incluye regresión de Moldeo). Corrección posterior: Resource
+      Setup forzado usa siempre la Shop Order genérica (E8); pendiente de re-verificar en la
+      Entrega 3.
 
 ### Entrega 3 — Assembly con BOM (AC-11 a AC-14)
 - [ ] BLL: `AssemblyProgress` + `AssembleComponent(...)`; se elimina

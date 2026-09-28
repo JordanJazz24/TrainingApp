@@ -19,8 +19,10 @@ namespace TrainingApp.BLL.Scoring
         // submittedAnswer formats by StepType:
         //   ResourceSetup                   : JSON {"setupState":"...","rows":[...]} — correct only with
         //                                     setupState "Set Up" (rows/Shop Order are format, validated by the control)
-        //   Search                          : JSON from SearchControl — correct only if the LC Moldeo answers
-        //                                     (verif*) and the final verification are all true
+        //   Search                          : áreas con RequiresStartChecklist: JSON de SearchControl — correcto
+        //                                     solo si las respuestas LC Moldeo (verif*) y la verificación
+        //                                     final son true. Sin checklist (Start directo, spec 008):
+        //                                     solo secuencia, cualquier Answer es correcto.
         //   Complete                        : "complete"      (any other value = incorrect, e.g. no row selected — spec 007)
         //   LineClearance                   : "true" | "false"
         //   Assembly                        : integer string  (e.g. "3")
@@ -36,6 +38,9 @@ namespace TrainingApp.BLL.Scoring
                     return ValidateResourceSetup(submittedAnswer);
 
                 case StepType.Search:
+                    // Sin contexto de área se asume el checklist (comportamiento de Moldeo).
+                    if (_ctx.Area != null && !_ctx.Area.RequiresStartChecklist)
+                        return true;
                     return ValidateSearch(submittedAnswer);
 
                 case StepType.Complete:

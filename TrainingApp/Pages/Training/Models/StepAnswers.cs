@@ -5,6 +5,9 @@ namespace TrainingApp.Pages.Training.Models
     {
         public const string Complete = "complete";
 
+        // Start directo (área sin checklist, spec 008): el paso se califica solo por secuencia.
+        public const string Start = "start";
+
         // Acción incorrecta del operador (botón equivocado, sin fila válida). Nunca
         // coincide con un código NC del catálogo ni con "complete": StepValidator lo
         // rechaza y la BLL registra el intento fallido.

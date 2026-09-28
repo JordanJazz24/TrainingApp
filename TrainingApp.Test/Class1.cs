@@ -44,6 +44,86 @@ namespace TrainingApp.Test
     }
 
     [TestFixture]
+    public class StartWithoutChecklistTests
+    {
+        [Test]
+        public void Search_WithoutChecklist_IsGradedBySequenceOnly()
+        {
+            var area = new Area { RequiresStartChecklist = false };
+            var validator = new StepValidator(new StepValidationContext { Area = area });
+            var step = new TrainingStep { StepType = StepType.Search };
+
+            Assert.That(validator.Validate(step, "start"), Is.True);
+        }
+
+        [Test]
+        public void Search_WithChecklist_StillRequiresConfirmations()
+        {
+            var area = new Area { RequiresStartChecklist = true };
+            var validator = new StepValidator(new StepValidationContext { Area = area });
+            var step = new TrainingStep { StepType = StepType.Search };
+
+            Assert.That(validator.Validate(step, "start"), Is.False);
+        }
+    }
+
+    [TestFixture]
+    public class SerialSfcGeneratorTests
+    {
+        [Test]
+        public void Generate_Returns3To5UniquePiecesWithNumericSuffixOf1To6Digits()
+        {
+            for (int seed = 0; seed < 200; seed++)
+            {
+                var sfcs = TrainingApp.BLL.Training.SerialSfcGenerator.Generate("000123", new System.Random(seed));
+
+                Assert.That(sfcs.Count, Is.InRange(3, 5));
+                Assert.That(sfcs, Is.Unique);
+                foreach (var sfc in sfcs)
+                    Assert.That(sfc, Does.Match(@"^000123-\d{1,6}$"));
+            }
+        }
+    }
+
+    [TestFixture]
+    public class PieceSelectionRuleTests
+    {
+        private static TrainingApp.BLL.Training.PieceSelectionResult Eval(StepType step, int selected, int available)
+            => TrainingApp.BLL.Training.PieceSelectionRule.Evaluate(step, selected, available);
+
+        [Test]
+        public void StartAssemblyDcAndComplete_RequireAllPieces()
+        {
+            foreach (var step in new[] { StepType.Search, StepType.Assembly, StepType.DataCollection, StepType.Complete })
+            {
+                Assert.That(Eval(step, 3, 3), Is.EqualTo(TrainingApp.BLL.Training.PieceSelectionResult.Valid));
+                Assert.That(Eval(step, 2, 3), Is.EqualTo(TrainingApp.BLL.Training.PieceSelectionResult.MissingPieces));
+                Assert.That(Eval(step, 0, 3), Is.EqualTo(TrainingApp.BLL.Training.PieceSelectionResult.NothingSelected));
+            }
+        }
+
+        [Test]
+        public void LogNC_NeedsAtLeastOneAndMustLeaveOnePiece()
+        {
+            Assert.That(Eval(StepType.LogNC, 2, 3), Is.EqualTo(TrainingApp.BLL.Training.PieceSelectionResult.Valid));
+            Assert.That(Eval(StepType.LogNC, 3, 3), Is.EqualTo(TrainingApp.BLL.Training.PieceSelectionResult.NoPieceLeft));
+            Assert.That(Eval(StepType.LogNC, 0, 3), Is.EqualTo(TrainingApp.BLL.Training.PieceSelectionResult.NothingSelected));
+        }
+
+        [Test]
+        public void OnlyEmptySelectionInLogNcOrComplete_IsAFailedAttempt()
+        {
+            var none = TrainingApp.BLL.Training.PieceSelectionResult.NothingSelected;
+            var missing = TrainingApp.BLL.Training.PieceSelectionResult.MissingPieces;
+
+            Assert.That(TrainingApp.BLL.Training.PieceSelectionRule.CountsAsFailedAttempt(StepType.LogNC, none), Is.True);
+            Assert.That(TrainingApp.BLL.Training.PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, none), Is.True);
+            Assert.That(TrainingApp.BLL.Training.PieceSelectionRule.CountsAsFailedAttempt(StepType.DataCollection, none), Is.False);
+            Assert.That(TrainingApp.BLL.Training.PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, missing), Is.False);
+        }
+    }
+
+    [TestFixture]
     public class ScoreCalculatorPassingTests
     {
         [Test]

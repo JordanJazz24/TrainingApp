@@ -303,8 +303,11 @@
     </div>
 
     <asp:HiddenField ID="HfSelectedSFC" runat="server" />
-    <%-- Spec 005: distingue filas hermanas con el mismo SFC tras un SFC Split. --%>
-    <asp:HiddenField ID="HfSelectedRowId" runat="server" />
+    <%-- Filas seleccionadas en el POD, ids separados por coma (spec 008). El RowId distingue
+         filas hermanas con el mismo SFC tras un SFC Split (spec 005). --%>
+    <asp:HiddenField ID="HfSelectedRowIds" runat="server" />
+    <%-- Piezas elegidas en Browse Work List para el Start (spec 008). --%>
+    <asp:HiddenField ID="HfBrowseRowIds" runat="server" />
     <%-- Host for modal-overlay UserControls (ResourceSetup, LineClearance, Search,  --%>
     <%-- SFC Split). No positioning — modal HTML renders here then showModalSafe     --%>
     <%-- moves it to document.forms[0] for proper Bootstrap stacking.                --%>
@@ -328,45 +331,65 @@
     }
 
     // ── Work list row selection ──────────────────────────────────────
-    // Una sola fila seleccionada; click sobre la seleccionada la deselecciona.
-    function selectWorkListRow(row) {
-        var hf    = document.getElementById('<%= HfSelectedSFC.ClientID %>');
-        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+    // Serialized (spec 008): cada click alterna la fila y TxtSFC muestra el SFC o
+    // "[N SELECTED]". NonSerialized: una sola fila; click sobre la seleccionada la deselecciona.
+    var podMultiSelect = <%= PodMultiSelect ? "true" : "false" %>;
 
-        if (row.classList.contains('selected')) {
-            row.classList.remove('selected');
-            if (hf) hf.value = '';
-            if (hfRow) hfRow.value = '';
-            return;
-        }
-
-        document.querySelectorAll('.pod-work-list tbody tr')
-            .forEach(r => r.classList.remove('selected'));
-        row.classList.add('selected');
-        if (hf) hf.value = row.getAttribute('data-sfc');
-        if (hfRow) hfRow.value = row.getAttribute('data-row-id');
+    function describeSelection(sfcs) {
+        if (sfcs.length === 0) return '';
+        return sfcs.length === 1 ? sfcs[0] : '[' + sfcs.length + ' SELECTED]';
     }
 
-    // El HTML del POD que vuelve de un postback no sabe qué fila estaba seleccionada:
-    // se reaplica desde HfSelectedRowId. Si la fila ya no existe, se limpia la selección.
+    function syncWorkListSelection() {
+        var rows  = document.querySelectorAll('.pod-work-list tbody tr.selected');
+        var ids   = Array.prototype.map.call(rows, r => r.getAttribute('data-row-id'));
+        var sfcs  = Array.prototype.map.call(rows, r => r.getAttribute('data-sfc'));
+        var hf    = document.getElementById('<%= HfSelectedSFC.ClientID %>');
+        var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
+        if (hfRow) hfRow.value = ids.join(',');
+        if (hf) hf.value = sfcs.length === 1 ? sfcs[0] : '';
+        if (podMultiSelect) {
+            var txt = document.getElementById('<%= TxtSFC.ClientID %>');
+            if (txt) txt.value = describeSelection(sfcs);
+        }
+    }
+
+    function selectWorkListRow(row) {
+        if (podMultiSelect) {
+            row.classList.toggle('selected');
+        } else if (row.classList.contains('selected')) {
+            row.classList.remove('selected');
+        } else {
+            document.querySelectorAll('.pod-work-list tbody tr')
+                .forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+        }
+        syncWorkListSelection();
+    }
+
+    // El HTML del POD que vuelve de un postback no sabe qué filas estaban seleccionadas:
+    // se reaplican desde HfSelectedRowIds. Las que ya no existen salen de la selección.
     // Si el POD no está en pantalla (lo reemplaza DC o NC Selection) no se toca nada:
-    // el servidor todavía necesita la fila seleccionada (ej. para el scrap de Log NC).
+    // el servidor todavía necesita la selección (ej. para el scrap de Log NC).
     function restoreWorkListSelection() {
-        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) return;
         if (!document.querySelector('.pod-work-list')) return;
 
-        var found = false;
+        var ids = hfRow.value.split(',');
+        var found = [];
         document.querySelectorAll('.pod-work-list tbody tr').forEach(function (r) {
-            var match = r.getAttribute('data-row-id') === hfRow.value;
+            var match = ids.indexOf(r.getAttribute('data-row-id')) >= 0;
             r.classList.toggle('selected', match);
-            found = found || match;
+            if (match) found.push(r.getAttribute('data-row-id'));
         });
 
-        if (!found) {
-            hfRow.value = '';
-            var hf = document.getElementById('<%= HfSelectedSFC.ClientID %>');
-            if (hf) hf.value = '';
+        if (found.length !== ids.length) {
+            hfRow.value = found.join(',');
+            if (found.length !== 1) {
+                var hf = document.getElementById('<%= HfSelectedSFC.ClientID %>');
+                if (hf) hf.value = '';
+            }
         }
     }
     document.addEventListener('DOMContentLoaded', restoreWorkListSelection);
@@ -374,7 +397,7 @@
     // Spec 005: DC Collect no puede iniciar sin una fila del POD seleccionada
     // (gating 100% cliente — sin postback si no hay selección).
     function podValidateDCCollect() {
-        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) {
             Swal.fire({ icon: 'warning', title: 'Selecciona una fila',
                 text: 'Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.' });
@@ -385,7 +408,7 @@
 
     // SFC Split requiere una selección explícita en cada división.
     function podValidateSFCSplit() {
-        var hfRow = document.getElementById('<%= HfSelectedRowId.ClientID %>');
+        var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) {
             Swal.fire({ icon: 'warning', title: 'Selecciona una fila para dividir',
                 text: 'Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.' });
@@ -395,22 +418,32 @@
     }
 
     // ── Browse Work List selection ───────────────────────────────────
-    var _selectedBrowseSFC = null;
+    // Serialized (spec 008): cada click alterna la pieza. NonSerialized: una sola fila.
     function selectBrowseRow(row) {
+        if (podMultiSelect) {
+            row.classList.toggle('table-primary');
+            return;
+        }
         document.querySelectorAll('#browseWorkListBody tr')
             .forEach(r => r.classList.remove('table-primary'));
         row.classList.add('table-primary');
-        _selectedBrowseSFC = row.getAttribute('data-sfc');
     }
 
+    // Browse elige las piezas (o el SFC del lote) para Search/Start, no filas del POD:
+    // HfSelectedRowIds solo se llena con selectWorkListRow().
     function confirmBrowseSelection() {
-        if (!_selectedBrowseSFC) return;
-        var txt = document.getElementById('<%= TxtSFC.ClientID %>');
-        if (txt) txt.value = _selectedBrowseSFC;
-        var hf  = document.getElementById('<%= HfSelectedSFC.ClientID %>');
-        if (hf) hf.value = _selectedBrowseSFC;
-        // Browse selecciona el SFC para Search/Start, no una fila del POD.
-        // HfSelectedRowId solo se llena con selectWorkListRow().
+        var rows = document.querySelectorAll('#browseWorkListBody tr.table-primary');
+        if (rows.length === 0 && !podMultiSelect) return;
+
+        var ids  = Array.prototype.map.call(rows, r => r.getAttribute('data-row-id'));
+        var sfcs = Array.prototype.map.call(rows, r => r.getAttribute('data-sfc'));
+        var txt  = document.getElementById('<%= TxtSFC.ClientID %>');
+        if (txt) txt.value = describeSelection(sfcs);
+        var hf   = document.getElementById('<%= HfSelectedSFC.ClientID %>');
+        if (hf) hf.value = sfcs.length === 1 ? sfcs[0] : '';
+        var hfBrowse = document.getElementById('<%= HfBrowseRowIds.ClientID %>');
+        if (hfBrowse) hfBrowse.value = ids.join(',');
+
         bootstrap.Modal.getInstance(
             document.getElementById('modalBrowseWorkList')).hide();
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using System.Web.UI;
+using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
 using TrainingApp.Shared;
 
@@ -149,8 +150,12 @@ namespace TrainingApp.UI.Controls.Training
                 ? ViewModel.ExtraData["MaterialDescription"]?.ToString() : "";
             int initialQty = ViewModel.ExtraData.ContainsKey("InitialQty")
                 ? Convert.ToInt32(ViewModel.ExtraData["InitialQty"]) : 250;
+            var serializationType = ViewModel.ExtraData.ContainsKey("SerializationType")
+                ? (SerializationType)ViewModel.ExtraData["SerializationType"]
+                : SerializationType.NonSerialized;
 
-            var order = SimulatedOrder.Create(shopOrderInput, materialDescription, initialQty);
+            // Serialized: genera las piezas (3-5 SFCs, en New hasta el Start — spec 008).
+            var order = SimulatedOrder.Create(shopOrderInput, materialDescription, initialQty, serializationType);
 
             // Reemplaza cualquier orden previa de esta TrainingSession.
             Page.Session[Constants.SessionKeys.SimulatedOrderPrefix + sessionId] = order;
