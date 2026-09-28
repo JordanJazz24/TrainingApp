@@ -316,6 +316,7 @@
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\PieceSelectionRule.cs" />
+    <Compile Include="BLL\Training\AssemblyProgress.cs" />
     <Compile Include="BLL\Training\TrainingGuideService.cs" />
     <Compile Include="BLL\Training\TrainingSessionService.cs" />
     <Compile Include="Pages\Auth\Login.aspx.cs">

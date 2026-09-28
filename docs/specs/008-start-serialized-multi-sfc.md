@@ -123,10 +123,18 @@ Sin resolver esto no se puede cargar LoFlo (bloqueantes #1, #2 y #4 de la Fase 7
       a 0. Con Rem Qty = 0, el botón Assemble de esa fila queda deshabilitado.
     - **Disassemble**: visible y **deshabilitado** siempre (el simulador no entrena el
       desensamble).
-    - **Component Details** del modal: salen del catálogo (Component = PartNumber,
-      Version = Revision, Description, Quantity). El Batch Number se deriva del barcode.
-    - El modal muestra la casilla **"Apply to all SFCs" marcada y deshabilitada**: cada
-      escaneo se aplica a todas las piezas seleccionadas a la vez.
+    - **Estructura del modal** (réplica de las capturas reales, corrección del usuario
+      2026-09-28): franja superior con **Mode** como texto ("Choose") y **Action** como
+      información no accionable (Assembly marcado, Removal gris), más los inputs Find
+      component y Barcode. **Component Details**, **Assembly Data** y el botón **Add**
+      aparecen recién al escanear (Enter o salir del campo); antes solo está Return to POD.
+    - **Component Details**: inputs de solo lectura con datos del catálogo (Component =
+      PartNumber, Version = Revision, Quantity) y Description como texto. **Batch
+      Number** (★): el lote al que pertenecen las piezas, es decir el **Process Lot** de la
+      orden (columna Process Lot del POD), no el barcode (corrección del usuario 2026-09-28).
+    - La casilla **"Apply to all SFCs" marcada y deshabilitada** aparece cuando el
+      escaneo cubre más de una pieza (en Serialized, siempre): cada escaneo se aplica a
+      todas las piezas seleccionadas a la vez.
     - El paso se completa cuando **todos los componentes** del catálogo quedan con
       Rem Qty = 0.
     - Barcode vacío o no numérico: aviso de formato, sin intento. El barcode **no** se

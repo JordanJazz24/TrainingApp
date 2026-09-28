@@ -1,99 +1,120 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.UI;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
 
 namespace TrainingApp.UI.Controls.Training
 {
-    public partial class AssemblyControl : UserControl, TrainingApp.Pages.Training.Models.IStepControl
+    // Assembly (spec 008): la Component List es el BOM de la operación. Cada componente se
+    // ensambla con un escaneo que cubre toda su Qty y se aplica a todas las piezas
+    // seleccionadas. El paso lo completa la BLL cuando todo el BOM quedó ensamblado.
+    public partial class AssemblyControl : UserControl, IStepControl
     {
         public StepViewModel ViewModel { get; set; }
 
-        public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
+        // Parte del contrato IStepControl; Assembly nunca envía un Answer único (ver
+        // OnComponentAssembled), así que el evento no guarda suscriptores.
+        public event EventHandler<StepSubmitEventArgs> OnStepSubmit { add { } remove { } }
+
+        // El operador escaneó el material de un componente y presionó Add.
+        public event EventHandler<ComponentAssembledEventArgs> OnComponentAssembled;
+
+        // El operador sale al POD sin terminar: el host cierra el control (el avance se conserva).
+        public event EventHandler OnReturnToPod;
 
         public void Initialize()
         {
-            TxtBarcode.Text             = string.Empty;
-            HfBarcodeData.Value         = string.Empty;
-            HfScannedCount.Value        = "0";
-            PnlComponentDetails.Visible = false;
-            PnlComponentEmpty.Visible   = true;
-            PnlAssemblyData.Visible     = false;
-            PnlAssemblyEmpty.Visible    = true;
+            TxtBarcode.Text     = string.Empty;
+            HfComponentId.Value = string.Empty;
 
             if (ViewModel == null) return;
-            int expected = GetExpectedCount();
-            HfExpectedCount.Value = expected.ToString();
-            HfScannedCount.Value  = "0";
-            var components = BuildComponentList(expected);
-            RptComponents.DataSource = components;
+
+            // "Apply to all SFCs" solo aparece cuando el escaneo cubre varias piezas.
+            int selectedPieces = ViewModel.ExtraData.ContainsKey("SelectedPieceCount")
+                ? Convert.ToInt32(ViewModel.ExtraData["SelectedPieceCount"]) : 1;
+            PnlApplyAll.Visible = selectedPieces > 1;
+
+            // Batch Number del modal = lote de las piezas (columna Process Lot del POD).
+            HfProcessLot.Value = ViewModel.ExtraData.ContainsKey("ProcessLot")
+                ? ViewModel.ExtraData["ProcessLot"]?.ToString() ?? string.Empty
+                : string.Empty;
+
+            BindComponents();
+        }
+
+        // Vuelve a pintar la Component List con el avance actual (Rem Qty y Assemble habilitado).
+        public void BindComponents()
+        {
+            var assembled = GetAssembledIds();
+            var rows = GetComponents().Select(c => new
+            {
+                c.Id,
+                c.PartNumber,
+                c.Revision,
+                c.Description,
+                Code        = c.PartNumber + "/" + c.Revision,
+                Qty         = FormatQty(c.Qty),
+                RemQty      = assembled.Contains(c.Id) ? "0" : FormatQty(c.Qty),
+                IsAssembled = assembled.Contains(c.Id)
+            }).ToList();
+
+            RptComponents.DataSource = rows;
             RptComponents.DataBind();
-            LitTotal.Text   = components.Count.ToString();
-            LitTotalOf.Text = components.Count.ToString();
+            LitTotal.Text   = rows.Count.ToString();
+            LitTotalOf.Text = rows.Count.ToString();
         }
 
         protected void BtnAdd_Click(object sender, EventArgs e)
         {
-            int scanned  = int.Parse(HfScannedCount.Value) + 1;
-            int expected = int.Parse(HfExpectedCount.Value);
+            // ASP.NET dispara el click aunque el control ya esté cerrado (spec 006, E12).
+            if (!Visible) return;
 
-            string barcode = HfBarcodeData.Value;
+            int componentId;
+            if (!int.TryParse(HfComponentId.Value, out componentId)) return;
 
-            // Populate component details for display
-            LitComponentCode.Text    = "COMP-" + barcode.Substring(0, Math.Min(6, barcode.Length)).ToUpper();
-            LitComponentVersion.Text = "A";
-            LitComponentDesc.Text    = "Simulated Component";
-            LitComponentQty.Text     = "1";
-            LitBatchNumber.Text      = "LOT-" + barcode.Substring(0, Math.Min(4, barcode.Length)).ToUpper();
-            PnlComponentDetails.Visible = true;
-            PnlComponentEmpty.Visible   = false;
-            PnlAssemblyData.Visible     = true;
-            PnlAssemblyEmpty.Visible    = false;
-
-            HfScannedCount.Value = scanned.ToString();
-            TxtBarcode.Text      = string.Empty;
-
-            if (scanned >= expected)
+            // Formato (sin intento): el cliente ya lo valida en assembleValidate().
+            string barcode = TxtBarcode.Text.Trim();
+            if (!Regex.IsMatch(barcode, @"^\d+$"))
             {
-                OnStepSubmit?.Invoke(this,
-                    new StepSubmitEventArgs { Answer = "{\"scannedCount\":" + scanned + "}" });
-            }
-            else
-            {
-                // More components to scan — keep modal open
-                Page.ClientScript.RegisterStartupScript(GetType(), "reopenAssemble",
+                TxtBarcode.Text = string.Empty;
+                Page.ClientScript.RegisterStartupScript(GetType(), "swalAsm",
+                    "Swal.fire({icon:'warning',title:'Barcode inválido'," +
+                    "text:'Escanea un barcode numérico antes de presionar Add.'});" +
                     "showModalSafe('modalAssemble');", true);
+                return;
             }
+
+            TxtBarcode.Text = string.Empty;
+            OnComponentAssembled?.Invoke(this,
+                new ComponentAssembledEventArgs { ComponentId = componentId, Barcode = barcode });
         }
 
         protected void BtnReturnPOD_Click(object sender, EventArgs e)
         {
-            // User cancelled — do nothing, code-behind hides control
+            OnReturnToPod?.Invoke(this, EventArgs.Empty);
         }
 
-        private int GetExpectedCount()
+        // Qty sin ceros de relleno: 1 → "1", 0.0001 → "0.0001" (spec 008).
+        private static string FormatQty(decimal qty)
+            => qty.ToString("0.######", CultureInfo.InvariantCulture);
+
+        private IList<AssemblyComponent> GetComponents()
         {
-            if (ViewModel?.ExtraData?.ContainsKey("ExpectedCount") == true)
-                return Convert.ToInt32(ViewModel.ExtraData["ExpectedCount"]);
-            return 1;
+            if (ViewModel?.ExtraData?.ContainsKey("Components") == true)
+                return ViewModel.ExtraData["Components"] as IList<AssemblyComponent>
+                    ?? new List<AssemblyComponent>();
+            return new List<AssemblyComponent>();
         }
 
-        private static IList<object> BuildComponentList(int count)
+        private ICollection<int> GetAssembledIds()
         {
-            var list = new List<object>();
-            for (int i = 1; i <= count; i++)
-            {
-                list.Add(new
-                {
-                    Code        = "COMP-" + i.ToString("D3"),
-                    Description = "Component " + i,
-                    Qty         = 1,
-                    RemQty      = 1
-                });
-            }
-            return list;
+            if (ViewModel?.ExtraData?.ContainsKey("AssembledIds") == true)
+                return ViewModel.ExtraData["AssembledIds"] as ICollection<int> ?? new HashSet<int>();
+            return new HashSet<int>();
         }
     }
 }

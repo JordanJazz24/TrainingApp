@@ -28,6 +28,13 @@ namespace TrainingApp.Pages.Training.Models
         public string IncorrectFeedback { get; set; }
     }
 
+    // Assembly (spec 008): el operador escaneó el material de un componente del BOM.
+    public class ComponentAssembledEventArgs : System.EventArgs
+    {
+        public int ComponentId { get; set; }
+        public string Barcode { get; set; }
+    }
+
     public class SFCSplitRequestedEventArgs : System.EventArgs
     {
         public string RowId { get; set; }

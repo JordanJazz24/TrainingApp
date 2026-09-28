@@ -61,14 +61,18 @@ ese paso. Cada entrega: build + precompilación de markup → checklist → el u
       Setup forzado usa siempre la Shop Order genérica (E8); pendiente de re-verificar en la
       Entrega 3.
 
-### Entrega 3 — Assembly con BOM (AC-11 a AC-14)
-- [ ] BLL: `AssemblyProgress` + `AssembleComponent(...)`; se elimina
+### Entrega 3 — Assembly con BOM (AC-11 a AC-14) — verificada
+- [x] BLL: `AssemblyProgress` + `AssembleComponent(...)` (con tests); se elimina
       `ExpectedComponentCount`.
-- [ ] `AssemblyControl`: Component List del catálogo, modal client-side con datos del
+- [x] `AssemblyControl`: Component List del catálogo, modal client-side con datos del
       componente y "Apply to all SFCs" fija, Add con barcode numérico →
       `OnComponentAssembled`, X / Return to POD → `OnReturnToPod`.
-- [ ] `GuidedTest`: sin `ExpectedCount = 3`, todas las filas, avance en Session.
-- [ ] CLAUDE.md: descripción del paso Assembly.
+- [x] `GuidedTest`: sin `ExpectedCount = 3`, todas las filas, avance en Session;
+      `ContinueAfterStepResolved` común a controles y Assembly.
+- [x] CLAUDE.md: descripción del paso Assembly.
+- [x] **Checklist del usuario** (incluye re-verificar E8 de la Entrega 2 y regresión de
+      Moldeo). Correcciones de UI: modal replicado de las capturas reales (Mode/Action
+      informativos, detalles al escanear) y Batch Number = Process Lot de la orden.
 
 ### Entrega 4 — DC multi-pieza con grupos obligatorios (AC-6 a AC-10)
 - [ ] BLL: regla de completitud (tests), `DataCollectionProgress`,

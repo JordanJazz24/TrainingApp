@@ -195,6 +195,15 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            ContinueAfterStepResolved(session, guide, area, step, outcome);
+        }
+
+        // Paso resuelto (Correct, FailedForced o sesión completada) desde un control: cierra el
+        // control, habilita el botón del paso siguiente y aplica lo propio de cada paso. Lo
+        // usan el submit de los controles y el ensamble del último componente (spec 008).
+        private void ContinueAfterStepResolved(TrainingSession session, TrainingGuide guide,
+            Area area, TrainingStep step, StepSubmitOutcome outcome)
+        {
             var refreshedSession = _sessionService.GetById(session.Id);
 
             // Sesión completada: ShowCompletionPanel ya cerró todos los controles.
@@ -238,10 +247,57 @@ namespace TrainingApp.Pages.Training
                 LoadStartedOrderOnPod(session, area);
                 ShowBanner("✓ Start process completed successfully");
             }
+            else if (step.StepType == StepType.Assembly)
+            {
+                // La Component List reemplazaba el POD: se vuelve a pintar con la selección.
+                BindWorkList(area, session);
+                ShowBanner("✓ Assembly completed successfully");
+            }
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("✓ SFC Split completed successfully");
             else if (step.StepType == StepType.LogNC)
                 ScrapSelectedRow(area, session);
+        }
+
+        // Assembly (spec 008): el operador ensambló un componente del BOM. Mientras falten
+        // componentes la Component List se actualiza; con el último, el paso se resuelve.
+        protected void HandleComponentAssembled(object sender, ComponentAssembledEventArgs e)
+        {
+            var (session, guide, area, step) = GetContext();
+            if (session == null) return;
+
+            // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
+            if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
+
+            var result = _sessionService.AssembleComponent(session.Id, e.ComponentId, GetAssemblyProgress(session));
+            if (result.StepResult == null)
+            {
+                CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
+                CtrlAssembly.BindComponents();
+                return;
+            }
+
+            ClearAssemblyProgress(session);
+            ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
+            ContinueAfterStepResolved(session, guide, area, step, result.StepResult.Outcome);
+        }
+
+        // Avance de Assembly en Session (servidor): sobrevive a Return to POD y a F5.
+        private AssemblyProgress GetAssemblyProgress(TrainingSession session)
+        {
+            string key = Constants.SessionKeys.AssemblyProgressPrefix + session.Id;
+            var progress = Session[key] as AssemblyProgress;
+            if (progress == null)
+            {
+                progress = new AssemblyProgress();
+                Session[key] = progress;
+            }
+            return progress;
+        }
+
+        private void ClearAssemblyProgress(TrainingSession session)
+        {
+            Session.Remove(Constants.SessionKeys.AssemblyProgressPrefix + session.Id);
         }
 
         // Spec 007: el scrap elimina la fila de la orden simulada, tanto en Correct como en
@@ -406,6 +462,11 @@ namespace TrainingApp.Pages.Training
             {
                 // E9 (spec 008): Start forzado inicia todas las piezas.
                 LoadStartedOrderOnPod(session, area, startAllPieces: true);
+            }
+            else if (forcedStep == StepType.Assembly)
+            {
+                // El paso quedó fallido: el avance parcial ya no se usa.
+                ClearAssemblyProgress(session);
             }
         }
 
@@ -572,7 +633,33 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
             if (HandleOutOfSequence(StepType.Assembly, session, guide, area, step)) return;
-            OpenStepControl(StepType.Assembly, area, session, guide, "modalAssemble");
+            if (!ValidatePodSelection(StepType.Assembly, session, area)) return;
+
+            // Abre la Component List; el modal Assemble se abre desde cada componente.
+            OpenStepControl(StepType.Assembly, area, session, guide, modalId: null);
+        }
+
+        // Aviso de formato, sin intento. Serialized: el paso exige todas las filas del POD
+        // (spec 008, punto 6). NonSerialized: una fila seleccionada.
+        private bool ValidatePodSelection(StepType stepType, TrainingSession session, Area area)
+        {
+            if (area.SerializationType == SerializationType.Serialized)
+            {
+                int active = GetSimulatedOrder(session)?.Rows.Count(IsActive) ?? 0;
+                var result = PieceSelectionRule.Evaluate(stepType, FindSelectedOrderRows(session).Count, active);
+                if (result == PieceSelectionResult.Valid) return true;
+
+                ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
+                return false;
+            }
+
+            if (FindSelectedOrderRow(session) != null) return true;
+
+            ClearRowSelection();
+            BindWorkList(area, session);
+            ShowSweetAlert("warning", "Selecciona una fila",
+                "Debes seleccionar una fila de la orden en la tabla antes de continuar.");
+            return false;
         }
 
         protected void BtnDCCollection_ServerClick(object sender, EventArgs e)
@@ -676,6 +763,7 @@ namespace TrainingApp.Pages.Training
             // (a diferencia de completar la guía normalmente, donde sí queda huérfana
             // por diseño, ver Deferred Decisions del spec 005).
             Session.Remove(Constants.SessionKeys.SimulatedOrderPrefix + session.Id);
+            ClearAssemblyProgress(session);
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
@@ -769,8 +857,11 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepType.Assembly:
-                    // Moldeo has RequiresAssembly=false; this block runs for areas with assembly
-                    vm.ExtraData["ExpectedCount"] = 3;
+                    // BOM del área y componentes ya ensamblados (spec 008).
+                    vm.ExtraData["Components"]         = _guideService.GetAssemblyComponents(area.Id);
+                    vm.ExtraData["AssembledIds"]       = GetAssemblyProgress(session).AssembledComponentIds;
+                    vm.ExtraData["SelectedPieceCount"] = FindSelectedOrderRows(session).Count;
+                    vm.ExtraData["ProcessLot"]         = GetSimulatedOrder(session)?.ProcessLot;
                     break;
 
                 case StepType.Search:
@@ -1098,7 +1189,7 @@ namespace TrainingApp.Pages.Training
                 case StepType.DataCollection: return "Fill all required parameters and press Save (not Draft).";
                 case StepType.SFC_Split:      return "Select a POD row, split a valid quantity, then press Close.";
                 case StepType.LogNC:          return "Select an NC code and enter the Component, then Add-Done.";
-                case StepType.Assembly:       return "Scan all required component barcodes and press Add for each.";
+                case StepType.Assembly:       return "Assemble every component in the Component List: scan its barcode and press Add.";
                 case StepType.Complete:       return "Press Complete to close the manufacturing order.";
                 default:                      return string.Empty;
             }

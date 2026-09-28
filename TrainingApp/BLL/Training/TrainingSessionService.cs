@@ -92,6 +92,30 @@ namespace TrainingApp.BLL.Training
             return RecordAttempt(session, guide, step, isCorrect: false);
         }
 
+        // Assembly (spec 008): ensambla un componente del BOM para todas las piezas
+        // seleccionadas. El paso se completa (intento correcto) cuando todo el BOM quedó
+        // ensamblado. No tiene camino incorrecto: se califica solo por secuencia (S2).
+        public AssemblySubmitResult AssembleComponent(int sessionId, int componentId, AssemblyProgress progress)
+        {
+            var result  = new AssemblySubmitResult();
+            var session = _sessionRepo.GetById(sessionId);
+            if (session.Status != SessionStatus.InProgress) return result;
+
+            var guide = _guideService.GetById(session.TrainingGuideId);
+            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            if (step.StepType != StepType.Assembly) return result;
+
+            var bom = _guideService.GetAssemblyComponents(guide.AreaId);
+            if (!bom.Any(c => c.Id == componentId)) return result;
+
+            progress.AssembledComponentIds.Add(componentId);
+            result.ComponentAssembled = true;
+
+            if (progress.Covers(bom))
+                result.StepResult = RecordAttempt(session, guide, step, isCorrect: true);
+            return result;
+        }
+
         private StepSubmitResult RecordAttempt(TrainingSession session, TrainingGuide guide,
             TrainingStep step, bool isCorrect)
         {

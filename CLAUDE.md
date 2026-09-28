@@ -128,10 +128,14 @@ Apertura:
                         Qty=500). El operador escanea/selecciona ese SFC una vez
                         y ejecuta Start. El POD carga ese único SFC con su
                         cantidad.
-  4. Assembly            — condicional a RequiresAssembly. Proceso genérico:
-                            escanear y registrar N componentes (N = dato de
-                            catálogo por Area). No valida contenido del
-                            escaneo, solo que se complete el conteo esperado.
+  4. Assembly            — condicional a RequiresAssembly. La Component List es el
+                            BOM de la operación (AssemblyComponents, simulado por
+                            ahora). Cada componente se ensambla con un escaneo
+                            numérico que cubre toda su Qty y se aplica a todas las
+                            piezas seleccionadas ("Apply to all SFCs"). El paso se
+                            completa con todo el BOM ensamblado. No valida el
+                            barcode contra el número de parte; se califica solo por
+                            secuencia (spec 008).
   5. Data Collection     — condicional a RequiresDataCollection. Parámetros
                             de catálogo por Area (ej. "posición del detector").
 

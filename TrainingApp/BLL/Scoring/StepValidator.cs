@@ -25,7 +25,9 @@ namespace TrainingApp.BLL.Scoring
         //                                     solo secuencia, cualquier Answer es correcto.
         //   Complete                        : "complete"      (any other value = incorrect, e.g. no row selected — spec 007)
         //   LineClearance                   : "true" | "false"
-        //   Assembly                        : integer string  (e.g. "3")
+        //   Assembly                        : no se valida por Answer: el paso se completa en
+        //                                     TrainingSessionService.AssembleComponent al quedar
+        //                                     ensamblado todo el BOM (spec 008)
         //   DataCollection                  : JSON {"<paramId>":"<value>", ...}
         //   SFC_Split                       : "split-completed"
         //   LogNC                           : NC code string  (e.g. "F_FS_MANCHAS"); a value outside the
@@ -50,7 +52,7 @@ namespace TrainingApp.BLL.Scoring
                     return submittedAnswer == "true";
 
                 case StepType.Assembly:
-                    return ValidateAssembly(submittedAnswer);
+                    return false;
 
                 case StepType.DataCollection:
                     return ValidateDataCollection(submittedAnswer);
@@ -103,19 +105,6 @@ namespace TrainingApp.BLL.Scoring
             {
                 return null;
             }
-        }
-
-        private bool ValidateAssembly(string submittedAnswer)
-        {
-            if (_ctx.ExpectedComponentCount == null)
-                throw new InvalidOperationException(
-                    "ExpectedComponentCount is required to validate an Assembly step.");
-
-            int submitted;
-            if (!int.TryParse(submittedAnswer, out submitted))
-                return false;
-
-            return submitted == _ctx.ExpectedComponentCount.Value;
         }
 
         private bool ValidateDataCollection(string submittedAnswer)

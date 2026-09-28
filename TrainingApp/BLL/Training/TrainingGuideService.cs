@@ -68,15 +68,13 @@ namespace TrainingApp.BLL.Training
             var ncCodes   = _ncCodeRepo.GetByArea(guide.AreaId);
             var dcParams  = _dcParamRepo.GetByArea(guide.AreaId);
 
-            // ExpectedComponentCount: not yet in DB schema (pending when Assembly areas are added).
-            // For Moldeo (RequiresAssembly=false) the Assembly step is absent from the guide,
-            // so this code path is never hit.
+            // Assembly no pasa por el validador: su avance lo resuelve
+            // TrainingSessionService.AssembleComponent contra el BOM (spec 008).
             var context = new StepValidationContext
             {
-                Area                   = area,
-                ValidNCCodes           = ncCodes,
-                DataCollectionParams   = dcParams,
-                ExpectedComponentCount = null
+                Area                 = area,
+                ValidNCCodes         = ncCodes,
+                DataCollectionParams = dcParams
             };
 
             return new StepValidator(context);

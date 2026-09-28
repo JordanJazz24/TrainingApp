@@ -355,3 +355,60 @@ html, body {
     font-size: 0.82rem;
     margin-bottom: 8px;
 }
+
+/* ── Assemble Components modal (spec 008) ──────────────────
+   Réplica del modal real: franja superior con Mode/Action informativos y
+   Find component/Barcode; Component Details y Assembly Data aparecen al escanear. */
+.asm-subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 2px solid #1f5f9e;
+}
+.asm-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #6c8ebf;
+    color: #fff;
+    font-size: 0.7rem;
+}
+.asm-top {
+    background: #f4f5f6;
+    border-bottom: 1px solid #d6d9dc;
+    padding: 14px 16px 4px;
+}
+.asm-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+}
+.asm-label {
+    min-width: 120px;
+    margin: 0;
+    color: #5f6b76;
+    text-align: right;
+}
+.asm-field .form-control { max-width: 240px; height: 28px; font-size: 0.8rem; }
+.asm-field .asm-input-sm { max-width: 90px; }
+.asm-field .form-control[readonly] { background: #f8f9fa; }
+.asm-static { color: #9aa3ab; }
+.asm-static input { margin-right: 3px; }
+.asm-component { max-width: 240px; }
+.asm-component .input-group-text { font-size: 0.75rem; background: #f8f9fa; }
+.asm-empty { min-height: 220px; }
+.asm-details { display: flex; min-height: 220px; }
+.asm-col { flex: 1; padding: 14px 16px; }
+.asm-col + .asm-col { border-left: 1px solid #d6d9dc; }
+.asm-col h6 { font-size: 0.8rem; font-weight: 700; margin-bottom: 14px; }
+.asm-footer { justify-content: center; }
+.asm-btn { background: #f4f5f6; border: 1px solid #c4c9ce; font-size: 0.8rem; }
+.asm-btn:hover { background: #e2e6ea; }

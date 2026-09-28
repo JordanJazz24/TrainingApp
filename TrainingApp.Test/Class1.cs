@@ -124,6 +124,30 @@ namespace TrainingApp.Test
     }
 
     [TestFixture]
+    public class AssemblyProgressTests
+    {
+        [Test]
+        public void Covers_OnlyWhenEveryBomComponentIsAssembled()
+        {
+            var bom = new[] { new AssemblyComponent { Id = 1 }, new AssemblyComponent { Id = 2 } };
+            var progress = new TrainingApp.BLL.Training.AssemblyProgress();
+
+            Assert.That(progress.Covers(bom), Is.False);
+            progress.AssembledComponentIds.Add(1);
+            Assert.That(progress.Covers(bom), Is.False);
+            progress.AssembledComponentIds.Add(2);
+            Assert.That(progress.Covers(bom), Is.True);
+        }
+
+        [Test]
+        public void Covers_EmptyBomNeverCompletes()
+        {
+            var progress = new TrainingApp.BLL.Training.AssemblyProgress();
+            Assert.That(progress.Covers(new AssemblyComponent[0]), Is.False);
+        }
+    }
+
+    [TestFixture]
     public class ScoreCalculatorPassingTests
     {
         [Test]

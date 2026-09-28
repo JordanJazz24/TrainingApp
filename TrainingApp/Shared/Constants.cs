@@ -19,6 +19,10 @@ namespace TrainingApp.Shared
             // Prefijo de clave de Session para la SimulatedOrder del POD (spec 005).
             // Clave completa: SimulatedOrderPrefix + TrainingSession.Id
             public const string SimulatedOrderPrefix = "GDT_SimOrder_";
+
+            // Avance del paso Assembly (componentes del BOM ya ensamblados, spec 008).
+            // Clave completa: AssemblyProgressPrefix + TrainingSession.Id
+            public const string AssemblyProgressPrefix = "GDT_AsmProgress_";
         }
     }
 }

@@ -199,7 +199,9 @@
     <%-- Los eventos custom se llaman OnStepSubmit/OnSplitRequested, por eso    --%>
     <%-- el atributo declarativo lleva el prefijo "On" dos veces.              --%>
     <asp:Panel ID="PnlActiveControl" runat="server" Visible="false" CssClass="pod-active-control">
-        <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                  OnOnComponentAssembled="HandleComponentAssembled"
+                                  OnOnReturnToPod="HandleReturnToPod" />
         <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
                                   OnOnReturnToPod="HandleReturnToPod" />
         <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
