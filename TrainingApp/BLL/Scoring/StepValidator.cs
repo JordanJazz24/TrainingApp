@@ -107,6 +107,40 @@ namespace TrainingApp.BLL.Scoring
             }
         }
 
+        // Save de un DC Group (spec 008): el Answer tiene que traer todos los parámetros del
+        // grupo, solo esos, y con valores válidos. Un campo vacío es intento fallido (regla
+        // de CLAUDE.md para Data Collection).
+        public bool ValidateDataCollectionGroup(int groupId, string submittedAnswer)
+        {
+            Dictionary<string, string> submitted;
+            try
+            {
+                submitted = JsonConvert.DeserializeObject<Dictionary<string, string>>(submittedAnswer);
+            }
+            catch
+            {
+                return false;
+            }
+            if (submitted == null || submitted.Count == 0)
+                return false;
+
+            var groupParams = _ctx.DataCollectionParams
+                .Where(p => p.DataCollectionGroupId == groupId)
+                .ToList();
+            if (groupParams.Count == 0 || submitted.Count != groupParams.Count)
+                return false;
+
+            foreach (var param in groupParams)
+            {
+                string value;
+                if (!submitted.TryGetValue(param.Id.ToString(CultureInfo.InvariantCulture), out value))
+                    return false;
+                if (!ValidateParamValue(param, value))
+                    return false;
+            }
+            return true;
+        }
+
         private bool ValidateDataCollection(string submittedAnswer)
         {
             Dictionary<string, string> submitted;

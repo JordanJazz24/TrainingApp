@@ -74,13 +74,15 @@ ese paso. Cada entrega: build + precompilación de markup → checklist → el u
       Moldeo). Correcciones de UI: modal replicado de las capturas reales (Mode/Action
       informativos, detalles al escanear) y Batch Number = Process Lot de la orden.
 
-### Entrega 4 — DC multi-pieza con grupos obligatorios (AC-6 a AC-10)
-- [ ] BLL: regla de completitud (tests), `DataCollectionProgress`,
+### Entrega 4 — DC multi-pieza con grupos obligatorios (AC-6 a AC-10) — verificada
+- [x] BLL: `DataCollectionCompletionRule` (tests), `DataCollectionProgress`,
       `SubmitDataCollectionGroup(...)` (incorrecto / grupo guardado / pieza completa /
-      paso completo / forzado → descarta avance, E5).
-- [ ] `DataCollectionControl`: indicador `SFC: {sfc} (n/N)`, `OnGroupSubmit`, vuelve a la
+      paso completo / forzado → descarta avance, E5); `StepValidator.ValidateDataCollectionGroup`
+      exige todos los parámetros del grupo y solo esos (tests).
+- [x] `DataCollectionControl`: indicador `SFC: {sfc} (n/N)`, `OnGroupSubmit`, vuelve a la
       lista tras un grupo correcto (banner "Data collected for {grupo}").
-- [ ] `GuidedTest`: todas las filas en Serialized; guarda/descarta avance.
+- [x] `GuidedTest`: todas las filas en Serialized; guarda/descarta avance.
+- [x] **Checklist del usuario** (incluye la regla nueva de Moldeo).
 
 ### Entrega 5 — Log NC y Complete multi-fila (AC-15 a AC-17)
 - [ ] Log NC: scrap de todas las seleccionadas; ninguna = intento fallido; todas = aviso.

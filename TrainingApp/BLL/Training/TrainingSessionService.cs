@@ -116,6 +116,56 @@ namespace TrainingApp.BLL.Training
             return result;
         }
 
+        // Data Collection (spec 008): guarda un DC Group para la pieza actual del avance.
+        //   - Valores incorrectos: intento fallido (penalización y force-advance normales); el
+        //     avance se conserva salvo que el paso avance forzado (E5).
+        //   - Correcto: la pieza se completa según DataCollectionCompletionRule y el avance
+        //     pasa a la siguiente; con la última, se registra el intento correcto del paso.
+        public DataCollectionSubmitResult SubmitDataCollectionGroup(int sessionId, string groupCode,
+            string answersJson, DataCollectionProgress progress)
+        {
+            var result  = new DataCollectionSubmitResult { Outcome = DataCollectionOutcome.Ignored };
+            var session = _sessionRepo.GetById(sessionId);
+            if (session.Status != SessionStatus.InProgress || progress == null || progress.IsFinished)
+                return result;
+
+            var guide = _guideService.GetById(session.TrainingGuideId);
+            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            if (step.StepType != StepType.DataCollection) return result;
+
+            var groups = _guideService.GetDataCollectionGroups(guide.AreaId);
+            var group  = groups.FirstOrDefault(g => g.Code == groupCode);
+            if (group == null) return result;
+
+            if (!GetOrBuildValidator(guide).ValidateDataCollectionGroup(group.Id, answersJson))
+            {
+                result.StepResult = RecordAttempt(session, guide, step, isCorrect: false);
+                result.Outcome = result.StepResult.Outcome == StepSubmitOutcome.Incorrect
+                    ? DataCollectionOutcome.Incorrect
+                    : DataCollectionOutcome.StepResolved;
+                return result;
+            }
+
+            var piece = progress.CurrentPiece;
+            progress.MarkSaved(piece.RowId, group.Id);
+            if (!DataCollectionCompletionRule.IsPieceComplete(progress.SavedGroupIds(piece.RowId), groups))
+            {
+                result.Outcome = DataCollectionOutcome.GroupSaved;
+                return result;
+            }
+
+            progress.CurrentIndex++;
+            if (!progress.IsFinished)
+            {
+                result.Outcome = DataCollectionOutcome.PieceCompleted;
+                return result;
+            }
+
+            result.StepResult = RecordAttempt(session, guide, step, isCorrect: true);
+            result.Outcome    = DataCollectionOutcome.StepResolved;
+            return result;
+        }
+
         private StepSubmitResult RecordAttempt(TrainingSession session, TrainingGuide guide,
             TrainingStep step, bool isCorrect)
         {

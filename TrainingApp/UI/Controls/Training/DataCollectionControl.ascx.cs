@@ -14,7 +14,12 @@ namespace TrainingApp.UI.Controls.Training
     {
         public StepViewModel ViewModel { get; set; }
 
-        public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
+        // Parte del contrato IStepControl; DC guarda grupo por grupo (ver OnGroupSubmit), así
+        // que el evento no guarda suscriptores.
+        public event EventHandler<StepSubmitEventArgs> OnStepSubmit { add { } remove { } }
+
+        // Save de un DC Group para la pieza actual (spec 008).
+        public event EventHandler<DataCollectionGroupSubmitEventArgs> OnGroupSubmit;
 
         // El operador sale del Data Collection List sin responder: el host cierra el control.
         public event EventHandler OnReturnToPod;
@@ -46,9 +51,30 @@ namespace TrainingApp.UI.Controls.Training
 
             if (ViewModel == null) return;
             BindGroupList();
-            string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")
-                ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";
-            LitSFCCounter.Text = Page.Server.HtmlEncode(sfcCode + " (1/1)");
+            UpdatePieceIndicator();
+        }
+
+        // Después de un Save correcto que no completa el paso: vuelve a la Data Collection
+        // List con el indicador de pieza actualizado (spec 008).
+        public void ShowGroupList()
+        {
+            ActiveGroup         = null;
+            HfActiveGroup.Value = string.Empty;
+            HfAnswers.Value     = string.Empty;
+            LitActiveGroup.Text = string.Empty;
+            PhParameters.Controls.Clear();
+
+            if (ViewModel == null) return;
+            BindGroupList();
+            UpdatePieceIndicator();
+        }
+
+        // "SFC: 000123-001 (1/3)" debajo del header de Data Collection Entry (spec 008).
+        private void UpdatePieceIndicator()
+        {
+            string label = ViewModel.ExtraData.ContainsKey("PieceLabel")
+                ? ViewModel.ExtraData["PieceLabel"]?.ToString() : "—";
+            LitSFCCounter.Text = Page.Server.HtmlEncode(label);
         }
 
         protected void BtnCollect_Click(object sender, EventArgs e)
@@ -68,9 +94,16 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void BtnSave_Click(object sender, EventArgs e)
         {
+            // ASP.NET dispara el click aunque el control ya esté cerrado (spec 006, E12).
+            if (!Visible || string.IsNullOrEmpty(ActiveGroup)) return;
+
             string answersJson = HfAnswers.Value;
             if (string.IsNullOrEmpty(answersJson)) answersJson = "{}";
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answersJson });
+            OnGroupSubmit?.Invoke(this, new DataCollectionGroupSubmitEventArgs
+            {
+                GroupCode   = ActiveGroup,
+                AnswersJson = answersJson
+            });
         }
 
         protected void BtnReturnPOD_Click(object sender, EventArgs e)

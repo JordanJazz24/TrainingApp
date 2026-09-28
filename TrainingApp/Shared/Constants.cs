@@ -23,6 +23,10 @@ namespace TrainingApp.Shared
             // Avance del paso Assembly (componentes del BOM ya ensamblados, spec 008).
             // Clave completa: AssemblyProgressPrefix + TrainingSession.Id
             public const string AssemblyProgressPrefix = "GDT_AsmProgress_";
+
+            // Avance del paso Data Collection (piezas y DC Groups guardados, spec 008).
+            // Clave completa: DataCollectionProgressPrefix + TrainingSession.Id
+            public const string DataCollectionProgressPrefix = "GDT_DcProgress_";
         }
     }
 }

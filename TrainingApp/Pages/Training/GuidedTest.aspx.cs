@@ -253,6 +253,11 @@ namespace TrainingApp.Pages.Training
                 BindWorkList(area, session);
                 ShowBanner("✓ Assembly completed successfully");
             }
+            else if (step.StepType == StepType.DataCollection)
+            {
+                // La Data Collection List reemplazaba el POD.
+                BindWorkList(area, session);
+            }
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("✓ SFC Split completed successfully");
             else if (step.StepType == StepType.LogNC)
@@ -468,6 +473,10 @@ namespace TrainingApp.Pages.Training
                 // El paso quedó fallido: el avance parcial ya no se usa.
                 ClearAssemblyProgress(session);
             }
+            else if (forcedStep == StepType.DataCollection)
+            {
+                ClearDataCollectionProgress(session);
+            }
         }
 
         // Resource Setup forzado (por secuencia o por Setup State incorrecto): la orden sale
@@ -641,7 +650,8 @@ namespace TrainingApp.Pages.Training
 
         // Aviso de formato, sin intento. Serialized: el paso exige todas las filas del POD
         // (spec 008, punto 6). NonSerialized: una fila seleccionada.
-        private bool ValidatePodSelection(StepType stepType, TrainingSession session, Area area)
+        private bool ValidatePodSelection(StepType stepType, TrainingSession session, Area area,
+            string singleRowMessage = "Debes seleccionar una fila de la orden en la tabla antes de continuar.")
         {
             if (area.SerializationType == SerializationType.Serialized)
             {
@@ -657,8 +667,7 @@ namespace TrainingApp.Pages.Training
 
             ClearRowSelection();
             BindWorkList(area, session);
-            ShowSweetAlert("warning", "Selecciona una fila",
-                "Debes seleccionar una fila de la orden en la tabla antes de continuar.");
+            ShowSweetAlert("warning", "Selecciona una fila", singleRowMessage);
             return false;
         }
 
@@ -669,17 +678,96 @@ namespace TrainingApp.Pages.Training
             if (HandleOutOfSequence(StepType.DataCollection, session, guide, area, step)) return;
 
             // Defensa en servidor: el HiddenField puede faltar, estar obsoleto o ser
-            // manipulado aunque la validación JavaScript haya sido omitida.
-            if (FindSelectedOrderRow(session) == null)
-            {
-                ClearRowSelection();
-                BindWorkList(area, session);
-                ShowSweetAlert("warning", "Selecciona una fila",
-                    "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.");
+            // manipulado aunque la validación JavaScript haya sido omitida. Serialized exige
+            // todas las filas del POD (spec 008).
+            if (!ValidatePodSelection(StepType.DataCollection, session, area,
+                    "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection."))
                 return;
-            }
+
+            // La primera apertura fija las piezas a recorrer; al reabrir se sigue donde quedó (AC-9).
+            if (GetDataCollectionProgress(session) == null)
+                StartDataCollectionProgress(session);
 
             OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
+        }
+
+        // Data Collection (spec 008): Save de un DC Group para la pieza actual.
+        protected void HandleGroupSubmit(object sender, DataCollectionGroupSubmitEventArgs e)
+        {
+            var (session, guide, area, step) = GetContext();
+            if (session == null) return;
+
+            // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
+            if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
+
+            var progress = GetDataCollectionProgress(session) ?? StartDataCollectionProgress(session);
+            string pieceSfc = progress.CurrentPiece?.SFCCode;
+
+            var result = _sessionService.SubmitDataCollectionGroup(session.Id, e.GroupCode, e.AnswersJson, progress);
+            switch (result.Outcome)
+            {
+                case DataCollectionOutcome.Incorrect:
+                    // El control queda abierto en el modal donde se respondió (spec 006, E3);
+                    // grupos y piezas ya guardados se conservan (AC-8).
+                    ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
+                    ReopenModal("modalDCEntry");
+                    return;
+
+                case DataCollectionOutcome.GroupSaved:
+                    RefreshDataCollectionControl(session, guide, area, step);
+                    ShowBanner("✓ Data collected for " + e.GroupCode, hideAfterMs: 4000);
+                    return;
+
+                case DataCollectionOutcome.PieceCompleted:
+                    RefreshDataCollectionControl(session, guide, area, step);
+                    ShowBanner(string.Format("✓ SFC {0} completed. Next: {1}",
+                        pieceSfc, DescribeCurrentPiece(progress)), hideAfterMs: 5000);
+                    return;
+
+                case DataCollectionOutcome.StepResolved:
+                    // Paso completo, forzado (E5: el avance parcial se descarta) o sesión terminada.
+                    ClearDataCollectionProgress(session);
+                    ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
+                    ContinueAfterStepResolved(session, guide, area, step, result.StepResult.Outcome);
+                    return;
+            }
+        }
+
+        private void RefreshDataCollectionControl(TrainingSession session, TrainingGuide guide,
+            Area area, TrainingStep step)
+        {
+            CtrlDataCollection.ViewModel = BuildStepViewModel(step, area, session, guide);
+            CtrlDataCollection.ShowGroupList();
+        }
+
+        // Avance de DC en Session (servidor): sobrevive a Return to POD y a F5.
+        private DataCollectionProgress GetDataCollectionProgress(TrainingSession session)
+        {
+            return Session[Constants.SessionKeys.DataCollectionProgressPrefix + session.Id] as DataCollectionProgress;
+        }
+
+        // Las piezas son las filas seleccionadas del POD, en su orden (NonSerialized: el lote).
+        private DataCollectionProgress StartDataCollectionProgress(TrainingSession session)
+        {
+            var progress = new DataCollectionProgress();
+            foreach (var row in FindSelectedOrderRows(session))
+                progress.Pieces.Add(new DataCollectionPiece { RowId = row.RowId, SFCCode = row.SFCCode });
+
+            Session[Constants.SessionKeys.DataCollectionProgressPrefix + session.Id] = progress;
+            return progress;
+        }
+
+        private void ClearDataCollectionProgress(TrainingSession session)
+        {
+            Session.Remove(Constants.SessionKeys.DataCollectionProgressPrefix + session.Id);
+        }
+
+        // "000123-430 (2/3)": pieza actual y posición dentro de las piezas del paso.
+        private static string DescribeCurrentPiece(DataCollectionProgress progress)
+        {
+            if (progress == null || progress.CurrentPiece == null) return "—";
+            return string.Format("{0} ({1}/{2})",
+                progress.CurrentPiece.SFCCode, progress.CurrentIndex + 1, progress.Pieces.Count);
         }
 
         protected void BtnSFCSplit_ServerClick(object sender, EventArgs e)
@@ -764,6 +852,7 @@ namespace TrainingApp.Pages.Training
             // por diseño, ver Deferred Decisions del spec 005).
             Session.Remove(Constants.SessionKeys.SimulatedOrderPrefix + session.Id);
             ClearAssemblyProgress(session);
+            ClearDataCollectionProgress(session);
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
@@ -842,6 +931,7 @@ namespace TrainingApp.Pages.Training
                     var dcParams = _dcParamRepo.GetByArea(area.Id);
                     vm.ExtraData["Parameters"] = dcParams;
                     vm.ExtraData["Groups"]     = _guideService.GetDataCollectionGroups(area.Id);
+                    vm.ExtraData["PieceLabel"] = DescribeCurrentPiece(GetDataCollectionProgress(session));
                     break;
 
                 case StepType.SFC_Split:

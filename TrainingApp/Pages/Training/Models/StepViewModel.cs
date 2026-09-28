@@ -28,6 +28,13 @@ namespace TrainingApp.Pages.Training.Models
         public string IncorrectFeedback { get; set; }
     }
 
+    // Data Collection (spec 008): Save de un DC Group para la pieza actual.
+    public class DataCollectionGroupSubmitEventArgs : System.EventArgs
+    {
+        public string GroupCode { get; set; }
+        public string AnswersJson { get; set; }
+    }
+
     // Assembly (spec 008): el operador escaneó el material de un componente del BOM.
     public class ComponentAssembledEventArgs : System.EventArgs
     {

@@ -203,6 +203,7 @@
                                   OnOnComponentAssembled="HandleComponentAssembled"
                                   OnOnReturnToPod="HandleReturnToPod" />
         <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                  OnOnGroupSubmit="HandleGroupSubmit"
                                   OnOnReturnToPod="HandleReturnToPod" />
         <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
                                   OnOnReturnToPod="HandleReturnToPod" />

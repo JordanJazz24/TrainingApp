@@ -148,6 +148,92 @@ namespace TrainingApp.Test
     }
 
     [TestFixture]
+    public class DataCollectionCompletionRuleTests
+    {
+        private static readonly DataCollectionGroup Required1 = new DataCollectionGroup { Id = 1, IsRequired = true };
+        private static readonly DataCollectionGroup Required2 = new DataCollectionGroup { Id = 2, IsRequired = true };
+        private static readonly DataCollectionGroup Optional3 = new DataCollectionGroup { Id = 3, IsRequired = false };
+
+        [Test]
+        public void WithRequiredGroups_PieceNeedsAllOfThem()
+        {
+            var groups = new[] { Required1, Required2, Optional3 };
+
+            Assert.That(DataCollectionCompletionRule.IsPieceComplete(new[] { 1 }, groups), Is.False);
+            Assert.That(DataCollectionCompletionRule.IsPieceComplete(new[] { 3 }, groups), Is.False);
+            Assert.That(DataCollectionCompletionRule.IsPieceComplete(new[] { 1, 3 }, groups), Is.False);
+            Assert.That(DataCollectionCompletionRule.IsPieceComplete(new[] { 1, 2 }, groups), Is.True);
+        }
+
+        [Test]
+        public void WithoutRequiredGroups_AnyGroupCompletesThePiece()
+        {
+            var groups = new[] { Optional3, new DataCollectionGroup { Id = 4 } };
+
+            Assert.That(DataCollectionCompletionRule.IsPieceComplete(new int[0], groups), Is.False);
+            Assert.That(DataCollectionCompletionRule.IsPieceComplete(new[] { 4 }, groups), Is.True);
+        }
+    }
+
+    [TestFixture]
+    public class DataCollectionProgressTests
+    {
+        [Test]
+        public void SavingTheSameGroupTwice_CountsOnce_AndPiecesAdvanceInOrder()
+        {
+            var progress = new TrainingApp.BLL.Training.DataCollectionProgress();
+            progress.Pieces.Add(new TrainingApp.BLL.Training.DataCollectionPiece { RowId = "a", SFCCode = "000123-7" });
+            progress.Pieces.Add(new TrainingApp.BLL.Training.DataCollectionPiece { RowId = "b", SFCCode = "000123-430" });
+
+            progress.MarkSaved("a", 1);
+            progress.MarkSaved("a", 1);
+            Assert.That(progress.SavedGroupIds("a").Count, Is.EqualTo(1));
+            Assert.That(progress.SavedGroupIds("b").Count, Is.EqualTo(0));
+
+            Assert.That(progress.CurrentPiece.SFCCode, Is.EqualTo("000123-7"));
+            progress.CurrentIndex++;
+            Assert.That(progress.CurrentPiece.SFCCode, Is.EqualTo("000123-430"));
+            progress.CurrentIndex++;
+            Assert.That(progress.IsFinished, Is.True);
+        }
+    }
+
+    [TestFixture]
+    public class DataCollectionGroupValidationTests
+    {
+        private static StepValidator BuildValidator()
+        {
+            return new StepValidator(new StepValidationContext
+            {
+                DataCollectionParams = new[]
+                {
+                    new DataCollectionParameter { Id = 10, DataCollectionGroupId = 1, DataType = "Numeric", MinValue = 10m, MaxValue = 15m },
+                    new DataCollectionParameter { Id = 11, DataCollectionGroupId = 1, DataType = "Boolean" },
+                    new DataCollectionParameter { Id = 20, DataCollectionGroupId = 2, DataType = "Numeric" }
+                }
+            });
+        }
+
+        [Test]
+        public void AllGroupParamsWithValidValues_IsCorrect()
+        {
+            Assert.That(BuildValidator().ValidateDataCollectionGroup(1, "{\"10\":\"12\",\"11\":\"true\"}"), Is.True);
+        }
+
+        [Test]
+        public void MissingEmptyOutOfRangeOrForeignParams_AreIncorrect()
+        {
+            var validator = BuildValidator();
+
+            Assert.That(validator.ValidateDataCollectionGroup(1, "{\"10\":\"12\"}"), Is.False);                    // falta 11
+            Assert.That(validator.ValidateDataCollectionGroup(1, "{\"10\":\"\",\"11\":\"true\"}"), Is.False);      // vacío
+            Assert.That(validator.ValidateDataCollectionGroup(1, "{\"10\":\"20\",\"11\":\"true\"}"), Is.False);    // fuera de rango
+            Assert.That(validator.ValidateDataCollectionGroup(1, "{\"10\":\"12\",\"20\":\"true\"}"), Is.False);    // param de otro grupo
+            Assert.That(validator.ValidateDataCollectionGroup(1, "not json"), Is.False);
+        }
+    }
+
+    [TestFixture]
     public class ScoreCalculatorPassingTests
     {
         [Test]
