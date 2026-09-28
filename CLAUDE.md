@@ -45,6 +45,19 @@ Product (producto de más alto nivel — línea de manufactura)
             dejar previsto este nivel (FK nullable) aunque hoy no se use.
 ```
 
+**Estructura oficial de Products y Areas** (fuente de verdad; confirmada con negocio 2026-09-25):
+
+| Product | Areas |
+|---|---|
+| **Wires** | Subensamble 1, Subensamble 2, Composite Core, Línea Final, Testing, Backend |
+| **Catéteres** | Redefinity, EEP, Ice, PV 35, PV 18, Otw |
+| **Sensores** | LoFlo, Capnotrack, Mainstream, Source, Reusables, Detector |
+| **R&C** | Moldeo |
+
+Un área se carga en BD recién cuando se migra su catálogo (sus flags son `NOT NULL` y
+solo se conocen al validarla con negocio). Hoy existen en BD: Moldeo (catálogo real),
+LoFlo, Redefinity y Subensamble 1 (flags y catálogos de ejemplo, `05_SeedData.sql`).
+
 **Áreas objetivo del roadmap (en orden de migración):**
 
 | Área | Product | Fase | Flags confirmados |
@@ -53,8 +66,9 @@ Product (producto de más alto nivel — línea de manufactura)
 | **LoFlo** | Sensores | Fase 7 | RequiresAssembly=true, RequiresDataCollection variable. Valida que el motor sea genérico. |
 
 > **Notas de dominio:**
-> - "Redefinity" solo existe como nombre de ejemplo en `05_SeedData.sql`
->   (marcado "DATOS DE EJEMPLO — NO USAR EN PRODUCCIÓN"). No representa una decisión de negocio.
+> - Redefinity (Catéteres) es un área real, pero sus flags, su guía y su catálogo en
+>   `05_SeedData.sql` son **datos de ejemplo** (marcado "DATOS DE EJEMPLO — NO USAR EN
+>   PRODUCCIÓN") para probar el camino Serialized en dev. No representan decisiones de negocio.
 > - El catálogo real de R&C/Moldeo vive en `06_RCMoldeoCatalog.sql`.
 > - En R&C/Moldeo el ID del molde (DCGTM_ID_MOLDE/A) es un **DataCollectionParameter**,
 >   no Assembly. RequiresAssembly=false está confirmado con negocio.
@@ -168,8 +182,17 @@ Complete:         10%
 ### Catálogos que deben vivir en BD, nunca hardcodeados en código
 
 - `NCCodes` — códigos de scrap/NC, varían por Area.
-- `DataCollectionParameters` — varían por Area (y a futuro, por Operation).
-- `ExpectedComponentCount` — cantidad de componentes a escanear en Assembly, por Area.
+- `DataCollectionGroups` — DC Groups por Area (a futuro, por Operation) con `IsRequired`:
+  una pieza completa Data Collection al guardar todos los grupos obligatorios; si el
+  área no tiene ninguno, basta uno cualquiera (spec 008). Moldeo: solo
+  `DCGTM_FECHA_EXPIRACION_NIR/A` es obligatorio.
+- `DataCollectionParameters` — cada uno pertenece a un DC Group (`DataCollectionGroupId`).
+- `AssemblyComponents` — BOM de la operación (hoy por Area, `OperationId` nullable):
+  `PartNumber`/`Revision`, `Description`, `Qty` decimal. **Por ahora simulado.** No existe
+  un conteo esperado de escaneos (se eliminó `ExpectedComponentCount`, spec 008).
+- Flags de `Areas`: `SerializationType`, `RequiresAssembly`, `RequiresDataCollection`,
+  `RequiresNCComponent` y `RequiresStartChecklist` (Start abre la secuencia de 4 modales;
+  hoy solo Moldeo).
 
 ## Roadmap
 

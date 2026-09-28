@@ -75,6 +75,10 @@ se filtran en fases anteriores.
   Complete se resuelve directo desde `BtnComplete`.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007), hasta que lo pida un instructor o la Fase 8.
+- **Pérdida de la Session a mitad de sesión** (spec 008, E7): la orden simulada y el
+  avance de DC/Assembly viven solo en `HttpSessionState`; si se pierden, el operador
+  tiene que reiniciar. No se implementa ahora; caso especial a analizar cuando
+  evolucione la arquitectura de flujos (opción: persistirlos en BD por sesión).
 
 ### Scripts de BD (`Database/StoredProcedures/`)
 
