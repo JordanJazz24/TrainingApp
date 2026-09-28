@@ -62,12 +62,32 @@ se filtran en fases anteriores.
     Moldeo en Guided y Assessment.
 - **Siguiente:** la **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de
   LoFlo, a confirmar con negocio. Con eso, la Fase 7 vuelve a ser "solo datos".
-- **Build y validación:** ver `CLAUDE.md` → "Build y validación" (rebuild + `aspnet_compiler` + checklist del usuario antes de commitear).
-- **Proceso acordado:**
-  - Funcionalidad o reglas de negocio nuevas → `/spec` → aprobación explícita → `/plan`
-    → implementación.
-  - Bugs y arreglos de robustez → plan directo en el chat, sin spec (ver el arreglo de F5).
-  - El usuario prueba en el navegador y confirma antes de cada commit.
+  **Qué pedirle a negocio** para escribir el script de LoFlo:
+  1. Flags: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresDataCollection`,
+     `RequiresNCComponent`.
+  2. DC Groups de la operación que se entrena, **cuáles son obligatorios**, y sus
+     parámetros (tipo, unidad, rangos).
+  3. Códigos NC de LoFlo.
+  4. BOM (números de parte y cantidades): puede seguir **simulado** (decisión del usuario).
+- **Mientras llega la respuesta de negocio** (opciones, sin orden decidido): deuda de
+  `GuidedTest` → DAL directo; Fase 5 (tests de `ScoreCalculator`/`StepValidator`); punto 6
+  de la spec 006 sin verificar. Preguntar al usuario antes de elegir.
+
+### Cómo retomar en una sesión nueva
+1. Leer esta sección y `git log --oneline -10` (branch `TrainingApp`; no hay push pendiente
+   de pedir: el usuario hace push cuando quiere).
+2. La BD de desarrollo del usuario ya tiene el esquema de la spec 008 (ALTER entregado y
+   corrido el 2026-09-28). Una instalación limpia se arma con los scripts `00`–`07` en orden.
+3. **Proceso acordado:**
+   - Funcionalidad o reglas de negocio nuevas → `/spec` → aprobación explícita → `/plan`
+     (guardado en `docs/specs/NNN-plan.md`, en entregas chicas) → implementación.
+   - Bugs, robustez y cambios con pocas decisiones acotadas → plan directo en el chat,
+     con una ronda de preguntas si hace falta (así se hicieron el arreglo de F5, S1 y S2).
+   - Cada entrega: rebuild + `aspnet_compiler` + tests (`CLAUDE.md` → "Build y
+     validación") → checklist → el usuario prueba en el navegador → commit.
+4. Pantallas: replicar el SAP MES real. Las capturas de referencia que aporta el usuario
+   están en `C:\Users\320313439\Pictures\TrainingApp\` y lo ya documentado en
+   `docs/ui-reference/` (`general-flow.md` + un archivo por área).
 
 ### Bloqueantes antes de la Fase 7 (LoFlo)
 

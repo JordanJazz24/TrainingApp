@@ -225,52 +225,59 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Auth/
 │   │   │   ├── Login.aspx + .cs
 │   │   │   └── ChangePassword.aspx + .cs
-│   │   ├── Training/
-│   │   │   ├── Dashboard.aspx + .cs
-│   │   │   └── GuidedTest.aspx + .cs
-│   │   └── Admin/
-│   │       └── ManageGuides.aspx + .cs
+│   │   └── Training/
+│   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
+│   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
+│   │       └── Models/                    ← modelos de UI: StepViewModel, IStepControl,
+│   │                                         SimulatedOrder(+Row) en Session, StepAnswers
+│   ├── UI/
+│   │   ├── Controls/Training/             ← un UserControl por tipo de paso (spec 006):
+│   │   │                                     ResourceSetup, LineClearance, Search (4 modales
+│   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
+│   │   │                                     LogNC, Complete
+│   │   └── master/                        ← MasterPages + pod.css + íconos
 │   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
 │   │   ├── Auth/
 │   │   │   └── AuthService.cs
 │   │   ├── Training/
-│   │   │   ├── TrainingGuideService.cs
-│   │   │   └── TrainingSessionService.cs
+│   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM)
+│   │   │   ├── TrainingSessionService.cs  ← SubmitStep, RegisterOutOfSequence,
+│   │   │   │                                 AssembleComponent, SubmitDataCollectionGroup
+│   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
+│   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
+│   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (vive en Session)
+│   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (vive en Session)
 │   │   └── Scoring/
-│   │       ├── ScoreCalculator.cs         ← lógica de puntaje (compartida)
-│   │       └── StepValidator.cs           ← reglas de validación del Guided Test
+│   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
+│   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
+│   │       └── DataCollectionCompletionRule.cs ← grupos DC obligatorios
 │   ├── DAL/
 │   │   ├── Infrastructure/
 │   │   │   ├── Database.cs                ← wrapper ADO.NET (SqlConnection + SqlCommand)
 │   │   │   └── DatabaseFactory.cs         ← lee connection string de Web.config
-│   │   └── Repositories/
-│   │       ├── EmployeeRepository.cs      ← HTTP client + MemoryCache + _lastKnownGood
-│   │       ├── OperatorRepository.cs
-│   │       ├── TrainingGuideRepository.cs
-│   │       ├── TrainingSessionRepository.cs
-│   │       └── StepAttemptRepository.cs
+│   │   └── Repositories/                  ← uno por tabla: Employee (API + MemoryCache +
+│   │                                         _lastKnownGood), Operator, Product, Area,
+│   │                                         TrainingGuide, TrainingSession, StepAttempt,
+│   │                                         NCCode, DataCollectionGroup,
+│   │                                         DataCollectionParameter, AssemblyComponent
 │   ├── Domain/                            ← POCOs puros, sin dependencias
-│   │   ├── Employee.cs
-│   │   ├── Operator.cs
-│   │   ├── Product.cs
-│   │   ├── Area.cs                        ← incluye SerializationType, RequiresAssembly,
-│   │   │                                     RequiresDataCollection
-│   │   ├── TrainingGuide.cs
-│   │   ├── TrainingStep.cs                ← incluye StepWeight
-│   │   ├── TrainingSession.cs             ← incluye SessionMode (Guided | Assessment)
-│   │   ├── TrainingSessionStepAttempt.cs  ← SessionId, StepId, AttemptNumber, IsCorrect, Timestamp
-│   │   ├── Operation.cs                   ← POCO mínimo, entidad FUTURA inactiva (hoy no se usa)
-│   │   ├── NCCode.cs
-│   │   └── DataCollectionParameter.cs
+│   │   ├── Employee.cs, Operator.cs, Product.cs
+│   │   ├── Area.cs                        ← SerializationType + flags (Requires*)
+│   │   ├── TrainingGuide.cs, TrainingStep.cs (StepWeight)
+│   │   ├── TrainingSession.cs (SessionMode), TrainingSessionStepAttempt.cs
+│   │   ├── Operation.cs                   ← POCO mínimo, entidad FUTURA inactiva
+│   │   ├── NCCode.cs, DataCollectionGroup.cs, DataCollectionParameter.cs
+│   │   └── AssemblyComponent.cs           ← BOM (Qty decimal)
 │   ├── Shared/
-│   │   ├── Constants.cs                   ← DEFAULT_PASSWORD, SESSION_KEYS
-│   │   └── PasswordHelper.cs              ← hashing y comparación
-│   ├── UI/
-│   │   └── master/                        ← MasterPages compartidas
+│   │   ├── Constants.cs                   ← DEFAULT_PASSWORD, SessionKeys
+│   │   ├── PasswordHelper.cs              ← hashing y comparación
+│   │   └── SessionHelper.cs               ← re-hidrata Session desde BD
 │   └── Web.config
-├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2)
-└── Database/
-    └── StoredProcedures/                  ← scripts SQL de todos los stored procedures
+├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
+├── Database/
+│   └── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
+└── docs/                                  ← roadmap.md (estado actual), glossary.md,
+                                              specs/ (NNN-*.md + NNN-plan.md), ui-reference/
 ```
 
 ### Regla de dependencias
@@ -335,9 +342,10 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 
 1. **Rebuild completo** (el build incremental puede no recompilar; los warnings MSB3061 de `bin\roslyn` bloqueado por IIS Express/VS son inofensivos):
    `& "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" "TrainingApp\TrainingApp.csproj" /t:Rebuild /p:Configuration=Debug /v:minimal /nologo "/clp:ErrorsOnly;Summary" /nowarn:MSB3061`
-2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup:
-   `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" "<carpeta temporal>"`
-3. **Compilar `TrainingApp.Test`** cuando cambie algo de la BLL o el Domain (hoy los tests no se ejecutan como criterio de aceptación; ver Fase 5 en pausa).
+2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup. Usar una carpeta temporal de ruta **corta** (con rutas largas falla por el límite de Windows, ej. `bootstrap...css.map`):
+   `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" (Join-Path $env:TEMP "mespc")`
+3. **Compilar `TrainingApp.Test` y correr los tests** cuando cambie algo de la BLL o el Domain (hoy los tests cubren las reglas puras de BLL; no son criterio de aceptación, ver Fase 5 en pausa):
+   `& "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "TrainingApp.Test\bin\Debug\TrainingApp.Test.dll"`
 4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`). No hay scripts de migración: los cambios de esquema van directo a `00_Schema.sql` y el `ALTER` para la BD existente se le entrega al usuario aparte (indicando si después hay que volver a correr algún script de SPs).
 5. **Verificación en navegador por el usuario**: se le entrega un checklist por criterio de aceptación; el usuario prueba y confirma ("funciona") **antes de cada commit**. Nunca afirmar que la UI funciona sin esa confirmación.
 6. **Commit** con mensaje que referencie la spec (`feat: ... (spec NNN)`) y la línea `Co-Authored-By` vigente.

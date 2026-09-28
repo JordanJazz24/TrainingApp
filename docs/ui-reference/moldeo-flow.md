@@ -158,6 +158,15 @@ Pregunta final de verificación según MSS.
 
 ---
 
+## Paso 5 — DC Collect (grupo obligatorio)
+
+Moldeo tiene 6 DC Groups y **solo `DCGTM_FECHA_EXPIRACION_NIR/A` es obligatorio** (fechas
+de expiración de Kerosene y Tintas; confirmado con el usuario 2026-09-28, spec 008). El
+paso se completa al guardar ese grupo; guardar otro grupo vuelve a la Data Collection List
+sin completar el paso. Hay una sola pieza (el lote): el indicador muestra `(1/1)`.
+
+---
+
 ## Paso 6 — SFC Split (NonSerialized)
 
 Moldeo incluye `SFC_Split` como paso independiente con peso 5%. Permite múltiples splits; la X vuelve al POD para seleccionar otra fila y [Close] avanza sólo después de un split exitoso.
@@ -176,6 +185,7 @@ Moldeo incluye `SFC_Split` como paso independiente con peso 5%. Permite múltipl
 | Secuencia especial en Start | No | 4 modales: ID Molde → Verificaciones → Parámetros MSS → Verificación Final |
 | Assembly | Condicional | Ausente (RequiresAssembly=false) |
 | SFC Split | Solo NonSerialized | Sí (área NonSerialized) |
-| DC Collect | Condicional | Presente (RequiresDataCollection=true) |
+| DC Collect | Condicional | Presente (RequiresDataCollection=true); obligatorio solo el grupo de fechas de expiración |
+| Start con checklist | `RequiresStartChecklist = 0` (Start directo) | `RequiresStartChecklist = 1` (4 modales) |
 | Closing Line Clearance | Condicional | Presente |
 | Complete | Siempre | Sin variación |

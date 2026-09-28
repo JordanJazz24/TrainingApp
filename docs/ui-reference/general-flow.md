@@ -340,7 +340,7 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
 
 ## Paso 3 — Search / Start Order
 
-**StepType:** `Search` | **StepWeight:** 15% (hereda peso de Assembly cuando RequiresAssembly=false) | **Validación:** secuencia pura (siempre true)
+**StepType:** `Search` | **StepWeight:** 15% (hereda peso de Assembly cuando RequiresAssembly=false) | **Validación:** secuencia pura; en áreas con checklist (Moldeo) además las respuestas de LC Moldeo y la verificación final
 
 **Acceso:** directamente en el Dashboard — campo SFC en la search bar.
 
@@ -398,6 +398,18 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
 - Bifurcación por SerializationType: Serialized = escaneo pieza por pieza; NonSerialized = selección de lote/batch (documentar en área específica)
 
+### Implementación en el simulador (specs 005 y 008)
+- `TxtSFC` es readonly: el SFC se elige solo vía Browse Work List (spec 005).
+- **Con checklist** (`Areas.RequiresStartChecklist = 1`, hoy solo Moldeo): Start abre la
+  secuencia de 4 modales de `moldeo-flow.md`.
+- **Sin checklist** (el resto): Start es directo, sin modales; se califica solo por
+  secuencia.
+- **Serialized:** la orden tiene 3-5 piezas `{ShopOrder}-{sufijo}` (en `New`). Browse Work
+  List permite multi-selección (click alterna la fila, sin columna Status) y `TxtSFC`
+  muestra el SFC o `[N SELECTED]`. Start exige **todas** las piezas (si no, aviso sin
+  intento), las pasa a `Active`, las carga en el POD y quedan seleccionadas.
+- **NonSerialized:** un solo SFC de lote; selección de una fila.
+
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
 |---|---|---|
@@ -413,100 +425,104 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 
 ## Paso 4 — Assembly (condicional: RequiresAssembly = true)
 
-**StepType:** `Assembly` | **StepWeight:** 15% | **Validación:** conteo vs. `ExpectedComponentCount`
+**StepType:** `Assembly` | **StepWeight:** 15% | **Validación:** solo secuencia; el paso se completa con todo el BOM ensamblado (spec 008)
 
-**Acceso:** [Assemble] en la barra de acción (solo visible/habilitado si RequiresAssembly = true para el área).
+**Acceso:** [Assemble] en la barra de acción (paso presente solo si RequiresAssembly = true).
 
 > **RequiresAssembly es independiente de SerializationType.** No derivar uno del otro.
 
+> **Fuentes reales:** captura de la Component List de EEP (Catéteres) y fotos del modal
+> Assemble Components (antes y después del escaneo) aportadas por el usuario el
+> 2026-09-28; confirmación de un operador de Sensores: los códigos son los **números de
+> parte del BOM de la operación** y varían por operación.
+
 ### Trigger
 
-El operador selecciona la fila del SFC o lote en la tabla POD → presiona **[Assemble]**.
-
-```
-Serialized:    SFC: 989600300020-451        (una pieza)
-NonSerialized: SFC: [250 SELECTED]          (lote completo)
-```
+El operador tiene seleccionadas las filas del POD → presiona **[Assemble]**. En Serialized
+tienen que estar **todas** las piezas (aviso sin intento si falta alguna; tras el Start ya
+quedan seleccionadas). `TxtSFC` muestra `[N SELECTED]` (en la captura real: `[250 SELECTED]`).
 
 ### Vista: Component List (reemplaza POD Work List)
-
-Al presionar Assemble, la tabla principal cambia de título y contenido:
 
 ```
 Component List                                                         [?] [X]
 ─────────────────────────────────────────────────────────────────────────────
-  {componentCode/version}         Description: {description}
-  {requiredQty}                   Rem Qty: {remaining}
+  {PartNumber}/{Revision}         Description: {description}
+  {Qty}                           Rem Qty: {remaining}
                                                     [Assemble]  [Disassemble]
   ...
 ─────────────────────────────────────────────────────────────────────────────
-  [|< First]  [<< Prev]  [Next >>]  [Last >|]       Rows X-Y of Z
+  [|< First]  [<< Prev]  [Next >>]  [Last >|]       Rows 1-N of N
 ```
 
-- **Rem Qty**: decrece conforme se agregan componentes
-- **[Assemble]** por fila: abre el modal para ese componente específico
-- **[Disassemble]**: revierte un componente ya ensamblado (fuera del flujo de evaluación)
-- Paginación si hay más componentes de los que caben en pantalla
+- Filas = BOM del área (`AssemblyComponents`, **simulado por ahora**; hoy por área, a
+  futuro por Operation). Ej. real: `453601027151/A`, Qty `1`; `453601048391/A`, Qty `0.001`.
+- **Qty** decimal por unidad (materiales por peso o longitud), sin ceros de relleno.
+- **Rem Qty** arranca igual a Qty y pasa a `0` con el escaneo; con `0`, [Assemble] se
+  deshabilita.
+- **[Disassemble]**: visible y siempre deshabilitado (el simulador no entrena desensamble).
+- **[X]**: vuelve al POD conservando el avance.
 
 ### Modal: Assemble Components
 
-Se abre automáticamente sobre el Component List para el primer componente pendiente.
+Se abre con **[Assemble] de una fila**, para ese componente (en el cliente, sin postback).
 
 **Estado vacío (antes de escaneo)**
 ```
 [Assemble Components]                                                  [↗][X]
-  Mode:    Choose                     Find component: [________________]
+Assemble Components                                                        (?)
+──────────────────────────────────────────────────────────────────────────────
+  Mode:    Choose  (texto)            Find component: [________________]
   Action:  ● Assembly  ○ Removal      Barcode:        [________________]
+           (informativo, gris)        ☑ Apply to all SFCs (fijo, con >1 pieza)
 ────────────────────────────────────────────────────────────────────────────
-  Component Details                   Assembly Data
-  (vacío)                             (vacío)
+  (cuerpo vacío)
 ────────────────────────────────────────────────────────────────────────────
-                              [✗ Return to POD]
+                              [✖ Return to POD]
 ```
 
 **Estado con datos (después de escaneo)**
 ```
-[Assemble Components]                                                  [↗][X]
-  Mode:    Choose                     Find component: [________________]
-  Action:  ● Assembly  ○ Removal      Barcode:        [________________]
+  ...(misma franja superior)...
 ────────────────────────────────────────────────────────────────────────────
-  Component Details                   Assembly Data
-  Component:   {partNumber} [copy]    ★ Batch Number: {batchNumber}
-  Version:     {version}              (o ★ Material Document Number)
-  Description: {description}
-  Quantity:    {qty}
+  Component Details                  │ Assembly Data
+  Component:  [{PartNumber}] [⧉]     │ ★ Batch Number: [{Process Lot}]
+  Version:    [{Revision}]           │
+  Description: {description}         │
+  Quantity:   [{Qty}]                │
 ────────────────────────────────────────────────────────────────────────────
-                      [✓ Add]    [✗ Return to POD]
+                      [✔ Add]    [✖ Return to POD]
 ```
 
-- **Barcode**: campo de entrada del operador (escaneo del código 2D del componente)
-- **Component Details**: se autocompletan desde el barcode (Part Number, Version, Description, Quantity)
-- **Assembly Data**: ★ Batch Number o ★ Material Document Number — requerido, se autocompleta desde el barcode
-- **[✓ Add]**: aparece solo cuando hay datos populados
-- **[✗ Return to POD]**: siempre disponible como salida
+- **Barcode**: numérico; el escaneo se procesa con Enter (como el lector) o al salir del
+  campo. Enter no envía el formulario.
+- **Component Details**: inputs de solo lectura con los datos del catálogo.
+- **★ Batch Number** = **Process Lot** de la orden (columna del POD), no el barcode.
+- **[✔ Add]** aparece recién tras un escaneo válido.
 
 ### Flujo del operador
-1. Seleccionar fila en POD → [Assemble]
-2. Component List se muestra; Assemble Components modal abre en el primer componente
-3. Escanear Barcode del código 2D → Component Details + Assembly Data autocompletan
-4. [Add] → Rem Qty decrementa; modal avanza al siguiente componente
-5. Repetir pasos 3-4 hasta completar todos los componentes
-6. Último componente → [Add] → modal cierra automáticamente → POD Work List se restaura
+1. Con todas las filas seleccionadas → [Assemble] → Component List
+2. [Assemble] en un componente → modal → escanear barcode (Enter)
+3. [Add] → Rem Qty `0`; el modal cierra y la lista se actualiza
+4. Repetir por cada componente; con el último, el paso se completa y vuelve el POD
+   (banner "✓ Assembly completed successfully")
 
 ### Reglas de negocio
-- **No se valida el contenido del barcode** — el simulador valida solo que se complete el conteo (`ExpectedComponentCount`)
-- `ExpectedComponentCount` vive en BD por área (catálogo), no hardcodeado en código
-- [Add] solo disponible cuando hay datos en Component Details + Assembly Data
-- El modal cierra automáticamente tras el último componente — no hay botón "Finish"
+- **Un escaneo por componente** cubre toda su Qty y se aplica a todas las piezas
+  seleccionadas ("Apply to all SFCs").
+- **No se valida el barcode** contra el número de parte; barcode vacío o no numérico es
+  aviso de formato, sin intento.
+- Se califica **solo por secuencia** (S2). No existe `ExpectedComponentCount` (eliminado).
+- El avance vive en Session: sobrevive a Return to POD / [X] y a F5.
 - El orden de Assembly en el flujo es después de Search/Start y antes de Data Collection, pero el motor respeta `TrainingStep.Order` — puede cambiar por área
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
 |---|---|---|
-| Component List | Reemplaza POD Work List en la misma área | No implementado |
-| Modal Assemble Components | Dos estados: vacío / con datos; Add condicional | No implementado |
-| Paginación Component List | First / Prev / Next / Last + contador | No implementado |
-| Botón Add | Solo aparece tras escaneo exitoso | No implementado |
+| Component List | Reemplaza POD Work List en la misma área | No implementado (✅ implementado en spec 008) |
+| Modal Assemble Components | Dos estados: vacío / con datos; Add condicional | No implementado (✅ spec 008) |
+| Paginación Component List | First / Prev / Next / Last + contador | No implementado (visual en spec 008) |
+| Botón Add | Solo aparece tras escaneo exitoso | No implementado (✅ spec 008) |
 
 ---
 
@@ -552,7 +568,10 @@ Data Collection List                                                   [?] [X]
   [💾 Save]  [💾 Save Draft]  [🔴 Clear]  [✗ Return to POD]
 ```
 
-**Contador `({current}/{total})`**: para lotes NonSerialized el modal itera por cada SFC del batch tras cada Save.
+**Contador `({current}/{total})`** (spec 008): las piezas seleccionadas se procesan una por
+una en el orden del POD. El contador pasa a la pieza siguiente cuando la actual guardó
+**todos sus DC Groups obligatorios** (si el área no tiene obligatorios, basta uno). En
+NonSerialized hay una sola pieza, el lote: `(1/1)`.
 
 **Input por DataType:**
 - `Text` → input libre
@@ -564,19 +583,20 @@ Data Collection List                                                   [?] [X]
 **Footer:**
 | Botón | Comportamiento |
 |---|---|
-| Save | Guarda el grupo para el SFC actual; avanza al siguiente si hay más en el lote |
+| Save | Guarda el grupo para la pieza actual y vuelve a la Data Collection List; si completó la pieza, pasa a la siguiente |
 | Save Draft | Guarda parcialmente — no marca el grupo como completado |
 | Clear | Limpia campos sin cerrar |
 | Return to POD | Sale sin guardar |
 
-### Flujo del operador
-1. Seleccionar fila(s) en POD → [DC Collect]
-2. Data Collection List se muestra con todos los grupos del área
-3. Clic en [Collect] de un grupo → Data Collection Entry modal abre
-4. Completar cada parámetro según su DataType
-5. [Save] → si lote NonSerialized, modal avanza al siguiente SFC (2/29, 3/29...)
-6. Tras completar todos los SFCs del grupo, modal cierra; Data Collection List actualiza el grupo
-7. Repetir para cada grupo requerido
+### Flujo del operador (implementado, spec 008)
+1. Seleccionar las filas en POD (Serialized: todas) → [DC Collect]
+2. Data Collection List se muestra con todos los grupos del área (sin marcar cuáles son
+   obligatorios: saberlo es parte del entrenamiento)
+3. Clic en [Collect] de un grupo → Data Collection Entry con `SFC: {pieza} (n/N)`
+4. Completar cada parámetro según su DataType → [Save]
+5. Save correcto → vuelve a la lista (banner "Data collected for {grupo}"). Al completar
+   los obligatorios de la pieza → banner "SFC … completed. Next: … (n/N)"
+6. Con la última pieza completa, el paso termina y vuelve el POD
 
 ### Patrón compartido: DC Collect vs. Assembly
 
@@ -587,15 +607,22 @@ Data Collection List                                                   [?] [X]
 | Modal | Assemble Components | Data Collection Entry |
 | Contexto modal | Component code / version | SFC (N/total) + DC Group |
 | Footer modal | [Add] [Return to POD] | [Save] [Save Draft] [Clear] [Return to POD] |
-| Iteración por SFC | No | Sí — (N/total) automático tras Save |
+| Iteración por SFC | No — un escaneo aplica a todas las piezas | Sí — (n/N), avanza al completar los grupos obligatorios de la pieza |
 | Paginación en lista | Sí | Sí |
 
 ### Reglas de negocio
 - Solo aplica si `RequiresDataCollection = true`
-- Parámetros viven en BD (`DataCollectionParameters` por área), con `DataType`, `DisplayOrder`, `MinValue?`, `MaxValue?`
-- Validación: Text = libre; Numeric = formato numérico; Boolean = true/false
-- Save Draft no completa el grupo — paso no se marca como correcto hasta Save definitivo
-- El paso finaliza cuando todos los grupos requeridos tienen Save (no Draft)
+- Grupos en BD (`DataCollectionGroups` por área, con `IsRequired`); parámetros en
+  `DataCollectionParameters` (con `DataCollectionGroupId`, `DataType`, `DisplayOrder`,
+  `MinValue?`, `MaxValue?`)
+- Validación del Save: tienen que venir **todos** los parámetros del grupo y solo esos;
+  Numeric dentro de rango, Boolean = Sí, Date válida. Un campo vacío es intento fallido.
+- Un Save incorrecto es intento fallido del paso, pero **conserva** el avance (grupos y
+  piezas ya guardados). Guardar dos veces el mismo grupo cuenta una vez.
+- Save Draft no guarda nada (solo orienta al operador)
+- El paso finaliza cuando todas las piezas guardaron sus grupos obligatorios (Moldeo:
+  solo `DCGTM_FECHA_EXPIRACION_NIR/A`). El intento correcto se registra en ese momento.
+- El avance vive en Session: sobrevive a Return to POD / [X] y a F5.
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
@@ -698,10 +725,14 @@ El campo SFC en la search bar queda vacío tras el scrap.
 
 ### Reglas de negocio
 - SFC Split solo para NonSerialized — Serialized selecciona directamente del POD
-- NC Code y Component requeridos; Comments opcional
+- NC Code y Component requeridos (Component solo si `RequiresNCComponent`); Comments opcional
 - NC Codes desde catálogo BD por área — no hardcodeados
-- [Add-Done] = flujo normal del paso; [Add] = múltiples NCs al mismo SFC
-- El SFC field queda vacío en el POD tras el scrap
+- [Add-Done] = flujo normal del paso; [Add] y [Done] son botones equivocados (intento fallido, spec 007)
+- **NonSerialized:** una fila, creada por el SFC Split. **Serialized (spec 008):** ≥1 fila;
+  todas las seleccionadas se scrapean con el mismo código; tiene que quedar al menos una
+  pieza para Complete (seleccionar todas = aviso sin intento). Sin fila = intento fallido.
+- Banner: "✓ All of {SFC} scrapped" (una) o "✓ N SFCs scrapped" (varias). En Serialized
+  el SFC field queda vacío; en NonSerialized conserva el SFC del lote.
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
@@ -732,6 +763,8 @@ El campo SFC en la search bar queda vacío tras el scrap.
 - No valida contenido — se califica por secuencia
 - El operador debe saber que este es el paso final del cierre
 - Todos los pasos anteriores deben estar completos antes de llegar aquí
+- Sin fila seleccionada = intento fallido (spec 007). NonSerialized: una fila.
+  **Serialized (spec 008):** todas las filas que quedan en el POD (algunas = aviso sin intento).
 
 > **Diferencia con legacy:** el legacy implementaba un modal "Complete Section" + overlay "Log Buyoff" con credenciales (User ID + Password). El flujo real SAP es directo. Si alguna área requiere confirmación adicional (buyoff, firma), se documenta en su archivo de área.
 
