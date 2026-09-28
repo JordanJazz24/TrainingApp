@@ -84,9 +84,11 @@ ese paso. Cada entrega: build + precompilación de markup → checklist → el u
 - [x] `GuidedTest`: todas las filas en Serialized; guarda/descarta avance.
 - [x] **Checklist del usuario** (incluye la regla nueva de Moldeo).
 
-### Entrega 5 — Log NC y Complete multi-fila (AC-15 a AC-17)
-- [ ] Log NC: scrap de todas las seleccionadas; ninguna = intento fallido; todas = aviso.
-- [ ] Complete: todas las filas restantes; ninguna = intento fallido; algunas = aviso.
+### Entrega 5 — Log NC y Complete multi-fila (AC-15 a AC-17) — verificada
+- [x] Log NC: scrap de todas las seleccionadas; ninguna = intento fallido; todas = aviso.
+      NC Data Entry muestra el SFC o `[N SELECTED]`.
+- [x] Complete: todas las filas restantes; ninguna = intento fallido; algunas = aviso.
+- [x] **Checklist del usuario** (Redefinity de punta a punta y regresión de Moldeo).
 
 ### Entrega 6 — Cierre
 - [ ] Regresión completa: Moldeo (AC-18) y Redefinity de punta a punta, Guided y

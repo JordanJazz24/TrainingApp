@@ -261,7 +261,7 @@ namespace TrainingApp.Pages.Training
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("✓ SFC Split completed successfully");
             else if (step.StepType == StepType.LogNC)
-                ScrapSelectedRow(area, session);
+                ScrapSelectedRows(area, session);
         }
 
         // Assembly (spec 008): el operador ensambló un componente del BOM. Mientras falten
@@ -307,28 +307,48 @@ namespace TrainingApp.Pages.Training
 
         // Spec 007: el scrap elimina la fila de la orden simulada, tanto en Correct como en
         // FailedForced. Sin fila válida (force-advance por el gate de LogNC) no se toca nada.
-        private void ScrapSelectedRow(Area area, TrainingSession session)
+        // Spec 008: en Serialized se scrapean todas las filas seleccionadas de una vez.
+        private void ScrapSelectedRows(Area area, TrainingSession session)
         {
-            var row = FindScrappableRow(session, area);
-            if (row == null) return;
+            var rows = FindScrappableRows(session, area);
+            if (rows.Count == 0) return;
 
             var order = GetSimulatedOrder(session);
-            order.Rows.Remove(row);
+            foreach (var row in rows)
+                order.Rows.Remove(row);
+
+            string scrapped = rows.Count == 1
+                ? "All of " + (rows[0].SFCCode ?? order.SFCCode)
+                : rows.Count + " SFCs";
 
             ClearRowSelection();
+            // NonSerialized: TxtSFC es el SFC del lote y no cambia (spec 007).
+            if (area.SerializationType == SerializationType.Serialized)
+                TxtSFC.Text = string.Empty;
             BindWorkList(area, session);
-            ShowBanner("✓ All of " + order.SFCCode + " scrapped", hideAfterMs: 5000);
+            ShowBanner("✓ " + scrapped + " scrapped", hideAfterMs: 5000);
         }
 
-        // NonSerialized: solo las filas creadas por el SFC Split se pueden scrapear; la fila
-        // original del lote no. Serialized: cualquier fila seleccionada.
-        private SimulatedOrderRow FindScrappableRow(TrainingSession session, Area area)
+        // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
+        // lote no se scrapea (spec 007). Serialized: las filas seleccionadas, siempre que
+        // quede al menos una pieza para Complete (spec 008).
+        private IList<SimulatedOrderRow> FindScrappableRows(TrainingSession session, Area area)
         {
-            var row = FindSelectedOrderRow(session);
-            if (row == null) return null;
-            if (area.SerializationType == SerializationType.NonSerialized && !row.IsFromSplit) return null;
-            return row;
+            var selected = FindSelectedOrderRows(session);
+
+            if (area.SerializationType == SerializationType.Serialized)
+                return PieceSelectionRule.Evaluate(StepType.LogNC, selected.Count, ActiveRowCount(session))
+                       == PieceSelectionResult.Valid
+                    ? selected
+                    : new List<SimulatedOrderRow>();
+
+            return selected.Count == 1 && selected[0].IsFromSplit
+                ? selected
+                : new List<SimulatedOrderRow>();
         }
+
+        private int ActiveRowCount(TrainingSession session)
+            => GetSimulatedOrder(session)?.Rows.Count(IsActive) ?? 0;
 
         // El operador sale del control sin responder (no cuenta como intento). Mismo
         // criterio que el guard de sender: solo el control abierto puede cerrarse.
@@ -794,9 +814,19 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (HandleOutOfSequence(StepType.LogNC, session, guide, area, step)) return;
 
+            // Spec 008: en Serialized scrapear todas las piezas es un aviso de formato, sin
+            // intento — tiene que quedar al menos una para Complete.
+            if (area.SerializationType == SerializationType.Serialized &&
+                PieceSelectionRule.Evaluate(StepType.LogNC, FindSelectedOrderRows(session).Count,
+                    ActiveRowCount(session)) == PieceSelectionResult.NoPieceLeft)
+            {
+                ShowSweetAlert("warning", "Selección inválida", "Debe quedar al menos una pieza para Complete.");
+                return;
+            }
+
             // Spec 007: abrir Log NC sin una fila scrapeable es un intento fallido del paso.
             // No hay gate en el cliente: el click tiene que llegar acá para registrarse.
-            if (FindScrappableRow(session, area) == null)
+            if (FindScrappableRows(session, area).Count == 0)
             {
                 string feedback = area.SerializationType == SerializationType.NonSerialized
                     ? "Selecciona una fila creada por el split para scrapear"
@@ -831,9 +861,26 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (HandleOutOfSequence(StepType.Complete, session, guide, area, step)) return;
 
-            // Spec 007: Complete sin fila seleccionada es un intento fallido del paso.
-            if (FindSelectedOrderRow(session) == null)
+            if (area.SerializationType == SerializationType.Serialized)
             {
+                // Spec 008: Complete cierra todas las filas que quedan en el POD. Algunas: aviso
+                // de formato, sin intento. Ninguna: intento fallido (spec 007).
+                var result = PieceSelectionRule.Evaluate(StepType.Complete,
+                    FindSelectedOrderRows(session).Count, ActiveRowCount(session));
+                if (result == PieceSelectionResult.MissingPieces)
+                {
+                    ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
+                    return;
+                }
+                if (PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, result))
+                {
+                    ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, "Select all rows to complete");
+                    return;
+                }
+            }
+            else if (FindSelectedOrderRow(session) == null)
+            {
+                // Spec 007: Complete sin fila seleccionada es un intento fallido del paso.
                 ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, "Select 1 row to complete");
                 return;
             }
@@ -910,7 +957,13 @@ namespace TrainingApp.Pages.Training
             // Spec 005: BuildSimulatedSFCCode ya no existe — el SFC real vive en la
             // SimulatedOrder de sesión. Antes de Resource Setup no hay orden aún,
             // así que se usa un placeholder en vez de fallar.
-            string sfcCode    = GetSimulatedOrder(session)?.SFCCode ?? "—";
+            // NonSerialized: el SFC del lote. Serialized: el SFC o "[N SELECTED]" de la selección
+            // (ej. NC Data Entry de varias piezas, spec 008).
+            string sfcCode = GetSimulatedOrder(session)?.SFCCode;
+            if (string.IsNullOrEmpty(sfcCode))
+                sfcCode = DescribeSelection(FindSelectedOrderRows(session));
+            if (string.IsNullOrEmpty(sfcCode))
+                sfcCode = "—";
             string areaName   = area.Name;
             string resourceName = areaName + "-01";
             string opName     = guide.Title;
