@@ -90,10 +90,14 @@ ese paso. Cada entrega: build + precompilación de markup → checklist → el u
 - [x] Complete: todas las filas restantes; ninguna = intento fallido; algunas = aviso.
 - [x] **Checklist del usuario** (Redefinity de punta a punta y regresión de Moldeo).
 
-### Entrega 6 — Cierre
-- [ ] Regresión completa: Moldeo (AC-18) y Redefinity de punta a punta, Guided y
-      Assessment.
-- [ ] Roadmap: bloqueantes #1, #2 y #4 resueltos (#3 sigue pendiente de negocio).
+### Entrega 6 — Cierre — completada (2026-09-28)
+- [x] Regresión completa: Moldeo (AC-18) y Redefinity de punta a punta, Guided y
+      Assessment (verificada junto con el checklist de la Entrega 5).
+- [x] Roadmap: bloqueantes #1, #2 y #4 resueltos (#3 sigue pendiente de negocio).
+- [x] CLAUDE.md (sección Roadmap) y spec marcada como Implemented.
+
+**Commits:** `d56aecd` (docs), `9f2bd34` (E1), `792062e` (E2), `02cc2a4` (E3),
+`fa4cfa4` (E4), `6b4c09e` (E5) y el commit de cierre.
 
 ## Riesgos
 

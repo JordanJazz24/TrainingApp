@@ -123,7 +123,10 @@ Apertura:
      ↳ Serialized:    la Shop Order tiene múltiples SFC individuales. El operador
                         escanea SFCs uno a uno o selecciona varios desde Browse
                         Work List y ejecuta Start. El POD carga las piezas
-                        individuales seleccionadas.
+                        individuales seleccionadas. En el simulador (spec 008):
+                        3-5 piezas por orden, Start/Assembly/DC/Complete trabajan
+                        todas las piezas juntas (selección parcial = aviso sin
+                        penalización) y TxtSFC muestra "[N SELECTED]".
      ↳ NonSerialized: la Shop Order tiene un único SFC con cantidad total (ej.
                         Qty=500). El operador escanea/selecciona ese SFC una vez
                         y ejecuta Start. El POD carga ese único SFC con su
@@ -204,8 +207,9 @@ Complete:         10%
 - **Historial completo** (objetivo + "No incluye" de cada fase): `docs/roadmap.md`.
 - **Reglas de oro:** cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la causa principal de deuda técnica temprana es que features de fases futuras se filtran en fases anteriores. Respetar siempre el "No incluye" de la fase en curso.
 - **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
-- **Ahora — bloqueantes de la Fase 7.** Antes de cargar LoFlo: (1) spec del Start de Serialized (una fila por pieza con SFC propio, txtSFC por fila, multi-selección); (2) Assembly completable (`ExpectedComponentCount` en BD + formato del Answer); (3) confirmar con negocio los flags reales de LoFlo. Detalle en `docs/roadmap.md`.
-- **Siguiente — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada.** Script SQL con el catálogo real de LoFlo (Sensores). Solo carga de datos — cero código nuevo; valida que el motor de Fases 3-4 es genérico y que `RequiresAssembly`/`RequiresDataCollection` funcionan con la configuración real. *No incluye:* cambios al motor, nuevas pantallas.
+- **Spec 008 cerrada ✅ (2026-09-28):** el motor soporta áreas Serialized (piezas con SFC propio, multi-selección, Start directo), Assembly con BOM y Data Collection por pieza con grupos obligatorios. Resolvió los bloqueantes #1, #2 y #4 de la Fase 7.
+- **Ahora — bloqueante de la Fase 7:** (3) confirmar con negocio los flags reales de LoFlo. Detalle en `docs/roadmap.md`.
+- **Siguiente — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada por el #3.** Script SQL con el catálogo real de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM (simulado) y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas.
 - **En pausa ⏸️ — 5 · ScoreCalculator: cobertura de tests.** Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
 
 ## Domain Glossary

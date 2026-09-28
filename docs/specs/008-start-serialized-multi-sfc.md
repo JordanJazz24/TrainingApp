@@ -1,7 +1,7 @@
 # Spec 008: Start de Serialized y procesamiento de múltiples SFC
 
-**Status:** Approved (2026-09-28)
-**Date:** 2026-09-25
+**Status:** Implemented (2026-09-28) — plan y entregas en `docs/specs/008-plan.md`
+**Date:** 2026-09-25 · **Approved:** 2026-09-28
 
 > **Enmienda 2026-09-28 (usuario, al aprobar el plan):** en Moldeo el único DC Group
 > obligatorio es el de las fechas de expiración (`DCGTM_FECHA_EXPIRACION_NIR/A`, que

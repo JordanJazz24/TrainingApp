@@ -13,7 +13,7 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-09-24 · **Branch:** `TrainingApp` · **Último commit de código:** `3a38b86` (después hay solo commits de docs; `git log --oneline -5` para ver el estado real)
+**Última actualización:** 2026-09-28 · **Branch:** `TrainingApp` · **Último commit de código:** `6b4c09e` (`git log --oneline -5` para ver el estado real)
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
@@ -44,9 +44,24 @@ se filtran en fases anteriores.
     ignorando lo capturado en intentos fallidos (spec 008, E8).
     Start forzado → el POD se carga como si Start se hubiera ejecutado.
   Verificado en navegador por el usuario (2026-09-25).
-- **Siguiente:** resolver los **bloqueantes de la Fase 7** (sección siguiente). La Fase 7
-  está definida como "solo datos, cero código nuevo", y hoy LoFlo no se podría cargar
-  sin escribir código.
+- **Spec 008 cerrada ✅** (2026-09-28, 5 entregas + cierre, plan en
+  `docs/specs/008-plan.md`): el motor ya soporta áreas Serialized.
+  - Resource Setup genera 3-5 piezas con SFC propio; Browse Work List y POD con
+    multi-selección; `TxtSFC` con el SFC o `[N SELECTED]`; Start directo cuando el área
+    no tiene checklist (`Areas.RequiresStartChecklist`, hoy solo Moldeo = 1).
+  - Assembly con el BOM de la operación (`AssemblyComponents`, simulado): Component List,
+    modal replicado del MES real, Batch Number = Process Lot. Se eliminó
+    `ExpectedComponentCount`.
+  - Data Collection por pieza con grupos obligatorios (`DataCollectionGroups.IsRequired`),
+    indicador `SFC: … (n/N)` y avance conservado. **Moldeo ahora exige** su grupo de
+    fechas de expiración para completar DC.
+  - Log NC y Complete multi-fila. En Serialized la selección parcial es aviso sin
+    penalización (el motor trabaja todas las piezas juntas; ver Deferred Decisions de la
+    spec: recorrido pieza por pieza).
+  - Verificado en navegador por el usuario: Redefinity de punta a punta y regresión de
+    Moldeo en Guided y Assessment.
+- **Siguiente:** la **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de
+  LoFlo, a confirmar con negocio. Con eso, la Fase 7 vuelve a ser "solo datos".
 - **Build y validación:** ver `CLAUDE.md` → "Build y validación" (rebuild + `aspnet_compiler` + checklist del usuario antes de commitear).
 - **Proceso acordado:**
   - Funcionalidad o reglas de negocio nuevas → `/spec` → aprobación explícita → `/plan`
@@ -58,16 +73,20 @@ se filtran en fases anteriores.
 
 | # | Tema | Por qué bloquea | Estado |
 |---|---|---|---|
-| 1 | **Start de Serialized**: una fila por pieza con SFC propio (ej. Shop Order `CR0000001020` → filas `0000001020-430`, `0000001020-517`), seleccionar una fila carga su SFC en txtSFC, multi-selección en el POD | LoFlo es Serialized (BD: `SerializationType = 0`). Hoy `SimulatedOrder` tiene un solo `SFCCode` y las filas solo tienen `RowId`/`Qty`/`IsFromSplit` | **Requiere spec propia** (decidido en spec 007, Deferred Decisions). No empezada |
-| 2 | **Assembly no puede completarse**: `AssemblyControl` envía `{"scannedCount":N}` pero `StepValidator` espera un entero, y `TrainingGuideService` arma el contexto con `ExpectedComponentCount = null` (lanzaría `InvalidOperationException`). `ExpectedCount = 3` hardcodeado en `GuidedTest.BuildStepViewModel` | LoFlo tiene Assembly según CLAUDE.md. El CLAUDE.md exige `ExpectedComponentCount` en BD por Area | Diferido por el usuario (spec 006, Deferred Decisions). Solución: columna en `Areas` + SPs + POCO + BLL + formato del Answer |
-| 3 | **Flags reales de LoFlo a confirmar con negocio**: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresNCComponent` (1 provisorio, spec 007), `RequiresDataCollection` ("variable" según CLAUDE.md) | Sin esto el catálogo de la Fase 7 no se puede escribir | Pendiente de negocio |
-| 4 | **Huecos de UI de Assembly**: la X del Component List (`closeAssemblyView`) y `BtnReturnPOD_Click` están vacíos | Se ejercitan por primera vez con LoFlo | Diferido (spec 006). Mismo patrón que DC/LogNC: evento `OnReturnToPod` |
+| 1 | **Start de Serialized**: una fila por pieza con SFC propio, txtSFC por selección, multi-selección en el POD | LoFlo es Serialized | ✅ Resuelto (spec 008, entrega 2) |
+| 2 | **Assembly no puede completarse** (`ExpectedComponentCount` nulo, `ExpectedCount = 3` hardcodeado) | LoFlo tiene Assembly según CLAUDE.md | ✅ Resuelto (spec 008, entrega 3): Assembly rediseñado con el BOM; `ExpectedComponentCount` eliminado |
+| 3 | **Flags reales de LoFlo a confirmar con negocio**: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresNCComponent` (1 provisorio, spec 007), `RequiresDataCollection` ("variable" según CLAUDE.md) | Sin esto el catálogo de la Fase 7 no se puede escribir | **Pendiente de negocio** |
+| 4 | **Huecos de UI de Assembly**: la X del Component List y Return to POD vacíos | Se ejercitan por primera vez con LoFlo | ✅ Resuelto (spec 008, entrega 3) |
 
 ### Deuda y riesgos conocidos (no bloquean la Fase 7)
 
-- **Checklist de la spec 006 sin verificar:** el punto 5 (force-advance en DC) y el
-  punto 6 (volver a guardar Resource Setup → AC-12). El punto 7 (Assembly en
-  Redefinity) está bloqueado por el bloqueante #2.
+- **Checklist de la spec 006 sin verificar:** el punto 6 (volver a guardar Resource
+  Setup → AC-12). El 5 (force-advance en DC) y el 7 (Assembly) quedaron cubiertos por
+  la spec 008.
+- **`GuidedTest` llama a repositorios de la DAL directamente** (`_areaRepo`,
+  `_productRepo`, `_ncRepo`, `_dcParamRepo`), contra la regla de dependencias de
+  CLAUDE.md. El código nuevo de la spec 008 pasa por `TrainingGuideService`; migrar lo
+  existente es una tarea aparte.
 - **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
   resuelto (`history.replaceState`). Riesgo aceptado.
 - **Fase 5 en pausa:** `ScoreCalculator` y `StepValidator` sin cobertura NUnit. La spec
@@ -89,8 +108,9 @@ se filtran en fases anteriores.
   `06`–`07` catálogo y guía reales de R&C/Moldeo). Instalación limpia y re-ejecución
   verificadas en LocalDB; el resultado es idéntico a la BD de desarrollo.
 - `05_SeedData.sql` — **solo dev**: áreas de ejemplo (Redefinity, LoFlo provisoria,
-  Subensamble 1) y la guía publicada de Redefinity (Serialized, con Assembly) para
-  probar Assembly (hoy bloqueado por el bloqueante #2).
+  Subensamble 1) y la guía publicada de Redefinity (Serialized, con Assembly), con 2 DC
+  Groups obligatorios + 1 opcional y un BOM simulado (`SIM-100001`, `SIM-100002`) para
+  probar el camino Serialized de punta a punta (spec 008).
 - Los cambios de esquema futuros se escriben directo en `00_Schema.sql`; el `ALTER`
   para la BD existente se le entrega al usuario aparte y no se guarda como script.
 
@@ -224,11 +244,15 @@ return to POD, txtSFC, resaltado de fila, score final), `f54ff50` (spec 007),
 
 ---
 
-### Fase 7 — Catálogo de LoFlo (segunda área) ⛔ (bloqueada — ver "Bloqueantes antes de la Fase 7")
+### Fase 7 — Catálogo de LoFlo (segunda área) ⛔ (bloqueada solo por el bloqueante #3: flags de negocio)
 **Objetivo:** Script SQL con el catálogo real de LoFlo (Sensores).
 Solo carga de datos — cero código nuevo. Valida que el motor de Fases 3-4
 es verdaderamente genérico y que `RequiresAssembly`/`RequiresDataCollection`
 funcionan con la configuración real de LoFlo.
+**El script tiene que cargar** (spec 008): flags del área (incluido
+`RequiresStartChecklist = 0`), NC Codes, `DataCollectionGroups` con qué grupos son
+obligatorios, sus `DataCollectionParameters`, el BOM en `AssemblyComponents` (simulado
+por ahora, ≥1 componente si `RequiresAssembly = 1`) y la guía con sus pasos.
 **No incluye:** cambios al motor, nuevas pantallas.
 
 ---
