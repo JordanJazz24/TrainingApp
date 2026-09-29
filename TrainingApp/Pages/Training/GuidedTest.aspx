@@ -13,7 +13,12 @@
 
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
 
-    <%-- ══ HEADER BAR ═══════════════════════════════════════════════════ --%>
+    <%-- Layout del POD real (mini-fase de UI, entrega 3): bloques en el flujo del documento
+         — header, banner, sección gris (búsqueda + acciones + panel derecho), POD Work List
+         y pie —, sin posiciones fijas apiladas. Así nada se solapa ni tapa los modales. --%>
+    <div class="pod-shell">
+
+    <%-- ══ HEADER ═══════════════════════════════════════════════════════ --%>
     <div class="pod-header">
         <span class="pod-header-title">
             Production Operator Dashboard: Site -
@@ -21,52 +26,73 @@
             User - <asp:Literal ID="LitUserName" runat="server" />
         </span>
         <div class="pod-header-controls">
-            <button id="BtnLogout" runat="server" title="Logout"
-                class="pod-header-logout" onserverclick="BtnLogout_ServerClick">&#9211;</button>
+            <%-- Score del simulador (no existe en el MES real): compacto, antes de los íconos. --%>
+            <asp:Panel ID="PnlScore" runat="server" CssClass="pod-score">
+                Score: <span class="score-value"><asp:Literal ID="LitScore" runat="server" Text="0.0%" /></span>
+                <asp:Literal ID="LitModeBadge" runat="server" />
+            </asp:Panel>
+            <%-- Home y Help: solo visuales, como en el MES real. No hacen nada ni cuentan
+                 como intento (navegación, igual que Logout). --%>
+            <button type="button" class="pod-header-icon" title="Home" aria-label="Home">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10v10h5v-6h3v6h5V10" />
+                </svg>
+            </button>
+            <button id="BtnLogout" runat="server" title="Logout" aria-label="Logout"
+                class="pod-header-icon" onserverclick="BtnLogout_ServerClick">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                    <path d="M12 3v8" /><path d="M6.3 6.8a8 8 0 1 0 11.4 0" />
+                </svg>
+            </button>
+            <button type="button" class="pod-header-icon" title="Help" aria-label="Help">
+                <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" class="pod-help-circle" />
+                    <text x="12" y="16.5" text-anchor="middle" font-size="13" font-weight="700"
+                        font-family="Arial, sans-serif" fill="#fff">?</text>
+                </svg>
+            </button>
         </div>
     </div>
 
-    <%-- ══ SCORE WIDGET (fixed top-right) ══════════════════════════════ --%>
-    <asp:Panel ID="PnlScore" runat="server" CssClass="pod-score-widget">
-        <div>Score: <span class="score-value"><asp:Literal ID="LitScore" runat="server" Text="0.0%" /></span></div>
-        <div class="mt-1"><asp:Literal ID="LitModeBadge" runat="server" /></div>
+    <%-- ══ BANNER ═══════════════════════════════════════════════════════ --%>
+    <%-- Mensaje del MES entre el header y el POD Search; se oculta solo (ShowBanner). --%>
+    <asp:Panel ID="PnlBannerZone" runat="server" CssClass="pod-banner" Visible="false">
+        <svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true">
+            <circle cx="13" cy="13" r="12" fill="#74ab6d" />
+            <path d="M7.5 13.5l3.8 3.8 7.2-8" fill="none" stroke="#fff" stroke-width="2.6"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span><asp:Literal ID="LitBanner" runat="server" /></span>
     </asp:Panel>
 
-    <%-- ══ BANNER ZONE ══════════════════════════════════════════════════ --%>
-    <asp:Panel ID="PnlBannerZone" runat="server" CssClass="pod-banner-zone" Visible="false">
-        <div class="pod-banner alert alert-success mb-0">
-            <asp:Literal ID="LitBanner" runat="server" />
-        </div>
-    </asp:Panel>
-
-    <%-- ══ SEARCH SECTION ═══════════════════════════════════════════════ --%>
+    <%-- ══ POD SEARCH (inicio de la sección gris) ═══════════════════════ --%>
     <div class="pod-search">
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-            <span><span class="text-danger">&#9733;</span>
-                <asp:Literal ID="LitOperationName" runat="server" /></span>
-            <span><span class="text-danger">&#9733;</span>
-                <asp:Literal ID="LitResourceName" runat="server" /></span>
-            <div class="d-flex align-items-center gap-1">
-                <span class="sfc-label">SFC:</span>
-                <%-- Spec 005: TxtSFC ya no se edita a mano — la selección es solo vía
-                     Browse Work List (confirmBrowseSelection lo sigue completando).
-                     readonly se aplica como atributo HTML desde el code-behind: la
-                     propiedad ReadOnly haría que ASP.NET descarte el valor posteado. --%>
-                <asp:TextBox ID="TxtSFC" runat="server" CssClass="form-control sfc-input"
+        <span class="pod-search-link"><span class="pod-star">*</span>
+            <asp:Literal ID="LitOperationName" runat="server" /></span>
+        <span class="pod-search-link"><span class="pod-star">*</span>
+            <asp:Literal ID="LitResourceName" runat="server" /></span>
+        <span class="pod-search-sfc">
+            <span>SFC:</span>
+            <%-- Spec 005: TxtSFC ya no se edita a mano — la selección es solo vía
+                 Browse Work List (confirmBrowseSelection lo sigue completando).
+                 readonly se aplica como atributo HTML desde el code-behind: la
+                 propiedad ReadOnly haría que ASP.NET descarte el valor posteado. --%>
+            <span class="pod-sfc-box">
+                <asp:TextBox ID="TxtSFC" runat="server" CssClass="pod-sfc-input"
                     placeholder="Use Browse Work List..." />
-                <button type="button" class="btn btn-sm btn-outline-secondary"
+                <button type="button" class="pod-sfc-browse"
                     data-bs-toggle="modal" data-bs-target="#modalBrowseWorkList"
-                    title="Browse Work List">&#128269;</button>
-            </div>
-            <%-- Orden cargada: la elegida en Browse (In Queue) o la iniciada (Active). El
-                 servidor los recalcula en cada respuesta (BindSearchHeader). --%>
-            <span class="sfc-label ms-2">
-                Shop Order: <strong id="podShopOrder"><asp:Literal ID="LitShopOrder" runat="server" /></strong>
+                    title="Browse Work List">&#10697;</button>
             </span>
-            <span class="sfc-label">
-                Status (SFC): <strong id="podSfcStatus"><asp:Literal ID="LitSFCStatus" runat="server" /></strong>
-            </span>
-        </div>
+        </span>
+        <%-- Orden cargada: la elegida en Browse (In Queue) o la iniciada (Active). El
+             servidor los recalcula en cada respuesta (BindSearchHeader). --%>
+        <span class="pod-search-order">
+            <span>Shop Order: <strong id="podShopOrder"><asp:Literal ID="LitShopOrder" runat="server" /></strong></span>
+            <span>Status (SFC): <strong id="podSfcStatus"><asp:Literal ID="LitSFCStatus" runat="server" /></strong></span>
+        </span>
     </div>
 
     <%-- ══ ACTION BUTTONS ════════════════════════════════════════════════ --%>
@@ -84,7 +110,7 @@
         <button id="BtnDCCollection" runat="server" class="pod-action-btn" disabled="disabled"
             onserverclick="BtnDCCollection_ServerClick" onclick="if (!podValidateDCCollect()) return false;">
             <img src="<%=ResolveUrl("~/UI/master/imgs/dc_collection-icon.png")%>" alt="" />
-            <span>DC Collection</span>
+            <span>DC Collect</span>
         </button>
         <button id="BtnComplete" runat="server" class="pod-action-btn" disabled="disabled"
             onserverclick="BtnComplete_ServerClick">
@@ -93,130 +119,166 @@
         </button>
     </div>
 
-    <%-- ══ SIDEBAR ════════════════════════════════════════════════════════ --%>
-    <div class="pod-sidebar">
-        <button id="BtnSFCSplit" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnSFCSplit_ServerClick" onclick="if (!podValidateSFCSplit()) return false;">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/split-icon.png")%>" alt="" />
-            <span>SFC Split</span>
-        </button>
-        <button id="BtnLogNC" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnLogNC_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/log_NC-Icon.png")%>" alt="" />
-            <span>Log NC</span>
-        </button>
-        <button id="BtnWorkInstructions" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnNonStepAction_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/intructions-icon.png")%>" alt="" />
-            <span>Work Instructions</span>
-        </button>
-        <button id="BtnReports" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnNonStepAction_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/informes-icon.png")%>" alt="" />
-            <span>Reports</span>
-        </button>
-        <%-- Activities: Bootstrap dropdown — toggle is client-side, items are server-side buttons --%>
-        <div class="dropdown">
-            <button type="button" class="pod-sidebar-btn dropdown-toggle"
-                    id="BtnActivitiesToggle" disabled
-                    data-bs-toggle="dropdown" data-bs-auto-close="true">
-                <img src="<%=ResolveUrl("~/UI/master/imgs/activities-icon.png")%>" alt="" />
-                <span>Activities</span>
-            </button>
-            <ul class="dropdown-menu" id="activitiesMenu">
-                <li>
-                    <button id="BtnActivities" runat="server" class="dropdown-item"
-                        disabled="disabled" onserverclick="BtnActivities_ServerClick">
-                        Data Collection Standalone
-                    </button>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li><button id="BtnAsBuiltConfig" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">As-Built Configuration</button></li>
-                <li><button id="BtnLogComment" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">Log Comment</button></li>
-                <li><button id="BtnSfcPlaceHold" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">SFC Place Hold</button></li>
-                <li><button id="BtnSfcReleaseHold" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">SFC Release Hold</button></li>
-                <li><button id="BtnRemoveFutureHold" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">Remove Future Hold</button></li>
-                <li><button id="BtnChangeEquipmentStatus" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">Change Equipment Status Tool</button></li>
-                <li><button id="BtnTimeSensitiveMaterial" runat="server" class="dropdown-item" disabled="disabled"
-                    onserverclick="BtnNonStepAction_ServerClick">Time Sensitive Material Check In/Out</button></li>
-            </ul>
-        </div>
-        <button id="BtnPlaceBackInQueue" runat="server" class="pod-sidebar-btn" disabled="disabled"
-            onserverclick="BtnNonStepAction_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/play_back-icon.png")%>" alt="" />
-            <span>Place Back in Queue</span>
-        </button>
-    </div>
+    <div class="pod-body">
 
-    <%-- ══ MAIN CONTENT ══════════════════════════════════════════════════ --%>
-    <div class="pod-main">
+        <%-- ══ MAIN CONTENT ══════════════════════════════════════════════ --%>
+        <div class="pod-main">
 
-        <%-- POD Work List --%>
-        <asp:Panel ID="PnlWorkList" runat="server">
-            <table class="pod-work-list table table-bordered mb-0">
-                <thead>
-                    <tr>
-                        <%-- Columna selectora con el ícono Select All, como la tabla del POD real. --%>
-                        <th class="row-selector-col">
-                            <button type="button" class="select-all-btn" title="Select All"
-                                onclick="toggleSelectAllWorkList()"><%= SelectAllIcon %></button>
-                        </th>
-                        <th>SFC</th>
-                        <th>Material Description</th>
-                        <th>Qty</th>
-                        <th>Status</th>
-                        <th>Process Lot</th>
-                        <th>Shop Order</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <asp:Repeater ID="RptWorkList" runat="server">
-                        <ItemTemplate>
-                            <tr class="<%# (bool)Eval("IsSelected") ? "selected" : "" %>"
-                                data-sfc="<%# Eval("SFCCode") %>"
-                                data-row-id="<%# Eval("RowId") %>"
-                                onclick="selectWorkListRow(this)">
-                                <td class="row-selector-col"></td>
-                                <td><%# Eval("SFCCode") %></td>
-                                <td><%# Eval("MaterialDescription") %></td>
-                                <td><%# Eval("Qty") %></td>
-                                <td>
-                                    <span class="status-badge status-<%# ((string)Eval("Status") == "Active" ? "active" : "default") %>"></span>
-                                    <%# Eval("Status") %>
-                                </td>
-                                <td><%# Eval("ProcessLot") %></td>
-                                <td><%# Eval("ShopOrder") %></td>
+            <%-- POD Work List --%>
+            <asp:Panel ID="PnlWorkList" runat="server" CssClass="pod-panel">
+                <div class="pod-panel-header">
+                    <span>POD Work List</span>
+                    <span class="pod-help-dot" title="Help">?</span>
+                </div>
+                <div class="pod-panel-body">
+                    <table class="pod-work-list table mb-0">
+                        <thead>
+                            <tr>
+                                <%-- Columna selectora con el ícono Select All, como la tabla del POD real. --%>
+                                <th class="row-selector-col">
+                                    <button type="button" class="select-all-btn" title="Select All"
+                                        onclick="toggleSelectAllWorkList()"><%= SelectAllIcon %></button>
+                                </th>
+                                <th>SFC</th>
+                                <th>Material Description</th>
+                                <th>Qty</th>
+                                <th>Status</th>
+                                <th>Process Lot</th>
+                                <th>Shop Order</th>
                             </tr>
-                        </ItemTemplate>
-                    </asp:Repeater>
-                </tbody>
-            </table>
-        </asp:Panel>
+                        </thead>
+                        <tbody>
+                            <asp:Repeater ID="RptWorkList" runat="server">
+                                <ItemTemplate>
+                                    <tr class="<%# (bool)Eval("IsSelected") ? "selected" : "" %>"
+                                        data-sfc="<%# Eval("SFCCode") %>"
+                                        data-row-id="<%# Eval("RowId") %>"
+                                        onclick="selectWorkListRow(this)">
+                                        <td class="row-selector-col"></td>
+                                        <td><%# Eval("SFCCode") %></td>
+                                        <td><%# Eval("MaterialDescription") %></td>
+                                        <td><%# Eval("Qty") %></td>
+                                        <td>
+                                            <span class="status-badge status-<%# ((string)Eval("Status") == "Active" ? "active" : "default") %>"
+                                                title="<%# Eval("Status") %>"></span>
+                                        </td>
+                                        <td><%# Eval("ProcessLot") %></td>
+                                        <td><%# Eval("ShopOrder") %></td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                </div>
+            </asp:Panel>
 
+            <%-- ══ ACTIVE CONTROL AREA ═══════════════════════════════════ --%>
+            <%-- Controles que reemplazan el POD Work List (Assembly, DC, LogNC).       --%>
+            <%-- Spec 006: declarados estáticos — el code-behind solo alterna Visible.  --%>
+            <%-- Los eventos custom se llaman OnStepSubmit/OnSplitRequested, por eso    --%>
+            <%-- el atributo declarativo lleva el prefijo "On" dos veces.              --%>
+            <asp:Panel ID="PnlActiveControl" runat="server" Visible="false" CssClass="pod-active-control">
+                <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                          OnOnComponentAssembled="HandleComponentAssembled"
+                                          OnOnReturnToPod="HandleReturnToPod" />
+                <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                          OnOnGroupSubmit="HandleGroupSubmit"
+                                          OnOnReturnToPod="HandleReturnToPod" />
+                <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                          OnOnReturnToPod="HandleReturnToPod" />
+                <uc:CompleteControl       ID="CtrlComplete"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+            </asp:Panel>
+        </div>
+
+        <%-- ══ PANEL DERECHO ═══════════════════════════════════════════ --%>
+        <div class="pod-sidebar">
+            <button id="BtnSFCSplit" runat="server" class="pod-sidebar-btn" disabled="disabled"
+                onserverclick="BtnSFCSplit_ServerClick" onclick="if (!podValidateSFCSplit()) return false;">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/split-icon.png")%>" alt="" />
+                <span>SFC Split</span>
+            </button>
+            <button id="BtnLogNC" runat="server" class="pod-sidebar-btn" disabled="disabled"
+                onserverclick="BtnLogNC_ServerClick">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/log_NC-Icon.png")%>" alt="" />
+                <span>Log NC</span>
+            </button>
+            <button id="BtnWorkInstructions" runat="server" class="pod-sidebar-btn" disabled="disabled"
+                onserverclick="BtnNonStepAction_ServerClick">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/intructions-icon.png")%>" alt="" />
+                <span>Work Instruction</span>
+            </button>
+            <button id="BtnReports" runat="server" class="pod-sidebar-btn has-menu" disabled="disabled"
+                onserverclick="BtnNonStepAction_ServerClick">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/informes-icon.png")%>" alt="" />
+                <span>Reports...</span>
+            </button>
+            <%-- Activities: dropdown de Bootstrap — el toggle es de cliente, los ítems son
+                 botones de servidor. Orden del MES real (Data Collection Standalone al final).
+                 Popper con strategy fixed: el menú no queda recortado por el panel. --%>
+            <div class="dropdown">
+                <button type="button" class="pod-sidebar-btn has-menu"
+                        id="BtnActivitiesToggle" disabled
+                        data-bs-toggle="dropdown" data-bs-auto-close="true"
+                        data-bs-popper-config='{"strategy":"fixed"}'>
+                    <img src="<%=ResolveUrl("~/UI/master/imgs/activities-icon.png")%>" alt="" />
+                    <span>Activities...</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end pod-activities-menu" id="activitiesMenu">
+                    <li><button id="BtnAsBuiltConfig" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">As-Built Configuration</button></li>
+                    <li><button id="BtnLogComment" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">Log Comment</button></li>
+                    <li><button id="BtnSfcPlaceHold" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">SFC Place Hold</button></li>
+                    <li><button id="BtnSfcReleaseHold" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">SFC Release Hold</button></li>
+                    <li><button id="BtnRemoveFutureHold" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">Remove Future Hold</button></li>
+                    <li><button id="BtnChangeEquipmentStatus" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">Change Equipment Status Tool</button></li>
+                    <li><button id="BtnTimeSensitiveMaterial" runat="server" class="dropdown-item" disabled="disabled"
+                        onserverclick="BtnNonStepAction_ServerClick">Time Sensitive Material Check In/Out</button></li>
+                    <li>
+                        <button id="BtnActivities" runat="server" class="dropdown-item"
+                            disabled="disabled" onserverclick="BtnActivities_ServerClick">
+                            Data Collection Standalone
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <button id="BtnPlaceBackInQueue" runat="server" class="pod-sidebar-btn" disabled="disabled"
+                onserverclick="BtnNonStepAction_ServerClick">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/play_back-icon.png")%>" alt="" />
+                <span>Place back in queue</span>
+            </button>
+        </div>
     </div>
 
-    <%-- ══ ACTIVE CONTROL AREA (outside pod-main so modals aren't clipped) ═ --%>
-    <%-- Controles que reemplazan el POD Work List (Assembly, DC, LogNC).       --%>
-    <%-- Spec 006: declarados estáticos — el code-behind solo alterna Visible.  --%>
-    <%-- Los eventos custom se llaman OnStepSubmit/OnSplitRequested, por eso    --%>
-    <%-- el atributo declarativo lleva el prefijo "On" dos veces.              --%>
-    <asp:Panel ID="PnlActiveControl" runat="server" Visible="false" CssClass="pod-active-control">
-        <uc:AssemblyControl       ID="CtrlAssembly"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
-                                  OnOnComponentAssembled="HandleComponentAssembled"
-                                  OnOnReturnToPod="HandleReturnToPod" />
-        <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
-                                  OnOnGroupSubmit="HandleGroupSubmit"
-                                  OnOnReturnToPod="HandleReturnToPod" />
-        <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
-                                  OnOnReturnToPod="HandleReturnToPod" />
-        <uc:CompleteControl       ID="CtrlComplete"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
-    </asp:Panel>
+    <%-- ══ FOOTER ════════════════════════════════════════════════════════ --%>
+    <%-- Abandon es del simulador (no existe en el MES real): a la izquierda del pie. --%>
+    <div class="pod-footer">
+        <div class="pod-footer-side">
+            <button id="BtnAbandon" runat="server" class="btn btn-sm btn-outline-danger pod-abandon-btn"
+                onserverclick="BtnAbandon_Click" onclick="return confirmAbandon();">
+                Abandon Session
+            </button>
+        </div>
+        <div class="pod-footer-buttons">
+            <button id="BtnResourceSetup" runat="server" class="pod-footer-btn" disabled="disabled"
+                onserverclick="BtnResourceSetup_ServerClick">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/resource-setup-icon.png")%>" alt="" />
+                <span>Resource Setup</span>
+            </button>
+            <button id="BtnToolList" runat="server" class="pod-footer-btn" disabled="disabled"
+                onserverclick="BtnNonStepAction_ServerClick">
+                <img src="<%=ResolveUrl("~/UI/master/imgs/tools-icon.png")%>" alt="" />
+                <span>Tool List</span>
+            </button>
+        </div>
+        <div class="pod-footer-side"></div>
+    </div>
+
+    </div><%-- /pod-shell --%>
 
     <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
     <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
@@ -244,28 +306,6 @@
         </div>
     </asp:Panel>
 
-    <%-- ══ FOOTER ════════════════════════════════════════════════════════ --%>
-    <div class="pod-footer">
-        <button id="BtnResourceSetup" runat="server" class="pod-footer-btn" disabled="disabled"
-            onserverclick="BtnResourceSetup_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/resource-setup-icon.png")%>" alt="" />
-            <span>Resource Setup</span>
-        </button>
-        <button id="BtnToolList" runat="server" class="pod-footer-btn" disabled="disabled"
-            onserverclick="BtnNonStepAction_ServerClick">
-            <img src="<%=ResolveUrl("~/UI/master/imgs/tools-icon.png")%>" alt="" />
-            <span>Tool List</span>
-        </button>
-    </div>
-
-    <%-- ══ ABANDON (fixed bottom-left) ══════════════════════════════════ --%>
-    <div class="pod-abandon">
-        <button id="BtnAbandon" runat="server" class="btn btn-sm btn-outline-danger"
-            onserverclick="BtnAbandon_Click" onclick="return confirmAbandon();">
-            Abandon Session
-        </button>
-    </div>
-
     <%-- ══ BROWSE WORK LIST MODAL ════════════════════════════════════════ --%>
     <div class="modal fade" id="modalBrowseWorkList" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -278,8 +318,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <table class="table table-sm table-hover mb-0">
-                        <thead class="table-dark">
+                    <table class="table table-sm mb-0 pod-browse-list">
+                        <thead>
                             <tr>
                                 <th class="row-selector-col">
                                     <button type="button" class="select-all-btn" title="Select All"

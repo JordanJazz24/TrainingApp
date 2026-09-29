@@ -32,20 +32,28 @@ checklist → el usuario prueba en el navegador → commit.
 - [x] Etiqueta "Status (SFC):". La ubicación a la derecha de la fila pasa a la entrega 3
       (hoy el widget de Score tapa esa zona).
 
-## Entrega 3 — Layout del POD (captura "pantall central de referencia")
-- [ ] Estructura en bloques (header → banner → sección gris → POD Work List + panel
-      derecho → pie), sin `position: fixed` apilados: nada se solapa ni tapa modales
-      (NC Data Entry y SFC Split).
-- [ ] Header gris claro: título + Score (con badge del modo) + Home, Logout y Help.
-- [ ] Banner entre el header y la búsqueda: fondo blanco, ícono verde, se oculta solo.
-      Texto de DC como el real: "All data for DC group {code} has been collected".
-- [ ] Búsqueda (operación y recurso con ★, SFC con ícono de browse dentro del campo,
-      Shop Order y Status (SFC) a la derecha) y acciones (botones grandes centrados) en
-      una sola sección gris con el panel derecho.
-- [ ] Panel derecho: botones con ícono arriba y texto abajo; textos como el real.
-- [ ] Panel "POD Work List" con (?) y línea azul; encabezado de tabla gris claro.
-- [ ] Activities en el orden real (Data Collection Standalone al final, sin divisor).
-- [ ] Abandon a la izquierda del pie.
+## Entrega 3 ✅ — Layout del POD (verificada por el usuario 2026-09-29)
+Capturas: "pantall central de referencia", "mensaje de banner correcto" y "pod cargado
+con la orden selcionada". Colores medidos sobre las capturas (variables en `pod.css`).
+- [x] Estructura en bloques (header → banner → sección gris → POD Work List + panel
+      derecho → pie), sin `position: fixed` apilados: nada se solapa ni tapa modales.
+      Causa del NC Data Entry tapado: se dibujaba dentro del panel fijo con z-index 1025.
+- [x] Header gris claro: título + Score (con badge del modo) + Home, Logout y Help.
+- [x] Banner entre el header y la búsqueda: fondo blanco, ícono verde, se oculta solo.
+      Sin el "✓" en el texto; DC como el real: "All data for DC group {code} has been
+      collected".
+- [x] Búsqueda (operación y recurso azules con `*` rojo, SFC con ícono de browse dentro
+      del campo, Shop Order y Status (SFC) a la derecha) y acciones (botones grandes
+      centrados, "DC Collect") en una sola sección gris con el panel derecho y el pie.
+- [x] Panel derecho: botones con ícono arriba y texto abajo; textos como el real ("Work
+      Instruction", "Reports...", "Activities..." con triángulo, "Place back in queue").
+- [x] Panel "POD Work List" con (?) y línea azul; encabezado de tabla gris claro; fila
+      seleccionada celeste con la celda selectora azul; Status solo con el ícono (como
+      las capturas). Browse Work List con la misma tabla. Component List, Data
+      Collection List y NC Selection con el mismo encabezado de panel.
+- [x] Activities en el orden real (Data Collection Standalone al final, sin divisor).
+- [x] Abandon a la izquierda del pie.
+- Los headers de los modales siguen oscuros hasta la entrega 4.
 
 ## Entrega 4 — Headers estándar de modales
 - [ ] Barra de título `[Título] [↗] [X]`: gris claro, ↗ maximiza/restaura, X cierra

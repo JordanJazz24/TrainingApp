@@ -11,15 +11,37 @@ Fuente de verdad para implementar Fase 6 (UserControls por tipo de paso).
 
 ### Requisitos definitivos
 
+> **Layout y colores del MES real** (capturas `pantall central de referencia.png`,
+> `mensaje de banner correcto.png` y `pod cargado con la orden selcionada.png`; mini-fase
+> de UI, entrega 3, 2026-09-29). Bloques en el flujo de la página, de arriba abajo:
+>
+> | Bloque | Color | Contenido |
+> |---|---|---|
+> | Header | `#DDDDDD`, título negrita oscuro | Título · Score del simulador · [Home] [Logout] [Help] |
+> | Banner (temporal) | blanco, ícono ✔ verde | Mensaje del MES; desaparece solo |
+> | POD Search | gris `#BBBBBB` | `* operación` `* recurso` (azules, asterisco rojo) · SFC con ícono de browse dentro · Shop Order / Status (SFC) a la derecha |
+> | Acciones | gris `#BBBBBB` | 4 botones grandes centrados |
+> | POD Work List + panel derecho | panel `#F2F2F2` con línea azul; panel derecho gris `#BBBBBB` | Tabla con encabezado `#E5E5E5`; botones del panel con ícono arriba y texto abajo |
+> | Pie | gris `#BBBBBB` | [Abandon Session] a la izquierda · [Resource Setup] [Tool List] centrados |
+>
+> Búsqueda, acciones, panel derecho y pie forman una sola sección gris continua (pedido
+> del usuario). **Score** y **Abandon** no existen en el MES real: Score va compacto en el
+> header y Abandon a la izquierda del pie. **Home** y **Help** son solo visuales (no hacen
+> nada ni cuentan como intento).
+
 **Header bar**
 ```
-Production Operator Dashboard: Site - {site}, User - {userName}    [Home] [Power] [Avatar]
-★ {operationName}    ★ {resourceName}    SFC: [input readonly → SearchModal]    Shop Order:    Status (SFC):
+Production Operator Dashboard: Site - {site}, User - {userName}    Score: {n}% [modo]  [Home] [Logout] [Help]
 ```
 
-**Action buttons — una sola fila, 4 botones**
+**POD Search**
 ```
-[Start]  [Assemble]  [DC Collection]  [Complete]
+* {operationName}   * {resourceName}   SFC: [input readonly ⧉]          Shop Order: {orden}   Status (SFC): {estado}
+```
+
+**Action buttons — una sola fila, 4 botones centrados** (ícono grande + texto)
+```
+[Start]  [Assemble]  [DC Collect]  [Complete]
 ```
 
 **Tabla POD — columnas**
@@ -30,11 +52,11 @@ Production Operator Dashboard: Site - {site}, User - {userName}    [Home] [Power
 | SFC | SFC identifier (el legacy la llamaba "CP"; corregido 2026-09-29) |
 | Material Description | |
 | Qty | Cantidad |
-| Status | Con indicador de color (verde = Activo) |
+| Status | Solo el ícono de color, sin texto (verde = Active), como el real |
 | Process Lot | Lote proc. |
 | Shop Order | Orden de fabricación |
 
-Estado de fila seleccionada: highlight azul. Un click selecciona una fila (Serialized:
+Fila seleccionada: fondo celeste y celda selectora azul, como el real. Un click selecciona una fila (Serialized:
 alterna la fila, multi-selección). **Select All** (captura del POD real del usuario,
 2026-09-29) selecciona todas las filas y, si ya estaban todas, las deselecciona; aplica en
 Serialized y en NonSerialized. En NonSerialized, con más de una fila seleccionada, cada
@@ -42,22 +64,22 @@ paso de una fila aplica su regla de siempre: DC Collection y SFC Split muestran 
 de formato (sin intento); Log NC y Complete cuentan como intento fallido (spec 007: elegir
 la fila es decisión del operador).
 
-**Sidebar — orden definitivo**
+**Sidebar — orden definitivo** (textos como el real)
 1. SFC Split
 2. Log NC
 3. Work Instruction
-4. Reports (con submenu expandible)
-5. Activities (con submenu expandible)
-6. Place Back in Queue
+4. Reports... (triángulo de submenú)
+5. Activities... (triángulo de submenú)
+6. Place back in queue
 
 Estilo de botones: tarjetas cuadradas grandes con ícono centrado + label debajo.
 
-**Footer (fijo, fondo)**
+**Footer (fondo)**
 ```
-[Resource Setup]  [Tool List]
+[Abandon Session]                 [Resource Setup]  [Tool List]
 ```
 
-**Activities — submenu completo**
+**Activities — submenu completo** (orden real, sin divisor; Data Collection Standalone al final)
 1. As-Built Configuration
 2. Log Comment
 3. SFC Place Hold
@@ -302,7 +324,7 @@ Se abre **sobre** el modal principal (capas apiladas). El modal principal queda 
 - Sub-modal se cierra (JS)
 - Modal principal queda visible con banner "dc group save"
 - Banner desaparece automáticamente a los 5s
-- Score actualizado en el widget top-right del POD
+- Score actualizado en el header del POD
 - El operador cierra el modal principal con [X] cuando quiera
 
 ---

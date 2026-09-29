@@ -1,301 +1,420 @@
 /* ============================================================
    POD — Production Operator Dashboard styles
-   GuidedTest.aspx full-screen layout
+   GuidedTest.aspx. Layout y colores del SAP MES real (mini-fase de UI, entrega 3):
+   bloques en el flujo del documento, sin position:fixed apilados — así nada se
+   solapa y ningún ancestro con z-index atrapa a los modales.
    ============================================================ */
+
+:root {
+    --pod-header-bg:  #dddddd;
+    --pod-gray:       #bbbbbb;   /* sección gris: búsqueda, acciones, panel derecho y pie */
+    --pod-gray-edge:  #a9a9a9;
+    --pod-btn-face:   #e2e2e2;
+    --pod-btn-border: #9d9d9d;
+    --pod-panel-bg:   #f2f2f2;
+    --pod-grid-head:  #e5e5e5;
+    --pod-grid-line:  #dddddd;
+    --pod-blue:       #057fc6;
+    --pod-row-sel:    #c9e1ed;
+    --pod-cell-sel:   #007dc0;
+    --pod-link:       #0a6ebd;
+    --pod-star:       #be211c;
+    --pod-text:       #333333;
+}
 
 html, body {
     height: 100%;
     overflow: hidden;
-    background: #f8f9fa;
+    background: var(--pod-gray);
 }
 
-/* ── Header bar ─────────────────────────────────────────── */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--pod-text);
+}
+
+.pod-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
 .pod-header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 44px;
-    background: #1a2332;
-    color: #fff;
+    flex: none;
     display: flex;
     align-items: center;
-    padding: 0 12px;
     justify-content: space-between;
-    z-index: 1050;
-    font-size: 0.82rem;
+    gap: 12px;
+    min-height: 40px;
+    padding: 4px 12px;
+    background: var(--pod-header-bg);
+    border-bottom: 1px solid #c8c8c8;
 }
 
-.pod-header .pod-header-title { font-weight: 600; }
+.pod-header-title {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
 
-.pod-header .pod-header-controls {
+.pod-header-controls {
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-.pod-header .pod-header-controls i { cursor: pointer; font-size: 1rem; }
-
-.pod-header-logout {
+/* Home y Help son solo visuales; Logout es el único con acción. */
+.pod-header-icon {
     background: none;
-    border: none;
-    color: #fff;
+    border: 0;
+    padding: 2px;
+    line-height: 0;
+    color: #6a7d91;
     cursor: pointer;
-    font-size: 1rem;
-    padding: 0;
-    line-height: 1;
 }
+.pod-header-icon:hover { color: #2f4a66; }
+.pod-help-circle { fill: #6c8ebf; }
 
-/* ── Score widget (top-right, below header) ─────────────── */
-.pod-score-widget {
-    position: fixed;
-    top: 50px;
-    right: 14px;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    padding: 6px 12px;
+/* Score del simulador: compacto, antes de los íconos del header. */
+.pod-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 6px;
+    padding: 2px 8px;
+    border: 1px solid #c4c4c4;
+    border-radius: 3px;
+    background: #efefef;
     font-size: 0.8rem;
-    min-width: 120px;
-    text-align: center;
-    z-index: 1040;
-    box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    white-space: nowrap;
 }
-
-.pod-score-widget .score-value { font-weight: 700; font-size: 1rem; }
+.pod-score .score-value { font-weight: 700; font-size: 0.9rem; }
+.pod-score .badge       { font-size: 0.68rem; }
 
 .badge-guided    { background-color: #0d6efd; color: #fff; }
 .badge-assessment{ background-color: #dc3545; color: #fff; }
 
-/* ── Banner zone (between header and search) ────────────── */
-.pod-banner-zone {
-    position: fixed;
-    top: 44px; left: 0; right: 0;
-    z-index: 1045;
-    pointer-events: none;
+/* ── Banner (entre el header y el POD Search) ───────────── */
+.pod-banner {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: #fff;
+    border-bottom: 1px solid #d6d6d6;
+    font-size: 0.85rem;
 }
 
-.pod-banner-zone .pod-banner {
-    pointer-events: auto;
-    margin: 4px 8px;
-    padding: 6px 14px;
-    border-radius: 4px;
-    font-size: 0.82rem;
-    font-weight: 500;
-}
-
-/* ── Search section ─────────────────────────────────────── */
+/* ── POD Search ─────────────────────────────────────────── */
 .pod-search {
-    position: fixed;
-    top: 44px; left: 0; right: 0;
-    background: #e9ecef;
-    border-bottom: 1px solid #ced4da;
-    padding: 5px 12px;
-    z-index: 1030;
+    flex: none;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    padding: 8px 12px 4px;
+    background: var(--pod-gray);
     font-size: 0.8rem;
 }
 
-.pod-search .sfc-label { color: #6c757d; }
-.pod-search .sfc-input { max-width: 220px; height: 28px; font-size: 0.8rem; }
+.pod-search-link { color: var(--pod-link); white-space: nowrap; }
+.pod-star        { color: var(--pod-star); font-weight: 700; margin-right: 2px; }
 
-/* ── Action buttons row ─────────────────────────────────── */
-.pod-actions {
-    position: fixed;
-    top: 88px; left: 0; right: 170px;
-    background: #fff;
-    border-bottom: 1px solid #dee2e6;
-    padding: 6px 10px;
+.pod-search-sfc {
+    flex: 1 1 320px;
+    max-width: 720px;
     display: flex;
+    align-items: center;
     gap: 6px;
-    z-index: 1020;
+}
+
+/* Ícono de browse dentro del campo SFC, como el real. */
+.pod-sfc-box { position: relative; flex: 1; display: flex; }
+.pod-sfc-input {
+    width: 100%;
+    height: 28px;
+    padding: 2px 32px 2px 8px;
+    border: 1px solid #7a9cc0;
+    background: #fff;
+    color: var(--pod-text);
+    font-size: 0.85rem;
+}
+.pod-sfc-browse {
+    position: absolute;
+    top: 2px; right: 2px; bottom: 2px;
+    width: 28px;
+    border: 0;
+    background: transparent;
+    color: #555;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.pod-sfc-browse:hover { color: #000; }
+
+.pod-search-order {
+    margin-left: auto;
+    display: flex;
+    gap: 14px;
+    white-space: nowrap;
+}
+
+/* ── Botones del MES (acciones, panel derecho y pie) ────── */
+.pod-action-btn,
+.pod-sidebar-btn,
+.pod-footer-btn {
+    border: 1px solid var(--pod-btn-border);
+    border-radius: 3px;
+    background: var(--pod-btn-face);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0, 0, 0, .35);
+    color: var(--pod-text);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+.pod-action-btn:hover:not(:disabled),
+.pod-sidebar-btn:hover:not(:disabled),
+.pod-footer-btn:hover:not(:disabled)  { background: #ececec; }
+.pod-action-btn:disabled,
+.pod-sidebar-btn:disabled,
+.pod-footer-btn:disabled              { opacity: .5; cursor: not-allowed; }
+.pod-action-btn.active,
+.pod-sidebar-btn.active,
+.pod-footer-btn.active                { background: #d0e8ff; border-color: #0d6efd; }
+
+/* ── Action buttons (centrados, grandes) ────────────────── */
+.pod-actions {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 6px 12px 14px;
+    background: var(--pod-gray);
 }
 
 .pod-action-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    font-size: 0.8rem;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    background: #f8f9fa;
-    cursor: pointer;
+    gap: 10px;
+    min-width: 128px;
+    height: 66px;
+    padding: 6px 16px 6px 10px;
     white-space: nowrap;
 }
+.pod-action-btn img { height: 44px; width: 44px; object-fit: contain; }
 
-.pod-action-btn img { height: 20px; width: 20px; object-fit: contain; }
-
-.pod-action-btn:hover:not(:disabled) { background: #e2e6ea; }
-.pod-action-btn:disabled             { opacity: .45; cursor: not-allowed; }
-.pod-action-btn.active               { background: #d0e8ff; border-color: #0d6efd; }
-
-/* ── Main content (work list area) ─────────────────────── */
-.pod-main {
-    position: fixed;
-    top: 130px;
-    bottom: 56px;
-    left: 0;
-    right: 170px;
-    overflow-y: auto;
-    background: #fff;
-    padding: 0;
+/* ── Cuerpo: POD Work List + panel derecho ──────────────── */
+.pod-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    background: var(--pod-gray);
 }
 
-/* ── Sidebar ─────────────────────────────────────────────── */
-.pod-sidebar {
-    position: fixed;
-    top: 44px;
-    bottom: 56px;
-    right: 0;
-    width: 165px;
-    background: #f1f3f5;
-    border-left: 1px solid #dee2e6;
+.pod-main {
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 6px;
+    background: var(--pod-panel-bg);
+    border-top: 1px solid var(--pod-gray-edge);
+}
+
+.pod-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.pod-panel-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 8px 6px;
+    background: var(--pod-panel-bg);
+    border-bottom: 2px solid var(--pod-blue);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.pod-help-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #8fa9c9;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.pod-panel-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    background: #fff;
+}
+
+/* Controles que reemplazan el POD Work List (Assembly, DC, Log NC). Sin z-index: el
+   modal NC Data Entry que se dibuja adentro queda por encima de todo el POD. */
+.pod-active-control {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    background: #fff;
+}
+
+/* ── Panel derecho ──────────────────────────────────────── */
+.pod-sidebar {
+    flex: none;
+    width: 172px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 8px;
+    background: var(--pod-gray);
     overflow-y: auto;
-    z-index: 1020;
 }
 
 .pod-sidebar-btn {
+    position: relative;
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    border: 1px solid #ced4da;
-    border-radius: 5px;
-    background: #fff;
-    font-size: 0.78rem;
-    cursor: pointer;
-    text-align: left;
-    width: 100%;
-}
-
-.pod-sidebar-btn img { height: 22px; width: 22px; object-fit: contain; flex-shrink: 0; }
-.pod-sidebar-btn:hover:not(:disabled) { background: #e2e6ea; }
-.pod-sidebar-btn:disabled             { opacity: .45; cursor: not-allowed; }
-.pod-sidebar-btn.active               { background: #d0e8ff; border-color: #0d6efd; }
-
-/* ── Footer ─────────────────────────────────────────────── */
-.pod-footer {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 52px;
-    background: #f1f3f5;
-    border-top: 1px solid #dee2e6;
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    z-index: 1030;
+    gap: 4px;
+    width: 100%;
+    min-height: 80px;
+    padding: 6px;
+    text-align: center;
 }
+.pod-sidebar-btn img { height: 36px; max-width: 56px; object-fit: contain; }
+
+/* Reports... y Activities... llevan el triángulo de submenú del real. */
+.pod-sidebar-btn.has-menu::after {
+    content: '';
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    border-left: 9px solid transparent;
+    border-bottom: 9px solid #555;
+}
+
+.pod-activities-menu { font-size: 0.8rem; }
+
+/* ── Pie: Abandon a la izquierda, botones centrados ─────── */
+.pod-footer {
+    flex: none;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--pod-gray);
+    border-top: 1px solid var(--pod-gray-edge);
+}
+
+.pod-footer-buttons { display: flex; gap: 12px; }
 
 .pod-footer-btn {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 16px;
-    font-size: 0.8rem;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    background: #fff;
-    cursor: pointer;
+    gap: 8px;
+    min-width: 170px;
+    height: 60px;
+    padding: 6px 16px;
 }
+.pod-footer-btn img { height: 34px; width: 38px; object-fit: contain; }
 
-.pod-footer-btn img { height: 20px; width: 20px; object-fit: contain; }
-.pod-footer-btn:hover:not(:disabled) { background: #e2e6ea; }
-.pod-footer-btn:disabled             { opacity: .45; cursor: not-allowed; }
-.pod-footer-btn.active               { background: #d0e8ff; border-color: #0d6efd; }
+.pod-abandon-btn { background: #fff; }
 
-/* ── Abandon button (fixed bottom-left) ─────────────────── */
-.pod-abandon {
-    position: fixed;
-    bottom: 62px;
-    left: 10px;
-    z-index: 1040;
+/* ── POD Work List y Browse Work List (tablas del MES) ─────── */
+.pod-work-list,
+.pod-browse-list { width: 100%; margin: 0; font-size: 0.8rem; }
+
+.pod-work-list thead th,
+.pod-browse-list thead th {
+    background: var(--pod-grid-head);
+    color: var(--pod-text);
+    font-weight: 400;
+    padding: 6px 8px;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    white-space: nowrap;
 }
+.pod-work-list thead th { position: sticky; top: 0; z-index: 2; }
 
-/* ── POD Work List table ────────────────────────────────── */
-.pod-work-list { width: 100%; font-size: 0.82rem; margin: 0; }
-
-.pod-work-list thead th {
-    background: #1a2332;
-    color: #fff;
-    padding: 7px 10px;
-    font-weight: 500;
-    position: sticky;
-    top: 0;
-    z-index: 2;
+.pod-work-list tbody td,
+.pod-browse-list tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--pod-grid-line);
+    border-right: 1px solid #eee;
+    vertical-align: middle;
 }
 
 /* Bootstrap 5.2 pinta cada celda con box-shadow inset var(--bs-table-accent-bg), que
-   tapa el background del <tr>: el color se define como variable en la fila. */
+   tapa el background del <tr>: el color se define como variable en la fila.
+   Selección como la real: fila celeste y celda selectora azul. */
 .pod-work-list tbody tr { cursor: pointer; }
-.pod-work-list tbody tr:hover { --bs-table-accent-bg: #e8f0fe; }
-.pod-work-list tbody tr.selected {
-    --bs-table-accent-bg: #cfe2ff;
-    outline: 2px solid #0d6efd;
-    outline-offset: -2px;
-}
+.pod-work-list tbody tr:hover                        { --bs-table-accent-bg: #eef5fa; }
+.pod-work-list tbody tr.selected                     { --bs-table-accent-bg: var(--pod-row-sel); }
+.pod-work-list tbody tr.selected .row-selector-col   { --bs-table-accent-bg: var(--pod-cell-sel); }
+.pod-browse-list tbody tr.table-primary              { --bs-table-accent-bg: var(--pod-row-sel); }
+.pod-browse-list tbody tr.table-primary .row-selector-col { --bs-table-accent-bg: var(--pod-cell-sel); }
 
-.pod-work-list tbody td { padding: 6px 10px; vertical-align: middle; }
-
-/* Columna selectora (POD y Browse Work List): angosta, con el ícono Select All en el
-   header; en las filas queda vacía, como en el MES real. */
+/* Columna selectora: angosta, con el ícono Select All en el header; en las filas
+   queda vacía, como en el MES real. */
 .pod-work-list .row-selector-col,
-#modalBrowseWorkList .row-selector-col {
-    width: 30px;
-    padding-left: 4px;
-    padding-right: 4px;
+.pod-browse-list .row-selector-col {
+    width: 24px;
+    padding-left: 3px;
+    padding-right: 3px;
     text-align: center;
 }
 .select-all-btn {
-    --select-all-bg: #1a2332;       /* fondo del header del POD */
     background: none;
     border: 0;
     padding: 0;
     line-height: 0;
-    color: #aeb6bf;
+    color: #7b7b7b;
     cursor: pointer;
 }
-.select-all-btn:hover { color: #fff; }
-.table-dark .select-all-btn { --select-all-bg: #212529; }
+.select-all-btn:hover     { color: var(--pod-text); }
 .select-all-btn .sa-back  { fill: currentColor; opacity: 0.55; }
-.select-all-btn .sa-front { fill: var(--select-all-bg); stroke: currentColor; stroke-width: 1.2; }
+.select-all-btn .sa-front { fill: var(--pod-grid-head); stroke: currentColor; stroke-width: 1.2; }
 
+/* Status: solo el ícono, como el real (el texto queda en el title). */
 .status-badge {
     display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-right: 5px;
+    width: 14px;
+    height: 11px;
+    vertical-align: middle;
 }
-.status-active  { background: #198754; }
-.status-default { background: #6c757d; }
-
-/* ── Active control overlay (list-view controls: Assembly, DC, LogNC) ─ */
-/* Modals from UserControls render at body level — no clipping.          */
-.pod-active-control {
-    position: fixed;
-    top: 130px;
-    bottom: 56px;
-    left: 0;
-    right: 170px;
-    background: #fff;
-    /* NO overflow — Bootstrap modals need position:fixed relative to viewport,
-       any overflow on an ancestor would clip them */
-    z-index: 1025;
-}
+.status-active  { background: linear-gradient(#5cb85c 0 45%, #2e8b36 45% 100%); border: 1px solid #2b7a2f; }
+.status-default { background: #9a9a9a; border: 1px solid #7a7a7a; }
 
 /* ── List views (Component List / DC List / NC Selection) ─ */
-.pod-list-view { padding: 0 10px 10px; }
+.pod-list-view { padding: 0 0 10px; }
 
 .pod-list-view .list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0 6px;
-    border-bottom: 2px solid #dee2e6;
-    font-weight: 600;
-    font-size: 0.85rem;
+    padding: 6px 8px;
+    background: var(--pod-panel-bg);
+    border-bottom: 2px solid var(--pod-blue);
+    font-weight: 700;
+    font-size: 0.8rem;
 }
 
 .pod-list-row {
@@ -303,7 +422,7 @@ html, body {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #f0f0f0;
-    padding: 8px 4px;
+    padding: 8px 10px;
     font-size: 0.82rem;
 }
 
@@ -313,7 +432,7 @@ html, body {
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 8px 4px;
+    padding: 8px 10px;
     font-size: 0.78rem;
 }
 

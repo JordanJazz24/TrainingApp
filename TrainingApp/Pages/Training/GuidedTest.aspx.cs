@@ -284,13 +284,13 @@ namespace TrainingApp.Pages.Training
             else if (step.StepType == StepType.Search)
             {
                 LoadStartedOrderOnPod(session, area);
-                ShowBanner("✓ Start process completed successfully");
+                ShowBanner("Start process completed successfully");
             }
             else if (step.StepType == StepType.Assembly)
             {
                 // La Component List reemplazaba el POD: se vuelve a pintar con la selección.
                 BindWorkList(area, session);
-                ShowBanner("✓ Assembly completed successfully");
+                ShowBanner("Assembly completed successfully");
             }
             else if (step.StepType == StepType.DataCollection)
             {
@@ -298,7 +298,7 @@ namespace TrainingApp.Pages.Training
                 BindWorkList(area, session);
             }
             else if (step.StepType == StepType.SFC_Split)
-                ShowBanner("✓ SFC Split completed successfully");
+                ShowBanner("SFC Split completed successfully");
             else if (step.StepType == StepType.LogNC)
                 ScrapSelectedRows(area, session);
         }
@@ -365,7 +365,7 @@ namespace TrainingApp.Pages.Training
             if (area.SerializationType == SerializationType.Serialized)
                 TxtSFC.Text = string.Empty;
             BindWorkList(area, session);
-            ShowBanner("✓ " + scrapped + " scrapped", hideAfterMs: 5000);
+            ShowBanner(scrapped + " scrapped", hideAfterMs: 5000);
         }
 
         // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
@@ -633,7 +633,7 @@ namespace TrainingApp.Pages.Training
             var outcome = ProcessSubmit(session, guide, area, step, StepAnswers.Start);
             if (outcome == StepSubmitOutcome.Incorrect) return;
             LoadStartedOrderOnPod(session, area);
-            ShowBanner("✓ Start process completed successfully");
+            ShowBanner("Start process completed successfully");
         }
 
         private const string AllPiecesTitle   = "Selecciona todas las piezas";
@@ -776,12 +776,12 @@ namespace TrainingApp.Pages.Training
 
                 case DataCollectionOutcome.GroupSaved:
                     RefreshDataCollectionControl(session, guide, area, step);
-                    ShowBanner("✓ Data collected for " + e.GroupCode, hideAfterMs: 4000);
+                    ShowBanner("All data for DC group " + e.GroupCode + " has been collected", hideAfterMs: 4000);
                     return;
 
                 case DataCollectionOutcome.PieceCompleted:
                     RefreshDataCollectionControl(session, guide, area, step);
-                    ShowBanner(string.Format("✓ SFC {0} completed. Next: {1}",
+                    ShowBanner(string.Format("SFC {0} completed. Next: {1}",
                         pieceSfc, DescribeCurrentPiece(progress)), hideAfterMs: 5000);
                     return;
 
@@ -1324,12 +1324,14 @@ namespace TrainingApp.Pages.Training
                 button.Attributes.Remove("onclick");
         }
 
+        // Mensaje del MES entre el header y el POD Search (con ícono verde, como el real).
+        // Ocupa su propia franja y desaparece solo después de hideAfterMs.
         private void ShowBanner(string message, int hideAfterMs = 3000)
         {
             PnlBannerZone.Visible = true;
             LitBanner.Text        = HttpUtility.HtmlEncode(message);
             ClientScript.RegisterStartupScript(GetType(), "hideBanner",
-                "setTimeout(function(){var b=document.querySelector('.pod-banner-zone');if(b)b.style.display='none';}," +
+                "setTimeout(function(){var b=document.querySelector('.pod-banner');if(b)b.style.display='none';}," +
                 hideAfterMs + ");",
                 true);
         }
