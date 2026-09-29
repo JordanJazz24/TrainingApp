@@ -1,6 +1,6 @@
 /* ============================================================
    POD — Production Operator Dashboard styles
-   GuidedTest.aspx. Layout y colores del SAP MES real (mini-fase de UI, entrega 3):
+   GuidedTest.aspx. Layout y colores del SAP MES real (Fase 6.5, entrega 3):
    bloques en el flujo del documento, sin position:fixed apilados — así nada se
    solapa y ningún ancestro con z-index atrapa a los modales.
    ============================================================ */
@@ -483,7 +483,7 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,.1);
 }
 
-/* ── Modales del MES (mini-fase de UI, entrega 4) ──────────
+/* ── Modales del MES (Fase 6.5, entrega 4) ──────────
    Barra de título estándar de todas las ventanas: [Título] [↗] [X] sobre gris claro.
    Debajo, el encabezado interno que muestra cada captura real:
    - .mes-page-header    banda oscura con el título grande (Resource Setup)

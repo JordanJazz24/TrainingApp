@@ -13,7 +13,7 @@
 
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
 
-    <%-- Layout del POD real (mini-fase de UI, entrega 3): bloques en el flujo del documento
+    <%-- Layout del POD real (Fase 6.5, entrega 3): bloques en el flujo del documento
          — header, banner, sección gris (búsqueda + acciones + panel derecho), POD Work List
          y pie —, sin posiciones fijas apiladas. Así nada se solapa ni tapa los modales. --%>
     <div class="pod-shell">

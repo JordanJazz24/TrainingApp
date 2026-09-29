@@ -13,7 +13,7 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-09-29 · **Branch:** `TrainingApp` · **Último commit de código:** `6b4c09e` (`git log --oneline -5` para ver el estado real)
+**Última actualización:** 2026-09-29 · **Branch:** `TrainingApp` · **Último commit de código:** `b832e77` (`git log --oneline -5` para ver el estado real)
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
@@ -60,25 +60,24 @@ se filtran en fases anteriores.
     spec: recorrido pieza por pieza).
   - Verificado en navegador por el usuario: Redefinity de punta a punta y regresión de
     Moldeo en Guided y Assessment.
-- **Mini-fase: ajustes de UI post-spec 008 (en curso, antes de la Fase 7).** Sin spec:
-  pedidos acotados del usuario, con una ronda de preguntas y plan directo. Entrega 1
-  (2026-09-29, verificada en navegador por el usuario):
-  - Tabla del POD: columna "CP" → **"SFC"**.
-  - POD y Browse Work List: columna selectora con el ícono **Select All** (captura real):
-    selecciona todas las filas o, si ya estaban todas, las deselecciona. **Decisión del
-    usuario:** también en NonSerialized. Ahí, con varias filas seleccionadas, DC Collection
-    y SFC Split avisan sin intento, y Log NC y Complete cuentan intento fallido (regla de
-    la spec 007, sin cambios).
-  - DC Collect (solo este paso, no Line Clearance): **Collect deshabilitado** en el grupo
-    que la pieza actual ya guardó; en Serialized se rehabilita al pasar a la pieza
-    siguiente. El servidor ignora un segundo Save del mismo grupo (enmienda de E3, spec 008).
-  - Assemble Components: **"Apply to all SFCs"** pasa al pie, a la izquierda de Add, y
-    aparece junto con él tras el escaneo (decisión del usuario).
-  - **Entregas 2-4** (pedido "Ajustes varios", 2026-09-29): plan con casillas y decisiones
-    en `docs/specs/ui-ajustes-post-008-plan.md` (Shop Order/Status del POD Search, layout
-    del POD con colores del MES real, headers estándar de modales).
-- **Siguiente:** la **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de
-  LoFlo, a confirmar con negocio. Con eso, la Fase 7 vuelve a ser "solo datos".
+- **Fase 6.5 — Fidelidad de UI/UX con el SAP MES real 🔄 (en curso, formalizada
+  2026-09-29).** Nació como mini-fase de ajustes de UI tras la spec 008. Objetivo:
+  dejar cerrada la interfaz antes de los overlays guiados (Fase 6.6), que se anclan a
+  ella. Detalle, alcance y criterio de cierre abajo, en "Fase 6.5".
+  - **Entregas 1-4 ✅** (2026-09-29, verificadas por el usuario; plan con casillas y
+    decisiones en `docs/specs/fase-6.5-plan.md`): columna SFC y Select All; Collect
+    deshabilitado por pieza (enmienda de E3, spec 008); "Apply to all SFCs" en el pie;
+    Shop Order / Status (SFC) del POD Search; layout y colores del MES real; header
+    estándar de los 12 modales.
+  - **Inventario de pantallas** (criterio de cierre): `docs/ui-reference/inventario-pantallas.md`
+    — hoy ✅ 3 · 🟡 11 · ⚪ 2 (16 pantallas del MES).
+  - **Ahora:** entrega 5 con la siguiente tanda de correcciones del usuario, cruzada con
+    las diferencias del inventario.
+- **Después — Fase 6.6 · Overlays guiados** (requiere `/spec`), sobre la interfaz ya
+  cerrada. Ver "Fase 6.6" abajo.
+- **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de LoFlo, a
+  confirmar con negocio. Con eso, la Fase 7 vuelve a ser "solo datos"; no compite con la
+  6.5 ni con la 6.6.
   **Qué pedirle a negocio** para escribir el script de LoFlo:
   1. Flags: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresDataCollection`,
      `RequiresNCComponent`.
@@ -104,7 +103,8 @@ se filtran en fases anteriores.
      validación") → checklist → el usuario prueba en el navegador → commit.
 4. Pantallas: replicar el SAP MES real. Las capturas de referencia que aporta el usuario
    están en `C:\Users\320313439\Pictures\TrainingApp\` y lo ya documentado en
-   `docs/ui-reference/` (`general-flow.md` + un archivo por área).
+   `docs/ui-reference/` (`general-flow.md` + un archivo por área). Estado de cada pantalla
+   frente a su captura: `docs/ui-reference/inventario-pantallas.md` (Fase 6.5).
 
 ### Bloqueantes antes de la Fase 7 (LoFlo)
 
@@ -281,6 +281,37 @@ del servidor y emite un submit — sin lógica de negocio interna.
 **Commits de cierre:** `3567e07` (migración a controles estáticos), `51636a7` (DC
 return to POD, txtSFC, resaltado de fila, score final), `f54ff50` (spec 007),
 `3a38b86` (F5).
+
+---
+
+### Fase 6.5 — Fidelidad de UI/UX con el SAP MES real 🔄 (en curso, formalizada 2026-09-29)
+**Objetivo:** que cada pantalla y modal del POD replique su captura del SAP MES real
+(estructura, textos, colores y comportamiento visual), y dejar la interfaz cerrada antes
+de los overlays guiados de la Fase 6.6, que se anclan a ella.
+**No incluye:** cambios de reglas de negocio, del motor de pasos o del puntaje; pasos
+nuevos; los overlays guiados; el catálogo de LoFlo; las páginas del simulador que no son
+del MES (Login, Cambio de contraseña, StartSession). Si una corrección toca una regla (ej.
+Status "In Queue" o el SFC nuevo del Split), se señala y se decide aparte.
+**Criterio de cierre:** `docs/ui-reference/inventario-pantallas.md` con todas las
+pantallas que tienen captura en ✅ (o con sus diferencias cerradas como *aceptadas*). Las
+pantallas sin captura quedan anotadas como pendientes y no bloquean.
+**Proceso:** sin spec — las capturas del MES real son la fuente. Cada tanda de
+correcciones del usuario = una entrega (ronda de preguntas si hace falta + plan directo en
+`docs/specs/fase-6.5-plan.md`) → build + precompilación (+ tests si cambia la BLL) →
+checklist → prueba del usuario → commit → actualizar el inventario.
+**Commits:** `48b67c1` (entrega 1), `fbcd132` (2), `8fde133` (3), `b832e77` (4).
+
+---
+
+### Fase 6.6 — Overlays guiados 📝 (planeada, requiere `/spec`)
+**Objetivo:** en modo Guided, overlays que guían al operador paso a paso sobre la interfaz
+ya cerrada en la 6.5 (qué botón, campo o modal usar en cada paso).
+**A definir en la spec:** si aplican solo en Guided (en Assessment no pueden revelar el
+camino); cómo se anclan a los elementos (anclas estables en botones y campos); que se
+definan por tipo de paso y no por área, para que LoFlo los reciba sin trabajo extra.
+Entrada: el inventario de pantallas de la 6.5.
+**No incluye:** cambios de UI de las pantallas del MES (eso es la 6.5), reglas de negocio
+nuevas.
 
 ---
 

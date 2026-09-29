@@ -36,7 +36,7 @@ namespace TrainingApp.BLL.Training
         }
 
         // Grupos ya guardados por la pieza actual: su Collect queda deshabilitado hasta pasar
-        // a la pieza siguiente, como Assemble en la Component List (ajuste de UI 2026-09-29).
+        // a la pieza siguiente, como Assemble en la Component List (Fase 6.5, entrega 1).
         public ICollection<int> CurrentPieceSavedGroupIds
             => CurrentPiece != null ? SavedGroupIds(CurrentPiece.RowId) : new HashSet<int>();
 

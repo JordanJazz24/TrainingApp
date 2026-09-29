@@ -1,9 +1,14 @@
-# Plan — Mini-fase de ajustes de UI post-spec 008
+# Plan — Fase 6.5: Fidelidad de UI/UX con el SAP MES real
 
-**Sin spec:** pedidos acotados del usuario con capturas del MES real como fuente
-(`Pictures\TrainingApp\`). Una ronda de preguntas por pedido y plan directo (ver
-`docs/roadmap.md` → mini-fase). Cada entrega: rebuild + `aspnet_compiler` + tests →
-checklist → el usuario prueba en el navegador → commit.
+Nació como "mini-fase de ajustes de UI post-spec 008" (entregas 1-4) y se formalizó como
+fase el 2026-09-29. Objetivo, alcance y criterio de cierre: `docs/roadmap.md` → Fase 6.5.
+Estado de cada pantalla: `docs/ui-reference/inventario-pantallas.md`.
+
+**Sin spec:** las capturas del MES real (`Pictures\TrainingApp\`) son la fuente. Cada tanda
+de correcciones del usuario = una entrega, con una ronda de preguntas si hace falta y plan
+directo. Cada entrega: rebuild + `aspnet_compiler` + tests si cambia la BLL → checklist →
+el usuario prueba en el navegador → commit → actualizar el inventario. Si una corrección
+toca una regla de negocio, se señala y se decide aparte (no entra en la fase).
 
 ## Entrega 1 ✅ (2026-09-29, `48b67c1`)
 - [x] Columna "CP" → "SFC"; columna selectora con Select All en POD y Browse Work List.
@@ -67,3 +72,7 @@ con la orden selcionada". Colores medidos sobre las capturas (variables en `pod.
 - [x] Corrección tomada de la captura: el submodal de LC decía `DCGTM_LC/CA`; ahora
       `DCGTM_LC/A`, igual que la fila de la lista.
 - El cuerpo de cada modal no cambia en esta entrega.
+
+## Entrega 5 — (pendiente: siguiente tanda de correcciones del usuario)
+- [ ] Recibir la tanda de correcciones y cruzarla con el inventario (diferencias ya
+      detectadas por pantalla + estilo compartido de botones del MES).

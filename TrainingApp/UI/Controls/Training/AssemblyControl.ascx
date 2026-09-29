@@ -139,7 +139,7 @@
             <div class="modal-footer asm-footer">
                 <%-- Cada escaneo se aplica a todas las piezas seleccionadas (spec 008); solo
                      tiene sentido con más de una pieza. Aparece con Add, a su izquierda, como
-                     en el MES real (ajuste de UI 2026-09-29). --%>
+                     en el MES real (Fase 6.5, entrega 1). --%>
                 <asp:Panel ID="PnlApplyAll" runat="server" CssClass="asm-apply-all" style="display:none">
                     <label class="mb-0"><input type="checkbox" checked disabled /> Apply to all SFCs</label>
                 </asp:Panel>

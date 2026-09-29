@@ -12,8 +12,8 @@ Fuente de verdad para implementar Fase 6 (UserControls por tipo de paso).
 ### Requisitos definitivos
 
 > **Layout y colores del MES real** (capturas `pantall central de referencia.png`,
-> `mensaje de banner correcto.png` y `pod cargado con la orden selcionada.png`; mini-fase
-> de UI, entrega 3, 2026-09-29). Bloques en el flujo de la página, de arriba abajo:
+> `mensaje de banner correcto.png` y `pod cargado con la orden selcionada.png`; Fase 6.5,
+> entrega 3, 2026-09-29). Bloques en el flujo de la página, de arriba abajo:
 >
 > | Bloque | Color | Contenido |
 > |---|---|---|
@@ -89,7 +89,7 @@ Estilo de botones: tarjetas cuadradas grandes con ícono centrado + label debajo
 7. Time Sensitive Material Check In/Out
 8. Data Collection Standalone
 
-### Modales — header estándar (mini-fase de UI, entrega 4, 2026-09-29)
+### Modales — header estándar (Fase 6.5, entrega 4, 2026-09-29)
 
 Todas las ventanas del MES llevan la misma **barra de título**: `[Título]  [↗] [X]` sobre
 gris claro. [↗] maximiza o restaura el modal (estado de cliente); [X] hace lo mismo que el
