@@ -19,68 +19,73 @@
                 <span>Resource Setup</span>
                 <span class="mes-help" title="Help">?</span>
             </div>
-            <div class="modal-body">
+            <%-- Cuerpo como la captura real (Fase 6.5, entrega 5): campos generales
+                 centrados, franja celeste de acciones a la izquierda, tabla y pie centrado. --%>
+            <div class="modal-body p-0">
 
-                <%-- Record Change banner (shown 5s after successful save) --%>
+                <%-- "Record changed" como el real (shown 5s after successful save) --%>
                 <asp:Panel ID="PnlRecordChange" runat="server" Visible="false"
-                    CssClass="record-change-banner alert alert-success py-1 px-2 mb-2">
-                    &#10003; Record Change
+                    CssClass="record-change-banner">
+                    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                        <rect x="1" y="1" width="18" height="18" rx="3"
+                            fill="#7cc36a" stroke="#3d6b33" stroke-width="1.5" />
+                        <path d="M5 10.5l3.2 3.2L15 6.5" fill="none" stroke="#1d3d17"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Record changed</span>
                 </asp:Panel>
 
-                <%-- Site / Resource row --%>
-                <div class="row g-2 mb-3 align-items-end">
-                    <div class="col-auto">
-                        <label class="form-label small mb-0">* Site:</label>
-                        <span class="form-control-plaintext form-control-sm">
-                            <asp:Literal ID="LitSite" runat="server" />
-                        </span>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small mb-0">* Resource:</label>
-                        <span class="form-control-plaintext form-control-sm">
-                            <asp:Literal ID="LitResource" runat="server" />
-                        </span>
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-sm btn-secondary"
+                <%-- Campos generales: etiqueta a la derecha, valor a la izquierda, centrados. --%>
+                <div class="rs-form">
+                    <span class="rs-label"><span class="pod-star">*</span> Site:</span>
+                    <span class="rs-value"><asp:Literal ID="LitSite" runat="server" /></span>
+
+                    <span class="rs-label"><span class="pod-star">*</span> Resource:</span>
+                    <span class="rs-value">
+                        <span class="mes-field mes-field-copy"><asp:Literal ID="LitResource" runat="server" /><span class="mes-field-icon">&#10697;</span></span>
+                        <button type="button" class="mes-btn-outline ms-4"
                             onclick="rsRetrieve()">Retrieve</button>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small mb-0">Setup State:</label>
+                    </span>
+
+                    <span class="rs-label">Setup State:</span>
+                    <span class="rs-value">
                         <%-- State 1: plain text --%>
-                        <span id="spanSetupStateOpen" class="form-control-plaintext form-control-sm">Open</span>
+                        <span id="spanSetupStateOpen">Open</span>
                         <%-- State 2: dropdown (hidden until Retrieve) --%>
                         <asp:DropDownList ID="DdlSetupState" runat="server"
-                            CssClass="form-select form-select-sm" style="display:none; width:auto"
+                            CssClass="rs-select" style="display:none"
                             ClientIDMode="Static">
                             <asp:ListItem Value="Set Up">Set Up</asp:ListItem>
                             <asp:ListItem Value="Open">Open</asp:ListItem>
                         </asp:DropDownList>
-                    </div>
+                    </span>
                 </div>
 
-                <%-- Toolbar (hidden until Retrieve) --%>
-                <div id="rsToolbar" class="d-flex gap-1 mb-2" style="display:none!important">
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        onclick="rsInsertNew()">INSERT NEW</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        onclick="rsInsertBefore()">INSERT BEFORE</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        onclick="rsInsertAfter()">INSERT AFTER</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary ms-auto"
-                        onclick="rsRemoveSelected()">REMOVE SELECTED</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                        onclick="rsRemoveAll()">REMOVE ALL</button>
+                <%-- Acciones juntas a la izquierda sobre la franja celeste. Visibles desde el
+                     inicio, como la captura; deshabilitadas hasta Retrieve (rsSetToolbarEnabled). --%>
+                <div id="rsToolbar" class="rs-toolbar">
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsInsertNew()">INSERT NEW</button>
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsInsertBefore()">INSERT BEFORE</button>
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsInsertAfter()">INSERT AFTER</button>
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsRemoveSelected()">REMOVE SELECTED</button>
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsRemoveAll()">REMOVE ALL</button>
                 </div>
 
-                <%-- Rows table (hidden until Retrieve) --%>
-                <div id="rsTableWrapper" class="border rounded" style="display:none">
-                    <table class="table table-sm table-bordered mb-0" id="rsTable">
-                        <thead class="table-light">
+                <%-- Tabla de dos columnas con anchos fijos desde el primer render: agregar la
+                     primera fila no mueve los encabezados. La línea vertical entre columnas
+                     recorre todo el alto (también el área sin filas), como el real. El ⧉ de
+                     cada valor copia al portapapeles; las filas se borran con REMOVE SELECTED /
+                     REMOVE ALL. --%>
+                <div id="rsTableWrapper" class="rs-table-wrapper">
+                    <table class="rs-table" id="rsTable">
+                        <colgroup>
+                            <col class="rs-col-type" />
+                            <col />
+                        </colgroup>
+                        <thead>
                             <tr>
-                                <th style="width:180px">Setup Type</th>
+                                <th>Setup Type</th>
                                 <th>Setup Type Value</th>
-                                <th style="width:40px"></th>
                             </tr>
                         </thead>
                         <tbody id="rsTableBody">
@@ -93,14 +98,14 @@
                 <asp:HiddenField ID="HfSetupState" runat="server" ClientIDMode="Static" />
                 <asp:HiddenField ID="HfRetrieved" runat="server" ClientIDMode="Static" Value="false" />
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer rs-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
-                    CssClass="btn btn-sm btn-success"
+                    CssClass="mes-btn-outline"
                     OnClick="BtnSave_Click"
                     OnClientClick="return rsPrepareSubmit();"
                     CausesValidation="false" />
                 <asp:Button ID="BtnClear" runat="server" Text="Clear"
-                    CssClass="btn btn-sm btn-outline-secondary"
+                    CssClass="mes-btn-outline"
                     OnClick="BtnClear_Click" CausesValidation="false" />
             </div>
         </div>
@@ -117,12 +122,18 @@
         document.getElementById('spanSetupStateOpen').style.display = 'none';
         var ddl = document.getElementById('DdlSetupState');
         if (ddl) ddl.style.display = '';
-        document.getElementById('rsToolbar').style.removeProperty('display');
-        document.getElementById('rsTableWrapper').style.display = '';
+        rsSetToolbarEnabled(true);
 
         // Enable Save
         var saveBtn = document.getElementById('<%= BtnSave.ClientID %>');
         if (saveBtn) saveBtn.disabled = false;
+    };
+
+    // Las acciones de la tabla solo funcionan después de Retrieve (igual que antes, cuando
+    // la franja estaba oculta); ahora se ven desde el inicio, deshabilitadas.
+    window.rsSetToolbarEnabled = function(enabled) {
+        document.querySelectorAll('#rsToolbar .rs-tool-btn')
+            .forEach(function(b) { b.disabled = !enabled; });
     };
 
     // ── Toolbar actions ───────────────────────────────────────────────────────
@@ -145,6 +156,27 @@
         document.getElementById('rsTableBody').innerHTML = '';
     };
 
+    // ⧉ de cada fila: copia el valor al portapapeles para pegarlo en otra fila (como el
+    // real). navigator.clipboard exige contexto seguro (https o localhost); si no está,
+    // se usa execCommand. El ícono se marca un instante como confirmación.
+    window.rsCopyValue = function(btn) {
+        var input = btn.parentNode.querySelector('.rs-value');
+        if (!input) return;
+        var done = function() {
+            btn.classList.add('copied');
+            setTimeout(function() { btn.classList.remove('copied'); }, 700);
+        };
+        var legacy = function() {
+            input.select();
+            try { document.execCommand('copy'); } catch (e) { /* sin portapapeles */ }
+            done();
+        };
+        if (navigator.clipboard && window.isSecureContext)
+            navigator.clipboard.writeText(input.value).then(done, legacy);
+        else
+            legacy();
+    };
+
     // Restore rows from JSON after PostBack (DOM rows don't survive page re-render)
     window.rsRestoreRows = function(rows) {
         if (!rows || !rows.length) return;
@@ -160,14 +192,17 @@
             tr.classList.add('table-primary');
         };
         tr.innerHTML =
-            '<td><select class="form-select form-select-sm rs-type">' +
+            '<td><select class="rs-select rs-type">' +
                 '<option value="Shop Order">Shop Order</option>' +
                 '<option value="Tool Number">Tool Number</option>' +
             '</select></td>' +
-            '<td><input type="text" class="form-control form-control-sm rs-value" value="' + value + '" /></td>' +
-            '<td><button type="button" class="btn btn-sm btn-link text-danger p-0" ' +
-                'onclick="this.closest(\'tr\').remove()">&#128465;</button></td>';
+            '<td><span class="mes-field mes-field-copy rs-value-box">' +
+                '<input type="text" class="rs-value" />' +
+                '<button type="button" class="mes-field-icon" title="Copy" ' +
+                    'onclick="rsCopyValue(this)">&#10697;</button>' +
+            '</span></td>';
         tr.querySelector('.rs-type').value = type;
+        tr.querySelector('.rs-value').value = value;
         var rows = tbody.querySelectorAll('tr');
         if (atIndex !== undefined && atIndex >= 0 && atIndex < rows.length)
             tbody.insertBefore(tr, rows[atIndex]);
@@ -265,8 +300,7 @@
         document.getElementById('spanSetupStateOpen').style.display = 'none';
         var ddl = document.getElementById('DdlSetupState');
         if (ddl) ddl.style.display = '';
-        document.getElementById('rsToolbar').style.removeProperty('display');
-        document.getElementById('rsTableWrapper').style.display = '';
+        rsSetToolbarEnabled(true);
         var saveBtn = document.getElementById('<%= BtnSave.ClientID %>');
         if (saveBtn) saveBtn.disabled = false;
 

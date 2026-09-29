@@ -144,12 +144,22 @@ botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo v
 
 **Estructura de cada fila:**
 ```
-[Setup Type ▼]          [valor texto libre          ] [copy]
+[Setup Type ▼]          [valor texto libre             ⧉]
 ```
 Setup Type opciones: `Shop Order`, `Tool Number`
 
+- **⧉ copia el valor al portapapeles** para pegarlo en otra fila (confirmado por el
+  usuario, 2026-09-29). No hay botón de borrar por fila: se borra con REMOVE SELECTED
+  (fila seleccionada con un click) o REMOVE ALL.
+- **Layout real** (captura `resource setup modal con datos`, Fase 6.5, entrega 5): campos
+  generales centrados con la etiqueta a la derecha sobre gris claro; franja celeste con las
+  acciones juntas a la izquierda; tabla de dos columnas de ancho fijo (Setup Type 34%) con
+  encabezados centrados, que no se mueven al agregar filas; [Save] [Clear] de contorno
+  celeste, centrados en el pie.
+
 **Estado 3 — después de Save**
-- Banner verde superior izquierdo: `✓ Record Change`
+- Mensaje `☑ Record changed` (ícono de check verde + texto) sobre el gris, justo debajo de
+  la banda oscura (captura `Resource Setup/record changed correcto`)
 - Modal permanece abierto — operador cierra con X manualmente
 
 ### Flujo del operador
@@ -161,7 +171,7 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 6. Primera fila: Setup Type = **Shop Order**, valor = número de orden (escaneo libre)
 7. Filas siguientes: Setup Type = **Tool Number**, valor = número de herramienta (escaneo libre)
 8. Save
-9. Confirmar banner "Record Change"
+9. Confirmar el mensaje "Record changed"
 10. Cerrar con X
 
 ### Reglas de negocio
@@ -196,8 +206,8 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 
 **Comportamiento post-Save exitoso (BUG UI-1 corregido):**
 - El modal permanece abierto
-- Aparece banner verde `✓ Record Change` en la parte superior del modal body
-- Después de 5 segundos el banner se oculta automáticamente
+- Aparece `☑ Record changed` en la parte superior del modal body, debajo de la banda
+- Después de 5 segundos el mensaje se oculta automáticamente
 - El operador cierra el modal con [X] cuando quiera
 - El estado del paso ya avanzó en el servidor al momento del Save
 
@@ -212,7 +222,7 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 | Setup State antes de Retrieve | Texto plano `Open` | Dropdown desde el inicio |
 | Toolbar labels | REMOVE SELECTED / REMOVE ALL | DELETE SELECTED / DELETE ALL |
 | Footer botones | Save · Clear | Save · Cancel |
-| Record Change | Banner verde in-modal, modal queda abierto 5s | Texto flotante `position-fixed` |
+| Record changed | Ícono de check verde + "Record changed" in-modal, modal queda abierto | Texto flotante `position-fixed` |
 | Orden de filas | Libre — no requiere Shop Order primero | No validado |
 | Save deshabilitado | Sí, hasta Retrieve | No |
 

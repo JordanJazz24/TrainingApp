@@ -32,7 +32,7 @@ contra las 25 capturas de la carpeta._
 | 2 | Banner de mensajes | — | `mensaje de banner correcto`, `Split-log nc/mensaje confirmacion scrap` | ✅ |
 | 3 | Menú Activities | 2 y 6 (LC) | `Line Clearence/boton activies, dropdown de opciones` | ✅ |
 | 4 | Browse Work List | 3 | `Search-Start order/browse work list` | 🟡 |
-| 5 | Resource Setup | 1 | `Resource Setup/resource setu modal`, `Resource Setup/resource setup modal con datos` | 🟡 |
+| 5 | Resource Setup | 1 | `Resource Setup/resource setu modal`, `Resource Setup/resource setup modal con datos`, `Resource Setup/record changed correcto` | ✅ |
 | 6 | Data Collection Standalone (Line Clearance) | 2 y 6 | `Line Clearence/modal line clearence`, `…mas nitido`, `…dc group save` | 🟡 |
 | 7 | Data Collection Entry de Line Clearance (submodal) | 2 y 6 | `Line Clearence/modal line clearence- sub modal de la pregunta…` | 🟡 |
 | 8 | Start de Moldeo: 4 modales Data Collection Entry | 3 (Moldeo) | — | ⚪ |
@@ -45,7 +45,7 @@ contra las 25 capturas de la carpeta._
 | 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | 🟡 |
 | 16 | Resultado de Complete | 9 | — | ⚪ |
 
-**Resumen:** ✅ 3 · 🟡 11 · ⚪ 2.
+**Resumen:** ✅ 4 · 🟡 10 · ⚪ 2 (actualizado tras la entrega 5).
 
 ## Diferencias pendientes por pantalla
 
@@ -63,14 +63,10 @@ resolverlo una vez, con un estilo compartido, antes de las diferencias de cada p
    y "SFC … completed. Next: …" no tienen captura.
 4. **Browse Work List** — Pie con [✓ OK] [✗ Cancel] al estilo MES; flecha de orden en la
    columna SFC.
-5. **Resource Setup** — Cuerpo como la captura:
-   - Campos centrados con etiqueta a la derecha: `* Site`, `* Resource` (campo con ⧉) +
-     [Retrieve], `Setup State`.
-   - Barra de herramientas celeste con botones de texto (INSERT NEW … REMOVE ALL).
-   - Tabla `Setup Type` (select) / `Setup Type Value` (campo con ⧉), sin columna de borrar.
-   - [Save] [Clear] centrados en una franja gris.
-   - Nota: `Resource Setup/…pop up de record change` es una captura del **legacy**, no del
-     MES real; el mensaje real de Record Change no tiene captura.
+5. **Resource Setup** — ✅ (entrega 5): campos centrados, franja celeste de acciones a la
+   izquierda, tabla de dos columnas de ancho fijo con ⧉ que copia al portapapeles, pie
+   centrado y "Record changed" como el real. Nota: `Resource Setup/…pop up de record
+   change` es una captura del **legacy**; la real es `record changed correcto`.
 6. **Data Collection Standalone**
    - `Filter Operation` y `* Collect Data For` como campos (dropdown "Resource" + recurso
      con ⧉); [Clear] y [Retrieve] grises con ícono, a la derecha.
@@ -111,7 +107,6 @@ resolverlo una vez, con un estilo compartido, antes de las diferencias de cada p
 
 - Los 4 modales del Start de Moldeo (#8).
 - Lo que muestra el MES al ejecutar Complete (#16).
-- El mensaje real de Record Change de Resource Setup.
 - Los banners de Start, Assembly y Split.
 - NC Selection completa (la recortada se perdió).
 

@@ -73,6 +73,60 @@ con la orden selcionada". Colores medidos sobre las capturas (variables en `pod.
       `DCGTM_LC/A`, igual que la fila de la lista.
 - El cuerpo de cada modal no cambia en esta entrega.
 
-## Entrega 5 — (pendiente: siguiente tanda de correcciones del usuario)
-- [ ] Recibir la tanda de correcciones y cruzarla con el inventario (diferencias ya
-      detectadas por pantalla + estilo compartido de botones del MES).
+## Tanda "Correcciones UI - Modales" (2026-09-29) → entregas 5-8
+
+**Hallazgos en las capturas nuevas** (`Line Clearence/modal data collection standalone`,
+`Line Clearence/modal line clearence- sub modal de la pregunta`):
+- Patrón de ventana del MES: barra superior gris `#F2F2F2` + encabezado blanco con título
+  en negrita, (?) y **línea celeste `#007DC5`** (la "línea divisoria celeste" pedida).
+- Barra superior **solo con ⤢ ✕, sin título**: Data Collection Standalone, DC Entry y NC
+  Data Entry (corrección del usuario). Resource Setup, Assemble, submodal de LC y Split
+  conservan su título.
+- Submodal de LC: el padre queda oscurecido ~20% y el submodal encima.
+
+**Decisiones del usuario:**
+- El ⧉ de cada fila de Resource Setup **copia el valor al portapapeles** (reemplaza al
+  basurero; borrar sigue siendo REMOVE SELECTED / REMOVE ALL).
+- DC Entry: **agregar la columna `Description`** a `DataCollectionParameters` (nullable;
+  la línea "Description:" solo aparece si hay texto). El usuario aporta los textos.
+
+**Supuesto propuesto (solo UI):** el Clear de Data Collection Standalone limpia el
+formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
+
+## Entrega 5 ✅ — Resource Setup (verificada por el usuario 2026-09-29)
+- [x] Botón de contorno celeste del MES (`.mes-btn-outline`: Retrieve, Save, Clear) y
+      campo con ⧉ adentro (`.mes-field`, reutilizable en LC y NC).
+- [x] Resource Setup: campos centrados con etiquetas a la derecha (`* Site`, `* Resource`
+      con ⧉ + [Retrieve], `Setup State`); acciones juntas a la izquierda sobre la franja
+      celeste; tabla `Setup Type` / `Setup Type Value` con ⧉ que copia al portapapeles (sin
+      basurero; borrar = REMOVE SELECTED / REMOVE ALL); pie centrado.
+- [x] Corrección del usuario (encabezados que se movían al primer INSERT NEW): tabla de
+      dos columnas con ancho fijo desde el primer render (`table-layout: fixed`,
+      `colgroup`, Setup Type 34%). Franja de acciones y encabezados visibles desde que abre
+      el modal (como la captura vacía); las acciones siguen deshabilitadas hasta Retrieve,
+      así el flujo no cambia. Sin línea vertical en todo el alto (el usuario aclaró que era
+      solo una observación); queda el divisor del encabezado.
+- [x] "Record changed" como la captura `Resource Setup/record changed correcto`: ícono de
+      check verde + texto sobre el gris, debajo de la banda oscura (antes: alerta verde
+      "✓ Record Change").
+
+## Entrega 6 — Botones grises del MES + Line Clearance + línea celeste
+- [ ] Estilo común de botones grises del MES con ícono (por clase CSS, para que sirva
+      también en `asp:Button`); se usa desde esta entrega en adelante.
+- [ ] Data Collection Standalone: barra solo ⤢ ✕; encabezado "Data Collection
+      Standalone" con (?) y ✕; campos con ⧉, [Clear] y [Retrieve] a la derecha; fila con la
+      pregunta en cursiva y [Collect] grande; Clear limpia el formulario.
+- [ ] Submodal Data Collection Entry apilado: padre con velo suave, foco en el submodal
+      (manejo genérico de modales apilados).
+- [ ] Línea celeste bajo el encabezado en Browse Work List y en los modales de LC.
+
+## Entrega 7 — Listas: Component List, Data Collection List, NC Selection
+- [ ] Misma distribución que las capturas: datos centrados, botones grandes con ícono,
+      paginación centrada con "Rows 1-N of N" debajo; NC Selection con el mismo patrón.
+
+## Entrega 8 — Formularios: DC Entry y NC Data Entry
+- [ ] Barra solo ⤢ ✕; encabezado con título y (?); fila SFC; fila DC Group (DC Entry).
+- [ ] DC Entry: parámetros en recuadros (`* Pregunta:`, `Description:`, campo,
+      `Data Type:` y [Comments]); columna `Description` nueva en BD (ALTER entregado aparte).
+- [ ] NC Data Entry: etiquetas a la derecha, Component con ⧉, Comments como área de texto.
+- [ ] Botones del pie grises con ícono en ambos.
