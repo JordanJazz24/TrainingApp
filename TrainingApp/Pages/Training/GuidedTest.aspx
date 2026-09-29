@@ -315,7 +315,12 @@
                         BROWSE WORK LIST - SFCS QUEUED -
                         <asp:Literal ID="LitBrowseContext" runat="server" />
                     </h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Maximize"
+                            onclick="mesToggleMaximize(this)">&#10530;</button>
+                        <button type="button" class="mes-titlebar-btn" title="Close"
+                            data-bs-dismiss="modal">&#10005;</button>
+                    </div>
                 </div>
                 <div class="modal-body p-0">
                     <table class="table table-sm mb-0 pod-browse-list">

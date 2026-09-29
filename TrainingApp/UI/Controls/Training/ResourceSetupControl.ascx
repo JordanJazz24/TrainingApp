@@ -5,12 +5,19 @@
 <div class="modal fade" id="modalResourceSetup" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header d-flex justify-content-between align-items-center">
+            <%-- Barra de título estándar + banda oscura del Resource Setup real. --%>
+            <div class="modal-header">
                 <h6 class="modal-title">Resource Setup</h6>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-light" title="Help">?</button>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
                 </div>
+            </div>
+            <div class="mes-page-header">
+                <span>Resource Setup</span>
+                <span class="mes-help" title="Help">?</span>
             </div>
             <div class="modal-body">
 

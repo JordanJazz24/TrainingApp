@@ -14,15 +14,25 @@
 <div class="modal fade" id="modalSearch1" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
+            <%-- Barra estándar (X = Cancel), subencabezado y fila de contexto (entrega 4). --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        onclick="searchCancel()">&#10005;</button>
+                </div>
+            </div>
+            <div class="mes-subheader">
+                <span>Data Collection Entry</span>
+                <span class="mes-help" title="Help">?</span>
+            </div>
+            <div class="mes-info-row">
+                DC Group: <strong>DCGTM_ID_MOLDE/A</strong> &nbsp;&nbsp;
+                Resource: <asp:Literal ID="LitResource1" runat="server" />
             </div>
             <div class="modal-body">
-                <div class="mb-2 small text-muted">
-                    DC Group: <strong>DCGTM_ID_MOLDE/A</strong>
-                    &nbsp;|&nbsp; Resource: <asp:Literal ID="LitResource1" runat="server" />
-                </div>
-                <hr class="mt-1 mb-3" />
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">
                         <span class="required-star">★</span> Ingrese el ID del molde:
@@ -43,15 +53,25 @@
 <div class="modal fade" id="modalSearch2" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
+            <%-- Barra estándar (X = Cancel), subencabezado y fila de contexto (entrega 4). --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        onclick="searchCancel()">&#10005;</button>
+                </div>
+            </div>
+            <div class="mes-subheader">
+                <span>Data Collection Entry</span>
+                <span class="mes-help" title="Help">?</span>
+            </div>
+            <div class="mes-info-row">
+                DC Group: <strong>DCGTM_VERIFICACIONES/A</strong> &nbsp;&nbsp;
+                Resource: <asp:Literal ID="LitResource2" runat="server" />
             </div>
             <div class="modal-body">
-                <div class="mb-2 small text-muted">
-                    DC Group: <strong>DCGTM_VERIFICACIONES/A</strong>
-                    &nbsp;|&nbsp; Resource: <asp:Literal ID="LitResource2" runat="server" />
-                </div>
-                <hr class="mt-1 mb-3" />
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">
                         <span class="required-star">★</span> ¿Se verificaron las etiquetas de calibración?
@@ -98,15 +118,25 @@
 <div class="modal fade" id="modalSearch3" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <%-- Barra estándar (X = Cancel), subencabezado y fila de contexto (entrega 4). --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        onclick="searchCancel()">&#10005;</button>
+                </div>
+            </div>
+            <div class="mes-subheader">
+                <span>Data Collection Entry</span>
+                <span class="mes-help" title="Help">?</span>
+            </div>
+            <div class="mes-info-row">
+                DC Group: <strong>DCGTM_PARAMETROS_MSS_D000281359/A</strong> &nbsp;&nbsp;
+                Resource: <asp:Literal ID="LitResource3" runat="server" />
             </div>
             <div class="modal-body">
-                <div class="mb-2 small text-muted">
-                    DC Group: <strong>DCGTM_PARAMETROS_MSS_D000281359/A</strong>
-                    &nbsp;|&nbsp; Resource: <asp:Literal ID="LitResource3" runat="server" />
-                </div>
-                <hr class="mt-1 mb-3" />
                 <div class="row g-2">
                     <div class="col-12">
                         <label class="form-label small fw-semibold mb-1">
@@ -192,15 +222,25 @@
 <div class="modal fade" id="modalSearch4" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
+            <%-- Barra estándar (X = Cancel), subencabezado y fila de contexto (entrega 4). --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        onclick="searchCancel()">&#10005;</button>
+                </div>
+            </div>
+            <div class="mes-subheader">
+                <span>Data Collection Entry</span>
+                <span class="mes-help" title="Help">?</span>
+            </div>
+            <div class="mes-info-row">
+                DC Group: <strong>DCGTM_VERIFICACION_FINAL/A</strong> &nbsp;&nbsp;
+                Resource: <asp:Literal ID="LitResource4" runat="server" />
             </div>
             <div class="modal-body">
-                <div class="mb-2 small text-muted">
-                    DC Group: <strong>DCGTM_VERIFICACION_FINAL/A</strong>
-                    &nbsp;|&nbsp; Resource: <asp:Literal ID="LitResource4" runat="server" />
-                </div>
-                <hr class="mt-1 mb-3" />
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">
                         <span class="required-star">★</span> ¿Se verificó según D000128035 o D000207299?

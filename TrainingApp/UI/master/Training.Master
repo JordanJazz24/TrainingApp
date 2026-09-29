@@ -31,6 +31,13 @@
         if (m.parentElement !== target) target.appendChild(m);
         (bootstrap.Modal.getInstance(m) || new bootstrap.Modal(m)).show();
     }
+
+    // [↗] de la barra de título estándar de los modales del MES: maximiza o restaura
+    // el modal. Es estado de cliente; un postback lo devuelve a su tamaño normal.
+    function mesToggleMaximize(btn) {
+        var dialog = btn.closest('.modal-dialog');
+        if (dialog) dialog.classList.toggle('modal-fullscreen');
+    }
     </script>
 </head>
 <body>

@@ -53,17 +53,23 @@
     <div class="modal fade show d-block" id="modalNCEntry" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
+                <%-- Barra estándar y subencabezado con el SFC, como la captura real. --%>
                 <div class="modal-header">
                     <h6 class="modal-title">NC Data Entry</h6>
-                    <%-- La X vuelve a la NC Selection List (no al POD) y no registra intento. --%>
-                    <asp:LinkButton ID="BtnCloseEntry" runat="server" CssClass="btn-close"
-                        ToolTip="Back to NC Selection"
-                        OnClick="BtnCloseEntry_Click" CausesValidation="false" />
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Maximize"
+                            onclick="mesToggleMaximize(this)">&#10530;</button>
+                        <%-- La X vuelve a la NC Selection List (no al POD) y no registra intento. --%>
+                        <asp:LinkButton ID="BtnCloseEntry" runat="server" CssClass="mes-titlebar-btn"
+                            ToolTip="Back to NC Selection"
+                            OnClick="BtnCloseEntry_Click" CausesValidation="false">&#10005;</asp:LinkButton>
+                    </div>
+                </div>
+                <div class="mes-subheader">
+                    <span>SFC: <asp:Literal ID="LitNCEntrySFC" runat="server" /></span>
+                    <span class="mes-help" title="Help">?</span>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-2 small text-muted">
-                        SFC: <strong><asp:Literal ID="LitNCEntrySFC" runat="server" /></strong>
-                    </div>
                     <div class="mb-3">
                         <label class="form-label small">
                             <span class="required-star">★</span> NC Code:

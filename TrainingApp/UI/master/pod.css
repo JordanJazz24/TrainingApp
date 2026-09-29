@@ -483,9 +483,92 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,.1);
 }
 
-/* ── Modal improvements ─────────────────────────────────── */
-.modal-header { background: #1a2332; color: #fff; }
-.modal-header .btn-close { filter: invert(1); }
+/* ── Modales del MES (mini-fase de UI, entrega 4) ──────────
+   Barra de título estándar de todas las ventanas: [Título] [↗] [X] sobre gris claro.
+   Debajo, el encabezado interno que muestra cada captura real:
+   - .mes-page-header    banda oscura con el título grande (Resource Setup)
+   - .mes-plugin-header  banda celeste en cursiva (SFC Split Plug-In)
+   - .mes-subheader      título o SFC con (?) y línea azul (Assemble, DC/NC Entry)
+   - .mes-info-row       fila gris de contexto (DC Group, Resource) */
+.modal-content { border-radius: 3px; }
+
+.modal-header {
+    padding: 6px 10px;
+    background: #f2f2f2;
+    color: var(--pod-text);
+    border-bottom: 1px solid #c8c8c8;
+}
+.modal-header .modal-title { font-size: 0.85rem; font-weight: 700; }
+
+.mes-titlebar-actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.mes-titlebar-btn {
+    background: none;
+    border: 0;
+    padding: 0 4px;
+    color: #444;
+    font-size: 1.05rem;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+}
+.mes-titlebar-btn:hover { color: #000; }
+
+.mes-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #6c8ebf;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.mes-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #3f5161;
+    color: #fff;
+    font-size: 1.3rem;
+}
+.mes-page-header .mes-help {
+    width: 22px;
+    height: 22px;
+    background: transparent;
+    border: 1.5px solid #fff;
+    font-size: 0.8rem;
+}
+
+.mes-plugin-header {
+    padding: 6px 14px;
+    background: linear-gradient(#dbe6f1, #adc6dc);
+    border-bottom: 1px solid #a9c1d6;
+    color: #1d2b3a;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.mes-subheader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 2px solid #1f5f9e;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.mes-info-row {
+    padding: 6px 14px;
+    background: #f4f5f6;
+    border-bottom: 1px solid #d6d9dc;
+    font-size: 0.8rem;
+}
 
 .required-star { color: #dc3545; font-weight: 700; }
 
@@ -500,27 +583,8 @@ body {
 
 /* ── Assemble Components modal (spec 008) ──────────────────
    Réplica del modal real: franja superior con Mode/Action informativos y
-   Find component/Barcode; Component Details y Assembly Data aparecen al escanear. */
-.asm-subheader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border-bottom: 2px solid #1f5f9e;
-}
-.asm-help {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #6c8ebf;
-    color: #fff;
-    font-size: 0.7rem;
-}
+   Find component/Barcode; Component Details y Assembly Data aparecen al escanear.
+   El subencabezado usa .mes-subheader (entrega 4). */
 .asm-top {
     background: #f4f5f6;
     border-bottom: 1px solid #d6d9dc;

@@ -55,10 +55,15 @@ con la orden selcionada". Colores medidos sobre las capturas (variables en `pod.
 - [x] Abandon a la izquierda del pie.
 - Los headers de los modales siguen oscuros hasta la entrega 4.
 
-## Entrega 4 — Headers estándar de modales
-- [ ] Barra de título `[Título] [↗] [X]`: gris claro, ↗ maximiza/restaura, X cierra
-      (con la misma acción que hoy tiene cada modal).
-- [ ] Encabezado interno según la captura de cada modal: Resource Setup (banda oscura +
-      ?), SFC Split (banda "SFC Split"), Assemble, LC (principal y submodal), DC Entry y
-      NC Data Entry (subencabezado con ? y línea azul).
-- [ ] Browse Work List y los 4 modales del Start de Moldeo heredan la barra estándar.
+## Entrega 4 ✅ — Headers estándar de modales (verificada por el usuario 2026-09-29)
+- [x] Barra de título `[Título] [↗] [X]` en los 12 modales: gris claro, ↗ maximiza /
+      restaura (`mesToggleMaximize` en `Training.Master`), X con la misma acción de
+      salida que ya tenía cada modal (en los 4 del Start de Moldeo, `searchCancel()`; en
+      NC Data Entry, volver a NC Selection).
+- [x] Encabezado interno según la captura de cada modal: Resource Setup (banda oscura +
+      ?), SFC Split (banda "SFC Split"), Assemble, LC (submodal) y los 4 del Start de
+      Moldeo (subencabezado + fila DC Group/Resource), DC Entry (`SFC: … (n/N)` + fila DC
+      Group) y NC Data Entry (`SFC: …`). Data Collection Standalone y Browse: solo barra.
+- [x] Corrección tomada de la captura: el submodal de LC decía `DCGTM_LC/CA`; ahora
+      `DCGTM_LC/A`, igual que la fila de la lista.
+- El cuerpo de cada modal no cambia en esta entrega.

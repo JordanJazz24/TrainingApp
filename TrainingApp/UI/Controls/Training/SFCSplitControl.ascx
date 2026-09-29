@@ -5,10 +5,17 @@
 <div class="modal fade" id="modalSFCSplit" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
+            <%-- Barra estándar + banda "SFC Split" del plug-in real. --%>
             <div class="modal-header">
                 <h6 class="modal-title">SFC Split Plug-In (Auto ID)</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
+                </div>
             </div>
+            <div class="mes-plugin-header">SFC Split</div>
             <div class="modal-body">
                 <div class="mb-2">
                     <label class="form-label small">SFC to Split:</label>

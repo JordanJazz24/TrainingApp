@@ -60,12 +60,17 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title">Assemble Components</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
+                </div>
             </div>
             <div class="modal-body p-0">
-                <div class="asm-subheader">
+                <div class="mes-subheader">
                     <span>Assemble Components</span>
-                    <span class="asm-help" title="Help">?</span>
+                    <span class="mes-help" title="Help">?</span>
                 </div>
 
                 <div class="asm-top row g-0">

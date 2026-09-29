@@ -89,6 +89,23 @@ Estilo de botones: tarjetas cuadradas grandes con ícono centrado + label debajo
 7. Time Sensitive Material Check In/Out
 8. Data Collection Standalone
 
+### Modales — header estándar (mini-fase de UI, entrega 4, 2026-09-29)
+
+Todas las ventanas del MES llevan la misma **barra de título**: `[Título]  [↗] [X]` sobre
+gris claro. [↗] maximiza o restaura el modal (estado de cliente); [X] hace lo mismo que el
+botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo va el
+**encabezado interno** que muestra cada captura real:
+
+| Modal | Encabezado interno |
+|---|---|
+| Resource Setup | Banda oscura `#3F5161` con "Resource Setup" grande y (?) |
+| SFC Split Plug-In (Auto ID) | Banda celeste en cursiva "SFC Split" |
+| Assemble Components | Subencabezado "Assemble Components" con (?) y línea azul |
+| Data Collection Entry (DC) | Subencabezado `SFC: {pieza} (n/N)` con (?) + fila `DC Group: …` |
+| Data Collection Entry (LC y los 4 del Start de Moldeo) | Subencabezado "Data Collection Entry" con (?) + fila `DC Group: … Resource: …` |
+| NC Data Entry | Subencabezado `SFC: …` con (?) |
+| Data Collection Standalone, Browse Work List | Solo la barra de título |
+
 ---
 
 ## Paso 1 — Resource Setup
@@ -274,7 +291,7 @@ Se abre **sobre** el modal principal (capas apiladas). El modal principal queda 
 [Data Collection Entry]                               [↗][X]
   Data Collection Entry
 ────────────────────────────────────────────────────────
-  DC Group: DCGTM_LC/CA    Resource: {resourceName}
+  DC Group: DCGTM_LC/A    Resource: {resourceName}
 ────────────────────────────────────────────────────────
   ★ La limpieza de linea se ejecuto?:
                                     Data Type: Boolean    0 files attached

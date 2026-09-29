@@ -44,16 +44,25 @@
 <div class="modal fade" id="modalDCEntry" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <%-- Barra estándar, subencabezado con la pieza "SFC: … (n/N)" y fila del DC
+                 Group, como la captura real. --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
+                </div>
+            </div>
+            <div class="mes-subheader">
+                <span>SFC: <asp:Literal ID="LitSFCCounter" runat="server" /></span>
+                <span class="mes-help" title="Help">?</span>
+            </div>
+            <div class="mes-info-row">
+                DC Group: <strong><asp:Literal ID="LitActiveGroup" runat="server" /></strong>
             </div>
             <div class="modal-body">
-                <div class="mb-2 small">
-                    SFC: <strong><asp:Literal ID="LitSFCCounter" runat="server" /></strong>
-                    &nbsp;|&nbsp; DC Group: <strong><asp:Literal ID="LitActiveGroup" runat="server" /></strong>
-                </div>
-                <hr class="mt-1 mb-2" />
 
                 <%-- Dynamic parameter fields rendered by code-behind --%>
                 <asp:PlaceHolder ID="PhParameters" runat="server" />

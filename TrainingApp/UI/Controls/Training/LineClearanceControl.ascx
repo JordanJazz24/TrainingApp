@@ -6,9 +6,15 @@
 <div class="modal fade" id="modalDCStandalone" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <%-- Barra de título estándar; el real no tiene encabezado interno. --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Standalone</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
+                </div>
             </div>
             <div class="modal-body">
 
@@ -67,15 +73,26 @@
 <div class="modal fade" id="modalDCEntry" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
+            <%-- Submodal: barra estándar (X = Cancel), subencabezado y fila de contexto,
+                 como la captura real. --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
+                <div class="mes-titlebar-actions">
+                    <button type="button" class="mes-titlebar-btn" title="Maximize"
+                        onclick="mesToggleMaximize(this)">&#10530;</button>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
+                </div>
+            </div>
+            <div class="mes-subheader">
+                <span>Data Collection Entry</span>
+                <span class="mes-help" title="Help">?</span>
+            </div>
+            <div class="mes-info-row">
+                DC Group: <strong>DCGTM_LC/A</strong> &nbsp;&nbsp;
+                Resource: <asp:Literal ID="LitResourceEntry" runat="server" />
             </div>
             <div class="modal-body">
-                <div class="mb-2 small text-muted">
-                    DC Group: <strong>DCGTM_LC/CA</strong> &nbsp;|&nbsp;
-                    Resource: <asp:Literal ID="LitResourceEntry" runat="server" />
-                </div>
-                <hr class="mt-1 mb-2" />
                 <div class="mb-3">
                     <label class="form-label">
                         <span class="text-danger">&#9733;</span>
