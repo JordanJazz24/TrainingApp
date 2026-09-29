@@ -3,12 +3,13 @@
     Inherits="TrainingApp.UI.Controls.Training.LineClearanceControl" %>
 
 <%-- ── Data Collection Standalone (modal principal) ───────────────── --%>
+<%-- Estructura del real (Fase 6.5, entrega 6; captura "modal data collection standalone"):
+     barra superior solo con ⤢ ✕, encabezado con (?) ✕ y línea celeste, campos a la
+     izquierda con [Clear] / [Retrieve] a la derecha y la fila DC_LC_DONE con [Collect]. --%>
 <div class="modal fade" id="modalDCStandalone" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <%-- Barra de título estándar; el real no tiene encabezado interno. --%>
-            <div class="modal-header">
-                <h6 class="modal-title">Data Collection Standalone</h6>
+            <div class="modal-header mes-titlebar-bare">
                 <div class="mes-titlebar-actions">
                     <button type="button" class="mes-titlebar-btn" title="Maximize"
                         onclick="mesToggleMaximize(this)">&#10530;</button>
@@ -16,48 +17,54 @@
                         data-bs-dismiss="modal">&#10005;</button>
                 </div>
             </div>
-            <div class="modal-body">
+            <div class="mes-subheader mes-divider">
+                <span>Data Collection Standalone</span>
+                <span class="d-flex align-items-center gap-2">
+                    <span class="mes-help" title="Help">?</span>
+                    <button type="button" class="mes-titlebar-btn" title="Close"
+                        data-bs-dismiss="modal">&#10005;</button>
+                </span>
+            </div>
+            <div class="modal-body p-0">
 
-                <%-- Banner "dc group save" — top of modal, shown after successful Save --%>
-                <asp:Panel ID="PnlSavedBanner" runat="server" Visible="false"
-                    CssClass="lc-save-banner alert alert-warning py-1 px-2 mb-2">
-                    &#9670; dc group save
+                <%-- Mensaje del real tras guardar: "⚠ 1 DC Groups saved" (se oculta a los 5 s) --%>
+                <asp:Panel ID="PnlSavedBanner" runat="server" Visible="false" CssClass="lc-save-banner">
+                    <img src="<%= ResolveUrl("~/UI/master/imgs/lineClearence-save-icon.png") %>" alt="" />
+                    <span>1 DC Groups saved</span>
                 </asp:Panel>
 
-                <%-- Filter / Collect For + Retrieve + Clear --%>
-                <div class="row g-2 mb-3 align-items-end">
-                    <div class="col-auto">
-                        <label class="form-label small mb-0">Filter Operation:</label>
-                        <span class="form-control-plaintext form-control-sm">
-                            <asp:Literal ID="LitOperation" runat="server" />
-                        </span>
-                    </div>
-                    <div class="col-auto">
-                        <label class="form-label small mb-0">* Collect Data For:</label>
-                        <span class="form-control-plaintext form-control-sm">
-                            <asp:Literal ID="LitResource" runat="server" />
-                        </span>
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-sm btn-secondary"
-                            onclick="retrieveLCStandalone()">Retrieve</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
-                            data-bs-dismiss="modal">Clear</button>
-                    </div>
+                <%-- Filter Operation / Collect Data For + [Clear] / [Retrieve] --%>
+                <div class="lc-form">
+                    <span class="lc-label">Filter Operation:</span>
+                    <span class="mes-field lc-field"><span class="mes-field-text"><asp:Literal ID="LitOperation" runat="server" /></span><span class="mes-field-icon">&#10697;</span></span>
+                    <span></span>
+                    <span></span>
+                    <button type="button" class="mes-btn mes-ico mes-ico-clear lc-side-btn"
+                        onclick="lcClear()">Clear</button>
+
+                    <span class="lc-label"><span class="pod-star">*</span> Collect Data For:</span>
+                    <select class="rs-select lc-select" aria-label="Collect Data For">
+                        <option>Resource</option>
+                    </select>
+                    <span class="mes-field lc-field"><span class="mes-field-text"><asp:Literal ID="LitResource" runat="server" /></span><span class="mes-field-icon">&#10697;</span></span>
+                    <span></span>
+                    <button type="button" class="mes-btn mes-ico mes-ico-retrieve lc-side-btn"
+                        onclick="retrieveLCStandalone()">Retrieve</button>
                 </div>
 
                 <%-- DC list (hidden until Retrieve) --%>
                 <asp:Panel ID="PnlDCList" runat="server" ClientIDMode="Static"
-                    style="display:none" CssClass="border rounded">
-                    <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                    style="display:none" CssClass="lc-list">
+                    <div class="lc-row">
                         <div>
-                            <div class="fw-semibold small">DC_LC_DONE</div>
-                            <div class="text-muted" style="font-size:0.78rem">
-                                DC Group/Vers.: DCGTM_LC/A &nbsp;|&nbsp;
-                                Last collected: <asp:Literal ID="LitLastCollected" runat="server" Text="—" />
-                            </div>
+                            <div class="lc-row-code">DC_LC_DONE</div>
+                            <div class="lc-row-question">Realizó la Limpieza de Linea?</div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-primary"
+                        <div class="lc-row-group">
+                            DC Group/Vers.: DCGTM_LC/A
+                            <div><asp:Literal ID="LitLastCollected" runat="server" /></div>
+                        </div>
+                        <button type="button" class="mes-btn mes-btn-stack mes-ico mes-ico-collect lc-collect"
                             onclick="lcOpenEntry()">Collect</button>
                     </div>
                 </asp:Panel>
@@ -70,11 +77,12 @@
 </div>
 
 <%-- ── Data Collection Entry (sub-modal) ──────────────────────────── --%>
+<%-- Se abre encima del principal, que queda con un velo suave (modales apilados en
+     Training.Master). Barra con título, subencabezado con línea celeste y fila de contexto,
+     como la captura "modal line clearence- sub modal de la pregunta". --%>
 <div class="modal fade" id="modalDCEntry" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog lc-entry-dialog">
         <div class="modal-content">
-            <%-- Submodal: barra estándar (X = Cancel), subencabezado y fila de contexto,
-                 como la captura real. --%>
             <div class="modal-header">
                 <h6 class="modal-title">Data Collection Entry</h6>
                 <div class="mes-titlebar-actions">
@@ -84,36 +92,38 @@
                         data-bs-dismiss="modal">&#10005;</button>
                 </div>
             </div>
-            <div class="mes-subheader">
+            <div class="mes-subheader mes-divider">
                 <span>Data Collection Entry</span>
                 <span class="mes-help" title="Help">?</span>
             </div>
             <div class="mes-info-row">
-                DC Group: <strong>DCGTM_LC/A</strong> &nbsp;&nbsp;
-                Resource: <asp:Literal ID="LitResourceEntry" runat="server" />
+                <strong>DC Group:</strong> DCGTM_LC/A &nbsp;&nbsp;
+                <strong>Resource:</strong> <asp:Literal ID="LitResourceEntry" runat="server" />
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">
-                        <span class="text-danger">&#9733;</span>
-                        <asp:Literal ID="LitQuestion" runat="server" />
-                    </label>
-                    <div class="text-muted small mb-1">Data Type: Boolean &nbsp; 0 files attached</div>
-                    <asp:DropDownList ID="DdlAnswer" runat="server" CssClass="form-select form-select-sm">
-                        <asp:ListItem Value="">( Seleccione )</asp:ListItem>
-                        <asp:ListItem Value="false">NO</asp:ListItem>
-                        <asp:ListItem Value="true">Si</asp:ListItem>
-                    </asp:DropDownList>
+            <div class="modal-body p-0">
+                <div class="mes-param">
+                    <div>
+                        <label class="mes-param-label">
+                            <span class="pod-star">*</span>
+                            <asp:Literal ID="LitQuestion" runat="server" />:
+                        </label>
+                        <asp:DropDownList ID="DdlAnswer" runat="server" CssClass="rs-select mes-param-input">
+                            <asp:ListItem Value="">( Seleccione )</asp:ListItem>
+                            <asp:ListItem Value="false">NO</asp:ListItem>
+                            <asp:ListItem Value="true">Si</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+                    <div class="mes-param-type">Data Type: Boolean</div>
+                    <button type="button" class="mes-btn">0 files attached</button>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer mes-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
-                    CssClass="btn btn-sm btn-success"
+                    CssClass="mes-btn mes-ico mes-ico-save"
                     OnClick="BtnSave_Click"
                     OnClientClick="return lcValidateAnswer();"
                     CausesValidation="false" />
-                <button type="button" class="btn btn-sm btn-secondary"
-                    data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="mes-btn" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -125,6 +135,12 @@
     window.retrieveLCStandalone = function () {
         document.getElementById('HfRetrieved').value = 'true';
         document.getElementById('PnlDCList').style.display = '';
+    };
+
+    // ── Clear: limpia el formulario como el real (oculta la lista hasta Retrieve) ──
+    window.lcClear = function () {
+        document.getElementById('HfRetrieved').value = 'false';
+        document.getElementById('PnlDCList').style.display = 'none';
     };
 
     // ── Open sub-modal ────────────────────────────────────────────────────

@@ -38,6 +38,34 @@
         var dialog = btn.closest('.modal-dialog');
         if (dialog) dialog.classList.toggle('modal-fullscreen');
     }
+
+    // Modales apilados (ej. Data Collection Entry sobre Data Collection Standalone): Bootstrap
+    // abre todos al mismo nivel, así que el hijo sube de z-index y su velo queda entre el
+    // padre y el hijo (padre 1055 → velo 1057, hijo 1058; SweetAlert sigue arriba, 1060).
+    // Se lleva una pila propia porque, tras un postback, el padre y el hijo se abren seguidos
+    // y el padre todavía no tiene la clase .show cuando se abre el hijo.
+    (function () {
+        var stack = [];
+        document.addEventListener('show.bs.modal', function (e) {
+            var modal = e.target, depth = stack.length;
+            stack.push(modal);
+            if (depth === 0) return;
+            var z = 1056 + depth * 2;
+            modal.style.zIndex = z;
+            modal.classList.add('mes-stacked');
+            setTimeout(function () {
+                var backdrops = document.querySelectorAll('.modal-backdrop');
+                var last = backdrops[backdrops.length - 1];
+                if (last) { last.style.zIndex = z - 1; last.classList.add('mes-stacked-backdrop'); }
+            }, 0);
+        });
+        document.addEventListener('hidden.bs.modal', function (e) {
+            var i = stack.indexOf(e.target);
+            if (i >= 0) stack.splice(i, 1);
+            e.target.style.zIndex = '';
+            e.target.classList.remove('mes-stacked');
+        });
+    })();
     </script>
 </head>
 <body>

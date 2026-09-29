@@ -257,62 +257,60 @@ Sidebar [Activities ▼]
 
 ### Modal principal: Data Collection Standalone
 
-**Chrome:** ventana popup con [↗][X]
+**Fuente:** captura `Line Clearence/modal data collection standalone` (Fase 6.5, entrega 6).
+
+**Chrome:** barra superior **solo con [⤢][✕]** (sin título); debajo, encabezado blanco
+"Data Collection Standalone" con (?) y ✕ y **línea celeste** `#007DC5`.
 
 **Estado 1 — antes de Retrieve**
 ```
-[Data Collection Standalone]                          [↗][X]
-────────────────────────────────────────  [Clear]
-  Filter Operation:  {operationName}
-  * Collect Data For: {resourceName}                  [Retrieve]
-────────────────────────────────────────────────────────
-  (tabla vacía — sin filas)
+                                                          [⤢][✕]
+  Data Collection Standalone                              (?) ✕
+══════════════════════════════════════════════════════ (celeste)
+        Filter Operation: [{operationName}      ⧉]                         [🧽 Clear]
+    * Collect Data For:   [Resource ▼]  [{resourceName} ⧉]                 [↻ Retrieve]
 ```
 
 **Estado 2 — después de Retrieve**
 ```
-[Data Collection Standalone]                          [↗][X]
-────────────────────────────────────────  [Clear]
-  Filter Operation:  {operationName}
-  * Collect Data For: {resourceName}                  [Retrieve]
-────────────────────────────────────────────────────────
-  DC_LC_DONE                      DC Group/Vers.: DCGTM_LC/A
-  Realizó la Limpieza de Linea?   {timestamp última colección}    [Collect]
-────────────────────────────────────────────────────────
+  ┌──────────────────────────────────────────────────────────────────────────────┐
+  │ DC_LC_DONE                        DC Group/Vers.: DCGTM_LC/A      [  ⇥       ] │
+  │ Realizó la Limpieza de Linea?     {fecha del último registro}    [ Collect  ] │
+  └──────────────────────────────────────────────────────────────────────────────┘
 ```
+(pregunta en cursiva; [Collect] grande, ícono arriba del texto)
 
 **Estado 3 — después de Save (regreso desde sub-modal)**
 ```
-  dc group save   ← banner informativo, top del modal, desaparece a los 5s
-  DC_LC_DONE      DC Group/Vers.: DCGTM_LC/A     {timestamp actualizado}    [Collect]
+  ⚠ 1 DC Groups saved   ← mensaje del real, top del modal, desaparece a los 5s
+  DC_LC_DONE      DC Group/Vers.: DCGTM_LC/A     {fecha actualizada}    [Collect]
 ```
 
 - El modal principal **permanece abierto** durante toda la interacción
-- El banner "dc group save" se muestra al regresar del sub-modal tras un Save exitoso
-- El operador cierra el modal principal con [X] cuando quiera
+- "1 DC Groups saved" se muestra al regresar del sub-modal tras un Save exitoso
+- **[Clear]** limpia el formulario: oculta la fila hasta volver a hacer Retrieve (antes
+  cerraba el modal)
+- El operador cierra el modal principal con [✕] cuando quiera
 
 ---
 
 ### Sub-modal: Data Collection Entry
 
-Se abre **sobre** el modal principal (capas apiladas). El modal principal queda visible detrás.
+Se abre **sobre** el modal principal (capas apiladas): el principal queda detrás con un
+**velo suave** (~20 %) y el sub-modal, más angosto y un poco más abajo, tiene el foco
+(captura `Line Clearence/modal line clearence- sub modal de la pregunta`). Lo resuelve
+el manejo genérico de modales apilados de `Training.Master`.
 
 ```
-[Data Collection Entry]                               [↗][X]
-  Data Collection Entry
+[Data Collection Entry]                               [⤢][✕]
+  Data Collection Entry                                  (?)
+══════════════════════════════════════════════════ (celeste)
+  DC Group: DCGTM_LC/A    Resource: {resourceName}   ← fila gris
 ────────────────────────────────────────────────────────
-  DC Group: DCGTM_LC/A    Resource: {resourceName}
+  * La limpieza de linea se ejecuto?:
+    [ Seleccione          ▼ ]      Data Type: Boolean    [0 files attached]
 ────────────────────────────────────────────────────────
-  ★ La limpieza de linea se ejecuto?:
-                                    Data Type: Boolean    0 files attached
-    [ Seleccione ▼ ]
-    ┌──────────────┐
-    │ (blank)      │
-    │ NO           │
-    │ Si           │
-    └──────────────┘
-────────────────────────────────────────────────────────
-               [Save]  [Cancel]
+               [💾 Save]  [Cancel]
 ```
 
 - [Cancel] cierra el sub-modal y regresa al modal principal sin cambiar estado
@@ -329,7 +327,7 @@ Se abre **sobre** el modal principal (capas apiladas). El modal principal queda 
 6. Seleccionar "Si" en el dropdown
 7. [Save]
 8. Sub-modal se cierra — regresa al modal principal
-9. Confirmar banner "dc group save" (desaparece en 5s)
+9. Confirmar el mensaje "1 DC Groups saved" (desaparece en 5s)
 10. Cerrar modal principal con [X]
 
 ---
@@ -349,7 +347,7 @@ Se abre **sobre** el modal principal (capas apiladas). El modal principal queda 
 
 **Comportamiento post-Save exitoso:**
 - Sub-modal se cierra (JS)
-- Modal principal queda visible con banner "dc group save"
+- Modal principal queda visible con "1 DC Groups saved" y la fecha del registro en la fila
 - Banner desaparece automáticamente a los 5s
 - Score actualizado en el header del POD
 - El operador cierra el modal principal con [X] cuando quiera

@@ -625,9 +625,135 @@ body {
     align-items: center;
     justify-content: center;
 }
+.mes-field-text {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 button.mes-field-icon         { cursor: pointer; }
 button.mes-field-icon:hover   { color: #000; }
 button.mes-field-icon.copied  { color: var(--pod-blue); }
+
+/* ── Botón gris del MES con ícono (Fase 6.5, entrega 6) ──────────
+   Clear, Retrieve, Collect, Save, OK/Cancel… El ícono va por clase como fondo (no como
+   <img>), así sirve igual en <button> y en asp:Button (<input type=submit>).
+   Uso: class="mes-btn mes-ico mes-ico-save" · ícono arriba del texto: + "mes-btn-stack". */
+.mes-btn {
+    --mes-btn-face: linear-gradient(#fafafa, #dedede);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 3px 12px;
+    border: 1px solid #9a9a9a;
+    border-radius: 3px;
+    background-color: #e6e6e6;
+    background-image: var(--mes-btn-face);
+    box-shadow: inset 0 1px 0 #fff, 0 1px 1px rgba(0, 0, 0, .2);
+    color: var(--pod-text);
+    font-size: 0.8rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.mes-btn:hover:not(:disabled)  { --mes-btn-face: linear-gradient(#fff, #e9e9e9); }
+.mes-btn:disabled,
+.mes-btn[disabled]             { opacity: .55; cursor: not-allowed; }
+
+.mes-ico {
+    padding-left: 32px;
+    background-repeat: no-repeat, repeat;
+    background-position: 10px center, 0 0;
+    background-size: 16px auto, auto;
+}
+.mes-btn-stack.mes-ico {
+    flex-direction: column;
+    min-width: 140px;
+    padding: 30px 14px 6px;
+    background-position: center 7px, 0 0;
+    background-size: 20px auto, auto;
+}
+
+.mes-ico-clear    { background-image: url('imgs/anular-icon.png'),    var(--mes-btn-face); }
+.mes-ico-retrieve { background-image: url('imgs/retrieve-icon.png'),  var(--mes-btn-face); }
+.mes-ico-collect  { background-image: url('imgs/record-icon.png'),    var(--mes-btn-face); }
+.mes-ico-save     { background-image: url('imgs/btn-save.png'),       var(--mes-btn-face); }
+.mes-ico-check    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='%234caf50'/%3E%3Cpath d='M4.3 8.4l2.4 2.4 5-5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--mes-btn-face); }
+.mes-ico-cancel   { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9M12.5 3.5l-9 9' stroke='%23d9302c' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"), var(--mes-btn-face); }
+
+/* Pie de modal del MES: botones centrados sobre gris claro. */
+.mes-footer { justify-content: center; background: #f2f2f2; }
+
+/* Línea divisoria celeste bajo el encabezado (Browse Work List y modales de LC). */
+.modal-header.mes-divider,
+.mes-subheader.mes-divider { border-bottom: 2px solid #007dc5; }
+
+/* Barra superior sin título (Data Collection Standalone, DC Entry, NC Data Entry). */
+.modal-header.mes-titlebar-bare { min-height: 30px; }
+
+/* Parámetro de Data Collection del MES: pregunta y campo a la izquierda, Data Type al
+   centro y botón a la derecha (submodal de LC; DC Entry en la entrega 8). */
+.mes-param {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: end;
+    column-gap: 24px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #e1e1e1;
+    background: #fff;
+    font-size: 0.8rem;
+}
+.mes-param-label  { display: block; margin-bottom: 4px; font-weight: 700; font-size: 0.85rem; }
+.mes-param-input  { width: 100%; max-width: 380px; height: 30px; }
+.mes-param-type   { padding-bottom: 6px; }
+
+/* Modales apilados (Training.Master): el velo del hijo oscurece suave al padre, como el
+   real (~20 %), en vez de sumar otro 50 %. */
+.modal-backdrop.show.mes-stacked-backdrop { opacity: .2; }
+.modal.mes-stacked .modal-dialog { margin-top: calc(1.75rem + 30px); }
+
+/* ── Data Collection Standalone / Line Clearance (Fase 6.5, entrega 6) ──
+   Captura "modal data collection standalone": etiquetas a la derecha, campos con ⧉,
+   [Clear] / [Retrieve] a la derecha y la fila DC_LC_DONE con [Collect] grande. */
+.lc-save-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 0;
+    font-size: 0.85rem;
+}
+.lc-save-banner img { width: 18px; height: 18px; }
+
+.lc-form {
+    display: grid;
+    grid-template-columns: 24% 170px 170px 1fr 150px;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 14px;
+    padding: 16px 16px 12px;
+    font-size: 0.85rem;
+}
+.lc-label    { text-align: right; }
+.lc-field    { min-width: 0; width: 100%; height: 30px; }
+.lc-select   { height: 30px; width: 100%; }
+.lc-side-btn { width: 100%; }
+
+.lc-list { margin: 0 12px 12px; border: 1px solid #d6d9dc; }
+.lc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 210px;
+    align-items: center;
+    column-gap: 12px;
+    padding: 8px 12px;
+}
+.lc-row-code     { font-weight: 700; font-size: 1rem; }
+.lc-row-question { font-style: italic; font-size: 0.95rem; }
+.lc-row-group    { font-size: 0.95rem; }
+.lc-collect      { width: 100%; min-height: 60px; }
+
+.lc-entry-dialog { max-width: 680px; }
 
 /* ── Resource Setup (captura "resource setup modal con datos") ── */
 .rs-form {

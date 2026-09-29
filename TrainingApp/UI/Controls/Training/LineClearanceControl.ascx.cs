@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Web.UI;
 using TrainingApp.Pages.Training.Models;
 
@@ -61,10 +62,13 @@ namespace TrainingApp.UI.Controls.Training
             OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer });
         }
 
-        // Banner "DC group saved": lo muestra GuidedTest solo cuando el servidor aceptó el paso.
+        // Banner "DC Groups saved": lo muestra GuidedTest solo cuando el servidor aceptó el paso.
+        // Como el real, la fila muestra también la fecha del último registro.
         public void ShowSaveConfirmation()
         {
             PnlSavedBanner.Visible = true;
+            LitLastCollected.Text  = DateTime.Now.ToString("MMM d, yyyy h:mm:ss tt",
+                CultureInfo.GetCultureInfo("en-US"));
             Page.ClientScript.RegisterStartupScript(GetType(), "lcAfterSave",
                 "setTimeout(function(){" +
                 "  var b=document.querySelector('.lc-save-banner');" +

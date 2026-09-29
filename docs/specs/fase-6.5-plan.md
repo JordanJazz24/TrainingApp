@@ -110,15 +110,20 @@ formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
       check verde + texto sobre el gris, debajo de la banda oscura (antes: alerta verde
       "✓ Record Change").
 
-## Entrega 6 — Botones grises del MES + Line Clearance + línea celeste
-- [ ] Estilo común de botones grises del MES con ícono (por clase CSS, para que sirva
-      también en `asp:Button`); se usa desde esta entrega en adelante.
-- [ ] Data Collection Standalone: barra solo ⤢ ✕; encabezado "Data Collection
-      Standalone" con (?) y ✕; campos con ⧉, [Clear] y [Retrieve] a la derecha; fila con la
-      pregunta en cursiva y [Collect] grande; Clear limpia el formulario.
-- [ ] Submodal Data Collection Entry apilado: padre con velo suave, foco en el submodal
-      (manejo genérico de modales apilados).
-- [ ] Línea celeste bajo el encabezado en Browse Work List y en los modales de LC.
+## Entrega 6 ✅ — Botones grises del MES + Line Clearance + línea celeste (verificada por el usuario 2026-09-29)
+- [x] Estilo común de botones grises del MES con ícono (`.mes-btn` + `.mes-ico-*`: ícono
+      por clase CSS como fondo, así sirve también en `asp:Button`); variante con ícono
+      arriba (`.mes-btn-stack`). Pie de modal `.mes-footer`; parámetro de DC `.mes-param`
+      (se reutiliza en la entrega 8).
+- [x] Data Collection Standalone: barra solo ⤢ ✕; encabezado "Data Collection
+      Standalone" con (?) y ✕ y línea celeste; campos con ⧉, [Clear] y [Retrieve] a la
+      derecha; fila con la pregunta en cursiva, fecha del último registro y [Collect]
+      grande; Clear limpia el formulario; mensaje "⚠ 1 DC Groups saved" como el real.
+- [x] Submodal Data Collection Entry apilado: el hijo sube de z-index y su velo (20 %)
+      oscurece suave al padre (pila propia en `Training.Master`, porque tras un postback
+      padre e hijo se abren seguidos). Cuerpo con `.mes-param` y pie con [Save] [Cancel].
+- [x] Línea celeste bajo el encabezado en Browse Work List y en los modales de LC;
+      Browse con [OK] [Cancel] grises con ícono.
 
 ## Entrega 7 — Listas: Component List, Data Collection List, NC Selection
 - [ ] Misma distribución que las capturas: datos centrados, botones grandes con ícono,

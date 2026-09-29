@@ -33,8 +33,8 @@ contra las 25 capturas de la carpeta._
 | 3 | Menú Activities | 2 y 6 (LC) | `Line Clearence/boton activies, dropdown de opciones` | ✅ |
 | 4 | Browse Work List | 3 | `Search-Start order/browse work list` | 🟡 |
 | 5 | Resource Setup | 1 | `Resource Setup/resource setu modal`, `Resource Setup/resource setup modal con datos`, `Resource Setup/record changed correcto` | ✅ |
-| 6 | Data Collection Standalone (Line Clearance) | 2 y 6 | `Line Clearence/modal line clearence`, `…mas nitido`, `…dc group save` | 🟡 |
-| 7 | Data Collection Entry de Line Clearance (submodal) | 2 y 6 | `Line Clearence/modal line clearence- sub modal de la pregunta…` | 🟡 |
+| 6 | Data Collection Standalone (Line Clearance) | 2 y 6 | `Line Clearence/modal data collection standalone`, `…modal line clearence`, `…mas nitido`, `…dc group save` | ✅ |
+| 7 | Data Collection Entry de Line Clearance (submodal) | 2 y 6 | `Line Clearence/modal line clearence- sub modal de la pregunta` | ✅ |
 | 8 | Start de Moldeo: 4 modales Data Collection Entry | 3 (Moldeo) | — | ⚪ |
 | 9 | Component List | 4 | `Assemble/component list` | 🟡 |
 | 10 | Assemble Components | 4 | `Assemble/asemble components modal - estado anterior al escaneo`, `…posterior al escaneo` | ✅ |
@@ -45,14 +45,15 @@ contra las 25 capturas de la carpeta._
 | 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | 🟡 |
 | 16 | Resultado de Complete | 9 | — | ⚪ |
 
-**Resumen:** ✅ 4 · 🟡 10 · ⚪ 2 (actualizado tras la entrega 5).
+**Resumen:** ✅ 6 · 🟡 8 · ⚪ 2 (actualizado tras la entrega 6).
 
 ## Diferencias pendientes por pantalla
 
 **Transversal (afecta a 4, 5, 6, 7, 9, 11, 12, 14 y 15):** los botones dentro de los
 modales y listas del MES son grises, con ícono y texto (Save, Clear, Retrieve, Collect,
-Assemble, Log NC, OK/Cancel, Add-Done…). Hoy son botones Bootstrap de colores. Conviene
-resolverlo una vez, con un estilo compartido, antes de las diferencias de cada pantalla.
+Assemble, Log NC, OK/Cancel, Add-Done…). _Estilo común creado en la entrega 6
+(`.mes-btn` + `.mes-ico-*` en `pod.css`) y aplicado en Browse y Line Clearance; falta en
+las listas (entrega 7) y en DC/NC Entry (entrega 8)._
 
 1. **POD**
    - El campo SFC real muestra una × para limpiarlo cuando tiene valor.
@@ -61,8 +62,8 @@ resolverlo una vez, con un estilo compartido, antes de las diferencias de cada p
      derecho según la captura de referencia (el MES lo cambia según la configuración del POD).
 2. **Banner** — ✅. Textos con captura: grupo de DC y scrap. Los de Start, Assembly, Split
    y "SFC … completed. Next: …" no tienen captura.
-4. **Browse Work List** — Pie con [✓ OK] [✗ Cancel] al estilo MES; flecha de orden en la
-   columna SFC.
+4. **Browse Work List** — _Entrega 6 ✅: línea celeste bajo el
+   encabezado y [✓ OK] [✗ Cancel] al estilo MES._ Queda: flecha de orden en la columna SFC.
 5. **Resource Setup** — ✅ (entrega 5): campos centrados, franja celeste de acciones a la
    izquierda, tabla de dos columnas de ancho fijo con ⧉ que copia al portapapeles, pie
    centrado y "Record changed" como el real. Nota: `Resource Setup/…pop up de record
@@ -74,9 +75,12 @@ resolverlo una vez, con un estilo compartido, antes de las diferencias de cada p
      Linea?"); `DC Group/Vers.: DCGTM_LC/A` con la fecha del último registro; [Collect]
      gris con ícono.
    - Mensaje de guardado real: "⚠ 1 DC Groups saved" (hoy "◆ dc group save").
+   - _Entrega 6 ✅: todo lo anterior, con barra solo ⤢ ✕,
+     encabezado con línea celeste y Clear que limpia el formulario._
 7. **Data Collection Entry de LC** — Barra, subencabezado y fila de contexto ✅ (entrega 4).
    Cuerpo: `Data Type: Boolean` y [0 files attached] a la derecha del campo; botones del
-   pie al estilo MES.
+   pie al estilo MES. _Entrega 6 ✅: cuerpo y pie como el real,
+   y apilado sobre el principal con velo suave._
 9. **Component List**
    - Fila: número de parte y Qty a la izquierda; `Description:` / `Rem Qty:` como
      etiqueta: valor al centro; [Assemble] y [Disassemble] grandes, grises, con ícono.

@@ -310,7 +310,7 @@
     <div class="modal fade" id="modalBrowseWorkList" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header mes-divider">
                     <h6 class="modal-title">
                         BROWSE WORK LIST - SFCS QUEUED -
                         <asp:Literal ID="LitBrowseContext" runat="server" />
@@ -355,10 +355,10 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-sm btn-success" id="btnBrowseOK"
-                        onclick="confirmBrowseSelection()">&#10003; OK</button>
-                    <button type="button" class="btn btn-sm btn-secondary"
-                        data-bs-dismiss="modal">&#10007; Cancel</button>
+                    <button type="button" class="mes-btn mes-ico mes-ico-check" id="btnBrowseOK"
+                        onclick="confirmBrowseSelection()">OK</button>
+                    <button type="button" class="mes-btn mes-ico mes-ico-cancel"
+                        data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
