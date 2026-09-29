@@ -74,6 +74,9 @@ se filtran en fases anteriores.
     siguiente. El servidor ignora un segundo Save del mismo grupo (enmienda de E3, spec 008).
   - Assemble Components: **"Apply to all SFCs"** pasa al pie, a la izquierda de Add, y
     aparece junto con él tras el escaneo (decisión del usuario).
+  - **Entregas 2-4** (pedido "Ajustes varios", 2026-09-29): plan con casillas y decisiones
+    en `docs/specs/ui-ajustes-post-008-plan.md` (Shop Order/Status del POD Search, layout
+    del POD con colores del MES real, headers estándar de modales).
 - **Siguiente:** la **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de
   LoFlo, a confirmar con negocio. Con eso, la Fase 7 vuelve a ser "solo datos".
   **Qué pedirle a negocio** para escribir el script de LoFlo:

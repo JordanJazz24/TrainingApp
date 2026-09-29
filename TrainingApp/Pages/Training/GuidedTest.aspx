@@ -58,11 +58,13 @@
                     data-bs-toggle="modal" data-bs-target="#modalBrowseWorkList"
                     title="Browse Work List">&#128269;</button>
             </div>
+            <%-- Orden cargada: la elegida en Browse (In Queue) o la iniciada (Active). El
+                 servidor los recalcula en cada respuesta (BindSearchHeader). --%>
             <span class="sfc-label ms-2">
-                Shop Order: <strong><asp:Literal ID="LitShopOrder" runat="server" Text="—" /></strong>
+                Shop Order: <strong id="podShopOrder"><asp:Literal ID="LitShopOrder" runat="server" /></strong>
             </span>
             <span class="sfc-label">
-                Status: <strong><asp:Literal ID="LitSFCStatus" runat="server" Text="—" /></strong>
+                Status (SFC): <strong id="podSfcStatus"><asp:Literal ID="LitSFCStatus" runat="server" /></strong>
             </span>
         </div>
     </div>
@@ -294,6 +296,7 @@
                                 <ItemTemplate>
                                     <tr class="browse-row" data-sfc="<%# Eval("SFCCode") %>"
                                         data-row-id="<%# Eval("RowId") %>"
+                                        data-shop-order="<%#: Eval("ShopOrder") %>"
                                         onclick="selectBrowseRow(this)" style="cursor:pointer">
                                         <td class="row-selector-col"></td>
                                         <td><%# Eval("SFCCode") %></td>
@@ -348,6 +351,7 @@
     // Serialized (spec 008): cada click alterna la fila y TxtSFC muestra el SFC o
     // "[N SELECTED]". NonSerialized: una sola fila; click sobre la seleccionada la deselecciona.
     var podMultiSelect = <%= PodMultiSelect ? "true" : "false" %>;
+    var podOrderStarted = <%= PodOrderStarted ? "true" : "false" %>;
 
     function describeSelection(sfcs) {
         if (sfcs.length === 0) return '';
@@ -477,6 +481,14 @@
         if (hf) hf.value = sfcs.length === 1 ? sfcs[0] : '';
         var hfBrowse = document.getElementById('<%= HfBrowseRowIds.ClientID %>');
         if (hfBrowse) hfBrowse.value = ids.join(',');
+
+        // Antes del Start, la orden elegida queda In Queue (el servidor lo repite en cada
+        // respuesta). Después del Start el header ya muestra la orden Active y no cambia.
+        if (!podOrderStarted) {
+            var shopOrder = rows.length > 0 ? rows[0].getAttribute('data-shop-order') : '';
+            document.getElementById('podShopOrder').textContent = shopOrder;
+            document.getElementById('podSfcStatus').textContent = rows.length > 0 ? 'In Queue' : '';
+        }
 
         bootstrap.Modal.getInstance(
             document.getElementById('modalBrowseWorkList')).hide();

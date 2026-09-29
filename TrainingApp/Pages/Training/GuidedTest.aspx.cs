@@ -46,6 +46,13 @@ namespace TrainingApp.Pages.Training
         // ícono Select All selecciona todas en ambos tipos.
         protected bool PodMultiSelect { get; private set; }
 
+        // Search/Start ya completado: el POD Search muestra la orden Active y Browse Work
+        // List ya no la cambia a In Queue en el cliente.
+        protected bool PodOrderStarted { get; private set; }
+
+        // Status (SFC) de las piezas elegidas en Browse Work List antes del Start.
+        private const string SfcStatusInQueue = "In Queue";
+
         // Ícono Select All del header del POD y de Browse Work List: cuadros apilados, como
         // en el MES real. Los colores salen del CSS (.select-all-btn).
         protected const string SelectAllIcon =
@@ -162,6 +169,28 @@ namespace TrainingApp.Pages.Training
 
             UpdateScoreWidget(session);
             SetActiveButton(step.StepType, area, session.Mode);
+            BindSearchHeader(session, guide);
+        }
+
+        // POD Search: Shop Order y Status (SFC) de la orden cargada. Antes del Start, las
+        // piezas elegidas en Browse Work List (In Queue); con el Start, Active. Se recalcula
+        // en cada request porque el OK de Browse solo lo adelanta en el cliente.
+        private void BindSearchHeader(TrainingSession session, TrainingGuide guide)
+        {
+            var order = GetSimulatedOrder(session);
+            if (order != null && IsSearchCompleted(guide, session))
+                SetSearchHeader(order.ShopOrderInput, SimulatedOrderRow.StatusActive);
+            else if (order != null && FindBrowseSelectedRows(order).Count > 0)
+                SetSearchHeader(order.ShopOrderInput, SfcStatusInQueue);
+            else
+                SetSearchHeader(string.Empty, string.Empty);
+        }
+
+        private void SetSearchHeader(string shopOrder, string sfcStatus)
+        {
+            LitShopOrder.Text = HttpUtility.HtmlEncode(shopOrder);
+            LitSFCStatus.Text = HttpUtility.HtmlEncode(sfcStatus);
+            PodOrderStarted   = sfcStatus == SimulatedOrderRow.StatusActive;
         }
 
         // ── Step submit handler (cableado en el markup) ───────────────────
@@ -662,6 +691,8 @@ namespace TrainingApp.Pages.Training
                 {
                     TxtSFC.Text = order.SFCCode;
                 }
+
+                SetSearchHeader(order.ShopOrderInput, SimulatedOrderRow.StatusActive);
             }
 
             BindWorkList(area, session);
