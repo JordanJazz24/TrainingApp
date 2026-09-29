@@ -35,6 +35,11 @@ namespace TrainingApp.BLL.Training
             return _savedGroups.TryGetValue(rowId, out saved) ? saved : (ICollection<int>)new HashSet<int>();
         }
 
+        // Grupos ya guardados por la pieza actual: su Collect queda deshabilitado hasta pasar
+        // a la pieza siguiente, como Assemble en la Component List (ajuste de UI 2026-09-29).
+        public ICollection<int> CurrentPieceSavedGroupIds
+            => CurrentPiece != null ? SavedGroupIds(CurrentPiece.RowId) : new HashSet<int>();
+
         public void MarkSaved(string rowId, int groupId)
         {
             HashSet<int> saved;

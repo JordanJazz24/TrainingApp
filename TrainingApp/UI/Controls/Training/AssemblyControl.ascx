@@ -92,12 +92,6 @@
                                 onkeydown="return asmBarcodeKeyDown(event);"
                                 onchange="asmScan();" />
                         </div>
-                        <%-- Cada escaneo se aplica a todas las piezas seleccionadas (spec 008);
-                             solo tiene sentido con más de una pieza. --%>
-                        <asp:Panel ID="PnlApplyAll" runat="server" CssClass="asm-field">
-                            <span class="asm-label"></span>
-                            <label class="mb-0"><input type="checkbox" checked disabled /> Apply to all SFCs</label>
-                        </asp:Panel>
                     </div>
                 </div>
 
@@ -138,6 +132,12 @@
                 <asp:HiddenField ID="HfProcessLot" runat="server" ClientIDMode="Static" />
             </div>
             <div class="modal-footer asm-footer">
+                <%-- Cada escaneo se aplica a todas las piezas seleccionadas (spec 008); solo
+                     tiene sentido con más de una pieza. Aparece con Add, a su izquierda, como
+                     en el MES real (ajuste de UI 2026-09-29). --%>
+                <asp:Panel ID="PnlApplyAll" runat="server" CssClass="asm-apply-all" style="display:none">
+                    <label class="mb-0"><input type="checkbox" checked disabled /> Apply to all SFCs</label>
+                </asp:Panel>
                 <button id="BtnAdd" runat="server" class="btn btn-sm asm-btn" style="display:none"
                     onclick="if (!assembleValidate()) return false;"
                     onserverclick="BtnAdd_Click">
@@ -210,6 +210,9 @@ function asmShowScanned(scanned) {
     document.getElementById('asmScanned').style.display = scanned ? '' : 'none';
     document.getElementById('asmEmpty').style.display   = scanned ? 'none' : '';
     document.getElementById('<%= BtnAdd.ClientID %>').style.display = scanned ? '' : 'none';
+    // Con una sola pieza el panel no se renderiza (PnlApplyAll.Visible = false).
+    var applyAll = document.getElementById('<%= PnlApplyAll.ClientID %>');
+    if (applyAll) applyAll.style.display = scanned ? '' : 'none';
 }
 
 function assembleValidate() {

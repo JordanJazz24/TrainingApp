@@ -239,6 +239,29 @@ html, body {
 
 .pod-work-list tbody td { padding: 6px 10px; vertical-align: middle; }
 
+/* Columna selectora (POD y Browse Work List): angosta, con el ícono Select All en el
+   header; en las filas queda vacía, como en el MES real. */
+.pod-work-list .row-selector-col,
+#modalBrowseWorkList .row-selector-col {
+    width: 30px;
+    padding-left: 4px;
+    padding-right: 4px;
+    text-align: center;
+}
+.select-all-btn {
+    --select-all-bg: #1a2332;       /* fondo del header del POD */
+    background: none;
+    border: 0;
+    padding: 0;
+    line-height: 0;
+    color: #aeb6bf;
+    cursor: pointer;
+}
+.select-all-btn:hover { color: #fff; }
+.table-dark .select-all-btn { --select-all-bg: #212529; }
+.select-all-btn .sa-back  { fill: currentColor; opacity: 0.55; }
+.select-all-btn .sa-front { fill: var(--select-all-bg); stroke: currentColor; stroke-width: 1.2; }
+
 .status-badge {
     display: inline-block;
     width: 10px; height: 10px;
@@ -410,5 +433,7 @@ html, body {
 .asm-col + .asm-col { border-left: 1px solid #d6d9dc; }
 .asm-col h6 { font-size: 0.8rem; font-weight: 700; margin-bottom: 14px; }
 .asm-footer { justify-content: center; }
+.asm-apply-all { font-size: 0.8rem; color: #5f6b76; margin-right: 6px; }
+.asm-apply-all input { margin-right: 3px; vertical-align: middle; }
 .asm-btn { background: #f4f5f6; border: 1px solid #c4c9ce; font-size: 0.8rem; }
 .asm-btn:hover { background: #e2e6ea; }

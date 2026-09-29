@@ -42,8 +42,18 @@ namespace TrainingApp.Pages.Training
         }
 
         // Serialized (spec 008): el POD y Browse Work List permiten varias filas y TxtSFC
-        // muestra "[N SELECTED]". NonSerialized: como máximo 1 fila (spec 007).
+        // muestra "[N SELECTED]". NonSerialized: un click selecciona una fila (spec 007); el
+        // ícono Select All selecciona todas en ambos tipos.
         protected bool PodMultiSelect { get; private set; }
+
+        // Ícono Select All del header del POD y de Browse Work List: cuadros apilados, como
+        // en el MES real. Los colores salen del CSS (.select-all-btn).
+        protected const string SelectAllIcon =
+            "<svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" aria-hidden=\"true\">" +
+            "<rect class=\"sa-back\" x=\"0.5\" y=\"0.5\" width=\"9\" height=\"9\" />" +
+            "<rect class=\"sa-back\" x=\"2.5\" y=\"2.5\" width=\"9\" height=\"9\" />" +
+            "<rect class=\"sa-front\" x=\"5\" y=\"5\" width=\"9\" height=\"9\" />" +
+            "</svg>";
 
         private IStepControl GetStepControl(StepType stepType)
         {
@@ -984,7 +994,10 @@ namespace TrainingApp.Pages.Training
                     var dcParams = _dcParamRepo.GetByArea(area.Id);
                     vm.ExtraData["Parameters"] = dcParams;
                     vm.ExtraData["Groups"]     = _guideService.GetDataCollectionGroups(area.Id);
-                    vm.ExtraData["PieceLabel"] = DescribeCurrentPiece(GetDataCollectionProgress(session));
+                    var dcProgress = GetDataCollectionProgress(session);
+                    vm.ExtraData["PieceLabel"] = DescribeCurrentPiece(dcProgress);
+                    // Grupos ya guardados por la pieza actual: su Collect se deshabilita.
+                    vm.ExtraData["SavedGroupIds"] = dcProgress?.CurrentPieceSavedGroupIds ?? new HashSet<int>();
                     break;
 
                 case StepType.SFC_Split:

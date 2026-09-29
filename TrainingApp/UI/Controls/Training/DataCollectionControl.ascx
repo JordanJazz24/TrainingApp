@@ -27,6 +27,7 @@
                     CssClass="btn btn-sm btn-primary"
                     Text="Collect"
                     CommandArgument='<%# Eval("GroupCode") %>'
+                    Enabled='<%# !(bool)Eval("IsSaved") %>'
                     OnClick="BtnCollect_Click" />
             </div>
         </ItemTemplate>

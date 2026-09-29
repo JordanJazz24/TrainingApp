@@ -160,7 +160,12 @@
             <table class="pod-work-list table table-bordered mb-0">
                 <thead>
                     <tr>
-                        <th>CP</th>
+                        <%-- Columna selectora con el ícono Select All, como la tabla del POD real. --%>
+                        <th class="row-selector-col">
+                            <button type="button" class="select-all-btn" title="Select All"
+                                onclick="toggleSelectAllWorkList()"><%= SelectAllIcon %></button>
+                        </th>
+                        <th>SFC</th>
                         <th>Material Description</th>
                         <th>Qty</th>
                         <th>Status</th>
@@ -175,6 +180,7 @@
                                 data-sfc="<%# Eval("SFCCode") %>"
                                 data-row-id="<%# Eval("RowId") %>"
                                 onclick="selectWorkListRow(this)">
+                                <td class="row-selector-col"></td>
                                 <td><%# Eval("SFCCode") %></td>
                                 <td><%# Eval("MaterialDescription") %></td>
                                 <td><%# Eval("Qty") %></td>
@@ -273,6 +279,10 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead class="table-dark">
                             <tr>
+                                <th class="row-selector-col">
+                                    <button type="button" class="select-all-btn" title="Select All"
+                                        onclick="toggleSelectAllBrowse()"><%= SelectAllIcon %></button>
+                                </th>
                                 <th>SFC</th>
                                 <th>Material Description</th>
                                 <th>Shop Order Schedule Start</th>
@@ -285,6 +295,7 @@
                                     <tr class="browse-row" data-sfc="<%# Eval("SFCCode") %>"
                                         data-row-id="<%# Eval("RowId") %>"
                                         onclick="selectBrowseRow(this)" style="cursor:pointer">
+                                        <td class="row-selector-col"></td>
                                         <td><%# Eval("SFCCode") %></td>
                                         <td><%# Eval("MaterialDescription") %></td>
                                         <td><%# Eval("ScheduleStart") %></td>
@@ -370,6 +381,22 @@
         syncWorkListSelection();
     }
 
+    // Ícono Select All del header (POD y Browse Work List): selecciona todas las filas y,
+    // si ya estaban todas, las deselecciona. También en NonSerialized (decisión 2026-09-29):
+    // con varias filas, el servidor aplica la regla de cada paso de una fila (DC y SFC Split
+    // avisan sin intento; Log NC y Complete cuentan intento fallido, spec 007).
+    function toggleSelectAll(rowSelector, cssClass) {
+        var rows = document.querySelectorAll(rowSelector);
+        if (rows.length === 0) return;
+        var allSelected = Array.prototype.every.call(rows, r => r.classList.contains(cssClass));
+        rows.forEach(r => r.classList.toggle(cssClass, !allSelected));
+    }
+
+    function toggleSelectAllWorkList() {
+        toggleSelectAll('.pod-work-list tbody tr', 'selected');
+        syncWorkListSelection();
+    }
+
     // El HTML del POD que vuelve de un postback no sabe qué filas estaban seleccionadas:
     // se reaplican desde HfSelectedRowIds. Las que ya no existen salen de la selección.
     // Si el POD no está en pantalla (lo reemplaza DC o NC Selection) no se toca nada:
@@ -430,6 +457,10 @@
         document.querySelectorAll('#browseWorkListBody tr')
             .forEach(r => r.classList.remove('table-primary'));
         row.classList.add('table-primary');
+    }
+
+    function toggleSelectAllBrowse() {
+        toggleSelectAll('#browseWorkListBody tr', 'table-primary');
     }
 
     // Browse elige las piezas (o el SFC del lote) para Search/Start, no filas del POD:

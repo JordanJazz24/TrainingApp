@@ -114,13 +114,16 @@ namespace TrainingApp.UI.Controls.Training
         private void BindGroupList()
         {
             // DC Groups del catálogo (spec 008), ya ordenados por DisplayOrder. La lista no
-            // indica cuáles son obligatorios: saberlo es parte de lo que se entrena.
+            // indica cuáles son obligatorios: saberlo es parte de lo que se entrena. Un grupo
+            // ya guardado por la pieza actual queda con Collect deshabilitado (como Assemble).
+            var saved = GetSavedGroupIds();
             var groups = GetGroups()
                 .Select(g => new
                 {
                     GroupCode     = g.Code,
                     Description   = g.Description,
-                    CollectDataAt = g.CollectDataAt
+                    CollectDataAt = g.CollectDataAt,
+                    IsSaved       = saved.Contains(g.Id)
                 })
                 .ToList();
 
@@ -183,6 +186,13 @@ namespace TrainingApp.UI.Controls.Training
                 return ViewModel.ExtraData["Groups"] as IList<DataCollectionGroup>
                     ?? new List<DataCollectionGroup>();
             return new List<DataCollectionGroup>();
+        }
+
+        private ICollection<int> GetSavedGroupIds()
+        {
+            if (ViewModel?.ExtraData?.ContainsKey("SavedGroupIds") == true)
+                return ViewModel.ExtraData["SavedGroupIds"] as ICollection<int> ?? new HashSet<int>();
+            return new HashSet<int>();
         }
 
         private IList<DataCollectionParameter> GetParameters()

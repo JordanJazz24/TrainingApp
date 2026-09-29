@@ -214,7 +214,7 @@ Sin cambios: solo el operador autenticado dueño de la `TrainingSession`.
 |---|---|---|
 | E1 | Área con `RequiresAssembly = 1` y sin componentes en el catálogo | Error de configuración: el paso Assembly no se puede completar. El script de catálogo debe cargar ≥1 componente (Fase 7) |
 | E2 | Área con `RequiresDataCollection = 1` y sin grupos | Igual que hoy (error de configuración) |
-| E3 | Guardar dos veces el mismo grupo en la misma pieza | Se acepta; el segundo Save sobrescribe. No cuenta dos veces |
+| E3 | Guardar dos veces el mismo grupo en la misma pieza | ~~Se acepta; el segundo Save sobrescribe.~~ **Enmienda 2026-09-29 (ajustes de UI):** el Collect del grupo guardado queda deshabilitado para la pieza actual y el servidor ignora un segundo Save (sin intento). No cuenta dos veces |
 | E4 | Save incorrecto de un grupo opcional | Cuenta como intento fallido (es una decisión del operador) |
 | E5 | 4.º fallo en DC a mitad de las piezas (Assessment) | Force-advance del paso completo, como hoy; el avance parcial se descarta |
 | E6 | F5 a mitad de DC o Assembly | El avance en Session sobrevive. Igual que hoy, la selección de filas y el control abierto no se restauran |

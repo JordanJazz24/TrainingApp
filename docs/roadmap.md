@@ -13,7 +13,7 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-09-28 · **Branch:** `TrainingApp` · **Último commit de código:** `6b4c09e` (`git log --oneline -5` para ver el estado real)
+**Última actualización:** 2026-09-29 · **Branch:** `TrainingApp` · **Último commit de código:** `6b4c09e` (`git log --oneline -5` para ver el estado real)
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
@@ -60,6 +60,20 @@ se filtran en fases anteriores.
     spec: recorrido pieza por pieza).
   - Verificado en navegador por el usuario: Redefinity de punta a punta y regresión de
     Moldeo en Guided y Assessment.
+- **Mini-fase: ajustes de UI post-spec 008 (en curso, antes de la Fase 7).** Sin spec:
+  pedidos acotados del usuario, con una ronda de preguntas y plan directo. Entrega 1
+  (2026-09-29, verificada en navegador por el usuario):
+  - Tabla del POD: columna "CP" → **"SFC"**.
+  - POD y Browse Work List: columna selectora con el ícono **Select All** (captura real):
+    selecciona todas las filas o, si ya estaban todas, las deselecciona. **Decisión del
+    usuario:** también en NonSerialized. Ahí, con varias filas seleccionadas, DC Collection
+    y SFC Split avisan sin intento, y Log NC y Complete cuentan intento fallido (regla de
+    la spec 007, sin cambios).
+  - DC Collect (solo este paso, no Line Clearance): **Collect deshabilitado** en el grupo
+    que la pieza actual ya guardó; en Serialized se rehabilita al pasar a la pieza
+    siguiente. El servidor ignora un segundo Save del mismo grupo (enmienda de E3, spec 008).
+  - Assemble Components: **"Apply to all SFCs"** pasa al pie, a la izquierda de Add, y
+    aparece junto con él tras el escaneo (decisión del usuario).
 - **Siguiente:** la **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de
   LoFlo, a confirmar con negocio. Con eso, la Fase 7 vuelve a ser "solo datos".
   **Qué pedirle a negocio** para escribir el script de LoFlo:
@@ -70,8 +84,8 @@ se filtran en fases anteriores.
   3. Códigos NC de LoFlo.
   4. BOM (números de parte y cantidades): puede seguir **simulado** (decisión del usuario).
 - **Mientras llega la respuesta de negocio** (opciones, sin orden decidido): deuda de
-  `GuidedTest` → DAL directo; Fase 5 (tests de `ScoreCalculator`/`StepValidator`); punto 6
-  de la spec 006 sin verificar. Preguntar al usuario antes de elegir.
+  `GuidedTest` → DAL directo; Fase 5 (tests de `ScoreCalculator`/`StepValidator`, el
+  usuario la quiere al final). Preguntar al usuario antes de elegir.
 
 ### Cómo retomar en una sesión nueva
 1. Leer esta sección y `git log --oneline -10` (branch `TrainingApp`; no hay push pendiente
@@ -100,9 +114,12 @@ se filtran en fases anteriores.
 
 ### Deuda y riesgos conocidos (no bloquean la Fase 7)
 
-- **Checklist de la spec 006 sin verificar:** el punto 6 (volver a guardar Resource
-  Setup → AC-12). El 5 (force-advance en DC) y el 7 (Assembly) quedaron cubiertos por
-  la spec 008.
+- **Checklist de la spec 006 cerrado ✅ (2026-09-29):** el punto 6 (volver a guardar
+  Resource Setup → AC-12) se dio por resuelto por análisis de código: el Save repetido
+  en el modal ya confirmado lo descartan `ResourceSetupControl.BtnSave_Click`
+  (`if (!Visible) return;`, no sobrescribe la orden) y el guard de sender de
+  `HandleControlSubmit`; no hay intento ni cambio de puntaje y el modal se cierra. El
+  5 (force-advance en DC) y el 7 (Assembly) quedaron cubiertos por la spec 008.
 - **`GuidedTest` llama a repositorios de la DAL directamente** (`_areaRepo`,
   `_productRepo`, `_ncRepo`, `_dcParamRepo`), contra la regla de dependencias de
   CLAUDE.md. El código nuevo de la spec 008 pasa por `TrainingGuideService`; migrar lo

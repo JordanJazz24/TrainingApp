@@ -22,18 +22,25 @@ Production Operator Dashboard: Site - {site}, User - {userName}    [Home] [Power
 [Start]  [Assemble]  [DC Collection]  [Complete]
 ```
 
-**Tabla POD — columnas (legacy, labels en inglés)**
+**Tabla POD — columnas**
 
 | Column | Notes |
 |---|---|
-| CP | SFC identifier |
+| (selector) | Columna angosta sin datos; en el header, el ícono **Select All** (cuadros apilados) |
+| SFC | SFC identifier (el legacy la llamaba "CP"; corregido 2026-09-29) |
 | Material Description | |
 | Qty | Cantidad |
 | Status | Con indicador de color (verde = Activo) |
 | Process Lot | Lote proc. |
 | Shop Order | Orden de fabricación |
 
-Estado de fila seleccionada: highlight azul. Una sola fila seleccionable a la vez.
+Estado de fila seleccionada: highlight azul. Un click selecciona una fila (Serialized:
+alterna la fila, multi-selección). **Select All** (captura del POD real del usuario,
+2026-09-29) selecciona todas las filas y, si ya estaban todas, las deselecciona; aplica en
+Serialized y en NonSerialized. En NonSerialized, con más de una fila seleccionada, cada
+paso de una fila aplica su regla de siempre: DC Collection y SFC Split muestran un aviso
+de formato (sin intento); Log NC y Complete cuentan como intento fallido (spec 007: elegir
+la fila es decisión del operador).
 
 **Sidebar — orden definitivo**
 1. SFC Split
@@ -364,14 +371,16 @@ Se abre al hacer clic en el ícono browse cuando no es posible escanear.
 ```
 [BROWSE WORK LIST - SFCS QUEUED - {operation},{resource},{userId}]    [↗][X]
 ─────────────────────────────────────────────────────────────────────────────
-  SFC ↑    Material Description    Shop Order Schedule Start Date    Shop Order Planned Completion
+  [⧉] SFC ↑    Material Description    Shop Order Schedule Start Date    Shop Order Planned Completion
   ─────────────────────────────────────────────────────────────────────────────
-  {sfcCode}    {description}    {scheduleDate}    {plannedDate}
+  [ ] {sfcCode}    {description}    {scheduleDate}    {plannedDate}
   ...
 ─────────────────────────────────────────────────────────────────────────────
                                                         [✓ OK]  [✗ Cancel]
 ```
 
+- `[⧉]` = ícono **Select All** en la columna selectora (igual que en la tabla del POD):
+  selecciona todas las filas o, si ya estaban todas, las deselecciona
 - Un clic = selecciona fila (highlight)
 - [OK] o doble clic = confirma selección, cierra modal, carga en POD
 - [Cancel] = cierra sin cambios
@@ -474,7 +483,7 @@ Assemble Components                                                        (?)
 ──────────────────────────────────────────────────────────────────────────────
   Mode:    Choose  (texto)            Find component: [________________]
   Action:  ● Assembly  ○ Removal      Barcode:        [________________]
-           (informativo, gris)        ☑ Apply to all SFCs (fijo, con >1 pieza)
+           (informativo, gris)
 ────────────────────────────────────────────────────────────────────────────
   (cuerpo vacío)
 ────────────────────────────────────────────────────────────────────────────
@@ -491,8 +500,11 @@ Assemble Components                                                        (?)
   Description: {description}         │
   Quantity:   [{Qty}]                │
 ────────────────────────────────────────────────────────────────────────────
-                      [✔ Add]    [✖ Return to POD]
+         ☑ Apply to all SFCs    [✔ Add]    [✖ Return to POD]
 ```
+
+- **☑ Apply to all SFCs**: marcado y deshabilitado, solo con más de una pieza. Va en el pie,
+  a la izquierda de [Add], y aparece junto con él tras el escaneo (layout real, 2026-09-29).
 
 - **Barcode**: numérico; el escaneo se procesa con Enter (como el lector) o al salir del
   campo. Enter no envía el formulario.
@@ -550,6 +562,9 @@ Data Collection List                                                   [?] [X]
 
 - `{DC_GROUP_CODE}`: ej. `DCGTM_DETECTOR_BRD/A`
 - `Collect Data At`: metadata del grupo (Anytime / Complete / etc.) — no bloquea en el simulador
+- **[Collect] deshabilitado** en el grupo que la pieza actual ya guardó (como [Assemble] con
+  Rem Qty 0). Al pasar a la pieza siguiente (Serialized) todos vuelven a habilitarse
+  (2026-09-29). Solo en este paso: el Collect de Line Clearance no cambia.
 - Paginación idéntica a Component List
 
 ### Modal: Data Collection Entry
@@ -618,7 +633,8 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
 - Validación del Save: tienen que venir **todos** los parámetros del grupo y solo esos;
   Numeric dentro de rango, Boolean = Sí, Date válida. Un campo vacío es intento fallido.
 - Un Save incorrecto es intento fallido del paso, pero **conserva** el avance (grupos y
-  piezas ya guardados). Guardar dos veces el mismo grupo cuenta una vez.
+  piezas ya guardados). Un grupo ya guardado por la pieza actual no se puede volver a
+  guardar: su [Collect] está deshabilitado y el servidor ignora un segundo Save.
 - Save Draft no guarda nada (solo orienta al operador)
 - El paso finaliza cuando todas las piezas guardaron sus grupos obligatorios (Moldeo:
   solo `DCGTM_FECHA_EXPIRACION_NIR/A`). El intento correcto se registra en ese momento.

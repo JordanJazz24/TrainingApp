@@ -137,6 +137,10 @@ namespace TrainingApp.BLL.Training
             var group  = groups.FirstOrDefault(g => g.Code == groupCode);
             if (group == null) return result;
 
+            // Grupo ya guardado por la pieza actual: su Collect está deshabilitado, así que un
+            // segundo Save solo llega manipulando el cliente y no cuenta (E3, enmienda 2026-09-29).
+            if (progress.CurrentPieceSavedGroupIds.Contains(group.Id)) return result;
+
             if (!GetOrBuildValidator(guide).ValidateDataCollectionGroup(group.Id, answersJson))
             {
                 result.StepResult = RecordAttempt(session, guide, step, isCorrect: false);
