@@ -424,11 +424,16 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Como el MES real, el split crea un SFC nuevo de la misma Shop Order (enmienda
+            // 2026-10-01 de la spec 005): mismo prefijo que el lote, sufijo que no se repite.
+            string newSfc = SplitSfcGenerator.Next(order.SFCCode,
+                order.Rows.Select(r => r.SFCCode).ToList(), new Random());
+
             row.Qty -= e.Qty;
             order.Rows.Add(new SimulatedOrderRow
             {
                 RowId       = Guid.NewGuid().ToString(),
-                SFCCode     = order.SFCCode,
+                SFCCode     = newSfc,
                 Qty         = e.Qty,
                 Status      = SimulatedOrderRow.StatusActive,
                 IsFromSplit = true
@@ -436,6 +441,7 @@ namespace TrainingApp.Pages.Training
 
             e.IsApplied = true;
             e.RemainingQty = row.Qty;
+            e.NewSfcCode = newSfc;
             BindWorkList(_areaRepo.GetById(guide.AreaId), session);
         }
 
@@ -1033,6 +1039,10 @@ namespace TrainingApp.Pages.Training
 
                 case StepType.SFC_Split:
                     var selectedRow = FindSelectedOrderRow(session);
+                    // "SFC to Split" es el SFC de la fila elegida: una fila que ya salió de otro
+                    // split tiene su propio SFC, distinto del lote.
+                    if (selectedRow?.SFCCode != null)
+                        vm.ExtraData["SFCCode"] = selectedRow.SFCCode;
                     vm.ExtraData["AvailableQty"] = selectedRow?.Qty ?? 0;
                     vm.ExtraData["SelectedRowId"] = selectedRow?.RowId;
                     vm.ExtraData["HasSuccessfulSplit"] = HasSuccessfulSplit(session);

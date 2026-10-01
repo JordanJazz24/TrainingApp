@@ -49,5 +49,8 @@ namespace TrainingApp.Pages.Training.Models
         public bool IsApplied { get; set; }
         public int RemainingQty { get; set; }
         public string ErrorMessage { get; set; }
+
+        // SFC de la fila creada, para el mensaje "New SFC … created with quantity …".
+        public string NewSfcCode { get; set; }
     }
 }

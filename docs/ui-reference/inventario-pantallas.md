@@ -28,10 +28,10 @@ contra las 25 capturas de la carpeta._
 
 | # | Pantalla | Paso | Capturas | Estado |
 |---|---|---|---|---|
-| 1 | POD (header, POD Search, acciones, POD Work List, panel derecho, pie) | todos | `pantall central de referencia`, `Search-Start order/pod cargado con la orden selcionada`, `Search-Start order/campo de search`, `Split-log nc/seleccion de la orden o sfc y click en LOG NC`, `Assemble/se seleciona el lote o todas las piezas del POD` | 🟡 |
+| 1 | POD (header, POD Search, acciones, POD Work List, panel derecho, pie) | todos | `pantall central de referencia`, `Search-Start order/pod cargado con la orden selcionada`, `Search-Start order/campo de search`, `Split-log nc/seleccion de la orden o sfc y click en LOG NC`, `Assemble/se seleciona el lote o todas las piezas del POD` | ✅ |
 | 2 | Banner de mensajes | — | `mensaje de banner correcto`, `Split-log nc/mensaje confirmacion scrap` | ✅ |
 | 3 | Menú Activities | 2 y 6 (LC) | `Line Clearence/boton activies, dropdown de opciones` | ✅ |
-| 4 | Browse Work List | 3 | `Search-Start order/browse work list` | 🟡 |
+| 4 | Browse Work List | 3 | `Search-Start order/browse work list` | ✅ |
 | 5 | Resource Setup | 1 | `Resource Setup/resource setu modal`, `Resource Setup/resource setup modal con datos`, `Resource Setup/record changed correcto` | ✅ |
 | 6 | Data Collection Standalone (Line Clearance) | 2 y 6 | `Line Clearence/modal data collection standalone`, `…modal line clearence`, `…mas nitido`, `…dc group save` | ✅ |
 | 7 | Data Collection Entry de Line Clearance (submodal) | 2 y 6 | `Line Clearence/modal line clearence- sub modal de la pregunta` | ✅ |
@@ -40,12 +40,12 @@ contra las 25 capturas de la carpeta._
 | 10 | Assemble Components | 4 | `Assemble/asemble components modal - estado anterior al escaneo`, `…posterior al escaneo` | ✅ |
 | 11 | Data Collection List | 5 | `DC COLLECT/tabla de data collection list` | ✅ |
 | 12 | Data Collection Entry (DC Collect) | 5 | `DC COLLECT/modal data collection entry 1`, `…2` | ✅ |
-| 13 | SFC Split Plug-In | 7 | `Split-log nc/modal sfc split`, `Split-log nc/split creado` | 🟡 |
+| 13 | SFC Split Plug-In | 7 | `Split-log nc/modal sfc split`, `Split-log nc/split creado` | ✅ |
 | 14 | NC Selection | 8 | `Split-log nc/mensaje confirmacion scrap` (muestra la lista) | ✅ |
 | 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | ✅ |
 | 16 | Resultado de Complete | 9 | — | ⚪ |
 
-**Resumen:** ✅ 11 · 🟡 3 · ⚪ 2 (actualizado tras la entrega 8). Quedan: POD (#1), Browse (#4) y SFC Split (#13).
+**Resumen:** ✅ 14 · 🟡 0 · ⚪ 2 (2026-10-01, tras la entrega 9). **Criterio de cierre cumplido:** todas las pantallas con captura están fieles; las 2 sin captura (#8 y #16) quedan pendientes y no bloquean.
 
 ## Diferencias pendientes por pantalla
 
@@ -55,15 +55,15 @@ Assemble, Log NC, OK/Cancel, Add-Done…). _Estilo común creado en la entrega 6
 (`.mes-btn` + `.mes-ico-*` en `pod.css`) y aplicado en Browse y Line Clearance; falta en
 las listas (entrega 7) y en DC/NC Entry (entrega 8)._
 
-1. **POD**
-   - El campo SFC real muestra una × para limpiarlo cuando tiene valor.
-   - La tabla real llena el panel con filas vacías cuadriculadas; la nuestra deja blanco.
-   - *Aceptadas (reglas del simulador):* botones deshabilitados en Guided; orden del panel
-     derecho según la captura de referencia (el MES lo cambia según la configuración del POD).
+1. **POD** — ✅ (el usuario lo dio por fiel, 2026-10-01). *Aceptadas:* la × del campo SFC
+   y las filas vacías cuadriculadas de la tabla no se replican; botones deshabilitados en
+   Guided (regla del simulador); orden del panel derecho según la captura de referencia (el
+   MES lo cambia según la configuración del POD).
 2. **Banner** — ✅. Textos con captura: grupo de DC y scrap. Los de Start, Assembly, Split
    y "SFC … completed. Next: …" no tienen captura.
-4. **Browse Work List** — _Entrega 6 ✅: línea celeste bajo el
-   encabezado y [✓ OK] [✗ Cancel] al estilo MES._ Queda: flecha de orden en la columna SFC.
+4. **Browse Work List** — ✅ (el usuario lo dio por fiel, 2026-10-01): línea celeste bajo el
+   encabezado y [✓ OK] [✗ Cancel] al estilo MES (entrega 6). *Aceptada:* la flecha de
+   orden de la columna SFC no se replica.
 5. **Resource Setup** — ✅ (entrega 5): campos centrados, franja celeste de acciones a la
    izquierda, tabla de dos columnas de ancho fijo con ⧉ que copia al portapapeles, pie
    centrado y "Record changed" como el real. Nota: `Resource Setup/…pop up de record
@@ -103,6 +103,12 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
       created with quantity n"). ⚠ El MES crea un **SFC nuevo**; el simulador reusa el SFC
       del lote (spec 007). Cambiar solo el texto es UI; cambiar el SFC de la fila nueva es
       una regla y se decide aparte.
+    - _Entrega 9 ✅: captura nueva `modal sfc split` — banda
+      oscura "SFC Split" (como Resource Setup), mensaje "☑ New SFC … created with quantity
+      …" arriba, formulario centrado con etiquetas en negrita, campo amarillo claro con ×
+      de cliente y [Split] [Close] de contorno celeste; sin mensajes de validación bajo el
+      campo. Regla resuelta por el usuario (enmienda 2026-10-01 de la spec 005): el split
+      crea un **SFC nuevo** de la misma Shop Order y el mensaje lo muestra._
 14. **NC Selection** — Celdas sin recuadro: código en negrita, descripción en cursiva,
     [Log NC] gris con ícono. (La captura recortada "NC Selection table" ya no está en la
     carpeta.) _Entrega 7 ✅: todo lo anterior, con la paginación

@@ -30,7 +30,6 @@ namespace TrainingApp.UI.Controls.Training
 
             LitSFCToSplit.Text = Page.Server.HtmlEncode(sfcCode);
             LitAvailableQty.Text = availableQty.ToString();
-            CvQty.ValueToCompare = availableQty.ToString();
             HasSuccessfulSplit = hasSuccessfulSplit;
             BtnCloseSplit.Enabled = hasSuccessfulSplit;
         }
@@ -38,8 +37,8 @@ namespace TrainingApp.UI.Controls.Training
         protected void BtnSplit_Click(object sender, EventArgs e)
         {
             ReopenModal();
-            if (!Page.IsValid) return;
 
+            // Formato (sin intento): sin validadores en el markup, el aviso es un SweetAlert.
             int availableQty = GetExtraData("AvailableQty", 0);
             if (!int.TryParse(TxtQtyToSplit.Text.Trim(), out int qtyToSplit) ||
                 qtyToSplit <= 0 || qtyToSplit >= availableQty)
@@ -65,18 +64,12 @@ namespace TrainingApp.UI.Controls.Training
             }
 
             LitAvailableQty.Text = args.RemainingQty.ToString();
-            CvQty.ValueToCompare = args.RemainingQty.ToString();
+            LitNewSfc.Text = Page.Server.HtmlEncode(args.NewSfcCode ?? string.Empty);
             LitNewQty.Text = qtyToSplit.ToString();
             PnlSplitConfirm.Visible = true;
             HasSuccessfulSplit = true;
             BtnCloseSplit.Enabled = true;
             TxtQtyToSplit.Text = string.Empty;
-        }
-
-        protected void BtnClearSplit_Click(object sender, EventArgs e)
-        {
-            TxtQtyToSplit.Text = string.Empty;
-            ReopenModal();
         }
 
         protected void BtnCloseSplit_Click(object sender, EventArgs e)

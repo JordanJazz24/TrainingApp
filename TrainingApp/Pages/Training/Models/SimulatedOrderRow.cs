@@ -3,8 +3,9 @@ namespace TrainingApp.Pages.Training.Models
     /// <summary>
     /// Una fila de una SimulatedOrder.
     /// NonSerialized: filas de cantidad del lote. Cuando se hace un SFC Split, la fila
-    /// original reduce su Qty y se agrega otra con un RowId distinto; ambas comparten el
-    /// SFC del lote, por eso el RowId es lo único que distingue filas hermanas en el POD.
+    /// original reduce su Qty y se agrega otra con un SFC nuevo de la misma Shop Order
+    /// (SplitSfcGenerator; enmienda 2026-10-01 de la spec 005). El RowId sigue siendo la
+    /// clave de cada fila en el POD.
     /// Serialized (spec 008): una fila por pieza, cada una con su propio SFC y Qty 1.
     /// </summary>
     public class SimulatedOrderRow

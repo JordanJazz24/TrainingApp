@@ -64,7 +64,7 @@ se filtran en fases anteriores.
   2026-09-29).** Nació como mini-fase de ajustes de UI tras la spec 008. Objetivo:
   dejar cerrada la interfaz antes de los overlays guiados (Fase 6.6), que se anclan a
   ella. Detalle, alcance y criterio de cierre abajo, en "Fase 6.5".
-  - **Entregas 1-8 ✅** (2026-09-29 a 2026-10-01, verificadas por el usuario; plan con
+  - **Entregas 1-9 ✅** (2026-09-29 a 2026-10-01, verificadas por el usuario; plan con
     casillas y decisiones en `docs/specs/fase-6.5-plan.md`): columna SFC y Select All;
     Collect deshabilitado por pieza (enmienda de E3, spec 008); Shop Order / Status (SFC);
     layout y colores del MES real (header y POD Search en una franja clara, Code1 en el
@@ -72,13 +72,16 @@ se filtran en fases anteriores.
     (`.mes-btn` + `.mes-ico-*`); Line Clearance con submodal apilado; listas (Component,
     DC, NC Selection); DC Entry y NC Data Entry, con la columna nueva
     `DataCollectionParameters.Description` (Moldeo con los textos del legacy) y
-    `SFC (1/N)` + "Apply to all SFCs" en NC Data Entry.
+    `SFC (1/N)` + "Apply to all SFCs" en NC Data Entry; SFC Split como la captura real.
+  - **Regla cambiada dentro de la fase, por decisión del usuario:** el SFC Split crea un
+    **SFC nuevo** de la misma Shop Order (`BLL/Training/SplitSfcGenerator`; enmienda
+    2026-10-01 de la spec 005).
   - **Inventario de pantallas** (criterio de cierre): `docs/ui-reference/inventario-pantallas.md`
-    — hoy ✅ 11 · 🟡 3 · ⚪ 2 (16 pantallas del MES). Quedan con diferencias: POD (×
-    del campo SFC, filas vacías de la tabla), Browse (flecha de orden) y SFC Split (cuerpo
-    y texto de confirmación; el SFC nuevo del Split es regla y se decide aparte).
-  - **Ahora:** la siguiente tanda de correcciones del usuario (entrega 9), cruzada con las
-    diferencias que quedan en el inventario.
+    — ✅ 14 · 🟡 0 · ⚪ 2. **Criterio de cierre cumplido (2026-10-01):** todas las
+    pantallas con captura están fieles (POD y Browse con diferencias menores aceptadas por
+    el usuario). Sin captura, sin bloquear: los 4 modales del Start de Moldeo y el
+    resultado de Complete.
+  - **Ahora:** confirmar con el usuario el cierre de la 6.5 y pasar a la spec de la 6.6.
 - **Después — Fase 6.6 · Overlays guiados** (requiere `/spec`), sobre la interfaz ya
   cerrada. Ver "Fase 6.6" abajo.
 - **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de LoFlo, a
@@ -308,8 +311,8 @@ correcciones del usuario = una entrega (ronda de preguntas si hace falta + plan 
 `docs/specs/fase-6.5-plan.md`) → build + precompilación (+ tests si cambia la BLL) →
 checklist → prueba del usuario → commit → actualizar el inventario.
 **Commits:** `48b67c1` (entrega 1), `fbcd132` (2), `8fde133` (3), `b832e77` (4),
-`f432462` (formalización + inventario), `c38fe94` (5), `70e5e8e` (6), `03d767b` (7) y
-la entrega 8 (DC Entry / NC Data Entry + columna `Description`).
+`f432462` (formalización + inventario), `c38fe94` (5), `70e5e8e` (6), `03d767b` (7),
+`4ca602c` (8) y la entrega 9 (SFC Split + SFC nuevo en el split).
 
 ---
 

@@ -176,3 +176,24 @@ formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
       Assemble Components) y "Apply to all SFCs" marcado y fijo a la izquierda de Add
       cuando N > 1 (el NC se registra en todas, spec 008). Mismo patrón visual que DC Entry
       (línea celeste, banda del SFC).
+
+## Entrega 9 ✅ — SFC Split (verificada por el usuario 2026-10-01)
+- [x] POD y Browse Work List: el usuario los dio por fieles (2026-10-01); las diferencias
+      menores (× del campo SFC, filas vacías de la tabla, flecha de orden) quedan aceptadas.
+- [x] SFC Split según la captura nueva `Split-log nc/modal sfc split`: banda oscura "SFC
+      Split" (`.mes-page-header`, como Resource Setup; se quitó `.mes-plugin-header`),
+      mensaje "☑ New SFC {sfc} created with quantity {n}" arriba, formulario centrado con
+      etiquetas en negrita, campo amarillo claro con × de cliente (reemplaza al botón X de
+      servidor `BtnClearSplit`, sin postback) y [Split] [Close] de contorno celeste.
+- [x] `SFCSplitRequestedEventArgs.NewSfcCode`: el mensaje muestra el SFC de la fila nueva
+      (el del lote en el simulador; la regla de la spec 007 no cambia).
+- [x] Correcciones del usuario sobre la entrega 9:
+      - **Regla (fuera del alcance normal de la 6.5, decidida por el usuario):** el split
+        crea un **SFC nuevo** de la misma Shop Order, como el real. `SplitSfcGenerator`
+        (BLL) conserva el prefijo del SFC del lote y genera 4 dígitos finales que no se
+        repiten en la orden. Enmienda 2026-10-01 de la spec 005 (regla de SFC Split y
+        AC-14). Log NC sigue reconociendo la fila del split por `IsFromSplit`; "SFC to
+        Split" muestra el SFC de la fila elegida.
+      - Se quitaron los validadores "Qty required." y "Qty to split must be less than
+        Available Qty."; la cantidad la sigue validando `BtnSplit_Click` (SweetAlert, sin
+        intento).

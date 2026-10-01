@@ -517,8 +517,7 @@ body {
 /* ── Modales del MES (Fase 6.5, entrega 4) ──────────
    Barra de título estándar de todas las ventanas: [Título] [↗] [X] sobre gris claro.
    Debajo, el encabezado interno que muestra cada captura real:
-   - .mes-page-header    banda oscura con el título grande (Resource Setup)
-   - .mes-plugin-header  banda celeste en cursiva (SFC Split Plug-In)
+   - .mes-page-header    banda oscura con el título grande (Resource Setup, SFC Split)
    - .mes-subheader      título o SFC con (?) y línea azul (Assemble, DC/NC Entry)
    - .mes-info-row       fila gris de contexto (DC Group, Resource) */
 .modal-content { border-radius: 3px; }
@@ -574,15 +573,6 @@ body {
     font-size: 0.8rem;
 }
 
-.mes-plugin-header {
-    padding: 6px 14px;
-    background: linear-gradient(#dbe6f1, #adc6dc);
-    border-bottom: 1px solid #a9c1d6;
-    color: #1d2b3a;
-    font-size: 1.25rem;
-    font-weight: 700;
-    font-style: italic;
-}
 
 .mes-subheader {
     display: flex;
@@ -875,6 +865,48 @@ button.mes-field-icon.copied  { color: var(--pod-blue); }
 .lc-collect      { width: 100%; min-height: 60px; }
 
 .lc-entry-dialog { max-width: 680px; }
+
+/* ── SFC Split Plug-In (Fase 6.5, entrega 9; captura "modal sfc split") ──
+   Mensaje de confirmación arriba, formulario centrado con etiquetas en negrita a la
+   derecha, campo amarillo claro con × de cliente y [Split] [Close] centrados. */
+.split-body { padding: 8px 12px 18px; background: #ebedef; font-size: 0.85rem; }
+.split-message {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+.split-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 12px;
+    padding-top: 6px;
+}
+.split-label { text-align: right; font-weight: 700; color: #444; }
+.split-input-box { position: relative; display: inline-flex; width: 150px; }
+.split-input {
+    width: 100%;
+    height: 26px;
+    padding: 2px 24px 2px 6px;
+    border: 1px solid #c9cbc4;
+    background: #fafde2;
+    font-size: 0.85rem;
+}
+.split-clear {
+    position: absolute;
+    top: 1px; right: 2px; bottom: 1px;
+    width: 20px;
+    border: 0;
+    background: transparent;
+    color: #555;
+    font-size: 0.8rem;
+    cursor: pointer;
+    visibility: hidden;
+}
+.split-actions { display: flex; justify-content: center; gap: 12px; margin-top: 18px; }
 
 /* ── Resource Setup (captura "resource setup modal con datos") ── */
 .rs-form {

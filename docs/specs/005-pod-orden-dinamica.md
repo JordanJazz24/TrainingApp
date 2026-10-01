@@ -1,6 +1,6 @@
 # Spec 005: POD — Captura Dinámica de Orden (Resource Setup → Search → DC → Split)
 
-**Status:** Approved (2026-09-24) — aprobada retroactivamente al cierre de la Fase 6; ya estaba implementada y en uso
+**Status:** Approved (2026-09-24) — aprobada retroactivamente al cierre de la Fase 6; ya estaba implementada y en uso — **enmendada 2026-10-01:** el SFC Split crea un **SFC nuevo** de la misma Shop Order (ver AC-14 y la regla de SFC Split)
 **Date:** 2026-09-18
 
 ---
@@ -36,8 +36,10 @@ pero dinámico y controlado por el operador).
 - DC Collect: gating por JavaScript — el click no dispara postback si no hay una
   fila de la tabla POD seleccionada.
 - SFC Split: la fila resultante del split se agrega como una **fila nueva** en la
-  tabla del POD (mismo SFC/Shop Order, distinto identificador interno), y la fila
-  origen reduce su cantidad. Se valida `0 < qty a dividir < qty disponible en esa fila`.
+  tabla del POD (~~mismo SFC/Shop Order~~ **enmienda 2026-10-01, decisión del usuario:
+  SFC nuevo de la misma Shop Order**, como el MES real — mismo prefijo que el SFC del
+  lote y sufijo de 4 dígitos que no se repite en la orden, `BLL/Training/SplitSfcGenerator`;
+  distinto identificador interno), y la fila origen reduce su cantidad. Se valida `0 < qty a dividir < qty disponible en esa fila`.
   Cualquier fila (original o ya dividida) puede volver a dividirse mientras
   `Qty > 1`.
 - Limpieza de la orden simulada al abandonar la sesión de entrenamiento (`Abandon`).
@@ -280,7 +282,9 @@ SFC Split deja de ser un modo de `LogNCControl`. `SFCSplitControl` aplica cada s
   no se aplica el split.
 - **AC-14:** Dado `Available Qty = 250`, cuando el operador confirma un split
   de `100`, entonces la fila origen queda con `Qty = 150` y se agrega una fila
-  nueva con `Qty = 100`, mismo SFC/Shop Order, `RowId` distinto.
+  nueva con `Qty = 100`, ~~mismo SFC/Shop Order~~ **SFC nuevo y misma Shop Order
+  (enmienda 2026-10-01)**, `RowId` distinto; el mensaje dice "New SFC {SFC nuevo}
+  created with quantity 100".
 - **AC-15:** Dado que existen 2 filas con el mismo SFC tras un split, cuando el
   operador selecciona cualquiera de las 2 en `RptWorkList`, entonces
   `HfSelectedRowId` identifica inequívocamente cuál fue seleccionada.

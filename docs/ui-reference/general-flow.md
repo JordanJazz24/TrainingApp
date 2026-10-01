@@ -743,14 +743,25 @@ La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): s
 
 **Acceso:** seleccionar una fila del POD → Sidebar → [SFC Split]. Las guías Serialized omiten este paso.
 
-**Modal: SFC Split Plug-In (Auto ID)**
+**Modal: SFC Split Plug-In (Auto ID)** (captura `Split-log nc/modal sfc split`; Fase 6.5,
+entrega 9)
 ```
-  SFC to Split:   {sfcCode}      ← readonly
-  Available Qty:  {qty}          ← readonly
-  ★ Qty to Split: [_____] [X]    ← requerido, numérico
-  [Split]  [Close]
+[SFC Split Plug-In (Auto ID)]                                  [⤢][✕]
+████ SFC Split ████████████████████████████████████████████████  (?)   ← banda oscura
+  ☑ New SFC {sfcCode} created with quantity {qty}     ← arriba, tras un split
+                 SFC to Split:  {sfcCode}
+                Available Qty:  {qty}
+              * Qty to Split:  [_____ ✕]   ← amarillo claro; la ✕ limpia (cliente)
+                       [Split]  [Close]     ← contorno celeste, centrados
 ```
-Confirmación en modal: `✓ New SFC {newCode} created with quantity {qty}`
+- Formulario centrado, etiquetas en negrita a la derecha, fondo gris claro `#EBEDEF`.
+  Sin mensajes de validación bajo el campo: una cantidad vacía o fuera de rango se avisa
+  con SweetAlert (formato, sin intento).
+- La confirmación va arriba, con el check verde y sin recuadro, con el **SFC nuevo**.
+- **El split crea un SFC nuevo de la misma Shop Order**, como el real (enmienda 2026-10-01
+  de la spec 005): mismo prefijo que el SFC del lote y 4 dígitos finales nuevos que no se
+  repiten en la orden (ej. `CR9A30340695` → `CR9A30343832`). "SFC to Split" muestra el SFC
+  de la fila elegida (una fila de un split anterior tiene el suyo).
 Operador verifica la nueva fila en el POD antes de continuar.
 
 - [Split] muta el POD sin registrar intento ni avanzar el TrainingStep.
