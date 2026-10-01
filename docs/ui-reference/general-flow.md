@@ -565,9 +565,12 @@ Assemble Components                                                        (?)
 ### Flujo del operador
 1. Con todas las filas seleccionadas → [Assemble] → Component List
 2. [Assemble] en un componente → modal → escanear barcode (Enter)
-3. [Add] → Rem Qty `0`; el modal cierra y la lista se actualiza
+3. [Add] → Rem Qty `0` y la lista se actualiza; **el modal queda abierto** con la
+   confirmación "☑ Component {PartNumber}/{Revision} assembled" arriba a la izquierda,
+   bajo la línea azul del encabezado (Fase 6.5; el texto exacto del real está por
+   confirmar). El operador cierra con ✕ (vuelve a la Component List) o Return to POD.
 4. Repetir por cada componente; con el último, el paso se completa y vuelve el POD
-   (banner "✓ Assembly completed successfully")
+   con el banner del MES real **"All components processed at this operation"**
 
 ### Reglas de negocio
 - **Un escaneo por componente** cubre toda su Qty y se aplica a todas las piezas

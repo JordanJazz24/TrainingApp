@@ -35,8 +35,10 @@
                     <span class="mes-field lc-field"><span class="mes-field-text"><asp:Literal ID="LitOperation" runat="server" /></span><span class="mes-field-icon">&#10697;</span></span>
                     <span></span>
                     <span></span>
-                    <button type="button" class="mes-btn mes-ico mes-ico-clear lc-side-btn"
-                        onclick="lcClear()">Clear</button>
+                    <%-- Botones anchos: el ícono va como <img> para quedar pegado al texto y
+                         centrado con él (como el real), no en el borde del botón. --%>
+                    <button type="button" class="mes-btn lc-side-btn" onclick="lcClear()">
+                        <img src="<%= ResolveUrl("~/UI/master/imgs/anular-icon.png") %>" alt="" />Clear</button>
 
                     <span class="lc-label"><span class="pod-star">*</span> Collect Data For:</span>
                     <select class="rs-select lc-select" aria-label="Collect Data For">
@@ -44,8 +46,8 @@
                     </select>
                     <span class="mes-field lc-field"><span class="mes-field-text"><asp:Literal ID="LitResource" runat="server" /></span><span class="mes-field-icon">&#10697;</span></span>
                     <span></span>
-                    <button type="button" class="mes-btn mes-ico mes-ico-retrieve lc-side-btn"
-                        onclick="retrieveLCStandalone()">Retrieve</button>
+                    <button type="button" class="mes-btn lc-side-btn" onclick="retrieveLCStandalone()">
+                        <img src="<%= ResolveUrl("~/UI/master/imgs/retrieve-icon.png") %>" alt="" />Retrieve</button>
                 </div>
 
                 <%-- DC list (hidden until Retrieve) --%>

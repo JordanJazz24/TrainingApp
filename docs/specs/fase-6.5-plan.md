@@ -205,3 +205,17 @@ formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
       local`), sin filas falsas, así no afectan selección ni Select All. Header y filas
       miden exactamente 32px (`border-collapse: separate`) para que el paso coincida.
       Verificado con captura en Edge headless (tabla vacía y con filas).
+
+## Ajuste final ✅ — Botones Clear / Retrieve de Data Collection Standalone (verificado 2026-10-01)
+- [x] El ícono queda pegado al texto y centrado con él, como el real. Esos botones son
+      anchos y el ícono por fondo (`.mes-ico`) quedaba en el borde izquierdo, lejos del
+      texto: ahora va como `<img>` dentro del botón (el `gap` de `.mes-btn` los separa).
+
+## Ajuste final ✅ — Mensajes de Assemble (verificado 2026-10-01)
+- [x] Add con componentes pendientes: el modal Assemble Components queda abierto con la
+      confirmación "☑ Component {PartNumber}/{Revision} assembled" arriba a la izquierda,
+      bajo la línea azul (`AssemblyControl.ShowAddConfirmation`; el panel se apaga en cada
+      request porque `Visible` persiste en ViewState). Texto propuesto: el real está por
+      confirmar con el usuario.
+- [x] Último componente: vuelve el POD con el banner del real "All components processed
+      at this operation" (antes "Assembly completed successfully").

@@ -26,6 +26,25 @@ namespace TrainingApp.UI.Controls.Training
         // El operador sale al POD sin terminar: el host cierra el control (el avance se conserva).
         public event EventHandler OnReturnToPod;
 
+        // La confirmación del Add se ve solo en la respuesta de ese Add: Panel.Visible persiste
+        // en ViewState, así que se apaga en cada request antes de los eventos.
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            PnlAddConfirm.Visible = false;
+        }
+
+        // Add con componentes pendientes (Fase 6.5): el modal queda abierto con la confirmación
+        // arriba a la izquierda, como el MES real. Con el último componente el host vuelve al POD.
+        public void ShowAddConfirmation(int componentId)
+        {
+            var component = GetComponents().FirstOrDefault(c => c.Id == componentId);
+            string code = component == null ? string.Empty : component.PartNumber + "/" + component.Revision;
+            LitAddConfirm.Text    = Page.Server.HtmlEncode("Component " + code + " assembled");
+            PnlAddConfirm.Visible = true;
+            Page.ClientScript.RegisterStartupScript(GetType(), "asmAddConfirm",
+                "asmReopenAfterAdd('" + componentId + "');", true);
+        }
+
         public void Initialize()
         {
             TxtBarcode.Text     = string.Empty;

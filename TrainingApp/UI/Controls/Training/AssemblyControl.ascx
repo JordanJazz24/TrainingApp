@@ -79,6 +79,19 @@
                     <span class="mes-help" title="Help">?</span>
                 </div>
 
+                <%-- Confirmación del Add (Fase 6.5): arriba a la izquierda, bajo la línea azul;
+                     el modal queda abierto. La arma ShowAddConfirmation en el servidor. --%>
+                <asp:Panel ID="PnlAddConfirm" runat="server" ClientIDMode="Static" Visible="false"
+                    CssClass="mes-modal-message">
+                    <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
+                        <rect x="1" y="1" width="18" height="18" rx="3"
+                            fill="#7cc36a" stroke="#3d6b33" stroke-width="1.5" />
+                        <path d="M5 10.5l3.2 3.2L15 6.5" fill="none" stroke="#1d3d17"
+                            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span><asp:Literal ID="LitAddConfirm" runat="server" /></span>
+                </asp:Panel>
+
                 <div class="asm-top row g-0">
                     <div class="col-md-6">
                         <div class="asm-field">
@@ -166,7 +179,8 @@
 <script>
 var _asmComponent = null;
 
-function openAssembleModal(btn) {
+// Datos del componente en el modal, tomados de su fila de la Component List.
+function asmLoadComponent(btn) {
     document.getElementById('HfComponentId').value = btn.getAttribute('data-component-id');
     _asmComponent = {
         part: btn.getAttribute('data-part'),
@@ -174,10 +188,25 @@ function openAssembleModal(btn) {
         desc: btn.getAttribute('data-desc'),
         qty:  btn.getAttribute('data-qty')
     };
+}
+
+function openAssembleModal(btn) {
+    asmLoadComponent(btn);
+    // La confirmación del Add anterior no se arrastra a otro componente.
+    var msg = document.getElementById('PnlAddConfirm');
+    if (msg) msg.style.display = 'none';
     document.getElementById('TxtBarcode').value = '';
     asmShowScanned(false);
     showModalSafe('modalAssemble');
     setTimeout(function () { document.getElementById('TxtBarcode').focus(); }, 300);
+}
+
+// Tras un Add (postback) el modal se vuelve a abrir con la confirmación: se recargan los
+// datos del componente, que el JS perdió con el postback.
+function asmReopenAfterAdd(componentId) {
+    var btn = document.querySelector('[data-component-id="' + componentId + '"]');
+    if (btn) asmLoadComponent(btn);
+    showModalSafe('modalAssemble');
 }
 
 // El lector termina el escaneo con Enter: en un form de Web Forms Enter enviaría el

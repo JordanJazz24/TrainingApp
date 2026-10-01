@@ -289,8 +289,9 @@ namespace TrainingApp.Pages.Training
             else if (step.StepType == StepType.Assembly)
             {
                 // La Component List reemplazaba el POD: se vuelve a pintar con la selección.
+                // Mensaje del MES real al terminar el BOM (Fase 6.5).
                 BindWorkList(area, session);
-                ShowBanner("Assembly completed successfully");
+                ShowBanner("All components processed at this operation");
             }
             else if (step.StepType == StepType.DataCollection)
             {
@@ -304,7 +305,8 @@ namespace TrainingApp.Pages.Training
         }
 
         // Assembly (spec 008): el operador ensambló un componente del BOM. Mientras falten
-        // componentes la Component List se actualiza; con el último, el paso se resuelve.
+        // componentes la Component List se actualiza y el modal queda abierto con la
+        // confirmación del Add (Fase 6.5); con el último, el paso se resuelve y vuelve el POD.
         protected void HandleComponentAssembled(object sender, ComponentAssembledEventArgs e)
         {
             var (session, guide, area, step) = GetContext();
@@ -318,6 +320,7 @@ namespace TrainingApp.Pages.Training
             {
                 CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
                 CtrlAssembly.BindComponents();
+                CtrlAssembly.ShowAddConfirmation(e.ComponentId);
                 return;
             }
 
