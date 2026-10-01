@@ -1121,8 +1121,9 @@ namespace TrainingApp.Pages.Training
         // ── UI helpers ───────────────────────────────────────────────────
         private void PopulateHeader(TrainingSession session, Area area, TrainingGuide guide)
         {
+            // El MES real muestra el Code1 del empleado, no su nombre (Fase 6.5).
             LitUserName.Text      = HttpUtility.HtmlEncode(
-                Session[Constants.SessionKeys.Name]?.ToString() ?? "Operator");
+                Session[Constants.SessionKeys.Code1]?.ToString() ?? "");
             LitOperationName.Text = HttpUtility.HtmlEncode(guide.Title);
             LitResourceName.Text  = HttpUtility.HtmlEncode(area.Name + "-01");
             LitBrowseContext.Text = string.Format("{0}, {1}-01, {2}",

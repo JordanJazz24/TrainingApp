@@ -4,14 +4,17 @@
 
 <%-- ── NC Selection List (reemplaza el POD Work List, misma estructura que ─── --%>
 <%-- ── el Data Collection List — spec 007) ────────────────────────────────── --%>
+<%-- Mismo patrón que Component List y Data Collection List (Fase 6.5, entrega 7;
+     captura "mensaje confirmacion scrap"): celdas sin recuadro sobre gris, código en
+     negrita, descripción en cursiva, [Log NC] con ícono y paginación centrada. --%>
 <asp:Panel ID="PnlNCSelection" runat="server" Visible="false">
     <div class="pod-list-view">
         <div class="list-header">
             <span>NC Selection</span>
-            <div class="d-flex gap-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary" title="Help">?</button>
-                <asp:Button ID="BtnCloseList" runat="server" Text="✗"
-                    CssClass="btn btn-sm btn-outline-secondary" ToolTip="Return to POD"
+            <div class="list-header-actions">
+                <span class="pod-help-dot" title="Help">?</span>
+                <asp:Button ID="BtnCloseList" runat="server" Text="✕"
+                    CssClass="mes-titlebar-btn" ToolTip="Return to POD"
                     OnClick="BtnReturnPOD_Click" CausesValidation="false" />
             </div>
         </div>
@@ -24,7 +27,7 @@
                             <div class="nc-desc"><%# Eval("Description") %></div>
                         </div>
                         <asp:Button ID="BtnLogNC" runat="server"
-                            CssClass="btn btn-sm btn-outline-primary"
+                            CssClass="mes-btn mes-ico mes-ico-lognc"
                             Text="Log NC"
                             CommandArgument='<%# Eval("Id") + "|" + Eval("Code") %>'
                             OnClick="BtnLogNCCode_Click" CausesValidation="false" />
@@ -34,12 +37,14 @@
         </div>
         <%-- Paginación en cliente (8 códigos por página): es estado intermedio de UI,
              no necesita postback. --%>
-        <div class="pod-pagination">
-            <button type="button" id="<%= PnlNCSelection.ClientID %>_first" class="btn btn-sm btn-outline-secondary" onclick="ncGoPage('first')">|&lt; First</button>
-            <button type="button" id="<%= PnlNCSelection.ClientID %>_prev"  class="btn btn-sm btn-outline-secondary" onclick="ncGoPage('prev')">&lt;&lt; Prev</button>
-            <button type="button" id="<%= PnlNCSelection.ClientID %>_next"  class="btn btn-sm btn-outline-secondary" onclick="ncGoPage('next')">Next &gt;&gt;</button>
-            <button type="button" id="<%= PnlNCSelection.ClientID %>_last"  class="btn btn-sm btn-outline-secondary" onclick="ncGoPage('last')">Last &gt;|</button>
-            <span id="<%= PnlNCSelection.ClientID %>_pageInfo" class="ms-2 text-muted"></span>
+        <div class="mes-pagination">
+            <div class="mes-pagination-buttons">
+                <button type="button" id="<%= PnlNCSelection.ClientID %>_first" class="mes-btn mes-btn-page" onclick="ncGoPage('first')">|&laquo; First</button>
+                <button type="button" id="<%= PnlNCSelection.ClientID %>_prev"  class="mes-btn mes-btn-page" onclick="ncGoPage('prev')">&laquo; Prev</button>
+                <button type="button" id="<%= PnlNCSelection.ClientID %>_next"  class="mes-btn mes-btn-page" onclick="ncGoPage('next')">Next &raquo;</button>
+                <button type="button" id="<%= PnlNCSelection.ClientID %>_last"  class="mes-btn mes-btn-page" onclick="ncGoPage('last')">Last &raquo;|</button>
+            </div>
+            <span id="<%= PnlNCSelection.ClientID %>_pageInfo"></span>
         </div>
     </div>
 </asp:Panel>

@@ -125,9 +125,31 @@ formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
 - [x] Línea celeste bajo el encabezado en Browse Work List y en los modales de LC;
       Browse con [OK] [Cancel] grises con ícono.
 
-## Entrega 7 — Listas: Component List, Data Collection List, NC Selection
-- [ ] Misma distribución que las capturas: datos centrados, botones grandes con ícono,
-      paginación centrada con "Rows 1-N of N" debajo; NC Selection con el mismo patrón.
+## Entrega 7 ✅ — Listas: Component List, Data Collection List, NC Selection (verificada por el usuario 2026-10-01)
+- [x] Patrón común (`.mes-list-row`, `.mes-pagination`): fondo gris claro, filas separadas
+      por una línea, datos centrados, botones grandes del MES con ícono arriba, paginación
+      centrada con "Rows 1-N of N" debajo, y (?) + ✕ del encabezado como íconos.
+- [x] Component List: parte y Qty centrados a la izquierda; `Description:` / `Rem Qty:`
+      como etiqueta: valor; [Assemble] y [Disassemble] con ícono.
+- [x] Data Collection List: código del grupo, descripción y "Collect Data At:" al centro,
+      [Collect] con ícono; "Rows 1-N of N" (literales nuevos `LitGroupsTotal/Of`).
+- [x] NC Selection: celdas sin recuadro separadas por líneas, código en negrita,
+      descripción en cursiva, [Log NC] con ícono; la paginación en cliente se conserva.
+- Las paginaciones de Component List y DC List quedan deshabilitadas (todo entra en una
+  página, como el real con pocas filas); la de NC Selection sigue funcionando.
+- [x] Correcciones del usuario sobre la entrega 7: descripción del componente y del DC
+      Group en negrita (el valor, no la etiqueta); íconos: Assemble = `assemble
+      fulfil.png` (nuevo, agregado al csproj), Disassemble = `ensamblar-icon.png`, Collect
+      de DC = `dc_collection-icon.png`, Log NC = `log_NC-Icon.png` (más grande); se quitó
+      la ✕ del encabezado "Data Collection Standalone" (queda solo el (?)).
+- [x] Bug: los íconos nuevos se veían como un cuadrado blanco. Causa: sus clases
+      `.mes-ico-*` estaban antes de `.mes-btn` en `pod.css` y su `background-image` las
+      pisaba. Se movieron junto a las de la entrega 6 (comentario de advertencia en el CSS);
+      verificado con una captura en Edge headless antes de entregar.
+- [x] Correcciones rápidas del POD (fuera de las listas, entran en este commit): el POD
+      Search usa el mismo fondo `#DDDDDD` que el header (una sola franja clara, como
+      "pantall central de referencia"; el gris empieza en las acciones), y el header
+      muestra el **Code1** del empleado en vez de su nombre, como el real.
 
 ## Entrega 8 — Formularios: DC Entry y NC Data Entry
 - [ ] Barra solo ⤢ ✕; encabezado con título y (?); fila SFC; fila DC Group (DC Entry).

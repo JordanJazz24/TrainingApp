@@ -261,6 +261,7 @@
     <Content Include="Scripts\sweetalert2.all.min.js" />
     <Content Include="UI\master\imgs\activities-icon.png" />
     <Content Include="UI\master\imgs\anular-icon.png" />
+    <Content Include="UI\master\imgs\assemble fulfil.png" />
     <Content Include="UI\master\imgs\btn-save.png" />
     <Content Include="UI\master\imgs\clock-icon.png" />
     <Content Include="UI\master\imgs\complete-icon.png" />

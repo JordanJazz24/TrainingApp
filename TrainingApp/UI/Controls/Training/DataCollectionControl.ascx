@@ -3,40 +3,52 @@
     Inherits="TrainingApp.UI.Controls.Training.DataCollectionControl" %>
 
 <%-- Data Collection List (replaces POD Work List) --%>
+<%-- Distribución de la captura "tabla de data collection list" (Fase 6.5, entrega 7):
+     código del grupo a la izquierda, descripción y "Collect Data At" al centro, [Collect]
+     con ícono a la derecha y paginación centrada con "Rows 1-N of N" debajo. --%>
 <div class="pod-list-view">
     <div class="list-header">
         <span>Data Collection List</span>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" title="Help">?</button>
-            <asp:Button ID="BtnCloseList" runat="server" Text="✗"
-                CssClass="btn btn-sm btn-outline-secondary" ToolTip="Return to POD"
+        <div class="list-header-actions">
+            <span class="pod-help-dot" title="Help">?</span>
+            <asp:Button ID="BtnCloseList" runat="server" Text="✕"
+                CssClass="mes-titlebar-btn" ToolTip="Return to POD"
                 OnClick="BtnReturnPOD_Click" CausesValidation="false" />
         </div>
     </div>
     <asp:Repeater ID="RptGroups" runat="server">
         <ItemTemplate>
-            <div class="pod-list-row">
-                <div>
-                    <div class="fw-semibold small"><%# Eval("GroupCode") %></div>
-                    <div class="text-muted" style="font-size:0.76rem">
-                        <%# Eval("Description") %><br />
-                        Collect Data At: <%# Eval("CollectDataAt") %>
+            <div class="mes-list-row">
+                <div class="mes-list-key">
+                    <div class="mes-list-code"><%# Eval("GroupCode") %></div>
+                </div>
+                <div class="mes-list-center">
+                    <div class="mes-list-text"><%# Eval("Description") %></div>
+                    <div class="mes-list-sub">
+                        <span class="mes-list-label">Collect Data At:</span> <%# Eval("CollectDataAt") %>
                     </div>
                 </div>
-                <asp:Button ID="BtnCollect" runat="server"
-                    CssClass="btn btn-sm btn-primary"
-                    Text="Collect"
-                    CommandArgument='<%# Eval("GroupCode") %>'
-                    Enabled='<%# !(bool)Eval("IsSaved") %>'
-                    OnClick="BtnCollect_Click" />
+                <div class="mes-list-actions">
+                    <asp:Button ID="BtnCollect" runat="server"
+                        CssClass="mes-btn mes-btn-stack mes-ico mes-ico-dccollect"
+                        Text="Collect"
+                        CommandArgument='<%# Eval("GroupCode") %>'
+                        Enabled='<%# !(bool)Eval("IsSaved") %>'
+                        OnClick="BtnCollect_Click" />
+                </div>
             </div>
         </ItemTemplate>
     </asp:Repeater>
-    <div class="pod-pagination">
-        <button type="button" class="btn btn-sm btn-outline-secondary">|&lt; First</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">&lt;&lt; Prev</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">Next &gt;&gt;</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">Last &gt;|</button>
+    <%-- Todos los grupos entran en una página: la paginación es la del real, deshabilitada. --%>
+    <div class="mes-pagination">
+        <div class="mes-pagination-buttons">
+            <button type="button" class="mes-btn mes-btn-page" disabled>|&laquo; First</button>
+            <button type="button" class="mes-btn mes-btn-page" disabled>&laquo; Prev</button>
+            <button type="button" class="mes-btn mes-btn-page" disabled>Next &raquo;</button>
+            <button type="button" class="mes-btn mes-btn-page" disabled>Last &raquo;|</button>
+        </div>
+        <span>Rows 1-<asp:Literal ID="LitGroupsTotal" runat="server" /> of
+            <asp:Literal ID="LitGroupsTotalOf" runat="server" /></span>
     </div>
 </div>
 

@@ -17,21 +17,22 @@ Fuente de verdad para implementar Fase 6 (UserControls por tipo de paso).
 >
 > | Bloque | Color | Contenido |
 > |---|---|---|
-> | Header | `#DDDDDD`, título negrita oscuro | Título · Score del simulador · [Home] [Logout] [Help] |
+> | Header | `#DDDDDD`, título negrita oscuro | Título (con el **Code1** del empleado, no su nombre) · Score del simulador · [Home] [Logout] [Help] |
 > | Banner (temporal) | blanco, ícono ✔ verde | Mensaje del MES; desaparece solo |
-> | POD Search | gris `#BBBBBB` | `* operación` `* recurso` (azules, asterisco rojo) · SFC con ícono de browse dentro · Shop Order / Status (SFC) a la derecha |
+> | POD Search | `#DDDDDD`, igual que el header | `* operación` `* recurso` (azules, asterisco rojo) · SFC con ícono de browse dentro · Shop Order / Status (SFC) a la derecha |
 > | Acciones | gris `#BBBBBB` | 4 botones grandes centrados |
 > | POD Work List + panel derecho | panel `#F2F2F2` con línea azul; panel derecho gris `#BBBBBB` | Tabla con encabezado `#E5E5E5`; botones del panel con ícono arriba y texto abajo |
 > | Pie | gris `#BBBBBB` | [Abandon Session] a la izquierda · [Resource Setup] [Tool List] centrados |
 >
-> Búsqueda, acciones, panel derecho y pie forman una sola sección gris continua (pedido
-> del usuario). **Score** y **Abandon** no existen en el MES real: Score va compacto en el
+> **Header y POD Search** forman una sola franja clara, como la captura de referencia
+> (corrección del usuario, 2026-10-01); **acciones, panel derecho y pie** forman la
+> sección gris continua. **Score** y **Abandon** no existen en el MES real: Score va compacto en el
 > header y Abandon a la izquierda del pie. **Home** y **Help** son solo visuales (no hacen
 > nada ni cuentan como intento).
 
 **Header bar**
 ```
-Production Operator Dashboard: Site - {site}, User - {userName}    Score: {n}% [modo]  [Home] [Logout] [Help]
+Production Operator Dashboard: Site - {site}, User - {code1}    Score: {n}% [modo]  [Home] [Logout] [Help]
 ```
 
 **POD Search**
@@ -260,12 +261,12 @@ Sidebar [Activities ▼]
 **Fuente:** captura `Line Clearence/modal data collection standalone` (Fase 6.5, entrega 6).
 
 **Chrome:** barra superior **solo con [⤢][✕]** (sin título); debajo, encabezado blanco
-"Data Collection Standalone" con (?) y ✕ y **línea celeste** `#007DC5`.
+"Data Collection Standalone" con (?) (sin ✕, corrección del usuario) y **línea celeste** `#007DC5`.
 
 **Estado 1 — antes de Retrieve**
 ```
                                                           [⤢][✕]
-  Data Collection Standalone                              (?) ✕
+  Data Collection Standalone                              (?)
 ══════════════════════════════════════════════════════ (celeste)
         Filter Operation: [{operationName}      ⧉]                         [🧽 Clear]
     * Collect Data For:   [Resource ▼]  [{resourceName} ⧉]                 [↻ Retrieve]

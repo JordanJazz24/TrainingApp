@@ -36,16 +36,16 @@ contra las 25 capturas de la carpeta._
 | 6 | Data Collection Standalone (Line Clearance) | 2 y 6 | `Line Clearence/modal data collection standalone`, `…modal line clearence`, `…mas nitido`, `…dc group save` | ✅ |
 | 7 | Data Collection Entry de Line Clearance (submodal) | 2 y 6 | `Line Clearence/modal line clearence- sub modal de la pregunta` | ✅ |
 | 8 | Start de Moldeo: 4 modales Data Collection Entry | 3 (Moldeo) | — | ⚪ |
-| 9 | Component List | 4 | `Assemble/component list` | 🟡 |
+| 9 | Component List | 4 | `Assemble/component list` | ✅ |
 | 10 | Assemble Components | 4 | `Assemble/asemble components modal - estado anterior al escaneo`, `…posterior al escaneo` | ✅ |
-| 11 | Data Collection List | 5 | `DC COLLECT/tabla de data collection list` | 🟡 |
+| 11 | Data Collection List | 5 | `DC COLLECT/tabla de data collection list` | ✅ |
 | 12 | Data Collection Entry (DC Collect) | 5 | `DC COLLECT/modal data collection entry 1`, `…2` | 🟡 |
 | 13 | SFC Split Plug-In | 7 | `Split-log nc/modal sfc split`, `Split-log nc/split creado` | 🟡 |
-| 14 | NC Selection | 8 | `Split-log nc/mensaje confirmacion scrap` (muestra la lista) | 🟡 |
+| 14 | NC Selection | 8 | `Split-log nc/mensaje confirmacion scrap` (muestra la lista) | ✅ |
 | 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | 🟡 |
 | 16 | Resultado de Complete | 9 | — | ⚪ |
 
-**Resumen:** ✅ 6 · 🟡 8 · ⚪ 2 (actualizado tras la entrega 6).
+**Resumen:** ✅ 9 · 🟡 5 · ⚪ 2 (actualizado tras la entrega 7).
 
 ## Diferencias pendientes por pantalla
 
@@ -85,8 +85,10 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
    - Fila: número de parte y Qty a la izquierda; `Description:` / `Rem Qty:` como
      etiqueta: valor al centro; [Assemble] y [Disassemble] grandes, grises, con ícono.
    - Paginación centrada con "Rows 1-N of N" debajo; (?) y × del encabezado como íconos.
+   - _Entrega 7 ✅: todo lo anterior._
 11. **Data Collection List** — Código del grupo grande; descripción al centro con
     "Collect Data At:" debajo; [Collect] gris con ícono; paginación centrada.
+    _Entrega 7 ✅: todo lo anterior._
 12. **Data Collection Entry (DC Collect)** — Barra, subencabezado y fila ✅ (entrega 4).
     Cuerpo: cada parámetro en un recuadro — `* Etiqueta:` en negrita, `Description: …`,
     campo, `Data Type: …` al centro y [Comments] a la derecha; pie con Save, Save Draft,
@@ -100,7 +102,8 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
       una regla y se decide aparte.
 14. **NC Selection** — Celdas sin recuadro: código en negrita, descripción en cursiva,
     [Log NC] gris con ícono. (La captura recortada "NC Selection table" ya no está en la
-    carpeta.)
+    carpeta.) _Entrega 7 ✅: todo lo anterior, con la paginación
+    centrada del patrón común._
 15. **NC Data Entry** — Barra y subencabezado ✅ (entrega 4).
     - Subencabezado real con contador: `SFC: … (1/1)`.
     - Cuerpo: etiquetas a la derecha (`* NC Code`, `Component` con ⧉, `Comments` como área

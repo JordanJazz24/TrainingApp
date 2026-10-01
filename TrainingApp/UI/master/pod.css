@@ -49,7 +49,6 @@ body {
     min-height: 40px;
     padding: 4px 12px;
     background: var(--pod-header-bg);
-    border-bottom: 1px solid #c8c8c8;
 }
 
 .pod-header-title {
@@ -111,15 +110,19 @@ body {
     font-size: 0.85rem;
 }
 
-/* ── POD Search ─────────────────────────────────────────── */
+/* ── POD Search ─────────────────────────────────────────────
+   Mismo fondo que el header: juntos forman una sola franja clara, como la captura
+   "pantall central de referencia" (corrección del usuario). El gris empieza en las
+   acciones. */
 .pod-search {
     flex: none;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 6px 16px;
-    padding: 8px 12px 4px;
-    background: var(--pod-gray);
+    padding: 4px 12px 8px;
+    background: var(--pod-header-bg);
+    border-bottom: 1px solid #c4c4c4;
     font-size: 0.8rem;
 }
 
@@ -194,7 +197,7 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    padding: 6px 12px 14px;
+    padding: 14px 12px;
     background: var(--pod-gray);
 }
 
@@ -271,7 +274,7 @@ body {
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
-    background: #fff;
+    background: var(--pod-panel-bg);
 }
 
 /* ── Panel derecho ──────────────────────────────────────── */
@@ -403,8 +406,15 @@ body {
 .status-active  { background: linear-gradient(#5cb85c 0 45%, #2e8b36 45% 100%); border: 1px solid #2b7a2f; }
 .status-default { background: #9a9a9a; border: 1px solid #7a7a7a; }
 
-/* ── List views (Component List / DC List / NC Selection) ─ */
-.pod-list-view { padding: 0 0 10px; }
+/* ── List views (Component List / DC List / NC Selection) ─
+   Fase 6.5, entrega 7: mismo patrón que las capturas — fondo gris claro, filas
+   separadas por una línea, datos centrados, botones grandes del MES y paginación
+   centrada con "Rows 1-N of N" debajo. */
+.pod-list-view {
+    min-height: 100%;
+    padding: 0 0 10px;
+    background: var(--pod-panel-bg);
+}
 
 .pod-list-view .list-header {
     display: flex;
@@ -416,48 +426,69 @@ body {
     font-weight: 700;
     font-size: 0.8rem;
 }
+.list-header-actions { display: flex; align-items: center; gap: 8px; }
 
-.pod-list-row {
-    display: flex;
+.mes-list-row {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr auto;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #f0f0f0;
-    padding: 8px 10px;
-    font-size: 0.82rem;
+    column-gap: 24px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e3e3e3;
+    font-size: 0.85rem;
 }
+.mes-list-key     { text-align: center; }
+.mes-list-code    { font-weight: 700; font-size: 0.95rem; }
+.mes-list-center  { text-align: center; }
+.mes-list-sub     { margin-top: 4px; font-size: 0.75rem; }
+.mes-list-label   { color: #555; }
+.mes-list-text    { font-weight: 700; }   /* descripción del componente o del DC Group */
+.mes-list-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    column-gap: 8px;
+    row-gap: 6px;
+}
+.mes-list-details .mes-list-label { text-align: right; }
+.mes-list-actions { display: flex; gap: 20px; }
+.mes-list-actions .mes-btn-stack { min-width: 150px; min-height: 52px; }
 
-.pod-list-row:hover { background: #f8f9fa; }
-
-.pod-pagination {
+.mes-pagination {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 8px 10px;
-    font-size: 0.78rem;
+    gap: 8px;
+    padding: 14px 10px;
+    font-size: 0.8rem;
 }
+.mes-pagination-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.mes-btn-page { min-width: 64px; font-size: 0.75rem; }
 
-/* NC Selection 2-column grid */
+
+/* NC Selection: grilla de 2 columnas de celdas sin recuadro, separadas por líneas. */
 .nc-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 10px;
+    margin: 0 8px;
+    border-left: 1px solid #e3e3e3;
 }
 
 .nc-cell {
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    padding: 8px 10px;
-    font-size: 0.8rem;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: center;
+    gap: 12px;
+    min-height: 86px;
+    padding: 10px 14px;
+    border-right: 1px solid #e3e3e3;
+    border-bottom: 1px solid #e3e3e3;
+    font-size: 0.85rem;
 }
 
-.nc-cell .nc-info { flex: 1; }
-.nc-cell .nc-code { font-weight: 600; font-size: 0.82rem; }
-.nc-cell .nc-desc { color: #6c757d; font-size: 0.76rem; margin-top: 2px; }
+.nc-cell .nc-info { flex: 1; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; }
+.nc-cell .nc-code { font-weight: 700; font-size: 1rem; }
+.nc-cell .nc-desc { margin-top: 12px; font-style: italic; font-size: 0.95rem; }
 
 /* ── Completion panel ────────────────────────────────────── */
 /* Overlay de resumen a pantalla completa (spec 007): tapa también el header (1050) y los
@@ -682,6 +713,16 @@ button.mes-field-icon.copied  { color: var(--pod-blue); }
 .mes-ico-save     { background-image: url('imgs/btn-save.png'),       var(--mes-btn-face); }
 .mes-ico-check    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='%234caf50'/%3E%3Cpath d='M4.3 8.4l2.4 2.4 5-5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--mes-btn-face); }
 .mes-ico-cancel   { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 3.5l9 9M12.5 3.5l-9 9' stroke='%23d9302c' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"), var(--mes-btn-face); }
+
+/* Íconos de las listas (entrega 7, corrección del usuario): Assemble = "assemble fulfil",
+   Disassemble = ensamblar-icon, Collect de DC = dc_collection-icon, Log NC = log_NC-Icon.
+   ⚠ Todas las clases .mes-ico-* tienen que ir DESPUÉS de .mes-btn: si quedan antes, el
+   background-image de .mes-btn las pisa y solo se ve un cuadrado del degradado. */
+.mes-ico-assemble    { background-image: url('imgs/assemble fulfil.png'),    var(--mes-btn-face); }
+.mes-ico-disassemble { background-image: url('imgs/ensamblar-icon.png'),     var(--mes-btn-face); }
+.mes-ico-dccollect   { background-image: url('imgs/dc_collection-icon.png'), var(--mes-btn-face); }
+.mes-ico-lognc       { background-image: url('imgs/log_NC-Icon.png'),        var(--mes-btn-face); }
+.mes-ico.mes-ico-lognc { padding-left: 36px; background-size: 22px auto, auto; }
 
 /* Pie de modal del MES: botones centrados sobre gris claro. */
 .mes-footer { justify-content: center; background: #f2f2f2; }

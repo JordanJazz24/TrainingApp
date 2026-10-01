@@ -4,7 +4,7 @@
 
 <%-- ── Data Collection Standalone (modal principal) ───────────────── --%>
 <%-- Estructura del real (Fase 6.5, entrega 6; captura "modal data collection standalone"):
-     barra superior solo con ⤢ ✕, encabezado con (?) ✕ y línea celeste, campos a la
+     barra superior solo con ⤢ ✕, encabezado con (?) y línea celeste, campos a la
      izquierda con [Clear] / [Retrieve] a la derecha y la fila DC_LC_DONE con [Collect]. --%>
 <div class="modal fade" id="modalDCStandalone" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -19,11 +19,7 @@
             </div>
             <div class="mes-subheader mes-divider">
                 <span>Data Collection Standalone</span>
-                <span class="d-flex align-items-center gap-2">
-                    <span class="mes-help" title="Help">?</span>
-                    <button type="button" class="mes-titlebar-btn" title="Close"
-                        data-bs-dismiss="modal">&#10005;</button>
-                </span>
+                <span class="mes-help" title="Help">?</span>
             </div>
             <div class="modal-body p-0">
 

@@ -129,6 +129,8 @@ namespace TrainingApp.UI.Controls.Training
 
             RptGroups.DataSource = groups;
             RptGroups.DataBind();
+            LitGroupsTotal.Text   = groups.Count.ToString();
+            LitGroupsTotalOf.Text = groups.Count.ToString();
         }
 
         private void RenderParams(string groupCode)

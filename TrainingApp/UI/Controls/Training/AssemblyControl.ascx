@@ -4,31 +4,34 @@
 
 <%-- Component List (reemplaza el POD Work List): BOM de la operación (spec 008).
      Cada fila es un número de parte con su Qty por unidad; Rem Qty pasa a 0 al ensamblarla. --%>
+<%-- Distribución de la captura "component list" (Fase 6.5, entrega 7): parte y Qty
+     centrados a la izquierda, Description / Rem Qty como etiqueta: valor, botones grandes
+     con ícono y paginación centrada con "Rows 1-N of N" debajo. --%>
 <div class="pod-list-view">
     <div class="list-header">
         <span>Component List</span>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" title="Help">?</button>
-            <asp:Button ID="BtnCloseList" runat="server" Text="✗"
-                CssClass="btn btn-sm btn-outline-secondary" ToolTip="Return to POD"
+        <div class="list-header-actions">
+            <span class="pod-help-dot" title="Help">?</span>
+            <asp:Button ID="BtnCloseList" runat="server" Text="✕"
+                CssClass="mes-titlebar-btn" ToolTip="Return to POD"
                 OnClick="BtnReturnPOD_Click" CausesValidation="false" />
         </div>
     </div>
     <asp:Repeater ID="RptComponents" runat="server">
         <ItemTemplate>
-            <div class="pod-list-row">
-                <div>
-                    <div class="fw-semibold small"><%#: Eval("Code") %></div>
-                    <div class="small"><%#: Eval("Qty") %></div>
+            <div class="mes-list-row">
+                <div class="mes-list-key">
+                    <div class="mes-list-code"><%#: Eval("Code") %></div>
+                    <div><%#: Eval("Qty") %></div>
                 </div>
-                <div class="text-muted" style="font-size:0.76rem">
-                    Description: <%#: Eval("Description") %><br />
-                    Rem Qty: <%#: Eval("RemQty") %>
+                <div class="mes-list-details">
+                    <span class="mes-list-label">Description:</span><span class="mes-list-text"><%#: Eval("Description") %></span>
+                    <span class="mes-list-label">Rem Qty:</span><span><%#: Eval("RemQty") %></span>
                 </div>
-                <div class="d-flex gap-1">
+                <div class="mes-list-actions">
                     <%-- El modal se abre en el cliente con los datos de este componente:
                          el único postback del ensamble es el Add. --%>
-                    <button type="button" class="btn btn-sm btn-primary"
+                    <button type="button" class="mes-btn mes-btn-stack mes-ico mes-ico-assemble"
                         data-component-id="<%#: Eval("Id") %>"
                         data-part="<%#: Eval("PartNumber") %>"
                         data-rev="<%#: Eval("Revision") %>"
@@ -37,17 +40,20 @@
                         onclick="openAssembleModal(this)"
                         <%# (bool)Eval("IsAssembled") ? "disabled" : "" %>>Assemble</button>
                     <%-- El simulador no entrena el desensamble. --%>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Disassemble</button>
+                    <button type="button" class="mes-btn mes-btn-stack mes-ico mes-ico-disassemble" disabled>Disassemble</button>
                 </div>
             </div>
         </ItemTemplate>
     </asp:Repeater>
-    <div class="pod-pagination">
-        <button type="button" class="btn btn-sm btn-outline-secondary">|&lt; First</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">&lt;&lt; Prev</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">Next &gt;&gt;</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">Last &gt;|</button>
-        <span class="ms-2 text-muted">Rows 1-<asp:Literal ID="LitTotal" runat="server" /> of
+    <%-- Todo el BOM entra en una página: la paginación es la del real, deshabilitada. --%>
+    <div class="mes-pagination">
+        <div class="mes-pagination-buttons">
+            <button type="button" class="mes-btn mes-btn-page" disabled>|&laquo; First</button>
+            <button type="button" class="mes-btn mes-btn-page" disabled>&laquo; Prev</button>
+            <button type="button" class="mes-btn mes-btn-page" disabled>Next &raquo;</button>
+            <button type="button" class="mes-btn mes-btn-page" disabled>Last &raquo;|</button>
+        </div>
+        <span>Rows 1-<asp:Literal ID="LitTotal" runat="server" /> of
             <asp:Literal ID="LitTotalOf" runat="server" /></span>
     </div>
 </div>
