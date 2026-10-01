@@ -143,43 +143,58 @@ namespace TrainingApp.UI.Controls.Training
                 .Where(p => p.DataCollectionGroupId == group.Id)
                 .OrderBy(p => p.DisplayOrder);
 
+            // Un bloque por parámetro, como el real (Fase 6.5, entrega 8; captura "modal data
+            // collection entry"): pregunta en negrita; debajo "Description: …" (si el catálogo
+            // la tiene) con "Data Type: …" a su altura; el campo abajo y [Comments] a la
+            // derecha. Cada parte es una celda de la grilla de .dc-param. Los valores viajan
+            // por data-paramid → HfAnswers (collectDCAnswers): el orden de los controles no importa.
             foreach (var param in parameters)
             {
-                var wrapper = new Panel();
-                wrapper.CssClass = "mb-3";
+                var box = new Panel { CssClass = "dc-param" };
 
-                var label = new Label();
-                label.Text = "<label class=\"form-label small\"><span class=\"required-star\">★</span> " +
-                    Page.Server.HtmlEncode(param.Name) + "</label>" +
-                    "<div class=\"text-muted small mb-1\">Data Type: " + param.DataType + " &nbsp; 0 files attached" +
-                    " &nbsp; <button type=\"button\" class=\"btn btn-link btn-sm p-0\">Comments</button></div>";
-                label.ID = "lbl_" + param.Id;
-                wrapper.Controls.Add(label);
+                box.Controls.Add(new LiteralControl(
+                    "<label class=\"dc-param-label\"><span class=\"pod-star\">*</span> " +
+                    Page.Server.HtmlEncode(QuestionLabel(param.Name)) + "</label>"));
+                if (!string.IsNullOrWhiteSpace(param.Description))
+                    box.Controls.Add(new LiteralControl(
+                        "<div class=\"dc-param-desc\"><span class=\"dc-param-key\">Description:</span> " +
+                        Page.Server.HtmlEncode(param.Description) + "</div>"));
+                box.Controls.Add(new LiteralControl(
+                    "<div class=\"dc-param-type\"><span class=\"dc-param-key\">Data Type:</span> " +
+                    Page.Server.HtmlEncode(param.DataType) + "</div>" +
+                    "<button type=\"button\" class=\"mes-btn dc-param-comments\">Comments</button>"));
+                box.Controls.Add(BuildInput(param));
 
-                if (param.DataType == "Boolean")
-                {
-                    var ddl = new DropDownList();
-                    ddl.CssClass = "form-select form-select-sm";
-                    ddl.Attributes["data-paramid"] = param.Id.ToString();
-                    ddl.Items.Add(new ListItem("( Select )", ""));
-                    ddl.Items.Add(new ListItem("NO", "false"));
-                    ddl.Items.Add(new ListItem("Si", "true"));
-                    wrapper.Controls.Add(ddl);
-                }
-                else
-                {
-                    var txt = new TextBox();
-                    txt.CssClass = "form-control form-control-sm";
-                    txt.Attributes["data-paramid"] = param.Id.ToString();
-                    if (param.DataType == "Numeric")
-                        txt.Attributes["type"] = "number";
-                    else if (param.DataType == "Date")
-                        txt.Attributes["type"] = "date";
-                    wrapper.Controls.Add(txt);
-                }
-
-                PhParameters.Controls.Add(wrapper);
+                PhParameters.Controls.Add(box);
             }
+        }
+
+        // El real termina cada pregunta con ":" (ej. "La limpieza de linea se ejecuto?:").
+        private static string QuestionLabel(string name)
+        {
+            string text = (name ?? string.Empty).Trim();
+            return text.EndsWith(":") ? text : text + ":";
+        }
+
+        private static Control BuildInput(DataCollectionParameter param)
+        {
+            if (param.DataType == "Boolean")
+            {
+                var ddl = new DropDownList { CssClass = "rs-select dc-param-input" };
+                ddl.Attributes["data-paramid"] = param.Id.ToString();
+                ddl.Items.Add(new ListItem("( Select )", ""));
+                ddl.Items.Add(new ListItem("NO", "false"));
+                ddl.Items.Add(new ListItem("Si", "true"));
+                return ddl;
+            }
+
+            var txt = new TextBox { CssClass = "mes-input dc-param-input" };
+            txt.Attributes["data-paramid"] = param.Id.ToString();
+            if (param.DataType == "Numeric")
+                txt.Attributes["type"] = "number";
+            else if (param.DataType == "Date")
+                txt.Attributes["type"] = "date";
+            return txt;
         }
 
         private IList<DataCollectionGroup> GetGroups()

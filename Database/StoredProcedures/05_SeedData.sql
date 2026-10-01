@@ -152,6 +152,18 @@ IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId
     INSERT INTO dbo.DataCollectionParameters (AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder, DataCollectionGroupId)
     VALUES (@AreaId, NULL, 'Humedad relativa', 'Numeric', '%', 30.0000, 60.0000, 5, @GrpAmbiente);
 
+-- Description de ejemplo (línea "Description: …" de Data Collection Entry, Fase 6.5).
+-- La define este script, también en una BD ya existente.
+UPDATE dbo.DataCollectionParameters
+SET    Description = CASE Name
+           WHEN 'Posición del detector'       THEN 'Detector position'
+           WHEN 'Temperatura de proceso'      THEN 'Process temperature'
+           WHEN 'Resistencia del detector'    THEN 'Detector resistance'
+           WHEN '¿Detector sin daño visible?' THEN 'Detector visual inspection'
+           WHEN 'Humedad relativa'            THEN 'Relative humidity'
+       END
+WHERE  AreaId = @AreaId;
+
 -- -------------------------------------------------------
 -- AssemblyComponents de ejemplo para Redefinity (BOM simulado, spec 008).
 -- Números de parte ficticios (prefijo SIM-). Uno con Qty decimal para

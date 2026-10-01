@@ -151,9 +151,28 @@ formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
       "pantall central de referencia"; el gris empieza en las acciones), y el header
       muestra el **Code1** del empleado en vez de su nombre, como el real.
 
-## Entrega 8 — Formularios: DC Entry y NC Data Entry
-- [ ] Barra solo ⤢ ✕; encabezado con título y (?); fila SFC; fila DC Group (DC Entry).
-- [ ] DC Entry: parámetros en recuadros (`* Pregunta:`, `Description:`, campo,
-      `Data Type:` y [Comments]); columna `Description` nueva en BD (ALTER entregado aparte).
-- [ ] NC Data Entry: etiquetas a la derecha, Component con ⧉, Comments como área de texto.
-- [ ] Botones del pie grises con ícono en ambos.
+## Entrega 8 ✅ — Formularios: DC Entry y NC Data Entry (verificada por el usuario 2026-10-01)
+- [x] Barra solo ⤢ ✕; encabezado con título y (?); fila SFC; fila DC Group (DC Entry).
+- [x] DC Entry: un recuadro por parámetro (`* Pregunta:`, `Description:` si hay texto,
+      campo, `Data Type:` al centro y [Comments] a la derecha), armado en `RenderParams`.
+- [x] Columna `Description NVARCHAR(200) NULL` en `DataCollectionParameters`
+      (`00_Schema.sql`), devuelta por `spDataCollectionParameterGetByArea` (`02`), en el
+      POCO y en el repositorio. Descripciones de ejemplo para Redefinity en `05` (UPDATE
+      idempotente). Moldeo queda en NULL hasta que el usuario aporte los textos. ALTER
+      para la BD existente entregado aparte.
+- [x] NC Data Entry: etiquetas a la derecha, Component con ⧉ (sin asterisco, como el
+      real; sigue siendo obligatorio con `RequiresNCComponent`), Comments como área de texto.
+- [x] Botones del pie grises con ícono en ambos (Save / Save Draft / Clear / Return to
+      POD; Add / Add-Done / Return to POD / Done).
+- [x] Correcciones del usuario (captura nueva `DC COLLECT/modal data collection entry`,
+      sin "Unit of Measure"): parámetros sobre blanco separados por una línea dentro de un
+      marco gris claro; "Data Type:" a la altura de "Description:"; bandas SFC (`#F2F2F2`)
+      y DC Group (`#F4F6F7` con sombra) en letra grande; línea celeste bajo el título.
+      Verificado con captura en Edge headless.
+- [x] Descripciones de Moldeo en `06` (UPDATE idempotente): 14 tomadas del legacy
+      (`main.aspx`, `main.v1.0.0.js`), las 2 de First Shot redactadas a partir de su
+      pregunta (el legacy solo tenía la del grupo).
+- [x] NC Data Entry: `SFC: {primer SFC} (1/N)` con N = piezas seleccionadas (como
+      Assemble Components) y "Apply to all SFCs" marcado y fijo a la izquierda de Add
+      cuando N > 1 (el NC se registra en todas, spec 008). Mismo patrón visual que DC Entry
+      (línea celeste, banda del SFC).

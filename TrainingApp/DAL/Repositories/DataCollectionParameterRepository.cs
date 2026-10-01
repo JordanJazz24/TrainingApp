@@ -27,6 +27,7 @@ namespace TrainingApp.DAL.Repositories
             AreaId       = Convert.ToInt32(r["AreaId"]),
             OperationId  = r["OperationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(r["OperationId"]),
             Name         = r["Name"].ToString(),
+            Description  = r["Description"] == DBNull.Value ? null : r["Description"].ToString(),
             DataType     = r["DataType"].ToString(),
             Unit         = r["Unit"].ToString(),
             MinValue     = r["MinValue"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(r["MinValue"]),

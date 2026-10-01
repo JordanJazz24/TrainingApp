@@ -53,13 +53,13 @@
 </div>
 
 <%-- Data Collection Entry modal --%>
+<%-- Jerarquía del real (Fase 6.5, entrega 8; capturas "modal data collection entry 1/2"):
+     barra solo con ⤢ ✕ → "Data Collection Entry" con (?) → fila SFC → fila DC Group →
+     un recuadro por parámetro → pie con los botones del MES. --%>
 <div class="modal fade" id="modalDCEntry" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <%-- Barra estándar, subencabezado con la pieza "SFC: … (n/N)" y fila del DC
-                 Group, como la captura real. --%>
-            <div class="modal-header">
-                <h6 class="modal-title">Data Collection Entry</h6>
+            <div class="modal-header mes-titlebar-bare">
                 <div class="mes-titlebar-actions">
                     <button type="button" class="mes-titlebar-btn" title="Maximize"
                         onclick="mesToggleMaximize(this)">&#10530;</button>
@@ -67,35 +67,41 @@
                         data-bs-dismiss="modal">&#10005;</button>
                 </div>
             </div>
-            <div class="mes-subheader">
-                <span>SFC: <asp:Literal ID="LitSFCCounter" runat="server" /></span>
+            <div class="mes-subheader mes-divider">
+                <span>Data Collection Entry</span>
                 <span class="mes-help" title="Help">?</span>
             </div>
-            <div class="mes-info-row">
-                DC Group: <strong><asp:Literal ID="LitActiveGroup" runat="server" /></strong>
+            <div class="mes-sfc-band">
+                SFC: <asp:Literal ID="LitSFCCounter" runat="server" />
             </div>
-            <div class="modal-body">
+            <div class="mes-group-band">
+                DC Group: <asp:Literal ID="LitActiveGroup" runat="server" />
+            </div>
+            <div class="modal-body dc-entry-body">
 
-                <%-- Dynamic parameter fields rendered by code-behind --%>
-                <asp:PlaceHolder ID="PhParameters" runat="server" />
+                <%-- Un bloque .dc-param por parámetro (RenderParams), sobre blanco y dentro del
+                     marco gris claro del real. --%>
+                <div class="dc-param-list">
+                    <asp:PlaceHolder ID="PhParameters" runat="server" />
+                </div>
 
                 <%-- Hidden field to collect all answers as JSON --%>
                 <asp:HiddenField ID="HfAnswers" runat="server" ClientIDMode="Static" />
                 <asp:HiddenField ID="HfActiveGroup" runat="server" ClientIDMode="Static" />
             </div>
-            <div class="modal-footer">
-                <asp:Button ID="BtnSave" runat="server" Text="💾 Save"
-                    CssClass="btn btn-sm btn-success"
+            <div class="modal-footer mes-footer">
+                <asp:Button ID="BtnSave" runat="server" Text="Save"
+                    CssClass="mes-btn mes-ico mes-ico-save"
                     OnClientClick="collectDCAnswers()"
                     OnClick="BtnSave_Click" />
                 <%-- Save Draft no guarda nada en el simulador: solo orienta al operador,
                      sin postback para no perder los valores ya cargados. --%>
-                <button type="button" class="btn btn-sm btn-outline-secondary"
-                    onclick="Swal.fire({icon:'info',title:'Save Draft',text:'Use \'Save\' to save'});">&#128190; Save Draft</button>
-                <button type="button" class="btn btn-sm btn-danger"
-                    onclick="clearDCFields()">&#128308; Clear</button>
-                <asp:Button ID="BtnReturnPOD" runat="server" Text="✗ Return to POD"
-                    CssClass="btn btn-sm btn-secondary"
+                <button type="button" class="mes-btn mes-ico mes-ico-save"
+                    onclick="Swal.fire({icon:'info',title:'Save Draft',text:'Use \'Save\' to save'});">Save Draft</button>
+                <button type="button" class="mes-btn mes-ico mes-ico-clear"
+                    onclick="clearDCFields()">Clear</button>
+                <asp:Button ID="BtnReturnPOD" runat="server" Text="Return to POD"
+                    CssClass="mes-btn mes-ico mes-ico-cancel"
                     OnClick="BtnReturnPOD_Click" CausesValidation="false" />
             </div>
         </div>

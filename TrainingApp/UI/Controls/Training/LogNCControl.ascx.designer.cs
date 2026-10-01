@@ -15,6 +15,7 @@ namespace TrainingApp.UI.Controls.Training
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvComponent;
         protected global::System.Web.UI.WebControls.TextBox TxtComments;
         protected global::System.Web.UI.WebControls.HiddenField HfNCCodeId;
+        protected global::System.Web.UI.WebControls.Panel PnlNCApplyAll;
         protected global::System.Web.UI.WebControls.Button BtnAdd;
         protected global::System.Web.UI.WebControls.Button BtnAddDone;
         protected global::System.Web.UI.WebControls.Button BtnReturnPOD;

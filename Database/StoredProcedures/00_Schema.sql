@@ -176,6 +176,9 @@ CREATE TABLE dbo.DataCollectionGroups (
 -- DisplayOrder: orden de presentación al operador dentro del paso.
 -- DataCollectionGroupId: DC Group al que pertenece el parámetro;
 --   "Collect" muestra solo las preguntas del grupo seleccionado.
+-- Description: texto corto que el MES muestra bajo la pregunta en Data
+--   Collection Entry ("Description: …"). Opcional: sin texto no se muestra
+--   (Fase 6.5, entrega 8).
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.DataCollectionParameters', 'U') IS NULL
 CREATE TABLE dbo.DataCollectionParameters (
@@ -184,6 +187,7 @@ CREATE TABLE dbo.DataCollectionParameters (
     OperationId           INT            NULL     REFERENCES dbo.Operations(Id),
     DataCollectionGroupId INT            NOT NULL REFERENCES dbo.DataCollectionGroups(Id),
     Name                  NVARCHAR(200)  NOT NULL,
+    Description           NVARCHAR(200)  NULL,
     DataType              NVARCHAR(20)   NOT NULL DEFAULT 'Numeric',
     Unit                  NVARCHAR(50)   NOT NULL DEFAULT 'N/A',
     MinValue              DECIMAL(10,4)  NULL,

@@ -39,13 +39,13 @@ contra las 25 capturas de la carpeta._
 | 9 | Component List | 4 | `Assemble/component list` | ✅ |
 | 10 | Assemble Components | 4 | `Assemble/asemble components modal - estado anterior al escaneo`, `…posterior al escaneo` | ✅ |
 | 11 | Data Collection List | 5 | `DC COLLECT/tabla de data collection list` | ✅ |
-| 12 | Data Collection Entry (DC Collect) | 5 | `DC COLLECT/modal data collection entry 1`, `…2` | 🟡 |
+| 12 | Data Collection Entry (DC Collect) | 5 | `DC COLLECT/modal data collection entry 1`, `…2` | ✅ |
 | 13 | SFC Split Plug-In | 7 | `Split-log nc/modal sfc split`, `Split-log nc/split creado` | 🟡 |
 | 14 | NC Selection | 8 | `Split-log nc/mensaje confirmacion scrap` (muestra la lista) | ✅ |
-| 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | 🟡 |
+| 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | ✅ |
 | 16 | Resultado de Complete | 9 | — | ⚪ |
 
-**Resumen:** ✅ 9 · 🟡 5 · ⚪ 2 (actualizado tras la entrega 7).
+**Resumen:** ✅ 11 · 🟡 3 · ⚪ 2 (actualizado tras la entrega 8). Quedan: POD (#1), Browse (#4) y SFC Split (#13).
 
 ## Diferencias pendientes por pantalla
 
@@ -92,7 +92,10 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
 12. **Data Collection Entry (DC Collect)** — Barra, subencabezado y fila ✅ (entrega 4).
     Cuerpo: cada parámetro en un recuadro — `* Etiqueta:` en negrita, `Description: …`,
     campo, `Data Type: …` al centro y [Comments] a la derecha; pie con Save, Save Draft,
-    Clear y Return to POD grises con ícono.
+    Clear y Return to POD grises con ícono. _Entrega 8 ✅: todo
+    lo anterior, con la jerarquía de encabezados del real (barra solo ⤢ ✕ → "Data
+    Collection Entry" (?) → SFC → DC Group), estilo de la captura nueva `modal data
+    collection entry` y la columna `Description` (Moldeo con los textos del legacy)._
 13. **SFC Split** — Barra y banda ✅ (entrega 4).
     - Cuerpo: etiquetas a la derecha (`SFC to Split`, `Available Qty`, `* Qty to Split` con
       × dentro del campo); [Split] [Close] centrados.
@@ -109,6 +112,9 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
     - Cuerpo: etiquetas a la derecha (`* NC Code`, `Component` con ⧉, `Comments` como área
       de texto). En la captura, Component no lleva asterisco.
     - Pie: Add, Add-Done, Return to POD y Done grises con ícono.
+    - _Entrega 8 ✅: barra solo ⤢ ✕ → "NC Data Entry" (?) → SFC,
+      formulario y pie como el real; Component sin asterisco (sigue obligatorio);
+      `SFC (1/N)` y "Apply to all SFCs" con varias piezas, como Assemble._
 
 ## Capturas que faltan (pedirlas en planta)
 

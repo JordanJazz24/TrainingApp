@@ -1041,6 +1041,12 @@ namespace TrainingApp.Pages.Training
                 case StepType.LogNC:
                     vm.ExtraData["NCCodes"] = _ncRepo.GetByArea(area.Id);
                     vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
+                    // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
+                    var ncPieces = FindSelectedOrderRows(session);
+                    vm.ExtraData["SelectedPieceCount"] = ncPieces.Count;
+                    vm.ExtraData["FirstSelectedSFC"]   = ncPieces.Count > 0
+                        ? ncPieces[0].SFCCode ?? GetSimulatedOrder(session)?.SFCCode
+                        : null;
                     break;
 
                 case StepType.Assembly:

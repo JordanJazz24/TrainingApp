@@ -617,19 +617,36 @@ Data Collection List                                                   [?] [X]
 
 ### Modal: Data Collection Entry
 
-```
-[Data Collection Entry]                                               [↗][X]
-  SFC: {sfcCode} ({current}/{total})
-  DC Group: {DC_GROUP_CODE}
-────────────────────────────────────────────────────────────────────────────
-  ★ {pregunta/label}:
-  Description: {descripción}              Data Type: {Text|Numeric|Boolean}    [Comments]
-  [_____________input_____________]
+Jerarquía del real (corrección del usuario, Fase 6.5, entrega 8): la barra superior
+**no lleva título**, solo [⤢][✕]; el título va en el segundo encabezado.
 
-  (repite por cada parámetro del grupo)
-────────────────────────────────────────────────────────────────────────────
-  [💾 Save]  [💾 Save Draft]  [🔴 Clear]  [✗ Return to POD]
 ```
+                                                                      [⤢][✕]
+  Data Collection Entry                                                  (?)
+════════════════════════════════════════════════════════════════════════════
+  SFC: {sfcCode} ({current}/{total})                       ← fila gris
+  DC Group: {DC_GROUP_CODE}                                ← fila gris
+────────────────────────────────────────────────────────────────────────────
+  ┌──────────────────────────────────────────────────────────────────────┐
+  │ * {pregunta}:                                                         │
+  │ Description: {DataCollectionParameters.Description}   ← solo si hay  │
+  │ [_____________input_____________]   Data Type: {tipo}    [Comments]  │
+  └──────────────────────────────────────────────────────────────────────┘
+  (un recuadro por parámetro del grupo)
+────────────────────────────────────────────────────────────────────────────
+     [💾 Save]  [💾 Save Draft]  [🧽 Clear]  [✖ Return to POD]   ← grises con ícono
+```
+
+**Description** (columna nueva `DataCollectionParameters.Description`, nullable): texto
+corto del catálogo distinto de la pregunta (ej. pregunta "Documente el numero de ID del
+detector board:" / Description "Detector board ID"). Sin texto, la línea no aparece.
+Moldeo usa las descripciones del legacy (`06_RCMoldeoCatalog.sql`).
+
+**Estilo** (captura `DC COLLECT/modal data collection entry`): línea celeste bajo el
+título; bandas "SFC" (`#F2F2F2`) y "DC Group" (`#F4F6F7`, sombra suave arriba) en letra
+grande; parámetros sobre blanco separados por una línea, dentro de un marco gris claro;
+"Data Type:" a la altura de "Description:" y el campo debajo. "Unit of Measure" del real
+no se replica (decisión del usuario).
 
 **Contador `({current}/{total})`** (spec 008): las piezas seleccionadas se procesan una por
 una en el orden del POD. El contador pasa a la pieza siguiente cuando la actual guardó
@@ -759,16 +776,27 @@ El botón [Log NC] es por código individual. NC Codes desde BD por área (`NCCo
 
 ### Modal: NC Data Entry
 
+Mismo patrón que Data Collection Entry (Fase 6.5, entrega 8; captura `MODAL NC DATA ENTRY`):
+
 ```
-[NC Data Entry]                                                        [↗][X]
-  SFC: {sfcCode} ({current}/{total})
+                                                                      [⤢][✕]
+  NC Data Entry                                                          (?)
+════════════════════════════════════════════════════════════════════════════
+  SFC: {sfcCode}                                           ← fila gris
 ────────────────────────────────────────────────────────────────────────────
-  ★ NC Code:   {codePreFilled}
-  ★ Component: [________________] [copy]   ← requerido
-    Comments:  [______________]            ← opcional
+                    * NC Code: [{codePreFilled}          ]   (solo lectura)
+                    Component: [                       ⧉]   ← requerido si RequiresNCComponent
+                     Comments: [                         ]   ← área de texto, opcional
 ────────────────────────────────────────────────────────────────────────────
-  [✓ Add]  [✓ Add-Done]  [✗ Return to POD]  [✓ Done]
+        [✓ Add]  [✓ Add-Done]  [✖ Return to POD]  [✓ Done]   ← grises con ícono
 ```
+
+- Etiquetas a la derecha y campos a la izquierda, centrados. **Component sin asterisco**,
+  como el real; sigue siendo obligatorio en áreas con `RequiresNCComponent = 1`.
+- **Indicador del SFC** (corrección del usuario, igual que Assemble Components):
+  `{primer SFC seleccionado} (1/N)`, con N = piezas seleccionadas — ej. `1234-002 (1/1)`,
+  `1234-002 (1/3)`. Con N > 1, **"Apply to all SFCs"** marcado y fijo a la izquierda de
+  [Add]: el NC se registra en todas las piezas seleccionadas a la vez (spec 008).
 
 | Botón | Comportamiento |
 |---|---|

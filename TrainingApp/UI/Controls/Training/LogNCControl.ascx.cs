@@ -29,9 +29,18 @@ namespace TrainingApp.UI.Controls.Training
 
             if (ViewModel == null) return;
 
-            string sfcCode = ViewModel.ExtraData.ContainsKey("SFCCode")
-                ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";
-            LitNCEntrySFC.Text = Page.Server.HtmlEncode(sfcCode);
+            // "{primer SFC} (1/N)" como Assemble Components (Fase 6.5, entrega 8): el NC se
+            // registra en todas las piezas seleccionadas a la vez (spec 008), así que con más de
+            // una se muestra "Apply to all SFCs" marcado y fijo.
+            int pieces = ViewModel.ExtraData.ContainsKey("SelectedPieceCount")
+                ? Math.Max(1, Convert.ToInt32(ViewModel.ExtraData["SelectedPieceCount"])) : 1;
+            string firstSfc = ViewModel.ExtraData.ContainsKey("FirstSelectedSFC")
+                ? ViewModel.ExtraData["FirstSelectedSFC"]?.ToString() : null;
+            if (string.IsNullOrEmpty(firstSfc))
+                firstSfc = ViewModel.ExtraData.ContainsKey("SFCCode")
+                    ? ViewModel.ExtraData["SFCCode"]?.ToString() : "—";
+            LitNCEntrySFC.Text   = Page.Server.HtmlEncode(string.Format("{0} (1/{1})", firstSfc, pieces));
+            PnlNCApplyAll.Visible = pieces > 1;
 
             // Spec 007: Component solo en áreas que lo usan (Area.RequiresNCComponent).
             // Invisible + deshabilitado: el validador no se evalúa en Add-Done.

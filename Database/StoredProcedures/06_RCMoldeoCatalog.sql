@@ -285,3 +285,29 @@ IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId
 IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId AND Name = 'First Shot NIR entregado - OPE')
     INSERT INTO dbo.DataCollectionParameters (AreaId, OperationId, Name, DataType, Unit, MinValue, MaxValue, DisplayOrder, DataCollectionGroupId)
     VALUES (@AreaId, NULL, 'First Shot NIR entregado - OPE', 'Boolean', 'N/A', NULL, NULL, 15, @GrpShotNir);
+
+-- Description de cada parámetro (línea "Description: …" de Data Collection Entry,
+-- Fase 6.5). Tomadas del legacy (UI/Dashboard/main.aspx y main.v1.0.0.js); las de
+-- First Shot no existen en el legacy a nivel de parámetro y se redactaron a partir de
+-- su pregunta ("Se entrega First Shot a calidad"). La define este script, también en
+-- una BD ya existente.
+UPDATE dbo.DataCollectionParameters
+SET    Description = CASE Name
+           WHEN 'ID del Molde'                              THEN 'ID Molde'
+           WHEN 'Colling Time según MSS D000281359'         THEN 'Colling Time según MSS D000281359'
+           WHEN 'Injection speed según MSS D000281359'      THEN 'Resultado según MSS D000281359 VERT 1'
+           WHEN 'Intensidad de Pad Printing'                THEN 'Ingrese la intensidad de la Pad Printing'
+           WHEN 'Temperatura Zona 1'                        THEN 'Temperatura de Molde Zona 1'
+           WHEN 'Temperatura Zona 2'                        THEN 'Temperatura de Molde Zona 2'
+           WHEN 'Temperatura Zona 3'                        THEN 'Temperatura de Molde Zona 3'
+           WHEN 'Temperatura Zona 4'                        THEN 'Temperatura de Molde Zona 4'
+           WHEN 'Temperatura Zona 5'                        THEN 'Temperatura de Molde Zona 5'
+           WHEN 'Temperatura Zona 6'                        THEN 'Temperatura de Molde Zona 6'
+           WHEN 'Tiempo de curado de Pad Printing'          THEN 'Ingrese el tiempo de curado de la Pad Printing'
+           WHEN '¿Se verificó el IDMold & IDIMM según MSS?' THEN 'ID Mold & IDIMM segun MSS?'
+           WHEN 'Fecha de Expiración Kerosene'              THEN 'Ingrese la fecha de expiración kerosene'
+           WHEN 'Fecha de Expiración de Tintas'             THEN 'Ingrese la fecha de expiración de Priscone'
+           WHEN 'First Shot entregado - OPE'                THEN 'Entrega de First Shot a calidad (OPE)'
+           WHEN 'First Shot NIR entregado - OPE'            THEN 'Entrega de First Shot NIR a calidad (OPE)'
+       END
+WHERE  AreaId = @AreaId;

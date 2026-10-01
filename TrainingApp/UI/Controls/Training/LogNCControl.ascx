@@ -56,11 +56,12 @@
 <%-- ── NC Data Entry modal ─────────────────────────────────────────── --%>
 <asp:Panel ID="PnlNCEntry" runat="server" Visible="false">
     <div class="modal fade show d-block" id="modalNCEntry" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <%-- Barra estándar y subencabezado con el SFC, como la captura real. --%>
-                <div class="modal-header">
-                    <h6 class="modal-title">NC Data Entry</h6>
+                <%-- Mismo patrón que Data Collection Entry (Fase 6.5, entrega 8; captura
+                     "MODAL NC DATA ENTRY"): barra solo con ⤢ ✕ → "NC Data Entry" con (?) →
+                     fila SFC → formulario con etiquetas a la derecha → pie del MES. --%>
+                <div class="modal-header mes-titlebar-bare">
                     <div class="mes-titlebar-actions">
                         <button type="button" class="mes-titlebar-btn" title="Maximize"
                             onclick="mesToggleMaximize(this)">&#10530;</button>
@@ -70,58 +71,63 @@
                             OnClick="BtnCloseEntry_Click" CausesValidation="false">&#10005;</asp:LinkButton>
                     </div>
                 </div>
-                <div class="mes-subheader">
-                    <span>SFC: <asp:Literal ID="LitNCEntrySFC" runat="server" /></span>
+                <div class="mes-subheader mes-divider">
+                    <span>NC Data Entry</span>
                     <span class="mes-help" title="Help">?</span>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small">
-                            <span class="required-star">★</span> NC Code:
-                        </label>
+                <%-- "{primer SFC} (1/N)" con N = piezas seleccionadas, como Assemble Components. --%>
+                <div class="mes-sfc-band">
+                    SFC: <asp:Literal ID="LitNCEntrySFC" runat="server" />
+                </div>
+                <div class="modal-body nc-entry-body">
+                    <div class="nc-form">
+                        <span class="nc-form-label"><span class="pod-star">*</span> NC Code:</span>
                         <asp:TextBox ID="TxtNCCode" runat="server"
-                            CssClass="form-control form-control-sm" ReadOnly="true" />
+                            CssClass="mes-input nc-form-input" ReadOnly="true" />
                     </div>
-                    <%-- Solo en áreas con Area.RequiresNCComponent = 1 (spec 007). --%>
-                    <asp:Panel ID="PnlComponent" runat="server" CssClass="mb-3">
-                        <label class="form-label small">
-                            <span class="required-star">★</span> Component:
-                        </label>
-                        <div class="d-flex gap-2">
+                    <%-- Solo en áreas con Area.RequiresNCComponent = 1 (spec 007). Sigue siendo
+                         obligatorio (RfvComponent), pero sin asterisco: así lo muestra el real. --%>
+                    <asp:Panel ID="PnlComponent" runat="server" CssClass="nc-form">
+                        <span class="nc-form-label">Component:</span>
+                        <span class="mes-field nc-form-input">
                             <asp:TextBox ID="TxtComponent" runat="server"
-                                CssClass="form-control form-control-sm"
-                                ValidationGroup="ncGroup"
-                                placeholder="Enter component..." />
-                            <button type="button" class="btn btn-sm btn-outline-secondary"
-                                title="Copy">&#128203;</button>
-                        </div>
+                                ValidationGroup="ncGroup" />
+                            <span class="mes-field-icon">&#10697;</span>
+                        </span>
+                        <span></span>
                         <asp:RequiredFieldValidator ID="RfvComponent" runat="server"
                             ControlToValidate="TxtComponent"
                             ErrorMessage="Component required." CssClass="text-danger small"
                             Display="Dynamic" ValidationGroup="ncGroup" />
                     </asp:Panel>
-                    <div class="mb-3">
-                        <label class="form-label small">Comments:</label>
-                        <asp:TextBox ID="TxtComments" runat="server"
-                            CssClass="form-control form-control-sm" />
+                    <div class="nc-form">
+                        <span class="nc-form-label">Comments:</span>
+                        <asp:TextBox ID="TxtComments" runat="server" TextMode="MultiLine" Rows="2"
+                            CssClass="mes-input nc-form-input nc-form-comments" />
                     </div>
                     <asp:HiddenField ID="HfNCCodeId" runat="server" />
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer mes-footer">
+                    <%-- Con varias piezas seleccionadas el NC se registra en todas (spec 008):
+                         "Apply to all SFCs" marcado y fijo, a la izquierda de Add, igual que en
+                         Assemble Components. --%>
+                    <asp:Panel ID="PnlNCApplyAll" runat="server" CssClass="asm-apply-all" Visible="false">
+                        <label class="mb-0"><input type="checkbox" checked disabled /> Apply to all SFCs</label>
+                    </asp:Panel>
                     <%-- Solo Add-Done es el camino correcto. Add y Done registran un
                          intento fallido ("Not the correct button"). --%>
-                    <asp:Button ID="BtnAdd" runat="server" Text="✓ Add"
-                        CssClass="btn btn-sm btn-outline-success"
+                    <asp:Button ID="BtnAdd" runat="server" Text="Add"
+                        CssClass="mes-btn mes-ico mes-ico-check"
                         OnClick="BtnWrongButton_Click" CausesValidation="false" />
-                    <asp:Button ID="BtnAddDone" runat="server" Text="✓ Add-Done"
-                        CssClass="btn btn-sm btn-success"
+                    <asp:Button ID="BtnAddDone" runat="server" Text="Add-Done"
+                        CssClass="mes-btn mes-ico mes-ico-check"
                         ValidationGroup="ncGroup"
                         OnClick="BtnAddDone_Click" />
-                    <asp:Button ID="BtnReturnPOD" runat="server" Text="✗ Return to POD"
-                        CssClass="btn btn-sm btn-secondary"
+                    <asp:Button ID="BtnReturnPOD" runat="server" Text="Return to POD"
+                        CssClass="mes-btn mes-ico mes-ico-cancel"
                         OnClick="BtnReturnPOD_Click" CausesValidation="false" />
-                    <asp:Button ID="BtnDone" runat="server" Text="✓ Done"
-                        CssClass="btn btn-sm btn-outline-success"
+                    <asp:Button ID="BtnDone" runat="server" Text="Done"
+                        CssClass="mes-btn mes-ico mes-ico-check"
                         OnClick="BtnWrongButton_Click" CausesValidation="false" />
                 </div>
             </div>

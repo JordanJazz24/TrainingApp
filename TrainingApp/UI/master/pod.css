@@ -750,6 +750,86 @@ button.mes-field-icon.copied  { color: var(--pod-blue); }
 .mes-param-input  { width: 100%; max-width: 380px; height: 30px; }
 .mes-param-type   { padding-bottom: 6px; }
 
+/* Campo de texto del MES (DC Entry, NC Data Entry). */
+.mes-input {
+    width: 100%;
+    height: 28px;
+    padding: 2px 6px;
+    border: 1px solid #b9bdc2;
+    background: #fff;
+    color: var(--pod-text);
+    font-size: 0.85rem;
+}
+.mes-input[readonly] { background: #f4f4f4; }
+
+/* Bandas de contexto de DC Entry / NC Data Entry (captura "modal data collection entry"):
+   "SFC: … (n/N)" sobre #F2F2F2 y "DC Group: …" sobre #F4F6F7 con una sombra suave arriba;
+   letra grande, como el real. */
+.mes-sfc-band {
+    padding: 9px 18px;
+    background: #f2f2f2;
+    color: #444;
+    font-size: 1.15rem;
+}
+.mes-group-band {
+    padding: 6px 28px;
+    background: #f4f6f7;
+    border-bottom: 1px solid #e7e9e9;
+    box-shadow: inset 0 7px 6px -6px rgba(0, 0, 0, .22);
+    color: #444;
+    font-size: 1.15rem;
+}
+
+/* ── Data Collection Entry (Fase 6.5, entrega 8) ──
+   Parámetros sobre blanco, separados por una línea, dentro de un marco gris claro. Cada
+   bloque es una grilla: pregunta arriba; "Description:" con "Data Type:" a su altura; el
+   campo debajo; [Comments] a la derecha. */
+.dc-entry-body {
+    padding: 0 0 24px 10px;
+    background: #f4f6f7;
+}
+.dc-param-list { background: #fff; border-left: 1px solid #e7e9e9; }
+.dc-param {
+    display: grid;
+    grid-template-columns: minmax(0, 390px) auto 1fr auto;
+    grid-template-areas:
+        "label label label label"
+        "desc  type  .     btn"
+        "input .     .     btn";
+    align-items: center;
+    column-gap: 40px;
+    row-gap: 4px;
+    padding: 14px 16px 16px;
+    border-bottom: 1px solid #e9e9e9;
+    font-size: 0.82rem;
+}
+.dc-param-label    { grid-area: label; margin-bottom: 4px; font-weight: 700; font-size: 0.95rem; }
+.dc-param-label .pod-star { font-size: 1.1rem; }
+.dc-param-desc     { grid-area: desc; }
+.dc-param-type     { grid-area: type; white-space: nowrap; }
+.dc-param-comments { grid-area: btn; align-self: center; }
+/* .dc-param .dc-param-input (no solo la clase): .rs-select está más abajo en el archivo y
+   le pisaría la altura al select de los parámetros Boolean. */
+.dc-param .dc-param-input { grid-area: input; width: 100%; height: 36px; border-radius: 2px; }
+.dc-param-key      { color: #666; }
+
+/* ── NC Data Entry (Fase 6.5, entrega 8) ──
+   Etiquetas a la derecha y campos a la izquierda, centrados (captura "MODAL NC DATA
+   ENTRY"); Component con ⧉ y Comments como área de texto. */
+.nc-entry-body { padding: 16px 12px 24px; }
+.nc-form {
+    display: grid;
+    grid-template-columns: 44% minmax(0, 1fr);
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 2px;
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+}
+.nc-form-label    { text-align: right; }
+.nc-form-input    { width: 100%; max-width: 490px; }
+.nc-form-comments { height: auto; min-height: 50px; resize: vertical; }
+
 /* Modales apilados (Training.Master): el velo del hijo oscurece suave al padre, como el
    real (~20 %), en vez de sumar otro 50 %. */
 .modal-backdrop.show.mes-stacked-backdrop { opacity: .2; }

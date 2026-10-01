@@ -13,7 +13,7 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-09-29 · **Branch:** `TrainingApp` · **Último commit de código:** `b832e77` (`git log --oneline -5` para ver el estado real)
+**Última actualización:** 2026-10-01 · **Branch:** `TrainingApp` · **Último commit de código:** entrega 8 de la Fase 6.5 (`git log --oneline -5` para ver el estado real)
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
@@ -64,15 +64,21 @@ se filtran en fases anteriores.
   2026-09-29).** Nació como mini-fase de ajustes de UI tras la spec 008. Objetivo:
   dejar cerrada la interfaz antes de los overlays guiados (Fase 6.6), que se anclan a
   ella. Detalle, alcance y criterio de cierre abajo, en "Fase 6.5".
-  - **Entregas 1-4 ✅** (2026-09-29, verificadas por el usuario; plan con casillas y
-    decisiones en `docs/specs/fase-6.5-plan.md`): columna SFC y Select All; Collect
-    deshabilitado por pieza (enmienda de E3, spec 008); "Apply to all SFCs" en el pie;
-    Shop Order / Status (SFC) del POD Search; layout y colores del MES real; header
-    estándar de los 12 modales.
+  - **Entregas 1-8 ✅** (2026-09-29 a 2026-10-01, verificadas por el usuario; plan con
+    casillas y decisiones en `docs/specs/fase-6.5-plan.md`): columna SFC y Select All;
+    Collect deshabilitado por pieza (enmienda de E3, spec 008); Shop Order / Status (SFC);
+    layout y colores del MES real (header y POD Search en una franja clara, Code1 en el
+    header); header estándar de los 12 modales; Resource Setup; botones grises del MES
+    (`.mes-btn` + `.mes-ico-*`); Line Clearance con submodal apilado; listas (Component,
+    DC, NC Selection); DC Entry y NC Data Entry, con la columna nueva
+    `DataCollectionParameters.Description` (Moldeo con los textos del legacy) y
+    `SFC (1/N)` + "Apply to all SFCs" en NC Data Entry.
   - **Inventario de pantallas** (criterio de cierre): `docs/ui-reference/inventario-pantallas.md`
-    — hoy ✅ 3 · 🟡 11 · ⚪ 2 (16 pantallas del MES).
-  - **Ahora:** entrega 5 con la siguiente tanda de correcciones del usuario, cruzada con
-    las diferencias del inventario.
+    — hoy ✅ 11 · 🟡 3 · ⚪ 2 (16 pantallas del MES). Quedan con diferencias: POD (×
+    del campo SFC, filas vacías de la tabla), Browse (flecha de orden) y SFC Split (cuerpo
+    y texto de confirmación; el SFC nuevo del Split es regla y se decide aparte).
+  - **Ahora:** la siguiente tanda de correcciones del usuario (entrega 9), cruzada con las
+    diferencias que quedan en el inventario.
 - **Después — Fase 6.6 · Overlays guiados** (requiere `/spec`), sobre la interfaz ya
   cerrada. Ver "Fase 6.6" abajo.
 - **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de LoFlo, a
@@ -93,7 +99,9 @@ se filtran en fases anteriores.
 1. Leer esta sección y `git log --oneline -10` (branch `TrainingApp`; no hay push pendiente
    de pedir: el usuario hace push cuando quiere).
 2. La BD de desarrollo del usuario ya tiene el esquema de la spec 008 (ALTER entregado y
-   corrido el 2026-09-28). Una instalación limpia se arma con los scripts `00`–`07` en orden.
+   corrido el 2026-09-28) y la columna `DataCollectionParameters.Description` (Fase 6.5,
+   entrega 8: ALTER + `02`, `05` y `06` corridos el 2026-10-01). Una instalación limpia
+   se arma con los scripts `00`–`07` en orden.
 3. **Proceso acordado:**
    - Funcionalidad o reglas de negocio nuevas → `/spec` → aprobación explícita → `/plan`
      (guardado en `docs/specs/NNN-plan.md`, en entregas chicas) → implementación.
@@ -299,7 +307,9 @@ pantallas sin captura quedan anotadas como pendientes y no bloquean.
 correcciones del usuario = una entrega (ronda de preguntas si hace falta + plan directo en
 `docs/specs/fase-6.5-plan.md`) → build + precompilación (+ tests si cambia la BLL) →
 checklist → prueba del usuario → commit → actualizar el inventario.
-**Commits:** `48b67c1` (entrega 1), `fbcd132` (2), `8fde133` (3), `b832e77` (4).
+**Commits:** `48b67c1` (entrega 1), `fbcd132` (2), `8fde133` (3), `b832e77` (4),
+`f432462` (formalización + inventario), `c38fe94` (5), `70e5e8e` (6), `03d767b` (7) y
+la entrega 8 (DC Entry / NC Data Entry + columna `Description`).
 
 ---
 
