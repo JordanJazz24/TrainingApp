@@ -197,3 +197,11 @@ formulario (oculta la lista hasta Retrieve), como el real; hoy cierra el modal.
       - Se quitaron los validadores "Qty required." y "Qty to split must be less than
         Available Qty."; la cantidad la sigue validando `BtnSplit_Click` (SweetAlert, sin
         intento).
+
+## Ajuste final ✅ — Cuadrícula del POD Work List (verificada por el usuario 2026-10-01)
+- [x] Las líneas de fila y la línea de la columna selectora siguen hasta el final del
+      panel aunque la tabla esté vacía, como "pantall central de referencia". Se dibujan
+      como fondo de `.pod-panel-body` (`repeating-linear-gradient`, `background-attachment:
+      local`), sin filas falsas, así no afectan selección ni Select All. Header y filas
+      miden exactamente 32px (`border-collapse: separate`) para que el paso coincida.
+      Verificado con captura en Edge headless (tabla vacía y con filas).

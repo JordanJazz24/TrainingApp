@@ -357,6 +357,37 @@ body {
 }
 .pod-work-list thead th { position: sticky; top: 0; z-index: 2; }
 
+/* Cuadrícula del real (captura "pantall central de referencia"): las líneas de fila y la
+   línea de la columna selectora siguen hasta el final del panel aunque no haya filas. Se
+   dibujan como fondo del panel (sin filas falsas, así no afectan selección ni Select All),
+   con el mismo paso que las filas reales: header y filas miden exactamente 32px (bordes
+   separados, sin colapsar) y la columna selectora 24px. */
+.pod-work-list {
+    --bs-table-bg: #fff;                 /* las filas con datos tapan la cuadrícula del fondo */
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.pod-work-list thead th,
+.pod-work-list tbody td {
+    box-sizing: border-box;
+    height: 32px;
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: middle;
+}
+.pod-work-list thead th            { border-bottom: 1px solid #ccc; }
+.pod-work-list .row-selector-col   { box-sizing: border-box; width: 24px; min-width: 24px; max-width: 24px; }
+.pod-work-list tbody td.row-selector-col { border-right: 1px solid var(--pod-grid-line); }
+.pod-panel-body {
+    background-color: #fff;
+    background-image:
+        linear-gradient(to right, transparent 23px, var(--pod-grid-line) 23px,
+                        var(--pod-grid-line) 24px, transparent 24px),
+        repeating-linear-gradient(to bottom, transparent 0, transparent 31px,
+                        var(--pod-grid-line) 31px, var(--pod-grid-line) 32px);
+    background-attachment: local;        /* la cuadrícula se mueve con el scroll de la tabla */
+}
+
 .pod-work-list tbody td,
 .pod-browse-list tbody td {
     padding: 6px 8px;

@@ -55,8 +55,9 @@ Assemble, Log NC, OK/Cancel, Add-Done…). _Estilo común creado en la entrega 6
 (`.mes-btn` + `.mes-ico-*` en `pod.css`) y aplicado en Browse y Line Clearance; falta en
 las listas (entrega 7) y en DC/NC Entry (entrega 8)._
 
-1. **POD** — ✅ (el usuario lo dio por fiel, 2026-10-01). *Aceptadas:* la × del campo SFC
-   y las filas vacías cuadriculadas de la tabla no se replican; botones deshabilitados en
+1. **POD** — ✅ (el usuario lo dio por fiel, 2026-10-01). La cuadrícula de filas vacías de
+   la tabla se replicó después, a pedido del usuario (fondo del panel con el mismo paso de
+   32px que las filas). *Aceptadas:* la × del campo SFC no se replica; botones deshabilitados en
    Guided (regla del simulador); orden del panel derecho según la captura de referencia (el
    MES lo cambia según la configuración del POD).
 2. **Banner** — ✅. Textos con captura: grupo de DC y scrap. Los de Start, Assembly, Split

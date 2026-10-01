@@ -57,7 +57,9 @@ Production Operator Dashboard: Site - {site}, User - {code1}    Score: {n}% [mod
 | Process Lot | Lote proc. |
 | Shop Order | Orden de fabricación |
 
-Fila seleccionada: fondo celeste y celda selectora azul, como el real. Un click selecciona una fila (Serialized:
+Cuadrícula como el real: las líneas de fila (cada 32px) y la línea de la columna selectora
+siguen hasta el final del panel aunque la tabla esté vacía (fondo del panel, sin filas
+falsas). Fila seleccionada: fondo celeste y celda selectora azul, como el real. Un click selecciona una fila (Serialized:
 alterna la fila, multi-selección). **Select All** (captura del POD real del usuario,
 2026-09-29) selecciona todas las filas y, si ya estaban todas, las deselecciona; aplica en
 Serialized y en NonSerialized. En NonSerialized, con más de una fila seleccionada, cada
