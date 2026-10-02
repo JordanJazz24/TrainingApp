@@ -113,21 +113,30 @@ END;
 GO
 
 -- -------------------------------------------------------
--- spTrainingSessionDeleteActiveByOperator
--- Elimina sesiones InProgress (Status 0) del operador
--- para una guía dada antes de iniciar una nueva.
+-- spTrainingSessionAbandonActiveByOperator
+-- Marca como Abandoned (Status 2) las sesiones InProgress
+-- (Status 0) del operador para una guía dada antes de
+-- iniciar una nueva. Conserva los intentos (auditoría
+-- AUD-01, decisión D-4): el DELETE que lo precedía fallaba
+-- por la FK de TrainingSessionStepAttempts.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.spTrainingSessionDeleteActiveByOperator', 'P') IS NOT NULL
     DROP PROCEDURE dbo.spTrainingSessionDeleteActiveByOperator;
 GO
 
-CREATE PROCEDURE dbo.spTrainingSessionDeleteActiveByOperator
+IF OBJECT_ID('dbo.spTrainingSessionAbandonActiveByOperator', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.spTrainingSessionAbandonActiveByOperator;
+GO
+
+CREATE PROCEDURE dbo.spTrainingSessionAbandonActiveByOperator
     @OperatorId      INT,
     @TrainingGuideId INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    DELETE FROM dbo.TrainingSessions
+    UPDATE dbo.TrainingSessions
+    SET    Status      = 2,
+           CompletedAt = SYSUTCDATETIME()
     WHERE  OperatorId      = @OperatorId
     AND    TrainingGuideId = @TrainingGuideId
     AND    Status          = 0;

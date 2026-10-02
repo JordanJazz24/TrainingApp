@@ -18,6 +18,9 @@ namespace TrainingApp.Pages.Training
         // (S2 / spec 008, E8). Dato de simulación, no de negocio.
         private const string DefaultShopOrder = "303406950";
 
+        // Cantidad de la fila que deja un SFC Split forzado (D-1; el lote NonSerialized es de 250).
+        private const int DefaultSplitQty = 100;
+
         private readonly TrainingGuideService               _guideService   = new TrainingGuideService();
         private readonly TrainingSessionService             _sessionService = new TrainingSessionService();
         private readonly AreaRepository                     _areaRepo       = new AreaRepository();
@@ -320,7 +323,13 @@ namespace TrainingApp.Pages.Training
             {
                 CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
                 CtrlAssembly.BindComponents();
-                CtrlAssembly.ShowAddConfirmation(e.ComponentId);
+                // La confirmación solo si la BLL aceptó el componente (pertenece al BOM y el
+                // paso está activo); si no, un aviso para que no parezca un click perdido.
+                if (result.ComponentAssembled)
+                    CtrlAssembly.ShowAddConfirmation(e.ComponentId);
+                else
+                    ShowSweetAlert("warning", "Componente no válido",
+                        "El componente no pertenece a la Component List de esta orden.");
                 return;
             }
 
@@ -427,25 +436,31 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            // Como el MES real, el split crea un SFC nuevo de la misma Shop Order (enmienda
-            // 2026-10-01 de la spec 005): mismo prefijo que el lote, sufijo que no se repite.
-            string newSfc = SplitSfcGenerator.Next(order.SFCCode,
-                order.Rows.Select(r => r.SFCCode).ToList(), new Random());
-
-            row.Qty -= e.Qty;
-            order.Rows.Add(new SimulatedOrderRow
-            {
-                RowId       = Guid.NewGuid().ToString(),
-                SFCCode     = newSfc,
-                Qty         = e.Qty,
-                Status      = SimulatedOrderRow.StatusActive,
-                IsFromSplit = true
-            });
+            string newSfc = SplitOrderRow(order, row, e.Qty);
 
             e.IsApplied = true;
             e.RemainingQty = row.Qty;
             e.NewSfcCode = newSfc;
             BindWorkList(_areaRepo.GetById(guide.AreaId), session);
+        }
+
+        // Como el MES real, el split crea un SFC nuevo de la misma Shop Order (enmienda
+        // 2026-10-01 de la spec 005): mismo prefijo que el lote, sufijo que no se repite.
+        private static string SplitOrderRow(SimulatedOrder order, SimulatedOrderRow row, int qty)
+        {
+            string newSfc = SplitSfcGenerator.Next(order.SFCCode,
+                order.Rows.Select(r => r.SFCCode).ToList(), new Random());
+
+            row.Qty -= qty;
+            order.Rows.Add(new SimulatedOrderRow
+            {
+                RowId       = Guid.NewGuid().ToString(),
+                SFCCode     = newSfc,
+                Qty         = qty,
+                Status      = SimulatedOrderRow.StatusActive,
+                IsFromSplit = true
+            });
+            return newSfc;
         }
 
         // Modal donde el operador ingresa la respuesta de cada paso. LineClearance responde
@@ -545,6 +560,25 @@ namespace TrainingApp.Pages.Training
             {
                 ClearDataCollectionProgress(session);
             }
+            else if (forcedStep == StepType.SFC_Split)
+            {
+                ApplyDefaultSplit(session, area);
+            }
+        }
+
+        // SFC Split forzado sin ningún split hecho (auditoría AUD-03, decisión D-1): se deja
+        // una fila de split por defecto, porque en NonSerialized Log NC exige scrapear una.
+        private void ApplyDefaultSplit(TrainingSession session, Area area)
+        {
+            if (HasSuccessfulSplit(session)) return;
+
+            var order = GetSimulatedOrder(session);
+            var lot   = order?.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > DefaultSplitQty);
+            if (lot == null) return;
+
+            SplitOrderRow(order, lot, DefaultSplitQty);
+            ClearRowSelection();
+            BindWorkList(area, session);
         }
 
         // Resource Setup forzado (por secuencia o por Setup State incorrecto): la orden sale

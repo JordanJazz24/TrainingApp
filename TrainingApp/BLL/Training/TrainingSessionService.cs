@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Caching;
 using TrainingApp.BLL.Scoring;
 using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
@@ -15,9 +14,6 @@ namespace TrainingApp.BLL.Training
         private readonly StepAttemptRepository _attemptRepo;
         private readonly ScoreCalculator _scoreCalc;
 
-        private static readonly MemoryCache _validatorCache = MemoryCache.Default;
-        private const int ValidatorCacheTtlMinutes = 60;
-
         public TrainingSessionService()
         {
             _sessionRepo  = new TrainingSessionRepository();
@@ -28,7 +24,9 @@ namespace TrainingApp.BLL.Training
 
         public TrainingSession Start(int operatorId, int guideId, SessionMode mode)
         {
-            _sessionRepo.DeleteActiveByOperator(operatorId, guideId);
+            // La sesión que quedó a medias en esta guía se marca Abandoned y conserva sus
+            // intentos para el instructor (auditoría AUD-01, decisión D-4).
+            _sessionRepo.AbandonActiveByOperator(operatorId, guideId);
 
             var session = new TrainingSession
             {
@@ -68,7 +66,7 @@ namespace TrainingApp.BLL.Training
             var guide   = _guideService.GetById(session.TrainingGuideId);
             var step    = guide.Steps.First(s => s.Id == stepId);
 
-            var validator = GetOrBuildValidator(guide);
+            var validator = _guideService.BuildValidatorForGuide(guide);
             bool isCorrect = validator.Validate(step, submittedAnswer);
 
             return RecordAttempt(session, guide, step, isCorrect);
@@ -141,7 +139,7 @@ namespace TrainingApp.BLL.Training
             // segundo Save solo llega manipulando el cliente y no cuenta (E3, enmienda 2026-09-29).
             if (progress.CurrentPieceSavedGroupIds.Contains(group.Id)) return result;
 
-            if (!GetOrBuildValidator(guide).ValidateDataCollectionGroup(group.Id, answersJson))
+            if (!_guideService.BuildValidatorForGuide(guide).ValidateDataCollectionGroup(group.Id, answersJson))
             {
                 result.StepResult = RecordAttempt(session, guide, step, isCorrect: false);
                 result.Outcome = result.StepResult.Outcome == StepSubmitOutcome.Incorrect
@@ -230,19 +228,6 @@ namespace TrainingApp.BLL.Training
                 NextStepOrder = nextOrder,
                 CurrentScore  = currentScore
             };
-        }
-
-        private StepValidator GetOrBuildValidator(TrainingGuide guide)
-        {
-            string cacheKey = "validator_area_" + guide.AreaId;
-            var cached = _validatorCache[cacheKey] as StepValidator;
-            if (cached != null)
-                return cached;
-
-            var validator = _guideService.BuildValidatorForGuide(guide);
-            _validatorCache.Set(cacheKey, validator,
-                DateTimeOffset.UtcNow.AddMinutes(ValidatorCacheTtlMinutes));
-            return validator;
         }
     }
 }

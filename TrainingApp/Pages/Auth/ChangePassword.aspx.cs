@@ -34,7 +34,7 @@ namespace TrainingApp.Pages.Auth
             }
 
             _authService.ActivateAccount((int)operatorId, TxtNewPassword.Text);
-            Response.Redirect("~/Pages/Training/Dashboard.aspx");
+            Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
         private void ShowError(string message)

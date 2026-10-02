@@ -112,12 +112,15 @@ namespace TrainingApp.BLL.Scoring
         // de CLAUDE.md para Data Collection).
         public bool ValidateDataCollectionGroup(int groupId, string submittedAnswer)
         {
+            if (string.IsNullOrWhiteSpace(submittedAnswer))
+                return false;
+
             Dictionary<string, string> submitted;
             try
             {
                 submitted = JsonConvert.DeserializeObject<Dictionary<string, string>>(submittedAnswer);
             }
-            catch
+            catch (JsonException)
             {
                 return false;
             }
@@ -143,12 +146,15 @@ namespace TrainingApp.BLL.Scoring
 
         private bool ValidateDataCollection(string submittedAnswer)
         {
+            if (string.IsNullOrWhiteSpace(submittedAnswer))
+                return false;
+
             Dictionary<string, string> submitted;
             try
             {
                 submitted = JsonConvert.DeserializeObject<Dictionary<string, string>>(submittedAnswer);
             }
-            catch
+            catch (JsonException)
             {
                 return false;
             }
