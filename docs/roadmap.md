@@ -94,11 +94,11 @@ se filtran en fases anteriores.
      parámetros (tipo, unidad, rangos).
   3. Códigos NC de LoFlo.
   4. BOM (números de parte y cantidades): puede seguir **simulado** (decisión del usuario).
-- **Auditoría del proyecto (2026-10-01): Fase A ✅ · Fase B ✅ · Fase C pendiente.**
+- **Auditoría del proyecto (2026-10-01): Fase A ✅ · Fase B ✅ · Fase C 🔄.**
   Los hallazgos están en una sola lista priorizada, con severidad, vía y entrega, más
-  abajo en "Auditoría 2026-10-01". Siguiente paso: que el usuario resuelva las
-  decisiones D-1 a D-5 y elija por cuál entrega empezar (se propone E1). Cada entrega
-  sigue el proceso de la Fase C de la auditoría. **Los tests quedan fuera de la
+  abajo en "Auditoría 2026-10-01". Decisiones D-1 a D-5 cerradas con el usuario
+  (2026-10-02). **Ahora:** entrega E1 (bugs del flujo). Cada entrega sigue el proceso
+  de la Fase C de la auditoría. **Los tests quedan fuera de la
   auditoría y de sus correcciones** por decisión del usuario.
 - **Mientras llega la respuesta de negocio** (opciones, sin orden decidido): entregas de
   la auditoría (Fase C); Fase 5 (tests de `ScoreCalculator`/`StepValidator`, el
@@ -222,29 +222,30 @@ diseño.
 | AUD-27 | Bajo | La pregunta de Line Clearance está en el code-behind, contra "datos de simulación en SQL" de `CLAUDE.md`. | `GuidedTest.aspx.cs:1030` | Moverla al catálogo por área. | Fase 7 (LoFlo necesitará la suya) |
 | AUD-28 | Bajo | Endurecimiento para el deploy: cookies sin `requireSSL`, sin cabeceras de seguridad, `X-AspNet-Version` expuesto, el ID de Session no se renueva en el login, no hay `Application_Error` ni registro de errores o de logins fallidos, y el login no limita intentos. | `Web.config`, `Global.asax.cs`, `Login.aspx.cs` | Checklist de la Fase 9. | Fase 9 |
 | AUD-29 | Bajo | Paquetes atrasados, ninguno con CVE: parches de Newtonsoft (13.0.4), jQuery (3.7.1), `Microsoft.Web.Infrastructure` (2.0.1) y `System.*`; mayor de CodeDom (2.0.1 → 4.1.0). Bootstrap 5.3.8 y SweetAlert2 11.26 pueden cambiar la UI. | `packages.config`, `Scripts/`, `UI/master/Training.Master` | Uno por uno; Bootstrap y SweetAlert después de la 6.6, revisando la UI. | Fase 9 |
-| AUD-30 | Info | `origin/main` todavía contiene la app legacy (con `packages/`, `bin/` y `.vs/` versionados); `TrainingApp` va 44 commits adelante sin merge. Los worktrees salen de `main` por defecto y fallan por rutas largas o parten del código equivocado. | Repo | Decidir si `TrainingApp` pasa a `main`, o configurar `worktree.baseRef: head`. **D-5** | Decisión |
+| AUD-30 | Info | `origin/main` todavía contiene la app legacy (con `packages/`, `bin/` y `.vs/` versionados); `TrainingApp` va 44 commits adelante sin merge. Los worktrees salen de `main` por defecto y fallan por rutas largas o parten del código equivocado. | Repo | No se toca `main` (D-5); los worktrees deben salir de `TrainingApp`. | Resuelto (D-5) |
 | AUD-31 | Info | 4 XML docs de ~300 miembros públicos y no hay README. `CLAUDE.md` y `docs/` cubren ese papel. | — | Sin acción. | — |
 | AUD-32 | Info | Por diseño (no tocar): contraseña por defecto + autoregistro por `code1` (quien conozca el `code1` de alguien que nunca entró puede activar su cuenta); mensajes distintos para `code1` inexistente y contraseña incorrecta (permite enumerar `code1`). | `AuthService`, `Login.aspx.cs` | Riesgo aceptado (`CLAUDE.md` → Auth Flow). | — |
 
-**Decisiones pendientes del usuario:**
-- **D-1 (AUD-03):** ¿qué deja un SFC Split forzado? Propuesta: una fila de split por
-  defecto (ej. 1 unidad del lote), igual que la orden por defecto de Resource Setup forzado.
-- **D-2 (AUD-07):** ¿Guided sin penalización (acertar en cualquier intento = 100% del
-  paso), como dice `CLAUDE.md`, o se corrige `CLAUDE.md` porque la penalización visible
-  en Guided es intencional?
-- **D-3 (AUD-09):** ¿el cambio de contraseña pide siempre la actual, incluido el primer
-  acceso (donde la actual es la por defecto)?
-- **D-4 (AUD-01):** ¿la sesión vieja se marca `Abandoned` (conserva los intentos para el
-  instructor) o se borra junto con sus intentos?
-- **D-5 (AUD-30):** ¿`TrainingApp` pasa a ser `main`?
+**Decisiones del usuario (cerradas 2026-10-02):**
+- **D-1 (AUD-03):** un SFC Split forzado deja una fila de split por defecto de **100
+  unidades** (la orden simulada NonSerialized es de 250), igual que la orden por defecto
+  de Resource Setup forzado.
+- **D-2 (AUD-07):** **Guided no penaliza**, es práctica: `CLAUDE.md` es correcto y se
+  corrige el código (acertar en cualquier intento = 100% del paso en Guided).
+- **D-3 (AUD-09):** el cambio de contraseña **pide siempre la contraseña actual**; en el
+  primer acceso la actual es la por defecto.
+- **D-4 (AUD-01):** la sesión vieja se **marca `Abandoned`** (conserva los intentos).
+- **D-5 (AUD-30):** **no se toca `main`**: `TrainingApp` es la rama de desarrollo y a
+  `main` solo se suben los cambios finales. Los worktrees deben salir de `TrainingApp`
+  (no de `origin/main`); conviene configurar `worktree.baseRef: head` en Claude Code.
 
 **Entregas propuestas (Fase C), en orden:**
 
 | Entrega | Contenido | Vía | Revisión |
 |---|---|---|---|
-| E1 · Bugs del flujo | AUD-01, 02, 03, 13, 19, 20 | Plan directo (necesita D-1 y D-4); AUD-01 incluye un script SQL que corre el usuario | `/code-review` |
-| E2 · Auth y secretos | AUD-04, 08, 09, 10, 11, 17, 18 | Plan directo (necesita D-3); AUD-04 requiere que el usuario rote la contraseña | `/security-review` |
-| E3 · Integridad del puntaje | AUD-05, 06, 07, 12 | Plan directo: toca el motor sin cambiar reglas, salvo AUD-07 (D-2; si cambia la regla, enmienda en `CLAUDE.md`); AUD-06 incluye SP nuevo | `/code-review` |
+| E1 · Bugs del flujo | AUD-01, 02, 03, 13, 19, 20 | Plan directo (D-1, D-4); AUD-01 incluye un script SQL que corre el usuario | `/code-review` |
+| E2 · Auth y secretos | AUD-04, 08, 09, 10, 11, 17, 18 | Plan directo (D-3); AUD-04 requiere que el usuario rote la contraseña | `/security-review` |
+| E3 · Integridad del puntaje | AUD-05, 06, 07, 12 | Plan directo: toca el motor sin cambiar reglas, salvo AUD-07, que alinea el código con `CLAUDE.md` (D-2); AUD-06 incluye SP nuevo | `/code-review` |
 | E4 · Capas | AUD-14, 15 | Mecánico, solo enrutamiento | `/code-review` |
 | E5 · Limpieza | AUD-21, 22, 23, 24 | Mecánico | `/code-review` |
 | Spec del motor | AUD-16, 25, 26 | `/spec`, entre la 6.5 y la 6.6 | — |
