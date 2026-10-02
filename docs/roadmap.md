@@ -105,7 +105,7 @@ y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
   3. Códigos NC de LoFlo.
   4. BOM (números de parte y cantidades): puede seguir **simulado** (decisión del usuario).
 - **Auditoría del proyecto (2026-10-01 / 2026-10-02): Fases A, B y C ✅.** Lista única,
-  decisiones D-1 a D-5 y entregas abajo, en "Auditoría 2026-10-01". Las 5 entregas chicas
+  decisiones D-1 a D-8 y entregas abajo, en "Auditoría 2026-10-01". Las 5 entregas chicas
   (E1 bugs del flujo, E2 auth y secretos, E3 integridad del puntaje, E4 capas, E5 limpieza)
   se verificaron en el navegador y se integraron a `TrainingApp` (fast-forward desde la
   rama `audit/fase-a-hallazgos`, 2026-10-02); el usuario también actualizó `main` con
