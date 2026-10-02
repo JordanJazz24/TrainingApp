@@ -98,13 +98,17 @@ se filtran en fases anteriores.
   decisiones D-1 a D-5 y entregas abajo, en "Auditoría 2026-10-01". Las 5 entregas chicas
   (E1 bugs del flujo, E2 auth y secretos, E3 integridad del puntaje, E4 capas, E5 limpieza)
   se verificaron en el navegador y se integraron a `TrainingApp` (fast-forward desde la
-  rama `audit/fase-a-hallazgos`, 2026-10-02). El build quedó en 0 warnings. **Los tests
-  quedaron fuera** por decisión del usuario. Lo que sigue abierto de la auditoría:
+  rama `audit/fase-a-hallazgos`, 2026-10-02); el usuario también actualizó `main` con
+  `TrainingApp` y le hizo push. El build quedó en 0 warnings. **Los tests quedaron fuera**
+  por decisión del usuario. Lo que sigue abierto de la auditoría:
   - **Spec del motor** (AUD-16, 25, 26): sacar de `GuidedTest` la lógica del POD a la BLL y
     persistir su estado en BD. Antes de la 6.6, porque los overlays se anclan a esa página.
-  - **Fase 7:** AUD-27 (pregunta de Line Clearance al catálogo).
-  - **Fase 9:** AUD-28 (endurecimiento del deploy) y AUD-29 (actualizar paquetes).
-  - **Acción del usuario:** rotar la contraseña de `sa` (AUD-04; sigue en el historial de git).
+  - **Fase 9 (o cuando el usuario lo pida explícitamente, D-7):** AUD-28 (endurecimiento
+    del deploy) y AUD-29 (actualizar paquetes).
+  - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` (AUD-04; sigue
+    en el historial de git) y actualizar `connectionStrings.config`.
+  - AUD-27 quedó cerrado por decisión del usuario (D-6): la pregunta de Line Clearance se
+    queda en el código.
 - **Mientras llega la respuesta de negocio** (opciones, sin orden decidido): spec del motor
   de la auditoría; Fase 5 (tests de `ScoreCalculator`/`StepValidator`, el usuario la quiere
   al final). Preguntar al usuario antes de elegir.
@@ -230,10 +234,10 @@ diseño.
 | AUD-24 | Bajo | Los data-binding usan `<%# Eval(...) %>` sin codificar. Hoy los datos vienen de la BD o son números validados. | `GuidedTest.aspx:153-166, 342-350`, `DataCollectionControl.ascx`, `LogNCControl.ascx` | `<%#: ... %>` por consistencia. | E5 ✅ |
 | AUD-25 | Bajo | Unas 15 conexiones a SQL por click en el POD: `GetContext` recarga sesión, guía y área; `UpdateScoreWidget` vuelve a consultar; `RecordAttempt` calcula el puntaje y lo descarta. | `GuidedTest.aspx.cs`, `TrainingSessionService.cs:195-224` | Usar `StepSubmitResult.CurrentScore` y cargar el contexto una vez por request. | Con AUD-16 |
 | AUD-26 | Bajo | La orden simulada y el avance de DC/Assembly viven solo en la Session (ya estaba en la deuda, spec 008 E7). | `GuidedTest.aspx.cs`, `Constants.SessionKeys` | Persistirlos en BD por sesión. | Con AUD-16 |
-| AUD-27 | Bajo | La pregunta de Line Clearance está en el code-behind, contra "datos de simulación en SQL" de `CLAUDE.md`. | `GuidedTest.aspx.cs:1030` | Moverla al catálogo por área. | Fase 7 (LoFlo necesitará la suya) |
-| AUD-28 | Bajo | Endurecimiento para el deploy: cookies sin `requireSSL`, sin cabeceras de seguridad, `X-AspNet-Version` expuesto, el ID de Session no se renueva en el login, no hay `Application_Error` ni registro de errores o de logins fallidos, y el login no limita intentos. Sin `customErrors`, un valor con marcado en cualquier campo de texto libre (ej. Data Collection) muestra la pantalla de `HttpRequestValidationException` (Resource Setup ya lo bloquea en el cliente, E2). En IIS, el `idleTimeout` del app pool debe ser de al menos 60 min: si el proceso se detiene por inactividad, la Session InProc se pierde aunque su timeout sea 60 (E3). | `Web.config`, `Global.asax.cs`, `Login.aspx.cs` | Checklist de la Fase 9. | Fase 9 |
-| AUD-29 | Bajo | Paquetes atrasados, ninguno con CVE: parches de Newtonsoft (13.0.4), jQuery (3.7.1), `Microsoft.Web.Infrastructure` (2.0.1) y `System.*`; mayor de CodeDom (2.0.1 → 4.1.0). Bootstrap 5.3.8 y SweetAlert2 11.26 pueden cambiar la UI. | `packages.config`, `Scripts/`, `UI/master/Training.Master` | Uno por uno; Bootstrap y SweetAlert después de la 6.6, revisando la UI. | Fase 9 |
-| AUD-30 | Info | `origin/main` todavía contiene la app legacy (con `packages/`, `bin/` y `.vs/` versionados); `TrainingApp` va 44 commits adelante sin merge. Los worktrees salen de `main` por defecto y fallan por rutas largas o parten del código equivocado. | Repo | No se toca `main` (D-5); los worktrees deben salir de `TrainingApp`. | Resuelto (D-5) |
+| AUD-27 | Bajo | La pregunta de Line Clearance está en el code-behind, contra "datos de simulación en SQL" de `CLAUDE.md`. | `GuidedTest.aspx.cs:1030` | Sin acción: la pregunta es la misma en todas las operaciones (D-6). | Cerrado (D-6) |
+| AUD-28 | Bajo | Endurecimiento para el deploy: cookies sin `requireSSL`, sin cabeceras de seguridad, `X-AspNet-Version` expuesto, el ID de Session no se renueva en el login, no hay `Application_Error` ni registro de errores o de logins fallidos, y el login no limita intentos. Sin `customErrors`, un valor con marcado en cualquier campo de texto libre (ej. Data Collection) muestra la pantalla de `HttpRequestValidationException` (Resource Setup ya lo bloquea en el cliente, E2). En IIS, el `idleTimeout` del app pool debe ser de al menos 60 min: si el proceso se detiene por inactividad, la Session InProc se pierde aunque su timeout sea 60 (E3). | `Web.config`, `Global.asax.cs`, `Login.aspx.cs` | Checklist de la Fase 9. | Fase 9 (D-7) |
+| AUD-29 | Bajo | Paquetes atrasados, ninguno con CVE: parches de Newtonsoft (13.0.4), jQuery (3.7.1), `Microsoft.Web.Infrastructure` (2.0.1) y `System.*`; mayor de CodeDom (2.0.1 → 4.1.0). Bootstrap 5.3.8 y SweetAlert2 11.26 pueden cambiar la UI. | `packages.config`, `Scripts/`, `UI/master/Training.Master` | Uno por uno; Bootstrap y SweetAlert después de la 6.6, revisando la UI. | Fase 9 (D-7) |
+| AUD-30 | Info | `origin/main` todavía contiene la app legacy (con `packages/`, `bin/` y `.vs/` versionados); `TrainingApp` va 44 commits adelante sin merge. Los worktrees salen de `main` por defecto y fallan por rutas largas o parten del código equivocado. | Repo | No se toca `main` (D-5); los worktrees deben salir de `TrainingApp`. El 2026-10-02 el usuario actualizó `main` con `TrainingApp`, así que `main` ya no tiene la app legacy. | Resuelto (D-5) |
 | AUD-31 | Info | 4 XML docs de ~300 miembros públicos y no hay README. `CLAUDE.md` y `docs/` cubren ese papel. | — | Sin acción. | — |
 | AUD-32 | Info | Por diseño (no tocar): contraseña por defecto + autoregistro por `code1` (quien conozca el `code1` de alguien que nunca entró puede activar su cuenta); mensajes distintos para `code1` inexistente y contraseña incorrecta (permite enumerar `code1`). | `AuthService`, `Login.aspx.cs` | Riesgo aceptado (`CLAUDE.md` → Auth Flow). | — |
 
@@ -249,6 +253,11 @@ diseño.
 - **D-5 (AUD-30):** **no se toca `main`**: `TrainingApp` es la rama de desarrollo y a
   `main` solo se suben los cambios finales. Los worktrees deben salir de `TrainingApp`
   (no de `origin/main`); conviene configurar `worktree.baseRef: head` en Claude Code.
+- **D-6 (AUD-27):** la pregunta del paso Line Clearance **se queda en el código**: es la
+  misma en todas las operaciones (excepción anotada en `CLAUDE.md` → Key Conventions).
+- **D-7 (AUD-28, AUD-29):** el endurecimiento del deploy y la actualización de paquetes se
+  ven **en la Fase 9**, o antes solo si el usuario lo pide explícitamente.
+- **D-8 (AUD-04):** el usuario rota la contraseña de `sa` **en su momento**.
 
 **Entregas propuestas (Fase C), en orden:**
 
