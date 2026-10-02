@@ -318,7 +318,8 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            var result = _sessionService.AssembleComponent(session.Id, e.ComponentId, GetAssemblyProgress(session));
+            var result = _sessionService.AssembleComponent(session.Id, CurrentOperatorId, e.ComponentId,
+                GetAssemblyProgress(session));
             if (result.StepResult == null)
             {
                 CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
@@ -484,7 +485,7 @@ namespace TrainingApp.Pages.Training
         private StepSubmitOutcome ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
             TrainingStep step, string answer, string incorrectFeedback = null)
         {
-            var result = _sessionService.SubmitStep(session.Id, step.Id, answer);
+            var result = _sessionService.SubmitStep(session.Id, CurrentOperatorId, answer);
             ApplySubmitResult(result, session, guide, area, step, incorrectFeedback);
             return result.Outcome;
         }
@@ -528,7 +529,7 @@ namespace TrainingApp.Pages.Training
         {
             if (step.StepType == clicked) return false;
 
-            var result = _sessionService.RegisterOutOfSequence(session.Id, clicked);
+            var result = _sessionService.RegisterOutOfSequence(session.Id, CurrentOperatorId, clicked);
             if (result == null) return true;
 
             ApplySubmitResult(result, session, guide, area, step, incorrectFeedback: null);
@@ -807,7 +808,8 @@ namespace TrainingApp.Pages.Training
             var progress = GetDataCollectionProgress(session) ?? StartDataCollectionProgress(session);
             string pieceSfc = progress.CurrentPiece?.SFCCode;
 
-            var result = _sessionService.SubmitDataCollectionGroup(session.Id, e.GroupCode, e.AnswersJson, progress);
+            var result = _sessionService.SubmitDataCollectionGroup(session.Id, CurrentOperatorId, e.GroupCode,
+                e.AnswersJson, progress);
             switch (result.Outcome)
             {
                 case DataCollectionOutcome.Incorrect:
@@ -976,7 +978,7 @@ namespace TrainingApp.Pages.Training
         {
             var session = LoadAndValidateSession();
             if (session == null) return;
-            _sessionService.Abandon(session.Id);
+            _sessionService.Abandon(session.Id, CurrentOperatorId);
             // Spec 005: la SimulatedOrder vive solo en Session — al abandonar,
             // se remueve explícitamente para no dejarla huérfana bajo su clave
             // (a diferencia de completar la guía normalmente, donde sí queda huérfana
@@ -1164,11 +1166,10 @@ namespace TrainingApp.Pages.Training
                 return null;
             }
 
-            var session    = _sessionService.GetById(sessionId);
-            int operatorId = (int)Session[Constants.SessionKeys.OperatorId]; // Ahora seguro
+            var session = _sessionService.GetById(sessionId);
 
             if (session == null ||
-                session.OperatorId != operatorId ||
+                session.OperatorId != CurrentOperatorId ||
                 session.Status != SessionStatus.InProgress)
             {
                 Response.Redirect("~/Pages/Training/StartSession.aspx");
@@ -1177,6 +1178,11 @@ namespace TrainingApp.Pages.Training
 
             return session;
         }
+
+        // Operador autenticado (Session escrita solo por el servidor tras el login; ya
+        // re-hidratada por EnsureOperatorSession). La BLL verifica con él que la sesión le
+        // pertenece (auditoría AUD-05).
+        private int CurrentOperatorId => (int)Session[Constants.SessionKeys.OperatorId];
 
         // ── UI helpers ───────────────────────────────────────────────────
         private void PopulateHeader(TrainingSession session, Area area, TrainingGuide guide)

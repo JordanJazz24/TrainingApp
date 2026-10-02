@@ -21,6 +21,14 @@ namespace TrainingApp.BLL.Training
             return bom != null && bom.Count > 0
                 && bom.All(c => AssembledComponentIds.Contains(c.Id));
         }
+
+        // Si con este componente el BOM queda completo, sin modificar el avance: la BLL
+        // registra el intento antes de guardar el último componente (auditoría AUD-06).
+        public bool CoversWith(int componentId, IList<AssemblyComponent> bom)
+        {
+            return bom != null && bom.Count > 0
+                && bom.All(c => c.Id == componentId || AssembledComponentIds.Contains(c.Id));
+        }
     }
 
     public class AssemblySubmitResult

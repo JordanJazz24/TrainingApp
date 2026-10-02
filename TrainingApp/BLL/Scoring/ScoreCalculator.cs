@@ -19,7 +19,8 @@ namespace TrainingApp.BLL.Scoring
 
         public decimal CalculateSessionScore(
             IList<TrainingStep> steps,
-            IList<TrainingSessionStepAttempt> attempts)
+            IList<TrainingSessionStepAttempt> attempts,
+            SessionMode mode)
         {
             decimal total = 0m;
             foreach (var step in steps)
@@ -30,19 +31,19 @@ namespace TrainingApp.BLL.Scoring
                     .FirstOrDefault();
 
                 if (firstCorrect != null)
-                    total += step.Weight * GetPenaltyFactor(firstCorrect.AttemptNumber);
+                    total += step.Weight * GetPenaltyFactor(firstCorrect.AttemptNumber, mode);
                 // Attempt 4+ forced: IsCorrect=false on all attempts → 0 contribution
             }
             return total;
         }
 
-        public decimal CalculateStepScore(decimal stepWeight, int attemptNumber)
+        // Guided es práctica: acertar en cualquier intento vale el peso completo del paso. La
+        // penalización por reintento es solo de Assessment (CLAUDE.md → Modos de sesión;
+        // auditoría AUD-07, decisión D-2).
+        public static decimal GetPenaltyFactor(int attemptNumber, SessionMode mode)
         {
-            return stepWeight * GetPenaltyFactor(attemptNumber);
-        }
+            if (mode == SessionMode.Guided) return 1.00m;
 
-        public static decimal GetPenaltyFactor(int attemptNumber)
-        {
             switch (attemptNumber)
             {
                 case 1: return 1.00m;

@@ -47,8 +47,9 @@ namespace TrainingApp.BLL.Training
             return _sessionRepo.GetById(sessionId);
         }
 
-        public void Abandon(int sessionId)
+        public void Abandon(int sessionId, int operatorId)
         {
+            LoadOwnedSession(sessionId, operatorId);
             _sessionRepo.Abandon(sessionId);
         }
 
@@ -57,14 +58,20 @@ namespace TrainingApp.BLL.Training
             var session  = _sessionRepo.GetById(sessionId);
             var guide    = _guideService.GetById(session.TrainingGuideId);
             var attempts = _attemptRepo.GetBySessionId(sessionId);
-            return _scoreCalc.CalculateSessionScore(guide.Steps, attempts);
+            return _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
         }
 
-        public StepSubmitResult SubmitStep(int sessionId, int stepId, string submittedAnswer)
+        // Califica la respuesta del paso actual de la sesión. El paso lo define el servidor, no
+        // la página: un paso viejo haría retroceder la sesión al avanzar (auditoría AUD-05).
+        // LoadAndValidateSession ya descarta las sesiones que no están en curso.
+        public StepSubmitResult SubmitStep(int sessionId, int operatorId, string submittedAnswer)
         {
-            var session = _sessionRepo.GetById(sessionId);
-            var guide   = _guideService.GetById(session.TrainingGuideId);
-            var step    = guide.Steps.First(s => s.Id == stepId);
+            var session = LoadOwnedSession(sessionId, operatorId);
+            if (session.Status != SessionStatus.InProgress)
+                throw new InvalidOperationException("La sesión no está en curso.");
+
+            var guide = _guideService.GetById(session.TrainingGuideId);
+            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
             var validator = _guideService.BuildValidatorForGuide(guide);
             bool isCorrect = validator.Validate(step, submittedAnswer);
@@ -76,9 +83,9 @@ namespace TrainingApp.BLL.Training
         // es un intento fallido del paso actual (misma penalización y force-advance).
         // clickedStepType null = acción de MES que no es ningún paso (Work Instructions, Reports…).
         // Devuelve null si no es un error de secuencia (Guided, o el botón es el del paso actual).
-        public StepSubmitResult RegisterOutOfSequence(int sessionId, StepType? clickedStepType)
+        public StepSubmitResult RegisterOutOfSequence(int sessionId, int operatorId, StepType? clickedStepType)
         {
-            var session = _sessionRepo.GetById(sessionId);
+            var session = LoadOwnedSession(sessionId, operatorId);
             if (session.Mode != SessionMode.Assessment || session.Status != SessionStatus.InProgress)
                 return null;
 
@@ -93,10 +100,11 @@ namespace TrainingApp.BLL.Training
         // Assembly (spec 008): ensambla un componente del BOM para todas las piezas
         // seleccionadas. El paso se completa (intento correcto) cuando todo el BOM quedó
         // ensamblado. No tiene camino incorrecto: se califica solo por secuencia (S2).
-        public AssemblySubmitResult AssembleComponent(int sessionId, int componentId, AssemblyProgress progress)
+        public AssemblySubmitResult AssembleComponent(int sessionId, int operatorId, int componentId,
+            AssemblyProgress progress)
         {
             var result  = new AssemblySubmitResult();
-            var session = _sessionRepo.GetById(sessionId);
+            var session = LoadOwnedSession(sessionId, operatorId);
             if (session.Status != SessionStatus.InProgress) return result;
 
             var guide = _guideService.GetById(session.TrainingGuideId);
@@ -106,11 +114,13 @@ namespace TrainingApp.BLL.Training
             var bom = _guideService.GetAssemblyComponents(guide.AreaId);
             if (!bom.Any(c => c.Id == componentId)) return result;
 
+            // Con el último componente, el intento se guarda antes de actualizar el avance: si el
+            // SP falla, la Session no queda adelantada y el Add se puede repetir (AUD-06).
+            if (progress.CoversWith(componentId, bom))
+                result.StepResult = RecordAttempt(session, guide, step, isCorrect: true);
+
             progress.AssembledComponentIds.Add(componentId);
             result.ComponentAssembled = true;
-
-            if (progress.Covers(bom))
-                result.StepResult = RecordAttempt(session, guide, step, isCorrect: true);
             return result;
         }
 
@@ -119,11 +129,11 @@ namespace TrainingApp.BLL.Training
         //     avance se conserva salvo que el paso avance forzado (E5).
         //   - Correcto: la pieza se completa según DataCollectionCompletionRule y el avance
         //     pasa a la siguiente; con la última, se registra el intento correcto del paso.
-        public DataCollectionSubmitResult SubmitDataCollectionGroup(int sessionId, string groupCode,
-            string answersJson, DataCollectionProgress progress)
+        public DataCollectionSubmitResult SubmitDataCollectionGroup(int sessionId, int operatorId,
+            string groupCode, string answersJson, DataCollectionProgress progress)
         {
             var result  = new DataCollectionSubmitResult { Outcome = DataCollectionOutcome.Ignored };
-            var session = _sessionRepo.GetById(sessionId);
+            var session = LoadOwnedSession(sessionId, operatorId);
             if (session.Status != SessionStatus.InProgress || progress == null || progress.IsFinished)
                 return result;
 
@@ -148,54 +158,71 @@ namespace TrainingApp.BLL.Training
                 return result;
             }
 
-            var piece = progress.CurrentPiece;
-            progress.MarkSaved(piece.RowId, group.Id);
-            if (!DataCollectionCompletionRule.IsPieceComplete(progress.SavedGroupIds(piece.RowId), groups))
+            var piece      = progress.CurrentPiece;
+            var savedAfter = new HashSet<int>(progress.SavedGroupIds(piece.RowId)) { group.Id };
+            if (!DataCollectionCompletionRule.IsPieceComplete(savedAfter, groups))
             {
+                progress.MarkSaved(piece.RowId, group.Id);
                 result.Outcome = DataCollectionOutcome.GroupSaved;
                 return result;
             }
 
-            progress.CurrentIndex++;
-            if (!progress.IsFinished)
-            {
-                result.Outcome = DataCollectionOutcome.PieceCompleted;
-                return result;
-            }
+            // Con la última pieza, el intento se guarda antes de actualizar el avance: si el SP
+            // falla, la Session no queda adelantada y el Save se puede repetir (AUD-06).
+            bool isLastPiece = progress.CurrentIndex == progress.Pieces.Count - 1;
+            if (isLastPiece)
+                result.StepResult = RecordAttempt(session, guide, step, isCorrect: true);
 
-            result.StepResult = RecordAttempt(session, guide, step, isCorrect: true);
-            result.Outcome    = DataCollectionOutcome.StepResolved;
+            progress.MarkSaved(piece.RowId, group.Id);
+            progress.CurrentIndex++;
+            result.Outcome = isLastPiece
+                ? DataCollectionOutcome.StepResolved
+                : DataCollectionOutcome.PieceCompleted;
             return result;
         }
 
+        // Dueño de la sesión (auditoría AUD-05): la página ya lo valida, pero la BLL no confía
+        // en ella. Si no se cumple es una manipulación o un error de programación, no un
+        // intento, así que no se registra nada.
+        private TrainingSession LoadOwnedSession(int sessionId, int operatorId)
+        {
+            var session = _sessionRepo.GetById(sessionId);
+            if (session == null || session.OperatorId != operatorId)
+                throw new InvalidOperationException("La sesión no existe o no pertenece al operador.");
+            return session;
+        }
+
+        // El intento y el avance (o el cierre) se guardan juntos en una transacción
+        // (spStepAttemptRecord, auditoría AUD-06): si falla, no queda un intento sin avance que
+        // penalice el siguiente envío. Por eso el puntaje se calcula antes de guardar, con el
+        // intento nuevo incluido.
         private StepSubmitResult RecordAttempt(TrainingSession session, TrainingGuide guide,
             TrainingStep step, bool isCorrect)
         {
-            int sessionId = session.Id;
-            int stepId    = step.Id;
+            var attempts      = _attemptRepo.GetBySessionId(session.Id);
+            int attemptNumber = attempts.Count(a => a.StepId == step.Id) + 1;
 
-            var previousAttempts = _attemptRepo.GetBySessionAndStep(sessionId, stepId);
-            int attemptNumber    = previousAttempts.Count + 1;
-
-            _attemptRepo.Insert(new TrainingSessionStepAttempt
+            var attempt = new TrainingSessionStepAttempt
             {
-                SessionId     = sessionId,
-                StepId        = stepId,
+                SessionId     = session.Id,
+                StepId        = step.Id,
                 AttemptNumber = attemptNumber,
                 IsCorrect     = isCorrect,
                 Timestamp     = DateTime.UtcNow
-            });
+            };
+            attempts.Add(attempt);
+            decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
 
             bool forceAdvance = ScoreCalculator.ShouldForceAdvance(attemptNumber, session.Mode);
 
             if (!isCorrect && !forceAdvance)
             {
-                var allAttemptsForScore = _attemptRepo.GetBySessionId(sessionId);
+                _attemptRepo.Record(attempt, step.Order, nextStepOrder: null, finalScore: null);
                 return new StepSubmitResult
                 {
-                    Outcome      = StepSubmitOutcome.Incorrect,
+                    Outcome       = StepSubmitOutcome.Incorrect,
                     AttemptNumber = attemptNumber,
-                    CurrentScore = _scoreCalc.CalculateSessionScore(guide.Steps, allAttemptsForScore)
+                    CurrentScore  = score
                 };
             }
 
@@ -204,29 +231,23 @@ namespace TrainingApp.BLL.Training
 
             if (isLastStep)
             {
-                var allAttempts = _attemptRepo.GetBySessionId(sessionId);
-                decimal finalScore = _scoreCalc.CalculateSessionScore(guide.Steps, allAttempts);
-                _sessionRepo.Complete(sessionId, finalScore);
+                _attemptRepo.Record(attempt, step.Order, nextStepOrder: null, finalScore: score);
                 return new StepSubmitResult
                 {
-                    Outcome      = StepSubmitOutcome.SessionCompleted,
+                    Outcome       = StepSubmitOutcome.SessionCompleted,
                     AttemptNumber = attemptNumber,
-                    CurrentScore = finalScore,
-                    SessionScore = finalScore
+                    CurrentScore  = score,
+                    SessionScore  = score
                 };
             }
 
-            _sessionRepo.UpdateCurrentStep(sessionId, nextOrder);
-
-            var attemptsForScore = _attemptRepo.GetBySessionId(sessionId);
-            decimal currentScore = _scoreCalc.CalculateSessionScore(guide.Steps, attemptsForScore);
-
+            _attemptRepo.Record(attempt, step.Order, nextStepOrder: nextOrder, finalScore: null);
             return new StepSubmitResult
             {
                 Outcome       = forceAdvance ? StepSubmitOutcome.FailedForced : StepSubmitOutcome.Correct,
                 AttemptNumber = attemptNumber,
                 NextStepOrder = nextOrder,
-                CurrentScore  = currentScore
+                CurrentScore  = score
             };
         }
     }

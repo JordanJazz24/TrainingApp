@@ -35,27 +35,6 @@ namespace TrainingApp.DAL.Repositories
             }
         }
 
-        public void UpdateCurrentStep(int sessionId, int nextStepOrder)
-        {
-            using (var db = DatabaseFactory.Create())
-                db.ExecuteNonQuery("spTrainingSessionUpdateStep", cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@SessionId",       sessionId);
-                    cmd.Parameters.AddWithValue("@CurrentStepOrder",nextStepOrder);
-                });
-        }
-
-        public void Complete(int sessionId, decimal finalScore)
-        {
-            using (var db = DatabaseFactory.Create())
-                db.ExecuteNonQuery("spTrainingSessionComplete", cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@SessionId",  sessionId);
-                    cmd.Parameters.AddWithValue("@FinalScore", finalScore);
-                    cmd.Parameters.AddWithValue("@CompletedAt",DateTime.UtcNow);
-                });
-        }
-
         public void Abandon(int sessionId)
         {
             using (var db = DatabaseFactory.Create())

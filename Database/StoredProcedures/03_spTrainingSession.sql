@@ -49,52 +49,24 @@ END;
 GO
 
 -- -------------------------------------------------------
--- spTrainingSessionUpdateStep
--- Avanza CurrentStepOrder al siguiente paso.
+-- spTrainingSessionUpdateStep, spTrainingSessionComplete
+-- Reemplazados por spStepAttemptRecord (04), que avanza o
+-- cierra la sesión en la misma transacción que el intento
+-- (auditoría AUD-06). Se borran si existen en una BD anterior.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.spTrainingSessionUpdateStep', 'P') IS NOT NULL
     DROP PROCEDURE dbo.spTrainingSessionUpdateStep;
 GO
 
-CREATE PROCEDURE dbo.spTrainingSessionUpdateStep
-    @SessionId        INT,
-    @CurrentStepOrder INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE dbo.TrainingSessions
-    SET    CurrentStepOrder = @CurrentStepOrder
-    WHERE  Id = @SessionId;
-END;
-GO
-
--- -------------------------------------------------------
--- spTrainingSessionComplete
--- Marca la sesión como completada con el puntaje final.
--- Status 1 = Completed
--- -------------------------------------------------------
 IF OBJECT_ID('dbo.spTrainingSessionComplete', 'P') IS NOT NULL
     DROP PROCEDURE dbo.spTrainingSessionComplete;
-GO
-
-CREATE PROCEDURE dbo.spTrainingSessionComplete
-    @SessionId   INT,
-    @FinalScore  DECIMAL(5,2),
-    @CompletedAt DATETIME2
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE dbo.TrainingSessions
-    SET    Status      = 1,
-           FinalScore  = @FinalScore,
-           CompletedAt = @CompletedAt
-    WHERE  Id = @SessionId;
-END;
 GO
 
 -- -------------------------------------------------------
 -- spTrainingSessionAbandon
 -- Marca la sesión como abandonada (Status 2 = Abandoned).
+-- Solo si sigue InProgress (Status 0): una evaluación ya
+-- completada no se pisa (auditoría AUD-05).
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.spTrainingSessionAbandon', 'P') IS NOT NULL
     DROP PROCEDURE dbo.spTrainingSessionAbandon;
@@ -108,7 +80,8 @@ BEGIN
     UPDATE dbo.TrainingSessions
     SET    Status      = 2,
            CompletedAt = SYSUTCDATETIME()
-    WHERE  Id = @SessionId;
+    WHERE  Id     = @SessionId
+    AND    Status = 0;
 END;
 GO
 
