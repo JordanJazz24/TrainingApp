@@ -13,7 +13,16 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-10-01 · **Branch:** `TrainingApp` · **Último commit de código:** entrega 8 de la Fase 6.5 (`git log --oneline -5` para ver el estado real)
+**Última actualización:** 2026-10-02 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** `a99b61f`, auditoría E5 (`git log --oneline -10` para ver el estado real)
+
+**Resumen para retomar (sesión 2026-10-01/02):** se cerró el criterio de la 6.5 (falta que
+el usuario confirme el cierre) y se hizo una **auditoría completa** del proyecto: 32
+hallazgos, 8 decisiones (D-1…D-8) y 5 entregas corregidas y verificadas en el navegador
+(E1-E5), ya en `TrainingApp`, en `main` y con push. Detalle en "Auditoría 2026-10-01", más
+abajo. **Qué sigue**, con el orden a confirmar con el usuario: (1) confirmar el cierre de
+la 6.5; (2) **spec del motor** de la auditoría (AUD-16, 25, 26), que la auditoría propone
+antes de la 6.6; (3) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
+y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
@@ -81,7 +90,8 @@ se filtran en fases anteriores.
     pantallas con captura están fieles (POD y Browse con diferencias menores aceptadas por
     el usuario). Sin captura, sin bloquear: los 4 modales del Start de Moldeo y el
     resultado de Complete.
-  - **Ahora:** confirmar con el usuario el cierre de la 6.5 y pasar a la spec de la 6.6.
+  - **Ahora:** confirmar con el usuario el cierre de la 6.5. Después, la spec del motor de
+    la auditoría (propuesta antes de la 6.6) y la spec de la 6.6.
 - **Después — Fase 6.6 · Overlays guiados** (requiere `/spec`), sobre la interfaz ya
   cerrada. Ver "Fase 6.6" abajo.
 - **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de LoFlo, a
@@ -115,7 +125,14 @@ se filtran en fases anteriores.
 
 ### Cómo retomar en una sesión nueva
 1. Leer esta sección y `git log --oneline -10` (branch `TrainingApp`; no hay push pendiente
-   de pedir: el usuario hace push cuando quiere).
+   de pedir: el usuario hace push cuando quiere). **Ramas:** `TrainingApp` es la de
+   desarrollo; a `main` el usuario sube los cambios finales (no tocar `main`). Un trabajo de
+   varias entregas puede ir en una rama aparte que se integra a `TrainingApp` con
+   `git merge --ff-only` cuando el usuario lo pide. Al 2026-10-02 el usuario dejó el
+   checkout principal en `main` y `TrainingApp` en el worktree `.claude/worktrees/auditoria`.
+   Las sesiones en segundo plano trabajan en un worktree creado a mano desde `TrainingApp`
+   (memoria `project-branches-worktrees`: junction a `packages`, copiar
+   `connectionStrings.config`).
 2. La BD de desarrollo del usuario ya tiene el esquema de la spec 008 (ALTER entregado y
    corrido el 2026-09-28) y la columna `DataCollectionParameters.Description` (Fase 6.5,
    entrega 8: ALTER + `02`, `05` y `06` corridos el 2026-10-01). Una instalación limpia
@@ -133,6 +150,12 @@ se filtran en fases anteriores.
      con una ronda de preguntas si hace falta (así se hicieron el arreglo de F5, S1 y S2).
    - Cada entrega: rebuild + `aspnet_compiler` + tests (`CLAUDE.md` → "Build y
      validación") → checklist → el usuario prueba en el navegador → commit.
+   - **Proceso de la auditoría (Fase C, funcionó bien en E1-E5):** implementar →
+     `/dotnet-claude-kit:verify` con MSBuild Rebuild y `aspnet_compiler` (no `dotnet build`
+     ni `dotnet test`) → `/code-review` sobre el diff, o `/security-review` si toca auth o
+     Session → aplicar lo válido y justificar lo que no → checklist en el navegador → el
+     usuario confirma ("funciona") → commit que incluye el roadmap actualizado. Las
+     decisiones abiertas se le preguntan antes de implementar (D-1…D-8) y se anotan aquí.
 4. Pantallas: replicar el SAP MES real. Las capturas de referencia que aporta el usuario
    están en `C:\Users\320313439\Pictures\TrainingApp\` y lo ya documentado en
    `docs/ui-reference/` (`general-flow.md` + un archivo por área). Estado de cada pantalla
@@ -164,7 +187,8 @@ se filtran en fases anteriores.
 - **Fase 5 en pausa:** `ScoreCalculator` y `StepValidator` sin cobertura NUnit. La spec
   006 dejó los tests fuera de los criterios de aceptación.
 - **`CompleteControl`** está declarado e implementa `IStepControl`, pero no tiene UI:
-  Complete se resuelve directo desde `BtnComplete`.
+  Complete se resuelve directo desde `BtnComplete`. Desde E5 su evento tiene accessors
+  vacíos (como DC y Assembly); separar `IStepControl` va con la spec del motor.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007), hasta que lo pida un instructor o la Fase 8.
 - **Pérdida de la Session a mitad de sesión** (spec 008, E7): la orden simulada y el

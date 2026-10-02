@@ -208,8 +208,9 @@ Complete:         10%
 - **Reglas de oro:** cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la causa principal de deuda técnica temprana es que features de fases futuras se filtran en fases anteriores. Respetar siempre el "No incluye" de la fase en curso.
 - **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
 - **Spec 008 cerrada ✅ (2026-09-28):** el motor soporta áreas Serialized (piezas con SFC propio, multi-selección, Start directo), Assembly con BOM y Data Collection por pieza con grupos obligatorios. Resolvió los bloqueantes #1, #2 y #4 de la Fase 7.
+- **Auditoría del proyecto ✅ (2026-10-01/02):** lista única de 32 hallazgos (AUD-01…32), decisiones D-1…D-8 y 5 entregas verificadas (E1 bugs del flujo · E2 auth y secretos · E3 integridad del puntaje · E4 capas · E5 limpieza). Detalle y pendientes en `docs/roadmap.md` → "Auditoría 2026-10-01". Lo que queda con código: **spec del motor** (AUD-16, 25, 26: sacar la lógica del POD de `GuidedTest` a la BLL y persistir su estado en BD), propuesta antes de la 6.6. AUD-28/29 en la Fase 9.
 - **Ahora — 6.5 · Fidelidad de UI/UX con el SAP MES real 🔄** (formalizada 2026-09-29; entregas 1-9 ✅; inventario ✅ 14 · 🟡 0 · ⚪ 2 — criterio de cierre cumplido 2026-10-01, falta confirmar el cierre). Cada pantalla y modal del POD replica su captura real, para dejar la interfaz cerrada antes de los overlays. Sin spec: tandas de correcciones → entregas (plan en `docs/specs/fase-6.5-plan.md`). **Cierre:** `docs/ui-reference/inventario-pantallas.md` con todas las pantallas con captura en ✅. *No incluye:* reglas de negocio, motor o puntaje, pasos nuevos, overlays, LoFlo, páginas que no son del MES.
-- **Siguiente — 6.6 · Overlays guiados 📝** (requiere `/spec`): guía paso a paso en Guided sobre la interfaz cerrada en la 6.5; por tipo de paso, no por área. Entrada: el inventario de pantallas.
+- **Siguiente — 6.6 · Overlays guiados 📝** (requiere `/spec`; la auditoría propone hacer antes la spec del motor, orden a confirmar con el usuario): guía paso a paso en Guided sobre la interfaz cerrada en la 6.5; por tipo de paso, no por área. Entrada: el inventario de pantallas.
 - **En paralelo — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada por el #3** (confirmar con negocio los flags reales de LoFlo). Script SQL con el catálogo real de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM (simulado) y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas.
 - **En pausa ⏸️ — 5 · ScoreCalculator: cobertura de tests.** Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
 
@@ -238,7 +239,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │                                     ResourceSetup, LineClearance, Search (4 modales
 │   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
 │   │   │                                     LogNC, Complete
-│   │   └── master/                        ← MasterPages + pod.css + íconos
+│   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
+│   │                                         + íconos
 │   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
 │   │   ├── Auth/
 │   │   │   └── AuthService.cs
@@ -246,6 +248,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM)
 │   │   │   ├── TrainingSessionService.cs  ← SubmitStep, RegisterOutOfSequence,
 │   │   │   │                                 AssembleComponent, SubmitDataCollectionGroup
+│   │   │   │                                 (reciben operatorId; intento + avance atómico
+│   │   │   │                                 con spStepAttemptRecord)
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (vive en Session)
@@ -307,8 +311,8 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 2. `AuthService` → `EmployeeRepository.GetByCode1(code1)` → API `Constants.EmployeeApiUrl` (`MemoryCache` por `Constants.EmployeeCacheMinutes`; si la API falla tras el TTL sirve la última lista exitosa indefinidamente; solo falla si la API nunca fue alcanzable).
 3. `code1` no existe en la lista → error "Código de empleado no registrado".
 4. Existe → buscar `Operator` local. **Sin registro (primer acceso):** contraseña debe ser `DEFAULT_PASSWORD` → crear `Operator` con `IsFirstLogin = true` → `ChangePassword.aspx` (si no, error). **Con registro:** validar contra `Operator.PasswordHash` (PBKDF2).
-5. Operario cambia la contraseña → se guarda hasheada, `IsFirstLogin = false` → cuenta activada.
-6. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` + `Session` con `OperatorId`, `Code1`, `Name`.
+5. Operario cambia la contraseña (`AuthService.ChangePassword`: pide **siempre** la actual —en el primer acceso es la por defecto— y la nueva no puede ser la por defecto) → se guarda hasheada, `IsFirstLogin = false` → cuenta activada.
+6. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` + `SessionHelper.SetOperatorSession` (`OperatorId`, `Code1`, `Name`, `IsFirstLogin`; la misma escritura al re-hidratar la Session). Mientras `IsFirstLogin`, `StartSession` y `GuidedTest` redirigen a `ChangePassword` (auditoría AUD-08).
 
 ## Tech Stack
 
@@ -324,7 +328,9 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 - **BLL valida, no el code-behind** — toda validación de reglas de negocio ocurre en los services.
 - **Session solo desde el servidor** — `Session["OperatorId"]` etc. se escribe únicamente tras autenticación exitosa. Nunca se escribe desde JavaScript ni desde el cliente.
 - **Contraseña por defecto en Constants.cs** — `Constants.DEFAULT_PASSWORD`. No en `Web.config`, no hardcodeada en páginas.
-- **Connection string en Web.config** — clave `"Default"`, leída por `DatabaseFactory`. Nunca hardcodeada.
+- **Connection string fuera del repo** — clave `"Default"`, leída por `DatabaseFactory`. Vive en `TrainingApp/connectionStrings.config` (`configSource` desde `Web.config`, en `.gitignore`); en un checkout nuevo se copia de `connectionStrings.config.example`. Nunca hardcodeada ni versionada (auditoría AUD-04).
+- **La BLL protege sus invariantes** — los métodos de `TrainingSessionService` que registran intentos (y `Abandon`) reciben el `operatorId` autenticado y validan dueño, estado y paso actual; violarlos es una excepción, no un intento. El intento y el avance/cierre se guardan juntos (`spStepAttemptRecord`, transacción). No confiar en que la página ya validó (auditoría AUD-05/06).
+- **Seguridad en presentación** — toda página usa `Site.Master` o `Training.Master` (heredan `AntiXsrfMasterPage`, anti-CSRF). Texto que va a un `<script>` desde el servidor: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; data-binding de texto al HTML con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean como formato en el cliente (auditoría E2/E5).
 - **URL de la API de empleados en `Constants.EmployeeApiUrl`** — nunca hardcodeada en el repositorio. TTL de caché en `Constants.EmployeeCacheMinutes` (default 30 min). Ante falla de la API tras el TTL, `EmployeeRepository` sirve la última lista exitosa indefinidamente (`_lastKnownGood`). Solo falla si nunca hubo una llamada exitosa.
   - **Limitación conocida y aceptada:** `_lastKnownGood` es una variable en memoria del proceso de IIS. Si el App Pool se recicla (restart programado, idle timeout, crash) mientras la API externa está caída, la variable se pierde y el siguiente request fallará hasta que la API vuelva a responder. Este riesgo es aceptable dado el contexto (simulador interno de entrenamiento — no es un sistema de producción crítico). Si en el futuro se requiere persistencia ante reciclo, la lista cacheada debería guardarse en disco o en un caché distribuido.
 - **Datos de simulación en stored procedures o scripts SQL** — preguntas LC, parámetros DataCollection, códigos NC van en `Database/StoredProcedures/`. No en arrays dentro de BLL ni en Web.config. Excepción aceptada (D-6 de la auditoría, 2026-10-02): la pregunta del paso Line Clearance ("¿La limpieza de linea se ejecuto?", en `GuidedTest`) es la misma en todas las operaciones y queda en el código.
@@ -335,7 +341,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 
 ## Running Locally & Testing
 
-- Correr local: abrir `TrainingApp.slnx` (VS 2019/2022) → connection string `"Default"` en `Web.config` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` → F5 con IIS Express.
+- Correr local: abrir `TrainingApp.slnx` (VS 2019/2022) → crear `TrainingApp/connectionStrings.config` desde `connectionStrings.config.example` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` → F5 con IIS Express.
 - `TrainingApp.Test/` — NUnit 4 (.NET FW 4.7.2). Integración DAL contra BD de test dedicada (LocalDB); Testcontainers descartado (fricción en FW 4.7.2).
 - Unit tests BLL (services, scoring) con datos en memoria, sin DB. Las ASPX no se prueban (no hay `WebApplicationFactory` en FW).
 - Correr tests: Visual Studio → Test > Run All Tests (Test Explorer).
@@ -346,7 +352,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
    `& "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" "TrainingApp\TrainingApp.csproj" /t:Rebuild /p:Configuration=Debug /v:minimal /nologo "/clp:ErrorsOnly;Summary" /nowarn:MSB3061`
 2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup. Usar una carpeta temporal de ruta **corta** (con rutas largas falla por el límite de Windows, ej. `bootstrap...css.map`):
    `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" (Join-Path $env:TEMP "mespc")`
-3. **Compilar `TrainingApp.Test` y correr los tests** cuando cambie algo de la BLL o el Domain (hoy los tests cubren las reglas puras de BLL; no son criterio de aceptación, ver Fase 5 en pausa):
+3. **Compilar `TrainingApp.Test` y correr los tests** cuando cambie algo de la BLL o el Domain (hoy los tests cubren las reglas puras de BLL; no son criterio de aceptación, ver Fase 5 en pausa; en la auditoría 2026-10 el usuario los dejó fuera):
    `& "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "TrainingApp.Test\bin\Debug\TrainingApp.Test.dll"`
 4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`). No hay scripts de migración: los cambios de esquema van directo a `00_Schema.sql` y el `ALTER` para la BD existente se le entrega al usuario aparte (indicando si después hay que volver a correr algún script de SPs).
 5. **Verificación en navegador por el usuario**: se le entrega un checklist por criterio de aceptación; el usuario prueba y confirma ("funciona") **antes de cada commit**. Nunca afirmar que la UI funciona sin esa confirmación.
