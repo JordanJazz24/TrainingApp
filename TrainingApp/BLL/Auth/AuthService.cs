@@ -53,6 +53,13 @@ namespace TrainingApp.BLL.Auth
                 : LoginResult.Ok(op);
         }
 
+        // Operador local por code1, para re-hidratar la Session cuando se pierde con el login
+        // vigente (SessionHelper; auditoría AUD-15).
+        public Operator GetOperatorByCode1(string code1)
+        {
+            return _operatorRepo.GetByCode1(code1);
+        }
+
         // Cambio de contraseña (auditoría AUD-09, decisión D-3): siempre pide la actual; en el
         // primer acceso la actual es la por defecto. Guardar también activa la cuenta
         // (spOperatorUpdatePassword pone IsFirstLogin = 0).

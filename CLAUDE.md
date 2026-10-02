@@ -223,6 +223,8 @@ Glosario de términos MES (SFC, LC, Shop Order, SFO, Employee vs. Operator, Prod
 MES Training Simulator/                    ← raíz del repositorio
 ├── TrainingApp/                           ← proyecto Web Forms (.NET FW 4.7.2)
 │   ├── Pages/
+│   │   ├── SessionHelper.cs               ← re-hidrata Session (vía AuthService) y aviso
+│   │   │                                     de cambio de contraseña del primer acceso
 │   │   ├── Auth/
 │   │   │   ├── Login.aspx + .cs
 │   │   │   └── ChangePassword.aspx + .cs
@@ -271,8 +273,7 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   └── AssemblyComponent.cs           ← BOM (Qty decimal)
 │   ├── Shared/
 │   │   ├── Constants.cs                   ← DEFAULT_PASSWORD, SessionKeys
-│   │   ├── PasswordHelper.cs              ← hashing y comparación
-│   │   └── SessionHelper.cs               ← re-hidrata Session desde BD
+│   │   └── PasswordHelper.cs              ← hashing y comparación
 │   └── Web.config
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
 ├── Database/

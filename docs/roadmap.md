@@ -97,9 +97,9 @@ se filtran en fases anteriores.
 - **Auditoría del proyecto (2026-10-01): Fase A ✅ · Fase B ✅ · Fase C 🔄.**
   Los hallazgos están en una sola lista priorizada, con severidad, vía y entrega, más
   abajo en "Auditoría 2026-10-01". Decisiones D-1 a D-5 cerradas con el usuario
-  (2026-10-02). **E1 ✅** (bugs del flujo), **E2 ✅** (auth y secretos) y **E3 ✅**
-  (integridad del puntaje), 2026-10-02, verificadas por el usuario. **Siguiente:** E4
-  (capas). Las entregas
+  (2026-10-02). **E1 ✅** (bugs del flujo), **E2 ✅** (auth y secretos), **E3 ✅**
+  (integridad del puntaje) y **E4 ✅** (capas), 2026-10-02, verificadas por el usuario.
+  **Siguiente:** E5 (limpieza). Las entregas
   se acumulan en la rama `audit/fase-a-hallazgos` y se integran a `TrainingApp` al final
   (decisión del usuario). Cada entrega sigue el proceso
   de la Fase C de la auditoría. **Los tests quedan fuera de la
@@ -150,7 +150,7 @@ se filtran en fases anteriores.
   (`if (!Visible) return;`, no sobrescribe la orden) y el guard de sender de
   `HandleControlSubmit`; no hay intento ni cambio de puntaje y el modal se cierra. El
   5 (force-advance en DC) y el 7 (Assembly) quedaron cubiertos por la spec 008.
-- **`GuidedTest` llama a repositorios de la DAL directamente** (`_areaRepo`,
+- ✅ **Resuelto en E4 (AUD-14):** **`GuidedTest` llamaba a repositorios de la DAL directamente** (`_areaRepo`,
   `_productRepo`, `_ncRepo`, `_dcParamRepo`), contra la regla de dependencias de
   CLAUDE.md. El código nuevo de la spec 008 pasa por `TrainingGuideService`; migrar lo
   existente es una tarea aparte. → **AUD-14** (entrega E4 de la auditoría).
@@ -216,8 +216,8 @@ diseño.
 | AUD-11 | Medio | El `HfRows` que manda el cliente se mete sin escapar en un `<script>` (`rsRestoreRows(...)`) y se deserializa sin `try/catch`: un valor con `</script>` rompe la página (XSS propio) y un JSON mal formado da una página de error. | `ResourceSetupControl.ascx.cs:102,130` | Re-serializar lo ya parseado; JSON inválido = aviso de formato (sin intento). | E2 ✅ |
 | AUD-12 | Medio | La Session dura 20 min (no hay `<sessionState>`) y el login 60 con renovación: tras 20 min sin actividad el POD se vacía a mitad de una evaluación. | `Web.config` | `<sessionState timeout="60" />` (arreglo rápido; el de fondo es AUD-26). | E3 ✅ |
 | AUD-13 | Medio | El `StepValidator` se cachea 60 min por área con los flags y catálogos; la página los lee frescos. Tras correr un script de catálogo, la UI y la calificación no coinciden (ej. cambiar `RequiresStartChecklist` deja a Guided atascado en Start). | `TrainingSessionService.cs:237` | Quitar la caché (armarlo es barato) o invalidarla. | E1 ✅ |
-| AUD-14 | Medio | `GuidedTest` usa 4 repositorios de la DAL directamente (ya estaba en la deuda). | `GuidedTest.aspx.cs:23-26` | Pasar por `TrainingGuideService` (`GetArea`, `GetNCCodes`, `GetDataCollectionParameters`). | E4 |
-| AUD-15 | Medio | `SessionHelper` (en `Shared`) usa `OperatorRepository` y `System.Web`: las páginas llegan a la DAL sin pasar por la BLL y se forma un ciclo `Shared` ↔ DAL. | `SessionHelper.cs:30` | `AuthService.GetOperatorByCode1` y mover `SessionHelper` a la capa de presentación. | E4 |
+| AUD-14 | Medio | `GuidedTest` usa 4 repositorios de la DAL directamente (ya estaba en la deuda). | `GuidedTest.aspx.cs:23-26` | Pasar por `TrainingGuideService` (`GetArea`, `GetNCCodes`, `GetDataCollectionParameters`). | E4 ✅ |
+| AUD-15 | Medio | `SessionHelper` (en `Shared`) usa `OperatorRepository` y `System.Web`: las páginas llegan a la DAL sin pasar por la BLL y se forma un ciclo `Shared` ↔ DAL. | `SessionHelper.cs:30` | `AuthService.GetOperatorByCode1` y mover `SessionHelper` a la capa de presentación. | E4 ✅ |
 | AUD-16 | Medio | `GuidedTest.aspx.cs` (1,407 líneas) es el motor real: modifica la orden simulada en el split y decide cuándo una selección de piezas es intento fallido (en NonSerialized, "Complete sin fila" está escrito en la página). | `GuidedTest.aspx.cs:379, 417-440, 655, 726, 867, 915-933` | Un servicio de la BLL dueño de la orden y del avance (ej. `PodService`), con comandos Start/Split/Complete. Incluye AUD-25 y AUD-26. | Spec, entre la 6.5 y la 6.6 (antes de los overlays) |
 | AUD-17 | Bajo | No hay protección CSRF: ni `ViewStateUserKey` ni el token anti-XSRF del template. | `Site.Master.cs`, `Training.master.cs` | `ViewStateUserKey = Session.SessionID` en `Page_Init` de los dos masters. | E2 ✅ |
 | AUD-18 | Bajo | `EscapeJs` no escapa `\`, `\r` ni `</script>`. Hoy solo recibe mensajes del servidor. | `GuidedTest.aspx.cs:1385` | `HttpUtility.JavaScriptStringEncode`. | E2 ✅ |
@@ -256,7 +256,7 @@ diseño.
 | E1 · Bugs del flujo ✅ | AUD-01, 02, 03, 13, 19, 20 | Plan directo (D-1, D-4); AUD-01 incluye un script SQL que corre el usuario | `/code-review` |
 | E2 · Auth y secretos ✅ | AUD-04, 08, 09, 10, 11, 17, 18 | Plan directo (D-3); AUD-04 requiere que el usuario rote la contraseña | `/security-review` |
 | E3 · Integridad del puntaje ✅ | AUD-05, 06, 07, 12 | Plan directo: toca el motor sin cambiar reglas, salvo AUD-07, que alinea el código con `CLAUDE.md` (D-2); AUD-06 incluye SP nuevo | `/code-review` |
-| E4 · Capas | AUD-14, 15 | Mecánico, solo enrutamiento | `/code-review` |
+| E4 · Capas ✅ | AUD-14, 15 | Mecánico, solo enrutamiento | `/code-review` |
 | E5 · Limpieza | AUD-21, 22, 23, 24 | Mecánico | `/code-review` |
 | Spec del motor | AUD-16, 25, 26 | `/spec`, entre la 6.5 y la 6.6 | — |
 

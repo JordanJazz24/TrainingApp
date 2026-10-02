@@ -49,6 +49,23 @@ namespace TrainingApp.BLL.Training
             return _areaRepo.GetByProduct(productId);
         }
 
+        // Área (flags de SerializationType y Requires*) y catálogos que lee el POD; la página
+        // no llama a la DAL directamente (auditoría AUD-14).
+        public Area GetArea(int areaId)
+        {
+            return _areaRepo.GetById(areaId);
+        }
+
+        public IList<NCCode> GetNCCodes(int areaId)
+        {
+            return _ncCodeRepo.GetByArea(areaId);
+        }
+
+        public IList<DataCollectionParameter> GetDataCollectionParameters(int areaId)
+        {
+            return _dcParamRepo.GetByArea(areaId);
+        }
+
         public TrainingGuide GetById(int id)
         {
             return _guideRepo.GetById(id);

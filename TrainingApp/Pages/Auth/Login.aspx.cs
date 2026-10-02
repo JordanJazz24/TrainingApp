@@ -2,8 +2,6 @@ using System;
 using System.Web.Security;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
-using TrainingApp.Domain;
-using TrainingApp.Shared;
 
 namespace TrainingApp.Pages.Auth
 {
@@ -42,26 +40,20 @@ namespace TrainingApp.Pages.Auth
                     ShowError("Contraseña incorrecta.");
                     break;
 
+                // FirstLogin y Success solo difieren en Operator.IsFirstLogin, que
+                // SetOperatorSession guarda en la Session (auditoría AUD-08).
                 case LoginStatus.FirstLogin:
                     FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
-                    SetSession(result.Operator, isFirstLogin: true);
+                    SessionHelper.SetOperatorSession(result.Operator);
                     Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
                     break;
 
                 case LoginStatus.Success:
                     FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
-                    SetSession(result.Operator, isFirstLogin: false);
+                    SessionHelper.SetOperatorSession(result.Operator);
                     Response.Redirect("~/Pages/Training/StartSession.aspx");
                     break;
             }
-        }
-
-        private void SetSession(Operator op, bool isFirstLogin)
-        {
-            Session[Constants.SessionKeys.OperatorId]   = op.Id;
-            Session[Constants.SessionKeys.Code1]        = op.Code1;
-            Session[Constants.SessionKeys.Name]         = op.Name;
-            Session[Constants.SessionKeys.IsFirstLogin] = isFirstLogin;
         }
 
         private void ShowError(string message)

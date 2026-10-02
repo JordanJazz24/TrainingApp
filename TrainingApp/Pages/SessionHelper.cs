@@ -1,12 +1,16 @@
 ﻿using System.Web;
 using System.Web.Security;
-using TrainingApp.DAL.Repositories;
+using TrainingApp.BLL.Auth;
+using TrainingApp.Domain;
+using TrainingApp.Shared;
 
-namespace TrainingApp.Shared
+namespace TrainingApp.Pages
 {
     /// <summary>
     /// Helper para mantener sesión del operador sincronizada con FormsAuthentication.
     /// Previene NullReferenceException cuando Session se pierde pero cookie auth sigue válido.
+    /// Vive en la capa de presentación (usa HttpContext) y lee el operador por la BLL
+    /// (auditoría AUD-15).
     /// </summary>
     public static class SessionHelper
     {
@@ -27,8 +31,7 @@ namespace TrainingApp.Shared
 
             // Session perdida pero FormsAuth sigue válido — re-hidratar desde BD
             string code1 = context.User.Identity.Name;
-            var operatorRepo = new OperatorRepository();
-            var op = operatorRepo.GetByCode1(code1);
+            var op = new AuthService().GetOperatorByCode1(code1);
 
             if (op == null)
             {
@@ -39,11 +42,21 @@ namespace TrainingApp.Shared
             }
 
             // Re-establecer sesión
-            context.Session[Constants.SessionKeys.OperatorId] = op.Id;
-            context.Session[Constants.SessionKeys.Code1] = op.Code1;
-            context.Session[Constants.SessionKeys.Name] = op.Name;
-            context.Session[Constants.SessionKeys.IsFirstLogin] = op.IsFirstLogin;
+            SetOperatorSession(op);
             return true;
+        }
+
+        /// <summary>
+        /// Escribe en la Session los datos del operador autenticado. La usan el login y la
+        /// re-hidratación, así una clave nueva no puede quedar en un solo lado.
+        /// </summary>
+        public static void SetOperatorSession(Operator op)
+        {
+            var session = HttpContext.Current.Session;
+            session[Constants.SessionKeys.OperatorId]   = op.Id;
+            session[Constants.SessionKeys.Code1]        = op.Code1;
+            session[Constants.SessionKeys.Name]         = op.Name;
+            session[Constants.SessionKeys.IsFirstLogin] = op.IsFirstLogin;
         }
 
         /// <summary>

@@ -5,7 +5,6 @@ using System.Web;
 using System.Web.UI;
 using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
-using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
 using TrainingApp.Shared;
@@ -21,12 +20,9 @@ namespace TrainingApp.Pages.Training
         // Cantidad de la fila que deja un SFC Split forzado (D-1; el lote NonSerialized es de 250).
         private const int DefaultSplitQty = 100;
 
-        private readonly TrainingGuideService               _guideService   = new TrainingGuideService();
-        private readonly TrainingSessionService             _sessionService = new TrainingSessionService();
-        private readonly AreaRepository                     _areaRepo       = new AreaRepository();
-        private readonly ProductRepository                  _productRepo    = new ProductRepository();
-        private readonly NCCodeRepository                   _ncRepo         = new NCCodeRepository();
-        private readonly DataCollectionParameterRepository  _dcParamRepo    = new DataCollectionParameterRepository();
+        // El POD lee catálogos y sesión solo a través de la BLL (auditoría AUD-14).
+        private readonly TrainingGuideService   _guideService   = new TrainingGuideService();
+        private readonly TrainingSessionService _sessionService = new TrainingSessionService();
 
 
         // ── Controles de paso estáticos (spec 006) ───────────────────────
@@ -138,7 +134,7 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
 
             var guide = _guideService.GetById(session.TrainingGuideId);
-            var area  = _areaRepo.GetById(guide.AreaId);
+            var area  = _guideService.GetArea(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
             PodMultiSelect = area.SerializationType == SerializationType.Serialized;
@@ -203,7 +199,7 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
 
             var guide = _guideService.GetById(session.TrainingGuideId);
-            var area  = _areaRepo.GetById(guide.AreaId);
+            var area  = _guideService.GetArea(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
             // Guard de sender (spec 006, E12): ASP.NET dispara eventos también en controles
@@ -442,7 +438,7 @@ namespace TrainingApp.Pages.Training
             e.IsApplied = true;
             e.RemainingQty = row.Qty;
             e.NewSfcCode = newSfc;
-            BindWorkList(_areaRepo.GetById(guide.AreaId), session);
+            BindWorkList(_guideService.GetArea(guide.AreaId), session);
         }
 
         // Como el MES real, el split crea un SFC nuevo de la misma Shop Order (enmienda
@@ -1009,7 +1005,7 @@ namespace TrainingApp.Pages.Training
             LitFinalScore.Text   = finalScore.ToString("F1") + "%";
             LitFinalMode.Text    = session.Mode.ToString();
 
-            var products = _productRepo.GetAll();
+            var products = _guideService.GetAllProducts();
             var product  = products.FirstOrDefault(p => p.Id == area.ProductId);
             LitFinalArea.Text    = Page.Server.HtmlEncode(area.Name);
             LitFinalProduct.Text = Page.Server.HtmlEncode(product?.Name ?? "—");
@@ -1067,7 +1063,7 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepType.DataCollection:
-                    var dcParams = _dcParamRepo.GetByArea(area.Id);
+                    var dcParams = _guideService.GetDataCollectionParameters(area.Id);
                     vm.ExtraData["Parameters"] = dcParams;
                     vm.ExtraData["Groups"]     = _guideService.GetDataCollectionGroups(area.Id);
                     var dcProgress = GetDataCollectionProgress(session);
@@ -1088,7 +1084,7 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepType.LogNC:
-                    vm.ExtraData["NCCodes"] = _ncRepo.GetByArea(area.Id);
+                    vm.ExtraData["NCCodes"] = _guideService.GetNCCodes(area.Id);
                     vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
                     // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
                     var ncPieces = FindSelectedOrderRows(session);
@@ -1126,7 +1122,7 @@ namespace TrainingApp.Pages.Training
 
         private string BuildMaterialDescription(Area area)
         {
-            var product = _productRepo.GetAll().FirstOrDefault(p => p.Id == area.ProductId);
+            var product = _guideService.GetAllProducts().FirstOrDefault(p => p.Id == area.ProductId);
             return (product?.Name ?? "") + " / " + area.Name;
         }
 
@@ -1409,7 +1405,7 @@ namespace TrainingApp.Pages.Training
             var session = LoadAndValidateSession();
             if (session == null) return (null, null, null, null);
             var guide = _guideService.GetById(session.TrainingGuideId);
-            var area  = _areaRepo.GetById(guide.AreaId);
+            var area  = _guideService.GetArea(guide.AreaId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
             return (session, guide, area, step);
         }

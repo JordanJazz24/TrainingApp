@@ -360,7 +360,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Shared\SessionHelper.cs" />
+    <Compile Include="Pages\SessionHelper.cs" />
     <Compile Include="UI\master\AntiXsrfMasterPage.cs" />
     <Compile Include="UI\master\Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
