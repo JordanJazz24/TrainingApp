@@ -19,9 +19,9 @@ se filtran en fases anteriores.
 el usuario confirme el cierre) y se hizo una **auditoría completa** del proyecto: 32
 hallazgos, 8 decisiones (D-1…D-8) y 5 entregas corregidas y verificadas en el navegador
 (E1-E5), ya en `TrainingApp`, en `main` y con push. Detalle en "Auditoría 2026-10-01", más
-abajo. **Qué sigue**, con el orden a confirmar con el usuario: (1) confirmar el cierre de
-la 6.5; (2) **spec del motor** de la auditoría (AUD-16, 25, 26), que la auditoría propone
-antes de la 6.6; (3) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
+abajo. El 2026-10-02 el usuario confirmó el cierre de la 6.5 y el orden. **Qué sigue:**
+(1) **spec del motor** de la auditoría (AUD-16, 25, 26) → `docs/specs/009-motor-pod.md`,
+en redacción; (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
 y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
@@ -69,8 +69,8 @@ y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
     spec: recorrido pieza por pieza).
   - Verificado en navegador por el usuario: Redefinity de punta a punta y regresión de
     Moldeo en Guided y Assessment.
-- **Fase 6.5 — Fidelidad de UI/UX con el SAP MES real 🔄 (en curso, formalizada
-  2026-09-29).** Nació como mini-fase de ajustes de UI tras la spec 008. Objetivo:
+- **Fase 6.5 — Fidelidad de UI/UX con el SAP MES real ✅ (formalizada 2026-09-29,
+  cierre confirmado por el usuario 2026-10-02).** Nació como mini-fase de ajustes de UI tras la spec 008. Objetivo:
   dejar cerrada la interfaz antes de los overlays guiados (Fase 6.6), que se anclan a
   ella. Detalle, alcance y criterio de cierre abajo, en "Fase 6.5".
   - **Entregas 1-9 ✅** (2026-09-29 a 2026-10-01, verificadas por el usuario; plan con
@@ -90,8 +90,8 @@ y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
     pantallas con captura están fieles (POD y Browse con diferencias menores aceptadas por
     el usuario). Sin captura, sin bloquear: los 4 modales del Start de Moldeo y el
     resultado de Complete.
-  - **Ahora:** confirmar con el usuario el cierre de la 6.5. Después, la spec del motor de
-    la auditoría (propuesta antes de la 6.6) y la spec de la 6.6.
+  - **Cerrada (2026-10-02).** Orden confirmado por el usuario: ahora la spec del motor de
+    la auditoría (`docs/specs/009-motor-pod.md`), después la spec de la 6.6.
 - **Después — Fase 6.6 · Overlays guiados** (requiere `/spec`), sobre la interfaz ya
   cerrada. Ver "Fase 6.6" abajo.
 - **Fase 7 (LoFlo)** solo espera el bloqueante #3: los flags reales de LoFlo, a
@@ -446,7 +446,7 @@ return to POD, txtSFC, resaltado de fila, score final), `f54ff50` (spec 007),
 
 ---
 
-### Fase 6.5 — Fidelidad de UI/UX con el SAP MES real 🔄 (en curso, formalizada 2026-09-29)
+### Fase 6.5 — Fidelidad de UI/UX con el SAP MES real ✅ (formalizada 2026-09-29, cerrada 2026-10-02)
 **Objetivo:** que cada pantalla y modal del POD replique su captura del SAP MES real
 (estructura, textos, colores y comportamiento visual), y dejar la interfaz cerrada antes
 de los overlays guiados de la Fase 6.6, que se anclan a ella.
@@ -463,7 +463,9 @@ correcciones del usuario = una entrega (ronda de preguntas si hace falta + plan 
 checklist → prueba del usuario → commit → actualizar el inventario.
 **Commits:** `48b67c1` (entrega 1), `fbcd132` (2), `8fde133` (3), `b832e77` (4),
 `f432462` (formalización + inventario), `c38fe94` (5), `70e5e8e` (6), `03d767b` (7),
-`4ca602c` (8) y la entrega 9 (SFC Split + SFC nuevo en el split).
+`4ca602c` (8), `f9aa1c7` (9), `c8d99d4` y `2f550eb` (ajustes finales).
+**Cierre (2026-10-02):** el usuario confirmó el cierre con el inventario en ✅ 14 · 🟡 0 ·
+⚪ 2 (sin captura: los 4 modales del Start de Moldeo y el resultado de Complete).
 
 ---
 
