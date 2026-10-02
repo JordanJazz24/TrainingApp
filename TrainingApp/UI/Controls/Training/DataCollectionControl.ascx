@@ -20,12 +20,12 @@
         <ItemTemplate>
             <div class="mes-list-row">
                 <div class="mes-list-key">
-                    <div class="mes-list-code"><%# Eval("GroupCode") %></div>
+                    <div class="mes-list-code"><%#: Eval("GroupCode") %></div>
                 </div>
                 <div class="mes-list-center">
-                    <div class="mes-list-text"><%# Eval("Description") %></div>
+                    <div class="mes-list-text"><%#: Eval("Description") %></div>
                     <div class="mes-list-sub">
-                        <span class="mes-list-label">Collect Data At:</span> <%# Eval("CollectDataAt") %>
+                        <span class="mes-list-label">Collect Data At:</span> <%#: Eval("CollectDataAt") %>
                     </div>
                 </div>
                 <div class="mes-list-actions">

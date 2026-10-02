@@ -28,7 +28,8 @@ namespace TrainingApp.BLL.Scoring
         //   Assembly                        : no se valida por Answer: el paso se completa en
         //                                     TrainingSessionService.AssembleComponent al quedar
         //                                     ensamblado todo el BOM (spec 008)
-        //   DataCollection                  : JSON {"<paramId>":"<value>", ...}
+        //   DataCollection                  : no se valida por Answer: se califica por DC Group en
+        //                                     ValidateDataCollectionGroup (spec 008)
         //   SFC_Split                       : "split-completed"
         //   LogNC                           : NC code string  (e.g. "F_FS_MANCHAS"); a value outside the
         //                                     catalog is incorrect (wrong button / invalid row — spec 007)
@@ -52,10 +53,8 @@ namespace TrainingApp.BLL.Scoring
                     return submittedAnswer == "true";
 
                 case StepType.Assembly:
-                    return false;
-
                 case StepType.DataCollection:
-                    return ValidateDataCollection(submittedAnswer);
+                    return false;
 
                 case StepType.SFC_Split:
                     return submittedAnswer == "split-completed";
@@ -141,41 +140,6 @@ namespace TrainingApp.BLL.Scoring
                 if (!ValidateParamValue(param, value))
                     return false;
             }
-            return true;
-        }
-
-        private bool ValidateDataCollection(string submittedAnswer)
-        {
-            if (string.IsNullOrWhiteSpace(submittedAnswer))
-                return false;
-
-            Dictionary<string, string> submitted;
-            try
-            {
-                submitted = JsonConvert.DeserializeObject<Dictionary<string, string>>(submittedAnswer);
-            }
-            catch (JsonException)
-            {
-                return false;
-            }
-
-            if (submitted == null || submitted.Count == 0)
-                return false;
-
-            foreach (var kvp in submitted)
-            {
-                int paramId;
-                if (!int.TryParse(kvp.Key, out paramId))
-                    return false;
-
-                var param = _ctx.DataCollectionParams.FirstOrDefault(p => p.Id == paramId);
-                if (param == null)
-                    return false;
-
-                if (!ValidateParamValue(param, kvp.Value))
-                    return false;
-            }
-
             return true;
         }
 

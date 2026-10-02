@@ -109,7 +109,7 @@ namespace TrainingApp.UI.Controls.Training
 
             TxtBarcode.Text = string.Empty;
             OnComponentAssembled?.Invoke(this,
-                new ComponentAssembledEventArgs { ComponentId = componentId, Barcode = barcode });
+                new ComponentAssembledEventArgs { ComponentId = componentId });
         }
 
         protected void BtnReturnPOD_Click(object sender, EventArgs e)

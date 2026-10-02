@@ -9,7 +9,10 @@ namespace TrainingApp.UI.Controls.Training
     public partial class CompleteControl : UserControl, IStepControl
     {
         public StepViewModel ViewModel { get; set; }
-        public event EventHandler<StepSubmitEventArgs> OnStepSubmit;
+
+        // Parte del contrato IStepControl; sin UI el evento nunca se dispara, así que no
+        // guarda suscriptores (como en DataCollectionControl; auditoría AUD-21, CS0067).
+        public event EventHandler<StepSubmitEventArgs> OnStepSubmit { add { } remove { } }
 
         public void Initialize() { }
     }

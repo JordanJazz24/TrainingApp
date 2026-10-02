@@ -23,8 +23,8 @@
                 <ItemTemplate>
                     <div class="nc-cell" data-nc-index="<%# Container.ItemIndex %>">
                         <div class="nc-info">
-                            <div class="nc-code"><%# Eval("Code") %></div>
-                            <div class="nc-desc"><%# Eval("Description") %></div>
+                            <div class="nc-code"><%#: Eval("Code") %></div>
+                            <div class="nc-desc"><%#: Eval("Description") %></div>
                         </div>
                         <asp:Button ID="BtnLogNC" runat="server"
                             CssClass="mes-btn mes-ico mes-ico-lognc"

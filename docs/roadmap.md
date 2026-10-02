@@ -94,19 +94,20 @@ se filtran en fases anteriores.
      parámetros (tipo, unidad, rangos).
   3. Códigos NC de LoFlo.
   4. BOM (números de parte y cantidades): puede seguir **simulado** (decisión del usuario).
-- **Auditoría del proyecto (2026-10-01): Fase A ✅ · Fase B ✅ · Fase C 🔄.**
-  Los hallazgos están en una sola lista priorizada, con severidad, vía y entrega, más
-  abajo en "Auditoría 2026-10-01". Decisiones D-1 a D-5 cerradas con el usuario
-  (2026-10-02). **E1 ✅** (bugs del flujo), **E2 ✅** (auth y secretos), **E3 ✅**
-  (integridad del puntaje) y **E4 ✅** (capas), 2026-10-02, verificadas por el usuario.
-  **Siguiente:** E5 (limpieza). Las entregas
-  se acumulan en la rama `audit/fase-a-hallazgos` y se integran a `TrainingApp` al final
-  (decisión del usuario). Cada entrega sigue el proceso
-  de la Fase C de la auditoría. **Los tests quedan fuera de la
-  auditoría y de sus correcciones** por decisión del usuario.
-- **Mientras llega la respuesta de negocio** (opciones, sin orden decidido): entregas de
-  la auditoría (Fase C); Fase 5 (tests de `ScoreCalculator`/`StepValidator`, el
-  usuario la quiere al final). Preguntar al usuario antes de elegir.
+- **Auditoría del proyecto (2026-10-01 / 2026-10-02): Fases A, B y C ✅.** Lista única,
+  decisiones D-1 a D-5 y entregas abajo, en "Auditoría 2026-10-01". Las 5 entregas chicas
+  (E1 bugs del flujo, E2 auth y secretos, E3 integridad del puntaje, E4 capas, E5 limpieza)
+  se verificaron en el navegador y se integraron a `TrainingApp` (fast-forward desde la
+  rama `audit/fase-a-hallazgos`, 2026-10-02). El build quedó en 0 warnings. **Los tests
+  quedaron fuera** por decisión del usuario. Lo que sigue abierto de la auditoría:
+  - **Spec del motor** (AUD-16, 25, 26): sacar de `GuidedTest` la lógica del POD a la BLL y
+    persistir su estado en BD. Antes de la 6.6, porque los overlays se anclan a esa página.
+  - **Fase 7:** AUD-27 (pregunta de Line Clearance al catálogo).
+  - **Fase 9:** AUD-28 (endurecimiento del deploy) y AUD-29 (actualizar paquetes).
+  - **Acción del usuario:** rotar la contraseña de `sa` (AUD-04; sigue en el historial de git).
+- **Mientras llega la respuesta de negocio** (opciones, sin orden decidido): spec del motor
+  de la auditoría; Fase 5 (tests de `ScoreCalculator`/`StepValidator`, el usuario la quiere
+  al final). Preguntar al usuario antes de elegir.
 
 ### Cómo retomar en una sesión nueva
 1. Leer esta sección y `git log --oneline -10` (branch `TrainingApp`; no hay push pendiente
@@ -223,10 +224,10 @@ diseño.
 | AUD-18 | Bajo | `EscapeJs` no escapa `\`, `\r` ni `</script>`. Hoy solo recibe mensajes del servidor. | `GuidedTest.aspx.cs:1385` | `HttpUtility.JavaScriptStringEncode`. | E2 ✅ |
 | AUD-19 | Bajo | Assembly muestra "Component X assembled" aunque la BLL haya rechazado el componente (id fuera del BOM). | `GuidedTest.aspx.cs:319` | Revisar `AssemblySubmitResult.ComponentAssembled`, que hoy nadie lee. | E1 ✅ |
 | AUD-20 | Bajo | `catch {}` vacíos al leer el JSON de las respuestas. | `StepValidator.cs:120,151` | Capturar solo `JsonException`. | E1 ✅ |
-| AUD-21 | Bajo | Código muerto C#: `BuildMoldeoLCQuestions`, `ScoreCalculator.CalculateStepScore` (ya borrado en E3), `StepValidator.ValidateDataCollection` (inalcanzable y más laxo que el de grupos), 6 propiedades de `StepViewModel` (`StepId`, `StepType`, `StepOrder`, `Hint`, `IsCorrect`, `AttemptCount`), `ComponentAssembledEventArgs.Barcode`, `ExtraData["AreaName"]`, `.mes-ico-retrieve`, los `Page_Load` vacíos de los masters y el evento de `CompleteControl` (CS0067). | Varios | Borrar. **Antes revisar:** `StepSubmitResult.CurrentScore` (también sin lectores) conviene usarlo (AUD-25), no borrarlo. | E5 |
-| AUD-22 | Bajo | El proyecto **web** referencia `Microsoft.ApplicationInsights` (sin uso) y 6 paquetes de testing (`Microsoft.Testing.*`, `TestPlatform.ObjectModel`), que además generan un `Main` en `obj/`. | `packages.config`, `TrainingApp.csproj:3-5, 50-77` | Quitarlos con NuGet (tienen dependencias transitivas). | E5 |
-| AUD-23 | Bajo | Restos del template de VS: `Site.Master` muestra "Application name" y enlaces a `~/About` y `~/Contact` (404); ~45 archivos estáticos sin uso (variantes de Bootstrap/jQuery, MsAjax, Menu, SmartNav); Modernizr y los bundles MsAjax sin uso; jQuery probablemente cargado dos veces en el POD; 2 líneas basura en `.gitignore`; ~16 `using` sin uso. | `UI/master/Site.Master`, `Content/`, `Scripts/`, `App_Start/BundleConfig.cs`, `.gitignore` | Limpiar. Conservar `WebForms.js`, `WebUIValidation.js`, `Focus.js` y el mapping `jquery` (los usan los validadores). | E5 |
-| AUD-24 | Bajo | Los data-binding usan `<%# Eval(...) %>` sin codificar. Hoy los datos vienen de la BD o son números validados. | `GuidedTest.aspx:153-166, 342-350`, `DataCollectionControl.ascx`, `LogNCControl.ascx` | `<%#: ... %>` por consistencia. | E5 |
+| AUD-21 | Bajo | Código muerto C#: `BuildMoldeoLCQuestions`, `ScoreCalculator.CalculateStepScore` (ya borrado en E3), `StepValidator.ValidateDataCollection` (inalcanzable y más laxo que el de grupos), 6 propiedades de `StepViewModel` (`StepId`, `StepType`, `StepOrder`, `Hint`, `IsCorrect`, `AttemptCount`), `ComponentAssembledEventArgs.Barcode`, `ExtraData["AreaName"]`, `.mes-ico-retrieve`, los `Page_Load` vacíos de los masters y el evento de `CompleteControl` (CS0067). | Varios | Borrar. **Antes revisar:** `StepSubmitResult.CurrentScore` (también sin lectores) conviene usarlo (AUD-25), no borrarlo. | E5 ✅ |
+| AUD-22 | Bajo | El proyecto **web** referencia `Microsoft.ApplicationInsights` (sin uso) y 6 paquetes de testing (`Microsoft.Testing.*`, `TestPlatform.ObjectModel`), que además generan un `Main` en `obj/`. | `packages.config`, `TrainingApp.csproj:3-5, 50-77` | Quitarlos con NuGet (tienen dependencias transitivas). | E5 ✅ |
+| AUD-23 | Bajo | Restos del template de VS: `Site.Master` muestra "Application name" y enlaces a `~/About` y `~/Contact` (404); ~45 archivos estáticos sin uso (variantes de Bootstrap/jQuery, MsAjax, Menu, SmartNav); Modernizr y los bundles MsAjax sin uso; jQuery probablemente cargado dos veces en el POD; 2 líneas basura en `.gitignore`; ~16 `using` sin uso. | `UI/master/Site.Master`, `Content/`, `Scripts/`, `App_Start/BundleConfig.cs`, `.gitignore` | Limpiar. Conservar `WebForms.js`, `WebUIValidation.js`, `Focus.js` y el mapping `jquery` (los usan los validadores). | E5 ✅ |
+| AUD-24 | Bajo | Los data-binding usan `<%# Eval(...) %>` sin codificar. Hoy los datos vienen de la BD o son números validados. | `GuidedTest.aspx:153-166, 342-350`, `DataCollectionControl.ascx`, `LogNCControl.ascx` | `<%#: ... %>` por consistencia. | E5 ✅ |
 | AUD-25 | Bajo | Unas 15 conexiones a SQL por click en el POD: `GetContext` recarga sesión, guía y área; `UpdateScoreWidget` vuelve a consultar; `RecordAttempt` calcula el puntaje y lo descarta. | `GuidedTest.aspx.cs`, `TrainingSessionService.cs:195-224` | Usar `StepSubmitResult.CurrentScore` y cargar el contexto una vez por request. | Con AUD-16 |
 | AUD-26 | Bajo | La orden simulada y el avance de DC/Assembly viven solo en la Session (ya estaba en la deuda, spec 008 E7). | `GuidedTest.aspx.cs`, `Constants.SessionKeys` | Persistirlos en BD por sesión. | Con AUD-16 |
 | AUD-27 | Bajo | La pregunta de Line Clearance está en el code-behind, contra "datos de simulación en SQL" de `CLAUDE.md`. | `GuidedTest.aspx.cs:1030` | Moverla al catálogo por área. | Fase 7 (LoFlo necesitará la suya) |
@@ -257,8 +258,10 @@ diseño.
 | E2 · Auth y secretos ✅ | AUD-04, 08, 09, 10, 11, 17, 18 | Plan directo (D-3); AUD-04 requiere que el usuario rote la contraseña | `/security-review` |
 | E3 · Integridad del puntaje ✅ | AUD-05, 06, 07, 12 | Plan directo: toca el motor sin cambiar reglas, salvo AUD-07, que alinea el código con `CLAUDE.md` (D-2); AUD-06 incluye SP nuevo | `/code-review` |
 | E4 · Capas ✅ | AUD-14, 15 | Mecánico, solo enrutamiento | `/code-review` |
-| E5 · Limpieza | AUD-21, 22, 23, 24 | Mecánico | `/code-review` |
+| E5 · Limpieza ✅ | AUD-21, 22, 23, 24 | Mecánico | `/code-review` |
 | Spec del motor | AUD-16, 25, 26 | `/spec`, entre la 6.5 y la 6.6 | — |
+
+**Pendientes menores de E5, dejados a propósito:** las `ScriptReference` del template en `Site.Master` (MenuStandards, GridView, DetailsView, TreeView, WebParts y los bundles MsAjax) siguen cargándose aunque ninguna página las use, porque quitarlas tiene riesgo sobre los validadores y casi ningún beneficio. Reinstalar los paquetes de contenido (`bootstrap`, `jQuery`, `ScriptManager.MSAjax`) devolvería los archivos que E5 borró, así que habría que borrarlos de nuevo. Separar `IStepControl` (los controles que nunca envían dejan el evento con accessors vacíos) va con la spec del motor.
 
 Ninguna entrega toca la fidelidad de UI de la 6.5 (respeta su "No incluye"). Proceso de
 cada entrega: implementar → `/dotnet-claude-kit:verify` con MSBuild Rebuild y

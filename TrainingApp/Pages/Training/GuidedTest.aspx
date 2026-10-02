@@ -151,19 +151,19 @@
                             <asp:Repeater ID="RptWorkList" runat="server">
                                 <ItemTemplate>
                                     <tr class="<%# (bool)Eval("IsSelected") ? "selected" : "" %>"
-                                        data-sfc="<%# Eval("SFCCode") %>"
-                                        data-row-id="<%# Eval("RowId") %>"
+                                        data-sfc="<%#: Eval("SFCCode") %>"
+                                        data-row-id="<%#: Eval("RowId") %>"
                                         onclick="selectWorkListRow(this)">
                                         <td class="row-selector-col"></td>
-                                        <td><%# Eval("SFCCode") %></td>
-                                        <td><%# Eval("MaterialDescription") %></td>
-                                        <td><%# Eval("Qty") %></td>
+                                        <td><%#: Eval("SFCCode") %></td>
+                                        <td><%#: Eval("MaterialDescription") %></td>
+                                        <td><%#: Eval("Qty") %></td>
                                         <td>
                                             <span class="status-badge status-<%# ((string)Eval("Status") == "Active" ? "active" : "default") %>"
-                                                title="<%# Eval("Status") %>"></span>
+                                                title="<%#: Eval("Status") %>"></span>
                                         </td>
-                                        <td><%# Eval("ProcessLot") %></td>
-                                        <td><%# Eval("ShopOrder") %></td>
+                                        <td><%#: Eval("ProcessLot") %></td>
+                                        <td><%#: Eval("ShopOrder") %></td>
                                     </tr>
                                 </ItemTemplate>
                             </asp:Repeater>
@@ -339,15 +339,15 @@
                         <tbody id="browseWorkListBody">
                             <asp:Repeater ID="RptBrowseList" runat="server">
                                 <ItemTemplate>
-                                    <tr class="browse-row" data-sfc="<%# Eval("SFCCode") %>"
-                                        data-row-id="<%# Eval("RowId") %>"
+                                    <tr class="browse-row" data-sfc="<%#: Eval("SFCCode") %>"
+                                        data-row-id="<%#: Eval("RowId") %>"
                                         data-shop-order="<%#: Eval("ShopOrder") %>"
                                         onclick="selectBrowseRow(this)" style="cursor:pointer">
                                         <td class="row-selector-col"></td>
-                                        <td><%# Eval("SFCCode") %></td>
-                                        <td><%# Eval("MaterialDescription") %></td>
-                                        <td><%# Eval("ScheduleStart") %></td>
-                                        <td><%# Eval("PlannedCompletion") %></td>
+                                        <td><%#: Eval("SFCCode") %></td>
+                                        <td><%#: Eval("MaterialDescription") %></td>
+                                        <td><%#: Eval("ScheduleStart") %></td>
+                                        <td><%#: Eval("PlannedCompletion") %></td>
                                     </tr>
                                 </ItemTemplate>
                             </asp:Repeater>

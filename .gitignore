@@ -4,9 +4,7 @@ bin/
 obj/
 
 # Build artifacts
-2
 **/bin/
-3
 **/obj/
 
 # User-specific files

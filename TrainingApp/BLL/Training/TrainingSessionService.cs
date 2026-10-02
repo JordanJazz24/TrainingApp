@@ -73,6 +73,12 @@ namespace TrainingApp.BLL.Training
             var guide = _guideService.GetById(session.TrainingGuideId);
             var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
+            // Assembly y Data Collection se califican en AssembleComponent y
+            // SubmitDataCollectionGroup: un envío por respuesta en esos pasos es un error de
+            // programación, no un intento fallido (auditoría AUD-21).
+            if (step.StepType == StepType.Assembly || step.StepType == StepType.DataCollection)
+                throw new InvalidOperationException("El paso actual no se califica por respuesta.");
+
             var validator = _guideService.BuildValidatorForGuide(guide);
             bool isCorrect = validator.Validate(step, submittedAnswer);
 

@@ -1027,14 +1027,7 @@ namespace TrainingApp.Pages.Training
         private StepViewModel BuildStepViewModel(TrainingStep step, Area area,
             TrainingSession session, TrainingGuide guide)
         {
-            var vm = new StepViewModel
-            {
-                StepId       = step.Id,
-                StepType     = step.StepType,
-                StepOrder    = step.Order,
-                Hint         = GetHint(step.StepType),
-                AttemptCount = 0
-            };
+            var vm = new StepViewModel();
 
             // Spec 005: BuildSimulatedSFCCode ya no existe — el SFC real vive en la
             // SimulatedOrder de sesión. Antes de Resource Setup no hay orden aún,
@@ -1046,12 +1039,10 @@ namespace TrainingApp.Pages.Training
                 sfcCode = DescribeSelection(FindSelectedOrderRows(session));
             if (string.IsNullOrEmpty(sfcCode))
                 sfcCode = "—";
-            string areaName   = area.Name;
-            string resourceName = areaName + "-01";
+            string resourceName = area.Name + "-01";
             string opName     = guide.Title;
 
             vm.ExtraData["SFCCode"]      = sfcCode;
-            vm.ExtraData["AreaName"]     = areaName;
             vm.ExtraData["ResourceName"] = resourceName;
             vm.ExtraData["OperationName"] = opName;
             vm.ExtraData["Site"]         = "CR9A";
@@ -1128,16 +1119,6 @@ namespace TrainingApp.Pages.Training
 
         private static int GetInitialQty(Area area)
             => area.SerializationType == SerializationType.NonSerialized ? 250 : 1;
-
-        private static IList<object> BuildMoldeoLCQuestions()
-        {
-            return new List<object>
-            {
-                new { QuestionText = "¿Se verificaron las etiquetas de calibración?" },
-                new { QuestionText = "¿Se verificó el IDMold & IDIMM según MSS?" },
-                new { QuestionText = "¿La línea está libre de materiales anteriores?" }
-            };
-        }
 
         // ── Session validation ───────────────────────────────────────────
         private TrainingSession LoadAndValidateSession()
