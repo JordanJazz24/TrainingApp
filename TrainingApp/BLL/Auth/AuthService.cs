@@ -53,10 +53,23 @@ namespace TrainingApp.BLL.Auth
                 : LoginResult.Ok(op);
         }
 
-        public void ActivateAccount(int operatorId, string newPassword)
+        // Cambio de contraseña (auditoría AUD-09, decisión D-3): siempre pide la actual; en el
+        // primer acceso la actual es la por defecto. Guardar también activa la cuenta
+        // (spOperatorUpdatePassword pone IsFirstLogin = 0).
+        public ChangePasswordStatus ChangePassword(string code1, string currentPassword, string newPassword)
         {
-            string hash = PasswordHelper.Hash(newPassword);
-            _operatorRepo.UpdatePassword(operatorId, hash);
+            var op = _operatorRepo.GetByCode1(code1);
+            if (op == null)
+                return ChangePasswordStatus.OperatorNotFound;
+
+            if (!PasswordHelper.Verify(currentPassword ?? string.Empty, op.PasswordHash))
+                return ChangePasswordStatus.InvalidCurrentPassword;
+
+            if (newPassword == Constants.DEFAULT_PASSWORD)
+                return ChangePasswordStatus.NewPasswordIsDefault;
+
+            _operatorRepo.UpdatePassword(op.Id, PasswordHelper.Hash(newPassword));
+            return ChangePasswordStatus.Success;
         }
     }
 }

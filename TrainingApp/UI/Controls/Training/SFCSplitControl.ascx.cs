@@ -1,4 +1,5 @@
 using System;
+using System.Web;
 using System.Web.UI;
 using TrainingApp.Pages.Training.Models;
 
@@ -102,11 +103,8 @@ namespace TrainingApp.UI.Controls.Training
         private void ShowWarning(string title, string text)
         {
             Page.ClientScript.RegisterStartupScript(GetType(), "swalSFCSplit",
-                "Swal.fire({icon:'warning',title:'" + EscapeJs(title) +
-                "',text:'" + EscapeJs(text) + "'});", true);
+                "Swal.fire({icon:'warning',title:'" + HttpUtility.JavaScriptStringEncode(title ?? string.Empty) +
+                "',text:'" + HttpUtility.JavaScriptStringEncode(text ?? string.Empty) + "'});", true);
         }
-
-        private static string EscapeJs(string value)
-            => (value ?? string.Empty).Replace("\\", "\\\\").Replace("'", "\\'").Replace("\r", "").Replace("\n", "\\n");
     }
 }

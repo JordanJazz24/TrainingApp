@@ -12,28 +12,45 @@ namespace TrainingApp.Pages.Auth
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!User.Identity.IsAuthenticated)
+            // Re-hidrata la Session si se perdió con el login vigente (auditoría AUD-10).
+            if (!SessionHelper.EnsureOperatorSession())
+            {
                 Response.Redirect("~/Pages/Auth/Login.aspx");
+                return;
+            }
+
+            if (!IsPostBack)
+                PhFirstLogin.Visible = SessionHelper.MustChangePassword();
         }
 
+        // Las reglas (contraseña actual correcta, nueva distinta de la por defecto) viven en
+        // AuthService (auditoría AUD-09); aquí solo se muestra el resultado.
         protected void BtnSave_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
 
-            if (TxtNewPassword.Text == Constants.DEFAULT_PASSWORD)
+            var status = _authService.ChangePassword(User.Identity.Name,
+                TxtCurrentPassword.Text, TxtNewPassword.Text);
+
+            switch (status)
             {
-                ShowError("La nueva contraseña no puede ser la contraseña por defecto.");
-                return;
+                case ChangePasswordStatus.InvalidCurrentPassword:
+                    ShowError("La contraseña actual no es correcta.");
+                    return;
+
+                case ChangePasswordStatus.NewPasswordIsDefault:
+                    ShowError("La nueva contraseña no puede ser la contraseña por defecto.");
+                    return;
+
+                case ChangePasswordStatus.OperatorNotFound:
+                    // Operador eliminado con el login vigente: se cierra la sesión.
+                    FormsAuthentication.SignOut();
+                    Session.Abandon();
+                    Response.Redirect("~/Pages/Auth/Login.aspx");
+                    return;
             }
 
-            var operatorId = Session[Constants.SessionKeys.OperatorId];
-            if (operatorId == null)
-            {
-                Response.Redirect("~/Pages/Auth/Login.aspx");
-                return;
-            }
-
-            _authService.ActivateAccount((int)operatorId, TxtNewPassword.Text);
+            Session[Constants.SessionKeys.IsFirstLogin] = false;
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 

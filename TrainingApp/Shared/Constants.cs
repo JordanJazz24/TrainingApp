@@ -16,6 +16,9 @@ namespace TrainingApp.Shared
             public const string Code1      = "Code1";
             public const string Name       = "Name";
 
+            // true mientras el operador no cambió la contraseña del primer acceso (AUD-08).
+            public const string IsFirstLogin = "IsFirstLogin";
+
             // Prefijo de clave de Session para la SimulatedOrder del POD (spec 005).
             // Clave completa: SimulatedOrderPrefix + TrainingSession.Id
             public const string SimulatedOrderPrefix = "GDT_SimOrder_";

@@ -57,3 +57,6 @@ node_modules/
 # Environment files
 .env
 .env.*
+
+# Cadena de conexión local (auditoría AUD-04; plantilla: connectionStrings.config.example)
+TrainingApp/connectionStrings.config

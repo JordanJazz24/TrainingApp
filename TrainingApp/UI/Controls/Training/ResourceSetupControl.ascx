@@ -286,6 +286,15 @@
             return false;
         }
 
+        // 7. Sin < ni >: la validación de solicitudes de ASP.NET rechaza el postback con
+        //    marcado y el operador vería una página de error (auditoría AUD-11).
+        var markupRow = rows.some(function(r) { return /[<>]/.test(r.value); });
+        if (markupRow) {
+            rsShowError('Caracteres no permitidos',
+                'Los valores no pueden contener los caracteres < ni >.');
+            return false;
+        }
+
         // All validations passed — populate hidden fields for PostBack
         document.getElementById('HfRows').value       = JSON.stringify(rows);
         document.getElementById('HfSetupState').value = setupState;

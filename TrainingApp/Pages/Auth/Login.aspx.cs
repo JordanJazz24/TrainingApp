@@ -2,6 +2,7 @@ using System;
 using System.Web.Security;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
+using TrainingApp.Domain;
 using TrainingApp.Shared;
 
 namespace TrainingApp.Pages.Auth
@@ -43,23 +44,24 @@ namespace TrainingApp.Pages.Auth
 
                 case LoginStatus.FirstLogin:
                     FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
-                    SetSession(result.Operator.Id, result.Operator.Code1, result.Operator.Name);
+                    SetSession(result.Operator, isFirstLogin: true);
                     Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
                     break;
 
                 case LoginStatus.Success:
                     FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
-                    SetSession(result.Operator.Id, result.Operator.Code1, result.Operator.Name);
+                    SetSession(result.Operator, isFirstLogin: false);
                     Response.Redirect("~/Pages/Training/StartSession.aspx");
                     break;
             }
         }
 
-        private void SetSession(int operatorId, string code1, string name)
+        private void SetSession(Operator op, bool isFirstLogin)
         {
-            Session[Constants.SessionKeys.OperatorId] = operatorId;
-            Session[Constants.SessionKeys.Code1]      = code1;
-            Session[Constants.SessionKeys.Name]       = name;
+            Session[Constants.SessionKeys.OperatorId]   = op.Id;
+            Session[Constants.SessionKeys.Code1]        = op.Code1;
+            Session[Constants.SessionKeys.Name]         = op.Name;
+            Session[Constants.SessionKeys.IsFirstLogin] = isFirstLogin;
         }
 
         private void ShowError(string message)

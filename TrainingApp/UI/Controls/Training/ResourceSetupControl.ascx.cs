@@ -70,7 +70,11 @@ namespace TrainingApp.UI.Controls.Training
             // Server-side validation (primary gate: client rsPrepareSubmit() should catch
             // these first, but we validate here as a reliable fallback). Solo formato: el
             // Setup State es una decisión del operador y lo califica StepValidator.
-            if (string.IsNullOrEmpty(rowsJson) || rowsJson == "[]")
+            // HfRows llega del cliente: se parsea una vez y lo que vuelve al script o a la
+            // respuesta se re-serializa (escapa < > ' &). JSON inválido = formato, sin intento
+            // (auditoría AUD-11).
+            var rows = TryParseRows(rowsJson);
+            if (rows == null || rows.Count == 0)
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
                     "Swal.fire({icon:'warning',title:'Sin recursos'," +
@@ -81,7 +85,7 @@ namespace TrainingApp.UI.Controls.Training
             // Server-side fallback: extraer y validar el Shop Order numérico (spec 005).
             // rsPrepareSubmit() ya valida esto en cliente; aquí re-validamos igual que
             // el resto de las reglas de este método (belt-and-suspenders).
-            string shopOrderInput = ExtractShopOrderValue(rowsJson);
+            string shopOrderInput = ExtractShopOrderValue(rows);
             if (string.IsNullOrEmpty(shopOrderInput) || !IsNumeric(shopOrderInput))
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
@@ -93,13 +97,12 @@ namespace TrainingApp.UI.Controls.Training
             SaveSimulatedOrder(shopOrderInput);
 
             // Build the answer JSON and submit the step
-            string answer = string.Format("{{\"setupState\":\"{0}\",\"rows\":{1}}}",
-                setupState?.Replace("\"", "\\\"") ?? "",
-                rowsJson);
+            var serializer = new JavaScriptSerializer();
+            string answer  = serializer.Serialize(new { setupState = setupState ?? "", rows });
 
             // Restore rows (BUG 3: rows are DOM-only, lost on PostBack)
             Page.ClientScript.RegisterStartupScript(GetType(), "rsAfterSave",
-                "rsRestoreRows(" + rowsJson + ");", true);
+                "rsRestoreRows(" + serializer.Serialize(rows) + ");", true);
 
             OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer });
         }
@@ -125,9 +128,45 @@ namespace TrainingApp.UI.Controls.Training
 
         // ── Spec 005: captura dinámica de la orden ─────────────────────────
 
-        private static string ExtractShopOrderValue(string rowsJson)
+        // Filas {type, value} que arma rsPrepareSubmit(). Devuelve null si el JSON está mal
+        // formado o no es una lista de objetos con valores de texto.
+        private static List<Dictionary<string, string>> TryParseRows(string rowsJson)
         {
-            var rows = new JavaScriptSerializer().Deserialize<List<Dictionary<string, string>>>(rowsJson);
+            if (string.IsNullOrWhiteSpace(rowsJson)) return null;
+
+            object parsed;
+            try
+            {
+                parsed = new JavaScriptSerializer().DeserializeObject(rowsJson);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+
+            var items = parsed as object[];
+            if (items == null) return null;
+
+            var rows = new List<Dictionary<string, string>>();
+            foreach (var item in items)
+            {
+                var fields = item as IDictionary<string, object>;
+                if (fields == null) return null;
+
+                var row = new Dictionary<string, string>();
+                foreach (var field in fields)
+                {
+                    var text = field.Value as string;
+                    if (text == null) return null;
+                    row[field.Key] = text;
+                }
+                rows.Add(row);
+            }
+            return rows;
+        }
+
+        private static string ExtractShopOrderValue(IEnumerable<Dictionary<string, string>> rows)
+        {
             foreach (var row in rows)
             {
                 if (row.TryGetValue("type", out var type) && type == "Shop Order")

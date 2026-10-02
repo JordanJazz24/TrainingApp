@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Plantilla de la cadena de conexión (auditoría AUD-04).
+  Copiar como connectionStrings.config en esta misma carpeta y completar la cadena.
+  connectionStrings.config NO se versiona (.gitignore): cada máquina tiene el suyo.
+  Recomendado: un login SQL de mínimo privilegio (solo EXECUTE sobre el esquema dbo; la app
+  solo llama stored procedures) en vez de sa, o Integrated Security=True si la instancia
+  acepta autenticación de Windows.
+-->
+<connectionStrings>
+	<add name="Default"
+		 connectionString="Server=localhost\SQLEXPRESS;Database=TrainingApp;User Id=USUARIO;Password=CONTRASENA;"
+		 providerName="System.Data.SqlClient" />
+</connectionStrings>

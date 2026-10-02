@@ -6,14 +6,27 @@
     <div class="row justify-content-center mt-5">
         <div class="col-md-4">
             <h2 class="mb-2">Cambiar Contraseña</h2>
-            <p class="text-muted mb-4">
-                Por seguridad, debes establecer una contraseña personal antes de continuar.
-            </p>
+            <asp:PlaceHolder ID="PhFirstLogin" runat="server" Visible="false">
+                <p class="text-muted mb-4">
+                    Por seguridad, debes establecer una contraseña personal antes de continuar.
+                    Como contraseña actual, usa la misma con la que entraste.
+                </p>
+            </asp:PlaceHolder>
 
             <asp:Label ID="LblError" runat="server" CssClass="alert alert-danger d-block mb-3"
                 Visible="false" />
             <asp:Label ID="LblSuccess" runat="server" CssClass="alert alert-success d-block mb-3"
                 Visible="false" />
+
+            <div class="mb-3">
+                <label for="TxtCurrentPassword" class="form-label">Contraseña actual</label>
+                <asp:TextBox ID="TxtCurrentPassword" runat="server" TextMode="Password"
+                    CssClass="form-control" />
+                <asp:RequiredFieldValidator ID="RfvCurrentPassword" runat="server"
+                    ControlToValidate="TxtCurrentPassword"
+                    ErrorMessage="Ingrese la contraseña actual."
+                    CssClass="text-danger small" Display="Dynamic" />
+            </div>
 
             <div class="mb-3">
                 <label for="TxtNewPassword" class="form-label">Nueva contraseña</label>

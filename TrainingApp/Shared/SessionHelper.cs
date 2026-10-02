@@ -42,7 +42,18 @@ namespace TrainingApp.Shared
             context.Session[Constants.SessionKeys.OperatorId] = op.Id;
             context.Session[Constants.SessionKeys.Code1] = op.Code1;
             context.Session[Constants.SessionKeys.Name] = op.Name;
+            context.Session[Constants.SessionKeys.IsFirstLogin] = op.IsFirstLogin;
             return true;
+        }
+
+        /// <summary>
+        /// True mientras el operador no cambió la contraseña del primer acceso (auditoría
+        /// AUD-08): las páginas de entrenamiento lo mandan a ChangePassword.
+        /// </summary>
+        public static bool MustChangePassword()
+        {
+            var session = HttpContext.Current.Session;
+            return session != null && session[Constants.SessionKeys.IsFirstLogin] as bool? == true;
         }
     }
 }

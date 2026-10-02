@@ -21,6 +21,13 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
+            if (SessionHelper.MustChangePassword())
+            {
+                Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
+                return;
+            }
+
             if (!IsPostBack)
                 LoadProducts();
         }

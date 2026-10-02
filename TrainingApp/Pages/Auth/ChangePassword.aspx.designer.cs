@@ -5,6 +5,9 @@ namespace TrainingApp.Pages.Auth
     {
         protected global::System.Web.UI.WebControls.Label LblError;
         protected global::System.Web.UI.WebControls.Label LblSuccess;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhFirstLogin;
+        protected global::System.Web.UI.WebControls.TextBox TxtCurrentPassword;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvCurrentPassword;
         protected global::System.Web.UI.WebControls.TextBox TxtNewPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvNewPassword;
         protected global::System.Web.UI.WebControls.RegularExpressionValidator RevPasswordLength;

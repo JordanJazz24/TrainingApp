@@ -1151,6 +1151,13 @@ namespace TrainingApp.Pages.Training
                 return null;
             }
 
+            // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
+            if (SessionHelper.MustChangePassword())
+            {
+                Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
+                return null;
+            }
+
             if (!int.TryParse(Request.QueryString["sessionId"], out int sessionId))
             {
                 Response.Redirect("~/Pages/Training/StartSession.aspx");
@@ -1406,7 +1413,8 @@ namespace TrainingApp.Pages.Training
         {
             string script = string.Format(
                 "Swal.fire({{title:'{0}',text:'{1}',icon:'{2}'}});",
-                EscapeJs(title), EscapeJs(text), type);
+                HttpUtility.JavaScriptStringEncode(title ?? string.Empty),
+                HttpUtility.JavaScriptStringEncode(text ?? string.Empty), type);
             ClientScript.RegisterStartupScript(GetType(), "swal_" + type, script, true);
         }
 
@@ -1415,9 +1423,6 @@ namespace TrainingApp.Pages.Training
             string script = string.Format("showModalSafe('{0}');", modalId);
             ClientScript.RegisterStartupScript(GetType(), "modal_" + modalId, script, true);
         }
-
-        private static string EscapeJs(string s)
-            => s?.Replace("'", "\\'").Replace("\n", "\\n") ?? string.Empty;
 
         private static string FormatScore(decimal score)
             => (score * 100m).ToString("F1") + "%";
