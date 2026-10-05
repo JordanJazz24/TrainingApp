@@ -205,26 +205,37 @@ namespace TrainingApp.Pages.Training
             // de confirmación de un paso ya completado penalizaría el paso siguiente.
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            if (step.StepType == StepType.SFC_Split && !HasSuccessfulSplit())
+            StepSubmitResult result;
+            switch (step.StepType)
             {
-                ShowSweetAlert("warning", "Split requerido",
-                    "Debes completar al menos un split antes de cerrar el paso.");
-                ReopenModal("modalSFCSplit");
-                return;
+                case StepType.ResourceSetup:
+                    // La BLL crea la orden simulada con la Shop Order capturada (spec 005).
+                    result = Pod.SubmitResourceSetup(_ctx, e.Answer, e.ShopOrder);
+                    break;
+
+                case StepType.Search:
+                    // Checklist de Start (Moldeo): resuelto el paso, la BLL inicia las piezas.
+                    result = Pod.SubmitStartChecklist(_ctx, e.Answer, BrowseSelectedIds());
+                    break;
+
+                case StepType.SFC_Split:
+                    var close = Pod.CloseSplit(_ctx, e.Answer);
+                    if (close.Notice != PodNotice.None)
+                    {
+                        ShowNotice(close.Notice);
+                        ReopenModal("modalSFCSplit");
+                        return;
+                    }
+                    result = close.Step;
+                    break;
+
+                default:
+                    result = Pod.SubmitStep(_ctx, e.Answer);
+                    break;
             }
 
-            StepSubmitOutcome outcome;
-            if (step.StepType == StepType.ResourceSetup)
-            {
-                // La BLL crea la orden simulada con la Shop Order capturada (spec 005, spec 009).
-                var result = Pod.SubmitResourceSetup(_ctx, e.Answer, e.ShopOrder);
-                ApplySubmitResult(result, session, guide, area, step, e.IncorrectFeedback);
-                outcome = result.Outcome;
-            }
-            else
-            {
-                outcome = ProcessSubmit(session, guide, area, step, e.Answer, e.IncorrectFeedback);
-            }
+            ApplySubmitResult(result, session, guide, area, step, e.IncorrectFeedback);
+            var outcome = result.Outcome;
 
             // Spec 006 (E3): respuesta incorrecta → el control queda abierto en el modal
             // donde se respondió y solo se ve el SweetAlert con el hint (de ProcessSubmit).
@@ -289,7 +300,7 @@ namespace TrainingApp.Pages.Training
             }
             else if (step.StepType == StepType.Search)
             {
-                LoadStartedOrderOnPod(session, area);
+                ShowStartedOrder(area, session);
                 ShowBanner("Start process completed successfully");
             }
             else if (step.StepType == StepType.Assembly)
@@ -413,25 +424,17 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
 
-            if (step.StepType != StepType.SFC_Split)
+            var result = Pod.Split(_ctx, e.RowId, e.Qty);
+            if (result.Notice != PodNotice.None)
             {
-                e.ErrorMessage = "SFC Split no es el paso activo.";
+                // El modal del split muestra el texto en su propio mensaje de error.
+                e.ErrorMessage = NoticeText(result.Notice).Text;
                 return;
             }
-
-            var order = Order;
-            var row = order?.FindRow(e.RowId);
-            if (row == null || e.Qty <= 0 || e.Qty >= row.Qty)
-            {
-                e.ErrorMessage = "La fila o cantidad seleccionada ya no es válida.";
-                return;
-            }
-
-            string newSfc = order.Split(row, e.Qty);
 
             e.IsApplied = true;
-            e.RemainingQty = row.Qty;
-            e.NewSfcCode = newSfc;
+            e.RemainingQty = result.RemainingQty;
+            e.NewSfcCode = result.NewSfcCode;
             BindWorkList(area, session);
         }
 
@@ -508,58 +511,26 @@ namespace TrainingApp.Pages.Training
             return true;
         }
 
-        // Un paso forzado por errores de secuencia nunca abrió su control. Resource Setup sin
-        // orden guardada recibe una orden por defecto, y Start forzado carga el POD como si se
-        // hubiera ejecutado, para que el resto de la evaluación se pueda completar.
+        // Un paso forzado por errores de secuencia nunca abrió su control: la BLL deja el POD
+        // como si el paso se hubiera hecho (orden por defecto, piezas iniciadas, split por
+        // defecto) y la página lo vuelve a pintar.
         private void RestorePodAfterForcedAdvance(StepType forcedStep, TrainingSession session, Area area)
         {
+            bool orderChanged = Pod.RestoreAfterForcedAdvance(_ctx, forcedStep);
+
             if (forcedStep == StepType.ResourceSetup)
             {
-                ReplaceWithDefaultOrder(session, area);
+                BindBrowseList(area, session);
             }
             else if (forcedStep == StepType.Search)
             {
-                // E9 (spec 008): Start forzado inicia todas las piezas.
-                LoadStartedOrderOnPod(session, area, startAllPieces: true);
+                ShowStartedOrder(area, session);
             }
-            else if (forcedStep == StepType.Assembly)
+            else if (forcedStep == StepType.SFC_Split && orderChanged)
             {
-                // El paso quedó fallido: el avance parcial ya no se usa.
-                ClearAssemblyProgress();
+                ClearRowSelection();
+                BindWorkList(area, session);
             }
-            else if (forcedStep == StepType.DataCollection)
-            {
-                ClearDataCollectionProgress();
-            }
-            else if (forcedStep == StepType.SFC_Split)
-            {
-                ApplyDefaultSplit(session, area);
-            }
-        }
-
-        // SFC Split forzado sin ningún split hecho (auditoría AUD-03, decisión D-1): se deja
-        // una fila de split por defecto, porque en NonSerialized Log NC exige scrapear una.
-        private void ApplyDefaultSplit(TrainingSession session, Area area)
-        {
-            if (HasSuccessfulSplit()) return;
-
-            var order = Order;
-            var lot   = order?.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > PodDefaults.DefaultSplitQty);
-            if (lot == null) return;
-
-            order.Split(lot, PodDefaults.DefaultSplitQty);
-            ClearRowSelection();
-            BindWorkList(area, session);
-        }
-
-        // Resource Setup forzado por secuencia: la orden sale siempre de la Shop Order
-        // genérica, ignorando lo que el operador capturó en un intento fallido. En Serialized
-        // también genera sus piezas (E8, spec 008). Forzado por Setup State incorrecto, la
-        // orden por defecto la deja PodService.SubmitResourceSetup.
-        private void ReplaceWithDefaultOrder(TrainingSession session, Area area)
-        {
-            Pod.CreateOrder(_ctx, PodDefaults.DefaultShopOrder);
-            BindBrowseList(area, session);
         }
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
@@ -620,31 +591,25 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (HandleOutOfSequence(StepType.Search, session, guide, area, step)) return;
 
-            // Spec 005: sin SimulatedOrder guardada (Resource Setup nunca completado,
-            // o Session expirada a mitad de flujo) no hay nada que buscar en Search/Start.
-            // Defensivo — en el flujo normal Start ya requiere haber pasado ResourceSetup.
-            var order = Order;
-            if (order == null)
+            var result = Pod.ClickStart(_ctx, BrowseSelectedIds(), ScannedSfc());
+            if (result.Notice != PodNotice.None)
             {
-                ShowSweetAlert("warning", "Resource Setup requerido",
-                    "Debes completar Resource Setup antes de iniciar.");
+                ShowNotice(result.Notice);
                 return;
             }
 
-            if (!ValidateStartSelection(area, order)) return;
-
             // Checklist (Moldeo): SearchControl abre su propio Modal 1 desde Initialize()
             // (secuencia de 4 modales); el Start se completa en HandleControlSubmit.
-            if (area.RequiresStartChecklist)
+            if (result.OpenChecklist)
             {
                 OpenStepControl(StepType.Search, area, session, guide, modalId: null);
                 return;
             }
 
             // Start directo (spec 008): sin modales, se califica solo por secuencia.
-            var outcome = ProcessSubmit(session, guide, area, step, StepAnswers.Start);
-            if (outcome == StepSubmitOutcome.Incorrect) return;
-            LoadStartedOrderOnPod(session, area);
+            ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+            if (result.Step.Outcome == StepSubmitOutcome.Incorrect) return;
+            ShowStartedOrder(area, session);
             ShowBanner("Start process completed successfully");
         }
 
@@ -652,37 +617,17 @@ namespace TrainingApp.Pages.Training
         private const string AllPiecesMessage =
             "En el simulador se trabajan todas las piezas juntas: selecciona todas las filas.";
 
-        // Aviso de formato, sin intento: Serialized exige todas las piezas de la orden en
-        // Browse Work List (spec 008); NonSerialized, el SFC del lote.
-        private bool ValidateStartSelection(Area area, SimulatedOrder order)
+        // SFC capturado para el Start de NonSerialized: escaneado en TxtSFC o elegido en Browse.
+        private string ScannedSfc()
         {
-            if (area.SerializationType == SerializationType.Serialized)
-            {
-                var result = PieceSelectionRule.Evaluate(StepType.Search,
-                    FindBrowseSelectedRows(order).Count, order.Rows.Count);
-                if (result == PieceSelectionResult.Valid) return true;
-
-                ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
-                return false;
-            }
-
             string sfcValue = TxtSFC.Text.Trim();
-            if (string.IsNullOrEmpty(sfcValue))
-                sfcValue = HfSelectedSFC.Value.Trim();
-
-            if (string.IsNullOrEmpty(sfcValue))
-            {
-                ShowSweetAlert("warning", "Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
-                return false;
-            }
-            return true;
+            return string.IsNullOrEmpty(sfcValue) ? HfSelectedSFC.Value.Trim() : sfcValue;
         }
 
-        // Start completado (directo, con checklist o forzado): las piezas iniciadas pasan a
-        // Active y el POD las carga. Serialized: las elegidas en Browse Work List (todas si
-        // el Start fue forzado, E9) y quedan seleccionadas, como en el POD real.
+        // Start completado (directo, con checklist o forzado): la BLL ya pasó las piezas a
+        // Active y el POD las carga. Serialized: quedan seleccionadas, como en el POD real.
         // NonSerialized: el SFC del lote queda fijo en el header, tomado de la orden (servidor).
-        private void LoadStartedOrderOnPod(TrainingSession session, Area area, bool startAllPieces = false)
+        private void ShowStartedOrder(Area area, TrainingSession session)
         {
             ClearRowSelection();
 
@@ -691,8 +636,6 @@ namespace TrainingApp.Pages.Training
             {
                 if (area.SerializationType == SerializationType.Serialized)
                 {
-                    order.Activate(startAllPieces ? order.Rows : FindBrowseSelectedRows(order));
-
                     var active = order.ActiveRows();
                     HfSelectedRowIds.Value = string.Join(",", active.Select(r => r.RowId));
                     TxtSFC.Text            = DescribeSelection(active);
@@ -844,12 +787,12 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (HandleOutOfSequence(StepType.SFC_Split, session, guide, area, step)) return;
 
-            if (FindSelectedOrderRow() == null)
+            var notice = Pod.OpenSplit(_ctx, SelectedIds());
+            if (notice != PodNotice.None)
             {
                 ClearRowSelection();
                 BindWorkList(area, session);
-                ShowSweetAlert("warning", "Selecciona una fila para dividir",
-                    "Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.");
+                ShowNotice(notice);
                 return;
             }
 
@@ -1031,7 +974,7 @@ namespace TrainingApp.Pages.Training
                         vm.ExtraData["SFCCode"] = selectedRow.SFCCode;
                     vm.ExtraData["AvailableQty"] = selectedRow?.Qty ?? 0;
                     vm.ExtraData["SelectedRowId"] = selectedRow?.RowId;
-                    vm.ExtraData["HasSuccessfulSplit"] = HasSuccessfulSplit();
+                    vm.ExtraData["HasSuccessfulSplit"] = Order != null && Order.HasSplit;
                     break;
 
                 case StepType.LogNC:
@@ -1155,6 +1098,10 @@ namespace TrainingApp.Pages.Training
             return order.FindRows(ParseRowIds(HfBrowseRowIds.Value));
         }
 
+        // Ids de filas que manda el cliente; la BLL descarta los que no son de la orden.
+        private HashSet<string> SelectedIds() => ParseRowIds(HfSelectedRowIds.Value);
+        private HashSet<string> BrowseSelectedIds() => ParseRowIds(HfBrowseRowIds.Value);
+
         private static HashSet<string> ParseRowIds(string value)
         {
             return new HashSet<string>((value ?? string.Empty)
@@ -1181,8 +1128,6 @@ namespace TrainingApp.Pages.Training
             var search = guide.Steps.FirstOrDefault(s => s.StepType == StepType.Search);
             return search != null && session.CurrentStepOrder > search.Order;
         }
-
-        private bool HasSuccessfulSplit() => Order != null && Order.HasSplit;
 
         private IList<PodWorkListRow> BuildPodWorkList(bool onlyActive)
         {
@@ -1313,6 +1258,38 @@ namespace TrainingApp.Pages.Training
         }
 
         // ── Modal re-open & SweetAlert helpers ───────────────────────────
+
+        // Avisos de formato que decide la BLL (no cuentan como intento).
+        private void ShowNotice(PodNotice notice)
+        {
+            var (title, text) = NoticeText(notice);
+            ShowSweetAlert("warning", title, text);
+        }
+
+        private static (string Title, string Text) NoticeText(PodNotice notice)
+        {
+            switch (notice)
+            {
+                case PodNotice.ResourceSetupRequired:
+                    return ("Resource Setup requerido", "Debes completar Resource Setup antes de iniciar.");
+                case PodNotice.SelectAllPieces:
+                    return (AllPiecesTitle, AllPiecesMessage);
+                case PodNotice.SfcRequired:
+                    return ("Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
+                case PodNotice.SelectRowToSplit:
+                    return ("Selecciona una fila para dividir",
+                        "Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.");
+                case PodNotice.SplitRequired:
+                    return ("Split requerido", "Debes completar al menos un split antes de cerrar el paso.");
+                case PodNotice.SplitNotActive:
+                    return ("SFC Split", "SFC Split no es el paso activo.");
+                case PodNotice.InvalidSplit:
+                    return ("SFC Split", "La fila o cantidad seleccionada ya no es válida.");
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(notice), notice, null);
+            }
+        }
+
         protected void ShowSweetAlert(string type, string title, string text)
         {
             string script = string.Format(

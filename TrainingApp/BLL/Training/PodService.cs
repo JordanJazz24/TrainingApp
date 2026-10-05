@@ -56,6 +56,7 @@ namespace TrainingApp.BLL.Training
         // e ignora lo capturado (S2 / spec 008, E8).
         public StepSubmitResult SubmitResourceSetup(PodContext ctx, string answer, string shopOrderInput)
         {
+            EnsureCurrentStep(ctx, StepType.ResourceSetup);
             var result = SubmitStep(ctx, answer);
             CreateOrder(ctx, result.Outcome == StepSubmitOutcome.FailedForced
                 ? PodDefaults.DefaultShopOrder
@@ -74,6 +75,162 @@ namespace TrainingApp.BLL.Training
             ctx.State.DataCollection = null;
             SaveState(ctx);
         }
+
+        // ── Start (Search/Start) ─────────────────────────────────────────
+
+        // Click en Start. Decide, sin intento, los avisos de formato: sin orden (Resource Setup
+        // pendiente o Session perdida); Serialized sin todas las piezas elegidas en Browse Work
+        // List (spec 008); NonSerialized sin SFC. Con checklist (Moldeo) pide abrirlo; sin
+        // checklist, el Start se califica solo por secuencia y las piezas pasan a Active.
+        public PodCommandResult ClickStart(PodContext ctx, ICollection<string> browseRowIds, string scannedSfc)
+        {
+            EnsureCurrentStep(ctx, StepType.Search);
+            var order = ctx.State.Order;
+            if (order == null)
+                return PodCommandResult.WithNotice(PodNotice.ResourceSetupRequired);
+
+            if (ctx.Area.SerializationType == SerializationType.Serialized)
+            {
+                var selection = PieceSelectionRule.Evaluate(StepType.Search,
+                    order.FindRows(browseRowIds).Count, order.Rows.Count);
+                if (selection != PieceSelectionResult.Valid)
+                    return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
+            }
+            else if (string.IsNullOrWhiteSpace(scannedSfc))
+            {
+                return PodCommandResult.WithNotice(PodNotice.SfcRequired);
+            }
+
+            if (ctx.Area.RequiresStartChecklist)
+                return new PodCommandResult { OpenChecklist = true };
+
+            return new PodCommandResult { Step = SubmitStart(ctx, StepAnswers.Start, browseRowIds) };
+        }
+
+        // Checklist de Start (Moldeo, 4 modales): califica las respuestas y, resuelto el paso,
+        // inicia las piezas. Solo se llega desde ClickStart, que ya validó la orden; sin
+        // checklist o sin orden es una manipulación, no un intento.
+        public StepSubmitResult SubmitStartChecklist(PodContext ctx, string answerJson,
+            ICollection<string> browseRowIds)
+        {
+            EnsureCurrentStep(ctx, StepType.Search);
+            if (!ctx.Area.RequiresStartChecklist || ctx.State.Order == null)
+                throw new InvalidOperationException("El Start de esta área no tiene checklist pendiente.");
+
+            return SubmitStart(ctx, answerJson, browseRowIds);
+        }
+
+        private StepSubmitResult SubmitStart(PodContext ctx, string answer, ICollection<string> browseRowIds)
+        {
+            var result = SubmitStep(ctx, answer);
+            if (result.Outcome != StepSubmitOutcome.Incorrect)
+                StartPieces(ctx, browseRowIds, startAll: result.Outcome == StepSubmitOutcome.FailedForced);
+            return result;
+        }
+
+        // Piezas iniciadas con el Start. Serialized: las elegidas en Browse Work List (todas si
+        // el paso avanzó forzado, E9 de la spec 008). NonSerialized: el lote ya nace Active.
+        private void StartPieces(PodContext ctx, ICollection<string> browseRowIds, bool startAll)
+        {
+            var order = ctx.State.Order;
+            if (order == null || ctx.Area.SerializationType != SerializationType.Serialized) return;
+
+            order.Activate(startAll || browseRowIds == null ? order.Rows : order.FindRows(browseRowIds));
+            SaveState(ctx);
+        }
+
+        // ── SFC Split ────────────────────────────────────────────────────
+
+        // Abrir SFC Split exige una fila seleccionada del POD (aviso de formato, sin intento).
+        public PodNotice OpenSplit(PodContext ctx, ICollection<string> selectedRowIds)
+            => SelectedRows(ctx, selectedRowIds).Count == 1 ? PodNotice.None : PodNotice.SelectRowToSplit;
+
+        // Divide una fila; la cantidad tiene que dejar algo en la original. Crea un SFC nuevo de
+        // la misma Shop Order (enmienda 2026-10-01 de la spec 005). No es un intento: el paso
+        // se califica al cerrar.
+        public PodCommandResult Split(PodContext ctx, string rowId, int qty)
+        {
+            if (ctx.CurrentStep.StepType != StepType.SFC_Split)
+                return PodCommandResult.WithNotice(PodNotice.SplitNotActive);
+
+            // Solo una fila del POD (Active): el id llega del cliente.
+            var order = ctx.State.Order;
+            var row   = order?.FindActiveRows(new[] { rowId }).FirstOrDefault();
+            if (row == null || qty <= 0 || qty >= row.Qty)
+                return PodCommandResult.WithNotice(PodNotice.InvalidSplit);
+
+            string newSfc = order.Split(row, qty);
+            SaveState(ctx);
+            return new PodCommandResult { NewSfcCode = newSfc, RemainingQty = row.Qty };
+        }
+
+        // Close del SFC Split: hace falta al menos un split; sin él es un aviso, sin intento.
+        public PodCommandResult CloseSplit(PodContext ctx, string answer)
+        {
+            EnsureCurrentStep(ctx, StepType.SFC_Split);
+            if (ctx.State.Order == null || !ctx.State.Order.HasSplit)
+                return PodCommandResult.WithNotice(PodNotice.SplitRequired);
+
+            return new PodCommandResult { Step = SubmitStep(ctx, answer) };
+        }
+
+        // ── Avance forzado ───────────────────────────────────────────────
+
+        // Un paso forzado por errores de secuencia (Assessment) nunca abrió su control: el POD
+        // queda como si el paso se hubiera hecho, para que el resto de la evaluación se pueda
+        // completar. Devuelve true si la página tiene que volver a pintar el POD (Resource
+        // Setup y Start siempre; SFC Split solo si se aplicó el split por defecto).
+        public bool RestoreAfterForcedAdvance(PodContext ctx, StepType forcedStep)
+        {
+            switch (forcedStep)
+            {
+                case StepType.ResourceSetup:
+                    // La orden sale de la Shop Order genérica (S2 / spec 008, E8).
+                    CreateOrder(ctx, PodDefaults.DefaultShopOrder);
+                    return true;
+
+                case StepType.Search:
+                    // E9 (spec 008): Start forzado inicia todas las piezas.
+                    StartPieces(ctx, null, startAll: true);
+                    return true;
+
+                case StepType.Assembly:
+                    // El paso quedó fallido: el avance parcial ya no se usa.
+                    ctx.State.Assembly = null;
+                    SaveState(ctx);
+                    return false;
+
+                case StepType.DataCollection:
+                    ctx.State.DataCollection = null;
+                    SaveState(ctx);
+                    return false;
+
+                case StepType.SFC_Split:
+                    return ApplyDefaultSplit(ctx);
+
+                default:
+                    return false;
+            }
+        }
+
+        // SFC Split forzado sin ningún split hecho (auditoría AUD-03, decisión D-1): queda una
+        // fila de split por defecto, porque en NonSerialized Log NC exige scrapear una.
+        private bool ApplyDefaultSplit(PodContext ctx)
+        {
+            var order = ctx.State.Order;
+            if (order == null || order.HasSplit) return false;
+
+            var lot = order.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > PodDefaults.DefaultSplitQty);
+            if (lot == null) return false;
+
+            order.Split(lot, PodDefaults.DefaultSplitQty);
+            SaveState(ctx);
+            return true;
+        }
+
+        // Filas del POD que mandó el cliente: solo cuentan las que existen y están Active.
+        private static IList<SimulatedOrderRow> SelectedRows(PodContext ctx, ICollection<string> rowIds)
+            => ctx.State.Order?.FindActiveRows(rowIds) ?? new List<SimulatedOrderRow>();
 
         public void Abandon(PodContext ctx)
         {
@@ -199,6 +356,14 @@ namespace TrainingApp.BLL.Training
         {
             if (ctx.Session.Status != SessionStatus.InProgress)
                 throw new InvalidOperationException("La sesión no está en curso.");
+        }
+
+        // Cada comando califica su propio paso: llamarlo en otro paso es un error de
+        // programación o una manipulación, no un intento (auditoría AUD-05).
+        private static void EnsureCurrentStep(PodContext ctx, StepType expected)
+        {
+            if (ctx.CurrentStep.StepType != expected)
+                throw new InvalidOperationException("El comando no corresponde al paso actual.");
         }
 
         private void SaveState(PodContext ctx)

@@ -223,6 +223,7 @@
     <Compile Include="BLL\Training\PodState.cs" />
     <Compile Include="BLL\Training\PodContext.cs" />
     <Compile Include="BLL\Training\PodService.cs" />
+    <Compile Include="BLL\Training\PodCommandResult.cs" />
     <Compile Include="Pages\Auth\Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

@@ -128,25 +128,34 @@ VS y fuera del commit.
       ese paso, mensajes iguales). Redefinity completo en Guided. El widget de puntaje se
       actualiza igual que antes en cada paso.
 
-### Entrega 2 — Resource Setup, Start y SFC Split (AC-1, AC-3 y AC-4 en esos pasos)
-- [ ] `ResourceSetupControl` ya no escribe Session: valida el formato (filas, Shop Order
+### Entrega 2 — Resource Setup, Start y SFC Split (AC-1, AC-3 y AC-4 en esos pasos) — verificada (2026-10-05)
+- [x] (hecho en la E1) `ResourceSetupControl` ya no escribe Session: valida el formato (filas, Shop Order
       numérica) y envía la Shop Order en el evento. `PodService.SubmitResourceSetup` crea la
       orden (también con "Open", como hoy), registra el intento y, si fue forzado, la
       reemplaza por la orden por defecto. Se quitan del ViewModel de Resource Setup las
       claves `TrainingSessionId`, `MaterialDescription`, `InitialQty` y `SerializationType`.
-- [ ] Start:
-      - `PodService.ClickStart(ctx, browseIds, sfcEscaneado)` decide, en este orden: fuera
-        de secuencia → orden ausente (aviso) → selección (aviso: todas las piezas o SFC
+- [x] Start:
+      - `PodService.ClickStart(ctx, browseIds, sfcEscaneado)` decide, en este orden: (fuera
+        de secuencia: sigue en la página hasta la E4) → orden ausente (aviso) → selección (aviso: todas las piezas o SFC
         requerido) → abrir el checklist si `RequiresStartChecklist` → Start directo.
       - `SubmitStartChecklist` para el checklist de Moldeo.
       - Los dos inician las piezas en la BLL. La página solo pinta `TxtSFC`, el header y el
         POD.
-- [ ] SFC Split:
+- [x] SFC Split:
       - `OpenSplit` (aviso si no hay una fila seleccionada);
       - `Split(ctx, rowId, qty)`: fila y cantidad válidas, SFC nuevo, sin intento;
       - `CloseSplit` (aviso `SplitRequired` si no hay split).
       `HasSuccessfulSplit` sale de la página.
-- [ ] **Checklist del usuario:**
+- [x] Adelantado de la E4: `PodService.RestoreAfterForcedAdvance` aplica los efectos del avance
+      forzado por secuencia (orden por defecto, piezas iniciadas, split por defecto, avance
+      de Assembly/DC descartado); la página solo vuelve a pintar el POD.
+- [x] `/code-review`: los comandos validan que corresponden al paso actual (excepción, no
+      intento); `SubmitStartChecklist` exige área con checklist y orden; `Split` solo acepta
+      filas Active; un solo mapa de textos para los avisos (`NoticeText`).
+- **Para decidir aparte (D-12):** en NonSerialized el Start acepta cualquier SFC escrito en
+      `TxtSFC` (no lo compara con el SFC del lote). Es así desde la spec 005; validarlo sería
+      una regla nueva.
+- [x] **Checklist del usuario:**
       - Moldeo: Resource Setup con "Open" (intento) y con "Set Up".
       - Start: sin SFC (aviso), checklist con un "No" (intento) y correcto.
       - Split: cantidad inválida, split válido (SFC nuevo) y Close sin split (aviso).
