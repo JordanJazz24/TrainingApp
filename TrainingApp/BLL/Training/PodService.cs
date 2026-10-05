@@ -143,7 +143,7 @@ namespace TrainingApp.BLL.Training
 
         // Abrir SFC Split exige una fila seleccionada del POD (aviso de formato, sin intento).
         public PodNotice OpenSplit(PodContext ctx, ICollection<string> selectedRowIds)
-            => SelectedRows(ctx, selectedRowIds).Count == 1 ? PodNotice.None : PodNotice.SelectRowToSplit;
+            => IsSingleRow(SelectedRows(ctx, selectedRowIds)) ? PodNotice.None : PodNotice.SelectRowToSplit;
 
         // Divide una fila; la cantidad tiene que dejar algo en la original. Crea un SFC nuevo de
         // la misma Shop Order (enmienda 2026-10-01 de la spec 005). No es un intento: el paso
@@ -194,16 +194,7 @@ namespace TrainingApp.BLL.Training
                     StartPieces(ctx, null, startAll: true);
                     return true;
 
-                case StepType.Assembly:
-                    // El paso quedó fallido: el avance parcial ya no se usa.
-                    ctx.State.Assembly = null;
-                    SaveState(ctx);
-                    return false;
-
-                case StepType.DataCollection:
-                    ctx.State.DataCollection = null;
-                    SaveState(ctx);
-                    return false;
+                // Assembly y DC: RecordAttempt ya descartó el avance parcial al avanzar el paso.
 
                 case StepType.SFC_Split:
                     return ApplyDefaultSplit(ctx);
@@ -271,11 +262,19 @@ namespace TrainingApp.BLL.Training
             return RecordAttempt(ctx, step, isCorrect: false);
         }
 
+        // ── Assembly ─────────────────────────────────────────────────────
+
+        // Abrir la Component List exige la selección del paso (aviso de formato, sin intento).
+        public PodNotice OpenAssembly(PodContext ctx, ICollection<string> selectedRowIds)
+        {
+            EnsureCurrentStep(ctx, StepType.Assembly);
+            return CheckPodSelection(ctx, StepType.Assembly, selectedRowIds);
+        }
+
         // Assembly (spec 008): ensambla un componente del BOM para todas las piezas
         // seleccionadas. El paso se completa (intento correcto) cuando todo el BOM quedó
         // ensamblado. No tiene camino incorrecto: se califica solo por secuencia (S2).
-        public AssemblySubmitResult AssembleComponent(PodContext ctx, int componentId,
-            AssemblyProgress progress)
+        public AssemblySubmitResult AssembleComponent(PodContext ctx, int componentId)
         {
             var result = new AssemblySubmitResult();
             if (ctx.Session.Status != SessionStatus.InProgress) return result;
@@ -286,14 +285,37 @@ namespace TrainingApp.BLL.Training
             var bom = _guideService.GetAssemblyComponents(ctx.Area.Id);
             if (!bom.Any(c => c.Id == componentId)) return result;
 
-            // Con el último componente, el intento se guarda antes de actualizar el avance: si el
-            // SP falla, la Session no queda adelantada y el Add se puede repetir (AUD-06).
+            // Con el último componente, el intento se guarda antes de tocar el avance: si el SP
+            // falla, la Session no queda adelantada y el Add se puede repetir (AUD-06).
+            // RecordAttempt descarta el avance al resolver el paso.
+            var progress = ctx.State.Assembly ?? new AssemblyProgress();
             if (progress.CoversWith(componentId, bom))
+            {
                 result.StepResult = RecordAttempt(ctx, step, isCorrect: true);
+            }
+            else
+            {
+                progress.AssembledComponentIds.Add(componentId);
+                ctx.State.Assembly = progress;
+                SaveState(ctx);
+            }
 
-            progress.AssembledComponentIds.Add(componentId);
             result.ComponentAssembled = true;
             return result;
+        }
+
+        // ── Data Collection ──────────────────────────────────────────────
+
+        // Abrir Data Collection exige la selección del paso (aviso de formato, sin intento). La
+        // primera apertura fija las piezas a recorrer; al reabrir se sigue donde quedó (AC-9,
+        // spec 008).
+        public PodNotice OpenDataCollection(PodContext ctx, ICollection<string> selectedRowIds)
+        {
+            EnsureCurrentStep(ctx, StepType.DataCollection);
+            var notice = CheckPodSelection(ctx, StepType.DataCollection, selectedRowIds);
+            if (notice == PodNotice.None && ctx.State.DataCollection == null)
+                StartDataCollection(ctx, selectedRowIds);
+            return notice;
         }
 
         // Data Collection (spec 008): guarda un DC Group para la pieza actual del avance.
@@ -301,15 +323,18 @@ namespace TrainingApp.BLL.Training
         //     avance se conserva salvo que el paso avance forzado (E5).
         //   - Correcto: la pieza se completa según DataCollectionCompletionRule y el avance
         //     pasa a la siguiente; con la última, se registra el intento correcto del paso.
+        // Sin avance (DC no se abrió con OpenDataCollection) el Save no aplica.
         public DataCollectionSubmitResult SubmitDataCollectionGroup(PodContext ctx,
-            string groupCode, string answersJson, DataCollectionProgress progress)
+            string groupCode, string answersJson)
         {
             var result = new DataCollectionSubmitResult { Outcome = DataCollectionOutcome.Ignored };
-            if (ctx.Session.Status != SessionStatus.InProgress || progress == null || progress.IsFinished)
-                return result;
+            if (ctx.Session.Status != SessionStatus.InProgress) return result;
 
             var step = ctx.CurrentStep;
             if (step.StepType != StepType.DataCollection) return result;
+
+            var progress = ctx.State.DataCollection;
+            if (progress == null || progress.IsFinished) return result;
 
             var groups = _guideService.GetDataCollectionGroups(ctx.Area.Id);
             var group  = groups.FirstOrDefault(g => g.Code == groupCode);
@@ -319,9 +344,13 @@ namespace TrainingApp.BLL.Training
             // segundo Save solo llega manipulando el cliente y no cuenta (E3, enmienda 2026-09-29).
             if (progress.CurrentPieceSavedGroupIds.Contains(group.Id)) return result;
 
+            var piece = progress.CurrentPiece;
+            result.PieceSfcCode = piece.SFCCode;
+
             if (!_guideService.BuildValidator(ctx.Area, StepType.DataCollection)
                     .ValidateDataCollectionGroup(group.Id, answersJson))
             {
+                // Avance forzado (E5): RecordAttempt descarta el avance parcial.
                 result.StepResult = RecordAttempt(ctx, step, isCorrect: false);
                 result.Outcome = result.StepResult.Outcome == StepSubmitOutcome.Incorrect
                     ? DataCollectionOutcome.Incorrect
@@ -329,28 +358,61 @@ namespace TrainingApp.BLL.Training
                 return result;
             }
 
-            var piece      = progress.CurrentPiece;
             var savedAfter = new HashSet<int>(progress.SavedGroupIds(piece.RowId)) { group.Id };
             if (!DataCollectionCompletionRule.IsPieceComplete(savedAfter, groups))
             {
                 progress.MarkSaved(piece.RowId, group.Id);
+                SaveState(ctx);
                 result.Outcome = DataCollectionOutcome.GroupSaved;
                 return result;
             }
 
-            // Con la última pieza, el intento se guarda antes de actualizar el avance: si el SP
-            // falla, la Session no queda adelantada y el Save se puede repetir (AUD-06).
-            bool isLastPiece = progress.CurrentIndex == progress.Pieces.Count - 1;
-            if (isLastPiece)
+            // Con la última pieza, el intento se guarda antes de tocar el avance: si el SP falla,
+            // la Session no queda adelantada y el Save se puede repetir (AUD-06). RecordAttempt
+            // descarta el avance al resolver el paso.
+            if (progress.CurrentIndex == progress.Pieces.Count - 1)
+            {
                 result.StepResult = RecordAttempt(ctx, step, isCorrect: true);
+                result.Outcome = DataCollectionOutcome.StepResolved;
+                return result;
+            }
 
             progress.MarkSaved(piece.RowId, group.Id);
             progress.CurrentIndex++;
-            result.Outcome = isLastPiece
-                ? DataCollectionOutcome.StepResolved
-                : DataCollectionOutcome.PieceCompleted;
+            SaveState(ctx);
+            result.Outcome = DataCollectionOutcome.PieceCompleted;
             return result;
         }
+
+        // Las piezas de DC son las filas seleccionadas del POD, en su orden (NonSerialized: el lote).
+        private void StartDataCollection(PodContext ctx, ICollection<string> selectedRowIds)
+        {
+            var progress = new DataCollectionProgress();
+            foreach (var row in SelectedRows(ctx, selectedRowIds))
+                progress.Pieces.Add(new DataCollectionPiece { RowId = row.RowId, SFCCode = row.SFCCode });
+
+            ctx.State.DataCollection = progress;
+            SaveState(ctx);
+        }
+
+        // Assembly y DC trabajan la selección del POD (spec 008, punto 6): en Serialized todas
+        // las piezas juntas; en NonSerialized, la fila del lote.
+        private static PodNotice CheckPodSelection(PodContext ctx, StepType stepType,
+            ICollection<string> selectedRowIds)
+        {
+            var selected = SelectedRows(ctx, selectedRowIds);
+            if (ctx.Area.SerializationType == SerializationType.Serialized)
+            {
+                int active = ctx.State.Order?.ActiveRows().Count ?? 0;
+                return PieceSelectionRule.Evaluate(stepType, selected.Count, active) == PieceSelectionResult.Valid
+                    ? PodNotice.None
+                    : PodNotice.SelectAllPieces;
+            }
+            return IsSingleRow(selected) ? PodNotice.None : PodNotice.SelectOneRow;
+        }
+
+        // Pasos de una sola fila (NonSerialized): exactamente una fila seleccionada.
+        private static bool IsSingleRow(IList<SimulatedOrderRow> selected) => selected.Count == 1;
 
         private static void EnsureInProgress(PodContext ctx)
         {
@@ -369,6 +431,17 @@ namespace TrainingApp.BLL.Training
         private void SaveState(PodContext ctx)
         {
             _store.Save(ctx.Session.Id, ctx.State);
+        }
+
+        private void DiscardProgress(PodContext ctx, StepType resolvedStep)
+        {
+            if (resolvedStep == StepType.Assembly)
+                ctx.State.Assembly = null;
+            else if (resolvedStep == StepType.DataCollection)
+                ctx.State.DataCollection = null;
+            else
+                return;
+            SaveState(ctx);
         }
 
         // El intento y el avance (o el cierre) se guardan juntos en una transacción
@@ -430,6 +503,11 @@ namespace TrainingApp.BLL.Training
 
             ctx.Attempts.Add(attempt);
             ctx.Score = score;
+
+            // Paso resuelto (correcto, forzado o fin de la sesión): su avance parcial de Assembly
+            // o DC ya no se usa.
+            if (result.Outcome != StepSubmitOutcome.Incorrect)
+                DiscardProgress(ctx, step.StepType);
 
             if (result.Outcome == StepSubmitOutcome.SessionCompleted)
             {

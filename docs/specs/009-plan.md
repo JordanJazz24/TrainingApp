@@ -162,13 +162,22 @@ VS y fuera del commit.
       - Redefinity: Start con selección parcial (aviso) y con todas las piezas.
       - Assessment: Resource Setup forzado (4 fallos) → orden por defecto `303406950`.
 
-### Entrega 3 — Assembly y Data Collection (AC-4; AC-1 en DC)
-- [ ] `OpenAssembly` y `OpenDataCollection` (aviso de selección). `OpenDataCollection` fija
+### Entrega 3 — Assembly y Data Collection (AC-4; AC-1 en DC) — verificada (2026-10-05)
+- [x] `OpenAssembly` y `OpenDataCollection` (aviso de selección). `OpenDataCollection` fija
       las piezas en la primera apertura.
-- [ ] `AssembleComponent` y `SubmitDataCollectionGroup` toman el avance del `PodState`: la
+- [x] `AssembleComponent` y `SubmitDataCollectionGroup` toman el avance del `PodState`: la
       página deja de leer, crear y limpiar el avance. El ViewModel de Assembly y de DC se
       arma desde el contexto.
-- [ ] **Checklist del usuario:**
+- [x] `/code-review`: el avance de Assembly/DC se descarta en un solo lugar, `RecordAttempt`,
+      cuando el paso avanza (correcto, forzado o fin de sesión); un Save de DC sin avance
+      (DC no abierto) no aplica, en vez de armar un avance con la selección del momento; un
+      solo helper de avisos de selección (Assembly, DC y SFC Split) y una sola regla de "una
+      fila" en la BLL. No aplican: cachear por request el BOM y los grupos DC que se leen
+      varias veces en un Add/Save (rendimiento fuera de AC-7, anotado); que el banner
+      "Next:" lea el avance del contexto (el contexto es el estado después del comando, por
+      diseño); que un componente ya ensamblado devuelva otro resultado (cambiaría lo que ve
+      el operador ante un doble click, D-12).
+- [x] **Checklist del usuario:**
       - Redefinity: Assembly con un componente y Return to POD (el avance se conserva);
         completar el BOM; DC por pieza con grupos obligatorios (`SFC: … (n/N)`); un valor
         incorrecto (intento, el avance se conserva); F5 a mitad de DC.

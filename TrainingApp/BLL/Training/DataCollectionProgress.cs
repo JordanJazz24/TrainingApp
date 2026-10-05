@@ -12,8 +12,8 @@ namespace TrainingApp.BLL.Training
     }
 
     // Avance del paso Data Collection de una sesión (spec 008): las piezas se procesan una
-    // por una en el orden del POD y cada una guarda sus DC Groups. Vive en Session
-    // (servidor) y sobrevive a Return to POD; la BLL decide cuándo avanza.
+    // por una en el orden del POD y cada una guarda sus DC Groups. Vive en el PodState
+    // (Session), sobrevive a Return to POD y solo lo modifica PodService.
     [Serializable]
     public class DataCollectionProgress
     {
@@ -67,5 +67,8 @@ namespace TrainingApp.BLL.Training
 
         // Intento registrado (Incorrect y StepResolved); null en el resto.
         public StepSubmitResult StepResult { get; set; }
+
+        // SFC de la pieza para la que se guardó el grupo (banner "SFC … completed").
+        public string PieceSfcCode { get; set; }
     }
 }

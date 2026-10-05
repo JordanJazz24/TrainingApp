@@ -7,6 +7,7 @@ namespace TrainingApp.BLL.Training
         ResourceSetupRequired,  // Start sin orden: Resource Setup pendiente
         SelectAllPieces,        // Serialized: el paso trabaja todas las piezas juntas (spec 008)
         SfcRequired,            // NonSerialized: Start sin SFC escaneado o elegido
+        SelectOneRow,           // NonSerialized: Assembly o DC sin la fila del lote seleccionada
         SelectRowToSplit,       // SFC Split sin una fila seleccionada
         SplitRequired,          // Close del SFC Split sin ningún split
         SplitNotActive,         // split pedido fuera del paso SFC Split

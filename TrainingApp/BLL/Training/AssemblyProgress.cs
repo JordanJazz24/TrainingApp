@@ -7,8 +7,8 @@ namespace TrainingApp.BLL.Training
 {
     // Avance del paso Assembly de una sesión (spec 008): qué componentes del BOM ya se
     // ensamblaron. Cada escaneo se aplica a todas las piezas seleccionadas ("Apply to all
-    // SFCs"), así que no hay avance por pieza. Vive en Session (servidor); la BLL decide
-    // cuándo el paso queda completo.
+    // SFCs"), así que no hay avance por pieza. Vive en el PodState (Session) y solo lo
+    // modifica PodService, que decide cuándo el paso queda completo.
     [Serializable]
     public class AssemblyProgress
     {

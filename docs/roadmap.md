@@ -24,7 +24,7 @@ abajo. El 2026-10-02 el usuario confirmó el cierre de la 6.5 y el orden. **Qué
 aprobada 2026-10-05 (D-9 a D-12), plan en `docs/specs/009-plan.md` (6 entregas;
 la 1 —contexto único, estado del POD en la BLL y puntaje sin recalcular— verificada por el
 usuario el 2026-10-05; la 2 —Resource Setup, Start y SFC Split en la BLL— verificada el
-mismo día); (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
+mismo día; la 3 —Assembly y Data Collection— verificada); (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
 y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)

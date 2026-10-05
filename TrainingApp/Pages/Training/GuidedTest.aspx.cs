@@ -332,7 +332,7 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            var result = Pod.AssembleComponent(_ctx, e.ComponentId, GetAssemblyProgress());
+            var result = Pod.AssembleComponent(_ctx, e.ComponentId);
             if (result.StepResult == null)
             {
                 CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
@@ -347,19 +347,8 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            ClearAssemblyProgress();
             ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
             ContinueAfterStepResolved(session, guide, area, step, result.StepResult.Outcome);
-        }
-
-        // Avance de Assembly en el estado del POD (Session, servidor): sobrevive a Return to
-        // POD y a F5.
-        private AssemblyProgress GetAssemblyProgress()
-            => _ctx.State.Assembly ?? (_ctx.State.Assembly = new AssemblyProgress());
-
-        private void ClearAssemblyProgress()
-        {
-            _ctx.State.Assembly = null;
         }
 
         // Spec 007: el scrap elimina la fila de la orden simulada, tanto en Correct como en
@@ -656,33 +645,34 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
             if (HandleOutOfSequence(StepType.Assembly, session, guide, area, step)) return;
-            if (!ValidatePodSelection(StepType.Assembly, session, area)) return;
+
+            var notice = Pod.OpenAssembly(_ctx, SelectedIds());
+            if (notice != PodNotice.None)
+            {
+                ShowSelectionNotice(notice, area, session);
+                return;
+            }
 
             // Abre la Component List; el modal Assemble se abre desde cada componente.
             OpenStepControl(StepType.Assembly, area, session, guide, modalId: null);
         }
 
-        // Aviso de formato, sin intento. Serialized: el paso exige todas las filas del POD
-        // (spec 008, punto 6). NonSerialized: una fila seleccionada.
-        private bool ValidatePodSelection(StepType stepType, TrainingSession session, Area area,
-            string singleRowMessage = "Debes seleccionar una fila de la orden en la tabla antes de continuar.")
+        // Aviso de selección al abrir Assembly, DC o SFC Split (lo decide la BLL, sin intento).
+        // Si el paso pedía una fila, se limpia la selección del POD. oneRowMessage: texto propio
+        // del paso en lugar del genérico.
+        private void ShowSelectionNotice(PodNotice notice, Area area, TrainingSession session,
+            string oneRowMessage = null)
         {
-            if (area.SerializationType == SerializationType.Serialized)
+            if (notice == PodNotice.SelectOneRow || notice == PodNotice.SelectRowToSplit)
             {
-                int active = ActiveRowCount();
-                var result = PieceSelectionRule.Evaluate(stepType, FindSelectedOrderRows().Count, active);
-                if (result == PieceSelectionResult.Valid) return true;
-
-                ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
-                return false;
+                ClearRowSelection();
+                BindWorkList(area, session);
             }
 
-            if (FindSelectedOrderRow() != null) return true;
-
-            ClearRowSelection();
-            BindWorkList(area, session);
-            ShowSweetAlert("warning", "Selecciona una fila", singleRowMessage);
-            return false;
+            var (title, text) = NoticeText(notice);
+            if (notice == PodNotice.SelectOneRow && oneRowMessage != null)
+                text = oneRowMessage;
+            ShowSweetAlert("warning", title, text);
         }
 
         protected void BtnDCCollection_ServerClick(object sender, EventArgs e)
@@ -692,15 +682,15 @@ namespace TrainingApp.Pages.Training
             if (HandleOutOfSequence(StepType.DataCollection, session, guide, area, step)) return;
 
             // Defensa en servidor: el HiddenField puede faltar, estar obsoleto o ser
-            // manipulado aunque la validación JavaScript haya sido omitida. Serialized exige
-            // todas las filas del POD (spec 008).
-            if (!ValidatePodSelection(StepType.DataCollection, session, area,
-                    "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection."))
+            // manipulado aunque la validación JavaScript haya sido omitida. La BLL decide la
+            // selección y, en la primera apertura, fija las piezas a recorrer (spec 008).
+            var notice = Pod.OpenDataCollection(_ctx, SelectedIds());
+            if (notice != PodNotice.None)
+            {
+                ShowSelectionNotice(notice, area, session,
+                    "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.");
                 return;
-
-            // La primera apertura fija las piezas a recorrer; al reabrir se sigue donde quedó (AC-9).
-            if (GetDataCollectionProgress() == null)
-                StartDataCollectionProgress();
+            }
 
             OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
         }
@@ -714,10 +704,7 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            var progress = GetDataCollectionProgress() ?? StartDataCollectionProgress();
-            string pieceSfc = progress.CurrentPiece?.SFCCode;
-
-            var result = Pod.SubmitDataCollectionGroup(_ctx, e.GroupCode, e.AnswersJson, progress);
+            var result = Pod.SubmitDataCollectionGroup(_ctx, e.GroupCode, e.AnswersJson);
             switch (result.Outcome)
             {
                 case DataCollectionOutcome.Incorrect:
@@ -735,12 +722,11 @@ namespace TrainingApp.Pages.Training
                 case DataCollectionOutcome.PieceCompleted:
                     RefreshDataCollectionControl(session, guide, area, step);
                     ShowBanner(string.Format("SFC {0} completed. Next: {1}",
-                        pieceSfc, DescribeCurrentPiece(progress)), hideAfterMs: 5000);
+                        result.PieceSfcCode, DescribeCurrentPiece(GetDataCollectionProgress())), hideAfterMs: 5000);
                     return;
 
                 case DataCollectionOutcome.StepResolved:
-                    // Paso completo, forzado (E5: el avance parcial se descarta) o sesión terminada.
-                    ClearDataCollectionProgress();
+                    // Paso completo, forzado (E5: la BLL descarta el avance parcial) o sesión terminada.
                     ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
                     ContinueAfterStepResolved(session, guide, area, step, result.StepResult.Outcome);
                     return;
@@ -754,24 +740,8 @@ namespace TrainingApp.Pages.Training
             CtrlDataCollection.ShowGroupList();
         }
 
-        // Avance de DC en el estado del POD (Session, servidor): sobrevive a Return to POD y a F5.
+        // Avance de DC (estado del POD, lo maneja la BLL): sobrevive a Return to POD y a F5.
         private DataCollectionProgress GetDataCollectionProgress() => _ctx.State.DataCollection;
-
-        // Las piezas son las filas seleccionadas del POD, en su orden (NonSerialized: el lote).
-        private DataCollectionProgress StartDataCollectionProgress()
-        {
-            var progress = new DataCollectionProgress();
-            foreach (var row in FindSelectedOrderRows())
-                progress.Pieces.Add(new DataCollectionPiece { RowId = row.RowId, SFCCode = row.SFCCode });
-
-            _ctx.State.DataCollection = progress;
-            return progress;
-        }
-
-        private void ClearDataCollectionProgress()
-        {
-            _ctx.State.DataCollection = null;
-        }
 
         // "000123-430 (2/3)": pieza actual y posición dentro de las piezas del paso.
         private static string DescribeCurrentPiece(DataCollectionProgress progress)
@@ -790,9 +760,7 @@ namespace TrainingApp.Pages.Training
             var notice = Pod.OpenSplit(_ctx, SelectedIds());
             if (notice != PodNotice.None)
             {
-                ClearRowSelection();
-                BindWorkList(area, session);
-                ShowNotice(notice);
+                ShowSelectionNotice(notice, area, session);
                 return;
             }
 
@@ -991,7 +959,8 @@ namespace TrainingApp.Pages.Training
                 case StepType.Assembly:
                     // BOM del área y componentes ya ensamblados (spec 008).
                     vm.ExtraData["Components"]         = _guideService.GetAssemblyComponents(area.Id);
-                    vm.ExtraData["AssembledIds"]       = GetAssemblyProgress().AssembledComponentIds;
+                    vm.ExtraData["AssembledIds"]       = _ctx.State.Assembly?.AssembledComponentIds
+                                                         ?? new HashSet<int>();
                     vm.ExtraData["SelectedPieceCount"] = FindSelectedOrderRows().Count;
                     vm.ExtraData["ProcessLot"]         = Order?.ProcessLot;
                     break;
@@ -1276,6 +1245,8 @@ namespace TrainingApp.Pages.Training
                     return (AllPiecesTitle, AllPiecesMessage);
                 case PodNotice.SfcRequired:
                     return ("Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
+                case PodNotice.SelectOneRow:
+                    return ("Selecciona una fila", "Debes seleccionar una fila de la orden en la tabla antes de continuar.");
                 case PodNotice.SelectRowToSplit:
                     return ("Selecciona una fila para dividir",
                         "Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.");
