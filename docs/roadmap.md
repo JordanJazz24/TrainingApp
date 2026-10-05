@@ -20,8 +20,8 @@ el usuario confirme el cierre) y se hizo una **auditoría completa** del proyect
 hallazgos, 8 decisiones (D-1…D-8) y 5 entregas corregidas y verificadas en el navegador
 (E1-E5), ya en `TrainingApp`, en `main` y con push. Detalle en "Auditoría 2026-10-01", más
 abajo. El 2026-10-02 el usuario confirmó el cierre de la 6.5 y el orden. **Qué sigue:**
-(1) **spec del motor** de la auditoría (AUD-16, 25, 26) → `docs/specs/009-motor-pod.md`,
-en redacción; (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
+(1) **spec 009 · motor del POD** (AUD-16, 25, 26) → `docs/specs/009-motor-pod.md`,
+aprobada 2026-10-05 (D-9 a D-12), plan en `docs/specs/009-plan.md`; (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
 y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
@@ -247,7 +247,7 @@ diseño.
 | AUD-13 | Medio | El `StepValidator` se cachea 60 min por área con los flags y catálogos; la página los lee frescos. Tras correr un script de catálogo, la UI y la calificación no coinciden (ej. cambiar `RequiresStartChecklist` deja a Guided atascado en Start). | `TrainingSessionService.cs:237` | Quitar la caché (armarlo es barato) o invalidarla. | E1 ✅ |
 | AUD-14 | Medio | `GuidedTest` usa 4 repositorios de la DAL directamente (ya estaba en la deuda). | `GuidedTest.aspx.cs:23-26` | Pasar por `TrainingGuideService` (`GetArea`, `GetNCCodes`, `GetDataCollectionParameters`). | E4 ✅ |
 | AUD-15 | Medio | `SessionHelper` (en `Shared`) usa `OperatorRepository` y `System.Web`: las páginas llegan a la DAL sin pasar por la BLL y se forma un ciclo `Shared` ↔ DAL. | `SessionHelper.cs:30` | `AuthService.GetOperatorByCode1` y mover `SessionHelper` a la capa de presentación. | E4 ✅ |
-| AUD-16 | Medio | `GuidedTest.aspx.cs` (1,407 líneas) es el motor real: modifica la orden simulada en el split y decide cuándo una selección de piezas es intento fallido (en NonSerialized, "Complete sin fila" está escrito en la página). | `GuidedTest.aspx.cs:379, 417-440, 655, 726, 867, 915-933` | Un servicio de la BLL dueño de la orden y del avance (ej. `PodService`), con comandos Start/Split/Complete. Incluye AUD-25 y AUD-26. | Spec, entre la 6.5 y la 6.6 (antes de los overlays) |
+| AUD-16 | Medio | `GuidedTest.aspx.cs` (1,407 líneas) es el motor real: modifica la orden simulada en el split y decide cuándo una selección de piezas es intento fallido (en NonSerialized, "Complete sin fila" está escrito en la página). | `GuidedTest.aspx.cs:379, 417-440, 655, 726, 867, 915-933` | Un servicio de la BLL dueño de la orden y del avance (ej. `PodService`), con comandos Start/Split/Complete. Incluye AUD-25 y AUD-26. | Spec 009 (aprobada 2026-10-05) |
 | AUD-17 | Bajo | No hay protección CSRF: ni `ViewStateUserKey` ni el token anti-XSRF del template. | `Site.Master.cs`, `Training.master.cs` | `ViewStateUserKey = Session.SessionID` en `Page_Init` de los dos masters. | E2 ✅ |
 | AUD-18 | Bajo | `EscapeJs` no escapa `\`, `\r` ni `</script>`. Hoy solo recibe mensajes del servidor. | `GuidedTest.aspx.cs:1385` | `HttpUtility.JavaScriptStringEncode`. | E2 ✅ |
 | AUD-19 | Bajo | Assembly muestra "Component X assembled" aunque la BLL haya rechazado el componente (id fuera del BOM). | `GuidedTest.aspx.cs:319` | Revisar `AssemblySubmitResult.ComponentAssembled`, que hoy nadie lee. | E1 ✅ |
@@ -256,8 +256,8 @@ diseño.
 | AUD-22 | Bajo | El proyecto **web** referencia `Microsoft.ApplicationInsights` (sin uso) y 6 paquetes de testing (`Microsoft.Testing.*`, `TestPlatform.ObjectModel`), que además generan un `Main` en `obj/`. | `packages.config`, `TrainingApp.csproj:3-5, 50-77` | Quitarlos con NuGet (tienen dependencias transitivas). | E5 ✅ |
 | AUD-23 | Bajo | Restos del template de VS: `Site.Master` muestra "Application name" y enlaces a `~/About` y `~/Contact` (404); ~45 archivos estáticos sin uso (variantes de Bootstrap/jQuery, MsAjax, Menu, SmartNav); Modernizr y los bundles MsAjax sin uso; jQuery probablemente cargado dos veces en el POD; 2 líneas basura en `.gitignore`; ~16 `using` sin uso. | `UI/master/Site.Master`, `Content/`, `Scripts/`, `App_Start/BundleConfig.cs`, `.gitignore` | Limpiar. Conservar `WebForms.js`, `WebUIValidation.js`, `Focus.js` y el mapping `jquery` (los usan los validadores). | E5 ✅ |
 | AUD-24 | Bajo | Los data-binding usan `<%# Eval(...) %>` sin codificar. Hoy los datos vienen de la BD o son números validados. | `GuidedTest.aspx:153-166, 342-350`, `DataCollectionControl.ascx`, `LogNCControl.ascx` | `<%#: ... %>` por consistencia. | E5 ✅ |
-| AUD-25 | Bajo | Unas 15 conexiones a SQL por click en el POD: `GetContext` recarga sesión, guía y área; `UpdateScoreWidget` vuelve a consultar; `RecordAttempt` calcula el puntaje y lo descarta. | `GuidedTest.aspx.cs`, `TrainingSessionService.cs:195-224` | Usar `StepSubmitResult.CurrentScore` y cargar el contexto una vez por request. | Con AUD-16 |
-| AUD-26 | Bajo | La orden simulada y el avance de DC/Assembly viven solo en la Session (ya estaba en la deuda, spec 008 E7). | `GuidedTest.aspx.cs`, `Constants.SessionKeys` | Persistirlos en BD por sesión. | Con AUD-16 |
+| AUD-25 | Bajo | Unas 15 conexiones a SQL por click en el POD: `GetContext` recarga sesión, guía y área; `UpdateScoreWidget` vuelve a consultar; `RecordAttempt` calcula el puntaje y lo descarta. | `GuidedTest.aspx.cs`, `TrainingSessionService.cs:195-224` | Usar `StepSubmitResult.CurrentScore` y cargar el contexto una vez por request. | Spec 009 |
+| AUD-26 | Bajo | La orden simulada y el avance de DC/Assembly viven solo en la Session (ya estaba en la deuda, spec 008 E7). | `GuidedTest.aspx.cs`, `Constants.SessionKeys` | ~~Persistirlos en BD por sesión.~~ Siguen en Session; si faltan, la BLL los reconstruye (**D-10**). | Spec 009 |
 | AUD-27 | Bajo | La pregunta de Line Clearance está en el code-behind, contra "datos de simulación en SQL" de `CLAUDE.md`. | `GuidedTest.aspx.cs:1030` | Sin acción: la pregunta es la misma en todas las operaciones (D-6). | Cerrado (D-6) |
 | AUD-28 | Bajo | Endurecimiento para el deploy: cookies sin `requireSSL`, sin cabeceras de seguridad, `X-AspNet-Version` expuesto, el ID de Session no se renueva en el login, no hay `Application_Error` ni registro de errores o de logins fallidos, y el login no limita intentos. Sin `customErrors`, un valor con marcado en cualquier campo de texto libre (ej. Data Collection) muestra la pantalla de `HttpRequestValidationException` (Resource Setup ya lo bloquea en el cliente, E2). En IIS, el `idleTimeout` del app pool debe ser de al menos 60 min: si el proceso se detiene por inactividad, la Session InProc se pierde aunque su timeout sea 60 (E3). | `Web.config`, `Global.asax.cs`, `Login.aspx.cs` | Checklist de la Fase 9. | Fase 9 (D-7) |
 | AUD-29 | Bajo | Paquetes atrasados, ninguno con CVE: parches de Newtonsoft (13.0.4), jQuery (3.7.1), `Microsoft.Web.Infrastructure` (2.0.1) y `System.*`; mayor de CodeDom (2.0.1 → 4.1.0). Bootstrap 5.3.8 y SweetAlert2 11.26 pueden cambiar la UI. | `packages.config`, `Scripts/`, `UI/master/Training.Master` | Uno por uno; Bootstrap y SweetAlert después de la 6.6, revisando la UI. | Fase 9 (D-7) |
@@ -282,6 +282,18 @@ diseño.
 - **D-7 (AUD-28, AUD-29):** el endurecimiento del deploy y la actualización de paquetes se
   ven **en la Fase 9**, o antes solo si el usuario lo pide explícitamente.
 - **D-8 (AUD-04):** el usuario rota la contraseña de `sa` **en su momento**.
+- **D-9 (spec 009, 2026-10-02):** **una sola sesión activa por operador**: iniciar cualquier
+  guía o hacer logout abandona las sesiones `InProgress` del operador. No en el login ni
+  al cerrar la ventana (el servidor no se entera).
+- **D-10 (AUD-26):** el estado del POD **sigue en Session**; si falta, la BLL lo
+  **reconstruye en silencio** con la orden por defecto en el paso actual, y Assembly/DC a
+  medias se rehacen desde cero sin penalización. No se persiste en BD (sería
+  sobreingeniería sin la opción de retomar sesiones, que no existe por decisión del usuario).
+- **D-11 (spec 009):** los datos de simulación de `GuidedTest` (Shop Order por defecto, split
+  de 100, lote de 250, Site, recurso, `LOT-yyyyMMdd`) pasan a **constantes de la BLL**, con
+  los mismos valores.
+- **D-12 (spec 009):** la spec 009 es un **refactor con cero cambios visibles**; los bugs que
+  aparezcan se deciden aparte. La excepción es D-9.
 
 **Entregas propuestas (Fase C), en orden:**
 
@@ -292,7 +304,7 @@ diseño.
 | E3 · Integridad del puntaje ✅ | AUD-05, 06, 07, 12 | Plan directo: toca el motor sin cambiar reglas, salvo AUD-07, que alinea el código con `CLAUDE.md` (D-2); AUD-06 incluye SP nuevo | `/code-review` |
 | E4 · Capas ✅ | AUD-14, 15 | Mecánico, solo enrutamiento | `/code-review` |
 | E5 · Limpieza ✅ | AUD-21, 22, 23, 24 | Mecánico | `/code-review` |
-| Spec del motor | AUD-16, 25, 26 | `/spec`, entre la 6.5 y la 6.6 | — |
+| Spec 009 · motor del POD | AUD-16, 25, 26 | `/spec` aprobada 2026-10-05; plan `docs/specs/009-plan.md` (6 entregas) | `/code-review` por entrega |
 
 **Pendientes menores de E5, dejados a propósito:** las `ScriptReference` del template en `Site.Master` (MenuStandards, GridView, DetailsView, TreeView, WebParts y los bundles MsAjax) siguen cargándose aunque ninguna página las use, porque quitarlas tiene riesgo sobre los validadores y casi ningún beneficio. Reinstalar los paquetes de contenido (`bootstrap`, `jQuery`, `ScriptManager.MSAjax`) devolvería los archivos que E5 borró, así que habría que borrarlos de nuevo. Separar `IStepControl` (los controles que nunca envían dejan el evento con accessors vacíos) va con la spec del motor.
 
