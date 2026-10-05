@@ -25,7 +25,8 @@ aprobada 2026-10-05 (D-9 a D-12), plan en `docs/specs/009-plan.md` (6 entregas;
 la 1 —contexto único, estado del POD en la BLL y puntaje sin recalcular— verificada por el
 usuario el 2026-10-05; la 2 —Resource Setup, Start y SFC Split en la BLL— verificada el
 mismo día; la 3 —Assembly y Data Collection— verificada; la 4 —Log NC, Complete y la secuencia en la
-BLL— verificada); (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
+BLL— verificada; la 5 —reconstrucción del estado y el arreglo B-1— commiteada a pedido del
+usuario, su checklist va con el de la 6); (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
 y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)

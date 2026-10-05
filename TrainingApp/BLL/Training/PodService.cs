@@ -52,7 +52,56 @@ namespace TrainingApp.BLL.Training
             }
 
             decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
-            return new PodContext(operatorId, session, guide, area, attempts, state, score);
+            var ctx = new PodContext(operatorId, session, guide, area, attempts, state, score);
+
+            // Después de Resource Setup siempre hay orden: si falta, se perdió la Session.
+            if (state.Order == null && IsResolved(ctx, StepType.ResourceSetup))
+                RebuildState(ctx);
+            return ctx;
+        }
+
+        // Reconstrucción (D-10): la orden por defecto con los efectos de los pasos ya
+        // resueltos, como si cada uno hubiera avanzado forzado. Sin aviso, sin intento y sin
+        // tocar el puntaje. Assembly/DC a medias empiezan de cero (su avance se perdió).
+        private void RebuildState(PodContext ctx)
+        {
+            CreateOrder(ctx, PodDefaults.DefaultShopOrder);
+
+            var resolved = ctx.Guide.Steps
+                .Where(s => s.Order < ctx.Session.CurrentStepOrder)
+                .OrderBy(s => s.Order);
+            foreach (var step in resolved)
+            {
+                if (step.StepType == StepType.Search)
+                {
+                    StartPieces(ctx, null, startAll: true);
+                }
+                else if (step.StepType == StepType.SFC_Split)
+                {
+                    ApplyDefaultSplit(ctx);
+                }
+                else if (step.StepType == StepType.LogNC &&
+                         ctx.Area.SerializationType == SerializationType.NonSerialized)
+                {
+                    // Log NC scrapea una sola fila, la del split (aquí, la del split por defecto);
+                    // queda el lote con su cantidad restante. En Serialized no se sabe qué piezas
+                    // se scrapearon: quedan todas para Complete.
+                    var splitRow = ctx.State.Order.Rows.FirstOrDefault(r => r.IsFromSplit);
+                    if (splitRow != null)
+                    {
+                        ctx.State.Order.Remove(new[] { splitRow });
+                        SaveState(ctx);
+                    }
+                }
+            }
+
+            ctx.Rebuilt = true;
+        }
+
+        private static bool IsResolved(PodContext ctx, StepType stepType)
+        {
+            var step = ctx.Guide.Steps.FirstOrDefault(s => s.StepType == stepType);
+            return step != null && ctx.Session.CurrentStepOrder > step.Order;
         }
 
         public void Abandon(PodContext ctx)

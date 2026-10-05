@@ -31,6 +31,10 @@ namespace TrainingApp.BLL.Training
         // Puntaje actual de la sesión (0..1), con los intentos registrados hasta ahora.
         public decimal Score { get; internal set; }
 
+        // El estado del POD se perdió (Session reciclada) y la BLL lo reconstruyó en este
+        // request con la orden por defecto (spec 009, D-10).
+        public bool Rebuilt { get; internal set; }
+
         internal IList<TrainingSessionStepAttempt> Attempts { get; }
 
         public TrainingStep CurrentStep

@@ -137,6 +137,16 @@ namespace TrainingApp.Pages.Training
             _ctx = LoadContext();
             if (_ctx == null) return;
 
+            // P-1 (spec 009): la Session se perdió y la BLL reconstruyó el estado del POD. El
+            // click de este postback apuntaba a filas de la orden perdida: no se ejecuta (ni la
+            // página ni los controles), para no contar como intento algo que el operador no
+            // hizo. Se recarga la página como un F5 y el operador repite el click.
+            if (IsPostBack && _ctx.Rebuilt)
+            {
+                Response.Redirect(Request.RawUrl);
+                return;
+            }
+
             var (session, guide, area, step) = GetContext();
 
             PodMultiSelect = area.SerializationType == SerializationType.Serialized;
@@ -280,18 +290,12 @@ namespace TrainingApp.Pages.Training
             // queda cerrado para el request siguiente. El resto vuelve al POD de inmediato.
             CloseStepControl(IsModalOverlay(step.StepType) ? step.StepType : (StepType?)null);
 
+            if (ClearSelectionAroundSplit(step.StepType, guide, session))
+                BindWorkList(area, session);
+
             var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
             if (nextStep != null)
-            {
-                if (step.StepType == StepType.SFC_Split ||
-                    (step.StepType != StepType.SFC_Split && nextStep.StepType == StepType.SFC_Split))
-                {
-                    ClearRowSelection();
-                    BindWorkList(area, session);
-                }
-
                 SetActiveButton(nextStep.StepType, area, session.Mode);
-            }
 
             // El banner de guardado confirma una respuesta correcta; no se muestra en FailedForced.
             bool accepted = outcome == StepSubmitOutcome.Correct;
@@ -470,29 +474,50 @@ namespace TrainingApp.Pages.Training
             if (result.Step == null) return true;
 
             ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
-            if (result.PodChanged)
-                RepaintAfterForcedAdvance(step.StepType, session, area);
+            if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
+                RepaintAfterForcedAdvance(step.StepType, session, guide, area, result.PodChanged);
             return true;
         }
 
-        // Un paso forzado por errores de secuencia nunca abrió su control: la BLL ya dejó el POD
-        // como si el paso se hubiera hecho (orden por defecto, piezas iniciadas, split por
-        // defecto) y la página lo vuelve a pintar.
-        private void RepaintAfterForcedAdvance(StepType forcedStep, TrainingSession session, Area area)
+        // Paso forzado por errores de secuencia: la BLL ya dejó el POD como si el paso se
+        // hubiera hecho (orden por defecto, piezas iniciadas, split por defecto). La página lo
+        // vuelve a pintar como en el submit normal (B-1): cierra el control que seguía abierto
+        // (Component List o Data Collection List) y, si el paso forzado o el siguiente es SFC
+        // Split, limpia la selección.
+        private void RepaintAfterForcedAdvance(StepType forcedStep, TrainingSession session,
+            TrainingGuide guide, Area area, bool podChanged)
         {
-            if (forcedStep == StepType.ResourceSetup)
+            bool rebind = false;
+            if (OpenStepType.HasValue)
             {
+                CloseStepControl();
+                rebind = true;
+            }
+
+            if (podChanged && forcedStep == StepType.ResourceSetup)
                 BindBrowseList(area, session);
-            }
-            else if (forcedStep == StepType.Search)
-            {
+
+            if (ClearSelectionAroundSplit(forcedStep, guide, session))
+                rebind = true;
+
+            // ShowStartedOrder ya vuelve a pintar el POD.
+            if (podChanged && forcedStep == StepType.Search)
                 ShowStartedOrder(area, session);
-            }
-            else if (forcedStep == StepType.SFC_Split)
-            {
-                ClearRowSelection();
+            else if (rebind)
                 BindWorkList(area, session);
-            }
+        }
+
+        // Si el paso resuelto o el siguiente es SFC Split, se limpia la selección del POD: el
+        // split pide elegir la fila de nuevo. Devuelve true si hay que volver a pintar el POD.
+        private bool ClearSelectionAroundSplit(StepType resolvedStep, TrainingGuide guide,
+            TrainingSession session)
+        {
+            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
+            if (resolvedStep != StepType.SFC_Split && nextStep?.StepType != StepType.SFC_Split)
+                return false;
+
+            ClearRowSelection();
+            return true;
         }
 
         // Texto del intento fallido que decidió la BLL sin pasar por el validador (Guided lo

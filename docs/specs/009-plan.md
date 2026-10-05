@@ -237,20 +237,31 @@ VS y fuera del commit.
       - Redefinity: Log NC con todas las piezas (aviso), scrap de una pieza y Complete
         parcial (aviso) y sin selección (intento).
 
-### Entrega 5 — Reconstrucción del estado (AC-8, AC-9, AC-10)
-- [ ] `LoadContext`: si el estado no tiene orden y Resource Setup ya se resolvió, rearma la
+### Entrega 5 — Reconstrucción del estado (AC-8, AC-9, AC-10) — commiteada a pedido del usuario (2026-10-05); su checklist se prueba con el de la E6
+- [x] `LoadContext`: si el estado no tiene orden y Resource Setup ya se resolvió, rearma la
       orden por defecto y le aplica los efectos de los pasos resueltos, en el orden de la
       tabla de la spec (Domain Model → Reconstrucción). Assembly/DC a medias empiezan
       vacíos. `PodContext.Rebuilt = true`; sin mensaje ni intento.
-- [ ] **Propuesta P-1:** si la reconstrucción ocurre en un **postback**, la página no
+- [x] **Propuesta P-1:** si la reconstrucción ocurre en un **postback**, la página no
       ejecuta el comando del click: los ids seleccionados son de la orden perdida. Si se
       ejecutara, un Complete o un Log NC sin fila válida contaría como intento fallido por
       algo que el operador no hizo. En ese caso cierra el control abierto, pinta el POD con
       la orden reconstruida y no hace nada más. El operador repite el click. En un GET (F5 o
       volver a cargar) no aplica.
-- [ ] Para probarlo en desarrollo sin reciclar IIS: botón temporal o querystring
-      `?dropPodState=1` que borre la clave, **solo en `DEBUG`**, y se elimina antes del
-      commit. Alternativa: reciclar IIS Express tocando `Web.config`.
+- [x] Para probarlo no hace falta código temporal: guardar `Web.config` sin cambios (o
+      recompilar) reinicia la aplicación en IIS Express; la Session InProc se pierde y la
+      cookie de login sigue vigente, que es el caso real del reciclo de IIS.
+- [x] **B-1** (pedido por el usuario al cerrar la E4): un avance forzado por secuencia cierra
+      el control que seguía abierto (Component List o Data Collection List) y, si el paso
+      forzado o el siguiente es SFC Split, limpia la selección, como el submit normal.
+- [x] `/code-review`: P-1 pasa a ser una redirección al mismo URL (`Response.Redirect`), que
+      es exactamente un F5: no corre ningún handler de la página ni de los controles (antes,
+      Line Clearance daba un error de JavaScript y SFC Split mostraba una alerta) y el POD
+      queda como en un F5, que no restaura la selección. Una sola regla de selección alrededor
+      del SFC Split (`ClearSelectionAroundSplit`) para el submit normal y el avance forzado, y
+      un solo DataBind del POD. La reconstrucción de Log NC quita una sola fila de split, como
+      el scrap real. No aplica: juntar las escrituras en Session de la reconstrucción (es un
+      evento raro y cada escritura es una asignación en memoria).
 - [ ] **Checklist del usuario:** AC-8 (Moldeo detenido en Log NC tras el split), AC-9
       (Redefinity a mitad de DC) y AC-10 (sesión en Resource Setup), cada uno en Assessment
       y comparando el puntaje antes y después.
