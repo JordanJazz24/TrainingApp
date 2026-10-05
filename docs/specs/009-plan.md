@@ -183,24 +183,52 @@ VS y fuera del commit.
         incorrecto (intento, el avance se conserva); F5 a mitad de DC.
       - Moldeo: DC con el grupo de fechas.
 
-### Entrega 4 — Log NC, Complete, secuencia y restauración única (AC-2, AC-3, AC-5, AC-6)
-- [ ] Log NC:
+### Entrega 4 — Log NC, Complete, secuencia y restauración única (AC-2, AC-3, AC-5, AC-6) — verificada (2026-10-05)
+- [x] Log NC:
       - `OpenLogNC`: fuera de secuencia → aviso `NoPieceLeft` (Serialized) → sin fila
         scrapeable = intento fallido con el feedback de hoy → abrir.
       - `SubmitLogNC(ctx, respuesta, selección)`: registra el intento y, en Correct o
         FailedForced, scrapea en la BLL. Devuelve las filas scrapeadas para el banner.
-- [ ] `Complete(ctx, selección)`: aviso por selección parcial (Serialized); intento fallido
+- [x] `Complete(ctx, selección)`: aviso por selección parcial (Serialized); intento fallido
       sin selección ("Select all rows to complete" / "Select 1 row to complete"); respuesta
       `complete`.
-- [ ] Secuencia: un único chequeo de secuencia al inicio de cada comando de botón (también
+- [x] Secuencia: un único chequeo de secuencia al inicio de cada comando de botón (también
       Resource Setup, Activities y las acciones que no son de paso). La restauración tras
       avance forzado se hace en un solo método de la BLL; se borran
       `RestorePodAfterForcedAdvance`, `ReplaceWithDefaultOrder`, `ApplyDefaultSplit`,
-      `ScrapSelectedRows` y `FindScrappableRows` de la página.
-- [ ] Revisión AC-6: `GuidedTest.aspx.cs` y los controles no leen ni escriben claves de
+      `ScrapSelectedRows` y `FindScrappableRows` de la página. Hecho: `PodService.CheckSequence`
+      (privado) en cada comando de botón (`OpenResourceSetup`, `OpenLineClearance`,
+      `ClickStart`, `OpenAssembly`, `OpenDataCollection`, `OpenSplit`, `OpenLogNC`,
+      `Complete`, `ClickNonStepAction`); la restauración y `RegisterOutOfSequence` quedan
+      privados. La página solo aplica el resultado (`HandleOutOfSequence`) y repinta el POD.
+      Se borraron también `ProcessSubmit` y `ActiveRowCount`. El motivo de un intento
+      fallido sin validador (Log NC sin fila scrapeable, Complete sin selección) llega como
+      `PodAttemptReason` y la página elige el texto de siempre.
+- [x] Revisión AC-6: `GuidedTest.aspx.cs` y los controles no leen ni escriben claves de
       Session del POD (salvo `OperatorId`/`Code1`) ni modifican la orden. Grep de
-      `SessionKeys.PodState` y de `.Rows.` en `Pages/` y `UI/`.
-- [ ] **Checklist del usuario:**
+      `SessionKeys.PodState` y de `.Rows.` en `Pages/` y `UI/`. Resultado: la clave solo
+      aparece en `SessionPodStateStore` (lo usa únicamente `PodService`); en `Pages/` y `UI/`
+      nadie modifica la orden ni el avance; la Session de la página solo se lee para
+      `OperatorId`/`Code1`. `GuidedTest.aspx.cs`: 1,429 → 1,265 líneas (lo que queda es UI:
+      ViewModels de los controles, header, binding y modales); no llega a la meta orientativa
+      de la mitad, que no era criterio de aceptación.
+- [x] `/code-review`: Log NC evalúa la selección una sola vez (`ScrappableRows` con
+      `noPieceLeft`); los textos de "todas las piezas" pasan al mapa de avisos; comentario de
+      `StepAnswers.Invalid` actualizado. No aplican: que `CheckSequence` ignore el click con la
+      sesión cerrada (es lo que hacía `RegisterOutOfSequence`); tests de `PodService` (Fase 5
+      en pausa, decisión del usuario).
+- **Bugs heredados que aparecieron (D-12, para decidir):**
+      - **B-1:** un avance forzado por secuencia con la Component List o la Data Collection
+        List abierta no cierra ese control: en el request siguiente queda abierto con el
+        ViewModel del paso nuevo. Además ese camino no limpia la selección cuando el paso
+        siguiente es SFC Split, como sí hace el submit normal. Arreglo propuesto: al forzar
+        por secuencia, cerrar el control abierto y aplicar la misma regla de selección.
+        **El usuario pidió arreglarlo (2026-10-05): va con la entrega 5.**
+      - **B-2 (solo con manipulación del cliente):** Log NC vuelve a leer la selección al
+        hacer Add-Done; cambiando el hidden field con el modal abierto se puede acertar el
+        paso sin scrapear. Desde la UI no se puede (el POD queda detrás del control). Queda
+        anotado.
+- [x] **Checklist del usuario:**
       - Moldeo en Assessment: todo correcto = 100% y "Aprobado" (AC-2).
       - Un paso fallado 1, 2 y 4 veces y otro fuera de secuencia, con el mismo puntaje y los
         mismos mensajes que antes (AC-3).

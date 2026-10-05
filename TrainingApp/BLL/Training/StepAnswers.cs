@@ -8,9 +8,10 @@ namespace TrainingApp.BLL.Training
         // Start directo (área sin checklist, spec 008): el paso se califica solo por secuencia.
         public const string Start = "start";
 
-        // Acción incorrecta del operador (botón equivocado, sin fila válida). Nunca
+        // Botón equivocado dentro de un control (ej. Add o Done en NC Data Entry). Nunca
         // coincide con un código NC del catálogo ni con "complete": StepValidator lo
-        // rechaza y la BLL registra el intento fallido.
+        // rechaza y la BLL registra el intento fallido. Las acciones sin fila válida (Log NC,
+        // Complete) las decide PodService sin pasar por el validador.
         public const string Invalid = "__invalid-action__";
     }
 }

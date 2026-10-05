@@ -206,6 +206,7 @@ namespace TrainingApp.Pages.Training
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
             StepSubmitResult result;
+            IList<SimulatedOrderRow> scrapped = null;
             switch (step.StepType)
             {
                 case StepType.ResourceSetup:
@@ -229,6 +230,13 @@ namespace TrainingApp.Pages.Training
                     result = close.Step;
                     break;
 
+                case StepType.LogNC:
+                    // Resuelto el paso, la BLL scrapea las filas seleccionadas (spec 007).
+                    var logNC = Pod.SubmitLogNC(_ctx, e.Answer, SelectedIds());
+                    result   = logNC.Step;
+                    scrapped = logNC.Scrapped;
+                    break;
+
                 default:
                     result = Pod.SubmitStep(_ctx, e.Answer);
                     break;
@@ -238,7 +246,7 @@ namespace TrainingApp.Pages.Training
             var outcome = result.Outcome;
 
             // Spec 006 (E3): respuesta incorrecta → el control queda abierto en el modal
-            // donde se respondió y solo se ve el SweetAlert con el hint (de ProcessSubmit).
+            // donde se respondió y solo se ve el SweetAlert con el hint (de ApplySubmitResult).
             if (outcome == StepSubmitOutcome.Incorrect)
             {
                 // Search tiene 4 modales: el control sabe cuál contiene la respuesta a corregir.
@@ -253,14 +261,16 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            ContinueAfterStepResolved(session, guide, area, step, outcome);
+            ContinueAfterStepResolved(session, guide, area, step, outcome, scrapped);
         }
 
         // Paso resuelto (Correct, FailedForced o sesión completada) desde un control: cierra el
         // control, habilita el botón del paso siguiente y aplica lo propio de cada paso. Lo
         // usan el submit de los controles y el ensamble del último componente (spec 008).
+        // scrapped: filas que la BLL sacó de la orden al resolver Log NC.
         private void ContinueAfterStepResolved(TrainingSession session, TrainingGuide guide,
-            Area area, TrainingStep step, StepSubmitOutcome outcome)
+            Area area, TrainingStep step, StepSubmitOutcome outcome,
+            IList<SimulatedOrderRow> scrapped = null)
         {
             // Sesión completada: ShowCompletionPanel ya cerró todos los controles. La sesión ya
             // refleja el intento registrado (PodService actualiza el contexto).
@@ -318,7 +328,7 @@ namespace TrainingApp.Pages.Training
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("SFC Split completed successfully");
             else if (step.StepType == StepType.LogNC)
-                ScrapSelectedRows(area, session);
+                ShowScrapped(area, session, scrapped);
         }
 
         // Assembly (spec 008): el operador ensambló un componente del BOM. Mientras falten
@@ -352,18 +362,14 @@ namespace TrainingApp.Pages.Training
         }
 
         // Spec 007: el scrap elimina la fila de la orden simulada, tanto en Correct como en
-        // FailedForced. Sin fila válida (force-advance por el gate de LogNC) no se toca nada.
-        // Spec 008: en Serialized se scrapean todas las filas seleccionadas de una vez.
-        private void ScrapSelectedRows(Area area, TrainingSession session)
+        // FailedForced (lo hace la BLL). Sin fila válida no se tocó nada. Spec 008: en
+        // Serialized se scrapean todas las filas seleccionadas de una vez.
+        private void ShowScrapped(Area area, TrainingSession session, IList<SimulatedOrderRow> rows)
         {
-            var rows = FindScrappableRows(area);
-            if (rows.Count == 0) return;
-
-            var order = Order;
-            order.Remove(rows);
+            if (rows == null || rows.Count == 0) return;
 
             string scrapped = rows.Count == 1
-                ? "All of " + (rows[0].SFCCode ?? order.SFCCode)
+                ? "All of " + (rows[0].SFCCode ?? Order.SFCCode)
                 : rows.Count + " SFCs";
 
             ClearRowSelection();
@@ -373,26 +379,6 @@ namespace TrainingApp.Pages.Training
             BindWorkList(area, session);
             ShowBanner(scrapped + " scrapped", hideAfterMs: 5000);
         }
-
-        // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
-        // lote no se scrapea (spec 007). Serialized: las filas seleccionadas, siempre que
-        // quede al menos una pieza para Complete (spec 008).
-        private IList<SimulatedOrderRow> FindScrappableRows(Area area)
-        {
-            var selected = FindSelectedOrderRows();
-
-            if (area.SerializationType == SerializationType.Serialized)
-                return PieceSelectionRule.Evaluate(StepType.LogNC, selected.Count, ActiveRowCount())
-                       == PieceSelectionResult.Valid
-                    ? selected
-                    : new List<SimulatedOrderRow>();
-
-            return selected.Count == 1 && selected[0].IsFromSplit
-                ? selected
-                : new List<SimulatedOrderRow>();
-        }
-
-        private int ActiveRowCount() => Order?.ActiveRows().Count ?? 0;
 
         // El operador sale del control sin responder (no cuenta como intento). Mismo
         // criterio que el guard de sender: solo el control abierto puede cerrarse.
@@ -444,15 +430,6 @@ namespace TrainingApp.Pages.Training
             }
         }
 
-        // incorrectFeedback: texto que reemplaza al hint genérico si el Answer resulta incorrecto.
-        private StepSubmitOutcome ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
-            TrainingStep step, string answer, string incorrectFeedback = null)
-        {
-            var result = Pod.SubmitStep(_ctx, answer);
-            ApplySubmitResult(result, session, guide, area, step, incorrectFeedback);
-            return result.Outcome;
-        }
-
         private void ApplySubmitResult(StepSubmitResult result, TrainingSession session, TrainingGuide guide,
             Area area, TrainingStep step, string incorrectFeedback)
         {
@@ -483,30 +460,26 @@ namespace TrainingApp.Pages.Training
         }
 
         // Assessment (S2): todos los botones del POD están habilitados y un click en uno que
-        // no es el del paso actual es un intento fallido de ese paso (lo registra la BLL).
-        // Se evalúa antes que cualquier aviso de formato del botón. Devuelve true si el click
-        // fue fuera de secuencia; en Guided esos botones están deshabilitados y se ignora.
-        private bool HandleOutOfSequence(StepType? clicked, TrainingSession session, TrainingGuide guide,
-            Area area, TrainingStep step)
+        // no es el del paso actual es un intento fallido de ese paso (lo decide la BLL antes que
+        // cualquier aviso de formato). Devuelve true si el click fue fuera de secuencia; en
+        // Guided esos botones están deshabilitados y el click se ignora.
+        private bool HandleOutOfSequence(PodCommandResult result, TrainingSession session,
+            TrainingGuide guide, Area area, TrainingStep step)
         {
-            if (step.StepType == clicked) return false;
+            if (!result.OutOfSequence) return false;
+            if (result.Step == null) return true;
 
-            var result = Pod.RegisterOutOfSequence(_ctx, clicked);
-            if (result == null) return true;
-
-            ApplySubmitResult(result, session, guide, area, step, incorrectFeedback: null);
-            if (result.Outcome == StepSubmitOutcome.FailedForced)
-                RestorePodAfterForcedAdvance(step.StepType, session, area);
+            ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+            if (result.PodChanged)
+                RepaintAfterForcedAdvance(step.StepType, session, area);
             return true;
         }
 
-        // Un paso forzado por errores de secuencia nunca abrió su control: la BLL deja el POD
+        // Un paso forzado por errores de secuencia nunca abrió su control: la BLL ya dejó el POD
         // como si el paso se hubiera hecho (orden por defecto, piezas iniciadas, split por
         // defecto) y la página lo vuelve a pintar.
-        private void RestorePodAfterForcedAdvance(StepType forcedStep, TrainingSession session, Area area)
+        private void RepaintAfterForcedAdvance(StepType forcedStep, TrainingSession session, Area area)
         {
-            bool orderChanged = Pod.RestoreAfterForcedAdvance(_ctx, forcedStep);
-
             if (forcedStep == StepType.ResourceSetup)
             {
                 BindBrowseList(area, session);
@@ -515,10 +488,28 @@ namespace TrainingApp.Pages.Training
             {
                 ShowStartedOrder(area, session);
             }
-            else if (forcedStep == StepType.SFC_Split && orderChanged)
+            else if (forcedStep == StepType.SFC_Split)
             {
                 ClearRowSelection();
                 BindWorkList(area, session);
+            }
+        }
+
+        // Texto del intento fallido que decidió la BLL sin pasar por el validador (Guided lo
+        // muestra en lugar del hint; Assessment muestra los intentos restantes).
+        private static string AttemptFeedback(PodAttemptReason reason, Area area)
+        {
+            bool serialized = area.SerializationType == SerializationType.Serialized;
+            switch (reason)
+            {
+                case PodAttemptReason.NoScrappableRow:
+                    return serialized
+                        ? "Selecciona una fila para scrapear"
+                        : "Selecciona una fila creada por el split para scrapear";
+                case PodAttemptReason.NoRowToComplete:
+                    return serialized ? "Select all rows to complete" : "Select 1 row to complete";
+                default:
+                    return null;
             }
         }
 
@@ -561,7 +552,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.ResourceSetup, session, guide, area, step)) return;
+            if (HandleOutOfSequence(Pod.OpenResourceSetup(_ctx), session, guide, area, step)) return;
             OpenStepControl(StepType.ResourceSetup, area, session, guide, "modalResourceSetup");
         }
 
@@ -569,7 +560,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.LineClearance, session, guide, area, step)) return;
+            if (HandleOutOfSequence(Pod.OpenLineClearance(_ctx), session, guide, area, step)) return;
             // LineClearance se abre como "Data Collection Standalone" desde Activities.
             OpenStepControl(StepType.LineClearance, area, session, guide, "modalDCStandalone");
         }
@@ -578,9 +569,8 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.Search, session, guide, area, step)) return;
-
             var result = Pod.ClickStart(_ctx, BrowseSelectedIds(), ScannedSfc());
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
             if (result.Notice != PodNotice.None)
             {
                 ShowNotice(result.Notice);
@@ -601,10 +591,6 @@ namespace TrainingApp.Pages.Training
             ShowStartedOrder(area, session);
             ShowBanner("Start process completed successfully");
         }
-
-        private const string AllPiecesTitle   = "Selecciona todas las piezas";
-        private const string AllPiecesMessage =
-            "En el simulador se trabajan todas las piezas juntas: selecciona todas las filas.";
 
         // SFC capturado para el Start de NonSerialized: escaneado en TxtSFC o elegido en Browse.
         private string ScannedSfc()
@@ -644,12 +630,11 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.Assembly, session, guide, area, step)) return;
-
-            var notice = Pod.OpenAssembly(_ctx, SelectedIds());
-            if (notice != PodNotice.None)
+            var result = Pod.OpenAssembly(_ctx, SelectedIds());
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            if (result.Notice != PodNotice.None)
             {
-                ShowSelectionNotice(notice, area, session);
+                ShowSelectionNotice(result.Notice, area, session);
                 return;
             }
 
@@ -679,15 +664,14 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.DataCollection, session, guide, area, step)) return;
-
             // Defensa en servidor: el HiddenField puede faltar, estar obsoleto o ser
             // manipulado aunque la validación JavaScript haya sido omitida. La BLL decide la
             // selección y, en la primera apertura, fija las piezas a recorrer (spec 008).
-            var notice = Pod.OpenDataCollection(_ctx, SelectedIds());
-            if (notice != PodNotice.None)
+            var result = Pod.OpenDataCollection(_ctx, SelectedIds());
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            if (result.Notice != PodNotice.None)
             {
-                ShowSelectionNotice(notice, area, session,
+                ShowSelectionNotice(result.Notice, area, session,
                     "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.");
                 return;
             }
@@ -755,12 +739,11 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.SFC_Split, session, guide, area, step)) return;
-
-            var notice = Pod.OpenSplit(_ctx, SelectedIds());
-            if (notice != PodNotice.None)
+            var result = Pod.OpenSplit(_ctx, SelectedIds());
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            if (result.Notice != PodNotice.None)
             {
-                ShowSelectionNotice(notice, area, session);
+                ShowSelectionNotice(result.Notice, area, session);
                 return;
             }
 
@@ -771,26 +754,19 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.LogNC, session, guide, area, step)) return;
-
-            // Spec 008: en Serialized scrapear todas las piezas es un aviso de formato, sin
-            // intento — tiene que quedar al menos una para Complete.
-            if (area.SerializationType == SerializationType.Serialized &&
-                PieceSelectionRule.Evaluate(StepType.LogNC, FindSelectedOrderRows().Count,
-                    ActiveRowCount()) == PieceSelectionResult.NoPieceLeft)
+            // La BLL decide: aviso si en Serialized no queda pieza para Complete; intento
+            // fallido si no hay una fila scrapeable (spec 007/008).
+            var result = Pod.OpenLogNC(_ctx, SelectedIds());
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            if (result.Notice != PodNotice.None)
             {
-                ShowSweetAlert("warning", "Selección inválida", "Debe quedar al menos una pieza para Complete.");
+                ShowNotice(result.Notice);
                 return;
             }
-
-            // Spec 007: abrir Log NC sin una fila scrapeable es un intento fallido del paso.
-            // No hay gate en el cliente: el click tiene que llegar acá para registrarse.
-            if (FindScrappableRows(area).Count == 0)
+            if (result.Step != null)
             {
-                string feedback = area.SerializationType == SerializationType.NonSerialized
-                    ? "Selecciona una fila creada por el split para scrapear"
-                    : "Selecciona una fila para scrapear";
-                ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, feedback);
+                ApplySubmitResult(result.Step, session, guide, area, step,
+                    AttemptFeedback(result.AttemptReason, area));
                 return;
             }
 
@@ -804,7 +780,7 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            HandleOutOfSequence(null, session, guide, area, step);
+            HandleOutOfSequence(Pod.ClickNonStepAction(_ctx), session, guide, area, step);
         }
 
         private System.Web.UI.HtmlControls.HtmlButton[] NonStepActionButtons => new[]
@@ -818,33 +794,18 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            if (HandleOutOfSequence(StepType.Complete, session, guide, area, step)) return;
-
-            if (area.SerializationType == SerializationType.Serialized)
+            // La BLL decide: aviso por selección parcial (Serialized), intento fallido sin la
+            // selección del paso (spec 007/008) o el Complete.
+            var result = Pod.Complete(_ctx, SelectedIds());
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            if (result.Notice != PodNotice.None)
             {
-                // Spec 008: Complete cierra todas las filas que quedan en el POD. Algunas: aviso
-                // de formato, sin intento. Ninguna: intento fallido (spec 007).
-                var result = PieceSelectionRule.Evaluate(StepType.Complete,
-                    FindSelectedOrderRows().Count, ActiveRowCount());
-                if (result == PieceSelectionResult.MissingPieces)
-                {
-                    ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
-                    return;
-                }
-                if (PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, result))
-                {
-                    ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, "Select all rows to complete");
-                    return;
-                }
-            }
-            else if (FindSelectedOrderRow() == null)
-            {
-                // Spec 007: Complete sin fila seleccionada es un intento fallido del paso.
-                ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, "Select 1 row to complete");
+                ShowNotice(result.Notice);
                 return;
             }
 
-            ProcessSubmit(session, guide, area, step, StepAnswers.Complete);
+            ApplySubmitResult(result.Step, session, guide, area, step,
+                AttemptFeedback(result.AttemptReason, area));
         }
 
         protected void BtnAbandon_Click(object sender, EventArgs e)
@@ -1242,7 +1203,8 @@ namespace TrainingApp.Pages.Training
                 case PodNotice.ResourceSetupRequired:
                     return ("Resource Setup requerido", "Debes completar Resource Setup antes de iniciar.");
                 case PodNotice.SelectAllPieces:
-                    return (AllPiecesTitle, AllPiecesMessage);
+                    return ("Selecciona todas las piezas",
+                        "En el simulador se trabajan todas las piezas juntas: selecciona todas las filas.");
                 case PodNotice.SfcRequired:
                     return ("Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
                 case PodNotice.SelectOneRow:
@@ -1256,6 +1218,8 @@ namespace TrainingApp.Pages.Training
                     return ("SFC Split", "SFC Split no es el paso activo.");
                 case PodNotice.InvalidSplit:
                     return ("SFC Split", "La fila o cantidad seleccionada ya no es válida.");
+                case PodNotice.NoPieceLeft:
+                    return ("Selección inválida", "Debe quedar al menos una pieza para Complete.");
                 default:
                     throw new ArgumentOutOfRangeException(nameof(notice), notice, null);
             }
