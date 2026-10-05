@@ -12,9 +12,10 @@ namespace TrainingApp.BLL.Training
 
         public TrainingSession Start(int operatorId, int guideId, SessionMode mode)
         {
-            // La sesión que quedó a medias en esta guía se marca Abandoned y conserva sus
-            // intentos para el instructor (auditoría AUD-01, decisión D-4).
-            _sessionRepo.AbandonActiveByOperator(operatorId, guideId);
+            // Una sola sesión activa por operador (spec 009, D-9): la que quedó a medias, de
+            // esta u otra guía, se marca Abandoned y conserva sus intentos para el instructor
+            // (auditoría AUD-01, decisión D-4).
+            AbandonAllActive(operatorId);
 
             var session = new TrainingSession
             {
@@ -34,6 +35,13 @@ namespace TrainingApp.BLL.Training
         {
             LoadOwnedSession(sessionId, operatorId);
             _sessionRepo.Abandon(sessionId);
+        }
+
+        // Logout (D-9): salir deja Abandoned las sesiones en curso del operador. Cerrar la
+        // ventana no llega al servidor: esa sesión queda InProgress hasta el siguiente inicio.
+        public void AbandonAllActive(int operatorId)
+        {
+            _sessionRepo.AbandonActiveByOperator(operatorId);
         }
 
         // Dueño de la sesión (auditoría AUD-05): la página ya lo valida, pero la BLL no confía

@@ -87,9 +87,10 @@ GO
 
 -- -------------------------------------------------------
 -- spTrainingSessionAbandonActiveByOperator
--- Marca como Abandoned (Status 2) las sesiones InProgress
--- (Status 0) del operador para una guía dada antes de
--- iniciar una nueva. Conserva los intentos (auditoría
+-- Marca como Abandoned (Status 2) todas las sesiones
+-- InProgress (Status 0) del operador: una sola sesión activa
+-- por operador (spec 009, D-9). Se usa al iniciar cualquier
+-- guía y en el logout. Conserva los intentos (auditoría
 -- AUD-01, decisión D-4): el DELETE que lo precedía fallaba
 -- por la FK de TrainingSessionStepAttempts.
 -- -------------------------------------------------------
@@ -102,16 +103,14 @@ IF OBJECT_ID('dbo.spTrainingSessionAbandonActiveByOperator', 'P') IS NOT NULL
 GO
 
 CREATE PROCEDURE dbo.spTrainingSessionAbandonActiveByOperator
-    @OperatorId      INT,
-    @TrainingGuideId INT
+    @OperatorId INT
 AS
 BEGIN
     SET NOCOUNT ON;
     UPDATE dbo.TrainingSessions
     SET    Status      = 2,
            CompletedAt = SYSUTCDATETIME()
-    WHERE  OperatorId      = @OperatorId
-    AND    TrainingGuideId = @TrainingGuideId
-    AND    Status          = 0;
+    WHERE  OperatorId = @OperatorId
+    AND    Status     = 0;
 END;
 GO

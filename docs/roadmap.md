@@ -13,21 +13,17 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-10-02 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** `a99b61f`, auditoría E5 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-05 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 009, entrega 6 (`git log --oneline -10` para ver el estado real)
 
-**Resumen para retomar (sesión 2026-10-01/02):** se cerró el criterio de la 6.5 (falta que
-el usuario confirme el cierre) y se hizo una **auditoría completa** del proyecto: 32
-hallazgos, 8 decisiones (D-1…D-8) y 5 entregas corregidas y verificadas en el navegador
-(E1-E5), ya en `TrainingApp`, en `main` y con push. Detalle en "Auditoría 2026-10-01", más
-abajo. El 2026-10-02 el usuario confirmó el cierre de la 6.5 y el orden. **Qué sigue:**
-(1) **spec 009 · motor del POD** (AUD-16, 25, 26) → `docs/specs/009-motor-pod.md`,
-aprobada 2026-10-05 (D-9 a D-12), plan en `docs/specs/009-plan.md` (6 entregas;
-la 1 —contexto único, estado del POD en la BLL y puntaje sin recalcular— verificada por el
-usuario el 2026-10-05; la 2 —Resource Setup, Start y SFC Split en la BLL— verificada el
-mismo día; la 3 —Assembly y Data Collection— verificada; la 4 —Log NC, Complete y la secuencia en la
-BLL— verificada; la 5 —reconstrucción del estado y el arreglo B-1— commiteada a pedido del
-usuario, su checklist va con el de la 6); (2) spec de la **6.6 · Overlays**. La Fase 7 sigue esperando a negocio (#3)
-y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
+**Resumen para retomar (sesión 2026-10-05):** se cerró la **spec 009 · motor del POD**
+(AUD-16, 25, 26; decisiones D-9 a D-12) en 6 entregas, todas en `TrainingApp`: la lógica
+del POD vive en `PodService` (BLL), el contexto se carga una vez por request, el estado
+del POD sigue en Session y se reconstruye si se pierde, y hay una sola sesión activa por
+operador. Detalle en `docs/specs/009-plan.md`. **Qué sigue:** spec de la **6.6 ·
+Overlays**. La Fase 7 sigue esperando a negocio (#3) y la Fase 5 (tests) sigue en pausa
+hasta el final, por decisión del usuario. Anotado para decidir aparte: el Start de
+NonSerialized acepta cualquier SFC escrito (plan 009, E2) y B-2 de Log NC (solo con
+manipulación del cliente, plan 009, E4).
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
@@ -116,8 +112,8 @@ y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
   rama `audit/fase-a-hallazgos`, 2026-10-02); el usuario también actualizó `main` con
   `TrainingApp` y le hizo push. El build quedó en 0 warnings. **Los tests quedaron fuera**
   por decisión del usuario. Lo que sigue abierto de la auditoría:
-  - **Spec del motor** (AUD-16, 25, 26): sacar de `GuidedTest` la lógica del POD a la BLL y
-    persistir su estado en BD. Antes de la 6.6, porque los overlays se anclan a esa página.
+  - ✅ **Spec 009 · motor del POD** (AUD-16, 25, 26), cerrada 2026-10-05: la lógica del POD
+    en la BLL; el estado sigue en Session y se reconstruye si se pierde (D-10).
   - **Fase 9 (o cuando el usuario lo pida explícitamente, D-7):** AUD-28 (endurecimiento
     del deploy) y AUD-29 (actualizar paquetes).
   - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` (AUD-04; sigue
@@ -147,7 +143,8 @@ y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
    versiona); en un checkout nuevo se copia de `connectionStrings.config.example`.
    Auditoría E3: el usuario corrió `03` y `04` (`spStepAttemptRecord` reemplaza a
    `spStepAttemptInsert`, `spStepAttemptGetBySessionAndStep`, `spTrainingSessionUpdateStep`
-   y `spTrainingSessionComplete`; `spTrainingSessionAbandon` ya no pisa sesiones completadas).
+   y `spTrainingSessionComplete`; `spTrainingSessionAbandon` ya no pisa sesiones completadas). Spec 009, entrega 6: el
+   usuario corrió `03` (`spTrainingSessionAbandonActiveByOperator` sin `@TrainingGuideId`).
 3. **Proceso acordado:**
    - Funcionalidad o reglas de negocio nuevas → `/spec` → aprobación explícita → `/plan`
      (guardado en `docs/specs/NNN-plan.md`, en entregas chicas) → implementación.
@@ -196,12 +193,13 @@ y la Fase 5 (tests) sigue en pausa hasta el final, por decisión del usuario.
   vacíos (como DC y Assembly); separar `IStepControl` va con la spec del motor.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007), hasta que lo pida un instructor o la Fase 8.
-- **Pérdida de la Session a mitad de sesión** (spec 008, E7): la orden simulada y el
+- ✅ **Resuelto en la spec 009 (D-10):** **Pérdida de la Session a mitad de sesión** (spec 008, E7): la orden simulada y el
   avance de DC/Assembly viven solo en `HttpSessionState`; si se pierden, el operador
   tiene que reiniciar. No se implementa ahora; caso especial a analizar cuando
   evolucione la arquitectura de flujos (opción: persistirlos en BD por sesión).
   → La auditoría lo divide en **AUD-12** (arreglo rápido: la Session dura 20 min y el
-  login 60) y **AUD-26** (persistir en BD, con la spec del motor).
+  login 60) y **AUD-26**: la spec 009 lo resolvió reconstruyendo el estado con la orden
+  por defecto, sin persistir en BD (D-10).
 
 ### Auditoría 2026-10-01 — lista única de hallazgos
 
@@ -252,7 +250,7 @@ diseño.
 | AUD-13 | Medio | El `StepValidator` se cachea 60 min por área con los flags y catálogos; la página los lee frescos. Tras correr un script de catálogo, la UI y la calificación no coinciden (ej. cambiar `RequiresStartChecklist` deja a Guided atascado en Start). | `TrainingSessionService.cs:237` | Quitar la caché (armarlo es barato) o invalidarla. | E1 ✅ |
 | AUD-14 | Medio | `GuidedTest` usa 4 repositorios de la DAL directamente (ya estaba en la deuda). | `GuidedTest.aspx.cs:23-26` | Pasar por `TrainingGuideService` (`GetArea`, `GetNCCodes`, `GetDataCollectionParameters`). | E4 ✅ |
 | AUD-15 | Medio | `SessionHelper` (en `Shared`) usa `OperatorRepository` y `System.Web`: las páginas llegan a la DAL sin pasar por la BLL y se forma un ciclo `Shared` ↔ DAL. | `SessionHelper.cs:30` | `AuthService.GetOperatorByCode1` y mover `SessionHelper` a la capa de presentación. | E4 ✅ |
-| AUD-16 | Medio | `GuidedTest.aspx.cs` (1,407 líneas) es el motor real: modifica la orden simulada en el split y decide cuándo una selección de piezas es intento fallido (en NonSerialized, "Complete sin fila" está escrito en la página). | `GuidedTest.aspx.cs:379, 417-440, 655, 726, 867, 915-933` | Un servicio de la BLL dueño de la orden y del avance (ej. `PodService`), con comandos Start/Split/Complete. Incluye AUD-25 y AUD-26. | Spec 009 (aprobada 2026-10-05) |
+| AUD-16 | Medio | `GuidedTest.aspx.cs` (1,407 líneas) es el motor real: modifica la orden simulada en el split y decide cuándo una selección de piezas es intento fallido (en NonSerialized, "Complete sin fila" está escrito en la página). | `GuidedTest.aspx.cs:379, 417-440, 655, 726, 867, 915-933` | Un servicio de la BLL dueño de la orden y del avance (ej. `PodService`), con comandos Start/Split/Complete. Incluye AUD-25 y AUD-26. | Spec 009 ✅ |
 | AUD-17 | Bajo | No hay protección CSRF: ni `ViewStateUserKey` ni el token anti-XSRF del template. | `Site.Master.cs`, `Training.master.cs` | `ViewStateUserKey = Session.SessionID` en `Page_Init` de los dos masters. | E2 ✅ |
 | AUD-18 | Bajo | `EscapeJs` no escapa `\`, `\r` ni `</script>`. Hoy solo recibe mensajes del servidor. | `GuidedTest.aspx.cs:1385` | `HttpUtility.JavaScriptStringEncode`. | E2 ✅ |
 | AUD-19 | Bajo | Assembly muestra "Component X assembled" aunque la BLL haya rechazado el componente (id fuera del BOM). | `GuidedTest.aspx.cs:319` | Revisar `AssemblySubmitResult.ComponentAssembled`, que hoy nadie lee. | E1 ✅ |
@@ -261,8 +259,8 @@ diseño.
 | AUD-22 | Bajo | El proyecto **web** referencia `Microsoft.ApplicationInsights` (sin uso) y 6 paquetes de testing (`Microsoft.Testing.*`, `TestPlatform.ObjectModel`), que además generan un `Main` en `obj/`. | `packages.config`, `TrainingApp.csproj:3-5, 50-77` | Quitarlos con NuGet (tienen dependencias transitivas). | E5 ✅ |
 | AUD-23 | Bajo | Restos del template de VS: `Site.Master` muestra "Application name" y enlaces a `~/About` y `~/Contact` (404); ~45 archivos estáticos sin uso (variantes de Bootstrap/jQuery, MsAjax, Menu, SmartNav); Modernizr y los bundles MsAjax sin uso; jQuery probablemente cargado dos veces en el POD; 2 líneas basura en `.gitignore`; ~16 `using` sin uso. | `UI/master/Site.Master`, `Content/`, `Scripts/`, `App_Start/BundleConfig.cs`, `.gitignore` | Limpiar. Conservar `WebForms.js`, `WebUIValidation.js`, `Focus.js` y el mapping `jquery` (los usan los validadores). | E5 ✅ |
 | AUD-24 | Bajo | Los data-binding usan `<%# Eval(...) %>` sin codificar. Hoy los datos vienen de la BD o son números validados. | `GuidedTest.aspx:153-166, 342-350`, `DataCollectionControl.ascx`, `LogNCControl.ascx` | `<%#: ... %>` por consistencia. | E5 ✅ |
-| AUD-25 | Bajo | Unas 15 conexiones a SQL por click en el POD: `GetContext` recarga sesión, guía y área; `UpdateScoreWidget` vuelve a consultar; `RecordAttempt` calcula el puntaje y lo descarta. | `GuidedTest.aspx.cs`, `TrainingSessionService.cs:195-224` | Usar `StepSubmitResult.CurrentScore` y cargar el contexto una vez por request. | Spec 009 |
-| AUD-26 | Bajo | La orden simulada y el avance de DC/Assembly viven solo en la Session (ya estaba en la deuda, spec 008 E7). | `GuidedTest.aspx.cs`, `Constants.SessionKeys` | ~~Persistirlos en BD por sesión.~~ Siguen en Session; si faltan, la BLL los reconstruye (**D-10**). | Spec 009 |
+| AUD-25 | Bajo | Unas 15 conexiones a SQL por click en el POD: `GetContext` recarga sesión, guía y área; `UpdateScoreWidget` vuelve a consultar; `RecordAttempt` calcula el puntaje y lo descarta. | `GuidedTest.aspx.cs`, `TrainingSessionService.cs:195-224` | Usar `StepSubmitResult.CurrentScore` y cargar el contexto una vez por request. | Spec 009 ✅ |
+| AUD-26 | Bajo | La orden simulada y el avance de DC/Assembly viven solo en la Session (ya estaba en la deuda, spec 008 E7). | `GuidedTest.aspx.cs`, `Constants.SessionKeys` | ~~Persistirlos en BD por sesión.~~ Siguen en Session; si faltan, la BLL los reconstruye (**D-10**). | Spec 009 ✅ |
 | AUD-27 | Bajo | La pregunta de Line Clearance está en el code-behind, contra "datos de simulación en SQL" de `CLAUDE.md`. | `GuidedTest.aspx.cs:1030` | Sin acción: la pregunta es la misma en todas las operaciones (D-6). | Cerrado (D-6) |
 | AUD-28 | Bajo | Endurecimiento para el deploy: cookies sin `requireSSL`, sin cabeceras de seguridad, `X-AspNet-Version` expuesto, el ID de Session no se renueva en el login, no hay `Application_Error` ni registro de errores o de logins fallidos, y el login no limita intentos. Sin `customErrors`, un valor con marcado en cualquier campo de texto libre (ej. Data Collection) muestra la pantalla de `HttpRequestValidationException` (Resource Setup ya lo bloquea en el cliente, E2). En IIS, el `idleTimeout` del app pool debe ser de al menos 60 min: si el proceso se detiene por inactividad, la Session InProc se pierde aunque su timeout sea 60 (E3). | `Web.config`, `Global.asax.cs`, `Login.aspx.cs` | Checklist de la Fase 9. | Fase 9 (D-7) |
 | AUD-29 | Bajo | Paquetes atrasados, ninguno con CVE: parches de Newtonsoft (13.0.4), jQuery (3.7.1), `Microsoft.Web.Infrastructure` (2.0.1) y `System.*`; mayor de CodeDom (2.0.1 → 4.1.0). Bootstrap 5.3.8 y SweetAlert2 11.26 pueden cambiar la UI. | `packages.config`, `Scripts/`, `UI/master/Training.Master` | Uno por uno; Bootstrap y SweetAlert después de la 6.6, revisando la UI. | Fase 9 (D-7) |
@@ -309,7 +307,7 @@ diseño.
 | E3 · Integridad del puntaje ✅ | AUD-05, 06, 07, 12 | Plan directo: toca el motor sin cambiar reglas, salvo AUD-07, que alinea el código con `CLAUDE.md` (D-2); AUD-06 incluye SP nuevo | `/code-review` |
 | E4 · Capas ✅ | AUD-14, 15 | Mecánico, solo enrutamiento | `/code-review` |
 | E5 · Limpieza ✅ | AUD-21, 22, 23, 24 | Mecánico | `/code-review` |
-| Spec 009 · motor del POD | AUD-16, 25, 26 | `/spec` aprobada 2026-10-05; plan `docs/specs/009-plan.md` (6 entregas) | `/code-review` por entrega |
+| Spec 009 · motor del POD ✅ | AUD-16, 25, 26 | `/spec` aprobada 2026-10-05; plan `docs/specs/009-plan.md` (6 entregas) | `/code-review` por entrega |
 
 **Pendientes menores de E5, dejados a propósito:** las `ScriptReference` del template en `Site.Master` (MenuStandards, GridView, DetailsView, TreeView, WebParts y los bundles MsAjax) siguen cargándose aunque ninguna página las use, porque quitarlas tiene riesgo sobre los validadores y casi ningún beneficio. Reinstalar los paquetes de contenido (`bootstrap`, `jQuery`, `ScriptManager.MSAjax`) devolvería los archivos que E5 borró, así que habría que borrarlos de nuevo. Separar `IStepControl` (los controles que nunca envían dejan el evento con accessors vacíos) va con la spec del motor.
 

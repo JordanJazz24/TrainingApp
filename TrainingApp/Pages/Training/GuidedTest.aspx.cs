@@ -844,6 +844,8 @@ namespace TrainingApp.Pages.Training
 
         protected void BtnLogout_ServerClick(object sender, EventArgs e)
         {
+            // Salir de la app abandona la sesión de entrenamiento en curso (spec 009, D-9).
+            new TrainingSessionService().AbandonAllActive(CurrentOperatorId);
             Session.Abandon();
             System.Web.Security.FormsAuthentication.SignOut();
             Response.Redirect("~/Pages/Auth/Login.aspx");

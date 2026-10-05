@@ -1,7 +1,7 @@
 # Plan de implementación — Spec 009
 
 **Spec:** `docs/specs/009-motor-pod.md` (Approved 2026-10-05)
-**Plan:** aprobado (2026-10-05), con las propuestas P-1 a P-4
+**Plan:** aprobado (2026-10-05), con las propuestas P-1 a P-4 · **Cerrado ✅ (2026-10-05)**
 **Arquitectura:** N-Tier (Pages → BLL → DAL → Domain) + stored procedures. Sin capas nuevas:
 el motor del POD pasa de `GuidedTest.aspx.cs` a `BLL/Training`.
 
@@ -237,7 +237,7 @@ VS y fuera del commit.
       - Redefinity: Log NC con todas las piezas (aviso), scrap de una pieza y Complete
         parcial (aviso) y sin selección (intento).
 
-### Entrega 5 — Reconstrucción del estado (AC-8, AC-9, AC-10) — commiteada a pedido del usuario (2026-10-05); su checklist se prueba con el de la E6
+### Entrega 5 — Reconstrucción del estado (AC-8, AC-9, AC-10) — verificada con el checklist de la E6 (2026-10-05)
 - [x] `LoadContext`: si el estado no tiene orden y Resource Setup ya se resolvió, rearma la
       orden por defecto y le aplica los efectos de los pasos resueltos, en el orden de la
       tabla de la spec (Domain Model → Reconstrucción). Assembly/DC a medias empiezan
@@ -266,22 +266,22 @@ VS y fuera del commit.
       (Redefinity a mitad de DC) y AC-10 (sesión en Resource Setup), cada uno en Assessment
       y comparando el puntaje antes y después.
 
-### Entrega 6 — Sesión única (D-9) y cierre (AC-11, AC-12, AC-13)
-- [ ] `03_spTrainingSession.sql`: `spTrainingSessionAbandonActiveByOperator` sin
+### Entrega 6 — Sesión única (D-9) y cierre (AC-11, AC-12, AC-13) — verificada (2026-10-05)
+- [x] `03_spTrainingSession.sql`: `spTrainingSessionAbandonActiveByOperator` sin
       `@TrainingGuideId` (abandona todas las `InProgress` del operador).
       `TrainingSessionRepository.AbandonActiveByOperator(operatorId)`. **Lo corre el
       usuario antes de probar**: el SP viejo pide 2 parámetros.
-- [ ] `TrainingSessionService.Start` abandona todas las sesiones del operador.
+- [x] `TrainingSessionService.Start` abandona todas las sesiones del operador.
       `AbandonAllActive(operatorId)` se usa en `BtnLogout_ServerClick` antes de
       `Session.Abandon()`.
-- [ ] Docs:
+- [x] Docs:
       - `CLAUDE.md`: árbol de arquitectura (BLL/Training: `PodService`, `PodContext`,
         `PodState`, `PodDefaults`, `SimulatedOrder`; Models sin la orden) y Key Conventions
         (estado del POD solo vía `PodService`).
       - `docs/roadmap.md`: AUD-16/25/26 ✅, deuda "Pérdida de la Session" resuelta y estado
         actual.
       - La spec 009 pasa a cerrada.
-- [ ] **Checklist del usuario:** AC-11 (iniciar otra guía abandona la anterior), AC-12
+- [x] **Checklist del usuario** (con el de la E5): AC-11 (iniciar otra guía abandona la anterior), AC-12
       (logout y volver por el historial → `StartSession`), AC-13 (cerrar la ventana: sigue
       `InProgress` hasta iniciar).
 

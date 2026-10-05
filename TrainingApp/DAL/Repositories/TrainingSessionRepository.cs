@@ -42,14 +42,11 @@ namespace TrainingApp.DAL.Repositories
                     cmd => cmd.Parameters.AddWithValue("@SessionId", sessionId));
         }
 
-        public void AbandonActiveByOperator(int operatorId, int trainingGuideId)
+        public void AbandonActiveByOperator(int operatorId)
         {
             using (var db = DatabaseFactory.Create())
-                db.ExecuteNonQuery("spTrainingSessionAbandonActiveByOperator", cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@OperatorId",      operatorId);
-                    cmd.Parameters.AddWithValue("@TrainingGuideId", trainingGuideId);
-                });
+                db.ExecuteNonQuery("spTrainingSessionAbandonActiveByOperator",
+                    cmd => cmd.Parameters.AddWithValue("@OperatorId", operatorId));
         }
 
         private static TrainingSession Map(SqlDataReader r) => new TrainingSession
