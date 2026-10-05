@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Web.Script.Serialization;
 using System.Web.UI;
-using TrainingApp.Domain;
+using TrainingApp.BLL.Training;
 using TrainingApp.Pages.Training.Models;
-using TrainingApp.Shared;
 
 namespace TrainingApp.UI.Controls.Training
 {
@@ -43,7 +42,7 @@ namespace TrainingApp.UI.Controls.Training
 
             if (ViewModel == null) return;
             LitSite.Text     = Page.Server.HtmlEncode(
-                ViewModel.ExtraData.ContainsKey("Site") ? ViewModel.ExtraData["Site"]?.ToString() : "CR9A");
+                ViewModel.ExtraData.ContainsKey("Site") ? ViewModel.ExtraData["Site"]?.ToString() : PodDefaults.Site);
             LitResource.Text = Page.Server.HtmlEncode(
                 ViewModel.ExtraData.ContainsKey("ResourceName") ? ViewModel.ExtraData["ResourceName"]?.ToString() : "");
 
@@ -55,8 +54,8 @@ namespace TrainingApp.UI.Controls.Training
         protected void BtnSave_Click(object sender, EventArgs e)
         {
             // ASP.NET dispara el click aunque el control ya esté cerrado (su modal de
-            // confirmación se renderizó en la respuesta anterior). El guard de sender de
-            // GuidedTest llega tarde: SaveSimulatedOrder sobrescribiría la orden (spec 006, E12).
+            // confirmación se renderizó en la respuesta anterior): un Save repetido no debe
+            // reemplazar la orden ni registrar otro intento (spec 006, E12).
             if (!Visible) return;
 
             string setupState = HfSetupState.Value;
@@ -94,8 +93,6 @@ namespace TrainingApp.UI.Controls.Training
                 return;
             }
 
-            SaveSimulatedOrder(shopOrderInput);
-
             // Build the answer JSON and submit the step
             var serializer = new JavaScriptSerializer();
             string answer  = serializer.Serialize(new { setupState = setupState ?? "", rows });
@@ -104,7 +101,8 @@ namespace TrainingApp.UI.Controls.Training
             Page.ClientScript.RegisterStartupScript(GetType(), "rsAfterSave",
                 "rsRestoreRows(" + serializer.Serialize(rows) + ");", true);
 
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer });
+            // La orden simulada la crea la BLL con esta Shop Order (spec 009).
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = answer, ShopOrder = shopOrderInput });
         }
 
         // Banner "Record change": lo muestra GuidedTest solo cuando el servidor aceptó el paso.
@@ -179,25 +177,6 @@ namespace TrainingApp.UI.Controls.Training
         {
             return !string.IsNullOrEmpty(value) &&
                    System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+$");
-        }
-
-        private void SaveSimulatedOrder(string shopOrderInput)
-        {
-            int sessionId = ViewModel.ExtraData.ContainsKey("TrainingSessionId")
-                ? Convert.ToInt32(ViewModel.ExtraData["TrainingSessionId"]) : 0;
-            string materialDescription = ViewModel.ExtraData.ContainsKey("MaterialDescription")
-                ? ViewModel.ExtraData["MaterialDescription"]?.ToString() : "";
-            int initialQty = ViewModel.ExtraData.ContainsKey("InitialQty")
-                ? Convert.ToInt32(ViewModel.ExtraData["InitialQty"]) : 250;
-            var serializationType = ViewModel.ExtraData.ContainsKey("SerializationType")
-                ? (SerializationType)ViewModel.ExtraData["SerializationType"]
-                : SerializationType.NonSerialized;
-
-            // Serialized: genera las piezas (3-5 SFCs, en New hasta el Start — spec 008).
-            var order = SimulatedOrder.Create(shopOrderInput, materialDescription, initialQty, serializationType);
-
-            // Reemplaza cualquier orden previa de esta TrainingSession.
-            Page.Session[Constants.SessionKeys.SimulatedOrderPrefix + sessionId] = order;
         }
     }
 }

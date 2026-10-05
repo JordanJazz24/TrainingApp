@@ -76,22 +76,20 @@ namespace TrainingApp.BLL.Training
             return _guideRepo.GetByArea(areaId);
         }
 
-        // Loads all catalog data for the guide's area and returns a ready-to-use
-        // StepValidator. Call once per session, then pass the validator to each
-        // step submission.
-        public StepValidator BuildValidatorForGuide(TrainingGuide guide)
+        // Validador del paso con el catálogo que ese paso usa: códigos NC en Log NC y
+        // parámetros en Data Collection; el resto no consulta la BD. Sin caché: un script de
+        // catálogo se ve en el siguiente click (AUD-13).
+        public StepValidator BuildValidator(Area area, StepType stepType)
         {
-            var area      = _areaRepo.GetById(guide.AreaId);
-            var ncCodes   = _ncCodeRepo.GetByArea(guide.AreaId);
-            var dcParams  = _dcParamRepo.GetByArea(guide.AreaId);
-
             // Assembly no pasa por el validador: su avance lo resuelve
-            // TrainingSessionService.AssembleComponent contra el BOM (spec 008).
+            // PodService.AssembleComponent contra el BOM (spec 008).
             var context = new StepValidationContext
             {
                 Area                 = area,
-                ValidNCCodes         = ncCodes,
-                DataCollectionParams = dcParams
+                ValidNCCodes         = stepType == StepType.LogNC
+                    ? _ncCodeRepo.GetByArea(area.Id) : new List<NCCode>(),
+                DataCollectionParams = stepType == StepType.DataCollection
+                    ? _dcParamRepo.GetByArea(area.Id) : new List<DataCollectionParameter>()
             };
 
             return new StepValidator(context);

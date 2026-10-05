@@ -233,8 +233,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   └── Training/
 │   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
-│   │       └── Models/                    ← modelos de UI: StepViewModel, IStepControl,
-│   │                                         SimulatedOrder(+Row) en Session, StepAnswers
+│   │       ├── SessionPodStateStore.cs    ← IPodStateStore sobre la Session (spec 009)
+│   │       └── Models/                    ← modelos de UI: StepViewModel (+ EventArgs),
+│   │                                         IStepControl, PodWorkListRow
 │   ├── UI/
 │   │   ├── Controls/Training/             ← un UserControl por tipo de paso (spec 006):
 │   │   │                                     ResourceSetup, LineClearance, Search (4 modales
@@ -246,15 +247,20 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Auth/
 │   │   │   └── AuthService.cs
 │   │   ├── Training/
-│   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM)
-│   │   │   ├── TrainingSessionService.cs  ← SubmitStep, RegisterOutOfSequence,
-│   │   │   │                                 AssembleComponent, SubmitDataCollectionGroup
-│   │   │   │                                 (reciben operatorId; intento + avance atómico
-│   │   │   │                                 con spStepAttemptRecord)
+│   │   │   ├── TrainingGuideService.cs    ← guías, catálogos (grupos DC, BOM) y validador
+│   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
+│   │   │   ├── PodService.cs              ← motor del POD (spec 009): LoadContext (una vez
+│   │   │   │                                 por request) y comandos que registran intentos
+│   │   │   │                                 (intento + avance atómico con spStepAttemptRecord)
+│   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje y estado
+│   │   │   ├── PodState.cs                ← estado del POD (orden + avance) e IPodStateStore
+│   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
+│   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
+│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, start, acción inválida)
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
-│   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (vive en Session)
-│   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (vive en Session)
+│   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
+│   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
 │   │   └── Scoring/
 │   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
 │   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
@@ -330,7 +336,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 - **Session solo desde el servidor** — `Session["OperatorId"]` etc. se escribe únicamente tras autenticación exitosa. Nunca se escribe desde JavaScript ni desde el cliente.
 - **Contraseña por defecto en Constants.cs** — `Constants.DEFAULT_PASSWORD`. No en `Web.config`, no hardcodeada en páginas.
 - **Connection string fuera del repo** — clave `"Default"`, leída por `DatabaseFactory`. Vive en `TrainingApp/connectionStrings.config` (`configSource` desde `Web.config`, en `.gitignore`); en un checkout nuevo se copia de `connectionStrings.config.example`. Nunca hardcodeada ni versionada (auditoría AUD-04).
-- **La BLL protege sus invariantes** — los métodos de `TrainingSessionService` que registran intentos (y `Abandon`) reciben el `operatorId` autenticado y validan dueño, estado y paso actual; violarlos es una excepción, no un intento. El intento y el avance/cierre se guardan juntos (`spStepAttemptRecord`, transacción). No confiar en que la página ya validó (auditoría AUD-05/06).
+- **La BLL protege sus invariantes** — `PodService.LoadContext` recibe el `operatorId` autenticado y solo devuelve contexto para una sesión propia y en curso; los comandos de `PodService` que registran intentos usan ese contexto (el paso actual lo define el servidor), y `spStepAttemptRecord` vuelve a validar en su transacción estado, paso y número de intento: si la sesión cambió, falla sin guardar nada. `TrainingSessionService.Abandon` recibe el `operatorId` y valida el dueño. Violarlos es una excepción, no un intento. El intento y el avance/cierre se guardan juntos (transacción). No confiar en que la página ya validó (auditoría AUD-05/06, spec 009).
 - **Seguridad en presentación** — toda página usa `Site.Master` o `Training.Master` (heredan `AntiXsrfMasterPage`, anti-CSRF). Texto que va a un `<script>` desde el servidor: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; data-binding de texto al HTML con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean como formato en el cliente (auditoría E2/E5).
 - **URL de la API de empleados en `Constants.EmployeeApiUrl`** — nunca hardcodeada en el repositorio. TTL de caché en `Constants.EmployeeCacheMinutes` (default 30 min). Ante falla de la API tras el TTL, `EmployeeRepository` sirve la última lista exitosa indefinidamente (`_lastKnownGood`). Solo falla si nunca hubo una llamada exitosa.
   - **Limitación conocida y aceptada:** `_lastKnownGood` es una variable en memoria del proceso de IIS. Si el App Pool se recicla (restart programado, idle timeout, crash) mientras la API externa está caída, la variable se pierde y el siguiente request fallará hasta que la API vuelva a responder. Este riesgo es aceptable dado el contexto (simulador interno de entrenamiento — no es un sistema de producción crítico). Si en el futuro se requiere persistencia ante reciclo, la lista cacheada debería guardarse en disco o en un caché distribuido.

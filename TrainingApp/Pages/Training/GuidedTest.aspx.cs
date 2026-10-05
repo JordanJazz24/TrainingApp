@@ -13,16 +13,20 @@ namespace TrainingApp.Pages.Training
 {
     public partial class GuidedTest : Page
     {
-        // Shop Order genérica de la orden por defecto cuando Resource Setup avanza forzado
-        // (S2 / spec 008, E8). Dato de simulación, no de negocio.
-        private const string DefaultShopOrder = "303406950";
-
-        // Cantidad de la fila que deja un SFC Split forzado (D-1; el lote NonSerialized es de 250).
-        private const int DefaultSplitQty = 100;
-
         // El POD lee catálogos y sesión solo a través de la BLL (auditoría AUD-14).
-        private readonly TrainingGuideService   _guideService   = new TrainingGuideService();
-        private readonly TrainingSessionService _sessionService = new TrainingSessionService();
+        private readonly TrainingGuideService _guideService = new TrainingGuideService();
+
+        // Motor del POD (spec 009). Se crea al primer uso: necesita la Session del request.
+        private PodService _pod;
+        private PodService Pod => _pod ?? (_pod = new PodService(new SessionPodStateStore(Session)));
+
+        // Contexto del request (spec 009, AUD-25): sesión, guía, área, intentos y estado del
+        // POD, cargados una vez en Page_Load. Los handlers de eventos corren después y lo usan.
+        private PodContext _ctx;
+
+        // Orden simulada de la sesión. Sin orden (antes de Resource Setup) el POD y el Browse
+        // Work List quedan vacíos (spec 005).
+        private SimulatedOrder Order => _ctx?.State.Order;
 
 
         // ── Controles de paso estáticos (spec 006) ───────────────────────
@@ -130,12 +134,10 @@ namespace TrainingApp.Pages.Training
             // el valor posteado y el SFC elegido en Browse se perdería en cada postback.
             TxtSFC.Attributes["readonly"] = "readonly";
 
-            var session = LoadAndValidateSession();
-            if (session == null) return;
+            _ctx = LoadContext();
+            if (_ctx == null) return;
 
-            var guide = _guideService.GetById(session.TrainingGuideId);
-            var area  = _guideService.GetArea(guide.AreaId);
-            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            var (session, guide, area, step) = GetContext();
 
             PodMultiSelect = area.SerializationType == SerializationType.Serialized;
 
@@ -152,7 +154,7 @@ namespace TrainingApp.Pages.Training
                 // La selección de fila y el control abierto no se restauran.
                 if (IsSearchCompleted(guide, session))
                 {
-                    var order = GetSimulatedOrder(session);
+                    var order = Order;
                     if (order != null) TxtSFC.Text = order.SFCCode;
                     BindWorkList(area, session);
                 }
@@ -176,7 +178,7 @@ namespace TrainingApp.Pages.Training
         // en cada request porque el OK de Browse solo lo adelanta en el cliente.
         private void BindSearchHeader(TrainingSession session, TrainingGuide guide)
         {
-            var order = GetSimulatedOrder(session);
+            var order = Order;
             if (order != null && IsSearchCompleted(guide, session))
                 SetSearchHeader(order.ShopOrderInput, SimulatedOrderRow.StatusActive);
             else if (order != null && FindBrowseSelectedRows(order).Count > 0)
@@ -195,19 +197,15 @@ namespace TrainingApp.Pages.Training
         // ── Step submit handler (cableado en el markup) ───────────────────
         protected void HandleControlSubmit(object sender, StepSubmitEventArgs e)
         {
-            var session = LoadAndValidateSession();
+            var (session, guide, area, step) = GetContext();
             if (session == null) return;
-
-            var guide = _guideService.GetById(session.TrainingGuideId);
-            var area  = _guideService.GetArea(guide.AreaId);
-            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
 
             // Guard de sender (spec 006, E12): ASP.NET dispara eventos también en controles
             // invisibles, y el Answer se evalúa contra el paso actual. Un click en el modal
             // de confirmación de un paso ya completado penalizaría el paso siguiente.
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            if (step.StepType == StepType.SFC_Split && !HasSuccessfulSplit(session))
+            if (step.StepType == StepType.SFC_Split && !HasSuccessfulSplit())
             {
                 ShowSweetAlert("warning", "Split requerido",
                     "Debes completar al menos un split antes de cerrar el paso.");
@@ -215,7 +213,18 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            var outcome = ProcessSubmit(session, guide, area, step, e.Answer, e.IncorrectFeedback);
+            StepSubmitOutcome outcome;
+            if (step.StepType == StepType.ResourceSetup)
+            {
+                // La BLL crea la orden simulada con la Shop Order capturada (spec 005, spec 009).
+                var result = Pod.SubmitResourceSetup(_ctx, e.Answer, e.ShopOrder);
+                ApplySubmitResult(result, session, guide, area, step, e.IncorrectFeedback);
+                outcome = result.Outcome;
+            }
+            else
+            {
+                outcome = ProcessSubmit(session, guide, area, step, e.Answer, e.IncorrectFeedback);
+            }
 
             // Spec 006 (E3): respuesta incorrecta → el control queda abierto en el modal
             // donde se respondió y solo se ve el SweetAlert con el hint (de ProcessSubmit).
@@ -242,26 +251,25 @@ namespace TrainingApp.Pages.Training
         private void ContinueAfterStepResolved(TrainingSession session, TrainingGuide guide,
             Area area, TrainingStep step, StepSubmitOutcome outcome)
         {
-            var refreshedSession = _sessionService.GetById(session.Id);
-
-            // Sesión completada: ShowCompletionPanel ya cerró todos los controles.
-            if (refreshedSession.Status != SessionStatus.InProgress) return;
+            // Sesión completada: ShowCompletionPanel ya cerró todos los controles. La sesión ya
+            // refleja el intento registrado (PodService actualiza el contexto).
+            if (session.Status != SessionStatus.InProgress) return;
 
             // Modal-overlay: se renderiza en esta respuesta para mostrar su confirmación y
             // queda cerrado para el request siguiente. El resto vuelve al POD de inmediato.
             CloseStepControl(IsModalOverlay(step.StepType) ? step.StepType : (StepType?)null);
 
-            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
+            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
             if (nextStep != null)
             {
                 if (step.StepType == StepType.SFC_Split ||
                     (step.StepType != StepType.SFC_Split && nextStep.StepType == StepType.SFC_Split))
                 {
                     ClearRowSelection();
-                    BindWorkList(area, refreshedSession);
+                    BindWorkList(area, session);
                 }
 
-                SetActiveButton(nextStep.StepType, area, refreshedSession.Mode);
+                SetActiveButton(nextStep.StepType, area, session.Mode);
             }
 
             // El banner de guardado confirma una respuesta correcta; no se muestra en FailedForced.
@@ -269,8 +277,7 @@ namespace TrainingApp.Pages.Training
 
             if (step.StepType == StepType.ResourceSetup)
             {
-                if (outcome == StepSubmitOutcome.FailedForced)
-                    ReplaceWithDefaultOrder(session, area);
+                // Con el avance forzado, la BLL ya dejó la orden por defecto.
                 BindBrowseList(area, session);
                 if (accepted) CtrlResourceSetup.ShowSaveConfirmation();
                 ReopenModal("modalResourceSetup");
@@ -314,8 +321,7 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            var result = _sessionService.AssembleComponent(session.Id, CurrentOperatorId, e.ComponentId,
-                GetAssemblyProgress(session));
+            var result = Pod.AssembleComponent(_ctx, e.ComponentId, GetAssemblyProgress());
             if (result.StepResult == null)
             {
                 CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
@@ -330,27 +336,19 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            ClearAssemblyProgress(session);
+            ClearAssemblyProgress();
             ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
             ContinueAfterStepResolved(session, guide, area, step, result.StepResult.Outcome);
         }
 
-        // Avance de Assembly en Session (servidor): sobrevive a Return to POD y a F5.
-        private AssemblyProgress GetAssemblyProgress(TrainingSession session)
-        {
-            string key = Constants.SessionKeys.AssemblyProgressPrefix + session.Id;
-            var progress = Session[key] as AssemblyProgress;
-            if (progress == null)
-            {
-                progress = new AssemblyProgress();
-                Session[key] = progress;
-            }
-            return progress;
-        }
+        // Avance de Assembly en el estado del POD (Session, servidor): sobrevive a Return to
+        // POD y a F5.
+        private AssemblyProgress GetAssemblyProgress()
+            => _ctx.State.Assembly ?? (_ctx.State.Assembly = new AssemblyProgress());
 
-        private void ClearAssemblyProgress(TrainingSession session)
+        private void ClearAssemblyProgress()
         {
-            Session.Remove(Constants.SessionKeys.AssemblyProgressPrefix + session.Id);
+            _ctx.State.Assembly = null;
         }
 
         // Spec 007: el scrap elimina la fila de la orden simulada, tanto en Correct como en
@@ -358,12 +356,11 @@ namespace TrainingApp.Pages.Training
         // Spec 008: en Serialized se scrapean todas las filas seleccionadas de una vez.
         private void ScrapSelectedRows(Area area, TrainingSession session)
         {
-            var rows = FindScrappableRows(session, area);
+            var rows = FindScrappableRows(area);
             if (rows.Count == 0) return;
 
-            var order = GetSimulatedOrder(session);
-            foreach (var row in rows)
-                order.Rows.Remove(row);
+            var order = Order;
+            order.Remove(rows);
 
             string scrapped = rows.Count == 1
                 ? "All of " + (rows[0].SFCCode ?? order.SFCCode)
@@ -380,12 +377,12 @@ namespace TrainingApp.Pages.Training
         // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
         // lote no se scrapea (spec 007). Serialized: las filas seleccionadas, siempre que
         // quede al menos una pieza para Complete (spec 008).
-        private IList<SimulatedOrderRow> FindScrappableRows(TrainingSession session, Area area)
+        private IList<SimulatedOrderRow> FindScrappableRows(Area area)
         {
-            var selected = FindSelectedOrderRows(session);
+            var selected = FindSelectedOrderRows();
 
             if (area.SerializationType == SerializationType.Serialized)
-                return PieceSelectionRule.Evaluate(StepType.LogNC, selected.Count, ActiveRowCount(session))
+                return PieceSelectionRule.Evaluate(StepType.LogNC, selected.Count, ActiveRowCount())
                        == PieceSelectionResult.Valid
                     ? selected
                     : new List<SimulatedOrderRow>();
@@ -395,8 +392,7 @@ namespace TrainingApp.Pages.Training
                 : new List<SimulatedOrderRow>();
         }
 
-        private int ActiveRowCount(TrainingSession session)
-            => GetSimulatedOrder(session)?.Rows.Count(IsActive) ?? 0;
+        private int ActiveRowCount() => Order?.ActiveRows().Count ?? 0;
 
         // El operador sale del control sin responder (no cuenta como intento). Mismo
         // criterio que el guard de sender: solo el control abierto puede cerrarse.
@@ -414,50 +410,29 @@ namespace TrainingApp.Pages.Training
 
         protected void HandleSplitRequested(object sender, SFCSplitRequestedEventArgs e)
         {
-            var session = LoadAndValidateSession();
+            var (session, guide, area, step) = GetContext();
             if (session == null) return;
 
-            var guide = _guideService.GetById(session.TrainingGuideId);
-            var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
             if (step.StepType != StepType.SFC_Split)
             {
                 e.ErrorMessage = "SFC Split no es el paso activo.";
                 return;
             }
 
-            var order = GetSimulatedOrder(session);
-            var row = order?.Rows.FirstOrDefault(r => r.RowId == e.RowId);
+            var order = Order;
+            var row = order?.FindRow(e.RowId);
             if (row == null || e.Qty <= 0 || e.Qty >= row.Qty)
             {
                 e.ErrorMessage = "La fila o cantidad seleccionada ya no es válida.";
                 return;
             }
 
-            string newSfc = SplitOrderRow(order, row, e.Qty);
+            string newSfc = order.Split(row, e.Qty);
 
             e.IsApplied = true;
             e.RemainingQty = row.Qty;
             e.NewSfcCode = newSfc;
-            BindWorkList(_guideService.GetArea(guide.AreaId), session);
-        }
-
-        // Como el MES real, el split crea un SFC nuevo de la misma Shop Order (enmienda
-        // 2026-10-01 de la spec 005): mismo prefijo que el lote, sufijo que no se repite.
-        private static string SplitOrderRow(SimulatedOrder order, SimulatedOrderRow row, int qty)
-        {
-            string newSfc = SplitSfcGenerator.Next(order.SFCCode,
-                order.Rows.Select(r => r.SFCCode).ToList(), new Random());
-
-            row.Qty -= qty;
-            order.Rows.Add(new SimulatedOrderRow
-            {
-                RowId       = Guid.NewGuid().ToString(),
-                SFCCode     = newSfc,
-                Qty         = qty,
-                Status      = SimulatedOrderRow.StatusActive,
-                IsFromSplit = true
-            });
-            return newSfc;
+            BindWorkList(area, session);
         }
 
         // Modal donde el operador ingresa la respuesta de cada paso. LineClearance responde
@@ -481,7 +456,7 @@ namespace TrainingApp.Pages.Training
         private StepSubmitOutcome ProcessSubmit(TrainingSession session, TrainingGuide guide, Area area,
             TrainingStep step, string answer, string incorrectFeedback = null)
         {
-            var result = _sessionService.SubmitStep(session.Id, CurrentOperatorId, answer);
+            var result = Pod.SubmitStep(_ctx, answer);
             ApplySubmitResult(result, session, guide, area, step, incorrectFeedback);
             return result.Outcome;
         }
@@ -505,13 +480,12 @@ namespace TrainingApp.Pages.Training
                 case StepSubmitOutcome.FailedForced:
                     ShowSweetAlert("error", "Step Failed",
                         "Paso fallido — el sistema avanza automáticamente.");
-                    HandleCorrectSubmit(_sessionService.GetById(session.Id), guide, area, step.StepType);
+                    HandleCorrectSubmit(session, guide, area, step.StepType);
                     break;
 
                 case StepSubmitOutcome.SessionCompleted:
-                    // Sesión recargada: la que llegó como parámetro es anterior al submit
-                    // y todavía no tiene FinalScore.
-                    ShowCompletionPanel(_sessionService.GetById(session.Id), area, guide);
+                    // PodService ya dejó en la sesión el puntaje final guardado.
+                    ShowCompletionPanel(session, area, guide);
                     break;
             }
         }
@@ -525,7 +499,7 @@ namespace TrainingApp.Pages.Training
         {
             if (step.StepType == clicked) return false;
 
-            var result = _sessionService.RegisterOutOfSequence(session.Id, CurrentOperatorId, clicked);
+            var result = Pod.RegisterOutOfSequence(_ctx, clicked);
             if (result == null) return true;
 
             ApplySubmitResult(result, session, guide, area, step, incorrectFeedback: null);
@@ -551,11 +525,11 @@ namespace TrainingApp.Pages.Training
             else if (forcedStep == StepType.Assembly)
             {
                 // El paso quedó fallido: el avance parcial ya no se usa.
-                ClearAssemblyProgress(session);
+                ClearAssemblyProgress();
             }
             else if (forcedStep == StepType.DataCollection)
             {
-                ClearDataCollectionProgress(session);
+                ClearDataCollectionProgress();
             }
             else if (forcedStep == StepType.SFC_Split)
             {
@@ -567,25 +541,24 @@ namespace TrainingApp.Pages.Training
         // una fila de split por defecto, porque en NonSerialized Log NC exige scrapear una.
         private void ApplyDefaultSplit(TrainingSession session, Area area)
         {
-            if (HasSuccessfulSplit(session)) return;
+            if (HasSuccessfulSplit()) return;
 
-            var order = GetSimulatedOrder(session);
-            var lot   = order?.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > DefaultSplitQty);
+            var order = Order;
+            var lot   = order?.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > PodDefaults.DefaultSplitQty);
             if (lot == null) return;
 
-            SplitOrderRow(order, lot, DefaultSplitQty);
+            order.Split(lot, PodDefaults.DefaultSplitQty);
             ClearRowSelection();
             BindWorkList(area, session);
         }
 
-        // Resource Setup forzado (por secuencia o por Setup State incorrecto): la orden sale
-        // siempre de la Shop Order genérica, ignorando lo que el operador capturó en un
-        // intento fallido. En Serialized también genera sus piezas (E8, spec 008).
+        // Resource Setup forzado por secuencia: la orden sale siempre de la Shop Order
+        // genérica, ignorando lo que el operador capturó en un intento fallido. En Serialized
+        // también genera sus piezas (E8, spec 008). Forzado por Setup State incorrecto, la
+        // orden por defecto la deja PodService.SubmitResourceSetup.
         private void ReplaceWithDefaultOrder(TrainingSession session, Area area)
         {
-            Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] =
-                SimulatedOrder.Create(DefaultShopOrder, BuildMaterialDescription(area),
-                    GetInitialQty(area), area.SerializationType);
+            Pod.CreateOrder(_ctx, PodDefaults.DefaultShopOrder);
             BindBrowseList(area, session);
         }
 
@@ -610,17 +583,16 @@ namespace TrainingApp.Pages.Training
         private void HandleCorrectSubmit(TrainingSession session, TrainingGuide guide,
             Area area, StepType submittedStepType)
         {
-            var refreshedSession = _sessionService.GetById(session.Id);
-            if (refreshedSession.Status == SessionStatus.Completed)
+            if (session.Status == SessionStatus.Completed)
             {
-                ShowCompletionPanel(refreshedSession, area, guide);
+                ShowCompletionPanel(session, area, guide);
                 return;
             }
 
-            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == refreshedSession.CurrentStepOrder);
+            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
             if (nextStep == null) return;
 
-            SetActiveButton(nextStep.StepType, area, refreshedSession.Mode);
+            SetActiveButton(nextStep.StepType, area, session.Mode);
         }
 
         // ── Button ServerClick handlers ───────────────────────────────────
@@ -651,7 +623,7 @@ namespace TrainingApp.Pages.Training
             // Spec 005: sin SimulatedOrder guardada (Resource Setup nunca completado,
             // o Session expirada a mitad de flujo) no hay nada que buscar en Search/Start.
             // Defensivo — en el flujo normal Start ya requiere haber pasado ResourceSetup.
-            var order = GetSimulatedOrder(session);
+            var order = Order;
             if (order == null)
             {
                 ShowSweetAlert("warning", "Resource Setup requerido",
@@ -714,16 +686,14 @@ namespace TrainingApp.Pages.Training
         {
             ClearRowSelection();
 
-            var order = GetSimulatedOrder(session);
+            var order = Order;
             if (order != null)
             {
                 if (area.SerializationType == SerializationType.Serialized)
                 {
-                    var started = startAllPieces ? order.Rows : FindBrowseSelectedRows(order);
-                    foreach (var row in started)
-                        row.Status = SimulatedOrderRow.StatusActive;
+                    order.Activate(startAllPieces ? order.Rows : FindBrowseSelectedRows(order));
 
-                    var active = order.Rows.Where(IsActive).ToList();
+                    var active = order.ActiveRows();
                     HfSelectedRowIds.Value = string.Join(",", active.Select(r => r.RowId));
                     TxtSFC.Text            = DescribeSelection(active);
                 }
@@ -756,15 +726,15 @@ namespace TrainingApp.Pages.Training
         {
             if (area.SerializationType == SerializationType.Serialized)
             {
-                int active = GetSimulatedOrder(session)?.Rows.Count(IsActive) ?? 0;
-                var result = PieceSelectionRule.Evaluate(stepType, FindSelectedOrderRows(session).Count, active);
+                int active = ActiveRowCount();
+                var result = PieceSelectionRule.Evaluate(stepType, FindSelectedOrderRows().Count, active);
                 if (result == PieceSelectionResult.Valid) return true;
 
                 ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
                 return false;
             }
 
-            if (FindSelectedOrderRow(session) != null) return true;
+            if (FindSelectedOrderRow() != null) return true;
 
             ClearRowSelection();
             BindWorkList(area, session);
@@ -786,8 +756,8 @@ namespace TrainingApp.Pages.Training
                 return;
 
             // La primera apertura fija las piezas a recorrer; al reabrir se sigue donde quedó (AC-9).
-            if (GetDataCollectionProgress(session) == null)
-                StartDataCollectionProgress(session);
+            if (GetDataCollectionProgress() == null)
+                StartDataCollectionProgress();
 
             OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
         }
@@ -801,11 +771,10 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            var progress = GetDataCollectionProgress(session) ?? StartDataCollectionProgress(session);
+            var progress = GetDataCollectionProgress() ?? StartDataCollectionProgress();
             string pieceSfc = progress.CurrentPiece?.SFCCode;
 
-            var result = _sessionService.SubmitDataCollectionGroup(session.Id, CurrentOperatorId, e.GroupCode,
-                e.AnswersJson, progress);
+            var result = Pod.SubmitDataCollectionGroup(_ctx, e.GroupCode, e.AnswersJson, progress);
             switch (result.Outcome)
             {
                 case DataCollectionOutcome.Incorrect:
@@ -828,7 +797,7 @@ namespace TrainingApp.Pages.Training
 
                 case DataCollectionOutcome.StepResolved:
                     // Paso completo, forzado (E5: el avance parcial se descarta) o sesión terminada.
-                    ClearDataCollectionProgress(session);
+                    ClearDataCollectionProgress();
                     ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
                     ContinueAfterStepResolved(session, guide, area, step, result.StepResult.Outcome);
                     return;
@@ -842,26 +811,23 @@ namespace TrainingApp.Pages.Training
             CtrlDataCollection.ShowGroupList();
         }
 
-        // Avance de DC en Session (servidor): sobrevive a Return to POD y a F5.
-        private DataCollectionProgress GetDataCollectionProgress(TrainingSession session)
-        {
-            return Session[Constants.SessionKeys.DataCollectionProgressPrefix + session.Id] as DataCollectionProgress;
-        }
+        // Avance de DC en el estado del POD (Session, servidor): sobrevive a Return to POD y a F5.
+        private DataCollectionProgress GetDataCollectionProgress() => _ctx.State.DataCollection;
 
         // Las piezas son las filas seleccionadas del POD, en su orden (NonSerialized: el lote).
-        private DataCollectionProgress StartDataCollectionProgress(TrainingSession session)
+        private DataCollectionProgress StartDataCollectionProgress()
         {
             var progress = new DataCollectionProgress();
-            foreach (var row in FindSelectedOrderRows(session))
+            foreach (var row in FindSelectedOrderRows())
                 progress.Pieces.Add(new DataCollectionPiece { RowId = row.RowId, SFCCode = row.SFCCode });
 
-            Session[Constants.SessionKeys.DataCollectionProgressPrefix + session.Id] = progress;
+            _ctx.State.DataCollection = progress;
             return progress;
         }
 
-        private void ClearDataCollectionProgress(TrainingSession session)
+        private void ClearDataCollectionProgress()
         {
-            Session.Remove(Constants.SessionKeys.DataCollectionProgressPrefix + session.Id);
+            _ctx.State.DataCollection = null;
         }
 
         // "000123-430 (2/3)": pieza actual y posición dentro de las piezas del paso.
@@ -878,7 +844,7 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             if (HandleOutOfSequence(StepType.SFC_Split, session, guide, area, step)) return;
 
-            if (FindSelectedOrderRow(session) == null)
+            if (FindSelectedOrderRow() == null)
             {
                 ClearRowSelection();
                 BindWorkList(area, session);
@@ -899,8 +865,8 @@ namespace TrainingApp.Pages.Training
             // Spec 008: en Serialized scrapear todas las piezas es un aviso de formato, sin
             // intento — tiene que quedar al menos una para Complete.
             if (area.SerializationType == SerializationType.Serialized &&
-                PieceSelectionRule.Evaluate(StepType.LogNC, FindSelectedOrderRows(session).Count,
-                    ActiveRowCount(session)) == PieceSelectionResult.NoPieceLeft)
+                PieceSelectionRule.Evaluate(StepType.LogNC, FindSelectedOrderRows().Count,
+                    ActiveRowCount()) == PieceSelectionResult.NoPieceLeft)
             {
                 ShowSweetAlert("warning", "Selección inválida", "Debe quedar al menos una pieza para Complete.");
                 return;
@@ -908,7 +874,7 @@ namespace TrainingApp.Pages.Training
 
             // Spec 007: abrir Log NC sin una fila scrapeable es un intento fallido del paso.
             // No hay gate en el cliente: el click tiene que llegar acá para registrarse.
-            if (FindScrappableRows(session, area).Count == 0)
+            if (FindScrappableRows(area).Count == 0)
             {
                 string feedback = area.SerializationType == SerializationType.NonSerialized
                     ? "Selecciona una fila creada por el split para scrapear"
@@ -948,7 +914,7 @@ namespace TrainingApp.Pages.Training
                 // Spec 008: Complete cierra todas las filas que quedan en el POD. Algunas: aviso
                 // de formato, sin intento. Ninguna: intento fallido (spec 007).
                 var result = PieceSelectionRule.Evaluate(StepType.Complete,
-                    FindSelectedOrderRows(session).Count, ActiveRowCount(session));
+                    FindSelectedOrderRows().Count, ActiveRowCount());
                 if (result == PieceSelectionResult.MissingPieces)
                 {
                     ShowSweetAlert("warning", AllPiecesTitle, AllPiecesMessage);
@@ -960,7 +926,7 @@ namespace TrainingApp.Pages.Training
                     return;
                 }
             }
-            else if (FindSelectedOrderRow(session) == null)
+            else if (FindSelectedOrderRow() == null)
             {
                 // Spec 007: Complete sin fila seleccionada es un intento fallido del paso.
                 ProcessSubmit(session, guide, area, step, StepAnswers.Invalid, "Select 1 row to complete");
@@ -972,16 +938,10 @@ namespace TrainingApp.Pages.Training
 
         protected void BtnAbandon_Click(object sender, EventArgs e)
         {
-            var session = LoadAndValidateSession();
-            if (session == null) return;
-            _sessionService.Abandon(session.Id, CurrentOperatorId);
-            // Spec 005: la SimulatedOrder vive solo en Session — al abandonar,
-            // se remueve explícitamente para no dejarla huérfana bajo su clave
-            // (a diferencia de completar la guía normalmente, donde sí queda huérfana
-            // por diseño, ver Deferred Decisions del spec 005).
-            Session.Remove(Constants.SessionKeys.SimulatedOrderPrefix + session.Id);
-            ClearAssemblyProgress(session);
-            ClearDataCollectionProgress(session);
+            if (_ctx == null) return;
+            // Abandona la sesión y borra su estado del POD. Al completar, el estado queda en la
+            // Session por diseño (Deferred Decisions de la spec 005).
+            Pod.Abandon(_ctx);
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
@@ -1034,94 +994,76 @@ namespace TrainingApp.Pages.Training
             // así que se usa un placeholder en vez de fallar.
             // NonSerialized: el SFC del lote. Serialized: el SFC o "[N SELECTED]" de la selección
             // (ej. NC Data Entry de varias piezas, spec 008).
-            string sfcCode = GetSimulatedOrder(session)?.SFCCode;
+            string sfcCode = Order?.SFCCode;
             if (string.IsNullOrEmpty(sfcCode))
-                sfcCode = DescribeSelection(FindSelectedOrderRows(session));
+                sfcCode = DescribeSelection(FindSelectedOrderRows());
             if (string.IsNullOrEmpty(sfcCode))
                 sfcCode = "—";
-            string resourceName = area.Name + "-01";
+            string resourceName = PodDefaults.ResourceName(area);
             string opName     = guide.Title;
 
             vm.ExtraData["SFCCode"]      = sfcCode;
             vm.ExtraData["ResourceName"] = resourceName;
             vm.ExtraData["OperationName"] = opName;
-            vm.ExtraData["Site"]         = "CR9A";
+            vm.ExtraData["Site"]         = PodDefaults.Site;
 
             switch (step.StepType)
             {
                 case StepType.LineClearance:
-                    vm.ExtraData["QuestionText"] = "¿La limpieza de linea se ejecuto?";
+                    vm.ExtraData["QuestionText"] = PodDefaults.LineClearanceQuestion;
                     break;
 
                 case StepType.DataCollection:
                     var dcParams = _guideService.GetDataCollectionParameters(area.Id);
                     vm.ExtraData["Parameters"] = dcParams;
                     vm.ExtraData["Groups"]     = _guideService.GetDataCollectionGroups(area.Id);
-                    var dcProgress = GetDataCollectionProgress(session);
+                    var dcProgress = GetDataCollectionProgress();
                     vm.ExtraData["PieceLabel"] = DescribeCurrentPiece(dcProgress);
                     // Grupos ya guardados por la pieza actual: su Collect se deshabilita.
                     vm.ExtraData["SavedGroupIds"] = dcProgress?.CurrentPieceSavedGroupIds ?? new HashSet<int>();
                     break;
 
                 case StepType.SFC_Split:
-                    var selectedRow = FindSelectedOrderRow(session);
+                    var selectedRow = FindSelectedOrderRow();
                     // "SFC to Split" es el SFC de la fila elegida: una fila que ya salió de otro
                     // split tiene su propio SFC, distinto del lote.
                     if (selectedRow?.SFCCode != null)
                         vm.ExtraData["SFCCode"] = selectedRow.SFCCode;
                     vm.ExtraData["AvailableQty"] = selectedRow?.Qty ?? 0;
                     vm.ExtraData["SelectedRowId"] = selectedRow?.RowId;
-                    vm.ExtraData["HasSuccessfulSplit"] = HasSuccessfulSplit(session);
+                    vm.ExtraData["HasSuccessfulSplit"] = HasSuccessfulSplit();
                     break;
 
                 case StepType.LogNC:
                     vm.ExtraData["NCCodes"] = _guideService.GetNCCodes(area.Id);
                     vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
                     // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
-                    var ncPieces = FindSelectedOrderRows(session);
+                    var ncPieces = FindSelectedOrderRows();
                     vm.ExtraData["SelectedPieceCount"] = ncPieces.Count;
                     vm.ExtraData["FirstSelectedSFC"]   = ncPieces.Count > 0
-                        ? ncPieces[0].SFCCode ?? GetSimulatedOrder(session)?.SFCCode
+                        ? ncPieces[0].SFCCode ?? Order?.SFCCode
                         : null;
                     break;
 
                 case StepType.Assembly:
                     // BOM del área y componentes ya ensamblados (spec 008).
                     vm.ExtraData["Components"]         = _guideService.GetAssemblyComponents(area.Id);
-                    vm.ExtraData["AssembledIds"]       = GetAssemblyProgress(session).AssembledComponentIds;
-                    vm.ExtraData["SelectedPieceCount"] = FindSelectedOrderRows(session).Count;
-                    vm.ExtraData["ProcessLot"]         = GetSimulatedOrder(session)?.ProcessLot;
+                    vm.ExtraData["AssembledIds"]       = GetAssemblyProgress().AssembledComponentIds;
+                    vm.ExtraData["SelectedPieceCount"] = FindSelectedOrderRows().Count;
+                    vm.ExtraData["ProcessLot"]         = Order?.ProcessLot;
                     break;
 
                 case StepType.Search:
                     // SearchControl owns its own 4-modal flow (labels hardcoded in the .ascx);
                     // it only needs ResourceName, already populated above.
                     break;
-
-                case StepType.ResourceSetup:
-                    // Datos que ResourceSetupControl necesita para construir la
-                    // SimulatedOrder en Session al guardar (spec 005).
-                    vm.ExtraData["TrainingSessionId"]    = session.Id;
-                    vm.ExtraData["MaterialDescription"]  = BuildMaterialDescription(area);
-                    vm.ExtraData["InitialQty"]           = GetInitialQty(area);
-                    vm.ExtraData["SerializationType"]    = area.SerializationType;
-                    break;
             }
 
             return vm;
         }
 
-        private string BuildMaterialDescription(Area area)
-        {
-            var product = _guideService.GetAllProducts().FirstOrDefault(p => p.Id == area.ProductId);
-            return (product?.Name ?? "") + " / " + area.Name;
-        }
-
-        private static int GetInitialQty(Area area)
-            => area.SerializationType == SerializationType.NonSerialized ? 250 : 1;
-
         // ── Session validation ───────────────────────────────────────────
-        private TrainingSession LoadAndValidateSession()
+        private PodContext LoadContext()
         {
             // Re-hidrata sesión si se perdió pero el usuario sigue autenticado
             if (!SessionHelper.EnsureOperatorSession())
@@ -1143,17 +1085,15 @@ namespace TrainingApp.Pages.Training
                 return null;
             }
 
-            var session = _sessionService.GetById(sessionId);
-
-            if (session == null ||
-                session.OperatorId != CurrentOperatorId ||
-                session.Status != SessionStatus.InProgress)
+            // null: la sesión no existe, es de otro operador o ya no está en curso.
+            var ctx = Pod.LoadContext(sessionId, CurrentOperatorId);
+            if (ctx == null)
             {
                 Response.Redirect("~/Pages/Training/StartSession.aspx");
                 return null;
             }
 
-            return session;
+            return ctx;
         }
 
         // Operador autenticado (Session escrita solo por el servidor tras el login; ya
@@ -1168,9 +1108,9 @@ namespace TrainingApp.Pages.Training
             LitUserName.Text      = HttpUtility.HtmlEncode(
                 Session[Constants.SessionKeys.Code1]?.ToString() ?? "");
             LitOperationName.Text = HttpUtility.HtmlEncode(guide.Title);
-            LitResourceName.Text  = HttpUtility.HtmlEncode(area.Name + "-01");
-            LitBrowseContext.Text = string.Format("{0}, {1}-01, {2}",
-                area.Name, area.Name,
+            LitResourceName.Text  = HttpUtility.HtmlEncode(PodDefaults.ResourceName(area));
+            LitBrowseContext.Text = string.Format("{0}, {1}, {2}",
+                area.Name, PodDefaults.ResourceName(area),
                 Session[Constants.SessionKeys.Code1]?.ToString() ?? "");
         }
 
@@ -1178,7 +1118,7 @@ namespace TrainingApp.Pages.Training
         // nace Active; en Serialized cada pieza pasa a Active con el Start (spec 008).
         private void BindWorkList(Area area, TrainingSession session)
         {
-            var rows = BuildPodWorkList(session, onlyActive: true);
+            var rows = BuildPodWorkList(onlyActive: true);
             RptWorkList.DataSource = rows;
             RptWorkList.DataBind();
         }
@@ -1186,43 +1126,33 @@ namespace TrainingApp.Pages.Training
         // Browse Work List muestra todas las filas de la orden (sin columna Status).
         private void BindBrowseList(Area area, TrainingSession session)
         {
-            var rows = BuildPodWorkList(session, onlyActive: false);
+            var rows = BuildPodWorkList(onlyActive: false);
             RptBrowseList.DataSource = rows;
             RptBrowseList.DataBind();
-        }
-
-        // Spec 005: la orden ya no es hardcodeada — se lee de la SimulatedOrder
-        // guardada en Session por ResourceSetupControl. Sin orden guardada, el
-        // POD y el Browse Work List quedan vacíos (ver Deferred Decisions del spec).
-        private SimulatedOrder GetSimulatedOrder(TrainingSession session)
-        {
-            return Session[Constants.SessionKeys.SimulatedOrderPrefix + session.Id] as SimulatedOrder;
         }
 
         // Filas del POD que el operador seleccionó (HfSelectedRowIds, llenado en cliente por
         // selectWorkListRow). El cliente puede mandar cualquier cosa: solo cuentan los ids que
         // existen en la orden y están Active (spec 008).
-        private IList<SimulatedOrderRow> FindSelectedOrderRows(TrainingSession session)
+        private IList<SimulatedOrderRow> FindSelectedOrderRows()
         {
-            var order = GetSimulatedOrder(session);
+            var order = Order;
             if (order == null) return new List<SimulatedOrderRow>();
-            var ids = ParseRowIds(HfSelectedRowIds.Value);
-            return order.Rows.Where(r => IsActive(r) && ids.Contains(r.RowId)).ToList();
+            return order.FindActiveRows(ParseRowIds(HfSelectedRowIds.Value));
         }
 
         // Pasos de una sola fila (NonSerialized: DC, SFC Split, Log NC, Complete): la fila
         // seleccionada solo si hay exactamente una.
-        private SimulatedOrderRow FindSelectedOrderRow(TrainingSession session)
+        private SimulatedOrderRow FindSelectedOrderRow()
         {
-            var rows = FindSelectedOrderRows(session);
+            var rows = FindSelectedOrderRows();
             return rows.Count == 1 ? rows[0] : null;
         }
 
         // Piezas elegidas en Browse Work List para el Start (HfBrowseRowIds).
         private IList<SimulatedOrderRow> FindBrowseSelectedRows(SimulatedOrder order)
         {
-            var ids = ParseRowIds(HfBrowseRowIds.Value);
-            return order.Rows.Where(r => ids.Contains(r.RowId)).ToList();
+            return order.FindRows(ParseRowIds(HfBrowseRowIds.Value));
         }
 
         private static HashSet<string> ParseRowIds(string value)
@@ -1231,9 +1161,6 @@ namespace TrainingApp.Pages.Training
                 .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(id => id.Trim()));
         }
-
-        private static bool IsActive(SimulatedOrderRow row)
-            => (row.Status ?? SimulatedOrderRow.StatusActive) == SimulatedOrderRow.StatusActive;
 
         private void ClearRowSelection()
         {
@@ -1255,18 +1182,14 @@ namespace TrainingApp.Pages.Training
             return search != null && session.CurrentStepOrder > search.Order;
         }
 
-        private bool HasSuccessfulSplit(TrainingSession session)
-        {
-            var order = GetSimulatedOrder(session);
-            return order != null && order.Rows.Count > 1;
-        }
+        private bool HasSuccessfulSplit() => Order != null && Order.HasSplit;
 
-        private IList<PodWorkListRow> BuildPodWorkList(TrainingSession session, bool onlyActive)
+        private IList<PodWorkListRow> BuildPodWorkList(bool onlyActive)
         {
-            var order = GetSimulatedOrder(session);
+            var order = Order;
             if (order == null) return new List<PodWorkListRow>();
 
-            return order.Rows.Where(r => !onlyActive || IsActive(r)).Select(r => new PodWorkListRow
+            return order.Rows.Where(r => !onlyActive || r.IsActive).Select(r => new PodWorkListRow
             {
                 RowId               = r.RowId,
                 SFCCode             = r.SFCCode ?? order.SFCCode,
@@ -1283,7 +1206,8 @@ namespace TrainingApp.Pages.Training
 
         private void UpdateScoreWidget(TrainingSession session)
         {
-            LitScore.Text = FormatScore(_sessionService.GetCurrentScore(session.Id));
+            // Puntaje del contexto: el de la carga o el del último intento registrado (AUD-25).
+            LitScore.Text = FormatScore(_ctx.Score);
 
             string modeLabel  = session.Mode == SessionMode.Assessment ? "Assessment" : "Guided";
             string badgeClass = session.Mode == SessionMode.Assessment
@@ -1381,14 +1305,11 @@ namespace TrainingApp.Pages.Training
         }
 
         // ── Context helper ───────────────────────────────────────────────
+        // Lo que cargó Page_Load en este request; vacío si redirigió.
         private (TrainingSession, TrainingGuide, Area, TrainingStep) GetContext()
         {
-            var session = LoadAndValidateSession();
-            if (session == null) return (null, null, null, null);
-            var guide = _guideService.GetById(session.TrainingGuideId);
-            var area  = _guideService.GetArea(guide.AreaId);
-            var step  = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
-            return (session, guide, area, step);
+            if (_ctx == null) return (null, null, null, null);
+            return (_ctx.Session, _ctx.Guide, _ctx.Area, _ctx.CurrentStep);
         }
 
         // ── Modal re-open & SweetAlert helpers ───────────────────────────

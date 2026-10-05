@@ -19,17 +19,9 @@ namespace TrainingApp.Shared
             // true mientras el operador no cambió la contraseña del primer acceso (AUD-08).
             public const string IsFirstLogin = "IsFirstLogin";
 
-            // Prefijo de clave de Session para la SimulatedOrder del POD (spec 005).
-            // Clave completa: SimulatedOrderPrefix + TrainingSession.Id
-            public const string SimulatedOrderPrefix = "GDT_SimOrder_";
-
-            // Avance del paso Assembly (componentes del BOM ya ensamblados, spec 008).
-            // Clave completa: AssemblyProgressPrefix + TrainingSession.Id
-            public const string AssemblyProgressPrefix = "GDT_AsmProgress_";
-
-            // Avance del paso Data Collection (piezas y DC Groups guardados, spec 008).
-            // Clave completa: DataCollectionProgressPrefix + TrainingSession.Id
-            public const string DataCollectionProgressPrefix = "GDT_DcProgress_";
+            // Estado del POD: orden simulada y avance de Assembly y DC (spec 009). Solo lo usa
+            // SessionPodStateStore. Clave completa: PodStatePrefix + TrainingSession.Id
+            public const string PodStatePrefix = "GDT_Pod_";
         }
     }
 }

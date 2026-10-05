@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
 

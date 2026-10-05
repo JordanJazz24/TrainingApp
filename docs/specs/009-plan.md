@@ -85,31 +85,45 @@ VS y fuera del commit.
 |---|---|---|
 | Cargar la sesión, guía y área | 3 (Page_Load) + 3 (handler) + 2 (`SubmitStep`) | 3 + intentos 1 = **4** (una vez) |
 | Puntaje del widget | 3 antes + 3 después | **0** (contexto / `CurrentScore`) |
-| Validador (área, NC, parámetros DC) | 3 | **2** (el área ya está en el contexto) |
+| Validador (área, NC, parámetros DC) | 3 | **0** (el área está en el contexto; solo Log NC carga los códigos NC y DC sus parámetros) |
 | Registrar el intento (intentos + `Record`) | 2 | **1** (los intentos ya están en el contexto) |
 | Recargar la sesión después del submit | 2 | **0** |
-| **Total** | **~21** | **7** |
+| **Total** | **~21** | **5** |
 
 ## Entregas
 
-### Entrega 1 — Contexto único, estado y puntaje (AC-7; base de AC-6)
-- [ ] Mover `SimulatedOrder`, `SimulatedOrderRow` y `StepAnswers` a `BLL/Training`, con
+### Entrega 1 — Contexto único, estado y puntaje (AC-7; base de AC-6) — verificada (2026-10-05)
+- [x] Mover `SimulatedOrder`, `SimulatedOrderRow` y `StepAnswers` a `BLL/Training`, con
       `[Serializable]` y los métodos de la orden. Actualizar el `.csproj` y los `using`.
-- [ ] `PodDefaults` con los datos de simulación (D-11). `SimulatedOrder.Create` y la página
+- [x] `PodDefaults` con los datos de simulación (D-11). `SimulatedOrder.Create` y la página
       los usan; se borran las constantes de `GuidedTest`.
-- [ ] `PodState`, `IPodStateStore` (BLL) y `SessionPodStateStore` (presentación). En
+- [x] `PodState`, `IPodStateStore` (BLL) y `SessionPodStateStore` (presentación). En
       `Constants.SessionKeys`, una clave `PodStatePrefix` reemplaza las 3 actuales.
-- [ ] `PodContext` + `PodService.LoadContext` (sesión, guía, área, intentos, estado y
+- [x] `PodContext` + `PodService.LoadContext` (sesión, guía, área, intentos, estado y
       puntaje). `TrainingGuideService.BuildValidator(area)` usa el área del contexto.
-- [ ] Mover a `PodService` `SubmitStep`, `RegisterOutOfSequence`, `AssembleComponent`,
+- [x] Mover a `PodService` `SubmitStep`, `RegisterOutOfSequence`, `AssembleComponent`,
       `SubmitDataCollectionGroup` y `RecordAttempt`, recibiendo el contexto y actualizándolo
       en memoria. Se borra `GetCurrentScore`.
-- [ ] `GuidedTest`: el contexto se carga una vez en `Page_Load` y reemplaza a
+- [x] `GuidedTest`: el contexto se carga una vez en `Page_Load` y reemplaza a
       `LoadAndValidateSession` y `GetContext` en los handlers. El widget usa el puntaje del
       contexto o el del resultado. Se eliminan las recargas de sesión de
       `HandleCorrectSubmit` y `ContinueAfterStepResolved`. La página accede al estado vía
       `PodService`, todavía con su lógica actual (se mueve en E2-E4).
-- [ ] **Checklist del usuario:** iniciar sesiones nuevas (la clave de Session cambia).
+- [x] Adelantado de la E2 por el `/code-review` (la orden se creaba antes de registrar el
+      intento): `PodService.SubmitResourceSetup` registra el intento y después crea la orden
+      (la genérica si el paso avanzó forzado). `ResourceSetupControl` ya no escribe Session y
+      envía la Shop Order en el evento. Reemplazar la orden descarta el avance de Assembly/DC.
+- [x] `BuildValidator(area, tipoDePaso)` carga solo el catálogo del paso (Log NC: códigos NC;
+      DC: parámetros): Line Clearance queda en 5 conexiones.
+- [x] `SimulatedOrder.HasSplit` = hay una fila de split (`IsFromSplit`); mismo resultado que
+      "más de una fila" en el paso SFC Split, que solo existe en NonSerialized.
+- [x] `CLAUDE.md`: árbol de `BLL/Training` y convención "La BLL protege sus invariantes"
+      (el dueño se valida al cargar el contexto; el SP revalida estado, paso e intento).
+- Hallazgos del `/code-review` que van con su entrega: guardar el estado con
+  `IPodStateStore.Save` después de cada cambio y que la página deje de modificar la orden
+  y el avance (E2-E4); `AssembleComponent`/`SubmitDataCollectionGroup` leen el avance del
+  `PodState` en vez de recibirlo (E3).
+- [x] **Checklist del usuario:** iniciar sesiones nuevas (la clave de Session cambia).
       Moldeo completo en Guided y en Assessment con un fallo de 2 intentos (puntaje 80% de
       ese paso, mensajes iguales). Redefinity completo en Guided. El widget de puntaje se
       actualiza igual que antes en cada paso.

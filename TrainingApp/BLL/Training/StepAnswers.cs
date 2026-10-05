@@ -1,4 +1,4 @@
-namespace TrainingApp.Pages.Training.Models
+namespace TrainingApp.BLL.Training
 {
     // Answers fijos que la UI envía a la BLL (spec 007).
     public static class StepAnswers

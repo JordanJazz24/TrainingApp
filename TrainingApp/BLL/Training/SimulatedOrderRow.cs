@@ -1,4 +1,6 @@
-namespace TrainingApp.Pages.Training.Models
+using System;
+
+namespace TrainingApp.BLL.Training
 {
     /// <summary>
     /// Una fila de una SimulatedOrder.
@@ -8,6 +10,7 @@ namespace TrainingApp.Pages.Training.Models
     /// clave de cada fila en el POD.
     /// Serialized (spec 008): una fila por pieza, cada una con su propio SFC y Qty 1.
     /// </summary>
+    [Serializable]
     public class SimulatedOrderRow
     {
         public const string StatusNew    = "New";
@@ -24,5 +27,7 @@ namespace TrainingApp.Pages.Training.Models
         // true en las filas creadas por el SFC Split. En NonSerialized solo estas se
         // pueden scrapear en Log NC; la fila original del lote no (spec 007).
         public bool IsFromSplit { get; set; }
+
+        public bool IsActive => (Status ?? StatusActive) == StatusActive;
     }
 }

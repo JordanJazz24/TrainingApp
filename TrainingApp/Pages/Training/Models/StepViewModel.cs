@@ -20,6 +20,10 @@ namespace TrainingApp.Pages.Training.Models
         // Texto opcional que el host muestra en lugar del hint genérico si la BLL
         // evalúa el Answer como incorrecto (ej. "Not the correct button").
         public string IncorrectFeedback { get; set; }
+
+        // Resource Setup: Shop Order capturada, ya validada como numérica por el control. Con
+        // ella la BLL crea la orden simulada (spec 005, spec 009).
+        public string ShopOrder { get; set; }
     }
 
     // Data Collection (spec 008): Save de un DC Group para la pieza actual.

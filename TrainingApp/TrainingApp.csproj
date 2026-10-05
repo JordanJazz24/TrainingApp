@@ -216,6 +216,13 @@
     <Compile Include="BLL\Scoring\DataCollectionCompletionRule.cs" />
     <Compile Include="BLL\Training\TrainingGuideService.cs" />
     <Compile Include="BLL\Training\TrainingSessionService.cs" />
+    <Compile Include="BLL\Training\SimulatedOrder.cs" />
+    <Compile Include="BLL\Training\SimulatedOrderRow.cs" />
+    <Compile Include="BLL\Training\StepAnswers.cs" />
+    <Compile Include="BLL\Training\PodDefaults.cs" />
+    <Compile Include="BLL\Training\PodState.cs" />
+    <Compile Include="BLL\Training\PodContext.cs" />
+    <Compile Include="BLL\Training\PodService.cs" />
     <Compile Include="Pages\Auth\Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -253,6 +260,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pages\SessionHelper.cs" />
+    <Compile Include="Pages\Training\SessionPodStateStore.cs" />
     <Compile Include="UI\master\AntiXsrfMasterPage.cs" />
     <Compile Include="UI\master\Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
@@ -271,9 +279,6 @@
     <Compile Include="Pages\Training\Models\IStepControl.cs" />
     <Compile Include="Pages\Training\Models\StepViewModel.cs" />
     <Compile Include="Pages\Training\Models\PodWorkListRow.cs" />
-    <Compile Include="Pages\Training\Models\SimulatedOrder.cs" />
-    <Compile Include="Pages\Training\Models\SimulatedOrderRow.cs" />
-    <Compile Include="Pages\Training\Models\StepAnswers.cs" />
     <Compile Include="UI\Controls\Training\LineClearanceControl.ascx.cs">
       <DependentUpon>LineClearanceControl.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

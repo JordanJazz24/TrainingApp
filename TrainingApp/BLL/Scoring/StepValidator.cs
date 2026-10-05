@@ -26,7 +26,7 @@ namespace TrainingApp.BLL.Scoring
         //   Complete                        : "complete"      (any other value = incorrect, e.g. no row selected — spec 007)
         //   LineClearance                   : "true" | "false"
         //   Assembly                        : no se valida por Answer: el paso se completa en
-        //                                     TrainingSessionService.AssembleComponent al quedar
+        //                                     PodService.AssembleComponent al quedar
         //                                     ensamblado todo el BOM (spec 008)
         //   DataCollection                  : no se valida por Answer: se califica por DC Group en
         //                                     ValidateDataCollectionGroup (spec 008)
