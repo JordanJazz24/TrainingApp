@@ -13,17 +13,81 @@ se filtran en fases anteriores.
 > **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
 > una sesión de trabajo relevante.
 
-**Última actualización:** 2026-10-05 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 009, entrega 6 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-06 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 009, entrega 6 (`git log --oneline -10` para ver el estado real)
 
 **Resumen para retomar (sesión 2026-10-05):** se cerró la **spec 009 · motor del POD**
 (AUD-16, 25, 26; decisiones D-9 a D-12) en 6 entregas, todas en `TrainingApp`: la lógica
 del POD vive en `PodService` (BLL), el contexto se carga una vez por request, el estado
 del POD sigue en Session y se reconstruye si se pierde, y hay una sola sesión activa por
-operador. Detalle en `docs/specs/009-plan.md`. **Qué sigue:** spec de la **6.6 ·
-Overlays**. La Fase 7 sigue esperando a negocio (#3) y la Fase 5 (tests) sigue en pausa
-hasta el final, por decisión del usuario. Anotado para decidir aparte: el Start de
-NonSerialized acepta cualquier SFC escrito (plan 009, E2) y B-2 de Log NC (solo con
-manipulación del cliente, plan 009, E4).
+operador. Detalle en `docs/specs/009-plan.md`. **Qué sigue (decisión del usuario,
+2026-10-06):** una **auditoría final antes de la 6.6** (plan abajo), y después la spec de la
+**6.6 · Overlays** (lo pendiente, abajo). La Fase 7 sigue esperando a negocio (#3) y la Fase 5
+(tests) sigue en pausa hasta el final, por decisión del usuario. Anotado para decidir aparte:
+el Start de NonSerialized acepta cualquier SFC escrito (plan 009, E2) y B-2 de Log NC (solo
+con manipulación del cliente, plan 009, E4).
+
+**Siguiente — Auditoría final antes de la 6.6** (pedida por el usuario el 2026-10-05: un
+repaso para asegurar que no se escapó nada grave antes de los overlays). Esta vez el plan lo
+propone Claude. *Reconstruido de la propuesta hecha en un `/btw`, cuya respuesta no quedó
+guardada: si difiere de lo conversado, corregirlo aquí antes de empezar.*
+- **Fase A · Revisión dirigida, solo lectura (no se corrige nada).** Foco en lo que cambió
+  desde la auditoría anterior (`git diff b2db442..HEAD`: cierre de la 6.5 y spec 009) y en
+  que no hayan vuelto los hallazgos ya cerrados (AUD-01…27).
+  - Línea base: MSBuild Rebuild + `aspnet_compiler` + tests (0 warnings).
+  - Capas: `Pages/`/`UI/` sin DAL ni Session del POD, BLL sin `System.Web`, sin SQL inline
+    (`arch-check` + grep).
+  - Seguridad focalizada: auth, Session, `Response.Redirect`, texto hacia `<script>`,
+    entradas del cliente (hidden fields de selección) (`security-scan`).
+  - `/code-review` en **medium** por zona (BLL/Training + Scoring · Pages/Training +
+    UI/Controls · DAL + `Database/StoredProcedures`), cada uno con foco explícito: reglas de
+    `CLAUDE.md` (pesos, penalización, force-advance, formato vs. decisión), invariantes de
+    `PodService` (escritura después del intento, paso actual), transacción de
+    `spStepAttemptRecord`. High solo si una zona lo justifica (costo de tokens, ver
+    `/btw` del usuario 2026-10-05).
+  - Docs vs. código: `CLAUDE.md` (árbol, convenciones), `docs/glossary.md`, specs 008-009.
+  - Paquetes y código muerto (`outdated`, `find_dead_code`).
+- **Fase B · Lista única.** Hallazgos AUD-33… en este roadmap con severidad, vía (directo,
+  spec o decisión) y entrega propuesta. Las decisiones de negocio o de diseño se preguntan
+  juntas (D-13…) con una propuesta. Se cuestiona si cada hallazgo vale la pena para un
+  simulador interno.
+- **Fase C · Entregas chicas.** Igual que E1-E5 de la auditoría anterior: implementar →
+  Rebuild + `aspnet_compiler` + tests → `/code-review` (medium) del diff → checklist → el
+  usuario prueba → commit con el roadmap actualizado.
+- **Fase D · Cierre y regresión.** Recorrido completo en el navegador (Moldeo y Redefinity, en
+  Guided y Assessment, con un avance forzado y una Session perdida), actualizar este estado
+  actual y arrancar la spec de la 6.6.
+
+**Pendiente de la 6.6 · Overlays guiados (spec 010, sin empezar las preguntas):**
+- **Reformulación propuesta, sin confirmar por el usuario:** en modo **Guided**, una guía
+  visual sobre el POD (oscurece la pantalla, resalta el elemento y muestra un globo con la
+  instrucción) que lleva al operador por cada **subpaso de la UI** del paso actual (ej.
+  Resource Setup: botón → Retrieve → Setup State "Set Up" → recursos → Save). Guion por
+  **tipo de paso** (8), parametrizado con los flags del área (Serialized/NonSerialized,
+  checklist de Start), no por área. El servidor manda el paso actual; el JS solo conoce el
+  guion y avanza al detectar la acción del operador (nunca guarda estado real). **Nada en
+  Assessment.** Anclas propias `data-guide`, no ids. Sin cambios de reglas, puntaje ni
+  pantallas. Primeras preguntas previstas: textos con valores concretos ("Sí", "Set Up"),
+  dónde viven los textos (código o BD), cerrar/reabrir la guía con el ícono Help, qué hace
+  la guía tras un error.
+- **Hallazgos de la investigación (2026-10-05):**
+  - Legacy (`UI/Dashboard/js/guidedTest.v1.0.0.js`, solo referencia): tour propio en JS sin
+    librería; overlay oscuro con hueco (`clip-path`) sobre el elemento, globo con "Paso N de
+    M"; avanza al hacer click en el elemento, con "Continuar" en campos de captura y solo
+    en los banners (2 s); espera a que aparezca el elemento en los modales. Dos tours fijos
+    (apertura y cierre) en `sessionStorage`, por subpaso y con textos de Moldeo ("Ingrese
+    **200**"). No dependía del modo.
+  - App actual: muchos botones clave no tienen id (Retrieve de RS y LC, Collect de LC,
+    Assemble por fila, Save de los modales 1-3 de Start) y los `runat="server"` salen con
+    prefijo (`MainContent_BtnStart`): hacen falta anclas propias. Los modales sí tienen id
+    estático (`modalResourceSetup`, `modalSearch1-4`, `modalSFCSplit`…).
+  - `Training.Master` ya carga jQuery 3.7, Bootstrap 5 (Popover/Tooltip) y SweetAlert2. Los
+    íconos "Help" del POD no tienen función (candidatos para abrir o reabrir la guía). Hoy el
+    hint por tipo de paso (`GetHint`) solo aparece después de un error en Guided.
+  - Preguntas de diseño abiertas: overlay sobre modales apilados (z-index sobre los
+    backdrops; LC usa submodal); reanudar el subpaso tras cada postback (servidor o
+    `sessionStorage` solo como preferencia de UI); avance por tiempo o por acción;
+    reposicionar tras un error; pantallas ⚪ del inventario (modales del Start de Moldeo y
+    resultado de Complete).
 
 - **Fase 6 cerrada ✅** (2026-09-24). El flujo completo de R&C/Moldeo (NonSerialized)
   funciona de punta a punta en Guided y Assessment (penalización, force-advance y
