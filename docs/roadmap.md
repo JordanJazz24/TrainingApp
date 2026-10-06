@@ -16,19 +16,19 @@ se filtran en fases anteriores.
 > una sesión de trabajo relevante. Mantenerla corta: el detalle va en la sección de la
 > fase, en la spec o en el archivo de la auditoría.
 
-**Última actualización:** 2026-10-06 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 009, entrega 6 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-06 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** auditoría final, E4 (`git log --oneline -10` para ver el estado real)
 
-**Lo último cerrado:** la **spec 009 · motor del POD** (2026-10-05; AUD-16, 25, 26;
-decisiones D-9 a D-12) en 6 entregas: la lógica del POD vive en `PodService` (BLL), el
-contexto se carga una vez por request, el estado del POD sigue en Session y se reconstruye
-si se pierde, y hay una sola sesión activa por operador. Detalle en `docs/specs/009-plan.md`.
+**Lo último cerrado:** la **auditoría final antes de la 6.6** (2026-10-06,
+`docs/audits/2026-10-06-auditoria-final.md`): revisión de la spec 009 sin vulnerabilidades
+nuevas; 12 hallazgos AUD-33…44 (1 Medio: el logout no cerraba la sesión tras completar la
+guía), decisiones D-13 a D-16, 4 entregas (E1 logout, E2 invariantes de la BLL, E3 página
+sin decisiones y catálogos una vez por request, E4 limpieza) y la pasada final en el
+navegador (Moldeo y Redefinity en ambos modos, pérdida de la Session, sesión única y
+logout), todo verificado por el usuario. Antes: la spec 009 · motor del POD (2026-10-05).
 
-- **Ahora — Auditoría final antes de la 6.6 🔍.** Plan A-D aprobado por el usuario el
-  2026-10-06. Fase A ✅ (12 hallazgos AUD-33…44: 1 Medio, el logout; ninguna vulnerabilidad
-  nueva). Fase B ✅ (decisiones D-13 a D-16). En curso: **Fase C**, entregas E1 a E4. Todo en
-  `docs/audits/2026-10-06-auditoria-final.md`.
-- **Siguiente — 6.6 · Overlays guiados (spec 010).** Sin empezar las preguntas del `/spec`;
-  la reformulación propuesta y la investigación están en "Fase 6.6", abajo.
+- **Ahora — 6.6 · Overlays guiados (spec 010) 📝.** Sin empezar las preguntas del `/spec`;
+  la reformulación propuesta y la investigación están en "Fase 6.6", abajo. Arranca sobre
+  una base probada entera.
 - **En paralelo — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de
   LoFlo, a confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo.
 - **En pausa — Fase 5 (tests):** hasta el final, por decisión del usuario.
@@ -76,8 +76,8 @@ si se pierde, y hay una sola sesión activa por operador. Detalle en `docs/specs
 ### Deuda y riesgos conocidos (no bloquean la Fase 7)
 
 Solo lo abierto. Lo resuelto queda registrado en la auditoría o la spec que lo cerró. La
-auditoría final (`docs/audits/2026-10-06-auditoria-final.md`, Fase A punto 6) repasa esta
-lista para decidir qué se arregla ya y qué se difiere.
+auditoría final (2026-10-06, D-16) repasó esta lista: lo que sigue aquí quedó diferido o
+aceptado, y se sumaron AUD-40 y AUD-42 (diferidos).
 
 - **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
   resuelto (`history.replaceState`). Riesgo aceptado.
@@ -91,13 +91,16 @@ lista para decidir qué se arregla ya y qué se difiere.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007), hasta que lo pida un instructor o la Fase 8.
 - **AUD-28/29** (endurecimiento del deploy y paquetes): en la Fase 9 (D-7).
+- **AUD-40** (`PodState` mutable desde fuera de `PodService`, solo convención) y **AUD-42**
+  (orden no reproducible: tras reconstruir en Serialized pueden cambiar las piezas):
+  diferidos (D-16).
 
 ### Auditorías
 
 | Fecha | Archivo | Alcance | Estado |
 |---|---|---|---|
 | 2026-10-01 / 02 | `docs/audits/2026-10-01-auditoria.md` | Proyecto completo: AUD-01…32, D-1…D-12, entregas E1-E5 + spec 009 | ✅ (AUD-28/29 en la Fase 9) |
-| 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Cambio de la spec 009 + regresión completa en el navegador, antes de la 6.6 | 🔍 En curso (Fase C) |
+| 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Cambio de la spec 009 + regresión completa en el navegador, antes de la 6.6 | ✅ (cerrada 2026-10-06; AUD-40/42 diferidos) |
 
 ### Scripts de BD (`Database/StoredProcedures/`)
 

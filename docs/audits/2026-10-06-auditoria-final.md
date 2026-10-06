@@ -1,4 +1,4 @@
-# Auditoría final antes de la 6.6 — 2026-10-06 🔍
+# Auditoría final antes de la 6.6 — 2026-10-06 ✅
 
 > Pedida por el usuario el 2026-10-05 para asegurar que no se escapó nada grave antes de
 > los overlays. Plan propuesto por Claude en un `/btw` y **aprobado por el usuario el
@@ -124,6 +124,58 @@ Cerradas por el usuario el 2026-10-06:
 | E3 · Página sin decisiones y consultas ✅ | AUD-38, 39. `PodContext` expone `IsResolved(StepType)`, `CurrentStepOrDefault`, `IsPassed` y los catálogos del área (grupos y parámetros DC, NC, BOM, Product), perezosos y una vez por request; `StepSubmitResult.RemainingScoredAttempts`; `BuildValidator` pasa a `PodService` con esos catálogos. `GuidedTest` ya no usa `ScoreCalculator` ni `TrainingGuideService`. Save de grupo DC: de ~10 a ~6 conexiones; Add de Assembly: de ~7 a ~5. Build 0 warnings + `aspnet_compiler` OK + 17 tests OK. `/code-review medium`: sin bugs (un comentario fuera de lugar, corregido). Verificada por el usuario (2026-10-06). | `/code-review medium` |
 | E4 · Limpieza ✅ | AUD-41, 43, 44. `PodService.StartSession` inicia la guía y descarta el estado del POD de las sesiones anteriores (`IPodStateStore.RemoveAll`); `StartSession` lo usa. Se borra `SimulatedOrder.FindRow`. Docs: árbol y convención de `CLAUDE.md`, historial S2 del roadmap, checklist de la E5 en `009-plan.md`. Build 0 warnings + `aspnet_compiler` OK + 17 tests OK. `/code-review medium`: sin hallazgos. Verificada por el usuario (2026-10-06). | `/code-review medium` |
 
-## Pasada final en el navegador (Fase D)
+## Pasada final en el navegador (Fase D) ✅
 
-_Pendiente._
+Criterio de cierre antes de la 6.6: un recorrido por combinación, con el código de
+`d94f744` (E1-E4 incluidas). Los puntajes esperados salen de los pesos de
+`07_RCMoldeoGuide.sql` y `05_SeedData.sql` y de la penalización 100/80/60/0 % (solo en
+Assessment; Guided no penaliza, D-2).
+
+**D1 · Moldeo en Assessment, con errores** (RS 20 · LC 5 · Start 15 · DC 30 · LC 5 ·
+Split 5 · Log NC 10 · Complete 10):
+
+| Paso | Qué hacer | Puntaje del paso |
+|---|---|---|
+| Resource Setup | Guardar con "Open" (intento 1), después "Set Up" | 20 × 0.8 = 16 |
+| Line Clearance | Click en Start (fuera de secuencia, intento 1), después LC "Sí" | 5 × 0.8 = 4 |
+| Start | Checklist completo al primer intento | 15 |
+| Data Collection | 4 Saves con un campo vacío (cuenta como intento): "Te quedan 2… 1…", al 4.º avance forzado | 0 |
+| Line Clearance | "Sí" | 5 |
+| SFC Split | Un split válido y cerrar | 5 |
+| Log NC | Fila del split + código NC al primer intento | 10 |
+| Complete | Complete sin fila (intento 1, "Select 1 row to complete"), después con la fila | 10 × 0.8 = 8 |
+
+Esperado: **63.0 % · ✗ REPROBADO**. El score del header va sumando en cada paso.
+
+**D2 · Moldeo en Guided:** un error en cada paso que lo permita (LC "No", Setup State
+"Open", un campo de DC vacío) → aparece el hint y se puede reintentar; los
+botones que no son del paso están deshabilitados. Final: **100.0 %**, sin "Result".
+
+**D3 · Redefinity en Assessment** (RS 20 · LC 5 · Start 5 · Assembly 15 · DC 30 · LC 5 ·
+Log NC 10 · Complete 10):
+- Start: elegir solo algunas piezas en Browse → aviso "Selecciona todas las piezas"
+  (sin intento); después todas → 5.
+- Assembly: click en Data Collection (fuera de secuencia, intento 1) → después ensamblar
+  todo el BOM → 15 × 0.8 = 12.
+- Todo lo demás al primer intento (DC por pieza con "SFC … (n/N)").
+- Esperado: **97.0 % · ✓ APROBADO**.
+
+**D4 · Redefinity en Guided:** de punta a punta sin errores; Assembly y DC por pieza;
+Log NC y Complete con todas las piezas (selección parcial = aviso). Final: **100.0 %**.
+
+**D5 · Pérdida de la Session** (guardar `Web.config` sin cambios reinicia la app):
+- Moldeo en Assessment detenido en Data Collection: reiniciar → click en Data Collection →
+  la página solo se recarga (P-1); el POD muestra la orden por defecto (Shop Order
+  `303406950`) ya iniciada; el score no cambia; se puede seguir hasta el final.
+- Redefinity a mitad de DC: reiniciar → DC vuelve a empezar desde la primera pieza, sin
+  penalización.
+- Abandon después de reiniciar → va directo a StartSession (AUD-34).
+
+**D6 · Sesión única y logout:**
+- Iniciar otra guía desde StartSession → la anterior queda `Abandoned` (2) y la nueva
+  arranca vacía; en la pestaña vieja cualquier click lleva a StartSession.
+- ⏻ con la guía en curso → Login y la sesión queda `Abandoned`.
+- ⏻ en "Session Complete" → Login (AUD-33). "Cerrar sesión" en StartSession → Login.
+- Después del logout, ir a StartSession por URL o historial → Login.
+
+**Resultado:** verificado por el usuario el 2026-10-06 ("funciona"). **Auditoría cerrada**: la 6.6 arranca sobre esta base. Quedan diferidos AUD-40 y AUD-42 (D-16) y, de la auditoría anterior, AUD-28/29 para la Fase 9.
