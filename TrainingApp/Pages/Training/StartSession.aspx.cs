@@ -9,8 +9,7 @@ namespace TrainingApp.Pages.Training
 {
     public partial class StartSession : Page
     {
-        private readonly TrainingGuideService _guideService   = new TrainingGuideService();
-        private readonly TrainingSessionService _sessionService = new TrainingSessionService();
+        private readonly TrainingGuideService _guideService = new TrainingGuideService();
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -53,7 +52,8 @@ namespace TrainingApp.Pages.Training
             var mode = RbAssessment.Checked ? SessionMode.Assessment : SessionMode.Guided;
             int operatorId = (int)Session[Constants.SessionKeys.OperatorId];
 
-            var session = _sessionService.Start(operatorId, guideId, mode);
+            // D-9 y AUD-41: deja una sola sesión en curso, también en el estado del POD.
+            var session = new PodService(new SessionPodStateStore(Session)).StartSession(operatorId, guideId, mode);
             Response.Redirect("~/Pages/Training/GuidedTest.aspx?sessionId=" + session.Id);
         }
 

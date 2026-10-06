@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Web.SessionState;
 using TrainingApp.BLL.Training;
 using TrainingApp.Shared;
@@ -20,6 +22,15 @@ namespace TrainingApp.Pages.Training
         public void Save(int trainingSessionId, PodState state) => _session[Key(trainingSessionId)] = state;
 
         public void Remove(int trainingSessionId) => _session.Remove(Key(trainingSessionId));
+
+        public void RemoveAll()
+        {
+            var keys = _session.Keys.Cast<string>()
+                .Where(k => k.StartsWith(Constants.SessionKeys.PodStatePrefix, StringComparison.Ordinal))
+                .ToList();
+            foreach (var key in keys)
+                _session.Remove(key);
+        }
 
         private static string Key(int trainingSessionId)
             => Constants.SessionKeys.PodStatePrefix + trainingSessionId;

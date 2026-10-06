@@ -262,7 +262,7 @@ VS y fuera del commit.
       un solo DataBind del POD. La reconstrucción de Log NC quita una sola fila de split, como
       el scrap real. No aplica: juntar las escrituras en Session de la reconstrucción (es un
       evento raro y cada escritura es una asignación en memoria).
-- [ ] **Checklist del usuario:** AC-8 (Moldeo detenido en Log NC tras el split), AC-9
+- [x] **Checklist del usuario** (verificado junto con el de la E6): AC-8 (Moldeo detenido en Log NC tras el split), AC-9
       (Redefinity a mitad de DC) y AC-10 (sesión en Resource Setup), cada uno en Assessment
       y comparando el puntaje antes y después.
 

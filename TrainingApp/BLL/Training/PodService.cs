@@ -98,6 +98,16 @@ namespace TrainingApp.BLL.Training
             ctx.Rebuilt = true;
         }
 
+        // Inicia una guía: la BD abandona las otras sesiones en curso del operador (D-9) y aquí
+        // se descarta el estado del POD de las sesiones anteriores de este login, abandonadas
+        // o completadas (auditoría AUD-41).
+        public TrainingSession StartSession(int operatorId, int guideId, SessionMode mode)
+        {
+            var session = _sessionService.Start(operatorId, guideId, mode);
+            _store.RemoveAll();
+            return session;
+        }
+
         public void Abandon(PodContext ctx)
         {
             _sessionService.Abandon(ctx.Session.Id, ctx.OperatorId);

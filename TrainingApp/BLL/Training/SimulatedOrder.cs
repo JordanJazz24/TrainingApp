@@ -82,9 +82,6 @@ namespace TrainingApp.BLL.Training
         public IList<SimulatedOrderRow> FindRows(ICollection<string> rowIds)
             => Rows.Where(r => rowIds.Contains(r.RowId)).ToList();
 
-        public SimulatedOrderRow FindRow(string rowId)
-            => Rows.FirstOrDefault(r => r.RowId == rowId);
-
         public void Activate(IEnumerable<SimulatedOrderRow> rows)
         {
             foreach (var row in rows)

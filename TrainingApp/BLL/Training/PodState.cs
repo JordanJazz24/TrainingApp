@@ -28,5 +28,8 @@ namespace TrainingApp.BLL.Training
         void Save(int trainingSessionId, PodState state);
 
         void Remove(int trainingSessionId);
+
+        // Estado de todas las sesiones de este operador (D-9 deja una sola en curso).
+        void RemoveAll();
     }
 }

@@ -226,8 +226,8 @@ Glosario de términos MES (SFC, LC, Shop Order, SFO, Employee vs. Operator, Prod
 MES Training Simulator/                    ← raíz del repositorio
 ├── TrainingApp/                           ← proyecto Web Forms (.NET FW 4.7.2)
 │   ├── Pages/
-│   │   ├── SessionHelper.cs               ← re-hidrata Session (vía AuthService) y aviso
-│   │   │                                     de cambio de contraseña del primer acceso
+│   │   ├── SessionHelper.cs               ← re-hidrata Session (vía AuthService), aviso de
+│   │   │                                     cambio de contraseña del primer acceso y logout
 │   │   ├── Auth/
 │   │   │   ├── Login.aspx + .cs
 │   │   │   └── ChangePassword.aspx + .cs
@@ -248,23 +248,29 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Auth/
 │   │   │   └── AuthService.cs
 │   │   ├── Training/
-│   │   │   ├── TrainingGuideService.cs    ← guías, catálogos (grupos DC, BOM) y validador
+│   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products)
 │   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
 │   │   │   ├── PodService.cs              ← motor del POD (spec 009): LoadContext (una vez
 │   │   │   │                                 por request) y comandos que registran intentos
-│   │   │   │                                 (intento + avance atómico con spStepAttemptRecord)
-│   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje y estado
+│   │   │   │                                 (intento + avance atómico con spStepAttemptRecord);
+│   │   │   │                                 arma el StepValidator con los catálogos del contexto
+│   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje, estado y
+│   │   │   │                                 catálogos del área (perezosos, una vez por request)
+│   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
+│   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
 │   │   │   ├── PodState.cs                ← estado del POD (orden + avance) e IPodStateStore
 │   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
 │   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
 │   │   │   ├── StepAnswers.cs             ← answers fijos (complete, start, acción inválida)
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
+│   │   │   ├── SplitSfcGenerator.cs       ← SFC nuevo de cada SFC Split (Fase 6.5)
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
 │   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
 │   │   └── Scoring/
 │   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
 │   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
+│   │       ├── StepValidationContext.cs   ← área y catálogos que usa el validador
 │   │       └── DataCollectionCompletionRule.cs ← grupos DC obligatorios
 │   ├── DAL/
 │   │   ├── Infrastructure/
@@ -338,7 +344,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 - **Contraseña por defecto en Constants.cs** — `Constants.DEFAULT_PASSWORD`. No en `Web.config`, no hardcodeada en páginas.
 - **Connection string fuera del repo** — clave `"Default"`, leída por `DatabaseFactory`. Vive en `TrainingApp/connectionStrings.config` (`configSource` desde `Web.config`, en `.gitignore`); en un checkout nuevo se copia de `connectionStrings.config.example`. Nunca hardcodeada ni versionada (auditoría AUD-04).
 - **La BLL protege sus invariantes** — `PodService.LoadContext` recibe el `operatorId` autenticado y solo devuelve contexto para una sesión propia y en curso; los comandos de `PodService` que registran intentos usan ese contexto (el paso actual lo define el servidor), y `spStepAttemptRecord` vuelve a validar en su transacción estado, paso y número de intento: si la sesión cambió, falla sin guardar nada. `TrainingSessionService.Abandon` recibe el `operatorId` y valida el dueño. Violarlos es una excepción, no un intento. El intento y el avance/cierre se guardan juntos (transacción). No confiar en que la página ya validó (auditoría AUD-05/06, spec 009).
-- **Estado del POD solo en la BLL (spec 009)** — la orden simulada y el avance de Assembly/DC viven en un `PodState` en Session (una clave por sesión, `SessionPodStateStore`) y solo los modifica `PodService`. La página y los controles arman la UI con el `PodContext` del request y nunca tocan esas claves ni modifican la orden. Los avisos de formato llegan como `PodNotice` y la página elige el texto. Si el estado falta (Session reciclada), `PodService.LoadContext` lo reconstruye con la orden por defecto (D-10). Una sola sesión activa por operador: iniciar una guía o hacer logout abandona las `InProgress` (D-9).
+- **Estado del POD solo en la BLL (spec 009)** — la orden simulada y el avance de Assembly/DC viven en un `PodState` en Session (una clave por sesión, `SessionPodStateStore`) y solo los modifica `PodService`. La página y los controles arman la UI con el `PodContext` del request y nunca tocan esas claves ni modifican la orden. Los avisos de formato llegan como `PodNotice` y la página elige el texto. Si el estado falta (Session reciclada), `PodService.LoadContext` lo reconstruye con la orden por defecto (D-10). Una sola sesión activa por operador: iniciar una guía (`PodService.StartSession`) o hacer logout (`SessionHelper.Logout`) abandona las `InProgress` (D-9), e iniciar una guía también descarta el estado del POD de las sesiones anteriores (AUD-41).
 - **Seguridad en presentación** — toda página usa `Site.Master` o `Training.Master` (heredan `AntiXsrfMasterPage`, anti-CSRF). Texto que va a un `<script>` desde el servidor: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; data-binding de texto al HTML con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean como formato en el cliente (auditoría E2/E5).
 - **URL de la API de empleados en `Constants.EmployeeApiUrl`** — nunca hardcodeada en el repositorio. TTL de caché en `Constants.EmployeeCacheMinutes` (default 30 min). Ante falla de la API tras el TTL, `EmployeeRepository` sirve la última lista exitosa indefinidamente (`_lastKnownGood`). Solo falla si nunca hubo una llamada exitosa.
   - **Limitación conocida y aceptada:** `_lastKnownGood` es una variable en memoria del proceso de IIS. Si el App Pool se recicla (restart programado, idle timeout, crash) mientras la API externa está caída, la variable se pierde y el siguiente request fallará hasta que la API vuelva a responder. Este riesgo es aceptable dado el contexto (simulador interno de entrenamiento — no es un sistema de producción crítico). Si en el futuro se requiere persistencia ante reciclo, la lista cacheada debería guardarse en disco o en un caché distribuido.

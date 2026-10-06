@@ -275,7 +275,7 @@ Sin fase propia: correcciones del motor que salieron al probar la Fase 6, y la s
   - En Assessment todos los botones del POD están habilitados, incluidos los que no aplican
     al área (Assemble en Moldeo, SFC Split en Serialized). Guided sin cambios.
   - Un click en un botón que no es el del paso actual es un intento fallido **del paso
-    actual** (`TrainingSessionService.RegisterOutOfSequence`), con la misma penalización y
+    actual** (hoy `PodService.CheckSequence`, spec 009), con la misma penalización y
     force-advance. El control del botón equivocado no se abre.
   - Mismo mensaje genérico que una respuesta incorrecta (no revela que fue de secuencia).
   - La secuencia se evalúa antes que los avisos de formato del botón (SFC vacío, fila sin
