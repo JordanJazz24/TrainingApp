@@ -204,15 +204,15 @@ Complete:         10%
 ## Roadmap
 
 - **Dónde quedamos:** al iniciar una sesión, leer primero `docs/roadmap.md` → sección **"📍 Estado actual"** (último commit, bloqueantes, deuda conocida y proceso acordado).
-- **Historial completo** (objetivo + "No incluye" de cada fase): `docs/roadmap.md`.
+- **Historial completo** (objetivo + "No incluye" de cada fase): `docs/roadmap.md`. Las auditorías viven aparte, una por archivo en `docs/audits/` (el roadmap solo las referencia).
 - **Reglas de oro:** cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la causa principal de deuda técnica temprana es que features de fases futuras se filtran en fases anteriores. Respetar siempre el "No incluye" de la fase en curso.
 - **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007) · 6.5 Fidelidad de UI/UX (cerrada 2026-10-02). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
 - **Spec 008 cerrada ✅ (2026-09-28):** el motor soporta áreas Serialized (piezas con SFC propio, multi-selección, Start directo), Assembly con BOM y Data Collection por pieza con grupos obligatorios. Resolvió los bloqueantes #1, #2 y #4 de la Fase 7.
-- **Auditoría del proyecto ✅ (2026-10-01/02):** lista única de 32 hallazgos (AUD-01…32), decisiones D-1…D-8 y 5 entregas verificadas (E1 bugs del flujo · E2 auth y secretos · E3 integridad del puntaje · E4 capas · E5 limpieza). Detalle y pendientes en `docs/roadmap.md` → "Auditoría 2026-10-01". AUD-16, 25 y 26 los cerró la spec 009. AUD-28/29 en la Fase 9.
+- **Auditoría del proyecto ✅ (2026-10-01/02):** lista única de 32 hallazgos (AUD-01…32), decisiones D-1…D-8 y 5 entregas verificadas (E1 bugs del flujo · E2 auth y secretos · E3 integridad del puntaje · E4 capas · E5 limpieza). Detalle y pendientes en `docs/audits/2026-10-01-auditoria.md`. AUD-16, 25 y 26 los cerró la spec 009. AUD-28/29 en la Fase 9.
 - **6.5 · Fidelidad de UI/UX con el SAP MES real ✅** (cerrada 2026-10-02): cada pantalla y modal del POD replica su captura real (inventario `docs/ui-reference/inventario-pantallas.md`: ✅ 14 · ⚪ 2 sin captura).
 - **Spec 009 · Motor del POD en la BLL cerrada ✅ (2026-10-05, 6 entregas):** `PodService` decide el flujo del POD (orden simulada, selección como intento o aviso, secuencia, avance forzado); la página solo pinta. Contexto una vez por request (Line Clearance: de ~21 a 5 conexiones). El estado del POD sigue en Session y, si se pierde, se reconstruye (D-10). Una sola sesión activa por operador (D-9). Cerró AUD-16, 25 y 26. Detalle: `docs/specs/009-motor-pod.md` y `009-plan.md`.
-- **Ahora — Auditoría final antes de la 6.6 🔍** (pedida por el usuario 2026-10-05; plan A-D enfocado en la spec 009 + regresión completa, en `docs/roadmap.md` → Estado actual; pendiente de aprobación).
-- **Siguiente — 6.6 · Overlays guiados 📝** (requiere `/spec`; reformulación e investigación ya anotadas en el roadmap): guía paso a paso en Guided sobre la interfaz cerrada en la 6.5; por tipo de paso, no por área. Entrada: el inventario de pantallas.
+- **Ahora — Auditoría final antes de la 6.6 🔍** (pedida por el usuario 2026-10-05, plan A-D aprobado 2026-10-06; enfocada en la spec 009 + regresión completa; en curso la Fase A). Plan, hallazgos (AUD-33+) y decisiones (D-13+) en `docs/audits/2026-10-06-auditoria-final.md`.
+- **Siguiente — 6.6 · Overlays guiados 📝** (requiere `/spec`; reformulación e investigación ya anotadas en `docs/roadmap.md` → Fase 6.6): guía paso a paso en Guided sobre la interfaz cerrada en la 6.5; por tipo de paso, no por área. Entrada: el inventario de pantallas.
 - **En paralelo — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada por el #3** (confirmar con negocio los flags reales de LoFlo). Script SQL con el catálogo real de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM (simulado) y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas.
 - **En pausa ⏸️ — 5 · ScoreCalculator: cobertura de tests.** Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
 
@@ -290,7 +290,7 @@ MES Training Simulator/                    ← raíz del repositorio
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
 ├── Database/
 │   └── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
-└── docs/                                  ← roadmap.md (estado actual), glossary.md,
+└── docs/                                  ← roadmap.md (estado actual), glossary.md, audits/,
                                               specs/ (NNN-*.md + NNN-plan.md), ui-reference/
 ```
 

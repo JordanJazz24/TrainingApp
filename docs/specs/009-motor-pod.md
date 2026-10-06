@@ -3,7 +3,7 @@
 **Status:** Cerrada ✅ (2026-10-05) · Approved 2026-10-05
 **Date:** 2026-10-02
 **Plan:** `docs/specs/009-plan.md`
-**Origen:** auditoría 2026-10-01 — AUD-16, AUD-25, AUD-26 (`docs/roadmap.md` → "Auditoría 2026-10-01").
+**Origen:** auditoría 2026-10-01 — AUD-16, AUD-25, AUD-26 (`docs/audits/2026-10-01-auditoria.md`).
 
 ## Problem
 
