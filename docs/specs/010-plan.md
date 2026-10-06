@@ -178,6 +178,29 @@ Con la guía activa, el helper no programa nada y la guía oculta el mensaje al 
   - error en una verificación del checklist → vuelve a su bloque;
   - Redefinity Guided: Start con Select All.
 
+### Entrega 2b — Solo avanza con la respuesta correcta (enmienda R10) — verificada (2026-10-06)
+
+- Spec enmendada (R10): la guía no avanza con una decisión incorrecta y no muestra aviso
+  propio ("Continuar" no se habilita; un desplegable avanza solo con el valor correcto).
+- Motor: cada subpaso con decisión trae su respuesta esperada (`expect`). En `change`
+  avanza solo si el valor coincide; en `verify` y en los bloques, "Continuar" se habilita
+  solo con formato y respuesta correctos.
+- Guion: Setup State **Set Up**, tipo **Tool Number**, LC **Si**, verificaciones y final
+  del checklist **Sí**. Data Collection nace con la regla en la E3 (rangos del catálogo).
+- `CLAUDE.md`: la convención "formato vs. decisión" aclara que la guía de Guided no deja
+  avanzar con una decisión incorrecta (el control y el servidor no cambian).
+- **AC:** 14 y 15 enmendados; repaso de 5-8.
+- **Review:** `low` sobre `pod-guide.js` y `GuideScriptBuilder.cs` (2 posibles bugs: falsos
+  positivos, porque los bloques son `<select>`; igual `answerOk` ignora campos ocultos y
+  botones, pensando en los bloques de DC de la E3).
+- **Corrección del usuario al probar (R11):** los desplegables con decisión no avanzan
+  solos (elegir el valor correcto habilita "Continuar") y lo resaltado en un subpaso
+  informativo es de solo lectura (la tabla de Resource Setup ya no se puede editar).
+  Setup State sigue editable: si apareciera en Open, el operador tiene que poder cambiarlo.
+- **Checklist:** en Moldeo y Redefinity Guided, cada decisión incorrecta no deja avanzar
+  y no registra intento (Setup State Open, LC NO, una verificación NO, final NO); con la
+  respuesta correcta sigue normal.
+
 ### Entrega 3 — Assembly y Data Collection
 
 - Assembly:

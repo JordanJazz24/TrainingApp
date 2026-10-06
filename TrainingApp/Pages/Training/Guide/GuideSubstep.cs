@@ -41,6 +41,10 @@ namespace TrainingApp.Pages.Training.Guide
         // Solo en Capture.
         public string Format { get; set; }
 
+        // Respuesta correcta de una decisión (spec 010, R10): valor que deben tener todos los
+        // campos del subpaso para avanzar. null en los campos libres y los clics.
+        public string Expect { get; set; }
+
         // Info sobre un mensaje del MES: la guía lo oculta al presionar "Continuar" (R9).
         public bool HideOnContinue { get; set; }
 
@@ -77,6 +81,7 @@ namespace TrainingApp.Pages.Training.Guide
                     mode     = s.Mode,
                     postback = s.Postback,
                     format   = s.Format,
+                    expect   = s.Expect,
                     hide     = s.HideOnContinue,
                     retry    = s.RetryKey,
                     step     = s.StepLabel,

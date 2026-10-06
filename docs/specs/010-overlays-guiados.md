@@ -1,12 +1,13 @@
 # Spec 010: Overlays guiados (Fase 6.6)
 
-**Status:** Approved (2026-10-06)
+**Status:** Approved (2026-10-06) · enmendada 2026-10-06 (R10: solo avanza con la respuesta correcta; R11: los desplegables avanzan con "Continuar" y lo informativo es de solo lectura)
 **Date:** 2026-10-06
 **Plan:** `docs/specs/010-plan.md`
 **Origen:** `docs/roadmap.md` → Fase 6.6. Entrada: `docs/ui-reference/inventario-pantallas.md`.
 
 > Las respuestas del usuario se citan como R1…R7 (rondas de preguntas) y R8…R9 (rondas de
-> revisión), todas del 2026-10-06.
+> revisión), todas del 2026-10-06. R10 es la enmienda posterior a la entrega 2 y R11 la
+> corrección del usuario al probar la entrega 2b (mismo día).
 
 ## Problem
 
@@ -61,16 +62,21 @@ el instructor le diga qué tocar.
 **Cómo avanza**
 - **Por acción del operador:** un clic en el elemento resaltado, un cambio en un
   desplegable o "Continuar" (R3). Tipos de subpaso:
-  - **clic / cambio:** avanza con la acción sobre el elemento;
+  - **clic:** avanza con el clic sobre el elemento;
+  - **decisión en un desplegable** (Tool Number, Line Clearance, final del checklist):
+    el operador elige el valor y presiona "Continuar", que se habilita solo con la
+    respuesta correcta; nunca avanza solo al elegir (R11);
   - **captura:** el operador escribe o escanea y presiona "Continuar";
   - **verificación** (R8): el operador revisa un valor que ya está en pantalla (ej. Setup
     State en Set Up), lo cambia si hace falta y presiona "Continuar";
   - **informativo** (R8): explica lo que se ve en pantalla (una sección, un mensaje de
-    confirmación del MES) y se avanza con "Continuar", siempre habilitado.
+    confirmación del MES) y se avanza con "Continuar", siempre habilitado. Lo resaltado es
+    de solo lectura: no se puede editar ni tocar (R11).
 - **"Continuar"** se habilita cuando los campos del subpaso cumplen el **formato** que ya
-  exige el control (no vacío; numérico donde el control lo pide). Nunca revisa decisiones.
-  Excepción: en el bloque de Data Collection "Continuar" siempre está habilitado, porque
-  ahí un campo vacío es una decisión que cuenta como intento (`CLAUDE.md`).
+  exige el control (no vacío; numérico donde el control lo pide) y, en los subpasos con una
+  decisión, cuando además tienen **la respuesta correcta** (R10). Los campos libres (Shop
+  Order, herramienta, ID del molde, MSS, barcode, Component, cantidad del split) solo
+  revisan el formato.
 - **Formularios de varios campos por bloque** (R7): los 10 parámetros MSS, las 3
   verificaciones del Start de Moldeo y cada grupo de DC se resaltan como un bloque, con
   una instrucción y un "Continuar". En DC el globo lista cada parámetro con su rango.
@@ -92,12 +98,21 @@ el instructor le diga qué tocar.
   subpaso informativo. En Assessment se ocultan como hoy.
 
 **Decisiones y errores**
-- **Decisiones incorrectas** (R2, aclarado en R3, lectura A): el elemento resaltado acepta
-  cualquier valor; la guía no sabe si es correcto. El valor se envía, el servidor lo
-  califica como hoy (intento fallido, reintentos ilimitados en Guided) y el paso solo
-  avanza cuando el servidor lo da por correcto.
-- **Tras un intento fallido** (R2): se mantiene el SweetAlert con el hint (ahora en
-  español). Al cerrarlo, la guía vuelve a resaltar el elemento o bloque de la decisión.
+- **Solo avanza con la respuesta correcta** (R10, enmienda 2026-10-06; reemplaza la
+  lectura A de R2/R3). El elemento resaltado acepta cualquier valor, pero la guía no avanza
+  hasta que la decisión es la correcta: "Continuar" no se habilita, tanto en desplegables
+  como en verificaciones y bloques (en un desplegable, elegir el valor correcto solo
+  habilita "Continuar": R11). **Sin aviso propio:** el texto del globo ya dice qué elegir. El valor incorrecto nunca se envía, así que en Guided
+  casi no se registran intentos fallidos. Assessment no cambia.
+  - Respuestas que conoce la guía: Setup State **Set Up**, tipo de fila **Tool Number**,
+    Line Clearance **Si**, checklist de Start **Sí** (verificaciones y final) y, en Data
+    Collection, el rango de cada parámetro, **Sí** en los booleanos y una fecha válida.
+  - Las manda el servidor desde las mismas reglas y catálogos que usa `StepValidator`, que
+    sigue siendo la fuente de verdad: el control y el servidor no cambian.
+- **Si igual llega un intento fallido** (falla segura, o una regla del cliente que no
+  coincide con el servidor): el servidor lo califica como hoy, se mantiene el SweetAlert con
+  el hint (ahora en español) y, al cerrarlo, la guía vuelve a resaltar el elemento o bloque
+  de la decisión (R2).
 
 **Servidor y cliente**
 - **El servidor manda:** el paso actual y la calificación siguen en la BLL. El JS solo
@@ -376,7 +391,8 @@ dos cubren todos los flags.
   completa y vuelve el POD.
 - **AC-10:** Data Collection: la guía pasa solo por los grupos obligatorios (Moldeo: solo
   `DCGTM_FECHA_EXPIRACION_NIR/A`), en Redefinity por cada pieza, y el globo del bloque
-  lista cada parámetro con su rango.
+  lista cada parámetro con su rango. "Continuar" se habilita solo con todos los valores
+  correctos (R10).
 - **AC-11:** SFC Split en Moldeo: fila del lote → SFC Split → 100 → Split → Close.
 - **AC-12:** Log NC: toda la lista resaltada; en Redefinity pide Component, en Moldeo no;
   Add-Done registra el NC.
@@ -384,12 +400,13 @@ dos cubren todos los flags.
   final sobre "Session Complete", que se cierra con OK.
 
 **Errores y reanudación**
-- **AC-14:** Given Resource Setup guiado, When el operador elige **Open** y guarda, Then se
-  registra el intento fallido, aparece el SweetAlert con el hint **en español** y, al
-  cerrarlo, la guía resalta Setup State; el paso solo avanza al guardar con Set Up.
-- **AC-15:** Given un subpaso de captura, When el campo está vacío o no cumple el formato
-  del control, Then "Continuar" está deshabilitado (salvo en el bloque de DC); When el
-  operador presiona Enter, Then equivale a "Continuar" y el formulario no se envía.
+- **AC-14** (enmendado, R10): Given Resource Setup guiado, When el operador elige **Open**
+  en Setup State, Then "Continuar" no se habilita y no se registra ningún intento; con
+  **Set Up** sigue. Lo mismo en Line Clearance (**NO** no avanza) y en el checklist de Start.
+- **AC-15:** Given un subpaso de captura, When el campo está vacío, no cumple el formato
+  del control o (si es una decisión) no tiene la respuesta correcta, Then "Continuar" está
+  deshabilitado; When el operador presiona Enter, Then equivale a "Continuar" y el
+  formulario no se envía.
 - **AC-16:** Given cualquier paso a medio camino (ej. Assembly con un componente hecho),
   When el operador presiona F5, Then la guía retoma en el primer subpaso pendiente según el
   servidor (el componente siguiente).
@@ -397,10 +414,12 @@ dos cubren todos los flags.
   guía deja de bloquear y muestra la instrucción en un globo fijo; el operador puede seguir.
 
 **Sin regresiones**
-- **AC-18:** Given una sesión Guided recorrida con la guía, Then los intentos guardados,
-  el puntaje y la secuencia son los mismos que sin guía para las mismas acciones; la guía
-  no guarda nada en la BD.
-- **AC-19:** Given los hints de Guided, Then están en español (nombres del MES en inglés).
+- **AC-18** (enmendado, R10): Given una sesión Guided recorrida con la guía, Then cada
+  intento que llega al servidor se califica igual que sin guía y la secuencia no cambia; la
+  guía no guarda nada en la BD. Como la guía no envía decisiones incorrectas, cada paso
+  queda con un intento.
+- **AC-19:** Given un intento fallido que igual llegue al servidor en Guided (falla segura),
+  Then el hint está en español (nombres del MES en inglés).
 
 **Mensajes del MES**
 - **AC-20:** Given la guía activa, When el MES muestra un mensaje de confirmación (banner

@@ -16,6 +16,13 @@ namespace TrainingApp.Pages.Training.Guide
         // ejemplo es la de la orden por defecto del simulador.
         private const string ExampleToolNumber = "10033058";
 
+        // Respuestas que la guía exige antes de avanzar (R10): las mismas que califica
+        // StepValidator (Setup State, Line Clearance y checklist de Start). Tool Number es el
+        // tipo de la segunda fila de Resource Setup (el control exige al menos una).
+        private const string AnswerSetUp      = "Set Up";
+        private const string AnswerToolNumber = "Tool Number";
+        private const string AnswerYes        = "true";
+
         public GuideScript Build(PodContext ctx, GuideMoment moment)
         {
             var script = new GuideScript();
@@ -82,13 +89,13 @@ namespace TrainingApp.Pages.Training.Guide
                     B(PodDefaults.DefaultShopOrder), "."));
             s.Add("insertTool", GuideMode.Click, Anchor("rs-insert-new"),
                 html: H("Presione ", B("INSERT NEW"), " para agregar otra fila."));
-            s.Add("toolType", GuideMode.Change, Anchor("rs-row-type"), pickLast: true,
+            s.Add("toolType", GuideMode.Change, Anchor("rs-row-type"), pickLast: true, expect: AnswerToolNumber,
                 html: H("Cambie el tipo de la fila nueva a ", B("Tool Number"), "."));
             s.Add("tool", GuideMode.Capture, Anchor("rs-row-value"), pickLast: true, format: GuideFormat.Required,
                 html: H("Ingrese el número de la herramienta, por ejemplo ", B(ExampleToolNumber), "."));
             s.Add("table", GuideMode.Info, Anchor("rs-table"),
                 html: H("En esta sección se agregan todos los recursos, herramientas y materiales asociados a su operación."));
-            s.Add("setupState", GuideMode.Verify, Anchor("rs-setup-state"),
+            s.Add("setupState", GuideMode.Verify, Anchor("rs-setup-state"), expect: AnswerSetUp,
                 html: H("Verifique que ", B("Setup State"), " esté en ", B("Set Up"), ". Si no, cámbielo."));
             // Un aviso de formato del control (filas incompletas) vuelve a armar las filas.
             s.Add("save", GuideMode.Click, Anchor("rs-save"), postback: true, retry: "removeAll",
@@ -117,7 +124,7 @@ namespace TrainingApp.Pages.Training.Guide
                 html: H("Presione ", B("Retrieve"), " para cargar los grupos de datos del recurso."));
             s.Add("collect", GuideMode.Click, Anchor("lc-collect"),
                 html: H("Presione ", B("Collect"), " en ", B("DC_LC_DONE"), " para responder la limpieza de línea."));
-            s.Add("answer", GuideMode.Change, Anchor("lc-answer"),
+            s.Add("answer", GuideMode.Change, Anchor("lc-answer"), expect: AnswerYes,
                 html: H("Seleccione ", B("Si"), ": la limpieza de línea se realizó."));
             s.Add("save", GuideMode.Click, Anchor("lc-save"), postback: true, retry: "answer",
                 html: H("Presione ", B("Save"), " para guardar la respuesta."));
@@ -159,7 +166,7 @@ namespace TrainingApp.Pages.Training.Guide
                     html: H("Ingrese el ", B("ID del molde"), " según la MSS."));
                 s.Add("save1", GuideMode.Click, Anchor("search-save1"),
                     html: H("Presione ", B("Save"), "."));
-                s.Add("verifs", GuideMode.Capture, Anchor("search-verifs"), format: GuideFormat.Required,
+                s.Add("verifs", GuideMode.Capture, Anchor("search-verifs"), format: GuideFormat.Required, expect: AnswerYes,
                     html: H("Responda ", B("Sí"), " a las tres verificaciones de etiquetas."));
                 s.Add("save2", GuideMode.Click, Anchor("search-save2"),
                     html: H("Presione ", B("Save"), "."));
@@ -167,7 +174,7 @@ namespace TrainingApp.Pages.Training.Guide
                     html: H("Ingrese los parámetros técnicos según la ", B("MSS D000281359"), "."));
                 s.Add("save3", GuideMode.Click, Anchor("search-save3"),
                     html: H("Presione ", B("Save"), "."));
-                s.Add("final", GuideMode.Change, Anchor("search-final"),
+                s.Add("final", GuideMode.Change, Anchor("search-final"), expect: AnswerYes,
                     html: H("Seleccione ", B("Sí"), " en la verificación final."));
                 s.Add("save4", GuideMode.Click, Anchor("search-save4"), postback: true, retry: "final",
                     html: H("Presione ", B("Save"), " para iniciar la orden."));
@@ -269,7 +276,7 @@ namespace TrainingApp.Pages.Training.Guide
 
             public void Add(string name, string mode, string anchor, string html,
                 bool pickLast = false, bool postback = false, string format = null,
-                bool hide = false, string retry = null)
+                bool hide = false, string retry = null, string expect = null)
             {
                 _items.Add(new GuideSubstep
                 {
@@ -279,6 +286,7 @@ namespace TrainingApp.Pages.Training.Guide
                     Mode           = mode,
                     Postback       = postback,
                     Format         = format,
+                    Expect         = expect,
                     HideOnContinue = hide,
                     RetryKey       = retry != null ? Key(retry) : null,
                     StepLabel      = _label,

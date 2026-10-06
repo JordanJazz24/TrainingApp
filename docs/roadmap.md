@@ -28,8 +28,9 @@ logout), todo verificado por el usuario. Antes: la spec 009 · motor del POD (20
 
 - **Ahora — 6.6 · Overlays guiados (spec 010) 🚧.** Spec aprobada
   (`docs/specs/010-overlays-guiados.md`) y plan aprobado en 5 entregas con P-1 a P-8
-  (`docs/specs/010-plan.md`). **E1 y E2 verificadas** (motor de la guía, Resource Setup,
-  hints en español, Line Clearance y Start). Sigue la E3: Assembly y Data Collection.
+  (`docs/specs/010-plan.md`). **E1, E2 y E2b verificadas** (motor de la guía, Resource
+  Setup, hints en español, Line Clearance y Start; enmiendas R10/R11: la guía solo avanza
+  con la respuesta correcta). Sigue la E3: Assembly y Data Collection.
 - **En paralelo — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de
   LoFlo, a confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo.
 - **En pausa — Fase 5 (tests):** hasta el final, por decisión del usuario.

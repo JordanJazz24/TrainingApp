@@ -28,8 +28,11 @@
 
     function current() { return substeps[idx] || null; }
 
+    // Un desplegable con respuesta esperada (decisión) también avanza con "Continuar", que se
+    // habilita solo con el valor correcto; elegir no avanza solo (R11).
     function needsContinue(s) {
-        return s.mode === 'capture' || s.mode === 'verify' || s.mode === 'info';
+        return s.mode === 'capture' || s.mode === 'verify' || s.mode === 'info' ||
+            (s.mode === 'change' && s.expect != null);
     }
 
     // ── Elementos ────────────────────────────────────────────────────
@@ -89,13 +92,25 @@
         return true;
     }
 
+    // Formato y, en una decisión, la respuesta correcta (R10: sin aviso propio; "Continuar"
+    // simplemente no se habilita).
+    function answerOk(s, el) {
+        var fields = el.matches('input,select,textarea')
+            ? [el] : el.querySelectorAll('input,select,textarea');
+        // Solo lo que el operador completa: sin campos ocultos ni botones.
+        fields = Array.prototype.filter.call(fields, function (f) {
+            return !(f.tagName === 'INPUT' && /^(hidden|button|submit|reset|image)$/i.test(f.type));
+        });
+        return fields.every(function (f) {
+            return formatOk(s.format, f.value) && (s.expect == null || f.value === s.expect);
+        });
+    }
+
     function continueEnabled() {
         var s = current();
         if (!s) return false;
-        if (state === 'failsafe' || s.mode !== 'capture' || !target) return true;
-        var fields = target.matches('input,select,textarea')
-            ? [target] : target.querySelectorAll('input,select,textarea');
-        return Array.prototype.every.call(fields, function (f) { return formatOk(s.format, f.value); });
+        if (state === 'failsafe' || s.mode === 'info' || !target) return true;
+        return answerOk(s, target);
     }
 
     // ── Dibujo ───────────────────────────────────────────────────────
@@ -184,7 +199,7 @@
         place();
 
         var s = current();
-        if (s.mode === 'capture' || s.mode === 'verify') {
+        if (s.mode === 'capture' || s.mode === 'verify' || (s.mode === 'change' && s.expect != null)) {
             var field = focusables(el)[0];
             if (field && document.activeElement !== field) field.focus();
         }
@@ -349,10 +364,16 @@
             (node.closest('[data-guide-free]') || node.closest('.swal2-container')));
     }
 
+    // Lo resaltado en un subpaso informativo es de solo lectura (R11): solo el globo.
+    function targetEditable() {
+        var s = current();
+        return !!(target && s && s.mode !== 'info');
+    }
+
     function allowed(node) {
         if (isFree(node)) return true;
         if (state !== 'shown' || !node || !node.closest) return false;
-        return (target && target.contains(node)) || (globe && globe.contains(node));
+        return (targetEditable() && target.contains(node)) || (globe && globe.contains(node));
     }
 
     function blocking() {
@@ -374,7 +395,10 @@
 
     document.addEventListener('change', function (e) {
         if (state !== 'shown' || !target || !target.contains(e.target)) return;
-        if (current().mode === 'change') setTimeout(advance, 0);
+        var s = current();
+        // Un desplegable sin respuesta esperada avanza con el cambio; una decisión espera a
+        // "Continuar" (R11).
+        if (s.mode === 'change' && s.expect == null) setTimeout(advance, 0);
         else updateContinue();
     }, true);
 
@@ -384,7 +408,7 @@
 
     function cycleFocus(back) {
         // Con un modal abierto su trampa de foco no deja salir: solo el elemento resaltado.
-        var list = focusables(target);
+        var list = targetEditable() ? focusables(target) : [];
         if (!topModal()) list = list.concat(focusables(globe));
         if (list.length === 0) return;
         var i = list.indexOf(document.activeElement);
