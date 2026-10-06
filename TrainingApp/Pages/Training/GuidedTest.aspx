@@ -11,6 +11,15 @@
 <%@ Register Src="~/UI/Controls/Training/LogNCControl.ascx"          TagPrefix="uc" TagName="LogNCControl" %>
 <%@ Register Src="~/UI/Controls/Training/CompleteControl.ascx"       TagPrefix="uc" TagName="CompleteControl" %>
 
+<%-- Guía visual de Guided (spec 010): el motor solo se incluye en Guided (AC-2). Va en el
+     <head> porque PodGuide.start se llama desde un script de arranque del form. --%>
+<asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
+    <asp:PlaceHolder ID="PhGuideAssets" runat="server" Visible="false">
+        <link href="<%=ResolveUrl("~/UI/master/pod-guide.css")%>" rel="stylesheet" />
+        <script src="<%=ResolveUrl("~/UI/master/pod-guide.js")%>"></script>
+    </asp:PlaceHolder>
+</asp:Content>
+
 <asp:Content ID="MainContent" ContentPlaceHolderID="MainContent" runat="server">
 
     <%-- Layout del POD real (Fase 6.5, entrega 3): bloques en el flujo del documento
@@ -40,7 +49,7 @@
                 </svg>
             </button>
             <button id="BtnLogout" runat="server" title="Logout" aria-label="Logout"
-                class="pod-header-icon" onserverclick="BtnLogout_ServerClick">
+                class="pod-header-icon" onserverclick="BtnLogout_ServerClick" data-guide-free="">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                     <path d="M12 3v8" /><path d="M6.3 6.8a8 8 0 1 0 11.4 0" />
@@ -259,13 +268,13 @@
     <div class="pod-footer">
         <div class="pod-footer-side">
             <button id="BtnAbandon" runat="server" class="btn btn-sm btn-outline-danger pod-abandon-btn"
-                onserverclick="BtnAbandon_Click" onclick="return confirmAbandon();">
+                onserverclick="BtnAbandon_Click" onclick="return confirmAbandon();" data-guide-free="">
                 Abandon Session
             </button>
         </div>
         <div class="pod-footer-buttons">
             <button id="BtnResourceSetup" runat="server" class="pod-footer-btn" disabled="disabled"
-                onserverclick="BtnResourceSetup_ServerClick">
+                onserverclick="BtnResourceSetup_ServerClick" data-guide="pod-resource-setup">
                 <img src="<%=ResolveUrl("~/UI/master/imgs/resource-setup-icon.png")%>" alt="" />
                 <span>Resource Setup</span>
             </button>

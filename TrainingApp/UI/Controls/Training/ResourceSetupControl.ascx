@@ -12,7 +12,7 @@
                     <button type="button" class="mes-titlebar-btn" title="Maximize"
                         onclick="mesToggleMaximize(this)">&#10530;</button>
                     <button type="button" class="mes-titlebar-btn" title="Close"
-                        data-bs-dismiss="modal">&#10005;</button>
+                        data-bs-dismiss="modal" data-guide="rs-close">&#10005;</button>
                 </div>
             </div>
             <div class="mes-page-header">
@@ -25,7 +25,7 @@
 
                 <%-- "Record changed" como el real (shown 5s after successful save) --%>
                 <asp:Panel ID="PnlRecordChange" runat="server" Visible="false"
-                    CssClass="record-change-banner">
+                    CssClass="record-change-banner" data-guide="rs-record-changed">
                     <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
                         <rect x="1" y="1" width="18" height="18" rx="3"
                             fill="#7cc36a" stroke="#3d6b33" stroke-width="1.5" />
@@ -44,7 +44,7 @@
                     <span class="rs-value">
                         <span class="mes-field mes-field-copy"><asp:Literal ID="LitResource" runat="server" /><span class="mes-field-icon">&#10697;</span></span>
                         <button type="button" class="mes-btn-outline ms-4"
-                            onclick="rsRetrieve()">Retrieve</button>
+                            onclick="rsRetrieve()" data-guide="rs-retrieve">Retrieve</button>
                     </span>
 
                     <span class="rs-label">Setup State:</span>
@@ -54,7 +54,7 @@
                         <%-- State 2: dropdown (hidden until Retrieve) --%>
                         <asp:DropDownList ID="DdlSetupState" runat="server"
                             CssClass="rs-select" style="display:none"
-                            ClientIDMode="Static">
+                            ClientIDMode="Static" data-guide="rs-setup-state">
                             <asp:ListItem Value="Set Up">Set Up</asp:ListItem>
                             <asp:ListItem Value="Open">Open</asp:ListItem>
                         </asp:DropDownList>
@@ -64,11 +64,11 @@
                 <%-- Acciones juntas a la izquierda sobre la franja celeste. Visibles desde el
                      inicio, como la captura; deshabilitadas hasta Retrieve (rsSetToolbarEnabled). --%>
                 <div id="rsToolbar" class="rs-toolbar">
-                    <button type="button" class="rs-tool-btn" disabled onclick="rsInsertNew()">INSERT NEW</button>
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsInsertNew()" data-guide="rs-insert-new">INSERT NEW</button>
                     <button type="button" class="rs-tool-btn" disabled onclick="rsInsertBefore()">INSERT BEFORE</button>
                     <button type="button" class="rs-tool-btn" disabled onclick="rsInsertAfter()">INSERT AFTER</button>
                     <button type="button" class="rs-tool-btn" disabled onclick="rsRemoveSelected()">REMOVE SELECTED</button>
-                    <button type="button" class="rs-tool-btn" disabled onclick="rsRemoveAll()">REMOVE ALL</button>
+                    <button type="button" class="rs-tool-btn" disabled onclick="rsRemoveAll()" data-guide="rs-remove-all">REMOVE ALL</button>
                 </div>
 
                 <%-- Tabla de dos columnas con anchos fijos desde el primer render: agregar la
@@ -76,7 +76,7 @@
                      recorre todo el alto (también el área sin filas), como el real. El ⧉ de
                      cada valor copia al portapapeles; las filas se borran con REMOVE SELECTED /
                      REMOVE ALL. --%>
-                <div id="rsTableWrapper" class="rs-table-wrapper">
+                <div id="rsTableWrapper" class="rs-table-wrapper" data-guide="rs-table">
                     <table class="rs-table" id="rsTable">
                         <colgroup>
                             <col class="rs-col-type" />
@@ -100,7 +100,7 @@
             </div>
             <div class="modal-footer rs-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
-                    CssClass="mes-btn-outline"
+                    CssClass="mes-btn-outline" data-guide="rs-save"
                     OnClick="BtnSave_Click"
                     OnClientClick="return rsPrepareSubmit();"
                     CausesValidation="false" />
@@ -192,12 +192,12 @@
             tr.classList.add('table-primary');
         };
         tr.innerHTML =
-            '<td><select class="rs-select rs-type">' +
+            '<td><select class="rs-select rs-type" data-guide="rs-row-type">' +
                 '<option value="Shop Order">Shop Order</option>' +
                 '<option value="Tool Number">Tool Number</option>' +
             '</select></td>' +
             '<td><span class="mes-field mes-field-copy rs-value-box">' +
-                '<input type="text" class="rs-value" />' +
+                '<input type="text" class="rs-value" data-guide="rs-row-value" />' +
                 '<button type="button" class="mes-field-icon" title="Copy" ' +
                     'onclick="rsCopyValue(this)">&#10697;</button>' +
             '</span></td>';

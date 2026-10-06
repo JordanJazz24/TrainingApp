@@ -10,7 +10,8 @@ namespace TrainingApp.UI.Controls.Training
 {
     public partial class LogNCControl : UserControl, IStepControl
     {
-        private const string WrongButtonFeedback = "Not the correct button";
+        // Feedback de Guided tras un intento (spec 010, P-6: en español).
+        private const string WrongButtonFeedback = "Ese no es el botón correcto";
 
         public StepViewModel ViewModel { get; set; }
         public event EventHandler<StepSubmitEventArgs> OnStepSubmit;

@@ -106,14 +106,12 @@ namespace TrainingApp.UI.Controls.Training
         }
 
         // Banner "Record change": lo muestra GuidedTest solo cuando el servidor aceptó el paso.
+        // Se oculta a los 5 s, salvo con la guía activa (spec 010, R9).
         public void ShowSaveConfirmation()
         {
             PnlRecordChange.Visible = true;
             Page.ClientScript.RegisterStartupScript(GetType(), "rsSavedBanner",
-                "setTimeout(function(){" +
-                "  var b=document.querySelector('.record-change-banner');" +
-                "  if(b) b.style.display='none';" +
-                "},5000);", true);
+                "podAutoHide('.record-change-banner', 5000);", true);
         }
 
         protected void BtnClear_Click(object sender, EventArgs e)

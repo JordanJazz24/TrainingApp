@@ -32,6 +32,18 @@
         (bootstrap.Modal.getInstance(m) || new bootstrap.Modal(m)).show();
     }
 
+    // Oculta un mensaje del MES después de ms (spec 010, P-5). Si la guía de Guided lo va a
+    // mostrar en un subpaso informativo, espera: lo oculta la guía cuando el operador presiona
+    // "Continuar" (R9). Un mensaje que la guía no usa se oculta como siempre.
+    function podAutoHide(selector, ms) {
+        setTimeout(function hide() {
+            var el = document.querySelector(selector);
+            if (!el) return;
+            if (window.PodGuide && window.PodGuide.holds(el)) { setTimeout(hide, 500); return; }
+            el.style.display = 'none';
+        }, ms);
+    }
+
     // [↗] de la barra de título estándar de los modales del MES: maximiza o restaura
     // el modal. Es estado de cliente; un postback lo devuelve a su tamaño normal.
     function mesToggleMaximize(btn) {

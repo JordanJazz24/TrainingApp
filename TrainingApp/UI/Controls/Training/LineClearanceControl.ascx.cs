@@ -63,17 +63,15 @@ namespace TrainingApp.UI.Controls.Training
         }
 
         // Banner "DC Groups saved": lo muestra GuidedTest solo cuando el servidor aceptó el paso.
-        // Como el real, la fila muestra también la fecha del último registro.
+        // Como el real, la fila muestra también la fecha del último registro. Se oculta a los
+        // 5 s, salvo que la guía de Guided lo esté mostrando (spec 010, R9).
         public void ShowSaveConfirmation()
         {
             PnlSavedBanner.Visible = true;
             LitLastCollected.Text  = DateTime.Now.ToString("MMM d, yyyy h:mm:ss tt",
                 CultureInfo.GetCultureInfo("en-US"));
             Page.ClientScript.RegisterStartupScript(GetType(), "lcAfterSave",
-                "setTimeout(function(){" +
-                "  var b=document.querySelector('.lc-save-banner');" +
-                "  if(b) b.style.display='none';" +
-                "},5000);", true);
+                "podAutoHide('.lc-save-banner', 5000);", true);
         }
     }
 }

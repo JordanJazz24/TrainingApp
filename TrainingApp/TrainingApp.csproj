@@ -150,6 +150,8 @@
     <Content Include="UI\Controls\Training\SFCSplitControl.ascx" />
     <Content Include="UI\Controls\Training\LogNCControl.ascx" />
     <Content Include="UI\master\pod.css" />
+    <Content Include="UI\master\pod-guide.css" />
+    <Content Include="UI\master\pod-guide.js" />
     <Content Include="Scripts\sweetalert2.all.min.js" />
     <Content Include="UI\master\imgs\activities-icon.png" />
     <Content Include="UI\master\imgs\anular-icon.png" />
@@ -262,6 +264,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pages\SessionHelper.cs" />
     <Compile Include="Pages\Training\SessionPodStateStore.cs" />
+    <Compile Include="Pages\Training\Guide\GuideMoment.cs" />
+    <Compile Include="Pages\Training\Guide\GuideScriptBuilder.cs" />
+    <Compile Include="Pages\Training\Guide\GuideSubstep.cs" />
     <Compile Include="UI\master\AntiXsrfMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

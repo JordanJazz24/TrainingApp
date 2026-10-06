@@ -16,7 +16,7 @@ se filtran en fases anteriores.
 > una sesión de trabajo relevante. Mantenerla corta: el detalle va en la sección de la
 > fase, en la spec o en el archivo de la auditoría.
 
-**Última actualización:** 2026-10-06 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** auditoría final, E4 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-06 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 010, entrega 1 (`git log --oneline -10` para ver el estado real)
 
 **Lo último cerrado:** la **auditoría final antes de la 6.6** (2026-10-06,
 `docs/audits/2026-10-06-auditoria-final.md`): revisión de la spec 009 sin vulnerabilidades
@@ -26,9 +26,10 @@ sin decisiones y catálogos una vez por request, E4 limpieza) y la pasada final 
 navegador (Moldeo y Redefinity en ambos modos, pérdida de la Session, sesión única y
 logout), todo verificado por el usuario. Antes: la spec 009 · motor del POD (2026-10-05).
 
-- **Ahora — 6.6 · Overlays guiados (spec 010) 📝.** Sin empezar las preguntas del `/spec`;
-  la reformulación propuesta y la investigación están en "Fase 6.6", abajo. Arranca sobre
-  una base probada entera.
+- **Ahora — 6.6 · Overlays guiados (spec 010) 🚧.** Spec aprobada
+  (`docs/specs/010-overlays-guiados.md`) y plan aprobado en 5 entregas con P-1 a P-8
+  (`docs/specs/010-plan.md`). **E1 verificada** (motor de la guía, Resource Setup y hints en
+  español). Sigue la E2: Line Clearance y Start.
 - **En paralelo — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de
   LoFlo, a confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo.
 - **En pausa — Fase 5 (tests):** hasta el final, por decisión del usuario.
@@ -360,7 +361,7 @@ checklist → prueba del usuario → commit → actualizar el inventario.
 
 ---
 
-### Fase 6.6 — Overlays guiados 📝 (planeada, requiere `/spec`)
+### Fase 6.6 — Overlays guiados 🚧 (spec 010 aprobada; plan en `docs/specs/010-plan.md`)
 **Objetivo:** en modo Guided, overlays que guían al operador paso a paso sobre la interfaz
 ya cerrada en la 6.5 (qué botón, campo o modal usar en cada paso).
 **A definir en la spec:** si aplican solo en Guided (en Assessment no pueden revelar el

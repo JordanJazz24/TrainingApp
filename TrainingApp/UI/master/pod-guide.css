@@ -1,0 +1,73 @@
+/* ============================================================
+   Guía visual del modo Guided (spec 010) — UI/master/pod-guide.js
+   Capas: por encima de los modales de Bootstrap (1055; el submodal apilado llega a 1058)
+   y por debajo de SweetAlert2 (1060), que siempre queda visible y usable.
+   ============================================================ */
+
+/* Marco del elemento resaltado: su sombra oscurece el resto de la pantalla. No recibe
+   clics; el bloqueo lo hace el motor en JS. */
+.pg-frame {
+    display: none;
+    position: fixed;
+    z-index: 1059;
+    pointer-events: none;
+    border-radius: 4px;
+    outline: 3px solid #f0a800;
+    box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0.55);
+    transition: left 0.12s, top 0.12s, width 0.12s, height 0.12s;
+}
+
+.pg-globe {
+    display: none;
+    position: fixed;
+    z-index: 1059;
+    width: 340px;
+    max-width: calc(100vw - 16px);
+    padding: 10px 14px 12px;
+    background: #fff;
+    color: #333;
+    border-top: 4px solid #f0a800;
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.pg-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.75rem;
+}
+.pg-step  { font-weight: 700; color: #057fc6; }
+.pg-count { color: #6c757d; white-space: nowrap; }
+.pg-text strong { color: #000; }
+
+.pg-actions { margin-top: 10px; text-align: right; }
+.pg-continue {
+    padding: 4px 14px;
+    border: 1px solid #057fc6;
+    border-radius: 4px;
+    background: #057fc6;
+    color: #fff;
+    font-size: 0.85rem;
+}
+.pg-continue:disabled {
+    border-color: #9cc7e3;
+    background: #9cc7e3;
+    cursor: not-allowed;
+}
+
+/* Falla segura (R5): sin marco ni bloqueo, el globo fijo abajo a la derecha. */
+.pg-globe.pg-failsafe {
+    right: 16px;
+    bottom: 16px;
+}
+
+/* Logout y Abandon por encima del oscurecido (R2). */
+.pg-lift {
+    position: relative;
+    z-index: 1060;
+}

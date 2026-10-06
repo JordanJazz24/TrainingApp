@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
+using TrainingApp.Pages.Training.Guide;
 using TrainingApp.Pages.Training.Models;
 using TrainingApp.Shared;
 
@@ -23,6 +25,10 @@ namespace TrainingApp.Pages.Training
         // Orden simulada de la sesión. Sin orden (antes de Resource Setup) el POD y el Browse
         // Work List quedan vacíos (spec 005).
         private SimulatedOrder Order => _ctx?.State.Order;
+
+        // Guía visual de Guided (spec 010, P-2): qué dejó la página en pantalla en este request.
+        // Lo anotan los handlers; OnPreRender arma el guion con la entrada que corresponde.
+        private GuideMoment _guideMoment = GuideMoment.Load;
 
 
         // ── Controles de paso estáticos (spec 006) ───────────────────────
@@ -106,6 +112,7 @@ namespace TrainingApp.Pages.Training
 
             OpenStepType = stepType;
             ApplyStepControlVisibility(stepType);
+            _guideMoment = GuideMoment.Opened(step);
 
             if (!string.IsNullOrEmpty(modalId))
                 ReopenModal(modalId);
@@ -188,6 +195,30 @@ namespace TrainingApp.Pages.Training
             UpdateScoreWidget(session);
             SetActiveButton(step.StepType, area, session.Mode);
             BindSearchHeader();
+        }
+
+        // Corre después de los handlers: el momento del request ya está anotado.
+        protected override void OnPreRender(EventArgs e)
+        {
+            base.OnPreRender(e);
+            RegisterGuide();
+        }
+
+        // Guía visual (spec 010): solo en Guided. Assessment no recibe el motor, el guion, los
+        // textos ni el estado (AC-2). Pasos sin guion todavía: la guía no se muestra.
+        private void RegisterGuide()
+        {
+            // Visible persiste en ViewState: se decide en cada request.
+            PhGuideAssets.Visible = false;
+            if (_ctx == null || _ctx.Session.Mode != SessionMode.Guided) return;
+
+            var script = new GuideScriptBuilder().Build(_ctx, _guideMoment);
+            if (script.IsEmpty) return;
+
+            PhGuideAssets.Visible = true;
+            // JavaScriptSerializer escapa < > & ' : el HTML de los textos no puede cerrar el <script>.
+            ClientScript.RegisterStartupScript(GetType(), "podGuide",
+                "PodGuide.start(" + new JavaScriptSerializer().Serialize(script.ToClient()) + ");", true);
         }
 
         // POD Search: Shop Order y Status (SFC) de la orden cargada. Antes del Start, las
@@ -449,21 +480,25 @@ namespace TrainingApp.Pages.Training
             switch (result.Outcome)
             {
                 case StepSubmitOutcome.Correct:
+                    _guideMoment = GuideMoment.StepResolved(step);
                     HandleCorrectSubmit(session, guide, area, step.StepType);
                     break;
 
                 case StepSubmitOutcome.Incorrect:
+                    _guideMoment = GuideMoment.Incorrect(step);
                     ShowSweetAlert("warning", "Incorrect",
-                        BuildIncorrectFeedback(session.Mode, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
+                        BuildIncorrectFeedback(session.Mode, step.StepType, area, result.RemainingScoredAttempts, incorrectFeedback));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
+                    _guideMoment = GuideMoment.StepResolved(step);
                     ShowSweetAlert("error", "Step Failed",
                         "Paso fallido — el sistema avanza automáticamente.");
                     HandleCorrectSubmit(session, guide, area, step.StepType);
                     break;
 
                 case StepSubmitOutcome.SessionCompleted:
+                    _guideMoment = GuideMoment.SessionCompleted(step);
                     // PodService ya dejó en la sesión el puntaje final guardado.
                     ShowCompletionPanel(session, area, guide);
                     break;
@@ -533,12 +568,13 @@ namespace TrainingApp.Pages.Training
             bool serialized = area.SerializationType == SerializationType.Serialized;
             switch (reason)
             {
+                // En español y de usted, como los hints de Guided (spec 010, P-6 y P-8).
                 case PodAttemptReason.NoScrappableRow:
                     return serialized
-                        ? "Selecciona una fila para scrapear"
-                        : "Selecciona una fila creada por el split para scrapear";
+                        ? "Seleccione una fila para scrapear"
+                        : "Seleccione una fila creada por el split para scrapear";
                 case PodAttemptReason.NoRowToComplete:
-                    return serialized ? "Select all rows to complete" : "Select 1 row to complete";
+                    return serialized ? "Seleccione todas las filas para completar" : "Seleccione 1 fila para completar";
                 default:
                     return null;
             }
@@ -546,7 +582,7 @@ namespace TrainingApp.Pages.Training
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
         // respuesta, solo cuántos intentos con puntaje le quedan antes del avance forzado.
-        private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType,
+        private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType, Area area,
             int remainingScoredAttempts, string incorrectFeedback)
         {
             if (mode == SessionMode.Assessment)
@@ -557,8 +593,8 @@ namespace TrainingApp.Pages.Training
             }
 
             if (!string.IsNullOrEmpty(incorrectFeedback)) return incorrectFeedback;
-            string hint = GetHint(stepType);
-            return !string.IsNullOrEmpty(hint) ? hint : "Try again.";
+            string hint = GetHint(stepType, area);
+            return !string.IsNullOrEmpty(hint) ? hint : "Intente de nuevo.";
         }
 
         private void HandleCorrectSubmit(TrainingSession session, TrainingGuide guide,
@@ -1194,15 +1230,14 @@ namespace TrainingApp.Pages.Training
         }
 
         // Mensaje del MES entre el header y el POD Search (con ícono verde, como el real).
-        // Ocupa su propia franja y desaparece solo después de hideAfterMs.
+        // Ocupa su propia franja y desaparece solo después de hideAfterMs, salvo que la guía de
+        // Guided lo esté mostrando (spec 010, R9).
         private void ShowBanner(string message, int hideAfterMs = 3000)
         {
             PnlBannerZone.Visible = true;
             LitBanner.Text        = HttpUtility.HtmlEncode(message);
             ClientScript.RegisterStartupScript(GetType(), "hideBanner",
-                "setTimeout(function(){var b=document.querySelector('.pod-banner');if(b)b.style.display='none';}," +
-                hideAfterMs + ");",
-                true);
+                "podAutoHide('.pod-banner', " + hideAfterMs + ");", true);
         }
 
         // ── Context helper ───────────────────────────────────────────────
@@ -1269,18 +1304,22 @@ namespace TrainingApp.Pages.Training
         private static string FormatScore(decimal score)
             => (score * 100m).ToString("F1") + "%";
 
-        private static string GetHint(StepType stepType)
+        // Hint de Guided tras un intento fallido: en español, con los nombres del MES en inglés
+        // (spec 010, R7). Log NC solo nombra el Component si el área lo pide.
+        private static string GetHint(StepType stepType, Area area)
         {
             switch (stepType)
             {
-                case StepType.ResourceSetup:  return "Complete Resource Setup: Retrieve, set state to 'Set Up', add rows, Save.";
-                case StepType.LineClearance:  return "Answer 'Sí' to confirm line clearance.";
-                case StepType.Search:         return "Confirm the Line Clearance checks and the final verification with 'Sí', then Save.";
-                case StepType.DataCollection: return "Fill all required parameters and press Save (not Draft).";
-                case StepType.SFC_Split:      return "Select a POD row, split a valid quantity, then press Close.";
-                case StepType.LogNC:          return "Select an NC code and enter the Component, then Add-Done.";
-                case StepType.Assembly:       return "Assemble every component in the Component List: scan its barcode and press Add.";
-                case StepType.Complete:       return "Press Complete to close the manufacturing order.";
+                case StepType.LogNC when !area.RequiresNCComponent:
+                    return "Seleccione un código NC y presione Add-Done.";
+                case StepType.ResourceSetup:  return "Presione Retrieve, verifique que Setup State esté en 'Set Up', agregue las filas y presione Save.";
+                case StepType.LineClearance:  return "Responda 'Si' para confirmar la limpieza de línea.";
+                case StepType.Search:         return "Responda 'Sí' a las verificaciones y presione Save.";
+                case StepType.DataCollection: return "Complete todos los parámetros dentro de su rango y presione Save (no Save Draft).";
+                case StepType.SFC_Split:      return "Seleccione una fila del POD, divida una cantidad válida y presione Close.";
+                case StepType.LogNC:          return "Seleccione un código NC, ingrese el Component y presione Add-Done.";
+                case StepType.Assembly:       return "Ensamble cada componente de la Component List: escanee su código y presione Add.";
+                case StepType.Complete:       return "Presione Complete para cerrar la orden.";
                 default:                      return string.Empty;
             }
         }

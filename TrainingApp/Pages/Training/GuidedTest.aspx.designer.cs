@@ -15,6 +15,15 @@ namespace TrainingApp.Pages.Training
     {
 
         /// <summary>
+        /// PhGuideAssets control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhGuideAssets;
+
+        /// <summary>
         /// LitSite control.
         /// </summary>
         /// <remarks>
