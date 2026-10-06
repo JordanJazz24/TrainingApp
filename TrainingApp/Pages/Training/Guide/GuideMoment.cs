@@ -15,10 +15,11 @@ namespace TrainingApp.Pages.Training.Guide
     // los handlers y GuideScriptBuilder lo usa para elegir el subpaso de entrada.
     public sealed class GuideMoment
     {
-        private GuideMoment(GuideMomentKind kind, TrainingStep step)
+        private GuideMoment(GuideMomentKind kind, TrainingStep step, string detail = null)
         {
-            Kind = kind;
-            Step = step;
+            Kind   = kind;
+            Step   = step;
+            Detail = detail;
         }
 
         public GuideMomentKind Kind { get; }
@@ -26,13 +27,17 @@ namespace TrainingApp.Pages.Training.Guide
         // Paso al que se refiere el momento; null en Load.
         public TrainingStep Step { get; }
 
+        // Dato del control cuando el paso tiene más de un lugar posible (ej. el modal del
+        // checklist de Start que reabre un intento incorrecto).
+        public string Detail { get; }
+
         public static readonly GuideMoment Load = new GuideMoment(GuideMomentKind.Load, null);
 
         public static GuideMoment Opened(TrainingStep step)
             => new GuideMoment(GuideMomentKind.Opened, step);
 
-        public static GuideMoment Incorrect(TrainingStep step)
-            => new GuideMoment(GuideMomentKind.Incorrect, step);
+        public static GuideMoment Incorrect(TrainingStep step, string detail = null)
+            => new GuideMoment(GuideMomentKind.Incorrect, step, detail);
 
         public static GuideMoment StepResolved(TrainingStep step)
             => new GuideMoment(GuideMomentKind.StepResolved, step);

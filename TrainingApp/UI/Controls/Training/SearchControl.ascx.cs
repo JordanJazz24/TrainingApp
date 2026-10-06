@@ -86,8 +86,9 @@ namespace TrainingApp.UI.Controls.Training
         }
 
         // Respuesta calificada incorrecta: reabre el primer modal con un "No" para que el
-        // operador lo corrija; los valores ya capturados se conservan por ViewState.
-        public void ReopenForRetry()
+        // operador lo corrija; los valores ya capturados se conservan por ViewState. Devuelve
+        // el id del modal reabierto (la guía de Guided entra en él, spec 010).
+        public string ReopenForRetry()
         {
             bool verifsConfirmed = DdlVerif1.SelectedValue == "true" &&
                                   DdlVerif2.SelectedValue == "true" &&
@@ -96,6 +97,7 @@ namespace TrainingApp.UI.Controls.Training
 
             Page.ClientScript.RegisterStartupScript(GetType(), "searchRetry",
                 "_searchOpenModalId='" + modalId + "'; showModalSafe('" + modalId + "');", true);
+            return modalId;
         }
 
         // Datos recolectados de los 4 modales — quedan disponibles para el servidor

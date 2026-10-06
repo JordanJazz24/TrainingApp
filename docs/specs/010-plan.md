@@ -155,7 +155,13 @@ Con la guía activa, el helper no programa nada y la guía oculta el mensaje al 
   - Assessment sin guía, con el código fuente revisado;
   - falla segura (ancla renombrada a propósito en el navegador).
 
-### Entrega 2 — Line Clearance y Search/Start
+### Entrega 2 — Line Clearance y Search/Start — verificada (2026-10-06)
+
+- **Notas de implementación:** el momento lleva el modal que reabre un intento incorrecto
+  del checklist (`ReopenForRetry` lo devuelve: verificaciones o final). **Realineo** en la
+  entrada: si el servidor reabrió un modal sin anotar el momento, la guía entra en el primer
+  subpaso del mismo paso que está dentro de ese modal. `/code-review low` (2 archivos): las
+  entradas del checklist solo existen en áreas con checklist.
 
 - Guion de LC (apertura y cierre) y de Start: NonSerialized y Serialized, y el checklist de
   4 modales por bloque cuando `RequiresStartChecklist`.

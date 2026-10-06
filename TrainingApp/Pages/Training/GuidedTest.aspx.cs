@@ -300,7 +300,7 @@ namespace TrainingApp.Pages.Training
                 // Search tiene 4 modales: el control sabe cuál contiene la respuesta a corregir.
                 if (step.StepType == StepType.Search)
                 {
-                    CtrlSearch.ReopenForRetry();
+                    _guideMoment = GuideMoment.Incorrect(step, CtrlSearch.ReopenForRetry());
                     return;
                 }
 

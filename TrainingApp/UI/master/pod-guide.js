@@ -6,6 +6,7 @@
     'use strict';
 
     var POLL_MS          = 100;   // búsqueda del ancla y reubicación
+    var REALIGN_MS       = 1500;  // entrada fuera del modal abierto: se busca dentro de él
     var FIND_TIMEOUT_MS  = 4000;  // sin ancla: falla segura (R5)
     var NO_POSTBACK_MS   = 1500;  // un clic con postback que no navegó (ni avisó): se vuelve a mostrar
 
@@ -19,6 +20,7 @@
     var target = null;
     var since = 0;
     var timer = null;
+    var entered = false;       // ya se mostró el primer subpaso de esta respuesta
     var navigating = false;    // la página se está enviando (beforeunload)
     var paused = false;        // hay un SweetAlert abierto
     var pendingRetry = null;   // subpaso al que volver al cerrar un aviso de formato
@@ -82,6 +84,7 @@
     function formatOk(format, value) {
         var v = (value || '').trim();
         if (format === 'digits') return /^\d+$/.test(v);
+        if (format === 'number') return v !== '' && !isNaN(parseFloat(v)) && isFinite(v);
         if (format === 'required') return v !== '' && !/[<>]/.test(v);
         return true;
     }
@@ -171,7 +174,8 @@
     }
 
     function show(el) {
-        target = el;
+        target  = el;
+        entered = true;
         setState('shown');
         render();
         globe.classList.remove('pg-failsafe');
@@ -253,6 +257,25 @@
         return null;
     }
 
+    // Solo para la entrada: un camino del servidor que reabrió un modal sin anotar el momento
+    // (ej. un aviso de formato del servidor) deja la entrada detrás del modal. Se entra en el
+    // primer subpaso del mismo paso que está dentro del modal abierto, hacia adelante y
+    // después hacia atrás.
+    function realign() {
+        var s = current();
+        if (entered || !s || !topModal()) return false;
+        var order = [];
+        for (var i = idx + 1; i < substeps.length; i++) order.push(i);
+        for (var j = 0; j < idx; j++) order.push(j);
+        for (var k = 0; k < order.length; k++) {
+            var c = substeps[order[k]];
+            if (c.step !== s.step) continue;
+            var el = findAnchor(c);
+            if (el) { idx = order[k]; show(el); return true; }
+        }
+        return false;
+    }
+
     function onTargetClick() {
         var s = current();
         if (s.mode !== 'click') return;
@@ -300,8 +323,10 @@
 
         var el = findAnchor(current());
         if (state === 'searching') {
+            var waited = Date.now() - since;
             if (el) show(el);
-            else if (Date.now() - since > FIND_TIMEOUT_MS) failsafe();
+            else if (waited > REALIGN_MS && realign()) return;
+            else if (waited > FIND_TIMEOUT_MS) failsafe();
             return;
         }
         if (state === 'failsafe') {

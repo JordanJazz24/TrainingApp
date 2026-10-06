@@ -24,7 +24,7 @@ namespace TrainingApp.Pages.Training.Guide
             // guía arranca en la cola de ese paso y sigue con el paso nuevo sin postback.
             if (moment.Kind == GuideMomentKind.StepResolved && moment.Step != null)
             {
-                var resolved = ScriptFor(moment.Step);
+                var resolved = ScriptFor(ctx, moment.Step);
                 if (resolved?.TailKey != null)
                 {
                     script.Substeps.AddRange(resolved.Substeps);
@@ -35,7 +35,7 @@ namespace TrainingApp.Pages.Training.Guide
             var current = ctx.CurrentStepOrDefault;
             if (ctx.Session.Status == SessionStatus.InProgress && current != null)
             {
-                var step = ScriptFor(current);
+                var step = ScriptFor(ctx, current);
                 if (step != null)
                 {
                     script.Substeps.AddRange(step.Substeps);
@@ -48,11 +48,13 @@ namespace TrainingApp.Pages.Training.Guide
         }
 
         // Guion de un paso, o null si su tipo todavía no tiene guion (la guía no se muestra).
-        private static StepScript ScriptFor(TrainingStep step)
+        private static StepScript ScriptFor(PodContext ctx, TrainingStep step)
         {
             switch (step.StepType)
             {
                 case StepType.ResourceSetup: return ResourceSetup(step);
+                case StepType.LineClearance: return LineClearance(step);
+                case StepType.Search:        return Start(ctx, step);
                 default:                     return null;
             }
         }
@@ -98,9 +100,95 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
+        // Pasos 2 y 6: el mismo recorrido en apertura y en cierre.
+        private static StepScript LineClearance(TrainingStep step)
+        {
+            var s = new StepScript(step, "Line Clearance")
+            {
+                OpenedName    = "retrieve",
+                IncorrectName = "answer",
+                TailName      = "saved"
+            };
+            s.Add("activities", GuideMode.Click, Anchor("pod-activities"),
+                html: H("Presione ", B("Activities..."), " para abrir el menú de actividades."));
+            s.Add("standalone", GuideMode.Click, Anchor("pod-dc-standalone"), postback: true,
+                html: H("Seleccione ", B("Data Collection Standalone"), " para registrar la limpieza de línea."));
+            s.Add("retrieve", GuideMode.Click, Anchor("lc-retrieve"),
+                html: H("Presione ", B("Retrieve"), " para cargar los grupos de datos del recurso."));
+            s.Add("collect", GuideMode.Click, Anchor("lc-collect"),
+                html: H("Presione ", B("Collect"), " en ", B("DC_LC_DONE"), " para responder la limpieza de línea."));
+            s.Add("answer", GuideMode.Change, Anchor("lc-answer"),
+                html: H("Seleccione ", B("Si"), ": la limpieza de línea se realizó."));
+            s.Add("save", GuideMode.Click, Anchor("lc-save"), postback: true, retry: "answer",
+                html: H("Presione ", B("Save"), " para guardar la respuesta."));
+            s.Add("saved", GuideMode.Info, Anchor("lc-saved"), hide: true,
+                html: H("Verifique que aparezca el mensaje ", B("1 DC Groups saved"), ": la respuesta quedó registrada."));
+            s.Add("close", GuideMode.Click, Anchor("lc-close"),
+                html: H("Cierre Data Collection Standalone con la ", B("X"), "."));
+            return s;
+        }
+
+        // Search/Start: Browse Work List, selección y Start. Con el checklist de Start (hoy
+        // Moldeo) siguen sus 4 modales; los formularios de varios campos van por bloque (R7).
+        private static StepScript Start(PodContext ctx, TrainingStep step)
+        {
+            var s = new StepScript(step, "Start") { TailName = "banner" };
+
+            s.Add("browse", GuideMode.Click, Anchor("pod-browse"),
+                html: H("Presione el ícono ", B("Browse Work List"), " (⧉), junto a SFC, para buscar la orden."));
+            if (ctx.Area.SerializationType == SerializationType.Serialized)
+                s.Add("select", GuideMode.Click, Anchor("browse-select-all"),
+                    html: H("Presione ", B("Select All"), " para seleccionar todas las piezas de la orden."));
+            else
+                s.Add("select", GuideMode.Click, Anchor("browse-row"),
+                    html: SelectSfc(ctx.State.Order?.SFCCode));
+            s.Add("ok", GuideMode.Click, Anchor("browse-ok"),
+                html: H("Presione ", B("OK"), " para cargar la selección en el POD."));
+            s.Add("start", GuideMode.Click, Anchor("pod-start"), postback: true,
+                html: H("Presione ", B("Start"), " para iniciar la orden."));
+
+            if (ctx.Area.RequiresStartChecklist)
+            {
+                // Start abre el modal 1; un intento incorrecto reabre el modal de la primera
+                // respuesta "No" (verificaciones o final). Sin checklist no hay estas entradas.
+                s.OpenedName    = "molde";
+                s.IncorrectName = "verifs";
+                s.IncorrectByDetail["modalSearch4"] = "final";
+
+                s.Add("molde", GuideMode.Capture, Anchor("search-molde"), format: GuideFormat.Number,
+                    html: H("Ingrese el ", B("ID del molde"), " según la MSS."));
+                s.Add("save1", GuideMode.Click, Anchor("search-save1"),
+                    html: H("Presione ", B("Save"), "."));
+                s.Add("verifs", GuideMode.Capture, Anchor("search-verifs"), format: GuideFormat.Required,
+                    html: H("Responda ", B("Sí"), " a las tres verificaciones de etiquetas."));
+                s.Add("save2", GuideMode.Click, Anchor("search-save2"),
+                    html: H("Presione ", B("Save"), "."));
+                s.Add("mss", GuideMode.Capture, Anchor("search-mss"), format: GuideFormat.Number,
+                    html: H("Ingrese los parámetros técnicos según la ", B("MSS D000281359"), "."));
+                s.Add("save3", GuideMode.Click, Anchor("search-save3"),
+                    html: H("Presione ", B("Save"), "."));
+                s.Add("final", GuideMode.Change, Anchor("search-final"),
+                    html: H("Seleccione ", B("Sí"), " en la verificación final."));
+                s.Add("save4", GuideMode.Click, Anchor("search-save4"), postback: true, retry: "final",
+                    html: H("Presione ", B("Save"), " para iniciar la orden."));
+            }
+
+            s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                html: H("Verifique el mensaje ", B("Start process completed successfully"), ": la orden quedó activa."));
+            return s;
+        }
+
         // ── Helpers ─────────────────────────────────────────────────────────
 
         private static string Anchor(string guide) => "[data-guide=\"" + guide + "\"]";
+
+        // "Seleccione el SFC {sfc}." (NonSerialized: la fila del lote).
+        private static string SelectSfc(string sfc)
+        {
+            return string.IsNullOrEmpty(sfc)
+                ? H("Seleccione el SFC de la orden.")
+                : H("Seleccione el SFC ", B(sfc), ".");
+        }
 
         // Texto de la instrucción: todo se codifica y los valores van en <strong>.
         private static string H(params object[] parts)
@@ -143,6 +231,9 @@ namespace TrainingApp.Pages.Training.Guide
             // Subpaso de la decisión que el servidor calificó como incorrecta.
             public string IncorrectName { get; set; }
 
+            // Si el control dice dónde reabrió (GuideMoment.Detail), el subpaso de ese lugar.
+            public Dictionary<string, string> IncorrectByDetail { get; } = new Dictionary<string, string>();
+
             // Cola del paso resuelto: el subpaso de su mensaje de confirmación. Sin cola, la
             // guía no retoma este paso después de resolverlo.
             public string TailName { get; set; }
@@ -169,7 +260,10 @@ namespace TrainingApp.Pages.Training.Guide
                 if (sameStep && moment.Kind == GuideMomentKind.Opened)
                     name = OpenedName;
                 else if (sameStep && moment.Kind == GuideMomentKind.Incorrect)
-                    name = IncorrectName;
+                {
+                    if (moment.Detail == null || !IncorrectByDetail.TryGetValue(moment.Detail, out name))
+                        name = IncorrectName;
+                }
                 return name != null ? Key(name) : _items[0].Key;
             }
 

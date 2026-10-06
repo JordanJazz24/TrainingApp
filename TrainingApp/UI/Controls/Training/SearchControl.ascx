@@ -38,11 +38,11 @@
                         <span class="required-star">★</span> Ingrese el ID del molde:
                         <span class="text-muted ms-1 fw-normal">Data Type: Numeric</span>
                     </label>
-                    <asp:TextBox ID="TxtMoldeId" runat="server" CssClass="form-control form-control-sm" />
+                    <asp:TextBox ID="TxtMoldeId" runat="server" CssClass="form-control form-control-sm" data-guide="search-molde" />
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext1()">Save</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext1()" data-guide="search-save1">Save</button>
                 <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
@@ -71,7 +71,7 @@
                 DC Group: <strong>DCGTM_VERIFICACIONES/A</strong> &nbsp;&nbsp;
                 Resource: <asp:Literal ID="LitResource2" runat="server" />
             </div>
-            <div class="modal-body">
+            <div class="modal-body" data-guide="search-verifs">
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">
                         <span class="required-star">★</span> ¿Se verificaron las etiquetas de calibración?
@@ -107,7 +107,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext2()">Save</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext2()" data-guide="search-save2">Save</button>
                 <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
@@ -136,7 +136,7 @@
                 DC Group: <strong>DCGTM_PARAMETROS_MSS_D000281359/A</strong> &nbsp;&nbsp;
                 Resource: <asp:Literal ID="LitResource3" runat="server" />
             </div>
-            <div class="modal-body">
+            <div class="modal-body" data-guide="search-mss">
                 <div class="row g-2">
                     <div class="col-12">
                         <label class="form-label small fw-semibold mb-1">
@@ -211,7 +211,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext3()">Save</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="searchNext3()" data-guide="search-save3">Save</button>
                 <button type="button" class="btn btn-sm btn-secondary" onclick="searchCancel()">Cancel</button>
             </div>
         </div>
@@ -246,7 +246,7 @@
                         <span class="required-star">★</span> ¿Se verificó según D000128035 o D000207299?
                         <span class="text-muted ms-1 fw-normal">Data Type: Boolean</span>
                     </label>
-                    <asp:DropDownList ID="DdlFinal" runat="server" CssClass="form-select form-select-sm">
+                    <asp:DropDownList ID="DdlFinal" runat="server" CssClass="form-select form-select-sm" data-guide="search-final">
                         <asp:ListItem Value="">( Seleccione )</asp:ListItem>
                         <asp:ListItem Value="false">NO</asp:ListItem>
                         <asp:ListItem Value="true">Sí</asp:ListItem>
@@ -256,7 +256,7 @@
             <div class="modal-footer">
                 <%-- Único postback de la secuencia (patrón 1 postback / paso).
                      searchValidate4() valida en cliente; si pasa, postea a BtnSave4_Click. --%>
-                <asp:Button ID="BtnSave4" runat="server" Text="Save"
+                <asp:Button ID="BtnSave4" runat="server" Text="Save" data-guide="search-save4"
                     CssClass="btn btn-sm btn-primary"
                     OnClientClick="return searchValidate4();"
                     OnClick="BtnSave4_Click" CausesValidation="false" />

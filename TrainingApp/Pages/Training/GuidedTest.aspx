@@ -67,7 +67,7 @@
 
     <%-- ══ BANNER ═══════════════════════════════════════════════════════ --%>
     <%-- Mensaje del MES entre el header y el POD Search; se oculta solo (ShowBanner). --%>
-    <asp:Panel ID="PnlBannerZone" runat="server" CssClass="pod-banner" Visible="false">
+    <asp:Panel ID="PnlBannerZone" runat="server" CssClass="pod-banner" Visible="false" data-guide="pod-banner">
         <svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true">
             <circle cx="13" cy="13" r="12" fill="#74ab6d" />
             <path d="M7.5 13.5l3.8 3.8 7.2-8" fill="none" stroke="#fff" stroke-width="2.6"
@@ -91,7 +91,7 @@
             <span class="pod-sfc-box">
                 <asp:TextBox ID="TxtSFC" runat="server" CssClass="pod-sfc-input"
                     placeholder="Use Browse Work List..." />
-                <button type="button" class="pod-sfc-browse"
+                <button type="button" class="pod-sfc-browse" data-guide="pod-browse"
                     data-bs-toggle="modal" data-bs-target="#modalBrowseWorkList"
                     title="Browse Work List">&#10697;</button>
             </span>
@@ -107,7 +107,7 @@
     <%-- ══ ACTION BUTTONS ════════════════════════════════════════════════ --%>
     <div class="pod-actions">
         <button id="BtnStart" runat="server" class="pod-action-btn" disabled="disabled"
-            onserverclick="BtnStart_ServerClick">
+            onserverclick="BtnStart_ServerClick" data-guide="pod-start">
             <img src="<%=ResolveUrl("~/UI/master/imgs/clock-icon.png")%>" alt="" />
             <span>Start</span>
         </button>
@@ -226,7 +226,7 @@
                  Popper con strategy fixed: el menú no queda recortado por el panel. --%>
             <div class="dropdown">
                 <button type="button" class="pod-sidebar-btn has-menu"
-                        id="BtnActivitiesToggle" disabled
+                        id="BtnActivitiesToggle" disabled data-guide="pod-activities"
                         data-bs-toggle="dropdown" data-bs-auto-close="true"
                         data-bs-popper-config='{"strategy":"fixed"}'>
                     <img src="<%=ResolveUrl("~/UI/master/imgs/activities-icon.png")%>" alt="" />
@@ -249,7 +249,7 @@
                         onserverclick="BtnNonStepAction_ServerClick">Time Sensitive Material Check In/Out</button></li>
                     <li>
                         <button id="BtnActivities" runat="server" class="dropdown-item"
-                            disabled="disabled" onserverclick="BtnActivities_ServerClick">
+                            disabled="disabled" onserverclick="BtnActivities_ServerClick" data-guide="pod-dc-standalone">
                             Data Collection Standalone
                         </button>
                     </li>
@@ -337,7 +337,7 @@
                             <tr>
                                 <th class="row-selector-col">
                                     <button type="button" class="select-all-btn" title="Select All"
-                                        onclick="toggleSelectAllBrowse()"><%= SelectAllIcon %></button>
+                                        onclick="toggleSelectAllBrowse()" data-guide="browse-select-all"><%= SelectAllIcon %></button>
                                 </th>
                                 <th>SFC</th>
                                 <th>Material Description</th>
@@ -348,7 +348,7 @@
                         <tbody id="browseWorkListBody">
                             <asp:Repeater ID="RptBrowseList" runat="server">
                                 <ItemTemplate>
-                                    <tr class="browse-row" data-sfc="<%#: Eval("SFCCode") %>"
+                                    <tr class="browse-row" data-guide="browse-row" data-sfc="<%#: Eval("SFCCode") %>"
                                         data-row-id="<%#: Eval("RowId") %>"
                                         data-shop-order="<%#: Eval("ShopOrder") %>"
                                         onclick="selectBrowseRow(this)" style="cursor:pointer">
@@ -364,7 +364,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="mes-btn mes-ico mes-ico-check" id="btnBrowseOK"
+                    <button type="button" class="mes-btn mes-ico mes-ico-check" id="btnBrowseOK" data-guide="browse-ok"
                         onclick="confirmBrowseSelection()">OK</button>
                     <button type="button" class="mes-btn mes-ico mes-ico-cancel"
                         data-bs-dismiss="modal">Cancel</button>

@@ -14,7 +14,7 @@
                     <button type="button" class="mes-titlebar-btn" title="Maximize"
                         onclick="mesToggleMaximize(this)">&#10530;</button>
                     <button type="button" class="mes-titlebar-btn" title="Close"
-                        data-bs-dismiss="modal">&#10005;</button>
+                        data-bs-dismiss="modal" data-guide="lc-close">&#10005;</button>
                 </div>
             </div>
             <div class="mes-subheader mes-divider">
@@ -24,7 +24,7 @@
             <div class="modal-body p-0">
 
                 <%-- Mensaje del real tras guardar: "⚠ 1 DC Groups saved" (se oculta a los 5 s) --%>
-                <asp:Panel ID="PnlSavedBanner" runat="server" Visible="false" CssClass="lc-save-banner">
+                <asp:Panel ID="PnlSavedBanner" runat="server" Visible="false" CssClass="lc-save-banner" data-guide="lc-saved">
                     <img src="<%= ResolveUrl("~/UI/master/imgs/lineClearence-save-icon.png") %>" alt="" />
                     <span>1 DC Groups saved</span>
                 </asp:Panel>
@@ -46,7 +46,7 @@
                     </select>
                     <span class="mes-field lc-field"><span class="mes-field-text"><asp:Literal ID="LitResource" runat="server" /></span><span class="mes-field-icon">&#10697;</span></span>
                     <span></span>
-                    <button type="button" class="mes-btn lc-side-btn" onclick="retrieveLCStandalone()">
+                    <button type="button" class="mes-btn lc-side-btn" onclick="retrieveLCStandalone()" data-guide="lc-retrieve">
                         <img src="<%= ResolveUrl("~/UI/master/imgs/retrieve-icon.png") %>" alt="" />Retrieve</button>
                 </div>
 
@@ -62,7 +62,7 @@
                             DC Group/Vers.: DCGTM_LC/A
                             <div><asp:Literal ID="LitLastCollected" runat="server" /></div>
                         </div>
-                        <button type="button" class="mes-btn mes-btn-stack mes-ico mes-ico-collect lc-collect"
+                        <button type="button" class="mes-btn mes-btn-stack mes-ico mes-ico-collect lc-collect" data-guide="lc-collect"
                             onclick="lcOpenEntry()">Collect</button>
                     </div>
                 </asp:Panel>
@@ -105,7 +105,7 @@
                             <span class="pod-star">*</span>
                             <asp:Literal ID="LitQuestion" runat="server" />:
                         </label>
-                        <asp:DropDownList ID="DdlAnswer" runat="server" CssClass="rs-select mes-param-input">
+                        <asp:DropDownList ID="DdlAnswer" runat="server" CssClass="rs-select mes-param-input" data-guide="lc-answer">
                             <asp:ListItem Value="">( Seleccione )</asp:ListItem>
                             <asp:ListItem Value="false">NO</asp:ListItem>
                             <asp:ListItem Value="true">Si</asp:ListItem>
@@ -117,7 +117,7 @@
             </div>
             <div class="modal-footer mes-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
-                    CssClass="mes-btn mes-ico mes-ico-save"
+                    CssClass="mes-btn mes-ico mes-ico-save" data-guide="lc-save"
                     OnClick="BtnSave_Click"
                     OnClientClick="return lcValidateAnswer();"
                     CausesValidation="false" />

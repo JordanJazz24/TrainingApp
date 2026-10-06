@@ -19,6 +19,7 @@ namespace TrainingApp.Pages.Training.Guide
     {
         public const string Required = "required"; // no vacío y sin < ni > (AUD-11)
         public const string Digits   = "digits";   // solo dígitos (Shop Order)
+        public const string Number   = "number";   // número (ID del molde, parámetros MSS)
     }
 
     // Un subpaso del guion. El texto ya viene armado y codificado por GuideScriptBuilder.
