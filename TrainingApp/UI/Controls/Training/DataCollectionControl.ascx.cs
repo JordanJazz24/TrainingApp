@@ -23,6 +23,13 @@ namespace TrainingApp.UI.Controls.Training
         // El operador sale del Data Collection List sin responder: el host cierra el control.
         public event EventHandler OnReturnToPod;
 
+        // Collect abrió el Data Collection Entry de un grupo (la guía de Guided entra en sus
+        // parámetros, spec 010). El grupo está en OpenGroupCode.
+        public event EventHandler OnGroupOpened;
+
+        // Grupo abierto en el Data Collection Entry; null con la lista a la vista.
+        public string OpenGroupCode => ActiveGroup;
+
         // Active group stored in ViewState for PostBack persistence
         private string ActiveGroup
         {
@@ -89,6 +96,7 @@ namespace TrainingApp.UI.Controls.Training
 
             Page.ClientScript.RegisterStartupScript(GetType(), "openDCEntry",
                 "showModalSafe('modalDCEntry');", true);
+            OnGroupOpened?.Invoke(this, EventArgs.Empty);
         }
 
         protected void BtnSave_Click(object sender, EventArgs e)

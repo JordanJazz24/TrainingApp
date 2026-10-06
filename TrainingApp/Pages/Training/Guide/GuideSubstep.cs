@@ -11,6 +11,24 @@ namespace TrainingApp.Pages.Training.Guide
         public const string Capture = "capture"; // escribe o escanea y presiona "Continuar"
         public const string Verify  = "verify";  // revisa un valor en pantalla y "Continuar"
         public const string Info    = "info";    // explica lo que se ve y "Continuar"
+        public const string Scan    = "scan";    // escanea (o escribe + Enter); avanza solo (R6)
+    }
+
+    // Regla de un campo de un bloque con decisión (Data Collection, R10): las mismas que
+    // califica StepValidator para el tipo del parámetro.
+    public sealed class GuideField
+    {
+        // Selector CSS del campo dentro del bloque.
+        public string Selector { get; set; }
+
+        // Valor exacto (Boolean: "true"); null en el resto.
+        public string Expect { get; set; }
+
+        // "number" (con Min/Max opcionales) o "date".
+        public string Rule { get; set; }
+
+        public decimal? Min { get; set; }
+        public decimal? Max { get; set; }
     }
 
     // Formato que "Continuar" exige en un subpaso de captura: el mismo que ya pide el control.
@@ -44,6 +62,13 @@ namespace TrainingApp.Pages.Training.Guide
         // Respuesta correcta de una decisión (spec 010, R10): valor que deben tener todos los
         // campos del subpaso para avanzar. null en los campos libres y los clics.
         public string Expect { get; set; }
+
+        // Reglas por campo de un bloque (Data Collection); null si no aplica.
+        public List<GuideField> Fields { get; set; }
+
+        // Selectores que, si todos tienen un elemento visible, dan el subpaso por hecho: la
+        // guía lo salta al llegar (filas ya seleccionadas) o avanza (escaneo con Add visible).
+        public List<string> Done { get; set; }
 
         // Info sobre un mensaje del MES: la guía lo oculta al presionar "Continuar" (R9).
         public bool HideOnContinue { get; set; }
@@ -82,6 +107,15 @@ namespace TrainingApp.Pages.Training.Guide
                     postback = s.Postback,
                     format   = s.Format,
                     expect   = s.Expect,
+                    fields   = s.Fields?.Select(f => new
+                    {
+                        sel    = f.Selector,
+                        expect = f.Expect,
+                        rule   = f.Rule,
+                        min    = f.Min,
+                        max    = f.Max
+                    }).ToList(),
+                    done     = s.Done,
                     hide     = s.HideOnContinue,
                     retry    = s.RetryKey,
                     step     = s.StepLabel,

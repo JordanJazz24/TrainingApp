@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -392,7 +393,11 @@ namespace TrainingApp.Pages.Training
                 // La confirmación solo si la BLL aceptó el componente (pertenece al BOM y el
                 // paso está activo); si no, un aviso para que no parezca un click perdido.
                 if (result.ComponentAssembled)
+                {
                     CtrlAssembly.ShowAddConfirmation(e.ComponentId);
+                    // Spec 010: la guía entra en la confirmación de este componente.
+                    _guideMoment = GuideMoment.Progress(step, e.ComponentId.ToString(CultureInfo.InvariantCulture));
+                }
                 else
                     ShowSweetAlert("warning", "Componente no válido",
                         "El componente no pertenece a la Component List de esta orden.");
@@ -745,6 +750,14 @@ namespace TrainingApp.Pages.Training
             OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
         }
 
+        // Spec 010: Collect abrió el Data Collection Entry de un grupo; la guía entra en sus
+        // parámetros. Mismo guard de sender que los demás handlers del control.
+        protected void HandleGroupOpened(object sender, EventArgs e)
+        {
+            if (_ctx == null || !ReferenceEquals(sender, CtrlDataCollection)) return;
+            _guideMoment = GuideMoment.Opened(_ctx.CurrentStep, CtrlDataCollection.OpenGroupCode);
+        }
+
         // Data Collection (spec 008): Save de un DC Group para la pieza actual.
         protected void HandleGroupSubmit(object sender, DataCollectionGroupSubmitEventArgs e)
         {
@@ -754,6 +767,8 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
+            // Pieza para la que se guarda el grupo (la guía entra en su banner, spec 010).
+            string pieceRowId = GetDataCollectionProgress()?.CurrentPiece?.RowId;
             var result = Pod.SubmitDataCollectionGroup(_ctx, e.GroupCode, e.AnswersJson);
             switch (result.Outcome)
             {
@@ -761,16 +776,19 @@ namespace TrainingApp.Pages.Training
                     // El control queda abierto en el modal donde se respondió (spec 006, E3);
                     // grupos y piezas ya guardados se conservan (AC-8).
                     ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
+                    _guideMoment = GuideMoment.Incorrect(step, e.GroupCode);
                     ReopenModal("modalDCEntry");
                     return;
 
                 case DataCollectionOutcome.GroupSaved:
                     RefreshDataCollectionControl(session, guide, area, step);
+                    _guideMoment = GuideMoment.Progress(step, pieceRowId + "|" + e.GroupCode);
                     ShowBanner("All data for DC group " + e.GroupCode + " has been collected", hideAfterMs: 4000);
                     return;
 
                 case DataCollectionOutcome.PieceCompleted:
                     RefreshDataCollectionControl(session, guide, area, step);
+                    _guideMoment = GuideMoment.Progress(step, pieceRowId + "|" + e.GroupCode);
                     ShowBanner(string.Format("SFC {0} completed. Next: {1}",
                         result.PieceSfcCode, DescribeCurrentPiece(GetDataCollectionProgress())), hideAfterMs: 5000);
                     return;

@@ -201,7 +201,21 @@ Con la guía activa, el helper no programa nada y la guía oculta el mensaje al 
   y no registra intento (Setup State Open, LC NO, una verificación NO, final NO); con la
   respuesta correcta sigue normal.
 
-### Entrega 3 — Assembly y Data Collection
+### Entrega 3 — Assembly y Data Collection — verificada (2026-10-06)
+
+- **Notas de implementación:**
+  - **Lista completa por paso con contador estable.** Assembly expande cada componente del
+    BOM y DC cada pieza por grupo obligatorio. Lo hecho antes del request se oculta pero
+    cuenta en "Subpaso N de M"; del componente o grupo recién guardado queda su mensaje.
+  - **Momentos con detalle:** `Opened(paso, grupo)` cuando Collect abre un grupo (evento
+    nuevo `OnGroupOpened` del control de DC), `Progress(paso, componente)` tras un Add que
+    no es el último y `Progress(paso, pieza|grupo)` tras guardar un grupo; `Incorrect` de DC
+    lleva el grupo.
+  - **Motor:** modo `scan` (avanza cuando aparece Add; el Enter lo procesa el control), `done`
+    (la selección se salta si las filas ya están seleccionadas) y reglas por campo en el
+    bloque de DC (rango, Si, fecha válida), con R10.
+  - `/code-review low` (3 archivos): 1 posible bug, falso positivo (el momento `Progress`
+    solo se anota cuando el Add no completa el paso).
 
 - Assembly:
   - repetición por componente pendiente, modo `scan` y confirmación del Add;

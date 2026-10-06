@@ -28,7 +28,7 @@
                         <span class="mes-list-label">Collect Data At:</span> <%#: Eval("CollectDataAt") %>
                     </div>
                 </div>
-                <div class="mes-list-actions">
+                <div class="mes-list-actions" data-guide="dc-collect" data-group="<%#: Eval("GroupCode") %>">
                     <asp:Button ID="BtnCollect" runat="server"
                         CssClass="mes-btn mes-btn-stack mes-ico mes-ico-dccollect"
                         Text="Collect"
@@ -81,7 +81,7 @@
 
                 <%-- Un bloque .dc-param por parámetro (RenderParams), sobre blanco y dentro del
                      marco gris claro del real. --%>
-                <div class="dc-param-list">
+                <div class="dc-param-list" data-guide="dc-params">
                     <asp:PlaceHolder ID="PhParameters" runat="server" />
                 </div>
 
@@ -91,7 +91,7 @@
             </div>
             <div class="modal-footer mes-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
-                    CssClass="mes-btn mes-ico mes-ico-save"
+                    CssClass="mes-btn mes-ico mes-ico-save" data-guide="dc-save"
                     OnClientClick="collectDCAnswers()"
                     OnClick="BtnSave_Click" />
                 <%-- Save Draft no guarda nada en el simulador: solo orienta al operador,

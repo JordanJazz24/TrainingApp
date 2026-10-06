@@ -112,12 +112,13 @@
             <span>Start</span>
         </button>
         <button id="BtnAssemble" runat="server" class="pod-action-btn" disabled="disabled"
-            onserverclick="BtnAssemble_ServerClick">
+            onserverclick="BtnAssemble_ServerClick" data-guide="pod-assemble">
             <img src="<%=ResolveUrl("~/UI/master/imgs/ensamblar-icon.png")%>" alt="" />
             <span>Assemble</span>
         </button>
         <button id="BtnDCCollection" runat="server" class="pod-action-btn" disabled="disabled"
-            onserverclick="BtnDCCollection_ServerClick" onclick="if (!podValidateDCCollect()) return false;">
+            onserverclick="BtnDCCollection_ServerClick" onclick="if (!podValidateDCCollect()) return false;"
+            data-guide="pod-dc-collect">
             <img src="<%=ResolveUrl("~/UI/master/imgs/dc_collection-icon.png")%>" alt="" />
             <span>DC Collect</span>
         </button>
@@ -146,7 +147,7 @@
                                 <%-- Columna selectora con el ícono Select All, como la tabla del POD real. --%>
                                 <th class="row-selector-col">
                                     <button type="button" class="select-all-btn" title="Select All"
-                                        onclick="toggleSelectAllWorkList()"><%= SelectAllIcon %></button>
+                                        onclick="toggleSelectAllWorkList()" data-guide="pod-select-all"><%= SelectAllIcon %></button>
                                 </th>
                                 <th>SFC</th>
                                 <th>Material Description</th>
@@ -159,7 +160,7 @@
                         <tbody>
                             <asp:Repeater ID="RptWorkList" runat="server">
                                 <ItemTemplate>
-                                    <tr class="<%# (bool)Eval("IsSelected") ? "selected" : "" %>"
+                                    <tr class="<%# (bool)Eval("IsSelected") ? "selected" : "" %>" data-guide="pod-row"
                                         data-sfc="<%#: Eval("SFCCode") %>"
                                         data-row-id="<%#: Eval("RowId") %>"
                                         onclick="selectWorkListRow(this)">
@@ -191,7 +192,7 @@
                                           OnOnComponentAssembled="HandleComponentAssembled"
                                           OnOnReturnToPod="HandleReturnToPod" />
                 <uc:DataCollectionControl ID="CtrlDataCollection" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
-                                          OnOnGroupSubmit="HandleGroupSubmit"
+                                          OnOnGroupSubmit="HandleGroupSubmit" OnOnGroupOpened="HandleGroupOpened"
                                           OnOnReturnToPod="HandleReturnToPod" />
                 <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
                                           OnOnReturnToPod="HandleReturnToPod" />

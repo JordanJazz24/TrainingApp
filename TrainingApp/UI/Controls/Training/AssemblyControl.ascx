@@ -32,7 +32,7 @@
                     <%-- El modal se abre en el cliente con los datos de este componente:
                          el único postback del ensamble es el Add. --%>
                     <button type="button" class="mes-btn mes-btn-stack mes-ico mes-ico-assemble"
-                        data-component-id="<%#: Eval("Id") %>"
+                        data-guide="asm-assemble" data-component-id="<%#: Eval("Id") %>"
                         data-part="<%#: Eval("PartNumber") %>"
                         data-rev="<%#: Eval("Revision") %>"
                         data-desc="<%#: Eval("Description") %>"
@@ -70,7 +70,7 @@
                     <button type="button" class="mes-titlebar-btn" title="Maximize"
                         onclick="mesToggleMaximize(this)">&#10530;</button>
                     <button type="button" class="mes-titlebar-btn" title="Close"
-                        data-bs-dismiss="modal">&#10005;</button>
+                        data-bs-dismiss="modal" data-guide="asm-close">&#10005;</button>
                 </div>
             </div>
             <div class="modal-body p-0">
@@ -82,7 +82,7 @@
                 <%-- Confirmación del Add (Fase 6.5): arriba a la izquierda, bajo la línea azul;
                      el modal queda abierto. La arma ShowAddConfirmation en el servidor. --%>
                 <asp:Panel ID="PnlAddConfirm" runat="server" ClientIDMode="Static" Visible="false"
-                    CssClass="mes-modal-message">
+                    CssClass="mes-modal-message" data-guide="asm-confirm">
                     <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
                         <rect x="1" y="1" width="18" height="18" rx="3"
                             fill="#7cc36a" stroke="#3d6b33" stroke-width="1.5" />
@@ -112,7 +112,7 @@
                         <div class="asm-field">
                             <span class="asm-label">Barcode:</span>
                             <asp:TextBox ID="TxtBarcode" runat="server" CssClass="form-control form-control-sm"
-                                ClientIDMode="Static" autocomplete="off"
+                                ClientIDMode="Static" autocomplete="off" data-guide="asm-barcode"
                                 onkeydown="return asmBarcodeKeyDown(event);"
                                 onchange="asmScan();" />
                         </div>
@@ -162,7 +162,7 @@
                 <asp:Panel ID="PnlApplyAll" runat="server" CssClass="asm-apply-all" style="display:none">
                     <label class="mb-0"><input type="checkbox" checked disabled /> Apply to all SFCs</label>
                 </asp:Panel>
-                <button id="BtnAdd" runat="server" class="btn btn-sm asm-btn" style="display:none"
+                <button id="BtnAdd" runat="server" class="btn btn-sm asm-btn" style="display:none" data-guide="asm-add"
                     onclick="if (!assembleValidate()) return false;"
                     onserverclick="BtnAdd_Click">
                     <span class="text-success">&#10004;</span> Add

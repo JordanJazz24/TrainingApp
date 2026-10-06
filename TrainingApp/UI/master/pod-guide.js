@@ -92,9 +92,34 @@
         return true;
     }
 
+    // Regla de un campo de un bloque con decisión (Data Collection): las de StepValidator.
+    function fieldOk(rule, el) {
+        if (!el) return false;
+        var v = (el.value || '').trim();
+        if (rule.expect != null) return v === rule.expect;
+        if (rule.rule === 'date') return v !== '';
+        if (rule.rule === 'number') {
+            if (!/^-?\d+(\.\d+)?$/.test(v)) return false;
+            var n = parseFloat(v);
+            return (rule.min == null || n >= rule.min) && (rule.max == null || n <= rule.max);
+        }
+        return v !== '' && !/[<>]/.test(v);
+    }
+
+    // ¿El subpaso ya está hecho? (filas ya seleccionadas, Add visible tras escanear)
+    function doneNow(s) {
+        if (!s || !s.done) return false;
+        return s.done.every(function (sel) {
+            return Array.prototype.some.call(document.querySelectorAll(sel), isVisible);
+        });
+    }
+
     // Formato y, en una decisión, la respuesta correcta (R10: sin aviso propio; "Continuar"
     // simplemente no se habilita).
     function answerOk(s, el) {
+        if (s.fields) {
+            return s.fields.every(function (rule) { return fieldOk(rule, el.querySelector(rule.sel)); });
+        }
         var fields = el.matches('input,select,textarea')
             ? [el] : el.querySelectorAll('input,select,textarea');
         // Solo lo que el operador completa: sin campos ocultos ni botones.
@@ -199,7 +224,8 @@
         place();
 
         var s = current();
-        if (s.mode === 'capture' || s.mode === 'verify' || (s.mode === 'change' && s.expect != null)) {
+        if (s.mode === 'capture' || s.mode === 'verify' || s.mode === 'scan' ||
+            (s.mode === 'change' && s.expect != null)) {
             var field = focusables(el)[0];
             if (field && document.activeElement !== field) field.focus();
         }
@@ -336,6 +362,9 @@
             return;
         }
 
+        // Ya hecho al llegar (ej. las filas ya estaban seleccionadas): se salta.
+        if (state === 'searching' && doneNow(current())) { advance(); return; }
+
         var el = findAnchor(current());
         if (state === 'searching') {
             var waited = Date.now() - since;
@@ -352,6 +381,8 @@
             return;
         }
         // shown
+        // Escaneo (R6): el lector termina en Enter y el control muestra Add; ahí se avanza.
+        if (current().mode === 'scan' && doneNow(current())) { advance(); return; }
         if (!el) { search(); return; }
         target = el;
         place();
@@ -442,6 +473,8 @@
         }
         // Fuera del elemento resaltado (y del globo) no se escribe ni se activa nada.
         if (!allowed(active)) { stop(); return; }
+        // Escaneo: el Enter del lector lo procesa el propio control (muestra Add).
+        if (s.mode === 'scan') return;
         if (key === 'Enter' && isTextField(active)) stop();
     }, true);
 
