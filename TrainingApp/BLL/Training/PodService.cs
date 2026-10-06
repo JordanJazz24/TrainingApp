@@ -144,6 +144,11 @@ namespace TrainingApp.BLL.Training
         public StepSubmitResult SubmitResourceSetup(PodContext ctx, string answer, string shopOrderInput)
         {
             EnsureCurrentStep(ctx, StepType.ResourceSetup);
+            // El control ya lo avisa como formato; si llega mal es una manipulación o un error
+            // de programación: no se registra nada (auditoría AUD-36).
+            if (!SimulatedOrder.IsValidShopOrder(shopOrderInput))
+                throw new ArgumentException("La Shop Order debe ser numérica.", nameof(shopOrderInput));
+
             var result = SubmitStep(ctx, answer);
             CreateOrder(ctx, result.Outcome == StepSubmitOutcome.FailedForced
                 ? PodDefaults.DefaultShopOrder
@@ -180,9 +185,7 @@ namespace TrainingApp.BLL.Training
 
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
-                var selection = PieceSelectionRule.Evaluate(StepType.Search,
-                    order.FindRows(browseRowIds).Count, order.Rows.Count);
-                if (selection != PieceSelectionResult.Valid)
+                if (!IsBrowseSelectionValid(order, browseRowIds))
                     return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
             }
             else if (string.IsNullOrWhiteSpace(scannedSfc))
@@ -197,17 +200,27 @@ namespace TrainingApp.BLL.Training
         }
 
         // Checklist de Start (Moldeo, 4 modales): califica las respuestas y, resuelto el paso,
-        // inicia las piezas. Solo se llega desde ClickStart, que ya validó la orden; sin
-        // checklist o sin orden es una manipulación, no un intento.
+        // inicia las piezas. Solo se llega desde ClickStart, que ya validó la orden y la
+        // selección; sin checklist, sin orden o con otra selección es una manipulación, no un
+        // intento. La selección se vuelve a validar porque es la que se inicia (AUD-37).
         public StepSubmitResult SubmitStartChecklist(PodContext ctx, string answerJson,
             ICollection<string> browseRowIds)
         {
             EnsureCurrentStep(ctx, StepType.Search);
-            if (!ctx.Area.RequiresStartChecklist || ctx.State.Order == null)
+            var order = ctx.State.Order;
+            if (!ctx.Area.RequiresStartChecklist || order == null)
                 throw new InvalidOperationException("El Start de esta área no tiene checklist pendiente.");
+            if (ctx.Area.SerializationType == SerializationType.Serialized &&
+                !IsBrowseSelectionValid(order, browseRowIds))
+                throw new InvalidOperationException("La selección de piezas no es la que validó el Start.");
 
             return SubmitStart(ctx, answerJson, browseRowIds);
         }
+
+        // Serialized (spec 008): el Start exige todas las piezas elegidas en Browse Work List.
+        private static bool IsBrowseSelectionValid(SimulatedOrder order, ICollection<string> browseRowIds)
+            => PieceSelectionRule.Evaluate(StepType.Search,
+                   order.FindRows(browseRowIds).Count, order.Rows.Count) == PieceSelectionResult.Valid;
 
         private StepSubmitResult SubmitStart(PodContext ctx, string answer, ICollection<string> browseRowIds)
         {

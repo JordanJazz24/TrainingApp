@@ -85,7 +85,7 @@ namespace TrainingApp.UI.Controls.Training
             // rsPrepareSubmit() ya valida esto en cliente; aquí re-validamos igual que
             // el resto de las reglas de este método (belt-and-suspenders).
             string shopOrderInput = ExtractShopOrderValue(rows);
-            if (string.IsNullOrEmpty(shopOrderInput) || !IsNumeric(shopOrderInput))
+            if (!SimulatedOrder.IsValidShopOrder(shopOrderInput))
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
                     "Swal.fire({icon:'warning',title:'Shop Order inválido'," +
@@ -171,12 +171,6 @@ namespace TrainingApp.UI.Controls.Training
                     return row.TryGetValue("value", out var value) ? value?.Trim() : null;
             }
             return null;
-        }
-
-        private static bool IsNumeric(string value)
-        {
-            return !string.IsNullOrEmpty(value) &&
-                   System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d+$");
         }
     }
 }

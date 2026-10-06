@@ -25,7 +25,12 @@ namespace TrainingApp.BLL.Training
         // Hubo al menos un SFC Split (el paso solo existe en NonSerialized).
         public bool HasSplit => Rows.Any(r => r.IsFromSplit);
 
-        // shopOrderInput ya viene validado como numérico por quien llama.
+        // Formato de la Shop Order capturada en Resource Setup (spec 005): solo dígitos. El
+        // control lo usa como aviso de formato y PodService lo exige (auditoría AUD-36).
+        public static bool IsValidShopOrder(string shopOrderInput)
+            => !string.IsNullOrEmpty(shopOrderInput) && shopOrderInput.All(char.IsDigit);
+
+        // shopOrderInput ya viene validado con IsValidShopOrder por quien llama.
         //   NonSerialized: una sola fila con la cantidad del lote, ya Active.
         //   Serialized (spec 008): entre 3 y 5 piezas con SFC propio, en New hasta el Start.
         public static SimulatedOrder Create(string shopOrderInput, string materialDescription,
