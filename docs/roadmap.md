@@ -27,35 +27,44 @@ el Start de NonSerialized acepta cualquier SFC escrito (plan 009, E2) y B-2 de L
 con manipulación del cliente, plan 009, E4).
 
 **Siguiente — Auditoría final antes de la 6.6** (pedida por el usuario el 2026-10-05: un
-repaso para asegurar que no se escapó nada grave antes de los overlays). Esta vez el plan lo
-propone Claude. *Reconstruido de la propuesta hecha en un `/btw`, cuya respuesta no quedó
-guardada: si difiere de lo conversado, corregirlo aquí antes de empezar.*
-- **Fase A · Revisión dirigida, solo lectura (no se corrige nada).** Foco en lo que cambió
-  desde la auditoría anterior (`git diff b2db442..HEAD`: cierre de la 6.5 y spec 009) y en
-  que no hayan vuelto los hallazgos ya cerrados (AUD-01…27).
-  - Línea base: MSBuild Rebuild + `aspnet_compiler` + tests (0 warnings).
-  - Capas: `Pages/`/`UI/` sin DAL ni Session del POD, BLL sin `System.Web`, sin SQL inline
-    (`arch-check` + grep).
-  - Seguridad focalizada: auth, Session, `Response.Redirect`, texto hacia `<script>`,
-    entradas del cliente (hidden fields de selección) (`security-scan`).
-  - `/code-review` en **medium** por zona (BLL/Training + Scoring · Pages/Training +
-    UI/Controls · DAL + `Database/StoredProcedures`), cada uno con foco explícito: reglas de
-    `CLAUDE.md` (pesos, penalización, force-advance, formato vs. decisión), invariantes de
-    `PodService` (escritura después del intento, paso actual), transacción de
-    `spStepAttemptRecord`. High solo si una zona lo justifica (costo de tokens, ver
-    `/btw` del usuario 2026-10-05).
-  - Docs vs. código: `CLAUDE.md` (árbol, convenciones), `docs/glossary.md`, specs 008-009.
-  - Paquetes y código muerto (`outdated`, `find_dead_code`).
-- **Fase B · Lista única.** Hallazgos AUD-33… en este roadmap con severidad, vía (directo,
-  spec o decisión) y entrega propuesta. Las decisiones de negocio o de diseño se preguntan
-  juntas (D-13…) con una propuesta. Se cuestiona si cada hallazgo vale la pena para un
-  simulador interno.
-- **Fase C · Entregas chicas.** Igual que E1-E5 de la auditoría anterior: implementar →
-  Rebuild + `aspnet_compiler` + tests → `/code-review` (medium) del diff → checklist → el
-  usuario prueba → commit con el roadmap actualizado.
-- **Fase D · Cierre y regresión.** Recorrido completo en el navegador (Moldeo y Redefinity, en
-  Guided y Assessment, con un avance forzado y una Session perdida), actualizar este estado
-  actual y arrancar la spec de la 6.6.
+repaso para asegurar que no se escapó nada grave antes de los overlays). Plan propuesto por
+Claude en un `/btw` (texto aportado por el usuario el 2026-10-06), **pendiente de su
+aprobación** ("apruebo el plan de auditoría, empieza la Fase A"). La auditoría anterior fue
+completa y reciente; desde entonces el cambio grande fue la spec 009 (`b2db442..df08c44`).
+Por eso es una auditoría enfocada en ese cambio más una regresión completa en el navegador,
+con el mismo esquema A → B → C, más liviana.
+- **Fase A · Revisión, solo lectura (no se corrige nada mientras se audita):**
+  1. **Un solo `/code-review high`** sobre todo el cambio de la spec 009 (no uno por entrega
+     ni por carpeta). Foco: las reglas de `PodService` (secuencia, guardar el estado después
+     del intento, reconstrucción); las capas (que la página no decida nada); la redirección
+     de P-1.
+  2. `/dotnet-claude-kit:arch-check` (dependencias entre capas; es barato).
+  3. Código muerto después del refactor, con Roslyn: helpers de `GuidedTest` sin uso, claves
+     de `StepViewModel` sin lectores, `IStepControl`/`CompleteControl`.
+  4. `/security-review` acotado a lo que tocó la Session y el login: logout con D-9, la
+     redirección de P-1 y `SessionPodStateStore`.
+  5. Docs contra código: que `CLAUDE.md` (árbol y convenciones), el roadmap y el glosario
+     describan lo que existe hoy.
+  6. Repaso de la deuda abierta, para decidir qué se arregla ya y qué se difiere: el Start de
+     NonSerialized acepta cualquier SFC; B-2 de Log NC; guardar por request el BOM y los
+     grupos DC; el botón Atrás del navegador; AUD-28/29 (siguen para la Fase 9).
+- **Fase B · Lista única:** hallazgos nuevos AUD-33 en adelante, con severidad, vía (plan
+  directo, decisión o diferido) y entrega. Las decisiones se preguntan juntas, numeradas desde
+  **D-13**, cada una con una propuesta.
+- **Fase C · Entregas chicas, solo si hay hallazgos Alto o Medio.** Mismo ciclo: arreglo →
+  MSBuild + `aspnet_compiler` → `/code-review medium` → checklist → prueba del usuario →
+  commit.
+- **Fase D · Pasada final en el navegador** (criterio de cierre antes de la 6.6): un solo
+  checklist de punta a punta, un recorrido por combinación: Moldeo en Guided y en Assessment
+  (con errores, clicks fuera de secuencia y avances forzados); Redefinity en Guided y en
+  Assessment; pérdida de la Session; sesión única y logout. Así la 6.6 arranca sobre una base
+  probada entera, no por entregas sueltas.
+- **Costo:** un `/code-review high` sobre todo el cambio en vez de seis, medium en las entregas;
+  lo demás (arch-check, código muerto) es barato.
+- **Decisión a tomar en esta auditoría:** los tests siguen fuera por decisión del usuario.
+  Ahora las reglas del POD viven en `PodService`, pero no se pueden probar sin BD porque el
+  servicio crea sus repositorios internamente. Si algún día se retoma la Fase 5, conviene
+  decidir ahora si se prepara eso o se deja como está.
 
 **Pendiente de la 6.6 · Overlays guiados (spec 010, sin empezar las preguntas):**
 - **Reformulación propuesta, sin confirmar por el usuario:** en modo **Guided**, una guía
