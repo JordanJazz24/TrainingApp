@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
-using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
@@ -13,9 +12,6 @@ namespace TrainingApp.Pages.Training
 {
     public partial class GuidedTest : Page
     {
-        // El POD lee catálogos y sesión solo a través de la BLL (auditoría AUD-14).
-        private readonly TrainingGuideService _guideService = new TrainingGuideService();
-
         // Motor del POD (spec 009). Se crea al primer uso: necesita la Session del request.
         private PodService _pod;
         private PodService Pod => _pod ?? (_pod = new PodService(new SessionPodStateStore(Session)));
@@ -103,7 +99,7 @@ namespace TrainingApp.Pages.Training
         private void OpenStepControl(StepType stepType, Area area, TrainingSession session,
             TrainingGuide guide, string modalId)
         {
-            var step = guide.Steps.First(s => s.Order == session.CurrentStepOrder);
+            var step = _ctx.CurrentStep;
             var ctrl = GetStepControl(stepType);
             ctrl.ViewModel = BuildStepViewModel(step, area, session, guide);
             ctrl.Initialize();
@@ -172,7 +168,7 @@ namespace TrainingApp.Pages.Training
                 // Un F5 llega como GET (history.replaceState en el .aspx): si Start ya
                 // se completó, el POD y el SFC se reconstruyen desde la orden simulada.
                 // La selección de fila y el control abierto no se restauran.
-                if (IsSearchCompleted(guide, session))
+                if (_ctx.IsResolved(StepType.Search))
                 {
                     var order = Order;
                     if (order != null) TxtSFC.Text = order.SFCCode;
@@ -182,7 +178,8 @@ namespace TrainingApp.Pages.Training
 
             // Corre antes del Page_Load de los controles: cada uno ya ve su Visible
             // definitivo y el abierto tiene su ViewModel. Solo se arma el ViewModel del
-            // control abierto — BuildStepViewModel consulta la BD.
+            // control abierto — BuildStepViewModel lee los catálogos del área (del
+            // contexto, una vez por request: AUD-39).
             var open = OpenStepType;
             ApplyStepControlVisibility(open);
             if (open.HasValue)
@@ -190,16 +187,16 @@ namespace TrainingApp.Pages.Training
 
             UpdateScoreWidget(session);
             SetActiveButton(step.StepType, area, session.Mode);
-            BindSearchHeader(session, guide);
+            BindSearchHeader();
         }
 
         // POD Search: Shop Order y Status (SFC) de la orden cargada. Antes del Start, las
         // piezas elegidas en Browse Work List (In Queue); con el Start, Active. Se recalcula
         // en cada request porque el OK de Browse solo lo adelanta en el cliente.
-        private void BindSearchHeader(TrainingSession session, TrainingGuide guide)
+        private void BindSearchHeader()
         {
             var order = Order;
-            if (order != null && IsSearchCompleted(guide, session))
+            if (order != null && _ctx.IsResolved(StepType.Search))
                 SetSearchHeader(order.ShopOrderInput, SimulatedOrderRow.StatusActive);
             else if (order != null && FindBrowseSelectedRows(order).Count > 0)
                 SetSearchHeader(order.ShopOrderInput, SfcStatusInQueue);
@@ -300,10 +297,10 @@ namespace TrainingApp.Pages.Training
             // queda cerrado para el request siguiente. El resto vuelve al POD de inmediato.
             CloseStepControl(IsModalOverlay(step.StepType) ? step.StepType : (StepType?)null);
 
-            if (ClearSelectionAroundSplit(step.StepType, guide, session))
+            if (ClearSelectionAroundSplit(step.StepType))
                 BindWorkList(area, session);
 
-            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
+            var nextStep = _ctx.CurrentStepOrDefault;
             if (nextStep != null)
                 SetActiveButton(nextStep.StepType, area, session.Mode);
 
@@ -457,7 +454,7 @@ namespace TrainingApp.Pages.Training
 
                 case StepSubmitOutcome.Incorrect:
                     ShowSweetAlert("warning", "Incorrect",
-                        BuildIncorrectFeedback(session.Mode, step.StepType, result.AttemptNumber, incorrectFeedback));
+                        BuildIncorrectFeedback(session.Mode, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
@@ -507,7 +504,7 @@ namespace TrainingApp.Pages.Training
             if (podChanged && forcedStep == StepType.ResourceSetup)
                 BindBrowseList(area, session);
 
-            if (ClearSelectionAroundSplit(forcedStep, guide, session))
+            if (ClearSelectionAroundSplit(forcedStep))
                 rebind = true;
 
             // ShowStartedOrder ya vuelve a pintar el POD.
@@ -519,10 +516,9 @@ namespace TrainingApp.Pages.Training
 
         // Si el paso resuelto o el siguiente es SFC Split, se limpia la selección del POD: el
         // split pide elegir la fila de nuevo. Devuelve true si hay que volver a pintar el POD.
-        private bool ClearSelectionAroundSplit(StepType resolvedStep, TrainingGuide guide,
-            TrainingSession session)
+        private bool ClearSelectionAroundSplit(StepType resolvedStep)
         {
-            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
+            var nextStep = _ctx.CurrentStepOrDefault;
             if (resolvedStep != StepType.SFC_Split && nextStep?.StepType != StepType.SFC_Split)
                 return false;
 
@@ -551,13 +547,12 @@ namespace TrainingApp.Pages.Training
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
         // respuesta, solo cuántos intentos con puntaje le quedan antes del avance forzado.
         private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType,
-            int attemptNumber, string incorrectFeedback)
+            int remainingScoredAttempts, string incorrectFeedback)
         {
             if (mode == SessionMode.Assessment)
             {
-                int remaining = ScoreCalculator.MaxScoredAttempts - attemptNumber;
-                return remaining > 0
-                    ? string.Format("Respuesta incorrecta. Te quedan {0} intento(s) con puntaje.", remaining)
+                return remainingScoredAttempts > 0
+                    ? string.Format("Respuesta incorrecta. Te quedan {0} intento(s) con puntaje.", remainingScoredAttempts)
                     : "Respuesta incorrecta. Si vuelves a fallar, el paso se marca fallido y avanza.";
             }
 
@@ -575,7 +570,7 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            var nextStep = guide.Steps.FirstOrDefault(s => s.Order == session.CurrentStepOrder);
+            var nextStep = _ctx.CurrentStepOrDefault;
             if (nextStep == null) return;
 
             SetActiveButton(nextStep.StepType, area, session.Mode);
@@ -877,15 +872,13 @@ namespace TrainingApp.Pages.Training
             LitFinalScore.Text   = finalScore.ToString("F1") + "%";
             LitFinalMode.Text    = session.Mode.ToString();
 
-            var products = _guideService.GetAllProducts();
-            var product  = products.FirstOrDefault(p => p.Id == area.ProductId);
             LitFinalArea.Text    = Page.Server.HtmlEncode(area.Name);
-            LitFinalProduct.Text = Page.Server.HtmlEncode(product?.Name ?? "—");
+            LitFinalProduct.Text = Page.Server.HtmlEncode(_ctx.Product?.Name ?? "—");
 
             if (session.Mode == SessionMode.Assessment)
             {
                 PnlFinalResult.Visible = true;
-                LitFinalResult.Text    = ScoreCalculator.IsPassed(session.FinalScore)
+                LitFinalResult.Text    = _ctx.IsPassed
                     ? "<span class=\"text-success\">✓ APROBADO</span>"
                     : "<span class=\"text-danger\">✗ REPROBADO</span>";
             }
@@ -926,9 +919,8 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepType.DataCollection:
-                    var dcParams = _guideService.GetDataCollectionParameters(area.Id);
-                    vm.ExtraData["Parameters"] = dcParams;
-                    vm.ExtraData["Groups"]     = _guideService.GetDataCollectionGroups(area.Id);
+                    vm.ExtraData["Parameters"] = _ctx.DataCollectionParameters;
+                    vm.ExtraData["Groups"]     = _ctx.DataCollectionGroups;
                     var dcProgress = GetDataCollectionProgress();
                     vm.ExtraData["PieceLabel"] = DescribeCurrentPiece(dcProgress);
                     // Grupos ya guardados por la pieza actual: su Collect se deshabilita.
@@ -947,7 +939,7 @@ namespace TrainingApp.Pages.Training
                     break;
 
                 case StepType.LogNC:
-                    vm.ExtraData["NCCodes"] = _guideService.GetNCCodes(area.Id);
+                    vm.ExtraData["NCCodes"] = _ctx.NCCodes;
                     vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
                     // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
                     var ncPieces = FindSelectedOrderRows();
@@ -959,7 +951,7 @@ namespace TrainingApp.Pages.Training
 
                 case StepType.Assembly:
                     // BOM del área y componentes ya ensamblados (spec 008).
-                    vm.ExtraData["Components"]         = _guideService.GetAssemblyComponents(area.Id);
+                    vm.ExtraData["Components"]         = _ctx.AssemblyComponents;
                     vm.ExtraData["AssembledIds"]       = _ctx.State.Assembly?.AssembledComponentIds
                                                          ?? new HashSet<int>();
                     vm.ExtraData["SelectedPieceCount"] = FindSelectedOrderRows().Count;
@@ -1091,12 +1083,6 @@ namespace TrainingApp.Pages.Training
         {
             if (rows.Count == 0) return string.Empty;
             return rows.Count == 1 ? rows[0].SFCCode : "[" + rows.Count + " SELECTED]";
-        }
-
-        private static bool IsSearchCompleted(TrainingGuide guide, TrainingSession session)
-        {
-            var search = guide.Steps.FirstOrDefault(s => s.StepType == StepType.Search);
-            return search != null && session.CurrentStepOrder > search.Order;
         }
 
         private IList<PodWorkListRow> BuildPodWorkList(bool onlyActive)

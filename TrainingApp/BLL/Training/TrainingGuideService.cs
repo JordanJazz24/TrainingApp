@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TrainingApp.BLL.Scoring;
 using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
 
@@ -74,25 +73,6 @@ namespace TrainingApp.BLL.Training
         public IList<TrainingGuide> GetByArea(int areaId)
         {
             return _guideRepo.GetByArea(areaId);
-        }
-
-        // Validador del paso con el catálogo que ese paso usa: códigos NC en Log NC y
-        // parámetros en Data Collection; el resto no consulta la BD. Sin caché: un script de
-        // catálogo se ve en el siguiente click (AUD-13).
-        public StepValidator BuildValidator(Area area, StepType stepType)
-        {
-            // Assembly no pasa por el validador: su avance lo resuelve
-            // PodService.AssembleComponent contra el BOM (spec 008).
-            var context = new StepValidationContext
-            {
-                Area                 = area,
-                ValidNCCodes         = stepType == StepType.LogNC
-                    ? _ncCodeRepo.GetByArea(area.Id) : new List<NCCode>(),
-                DataCollectionParams = stepType == StepType.DataCollection
-                    ? _dcParamRepo.GetByArea(area.Id) : new List<DataCollectionParameter>()
-            };
-
-            return new StepValidator(context);
         }
     }
 }

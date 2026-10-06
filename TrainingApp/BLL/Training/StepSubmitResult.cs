@@ -15,5 +15,10 @@ namespace TrainingApp.BLL.Training
         public int NextStepOrder { get; set; }
         public decimal CurrentScore { get; set; }
         public decimal SessionScore { get; set; }
+
+        // Intentos que todavía puntúan antes del avance forzado (Assessment): 0 si este era
+        // el último. La página lo muestra sin revelar la respuesta.
+        public int RemainingScoredAttempts
+            => System.Math.Max(0, Scoring.ScoreCalculator.MaxScoredAttempts - AttemptNumber);
     }
 }

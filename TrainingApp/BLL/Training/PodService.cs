@@ -52,10 +52,10 @@ namespace TrainingApp.BLL.Training
             }
 
             decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
-            var ctx = new PodContext(operatorId, session, guide, area, attempts, state, score);
+            var ctx = new PodContext(operatorId, session, guide, area, attempts, state, score, _guideService);
 
             // Después de Resource Setup siempre hay orden: si falta, se perdió la Session.
-            if (state.Order == null && IsResolved(ctx, StepType.ResourceSetup))
+            if (state.Order == null && ctx.IsResolved(StepType.ResourceSetup))
                 RebuildState(ctx);
             return ctx;
         }
@@ -98,12 +98,6 @@ namespace TrainingApp.BLL.Training
             ctx.Rebuilt = true;
         }
 
-        private static bool IsResolved(PodContext ctx, StepType stepType)
-        {
-            var step = ctx.Guide.Steps.FirstOrDefault(s => s.StepType == stepType);
-            return step != null && ctx.Session.CurrentStepOrder > step.Order;
-        }
-
         public void Abandon(PodContext ctx)
         {
             _sessionService.Abandon(ctx.Session.Id, ctx.OperatorId);
@@ -124,7 +118,7 @@ namespace TrainingApp.BLL.Training
             if (step.StepType == StepType.Assembly || step.StepType == StepType.DataCollection)
                 throw new InvalidOperationException("El paso actual no se califica por respuesta.");
 
-            bool isCorrect = _guideService.BuildValidator(ctx.Area, step.StepType).Validate(step, submittedAnswer);
+            bool isCorrect = BuildValidator(ctx, step.StepType).Validate(step, submittedAnswer);
             return RecordAttempt(ctx, step, isCorrect);
         }
 
@@ -160,9 +154,8 @@ namespace TrainingApp.BLL.Training
         // Assembly y DC apuntaba a filas de la orden vieja: se descarta con ella.
         private void CreateOrder(PodContext ctx, string shopOrderInput)
         {
-            var product = _guideService.GetAllProducts().FirstOrDefault(p => p.Id == ctx.Area.ProductId);
             ctx.State.Order = SimulatedOrder.Create(shopOrderInput,
-                PodDefaults.MaterialDescription(product, ctx.Area), ctx.Area.SerializationType);
+                PodDefaults.MaterialDescription(ctx.Product, ctx.Area), ctx.Area.SerializationType);
             ctx.State.Assembly       = null;
             ctx.State.DataCollection = null;
             SaveState(ctx);
@@ -261,7 +254,7 @@ namespace TrainingApp.BLL.Training
             var step = ctx.CurrentStep;
             if (step.StepType != StepType.Assembly) return result;
 
-            var bom = _guideService.GetAssemblyComponents(ctx.Area.Id);
+            var bom = ctx.AssemblyComponents;
             if (!bom.Any(c => c.Id == componentId)) return result;
 
             // Con el último componente, el intento se guarda antes de tocar el avance: si el SP
@@ -317,7 +310,7 @@ namespace TrainingApp.BLL.Training
             var progress = ctx.State.DataCollection;
             if (progress == null || progress.IsFinished) return result;
 
-            var groups = _guideService.GetDataCollectionGroups(ctx.Area.Id);
+            var groups = ctx.DataCollectionGroups;
             var group  = groups.FirstOrDefault(g => g.Code == groupCode);
             if (group == null) return result;
 
@@ -328,7 +321,7 @@ namespace TrainingApp.BLL.Training
             var piece = progress.CurrentPiece;
             result.PieceSfcCode = piece.SFCCode;
 
-            if (!_guideService.BuildValidator(ctx.Area, StepType.DataCollection)
+            if (!BuildValidator(ctx, StepType.DataCollection)
                     .ValidateDataCollectionGroup(group.Id, answersJson))
             {
                 // Avance forzado (E5): RecordAttempt descarta el avance parcial.
@@ -602,6 +595,22 @@ namespace TrainingApp.BLL.Training
         {
             if (ctx.Session.Status != SessionStatus.InProgress)
                 throw new InvalidOperationException("La sesión no está en curso.");
+        }
+
+        // Validador del paso con el catálogo que ese paso usa: códigos NC en Log NC y
+        // parámetros en Data Collection, del contexto del request (AUD-39). Sin caché entre
+        // requests: un script de catálogo se ve en el siguiente click (AUD-13). Assembly no
+        // pasa por el validador: AssembleComponent lo resuelve contra el BOM (spec 008).
+        private static StepValidator BuildValidator(PodContext ctx, StepType stepType)
+        {
+            return new StepValidator(new StepValidationContext
+            {
+                Area                 = ctx.Area,
+                ValidNCCodes         = stepType == StepType.LogNC
+                    ? ctx.NCCodes : new List<NCCode>(),
+                DataCollectionParams = stepType == StepType.DataCollection
+                    ? ctx.DataCollectionParameters : new List<DataCollectionParameter>()
+            });
         }
 
         // Cada comando califica su propio paso: llamarlo en otro paso es un error de
