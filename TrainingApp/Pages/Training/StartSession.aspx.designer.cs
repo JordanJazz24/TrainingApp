@@ -16,5 +16,6 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.RadioButton RbGuided;
         protected global::System.Web.UI.WebControls.RadioButton RbAssessment;
         protected global::System.Web.UI.WebControls.Button BtnStart;
+        protected global::System.Web.UI.WebControls.LinkButton BtnLogout;
     }
 }

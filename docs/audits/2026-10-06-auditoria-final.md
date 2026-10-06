@@ -56,21 +56,73 @@ Ahora las reglas del POD viven en `PodService`, pero no se pueden probar sin BD 
 servicio crea sus repositorios internamente. Si algún día se retoma la Fase 5, conviene
 decidir ahora si se prepara eso o se deja como está.
 
-## Fase A · Resultados
+## Fase A · Resultados (2026-10-06) ✅
 
-_Pendiente._
+1. **`/code-review high`** sobre `b2db442..df08c44` (todo el cambio de la spec 009): 9
+   hallazgos, ninguno Alto. Verificados contra el código: AUD-33, 34 y 36 a 42.
+2. **`arch-check`: conforme.** Ninguna dependencia en dirección prohibida (BLL sin
+   `System.Web` ni presentación; DAL sin BLL; Domain sin dependencias; Pages/UI sin DAL),
+   ningún ciclo. Info: la página calcula los intentos restantes y aprobado/reprobado con
+   `ScoreCalculator` (va con AUD-38).
+3. **Código muerto:** los 31 símbolos de `find_dead_code` son handlers enlazados en el
+   markup (falsos positivos, verificado uno por uno). Todas las claves de
+   `StepViewModel.ExtraData` tienen lector. A mano: AUD-43.
+4. **`/security-review`** (Session y login): **ninguna vulnerabilidad nueva.** Dueño y
+   estado validados en `LoadContext`, secuencia y número de intento revalidados en
+   `spStepAttemptRecord`, ids del cliente solo se cruzan con la orden del servidor, CSRF
+   validado antes de los handlers, P-1 sin redirección abierta ni bucle. Hallazgos de
+   corrección: AUD-33, 34 y 35.
+5. **Docs contra código:** AUD-44 (detalles menores).
+6. **Deuda abierta:** repasada en las decisiones D-13 a D-16.
+
+**Falsos positivos, no volver a reportar** (además de los de la auditoría anterior): la
+redirección P-1 a `Request.RawUrl` (misma app, solo en un postback autenticado y propio);
+el `PodState` vacío que `LoadContext` guarda la primera vez (inofensivo).
 
 ## Lista única de hallazgos (AUD-33 en adelante)
 
-_Pendiente (Fase B)._
+Severidad como en la auditoría anterior: Alto = rompe el flujo, el puntaje o expone un
+secreto · Medio = riesgo real en condiciones normales · Bajo = higiene o caso raro · Info.
+
+| ID | Sev. | Hallazgo | Dónde | Arreglo propuesto | Vía |
+|---|---|---|---|---|---|
+| AUD-33 | Medio | **El logout no cierra la sesión** si la sesión de entrenamiento ya no está `InProgress`: `Page_Load` llama a `LoadContext`, que redirige a `StartSession` antes de que corra `BtnLogout_ServerClick`. Pasa siempre en el panel final (el ícono sigue visible) y en una pestaña cuya sesión abandonó D-9. `GuidedTest` es la única página con logout, así que el operador queda autenticado; en una PC compartida el siguiente entrena con su identidad. Ya pasaba antes de la spec 009, pero ahora también impide D-9. | `GuidedTest.aspx.cs:137, 845`; `StartSession.aspx` (sin logout) | Logout que no dependa del contexto del POD (ej. una página `Logout.aspx` propia), disponible también en `StartSession`. **D-13** | E1 |
+| AUD-34 | Bajo | P-1 descarta también los clicks de Logout y Abandon tras una reconstrucción (no usan filas de la orden): la página solo se recarga y el operador tiene que repetir el click. | `GuidedTest.aspx.cs:144` | Exceptuar Logout y Abandon de P-1 (Logout queda resuelto con AUD-33). | E1 |
+| AUD-35 | Bajo | El logout depende de la BD: si `AbandonAllActive` falla, sale la página de error y el operador queda autenticado. | `GuidedTest.aspx.cs:848` | `SignOut` y `Session.Abandon` en un `finally`. | E1 |
+| AUD-36 | Bajo | `SubmitResourceSetup` registra el intento y avanza **antes** de crear la orden con una Shop Order que la BLL no valida: con un postback manipulado (Shop Order nula) se guarda el intento y después explota en `SimulatedOrder.DeriveSFCCode` (página de error; el siguiente request reconstruye con la orden por defecto). Desde la UI no se puede (el control bloquea el formato). | `PodService.cs:144` | Validar el formato en la BLL antes de registrar el intento (aviso, sin intento). | E2 |
+| AUD-37 | Bajo | `SubmitStartChecklist` no vuelve a validar la selección de Browse Work List que validó `ClickStart`. Latente: hoy el único área con checklist (Moldeo) es NonSerialized y no activa piezas; un área Serialized con checklist podría quedar sin piezas activas y trabada en Guided. | `PodService.cs:202` | Repetir `PieceSelectionRule` en el submit del checklist. | E2 |
+| AUD-38 | Bajo | La página todavía deriva estado del flujo: `IsSearchCompleted` duplica `PodService.IsResolved` y 4 métodos recalculan el paso actual con `guide.Steps.First(Order == CurrentStepOrder)` en vez de `_ctx.CurrentStep`; también calcula intentos restantes y aprobado/reprobado (arch-check). | `GuidedTest.aspx.cs:1083` y otros | Exponer `IsResolved(StepType)`, intentos restantes y resultado final desde `PodContext`/`PodService`. | E3 |
+| AUD-39 | Bajo | Catálogos consultados varias veces por request: un Save de grupo DC lee grupos y parámetros 3 veces cada uno (~10 conexiones); Assembly lee el BOM 3 veces; `CreateOrder` y el panel final cargan todos los Products para encontrar uno. Es la deuda "guardar por request el BOM y los grupos DC". | `GuidedTest.aspx.cs:745`, `PodService.CreateOrder` | Cargar los catálogos una vez por request (perezoso, en el contexto) y `GetProduct(id)`. | E3 |
+| AUD-40 | Info | `PodContext.State` expone un `PodState` mutable (setters y listas públicas): "solo `PodService` modifica el estado" es solo convención. | `PodContext.cs:28`, `PodState.cs`, `SimulatedOrder.cs` | Setters `internal` / vistas de solo lectura. | Diferido (D-16) |
+| AUD-41 | Bajo | D-9 abandona en BD las otras sesiones del operador, pero sus `PodState` siguen en la Session hasta que expira (solo Abandon los borra). | `TrainingSessionService.cs:18`, `SessionPodStateStore` | Al iniciar una guía, borrar los estados de las otras sesiones. | E4 |
+| AUD-42 | Info | La orden no es reproducible (RowIds `Guid.NewGuid()`, piezas y SFCs con `new Random()`): por eso existe P-1, y tras una reconstrucción en Serialized el operador puede ver otras piezas (3-5) que las que tenía. | `SimulatedOrder.cs:32`, `SerialSfcGenerator` | Semilla determinista por sesión (haría la reconstrucción transparente). | Diferido (D-16) |
+| AUD-43 | Bajo | Código muerto tras el refactor: `SimulatedOrder.FindRow` (sin llamadas); `AssemblyProgress.Covers` (solo lo usan los tests; producción usa `CoversWith`); `CompleteControl` sigue siendo un stub y 3 controles tienen el evento con accessors vacíos (separar `IStepControl` no entró en la spec 009). | `SimulatedOrder.cs:80`, `AssemblyProgress.cs:19`, `CompleteControl.ascx.cs` | Borrar `FindRow`; `Covers` se queda con sus tests; `IStepControl` sin cambios (inofensivo). | E4 |
+| AUD-44 | Bajo | Docs: al árbol de `CLAUDE.md` le faltan `PodCommandResult`, `SplitSfcGenerator`, `StepSubmitResult` y `StepValidationContext`; el historial S2 del roadmap nombra `TrainingSessionService.RegisterOutOfSequence` (hoy en `PodService`); en `009-plan.md` el checklist de la E5 quedó sin marcar aunque se verificó con el de la E6. | `CLAUDE.md`, `docs/roadmap.md`, `docs/specs/009-plan.md` | Corregir. | E4 |
 
 ## Decisiones del usuario (D-13 en adelante)
 
-_Pendiente (Fase B)._
+Cerradas por el usuario el 2026-10-06:
+- **D-13 (AUD-33):** el ícono ⏻ del POD **cierra la sesión siempre**, también después de
+  "Session Complete" o en una pestaña cuya guía ya se abandonó, y **`StartSession` gana un
+  enlace de logout** para salir sin cerrar el navegador. Abandon y el logout con la guía en
+  curso no cambian (D-9: el logout marca la sesión `InProgress` como abandonada).
+- **D-14 (deuda, D-12 de la spec 009):** el Start de NonSerialized **queda como está**:
+  `TxtSFC` es de solo lectura y el SFC llega desde Browse Work List, así que escribir otro
+  exige manipular la página. Sale de la deuda.
+- **D-15 (Fase 5):** **no se prepara ahora**: no bloquea nada; la inyección de repositorios
+  en `PodService` se hace al retomar la Fase 5.
+- **D-16 (alcance):** se hacen **E1 a E4**. AUD-40 y AUD-42 se difieren; B-2 de Log NC y el
+  botón Atrás siguen como riesgo aceptado (la BLL ya rechaza un POST viejo:
+  `spStepAttemptRecord` revalida paso e intento).
 
 ## Entregas (Fase C)
 
-_Pendiente._
+| Entrega | Contenido | Revisión |
+|---|---|---|
+| E1 · Logout ✅ | AUD-33, 34, 35. `SessionHelper.Logout()` único (abandona las `InProgress` y, aunque falle, `Session.Abandon` + `SignOut` en un `finally`); `GuidedTest` atiende ⏻ antes de `LoadContext`; P-1 deja pasar Abandon; "Cerrar sesión" en `StartSession` (D-13). Build 0 warnings + `aspnet_compiler` OK; revisión de seguridad del diff sin hallazgos. Verificada por el usuario (2026-10-06). | `/security-review` |
+| E2 · Invariantes de la BLL | AUD-36, 37 | `/code-review medium` |
+| E3 · Página sin decisiones y consultas | AUD-38, 39 | `/code-review medium` |
+| E4 · Limpieza | AUD-41, 43, 44 | `/code-review medium` |
 
 ## Pasada final en el navegador (Fase D)
 

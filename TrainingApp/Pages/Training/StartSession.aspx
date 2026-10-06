@@ -45,6 +45,12 @@
 
             <asp:Button ID="BtnStart" runat="server" Text="Iniciar"
                 CssClass="btn btn-primary w-100" OnClick="BtnStart_Click" />
+
+            <%-- Salir sin cerrar el navegador (auditoría D-13): en una PC compartida el
+                 siguiente operador no debe entrenar con esta identidad. --%>
+            <asp:LinkButton ID="BtnLogout" runat="server" Text="Cerrar sesión"
+                CssClass="btn btn-link w-100 mt-2" CausesValidation="false"
+                OnClick="BtnLogout_Click" />
         </div>
     </div>
 </asp:Content>

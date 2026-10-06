@@ -134,14 +134,24 @@ namespace TrainingApp.Pages.Training
             // el valor posteado y el SFC elegido en Browse se perdería en cada postback.
             TxtSFC.Attributes["readonly"] = "readonly";
 
+            // El logout no depende de la sesión de entrenamiento (auditoría AUD-33): se atiende
+            // antes de cargar el contexto, que redirige a StartSession si la guía ya se
+            // completó o se abandonó (panel final, pestaña vieja tras D-9).
+            if (IsPostBack && IsPostBackFrom(BtnLogout))
+            {
+                SessionHelper.Logout();
+                return;
+            }
+
             _ctx = LoadContext();
             if (_ctx == null) return;
 
             // P-1 (spec 009): la Session se perdió y la BLL reconstruyó el estado del POD. El
             // click de este postback apuntaba a filas de la orden perdida: no se ejecuta (ni la
             // página ni los controles), para no contar como intento algo que el operador no
-            // hizo. Se recarga la página como un F5 y el operador repite el click.
-            if (IsPostBack && _ctx.Rebuilt)
+            // hizo. Se recarga la página como un F5 y el operador repite el click. Abandon no
+            // usa filas de la orden y sí se ejecuta (auditoría AUD-34).
+            if (IsPostBack && _ctx.Rebuilt && !IsPostBackFrom(BtnAbandon))
             {
                 Response.Redirect(Request.RawUrl);
                 return;
@@ -842,14 +852,17 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
+        // Page_Load atiende el logout antes de cargar el contexto (AUD-33), así que este
+        // handler no llega a correr; el botón lo necesita para que ASP.NET le genere el
+        // __doPostBack.
         protected void BtnLogout_ServerClick(object sender, EventArgs e)
         {
-            // Salir de la app abandona la sesión de entrenamiento en curso (spec 009, D-9).
-            new TrainingSessionService().AbandonAllActive(CurrentOperatorId);
-            Session.Abandon();
-            System.Web.Security.FormsAuthentication.SignOut();
-            Response.Redirect("~/Pages/Auth/Login.aspx");
+            SessionHelper.Logout();
         }
+
+        // Los botones HTML del POD (Logout, Abandon) postean con __doPostBack.
+        private bool IsPostBackFrom(Control control)
+            => Request.Form["__EVENTTARGET"] == control.UniqueID;
 
         // ── Completion panel ─────────────────────────────────────────────
         private void ShowCompletionPanel(TrainingSession session, Area area, TrainingGuide guide)

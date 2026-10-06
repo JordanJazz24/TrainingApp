@@ -1,6 +1,7 @@
 ﻿using System.Web;
 using System.Web.Security;
 using TrainingApp.BLL.Auth;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Shared;
 
@@ -57,6 +58,28 @@ namespace TrainingApp.Pages
             session[Constants.SessionKeys.Code1]        = op.Code1;
             session[Constants.SessionKeys.Name]         = op.Name;
             session[Constants.SessionKeys.IsFirstLogin] = op.IsFirstLogin;
+        }
+
+        /// <summary>
+        /// Cierra la sesión del operador y lo manda al login. Antes abandona sus sesiones de
+        /// entrenamiento en curso (spec 009, D-9); si eso falla, igual cierra la Session y el
+        /// login (auditoría AUD-35). No depende de la sesión de entrenamiento (AUD-33).
+        /// </summary>
+        public static void Logout()
+        {
+            var context = HttpContext.Current;
+            try
+            {
+                if (EnsureOperatorSession())
+                    new TrainingSessionService().AbandonAllActive(
+                        (int)context.Session[Constants.SessionKeys.OperatorId]);
+            }
+            finally
+            {
+                context.Session?.Abandon();
+                FormsAuthentication.SignOut();
+            }
+            context.Response.Redirect("~/Pages/Auth/Login.aspx");
         }
 
         /// <summary>

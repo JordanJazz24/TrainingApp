@@ -24,8 +24,9 @@ contexto se carga una vez por request, el estado del POD sigue en Session y se r
 si se pierde, y hay una sola sesión activa por operador. Detalle en `docs/specs/009-plan.md`.
 
 - **Ahora — Auditoría final antes de la 6.6 🔍.** Plan A-D aprobado por el usuario el
-  2026-10-06; en curso: **Fase A** (revisión, solo lectura). Plan, deuda a repasar,
-  hallazgos (AUD-33+) y decisiones (D-13+): `docs/audits/2026-10-06-auditoria-final.md`.
+  2026-10-06. Fase A ✅ (12 hallazgos AUD-33…44: 1 Medio, el logout; ninguna vulnerabilidad
+  nueva). Fase B ✅ (decisiones D-13 a D-16). En curso: **Fase C**, entregas E1 a E4. Todo en
+  `docs/audits/2026-10-06-auditoria-final.md`.
 - **Siguiente — 6.6 · Overlays guiados (spec 010).** Sin empezar las preguntas del `/spec`;
   la reformulación propuesta y la investigación están en "Fase 6.6", abajo.
 - **En paralelo — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de
@@ -80,7 +81,6 @@ lista para decidir qué se arregla ya y qué se difiere.
 
 - **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
   resuelto (`history.replaceState`). Riesgo aceptado.
-- **Start de NonSerialized** acepta cualquier SFC escrito (`docs/specs/009-plan.md`, E2).
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
 - **Fase 5 en pausa:** `ScoreCalculator` y `StepValidator` sin cobertura NUnit. La spec
   006 dejó los tests fuera de los criterios de aceptación. `PodService` crea sus
@@ -97,7 +97,7 @@ lista para decidir qué se arregla ya y qué se difiere.
 | Fecha | Archivo | Alcance | Estado |
 |---|---|---|---|
 | 2026-10-01 / 02 | `docs/audits/2026-10-01-auditoria.md` | Proyecto completo: AUD-01…32, D-1…D-12, entregas E1-E5 + spec 009 | ✅ (AUD-28/29 en la Fase 9) |
-| 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Cambio de la spec 009 + regresión completa en el navegador, antes de la 6.6 | 🔍 En curso (Fase A) |
+| 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Cambio de la spec 009 + regresión completa en el navegador, antes de la 6.6 | 🔍 En curso (Fase C) |
 
 ### Scripts de BD (`Database/StoredProcedures/`)
 
