@@ -90,7 +90,7 @@ conocen al validarla con negocio). Áreas en BD y sus flags:
 | Área | Origen | Flags |
 |---|---|---|
 | **Moldeo** (R&C) | catálogo real (`06_RCMoldeoCatalog.sql`, guía en `07`) | NonSerialized · Assembly no · DC sí · checklist de Start sí |
-| **LoFlo** (Sensores) | ejemplo en `05`; catálogo de la Fase 7 pendiente | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC sí · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
+| **LoFlo** (Sensores) | `08_SensoresLoFloCatalog.sql`, guía en `09` (Fase 7) | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC sí · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
 | **Redefinity** (Catéteres) | **datos de ejemplo** en `05` ("NO USAR EN PRODUCCIÓN"), para probar el camino Serialized en dev | Serialized · Assembly sí · DC sí (no son decisiones de negocio) |
 | **Subensamble 1** (Wires) | ejemplo en `05` | no son decisiones de negocio |
 
@@ -202,25 +202,25 @@ Cierre
 
 Cada paso tiene su peso en `TrainingSteps.Weight` (0.00-1.00) y `ScoreCalculator` usa ese
 valor. Los pesos de una guía **deben sumar 1.00**: el cálculo no normaliza (una guía que
-suma 0.90 nunca llega a 100%). Pesos actuales (verificados contra `05` y `07`, 2026-10-07):
+suma 0.90 nunca llega a 100%). Pesos actuales (verificados contra `05`, `07` y `09`, 2026-10-07):
 
 ```
-Paso                        Moldeo (07)   Redefinity (05, ejemplo)
-Resource Setup                 0.20          0.20
-Line Clearance (apertura)      0.05          0.05
-Search / Start                 0.15          0.05
-Assembly                        —            0.15
-Data Collection                0.30          0.30
-Line Clearance (cierre)        0.05          0.05
-SFC Split (NonSerialized)      0.05           —
-Log NC/Scrap                   0.10          0.10
-Complete                       0.10          0.10
-Total                          1.00          1.00
+Paso                        Moldeo (07)   LoFlo (09)   Redefinity (05, ejemplo)
+Resource Setup                 0.20         0.20          0.20
+Line Clearance (apertura)      0.05         0.05          0.05
+Search / Start                 0.15         0.05          0.05
+Assembly                        —           0.15          0.15
+Data Collection                0.30         0.30          0.30
+Line Clearance (cierre)        0.05         0.05          0.05
+SFC Split (NonSerialized)      0.05          —             —
+Log NC/Scrap                   0.10         0.10          0.10
+Complete                       0.10         0.10          0.10
+Total                          1.00         1.00          1.00
 ```
 
 En Moldeo, Search absorbe el peso de Assembly (que no tiene) menos el de SFC Split (que sí
-tiene). Una guía nueva (ej. LoFlo) define sus pesos en su script SQL y debe sumar 1.00
-(`spTrainingGuideSync` lo valida al cargarla).
+tiene). LoFlo tiene la forma de Redefinity y sus mismos pesos. Una guía nueva define sus
+pesos en su script SQL y debe sumar 1.00 (`spTrainingGuideSync` lo valida al cargarla).
 
 ### Catálogos en BD (nunca hardcodeados en código)
 
@@ -251,7 +251,7 @@ TrainingApp/                  Web Forms (.NET FW 4.7.2)
   Domain/                     POCOs puros
   Shared/                     Constants.cs, PasswordHelper.cs
 TrainingApp.Test/             NUnit 4: reglas de la BLL con datos en memoria
-Database/StoredProcedures/    00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
+Database/StoredProcedures/    00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
 ```
 
 Árbol completo con la responsabilidad de cada archivo: `docs/architecture.md`.
@@ -346,7 +346,7 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 
 - **Local:** abrir `TrainingApp.slnx` → crear `TrainingApp/connectionStrings.config` desde el
   `.example` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` en
-  orden numérico (`00`–`07`) → F5 con IIS Express.
+  orden numérico (`00`–`09`) → F5 con IIS Express.
 - **Tests:** unit tests de la BLL (servicios, scoring) con datos en memoria, sin BD. La
   integración del DAL, contra una BD de test dedicada (LocalDB); Testcontainers descartado.
   Las ASPX no se prueban.

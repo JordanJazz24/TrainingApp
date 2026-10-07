@@ -87,7 +87,7 @@ pida: él decidió dejarlos para fases propias.
 ## 6. Base de datos
 
 - La conexión MCP a SQL Server es de **solo lectura**: los scripts de
-  `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`; índice
+  `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`09`; índice
   en el encabezado de `00_Schema.sql`). Todos se pueden volver a correr sobre su BD.
 - Antes de entregarlos, probarlos en una BD descartable de LocalDB
   (`(localdb)\MSSQLLocalDB`, con `sqlcmd -I -f 65001`): instalación limpia, re-ejecución

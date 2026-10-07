@@ -83,7 +83,7 @@ MES Training Simulator/                    ← raíz del repositorio
 │   └── Web.config
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
 ├── Database/
-│   └── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
+│   └── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
 └── docs/                                  ← ver el mapa de documentos en CLAUDE.md
 ```
 

@@ -11,6 +11,8 @@
 --   05_SeedData.sql          DATOS DE EJEMPLO (solo desarrollo)
 --   06_RCMoldeoCatalog.sql   catálogo real de R&C / Moldeo
 --   07_RCMoldeoGuide.sql     guía real de R&C / Moldeo
+--   08_SensoresLoFloCatalog.sql  catálogo de Sensores / LoFlo (flags reales; NC, DC y BOM simulados)
+--   09_SensoresLoFloGuide.sql    guía de Sensores / LoFlo
 -- Todos se pueden volver a correr sobre una BD existente. Reglas para
 -- escribirlos (esquema, SPs, datos, áreas nuevas): docs/process.md →
 -- "Base de datos".

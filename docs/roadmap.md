@@ -15,16 +15,12 @@
 > auditoría.
 
 **Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` · **Último commit de
-código:** Fase 5, entrega 3; después, docs y scripts SQL (`git log --oneline -10` para ver el estado real)
+código:** Fase 7 (LoFlo) (`git log --oneline -10` para ver el estado real)
 
-- **Ahora — Fase 7 (LoFlo), desbloqueada.** Script SQL con el catálogo de LoFlo: solo datos,
-  cero código. Flags confirmados en `CLAUDE.md` → "Jerarquía"; DC, NC y BOM simulados. Los
-  pesos de su guía deben sumar 1.00 (`CLAUDE.md` → "Ponderación de pasos"); LoFlo tiene la
-  forma de Redefinity: con Assembly, sin SFC Split. La guía de Guided (6.6) la cubre sin
-  trabajo extra. Plantilla: `06`/`07`, con la guía cargada por `spTrainingGuideSync`
-  (`docs/process.md` → "Base de datos"). Alcance: "Fase 7", abajo.
-- **Después — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
-- **Lo último cerrado (2026-10-07):** la **Fase 5 · tests de `ScoreCalculator`**; después,
+- **Ahora — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
+- **Lo último cerrado (2026-10-07):** la **Fase 7 · catálogo de LoFlo** (`08`/`09`; NC, DC y
+  BOM simulados con marca `SIM`), probada por el usuario en el navegador. Antes, la
+  **Fase 5 · tests de `ScoreCalculator`**; después,
   sin fase, la **reorganización de la documentación** (cada regla en un solo lugar: mapa en
   `CLAUDE.md`, nuevos `docs/process.md` y `docs/architecture.md`; la memoria solo guarda lo
   que no va al repo) y la **limpieza de los scripts SQL** (corridos y probados por el
@@ -57,7 +53,7 @@ final (D-16) repasó esta lista.
 
 ### BD de desarrollo del usuario
 
-Al día con los scripts `00`–`07`. Una instalación limpia se arma con ellos en orden
+Al día con los scripts `00`–`09`. Una instalación limpia se arma con ellos en orden
 (verificado en LocalDB el 2026-09-25: idéntica a la BD de desarrollo). Últimos scripts que
 corrió el usuario:
 
@@ -68,9 +64,10 @@ corrió el usuario:
 | 2026-10-02 | `03`, después `03` y `04` | Auditoría E1 y E3: `spTrainingSessionAbandonActiveByOperator`; `spStepAttemptRecord` reemplaza a los SPs de intento, avance y cierre |
 | 2026-10-05 | `03` | Spec 009 E6: `spTrainingSessionAbandonActiveByOperator` sin `@TrainingGuideId` |
 | 2026-10-07 | `01`–`07` | Limpieza de scripts (2026-10-07): `CREATE OR ALTER`, catálogos como tablas de valores, transacciones, `spTrainingGuideSync` |
+| 2026-10-07 | `08`, `09` | Fase 7: catálogo y guía de LoFlo |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
-obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`), LoFlo provisoria y Subensamble 1.
+obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
 Limpieza del 2026-09-25: las migraciones (`08`–`11` y los ALTER de `06`) se integraron al
 esquema y se borraron. Cómo se entregan los cambios de esquema: `docs/process.md` → "Base de
 datos".
@@ -99,11 +96,11 @@ datos".
 | 6.5 · Fidelidad de UI/UX con el SAP MES real | ✅ | 2026-10-02 | `fase-6.5-plan.md` |
 | — · Auditoría + spec 009 (motor del POD) + auditoría final | ✅ | 2026-10-06 | `009-*.md`, `docs/audits/` |
 | 6.6 · Overlays guiados | ✅ | 2026-10-07 | `010-*.md` |
-| **7 · Catálogo de LoFlo** | ▶️ ahora | | |
-| 8 · Validación interna | pendiente | | |
+| 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
+| **8 · Validación interna** | ▶️ siguiente | | |
 | 9 · Deploy del MVP | pendiente | | |
 
-### Fase 7 — Catálogo de LoFlo (segunda área) ▶️
+### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
 código nuevo: valida que el motor es genérico y que `RequiresAssembly` y
 `RequiresDataCollection` funcionan con otra configuración.
@@ -116,6 +113,12 @@ sus pasos y pesos.
 (huecos de UI de Assembly) los resolvió la spec 008; el #3 (flags reales) lo resolvió negocio
 el 2026-10-07: todas las áreas de Sensores son Serialized con Assembly, DC y Component en NC,
 sin checklist de Start; DC Groups, parámetros, códigos NC y BOM se simulan por ahora.
+**Resultado (2026-10-07, plan directo):** `08_SensoresLoFloCatalog.sql` (flags reales; 6
+códigos NC, 3 DC Groups —2 obligatorios— con 6 parámetros y un BOM de 3 componentes, todo
+simulado y marcado `SIM` para retirarlo a mano cuando llegue el catálogo real) y
+`09_SensoresLoFloGuide.sql` (pesos de Redefinity). `05` dejó de tocar LoFlo. El motor resultó
+genérico: el único cambio de código fue un bug del markup (los campos numéricos de DC
+rechazaban decimales: `step="any"`). Probado en LocalDB y por el usuario en el navegador.
 
 ### Fase 8 — Validación interna
 **Objetivo:** sesión con trainer/operador real sobre R&C y LoFlo. Correcciones de UX, bugs de

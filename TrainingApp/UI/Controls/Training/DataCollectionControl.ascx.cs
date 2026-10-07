@@ -198,7 +198,11 @@ namespace TrainingApp.UI.Controls.Training
             var txt = new TextBox { CssClass = "mes-input dc-param-input" };
             txt.Attributes["data-paramid"] = param.Id.ToString();
             if (param.DataType == "Numeric")
+            {
                 txt.Attributes["type"] = "number";
+                // Sin step el navegador usa step=1 y rechaza decimales (ej. CO2 4.8–5.2 en LoFlo).
+                txt.Attributes["step"] = "any";
+            }
             else if (param.DataType == "Date")
                 txt.Attributes["type"] = "date";
             return txt;

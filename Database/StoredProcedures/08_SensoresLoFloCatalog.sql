@@ -1,0 +1,145 @@
+-- ============================================================
+-- 08_SensoresLoFloCatalog.sql — catálogo de Sensores / LoFlo:
+-- Product, Area (flags), NCCodes, DataCollectionGroups,
+-- DataCollectionParameters y AssemblyComponents. La guía está en
+-- 09_SensoresLoFloGuide.sql.
+-- Requiere: 00_Schema.sql.
+-- Re-ejecutable: sí. Este script es la fuente de verdad del catálogo
+-- de LoFlo: agrega lo que falta y actualiza lo que existe (no borra
+-- filas: los intentos y las sesiones pueden apuntar a ellas).
+--
+-- Fuente: flags confirmados con negocio el 2026-10-07 para todas las
+-- áreas de Sensores. Los códigos NC, los DC Groups con sus parámetros
+-- y el BOM son SIMULADOS (marcados con SIM): cuando llegue el catálogo
+-- real, las filas simuladas no se borran solas (el script no borra);
+-- se retiran a mano si ninguna sesión las usa.
+-- ============================================================
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+
+-- ------------------------------------------------------------
+-- Product y Area
+--   SerializationType      0 = Serialized (varios SFC por orden)
+--   RequiresAssembly       1
+--   RequiresDataCollection 1
+--   RequiresNCComponent    1 — NC Data Entry pide Component
+--   RequiresStartChecklist 0 — Start directo
+-- ------------------------------------------------------------
+IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = N'Sensores')
+    INSERT INTO dbo.Products (Name) VALUES (N'Sensores');
+
+DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = N'Sensores');
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Areas WHERE ProductId = @ProductId AND Name = N'LoFlo')
+    INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
+                           RequiresDataCollection, RequiresNCComponent, RequiresStartChecklist)
+    VALUES (@ProductId, N'LoFlo', 0, 1, 1, 1, 0);
+ELSE
+    UPDATE dbo.Areas
+    SET    SerializationType = 0, RequiresAssembly = 1, RequiresDataCollection = 1,
+           RequiresNCComponent = 1, RequiresStartChecklist = 0
+    WHERE  ProductId = @ProductId AND Name = N'LoFlo';
+
+DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE ProductId = @ProductId AND Name = N'LoFlo');
+
+-- ------------------------------------------------------------
+-- NCCodes — SIMULADOS (prefijo SIM_).
+-- ------------------------------------------------------------
+DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200));
+INSERT INTO @Nc (Code, Description) VALUES
+    (N'SIM_FS_FUGA',          N'Fuga en la línea de muestreo'),
+    (N'SIM_FS_FLUJO',         N'Flujo de muestreo fuera de especificación'),
+    (N'SIM_FS_LECTURA_CO2',   N'Lectura de CO2 fuera de especificación'),
+    (N'SIM_FS_CONECTOR',      N'Conector dañado'),
+    (N'SIM_FS_CONTAMINACION', N'Contaminación del módulo'),
+    (N'SIM_FS_ELECT_FAIL',    N'Fallo eléctrico');
+
+UPDATE t SET Description = s.Description
+FROM   dbo.NCCodes t JOIN @Nc s ON s.Code = t.Code
+WHERE  t.AreaId = @AreaId;
+
+INSERT INTO dbo.NCCodes (AreaId, Code, Description)
+SELECT @AreaId, s.Code, s.Description
+FROM   @Nc s
+WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
+ORDER  BY s.Seq;
+
+-- ------------------------------------------------------------
+-- DataCollectionGroups — SIMULADOS. 2 obligatorios + 1 opcional: la
+-- pieza completa DC al guardar los dos obligatorios.
+-- ------------------------------------------------------------
+DECLARE @Grp TABLE (Seq INT IDENTITY, Code NVARCHAR(100), Description NVARCHAR(200),
+                    CollectDataAt NVARCHAR(50), IsRequired BIT, DisplayOrder INT);
+INSERT INTO @Grp (Code, Description, CollectDataAt, IsRequired, DisplayOrder) VALUES
+    (N'DCGTM_SIM_LOFLO_EQUIPO/A',         N'Verificación del equipo de prueba', 'Pre-Start',  1, 1),
+    (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'Prueba funcional del módulo',       'Post-Start', 1, 2),
+    (N'DCGTM_SIM_CONDICIONES_AMBIENTE/A', N'Condiciones de ambiente',           'Anytime',    0, 3);
+
+UPDATE t
+SET    Description = s.Description, CollectDataAt = s.CollectDataAt,
+       IsRequired = s.IsRequired, DisplayOrder = s.DisplayOrder
+FROM   dbo.DataCollectionGroups t JOIN @Grp s ON s.Code = t.Code
+WHERE  t.AreaId = @AreaId;
+
+INSERT INTO dbo.DataCollectionGroups (AreaId, OperationId, Code, Description, CollectDataAt, IsRequired, DisplayOrder)
+SELECT @AreaId, NULL, s.Code, s.Description, s.CollectDataAt, s.IsRequired, s.DisplayOrder
+FROM   @Grp s
+WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionGroups t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
+ORDER  BY s.Seq;
+
+-- ------------------------------------------------------------
+-- DataCollectionParameters — SIMULADOS, cada uno en su grupo. Cubren
+-- los 3 tipos (Numeric con rango, Boolean, Date).
+-- ------------------------------------------------------------
+DECLARE @Prm TABLE (Seq INT IDENTITY, GroupCode NVARCHAR(100), Name NVARCHAR(200), Description NVARCHAR(200),
+                    DataType NVARCHAR(20), Unit NVARCHAR(50), MinValue DECIMAL(10,4), MaxValue DECIMAL(10,4),
+                    DisplayOrder INT);
+INSERT INTO @Prm (GroupCode, Name, Description, DataType, Unit, MinValue, MaxValue, DisplayOrder) VALUES
+    (N'DCGTM_SIM_LOFLO_EQUIPO/A',         N'Fecha de vencimiento de calibración', N'Fecha de calibración del equipo de prueba', 'Date',    'MM/DD/AA', NULL, NULL, 1),
+    (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'Flujo de muestreo',                   N'Sample flow rate',                         'Numeric', 'mL/min',   45,   55,   2),
+    (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'Lectura de CO2 con gas de calibración', N'CO2 reading (5% cal gas)',              'Numeric', '%',        4.8,  5.2,  3),
+    (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'¿Prueba de fugas aprobada?',          N'Leak test',                                'Boolean', 'N/A',      NULL, NULL, 4),
+    (N'DCGTM_SIM_CONDICIONES_AMBIENTE/A', N'Temperatura ambiente',                N'Room temperature',                         'Numeric', N'°C',      18,   28,   5),
+    (N'DCGTM_SIM_CONDICIONES_AMBIENTE/A', N'Humedad relativa',                    N'Relative humidity',                        'Numeric', '%',        30,   60,   6);
+
+UPDATE t
+SET    DataCollectionGroupId = g.Id, Description = s.Description, DataType = s.DataType, Unit = s.Unit,
+       MinValue = s.MinValue, MaxValue = s.MaxValue, DisplayOrder = s.DisplayOrder
+FROM   dbo.DataCollectionParameters t
+JOIN   @Prm s ON s.Name = t.Name
+JOIN   dbo.DataCollectionGroups g ON g.AreaId = @AreaId AND g.Code = s.GroupCode
+WHERE  t.AreaId = @AreaId;
+
+INSERT INTO dbo.DataCollectionParameters (AreaId, OperationId, DataCollectionGroupId, Name, Description,
+                                          DataType, Unit, MinValue, MaxValue, DisplayOrder)
+SELECT @AreaId, NULL, g.Id, s.Name, s.Description, s.DataType, s.Unit, s.MinValue, s.MaxValue, s.DisplayOrder
+FROM   @Prm s
+JOIN   dbo.DataCollectionGroups g ON g.AreaId = @AreaId AND g.Code = s.GroupCode
+WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters t WHERE t.AreaId = @AreaId AND t.Name = s.Name)
+ORDER  BY s.Seq;
+
+-- ------------------------------------------------------------
+-- AssemblyComponents — BOM SIMULADO (prefijo SIM-). Uno con Qty
+-- decimal (tubo por longitud).
+-- ------------------------------------------------------------
+DECLARE @Bom TABLE (Seq INT IDENTITY, PartNumber NVARCHAR(50), Revision NVARCHAR(10),
+                    Description NVARCHAR(200), Qty DECIMAL(18,6), DisplayOrder INT);
+INSERT INTO @Bom (PartNumber, Revision, Description, Qty, DisplayOrder) VALUES
+    (N'SIM-200001', N'A', N'MÓDULO LOFLO SIMULADO',          1,    1),
+    (N'SIM-200002', N'A', N'SENSOR DE CO2 SIMULADO',         1,    2),
+    (N'SIM-200003', N'A', N'TUBO DE MUESTREO SIMULADO (M)',  0.25, 3);
+
+UPDATE t SET Description = s.Description, Qty = s.Qty, DisplayOrder = s.DisplayOrder
+FROM   dbo.AssemblyComponents t JOIN @Bom s ON s.PartNumber = t.PartNumber AND s.Revision = t.Revision
+WHERE  t.AreaId = @AreaId;
+
+INSERT INTO dbo.AssemblyComponents (AreaId, OperationId, PartNumber, Revision, Description, Qty, DisplayOrder)
+SELECT @AreaId, NULL, s.PartNumber, s.Revision, s.Description, s.Qty, s.DisplayOrder
+FROM   @Bom s
+WHERE  NOT EXISTS (SELECT 1 FROM dbo.AssemblyComponents t
+                   WHERE t.AreaId = @AreaId AND t.PartNumber = s.PartNumber AND t.Revision = s.Revision)
+ORDER  BY s.Seq;
+
+COMMIT TRANSACTION;
+PRINT N'Catálogo de Sensores / LoFlo cargado.';
