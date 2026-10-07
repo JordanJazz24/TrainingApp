@@ -1,493 +1,262 @@
 # Roadmap — MESTrainingSimulator
 
-> Historial de fases. El resumen operativo (fase actual + siguiente) vive en `CLAUDE.md` →
-> sección Roadmap. Las auditorías tienen su propio archivo en `docs/audits/` y las specs y
-> sus planes en `docs/specs/`; aquí solo se referencian.
-
-Cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la
-causa principal de deuda técnica temprana es que features de fases futuras
-se filtran en fases anteriores.
+> **Estado e historial.** Las reglas vigentes están en `CLAUDE.md`, el proceso de trabajo en
+> `docs/process.md` y los mecanismos en `docs/architecture.md`. Specs y auditorías tienen sus
+> propios archivos (`docs/specs/`, `docs/audits/`); aquí solo se referencian. Las secciones
+> de cada fase describen lo que se hizo **en su momento**: si contradicen a `CLAUDE.md`,
+> manda `CLAUDE.md`.
 
 ---
 
 ## 📍 Estado actual — dónde quedamos
 
-> **Leer esta sección al iniciar cada sesión.** Actualizarla al cerrar una fase o
-> una sesión de trabajo relevante. Mantenerla corta: el detalle va en la sección de la
-> fase, en la spec o en el archivo de la auditoría.
+> Leer al iniciar cada sesión. Actualizar al cerrar una entrega, una fase o una sesión de
+> trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
+> auditoría.
 
-**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** Fase 5, entrega 3 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` · **Último commit de
+código:** Fase 5, entrega 3 (`git log --oneline -10` para ver el estado real)
 
-**Lo último cerrado:** la **Fase 5 · ScoreCalculator: cobertura de tests** (2026-10-07,
-3 entregas, sin spec: `docs/specs/fase-5-plan.md`). `TrainingApp.Test/ScoreCalculatorTests.cs`
-cubre todas las ramas de `ScoreCalculator`, las guías reales de Moldeo y Redefinity, el
-límite de aprobación y un barrido de las 65 536 combinaciones de cada guía. El código
-cumplía todas las reglas: no hubo cambios al algoritmo. De paso, los pesos de
-`CLAUDE.md` se alinearon con la BD (manda la BD; los pesos de una guía suman 1.00).
-
-**Antes:** la **Fase 6.6 · Overlays guiados** (spec 010, 2026-10-07): en
-Guided, una guía visual lleva al operador clic por clic por los 9 pasos del flujo (y un
-globo final), solo deja avanzar con la respuesta correcta (R10) y no se puede cerrar; en
-Assessment no existe. Solo presentación: sin cambios de BLL, DAL ni BD. 5 entregas + E2b,
-todas verificadas por el usuario, más la regresión completa (E5). De paso se corrigió el
-POD: en Serialized vuelve sin selección tras Start, Assembly y DC, como el MES real.
-Detalle: `docs/specs/010-overlays-guiados.md` y `010-plan.md`. Antes: la auditoría final
-(2026-10-06).
-
-**Arreglo de rendimiento del arranque (2026-10-07, sin spec):** `optimizeCompilations` en
-`Web.config` (Login tras un rebuild: de ~4 s a ~1,7 s), la lista de empleados se precarga al
-arrancar y se refresca en segundo plano (ningún login espera a la API; timeout de 10 s y
-una sola descarga a la vez), y `/bundles` y `/Content` quedan accesibles sin login (Login y
-ChangePassword recibían el HTML del Login en vez de sus JS). La re-hidratación de la Session
-ya era barata (una consulta). Pendiente para la Fase 9: el arranque en frío en IIS (abajo).
-
-- **Ahora — Fase 7 (LoFlo), desbloqueada:** el #3 se resolvió (2026-10-07). Todas las
-  áreas de Sensores son Serialized, con Assembly, Data Collection y Component en NC; sin
-  checklist de Start (era propio de Moldeo). DC Groups, parámetros, códigos NC y BOM se
-  simulan por ahora. La guía de la 6.6 la cubre sin trabajo extra. Los pesos de su guía
-  deben sumar 1.00 (`CLAUDE.md` → "Ponderación de pasos"; LoFlo tiene la forma de
-  Redefinity: con Assembly, sin SFC Split).
-- **Fase 8 (validación interna):** en su momento, por decisión del usuario.
+- **Ahora — Fase 7 (LoFlo), desbloqueada.** Script SQL con el catálogo de LoFlo: solo datos,
+  cero código. Flags confirmados en `CLAUDE.md` → "Jerarquía"; DC, NC y BOM simulados. Los
+  pesos de su guía deben sumar 1.00 (`CLAUDE.md` → "Ponderación de pasos"); LoFlo tiene la
+  forma de Redefinity: con Assembly, sin SFC Split. La guía de Guided (6.6) la cubre sin
+  trabajo extra. Alcance: "Fase 7", abajo.
+- **Después — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
+- **Lo último cerrado:** la **Fase 5 · tests de `ScoreCalculator`** (2026-10-07). Antes, la
+  6.6 (overlays guiados) y un arreglo de rendimiento del arranque (ver "Historial").
 - **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
-  sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (#8). Complete no
-  tiene pantalla en el MES real (#16 no aplica) y las capturas de banners no hacen falta
-  por ahora. El detalle por paso en el resumen final se verá en su momento.
+  sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (inventario #8).
+  El detalle por paso en el resumen final se verá en su momento.
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
   `connectionStrings.config`.
 
-### Cómo retomar en una sesión nueva
-1. Leer esta sección y `git log --oneline -10` (branch `TrainingApp`; no hay push pendiente
-   de pedir: el usuario hace push cuando quiere). **Ramas:** `TrainingApp` es la de
-   desarrollo; a `main` el usuario sube los cambios finales (no tocar `main`, D-5). Un
-   trabajo de varias entregas puede ir en una rama aparte que se integra a `TrainingApp`
-   con `git merge --ff-only` cuando el usuario lo pide. Worktrees solo si hacen falta,
-   creados a mano desde `TrainingApp` (memoria `project-branches-worktrees`: junction a
-   `packages`, copiar `connectionStrings.config`); al terminar se integran y se borran.
-2. Estado de la BD de desarrollo del usuario: en "Scripts de BD", abajo.
-3. **Proceso acordado:**
-   - Funcionalidad o reglas de negocio nuevas → `/spec` → aprobación explícita → `/plan`
-     (guardado en `docs/specs/NNN-plan.md`, en entregas chicas) → implementación.
-   - Bugs, robustez y cambios con pocas decisiones acotadas → plan directo en el chat,
-     con una ronda de preguntas si hace falta (así se hicieron el arreglo de F5, S1 y S2).
-   - Cada entrega: rebuild + `aspnet_compiler` + tests (`CLAUDE.md` → "Build y
-     validación") → checklist → el usuario prueba en el navegador → commit.
-   - **`/code-review` calibrado (pedido del usuario, 2026-10-06):** siempre con nivel,
-     archivos y foco; nunca sin argumentos. Solo markup/textos o un ajuste chico pedido al
-     probar → sin review; lógica chica sobre una base revisada → `low --max-findings 5`
-     solo sobre los archivos con lógica; lógica nueva o infraestructura → `medium` con
-     foco; seguridad, auth o Session → `high` o `/security-review`. Decirle en una línea
-     qué nivel y qué archivos y por qué. Verificar cada hallazgo contra el código antes de
-     aplicarlo (en la spec 010 varios fueron falsos positivos).
-   - Enmiendas de una spec aprobada (ej. R10/R11 de la spec 010): primero la enmienda
-     fechada en la spec, después el código.
-   - **Proceso de una auditoría** (funcionó bien en E1-E5): Fase A solo lectura → Fase B
-     lista única en su archivo de `docs/audits/` → Fase C entregas: implementar →
-     `/dotnet-claude-kit:verify` con MSBuild Rebuild y `aspnet_compiler` (no `dotnet build`
-     ni `dotnet test`) → `/code-review` sobre el diff, o `/security-review` si toca auth o
-     Session → aplicar lo válido y justificar lo que no → checklist en el navegador → el
-     usuario confirma ("funciona") → commit que incluye el roadmap y el archivo de la
-     auditoría actualizados. Las decisiones abiertas se le preguntan juntas antes de
-     implementar (D-n, numeración continua entre auditorías) y se anotan en ese archivo.
-4. Pantallas: replicar el SAP MES real. Las capturas de referencia que aporta el usuario
-   están en `C:\Users\320313439\Pictures\TrainingApp\` y lo ya documentado en
-   `docs/ui-reference/` (`general-flow.md` + un archivo por área). Estado de cada pantalla
-   frente a su captura: `docs/ui-reference/inventario-pantallas.md` (Fase 6.5).
+### Deuda y riesgos conocidos
 
-### Bloqueantes antes de la Fase 7 (LoFlo)
+Solo lo abierto; lo resuelto queda en la auditoría o la spec que lo cerró. La auditoría
+final (D-16) repasó esta lista.
 
-| # | Tema | Por qué bloquea | Estado |
-|---|---|---|---|
-| 1 | **Start de Serialized**: una fila por pieza con SFC propio, txtSFC por selección, multi-selección en el POD | LoFlo es Serialized | ✅ Resuelto (spec 008, entrega 2) |
-| 2 | **Assembly no puede completarse** (`ExpectedComponentCount` nulo, `ExpectedCount = 3` hardcodeado) | LoFlo tiene Assembly según CLAUDE.md | ✅ Resuelto (spec 008, entrega 3): Assembly rediseñado con el BOM; `ExpectedComponentCount` eliminado |
-| 3 | **Flags reales de LoFlo a confirmar con negocio**: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresNCComponent` (1 provisorio, spec 007), `RequiresDataCollection` ("variable" según CLAUDE.md) | Sin esto el catálogo de la Fase 7 no se puede escribir | ✅ Resuelto (2026-10-07): Sensores = Serialized, Assembly, DC y Component en NC; sin checklist de Start; DC, NC y BOM simulados |
-| 4 | **Huecos de UI de Assembly**: la X del Component List y Return to POD vacíos | Se ejercitan por primera vez con LoFlo | ✅ Resuelto (spec 008, entrega 3) |
-
-### Deuda y riesgos conocidos (no bloquean la Fase 7)
-
-Solo lo abierto. Lo resuelto queda registrado en la auditoría o la spec que lo cerró. La
-auditoría final (2026-10-06, D-16) repasó esta lista: lo que sigue aquí quedó diferido o
-aceptado, y se sumaron AUD-40 y AUD-42 (diferidos).
-
-- **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
-  resuelto (`history.replaceState`). Riesgo aceptado.
+- **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).
+  Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
-- **Cobertura de tests:** `ScoreCalculator` está cubierto (Fase 5). `StepValidator` tiene
-  cobertura parcial. `PodService` crea sus repositorios internamente, así que lo que hace
-  alrededor del puntaje (registrar el intento, avance forzado, guardar `FinalScore`) no se
-  puede probar sin BD; se probó en el navegador (spec 009, auditoría final). Si se quiere
-  cubrir, sería otra fase (interfaces de repositorio o integración contra LocalDB).
-- **`CompleteControl`** está declarado e implementa `IStepControl`, pero no tiene UI:
-  Complete se resuelve directo desde `BtnComplete`. Desde E5 su evento tiene accessors
-  vacíos (como DC y Assembly).
+- **Cobertura de tests:** `ScoreCalculator` cubierto (Fase 5); `StepValidator` con cobertura
+  parcial. `PodService` crea sus repositorios internamente, así que lo que hace alrededor
+  del puntaje (registrar el intento, avance forzado, guardar `FinalScore`) no se puede probar
+  sin BD; se probó en el navegador (spec 009, auditoría final). Cubrirlo sería otra fase
+  (interfaces de repositorio o integración contra LocalDB).
+- **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
-  (spec 007), hasta que lo pida un instructor o la Fase 8.
+  (spec 007) hasta que lo pida un instructor o la Fase 8.
 - **AUD-28/29** (endurecimiento del deploy y paquetes): en la Fase 9 (D-7).
-- **AUD-40** (`PodState` mutable desde fuera de `PodService`, solo convención) y **AUD-42**
-  (orden no reproducible: tras reconstruir en Serialized pueden cambiar las piezas):
-  diferidos (D-16).
+- **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
+  reconstruir en Serialized): diferidos (D-16).
+
+### BD de desarrollo del usuario
+
+Al día con los scripts `00`–`07`. Una instalación limpia se arma con ellos en orden
+(verificado en LocalDB el 2026-09-25: idéntica a la BD de desarrollo). Últimos scripts que
+corrió el usuario:
+
+| Fecha | Qué corrió | Por qué |
+|---|---|---|
+| 2026-09-28 | ALTER de la spec 008 | Esquema Serialized (grupos DC, BOM, `RequiresStartChecklist`) |
+| 2026-10-01 | ALTER + `02`, `05`, `06` | Columna `DataCollectionParameters.Description` (Fase 6.5, E8) |
+| 2026-10-02 | `03`, después `03` y `04` | Auditoría E1 y E3: `spTrainingSessionAbandonActiveByOperator`; `spStepAttemptRecord` reemplaza a los SPs de intento, avance y cierre |
+| 2026-10-05 | `03` | Spec 009 E6: `spTrainingSessionAbandonActiveByOperator` sin `@TrainingGuideId` |
+
+`05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
+obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`), LoFlo provisoria y Subensamble 1.
+Limpieza del 2026-09-25: las migraciones (`08`–`11` y los ALTER de `06`) se integraron al
+esquema y se borraron. Cómo se entregan los cambios de esquema: `docs/process.md` → "Base de
+datos".
 
 ### Auditorías
 
 | Fecha | Archivo | Alcance | Estado |
 |---|---|---|---|
 | 2026-10-01 / 02 | `docs/audits/2026-10-01-auditoria.md` | Proyecto completo: AUD-01…32, D-1…D-12, entregas E1-E5 + spec 009 | ✅ (AUD-28/29 en la Fase 9) |
-| 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Cambio de la spec 009 + regresión completa en el navegador, antes de la 6.6 | ✅ (cerrada 2026-10-06; AUD-40/42 diferidos) |
-
-### Scripts de BD (`Database/StoredProcedures/`)
-
-- **Limpieza 2026-09-25:** las migraciones (`08`–`11` y los ALTER de `06`) se
-  integraron al esquema original y se borraron. Quedan 8 scripts definitivos, que se
-  ejecutan en orden numérico (`00` tablas → `01`–`04` SPs → `05` datos de ejemplo →
-  `06`–`07` catálogo y guía reales de R&C/Moldeo). Instalación limpia y re-ejecución
-  verificadas en LocalDB; el resultado es idéntico a la BD de desarrollo.
-- `05_SeedData.sql` — **solo dev**: áreas de ejemplo (Redefinity, LoFlo provisoria,
-  Subensamble 1) y la guía publicada de Redefinity (Serialized, con Assembly), con 2 DC
-  Groups obligatorios + 1 opcional y un BOM simulado (`SIM-100001`, `SIM-100002`) para
-  probar el camino Serialized de punta a punta (spec 008).
-- Los cambios de esquema futuros se escriben directo en `00_Schema.sql`; el `ALTER`
-  para la BD existente se le entrega al usuario aparte y no se guarda como script.
-- **Estado de la BD de desarrollo del usuario:** ya tiene el esquema de la spec 008 (ALTER
-  entregado y corrido el 2026-09-28) y la columna `DataCollectionParameters.Description`
-  (Fase 6.5, entrega 8: ALTER + `02`, `05` y `06` corridos el 2026-10-01). Una instalación
-  limpia se arma con los scripts `00`–`07` en orden. Auditoría E1 (2026-10-02): el usuario
-  corrió `03` (`spTrainingSessionDeleteActiveByOperator` →
-  `spTrainingSessionAbandonActiveByOperator`). Auditoría E2: la cadena de conexión vive en
-  `TrainingApp/connectionStrings.config` (no se versiona); en un checkout nuevo se copia de
-  `connectionStrings.config.example`. Auditoría E3: el usuario corrió `03` y `04`
-  (`spStepAttemptRecord` reemplaza a `spStepAttemptInsert`,
-  `spStepAttemptGetBySessionAndStep`, `spTrainingSessionUpdateStep` y
-  `spTrainingSessionComplete`; `spTrainingSessionAbandon` ya no pisa sesiones completadas).
-  Spec 009, entrega 6: el usuario corrió `03` (`spTrainingSessionAbandonActiveByOperator`
-  sin `@TrainingGuideId`).
-
-### Fase 0 — Setup ✅ (completada)
-**Objetivo:** Proyecto Web Forms creado, N-Tier scaffolded, build verde.
-**No incluye:** lógica de negocio, UI funcional, datos reales.
+| 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Spec 009 + regresión completa en el navegador, antes de la 6.6: AUD-33…44, D-13…D-16 | ✅ (AUD-40/42 diferidos) |
 
 ---
 
-### Fase 1 — Auth ✅ (completada)
-**Objetivo:** Login.aspx + ChangePassword.aspx funcionales, flujo completo
-de primer acceso (API de empleados → Operator local → PBKDF2 → FormsAuth).
-**No incluye:** Dashboard, GuidedTest, catálogo de áreas, ningún paso de entrenamiento.
+## Fases
 
----
+| Fase | Estado | Cierre | Spec / plan |
+|---|---|---|---|
+| 0 · Setup | ✅ | — | — |
+| 1 · Auth | ✅ | — | — |
+| 2 · Dominio y catálogo de R&C | ✅ | — | `002-rc-moldeo-catalog.md` |
+| 3 · Motor de TrainingGuide | ✅ | — | — |
+| 4 · TrainingSession y modos | ✅ | — | `003-training-session-y-modos.md` |
+| 5 · ScoreCalculator: cobertura de tests | ✅ | 2026-10-07 | `fase-5-plan.md` |
+| 6 · UserControls por tipo de paso | ✅ | 2026-09-24 | `004`, `005`, `006`, `007` |
+| — · Ajustes tras la 6 (S1/S2) y spec 008 (Serialized) | ✅ | 2026-09-28 | `008-*.md` |
+| 6.5 · Fidelidad de UI/UX con el SAP MES real | ✅ | 2026-10-02 | `fase-6.5-plan.md` |
+| — · Auditoría + spec 009 (motor del POD) + auditoría final | ✅ | 2026-10-06 | `009-*.md`, `docs/audits/` |
+| 6.6 · Overlays guiados | ✅ | 2026-10-07 | `010-*.md` |
+| **7 · Catálogo de LoFlo** | ▶️ ahora | | |
+| 8 · Validación interna | pendiente | | |
+| 9 · Deploy del MVP | pendiente | | |
 
-### Fase 2 — Dominio y catálogo de R&C ✅ (completada)
-**Objetivo:** Auditoría del legacy de R&C + script SQL con el catálogo real:
-`Products` (R&C), `Areas` (Moldeo, NonSerialized, RequiresAssembly=false,
-RequiresDataCollection=true), `NCCodes` (30 códigos), `DataCollectionParameters`
-(15 parámetros: ID molde + 10 params MSS + verificación MSS + fecha kerosene +
-2 first-shot). Catálogo en `06_RCMoldeoCatalog.sql`.
-ExpectedComponentCount: N/A (RequiresAssembly=false).
-`DataCollectionParameters` schema evolucionado: columnas `DataType`, `DisplayOrder`
-añadidas; `MinValue`/`MaxValue` son ahora nullable (rangos pendientes de MSS D000281359).
-**No incluye:** UI, motor de validación de pasos, TrainingGuideService,
-ninguna pantalla de entrenamiento.
-
----
-
-### Fase 3 — Motor de TrainingGuide ✅ (completada)
-**Objetivo:** `TrainingGuideRepository` (dual result set puebla `Steps`),
-`TrainingGuideService` con `BuildValidatorForGuide`, `StepValidator` completo
-con constructor injection de `StepValidationContext` (Area + NCCodes + DCParams).
-Validación implementada para todos los StepTypes: DataCollection (JSON por
-param Id, tipado por DataType con InvariantCulture), LogNC (lookup en catálogo),
-Assembly (count vs ExpectedComponentCount), LineClearance ("true"), pasos de
-secuencia siempre true.
-Nuevos repositorios: `AreaRepository`, `NCCodeRepository`,
-`DataCollectionParameterRepository`. Nuevos SPs: `spAreaGetById`,
-`spNCCodeGetByArea`, `spDataCollectionParameterGetByArea`.
-Guía real de R&C/Moldeo publicada en `07_RCMoldeoGuide.sql` (8 pasos, pesos
-suman 1.00; Search hereda peso 0.15 de Assembly ausente; 3 LC instancias con
-pesos 0.04/0.03/0.03).
-LC Moldeo modelada como paso LineClearance en el guide seed (step 4, weight 0.03);
-la validación es idéntica al LC estándar — el contenido hardcodeado de sus 3
-preguntas es responsabilidad de la UI (Fase 6).
-`DataCollectionParameter` POCO evolucionado: añadidos `DataType`, `DisplayOrder`,
-`MinValue`/`MaxValue` como `decimal?`.
-Tests NUnit diferidos a Fase 5 (cobertura de ScoreCalculator y StepValidator).
-**No incluye:** TrainingSession con gate-keeping real, persistencia de intentos
-optimizada, UI, ScoreCalculator tests.
-
----
-
-### Fase 4 — TrainingSession y modos ✅ (completada)
-**Objetivo:** `TrainingSessionService` extendido con gate-keeping real Guided vs.
-Assessment, `MemoryCache` de validator keyed por `AreaId` (TTL 60 min), método
-`Abandon`, score en tiempo real (`CurrentScore` en `StepSubmitResult`).
-`TrainingSessionRepository` extendido: `Abandon` + `DeleteActiveByOperator`.
-Nuevos SPs: `spTrainingSessionAbandon`, `spTrainingSessionDeleteActiveByOperator`,
-`spProductGetAll`, `spAreaGetByProduct`.
-`ProductRepository` nuevo; `AreaRepository` extendido con `GetByProduct`.
-`TrainingGuideService` extendido con `GetAllProducts` y `GetAreasByProduct`.
-`StartSession.aspx` — selección Product → Area → Guide → Mode, inicia sesión.
-`GuidedTest.aspx` — input genérico por paso, feedback + hint hardcodeado por
-`StepType`, score en vivo, abandon con confirm JS, panel de completion.
-Login redirige a `StartSession.aspx` tras autenticación exitosa.
-Spec de referencia: `docs/specs/003-training-session-y-modos.md` (Approved 2026-09-04).
-**No incluye:** UserControls por tipo de paso, ScoreCalculator tests, LoFlo.
-
----
-
-### Fase 5 — ScoreCalculator: cobertura de tests ✅ (completada 2026-10-07; decisión del usuario: antes de la 7 y la 8)
-**Objetivo:** `ScoreCalculator` ya está implementado. Esta fase lo blinda
-con tests NUnit exhaustivos: todos los casos de penalización, force-advance,
-pasos opcionales ausentes, sesiones completadas vs. abandonadas.
-Es el componente más sensible del sistema — debe tener cobertura total
-antes de que usuarios reales generen puntajes.
-**No incluye:** nuevas features, cambios al algoritmo.
-**Punto de partida (2026-10-07):**
-- `BLL/Scoring/ScoreCalculator.cs`: `CalculateSessionScore(...)`, `GetPenaltyFactor(intento,
-  modo)`, `ShouldForceAdvance(intento, modo)`, `IsPassed(puntaje)`, `PassingScore = 0.70`,
-  `MaxScoredAttempts = 3`. Reglas en `CLAUDE.md` → "Modos de sesión" y "Ponderación de
-  pasos" (Guided sin penalización; Assessment 1.0 / 0.8 / 0.6 / 0 con avance forzado).
-- `TrainingApp.Test/` (NUnit 4.6.1 + NUnit3TestAdapter, referencia al proyecto web): hoy un
-  solo archivo, `Class1.cs`, con tests de `StepValidator`, Start sin checklist,
-  `SerialSfcGenerator`, `PieceSelectionRule` y `AssemblyProgress`. Nada de `ScoreCalculator`.
-- Correr: compilar `TrainingApp.Test` y `vstest.console.exe` (`CLAUDE.md` → "Build y
-  validación", paso 3). En esta fase los tests sí son el criterio de aceptación.
-
----
-
-### Fase 6 — UserControls por tipo de paso ✅ (completada 2026-09-24)
-**Objetivo:** UserControls `.ascx` reutilizables para cada `StepType`:
-`ResourceSetup`, `LineClearance`, `SearchOrder`, `Assembly`,
-`DataCollection`, `NCScrap`, `Complete`. Cada control recibe el estado
-del servidor y emite un submit — sin lógica de negocio interna.
-**No incluye:** catálogo de LoFlo, nuevas áreas.
-
-**Specs:**
-- `004-fase6-dashboard-usercontrols.md` (Approved 2026-09-09): POD, botonera y contrato de UserControls.
-- `005-pod-orden-dinamica.md` (Approved 2026-09-24, de forma retroactiva): orden simulada en Session creada
-  por Resource Setup; SFC Split como paso propio (StepType 5); DC agrupado por DC Group
-  (columnas `DCGroup`/`GroupDescription`/`CollectDataAt`, hoy en `00_Schema.sql`).
-- `006-controles-de-paso-estaticos.md` (Approved 2026-09-22).
-- `007-cierre-flujo-lognc-complete.md` (Approved 2026-09-24).
-
-**Decisiones de arquitectura cerradas — no reabrir sin spec:**
-- **Controles de paso estáticos (spec 006).** Los 8 controles están declarados en
-  `GuidedTest.aspx` y se alterna `Visible`. **Prohibido volver a `LoadControl`
-  dinámico**: generó cuatro bugs de ViewState en una sola sesión. Confirmado con
-  negocio: los admins no crean tipos de paso desde la UI y un `StepType` no tiene UIs
-  estructuralmente distintas por Area. Un `StepType` nuevo = `.ascx` + una línea de
-  markup + un `case` en `GetStepControl`.
-- El paso abierto vive en el ViewState de la página (`OpenStepType`).
-  `ApplyStepControlVisibility` es el único punto que toca `Visible`.
-- `IStepControl.Initialize()` es el **único punto de reinicio** del control. Todo
-  control tiene que tolerar `ViewModel == null` y no registrar scripts cuando está
-  invisible.
-- **Guard de sender:** `HandleControlSubmit` y `HandleReturnToPod` descartan eventos
-  de controles que no son el del paso activo, porque ASP.NET dispara eventos también
-  en controles invisibles.
-- **Submit incorrecto:** el control queda abierto en el modal donde se respondió y
-  solo se muestra el SweetAlert. Es la única excepción aprobada a la paridad de UX
-  (spec 006 E3).
-- **Acción incorrecta = intento fallido** (spec 007): botón equivocado o gate de fila
-  sin cumplir → `StepAnswers.Invalid` a la BLL. `StepValidator.Complete` acepta solo
-  `"complete"`.
-- Salir de un control sin responder (✗ / Return to POD) usa el evento
-  `OnReturnToPod` y **no** registra intento.
-- **F5 = GET** (`history.replaceState`). En la carga por GET, el POD y txtSFC se
-  reconstruyen desde la orden simulada. F5 no restaura la selección ni el control
-  abierto.
-- Estado intermedio de UI en el cliente, sin postback: paginación de NC Selection,
-  Save Draft de DC, navegación entre los 4 modales de Search.
-
-**Commits de cierre:** `3567e07` (migración a controles estáticos), `51636a7` (DC
-return to POD, txtSFC, resaltado de fila, score final), `f54ff50` (spec 007),
-`3a38b86` (F5).
-**Cierre (2026-09-24):** el flujo completo de R&C/Moldeo (NonSerialized) funciona de punta
-a punta en Guided y Assessment (penalización, force-advance y aprobado/reprobado),
-verificado en navegador por el usuario.
-
----
-
-### Ajustes tras la Fase 6 — Assessment real, S2 y spec 008 ✅ (2026-09-25 a 2026-09-28)
-Sin fase propia: correcciones del motor que salieron al probar la Fase 6, y la spec 008
-(motor Serialized), que resolvió los bloqueantes #1, #2 y #4 de la Fase 7.
-
-- **Assessment real (S1 + S4, sin spec):** al probar Assessment se vio que el 50% del
-  puntaje nunca podía fallar porque los controles rechazaban las decisiones antes de
-  enviarlas. Se separó formato de decisión (ver `CLAUDE.md` → Key Conventions): LC "No",
-  Setup State "Open" y los "No" de Start ahora llegan a `StepValidator` y cuentan como
-  intento. En Assessment el mensaje de error no revela la respuesta (muestra los intentos
-  restantes). El 70% de aprobación pasó a `ScoreCalculator.PassingScore`. Los banners de
-  guardado (Record change, DC group saved) solo aparecen si el servidor aceptó el paso.
-  Verificado en navegador por el usuario (2026-09-25).
-- **S2 — secuencia en Assessment (sin spec, decisiones cerradas con el usuario 2026-09-25):**
-  - En Assessment todos los botones del POD están habilitados, incluidos los que no aplican
-    al área (Assemble en Moldeo, SFC Split en Serialized). Guided sin cambios.
-  - Un click en un botón que no es el del paso actual es un intento fallido **del paso
-    actual** (hoy `PodService.CheckSequence`, spec 009), con la misma penalización y
-    force-advance. El control del botón equivocado no se abre.
-  - Mismo mensaje genérico que una respuesta incorrecta (no revela que fue de secuencia).
-  - La secuencia se evalúa antes que los avisos de formato del botón (SFC vacío, fila sin
-    seleccionar).
-  - Activities → LC entra en la regla; Browse Work List, selección de filas, Abandon y
-    Logout son navegación y nunca cuentan.
-  - Las acciones de MES sin lógica (Work Instructions, Reports, Place Back in Queue, Tool
-    List y las 7 opciones de relleno de Activities) también se habilitan en Assessment y
-    su click es siempre un intento fallido del paso actual.
-  - Resource Setup forzado → siempre la orden por defecto (Shop Order genérica `303406950`),
-    ignorando lo capturado en intentos fallidos (spec 008, E8).
-    Start forzado → el POD se carga como si Start se hubiera ejecutado.
-  Verificado en navegador por el usuario (2026-09-25).
-- **Spec 008 cerrada ✅** (2026-09-28, 5 entregas + cierre, plan en
-  `docs/specs/008-plan.md`): el motor ya soporta áreas Serialized.
-  - Resource Setup genera 3-5 piezas con SFC propio; Browse Work List y POD con
-    multi-selección; `TxtSFC` con el SFC o `[N SELECTED]`; Start directo cuando el área
-    no tiene checklist (`Areas.RequiresStartChecklist`, hoy solo Moldeo = 1).
-  - Assembly con el BOM de la operación (`AssemblyComponents`, simulado): Component List,
-    modal replicado del MES real, Batch Number = Process Lot. Se eliminó
-    `ExpectedComponentCount`.
-  - Data Collection por pieza con grupos obligatorios (`DataCollectionGroups.IsRequired`),
-    indicador `SFC: … (n/N)` y avance conservado. **Moldeo ahora exige** su grupo de
-    fechas de expiración para completar DC.
-  - Log NC y Complete multi-fila. En Serialized la selección parcial es aviso sin
-    penalización (el motor trabaja todas las piezas juntas; ver Deferred Decisions de la
-    spec: recorrido pieza por pieza).
-  - Verificado en navegador por el usuario: Redefinity de punta a punta y regresión de
-    Moldeo en Guided y Assessment.
-- **Checklist de la spec 006 cerrado ✅ (2026-09-29):** el punto 6 (volver a guardar
-  Resource Setup → AC-12) se dio por resuelto por análisis de código: el Save repetido
-  en el modal ya confirmado lo descartan `ResourceSetupControl.BtnSave_Click`
-  (`if (!Visible) return;`, no sobrescribe la orden) y el guard de sender de
-  `HandleControlSubmit`; no hay intento ni cambio de puntaje y el modal se cierra. El
-  5 (force-advance en DC) y el 7 (Assembly) quedaron cubiertos por la spec 008.
-
----
-
-### Fase 6.5 — Fidelidad de UI/UX con el SAP MES real ✅ (formalizada 2026-09-29, cerrada 2026-10-02)
-**Objetivo:** que cada pantalla y modal del POD replique su captura del SAP MES real
-(estructura, textos, colores y comportamiento visual), y dejar la interfaz cerrada antes
-de los overlays guiados de la Fase 6.6, que se anclan a ella.
-Nació como mini-fase de ajustes de UI tras la spec 008.
-**No incluye:** cambios de reglas de negocio, del motor de pasos o del puntaje; pasos
-nuevos; los overlays guiados; el catálogo de LoFlo; las páginas del simulador que no son
-del MES (Login, Cambio de contraseña, StartSession). Si una corrección toca una regla (ej.
-Status "In Queue" o el SFC nuevo del Split), se señala y se decide aparte.
-**Criterio de cierre:** `docs/ui-reference/inventario-pantallas.md` con todas las
-pantallas que tienen captura en ✅ (o con sus diferencias cerradas como *aceptadas*). Las
-pantallas sin captura quedan anotadas como pendientes y no bloquean.
-**Proceso:** sin spec — las capturas del MES real son la fuente. Cada tanda de
-correcciones del usuario = una entrega (ronda de preguntas si hace falta + plan directo en
-`docs/specs/fase-6.5-plan.md`) → build + precompilación (+ tests si cambia la BLL) →
-checklist → prueba del usuario → commit → actualizar el inventario.
-**Commits:** `48b67c1` (entrega 1), `fbcd132` (2), `8fde133` (3), `b832e77` (4),
-`f432462` (formalización + inventario), `c38fe94` (5), `70e5e8e` (6), `03d767b` (7),
-`4ca602c` (8), `f9aa1c7` (9), `c8d99d4` y `2f550eb` (ajustes finales).
-**Cierre (2026-10-02):** el usuario confirmó el cierre con el inventario en ✅ 14 · 🟡 0 ·
-⚪ 2 (sin captura: los 4 modales del Start de Moldeo y el resultado de Complete).
-
-**Entregas y reglas cambiadas:**
-- **Entregas 1-9 ✅** (2026-09-29 a 2026-10-01, verificadas por el usuario; plan con
-  casillas y decisiones en `docs/specs/fase-6.5-plan.md`): columna SFC y Select All;
-  Collect deshabilitado por pieza (enmienda de E3, spec 008); Shop Order / Status (SFC);
-  layout y colores del MES real (header y POD Search en una franja clara, Code1 en el
-  header); header estándar de los 12 modales; Resource Setup; botones grises del MES
-  (`.mes-btn` + `.mes-ico-*`); Line Clearance con submodal apilado; listas (Component,
-  DC, NC Selection); DC Entry y NC Data Entry, con la columna nueva
-  `DataCollectionParameters.Description` (Moldeo con los textos del legacy) y
-  `SFC (1/N)` + "Apply to all SFCs" en NC Data Entry; SFC Split como la captura real.
-- **Regla cambiada dentro de la fase, por decisión del usuario:** el SFC Split crea un
-  **SFC nuevo** de la misma Shop Order (`BLL/Training/SplitSfcGenerator`; enmienda
-  2026-10-01 de la spec 005).
-- **Inventario de pantallas** (criterio de cierre): `docs/ui-reference/inventario-pantallas.md`
-  — ✅ 14 · 🟡 0 · ⚪ 2. **Criterio de cierre cumplido (2026-10-01):** todas las
-  pantallas con captura están fieles (POD y Browse con diferencias menores aceptadas por
-  el usuario). Sin captura, sin bloquear: los 4 modales del Start de Moldeo y el
-  resultado de Complete.
-
----
-
-### Fase 6.6 — Overlays guiados ✅ (cerrada 2026-10-07; spec 010 y `docs/specs/010-plan.md`)
-**Objetivo:** en modo Guided, overlays que guían al operador paso a paso sobre la interfaz
-ya cerrada en la 6.5 (qué botón, campo o modal usar en cada paso).
-**A definir en la spec:** si aplican solo en Guided (en Assessment no pueden revelar el
-camino); cómo se anclan a los elementos (anclas estables en botones y campos); que se
-definan por tipo de paso y no por área, para que LoFlo los reciba sin trabajo extra.
-Entrada: el inventario de pantallas de la 6.5.
-**No incluye:** cambios de UI de las pantallas del MES (eso es la 6.5), reglas de negocio
-nuevas.
-
-**Resultado (2026-10-07):** guía clic por clic en Guided sobre los 9 pasos, siempre activa y
-bloqueante (Logout y Abandon libres), textos en español con respuestas concretas y valores
-de ejemplo, solo avanza con la respuesta correcta (R10), los mensajes del MES esperan a la
-guía (R9), falla segura si no encuentra un elemento y globo final. Motor JS propio
-(`UI/master/pod-guide.js`), guion en `Pages/Training/Guide`, anclas `data-guide`. Nada en
-Assessment. Entregas: E1 motor + Resource Setup · E2 Line Clearance + Start · E2b respuesta
-correcta · E3 Assembly + DC · E4 Split + Log NC + Complete · E5 regresión.
-
-**Notas previas a la spec 010 (histórico):**
-- **Reformulación propuesta, sin confirmar por el usuario:** en modo **Guided**, una guía
-  visual sobre el POD (oscurece la pantalla, resalta el elemento y muestra un globo con la
-  instrucción) que lleva al operador por cada **subpaso de la UI** del paso actual (ej.
-  Resource Setup: botón → Retrieve → Setup State "Set Up" → recursos → Save). Guion por
-  **tipo de paso** (8), parametrizado con los flags del área (Serialized/NonSerialized,
-  checklist de Start), no por área. El servidor manda el paso actual; el JS solo conoce el
-  guion y avanza al detectar la acción del operador (nunca guarda estado real). **Nada en
-  Assessment.** Anclas propias `data-guide`, no ids. Sin cambios de reglas, puntaje ni
-  pantallas. Primeras preguntas previstas: textos con valores concretos ("Sí", "Set Up"),
-  dónde viven los textos (código o BD), cerrar/reabrir la guía con el ícono Help, qué hace
-  la guía tras un error.
-- **Hallazgos de la investigación (2026-10-05):**
-  - Legacy (`UI/Dashboard/js/guidedTest.v1.0.0.js`, solo referencia): tour propio en JS sin
-    librería; overlay oscuro con hueco (`clip-path`) sobre el elemento, globo con "Paso N de
-    M"; avanza al hacer click en el elemento, con "Continuar" en campos de captura y solo
-    en los banners (2 s); espera a que aparezca el elemento en los modales. Dos tours fijos
-    (apertura y cierre) en `sessionStorage`, por subpaso y con textos de Moldeo ("Ingrese
-    **200**"). No dependía del modo.
-  - App actual: muchos botones clave no tienen id (Retrieve de RS y LC, Collect de LC,
-    Assemble por fila, Save de los modales 1-3 de Start) y los `runat="server"` salen con
-    prefijo (`MainContent_BtnStart`): hacen falta anclas propias. Los modales sí tienen id
-    estático (`modalResourceSetup`, `modalSearch1-4`, `modalSFCSplit`…).
-  - `Training.Master` ya carga jQuery 3.7, Bootstrap 5 (Popover/Tooltip) y SweetAlert2. Los
-    íconos "Help" del POD no tienen función (candidatos para abrir o reabrir la guía). Hoy el
-    hint por tipo de paso (`GetHint`) solo aparece después de un error en Guided.
-  - Preguntas de diseño abiertas: overlay sobre modales apilados (z-index sobre los
-    backdrops; LC usa submodal); reanudar el subpaso tras cada postback (servidor o
-    `sessionStorage` solo como preferencia de UI); avance por tiempo o por acción;
-    reposicionar tras un error; pantallas ⚪ del inventario (modales del Start de Moldeo y
-    resultado de Complete).
-
----
-
-### Fase 7 — Catálogo de LoFlo (segunda área) — desbloqueada (#3 resuelto 2026-10-07; va después de la 5)
-**Objetivo:** Script SQL con el catálogo real de LoFlo (Sensores).
-Solo carga de datos — cero código nuevo. Valida que el motor de Fases 3-4
-es verdaderamente genérico y que `RequiresAssembly`/`RequiresDataCollection`
-funcionan con la configuración real de LoFlo.
-**El script tiene que cargar** (spec 008): flags del área (incluido
-`RequiresStartChecklist = 0`), NC Codes, `DataCollectionGroups` con qué grupos son
-obligatorios, sus `DataCollectionParameters`, el BOM en `AssemblyComponents` (simulado
-por ahora, ≥1 componente si `RequiresAssembly = 1`) y la guía con sus pasos.
+### Fase 7 — Catálogo de LoFlo (segunda área) ▶️
+**Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
+código nuevo: valida que el motor es genérico y que `RequiresAssembly` y
+`RequiresDataCollection` funcionan con otra configuración.
+**El script tiene que cargar** (spec 008): los flags del área (`CLAUDE.md` → "Jerarquía",
+incluido `RequiresStartChecklist = 0`), NC Codes, `DataCollectionGroups` con sus obligatorios,
+sus `DataCollectionParameters`, el BOM en `AssemblyComponents` (≥1 componente) y la guía con
+sus pasos y pesos.
 **No incluye:** cambios al motor, nuevas pantallas.
-**Respuesta de negocio (2026-10-07)** para escribir el script de LoFlo:
-1. Flags: todas las áreas de Sensores son **Serialized** y siempre hacen Assembly, Data
-   Collection y Component en NC estándar: `RequiresAssembly = 1`,
-   `RequiresDataCollection = 1`, `RequiresNCComponent = 1`. `RequiresStartChecklist = 0`
-   (el checklist de Start era propio de Moldeo).
-2. DC Groups (con obligatorios) y sus parámetros: **simulados** por ahora.
-3. Códigos NC de LoFlo: **simulados** por ahora.
-4. BOM: **simulado**.
-
----
+**Desbloqueo:** los bloqueantes #1 (Start de Serialized), #2 (Assembly sin completar) y #4
+(huecos de UI de Assembly) los resolvió la spec 008; el #3 (flags reales) lo resolvió negocio
+el 2026-10-07: todas las áreas de Sensores son Serialized con Assembly, DC y Component en NC,
+sin checklist de Start; DC Groups, parámetros, códigos NC y BOM se simulan por ahora.
 
 ### Fase 8 — Validación interna
-**Objetivo:** Sesión con trainer/operador real sobre R&C y LoFlo.
-Correcciones de UX, bugs de flujo, ajustes de catálogo.
-**No incluye:** nuevas áreas, Dashboard admin, reportes.
+**Objetivo:** sesión con trainer/operador real sobre R&C y LoFlo. Correcciones de UX, bugs de
+flujo, ajustes de catálogo.
+**No incluye:** nuevas áreas, dashboard admin, reportes.
+
+### Fase 9 — Deploy del MVP
+**Objetivo:** deploy en servidor interno con IIS: connection string de producción, App Pool,
+permisos, prueba de humo. Incluye AUD-28/29.
+- **Arranque en frío en IIS** (medido 2026-10-07 en desarrollo): tras reciclar el App Pool,
+  el primer request compila el markup (3-10 s por carpeta; ~18 s todo el sitio). Resolver al
+  publicar: precompilar el sitio y configurar el App Pool con `startMode="AlwaysRunning"`,
+  `preloadEnabled="true"` (Application Initialization) e idle timeout 0.
+**No incluye:** CI/CD automatizado, monitoreo avanzado.
 
 ---
 
-### Fase 9 — Deploy del MVP
-**Objetivo:** Deploy en servidor interno con IIS. Configuración de
-connection string de producción, App Pool, permisos, prueba de humo.
-- **Arranque en frío en IIS** (medido 2026-10-07 en desarrollo): tras reciclar el App Pool
-  (por horario o por inactividad), el primer request compila el markup (3-10 s por carpeta;
-  ~18 s todo el sitio). Resolver al publicar: precompilar el sitio y configurar el App Pool
-  con `startMode="AlwaysRunning"`, `preloadEnabled="true"` (Application Initialization) e
-  idle timeout 0.
-**No incluye:** CI/CD automatizado, monitoreo avanzado.
+## Historial
 
+### Fase 0 — Setup ✅
+**Objetivo:** proyecto Web Forms creado, N-Tier scaffolded, build verde.
+**No incluye:** lógica de negocio, UI funcional, datos reales.
+
+### Fase 1 — Auth ✅
+**Objetivo:** `Login.aspx` + `ChangePassword.aspx` con el flujo completo de primer acceso
+(API de empleados → `Operator` local → PBKDF2 → FormsAuth).
+**No incluye:** dashboard, GuidedTest, catálogo de áreas, pasos de entrenamiento.
+
+### Fase 2 — Dominio y catálogo de R&C ✅
+**Objetivo:** auditoría del legacy de R&C + catálogo real en `06_RCMoldeoCatalog.sql`:
+`Products` (R&C), `Areas` (Moldeo), `NCCodes` (30 códigos), `DataCollectionParameters` (15:
+ID molde + 10 parámetros MSS + verificación MSS + fecha kerosene + 2 first-shot). El esquema
+de `DataCollectionParameters` sumó `DataType` y `DisplayOrder`; `MinValue`/`MaxValue` quedaron
+nullable (rangos pendientes del MSS D000281359).
+**No incluye:** UI, motor de validación, `TrainingGuideService`, pantallas.
+**Deuda de proceso:** se saltó la aprobación de la spec 002 antes de implementar.
+
+### Fase 3 — Motor de TrainingGuide ✅
+**Objetivo:** `TrainingGuideRepository` (un SP con dos result sets puebla `Steps`),
+`TrainingGuideService.BuildValidatorForGuide` y `StepValidator` con `StepValidationContext`
+inyectado (Area + NCCodes + DCParams), con validación para todos los `StepType`. Repositorios
+`Area`, `NCCode`, `DataCollectionParameter` y sus SPs. Guía real de Moldeo en
+`07_RCMoldeoGuide.sql`.
+*Superado después:* la LC Moldeo era un paso propio de la guía (con pesos 0.04/0.03/0.03 en
+3 instancias de LC) y Assembly se validaba contra `ExpectedComponentCount`. Hoy el checklist
+va dentro de Search, Assembly usa el BOM (spec 008) y los pesos están en `CLAUDE.md`.
+**No incluye:** gate-keeping real, UI, tests de `ScoreCalculator`.
+
+### Fase 4 — TrainingSession y modos ✅
+**Objetivo:** gate-keeping real Guided vs. Assessment en `TrainingSessionService`, `Abandon`,
+puntaje en tiempo real. `StartSession.aspx` (Product → Area → Guía → Modo) y un
+`GuidedTest.aspx` genérico por paso. Spec `003-training-session-y-modos.md` (aprobada
+2026-09-04).
+**No incluye:** UserControls por tipo de paso, tests de `ScoreCalculator`, LoFlo.
+
+### Fase 5 — ScoreCalculator: cobertura de tests ✅ (2026-10-07)
+**Objetivo:** blindar `ScoreCalculator` (el componente más sensible) con tests NUnit
+exhaustivos antes de que usuarios reales generen puntajes: penalización, avance forzado,
+pasos opcionales ausentes, sesiones completadas vs. abandonadas. Decisión del usuario: antes
+de la 7 y la 8.
+**No incluye:** nuevas features, cambios al algoritmo.
+**Resultado:** 3 entregas, sin spec (`docs/specs/fase-5-plan.md`).
+`TrainingApp.Test/ScoreCalculatorTests.cs` cubre todas las ramas de `ScoreCalculator`, las
+guías reales de Moldeo y Redefinity, el límite de aprobación y un barrido de las 65 536
+combinaciones de cada guía. El código cumplía todas las reglas: no hubo cambios al
+algoritmo. De paso, los pesos de `CLAUDE.md` se alinearon con la BD (manda la BD).
+
+### Fase 6 — UserControls por tipo de paso ✅ (2026-09-24)
+**Objetivo:** un UserControl `.ascx` por `StepType` que recibe el estado del servidor y emite
+un submit, sin lógica de negocio.
+**No incluye:** catálogo de LoFlo, nuevas áreas.
+**Specs:** `004-fase6-dashboard-usercontrols.md` (POD, botonera y contrato de controles) ·
+`005-pod-orden-dinamica.md` (orden simulada creada por Resource Setup, SFC Split como paso
+propio, DC agrupado por DC Group; aprobada de forma retroactiva) ·
+`006-controles-de-paso-estaticos.md` · `007-cierre-flujo-lognc-complete.md`.
+**Decisiones de arquitectura** (controles estáticos, `Initialize`, guard de sender, F5 =
+GET…): ahora en `docs/architecture.md` → "`GuidedTest` y controles de paso".
+**Commits de cierre:** `3567e07` (controles estáticos), `51636a7` (DC, txtSFC, resaltado,
+puntaje final), `f54ff50` (spec 007), `3a38b86` (F5).
+**Cierre:** el flujo completo de R&C/Moldeo (NonSerialized) funciona de punta a punta en
+Guided y Assessment, verificado por el usuario.
+
+### Ajustes tras la Fase 6 y spec 008 ✅ (2026-09-25 a 2026-09-28)
+- **Assessment real (S1 + S4, sin spec):** el 50% del puntaje nunca podía fallar porque los
+  controles rechazaban las decisiones antes de enviarlas. Se separó formato de decisión (hoy
+  `CLAUDE.md` → "Qué cuenta como intento"); el 70% pasó a `ScoreCalculator.PassingScore`; los
+  banners de guardado solo aparecen si el servidor aceptó el paso.
+- **S2, secuencia en Assessment (sin spec):** reglas cerradas con el usuario el 2026-09-25,
+  hoy en `CLAUDE.md` → "Qué cuenta como intento".
+- **Spec 008 (5 entregas, `008-plan.md`):** el motor soporta áreas Serialized: 3-5 piezas
+  con SFC propio, Browse Work List y POD con multi-selección, `[N SELECTED]`, Start directo
+  sin checklist (`Areas.RequiresStartChecklist`); Assembly con el BOM (se eliminó
+  `ExpectedComponentCount`); DC por pieza con grupos obligatorios (Moldeo exige su grupo de
+  fechas de expiración); Log NC y Complete multi-fila. Pendiente diferido en la spec: recorrido
+  pieza por pieza. Verificado: Redefinity de punta a punta y regresión de Moldeo.
+- **Checklist de la spec 006 cerrado (2026-09-29):** el punto 6 (volver a guardar Resource
+  Setup) se resolvió por análisis de código (`BtnSave_Click` con `if (!Visible) return;` + el
+  guard de sender); el 5 y el 7 los cubrió la spec 008.
+
+### Fase 6.5 — Fidelidad de UI/UX con el SAP MES real ✅ (2026-09-29 a 2026-10-02)
+**Objetivo:** que cada pantalla y modal del POD replique su captura del SAP MES real, y dejar
+la interfaz cerrada antes de los overlays de la 6.6.
+**No incluye:** reglas de negocio, motor, puntaje, pasos nuevos, overlays, LoFlo, páginas que
+no son del MES (Login, Cambio de contraseña, StartSession).
+**Proceso:** sin spec; cada tanda de correcciones del usuario = una entrega, con plan en
+`docs/specs/fase-6.5-plan.md`.
+**Resultado:** inventario `docs/ui-reference/inventario-pantallas.md` con todas las pantallas
+con captura en ✅. Entregas 1-9: columna SFC y Select All; Collect deshabilitado por pieza;
+Shop Order / Status; layout y colores del MES; header estándar de los 12 modales; Resource
+Setup; botones grises (`.mes-btn` + `.mes-ico-*`); Line Clearance con submodal apilado;
+listas; DC Entry y NC Data Entry (columna nueva `DataCollectionParameters.Description`);
+SFC Split.
+**Regla cambiada por decisión del usuario:** el SFC Split crea un **SFC nuevo** de la misma
+Shop Order (`SplitSfcGenerator`; enmienda 2026-10-01 de la spec 005).
+**Commits:** `48b67c1`, `fbcd132`, `8fde133`, `b832e77`, `f432462` (inventario), `c38fe94`,
+`70e5e8e`, `03d767b`, `4ca602c`, `f9aa1c7`, `c8d99d4`, `2f550eb`.
+
+### Auditoría, spec 009 y auditoría final ✅ (2026-10-01 a 2026-10-06)
+- **Auditoría del proyecto (2026-10-01/02):** 32 hallazgos (AUD-01…32), decisiones D-1…D-8
+  y 5 entregas (E1 bugs del flujo · E2 auth y secretos · E3 integridad del puntaje · E4
+  capas · E5 limpieza). Detalle: `docs/audits/2026-10-01-auditoria.md`.
+- **Spec 009 · Motor del POD en la BLL (2026-10-05, 6 entregas `d5331ab`…`df08c44`):**
+  `PodService` decide el flujo y la página solo pinta; contexto una vez por request (Line
+  Clearance: de ~21 a 5 conexiones); el estado del POD se reconstruye si se pierde (D-10);
+  una sesión activa por operador (D-9). Cerró AUD-16, 25 y 26. Detalle:
+  `docs/specs/009-motor-pod.md` y `009-plan.md`.
+- **Auditoría final (2026-10-06):** revisión de la spec 009 + regresión completa en el
+  navegador: AUD-33…44 (1 Medio: el logout), D-13…D-16 y 4 entregas (E1 logout · E2
+  invariantes de la BLL · E3 la página lee el flujo del contexto · E4 limpieza). Detalle:
+  `docs/audits/2026-10-06-auditoria-final.md`.
+
+### Fase 6.6 — Overlays guiados ✅ (2026-10-07)
+**Objetivo:** en Guided, overlays que guían al operador paso a paso sobre la interfaz cerrada
+en la 6.5.
+**No incluye:** cambios de UI de las pantallas del MES, reglas de negocio nuevas.
+**Resultado (spec 010, 5 entregas + E2b, `4e24ce5`…`39482d3`):** guía clic por clic en Guided
+sobre los 9 pasos, siempre activa y bloqueante (Logout y Abandon libres), con respuestas y
+valores de ejemplo, que solo avanza con la respuesta correcta (R10), con mensajes del MES que
+esperan a la guía (R9), falla segura y globo final. Nada en Assessment. Mecanismo:
+`docs/architecture.md` → "Guía visual de Guided". De paso, en Serialized el POD vuelve sin
+selección tras Start, Assembly y DC, como el MES real. La investigación previa (legacy y app)
+quedó como anexo en `docs/specs/010-overlays-guiados.md`.
+
+### Arreglo de rendimiento del arranque ✅ (2026-10-07, sin spec)
+`optimizeCompilations` en `Web.config` (Login tras un rebuild: de ~4 s a ~1,7 s); la lista de
+empleados se precarga al arrancar y se refresca en segundo plano (`docs/architecture.md` →
+"API de empleados"); `/bundles` y `/Content` accesibles sin login (Login y ChangePassword
+recibían el HTML del Login en vez de sus JS). B-1: una lista vacía de la API no reemplaza la
+última. Pendiente para la Fase 9: el arranque en frío en IIS.

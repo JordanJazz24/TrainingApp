@@ -1,7 +1,8 @@
 # UI Reference — General Training Flow
 
 Documento acumulativo. Flujo común a todas las áreas. Se actualiza pantalla por pantalla conforme se analiza el SAP MES real.
-Fuente de verdad para implementar Fase 6 (UserControls por tipo de paso).
+Fuente de verdad de **cómo se ve y se opera** cada pantalla. Las reglas de negocio y de
+puntaje (pesos, qué cuenta como intento, modos) están en `CLAUDE.md`; aquí no se copian.
 
 > Documentos por área (`moldeo-flow.md`, etc.) solo registrarán lo que difiere de este flujo general.
 
@@ -113,7 +114,7 @@ botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo v
 
 ## Paso 1 — Resource Setup
 
-**StepType:** `ResourceSetup` | **StepWeight:** 20% | **Validación:** secuencia (contenido libre)
+**StepType:** `ResourceSetup` | **Validación:** secuencia + Setup State (contenido libre)
 
 **Acceso:** Footer → [Resource Setup]
 
@@ -180,7 +181,8 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 ### Reglas de negocio
 - **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
 - **El orden de las filas es libre** — no se exige que Shop Order sea la primera fila
-- **Setup State DEBE ser "Set Up"** antes de guardar
+- **Setup State DEBE ser "Set Up"**: es una *decisión* del operador; guardar en "Open" se
+  envía al servidor y es intento fallido (`CLAUDE.md` → "Qué cuenta como intento")
 - **Exactamente 1 Shop Order** — ni 0 ni 2+
 - **Al menos 1 Tool Number**
 - **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
@@ -191,21 +193,24 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 - `[Save]` arranca **deshabilitado** — se habilita únicamente después de ejecutar `[Retrieve]`
 - Retrieve sin ninguna fila adicional NO completa el paso
 
-**Orden de validaciones al presionar Save (se detiene en la primera que falle):**
+**Validaciones de formato al presionar Save** (en el cliente, se detiene en la primera que
+falle; no cuentan como intento). El Setup State **no** se valida aquí: se envía y lo califica
+el servidor.
 
 | # | Validación | Mensaje al operador |
 |---|---|---|
-| 1 | Setup State == "Set Up" | "El Setup State debe estar en 'Set Up' antes de guardar." |
-| 2 | Al menos 1 fila existe | "No existen recursos creados. Agrega al menos un Shop Order y un Tool Number." |
-| 3 | Total filas ≥ 2 | "Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 Tool Number." |
-| 4 | Exactamente 1 Shop Order (0 filas SO) | "Debe existir exactamente 1 fila de tipo Shop Order." |
-| 5 | Exactamente 1 Shop Order (>1 filas SO) | "Solo puede existir 1 fila de tipo Shop Order." |
+| 1 | Al menos 1 fila existe | "No existen recursos creados. Agrega al menos un Shop Order y un Tool Number." |
+| 2 | Total filas ≥ 2 | "Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 Tool Number." |
+| 3 | Exactamente 1 Shop Order (0 filas SO) | "Debe existir exactamente 1 fila de tipo Shop Order." |
+| 4 | Exactamente 1 Shop Order (>1 filas SO) | "Solo puede existir 1 fila de tipo Shop Order." |
+| 5 | Shop Order numérico (semilla de la orden simulada, spec 005) | "El valor de Shop Order debe ser numérico." |
 | 6 | Al menos 1 Tool Number | "Debe existir al menos 1 fila de tipo Tool Number." |
 | 7 | Todas las filas con valor no vacío | "Todas las filas deben tener un valor. Ninguna fila puede estar vacía." |
+| 8 | Sin `<` ni `>` (ASP.NET rechaza el postback con marcado, AUD-11) | aviso de formato |
 
 - Cada fallo muestra un **SweetAlert** (warning) y mantiene el modal abierto
 - Un fallo NO marca el paso como completado ni cierra el modal
-- Si todas las validaciones pasan → Save ejecuta el guardado
+- Si todas pasan → Save envía el paso al servidor
 
 **Comportamiento post-Save exitoso (BUG UI-1 corregido):**
 - El modal permanece abierto
@@ -233,7 +238,7 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 
 ## Paso 2 — Line Clearance
 
-**StepType:** `LineClearance` | **StepWeight:** 5% | **Validación:** respuesta = "Sí" (true)
+**StepType:** `LineClearance` | **Validación:** respuesta = "Sí" (true)
 
 **Acceso:** Sidebar → [Activities ▼] → "Data Collection Standalone"
 
@@ -317,7 +322,7 @@ el manejo genérico de modales apilados de `Training.Master`.
 ```
 
 - [Cancel] cierra el sub-modal y regresa al modal principal sin cambiar estado
-- [Save] solo procede si la selección es "Si" (ver validaciones abajo)
+- [Save] envía la respuesta al servidor (ver validaciones abajo)
 
 ---
 
@@ -337,16 +342,17 @@ el manejo genérico de modales apilados de `Training.Master`.
 
 ### Validaciones del UserControl
 
-**Validación en el sub-modal al presionar Save (cliente + servidor):**
+**Validación en el sub-modal al presionar Save:**
 
-| # | Validación | Mensaje al operador |
-|---|---|---|
-| 1 | Dropdown seleccionado (no en blanco) | "Debes seleccionar una respuesta antes de guardar." |
-| 2 | Respuesta == "Si" | "La respuesta debe ser 'Sí' para continuar. Seleccionar 'No' no permite avanzar el paso." |
+| # | Validación | Dónde | Mensaje al operador |
+|---|---|---|---|
+| 1 | Dropdown seleccionado (no en blanco) | cliente (formato, sin intento) | "Debes seleccionar una respuesta antes de guardar." |
+| 2 | Respuesta == "Si" | servidor (`StepValidator`, decisión) | mensaje de respuesta incorrecta; en Assessment, sin revelar la respuesta |
 
-- Cada fallo muestra un **SweetAlert** (warning); el sub-modal permanece abierto
-- Si la respuesta es "No": el intento se registra como fallido en el servidor (penalización en modo Assessment), el paso no avanza — el operador debe corregir y reintentar
-- Validación es idéntica en cliente (`OnClientClick`) y servidor (`BtnSave_Click`) — belt-and-suspenders
+- El blanco muestra un **SweetAlert** (warning) y el sub-modal permanece abierto
+- Si la respuesta es "No": se envía, el intento se registra como fallido (penalización en
+  Assessment) y el paso no avanza; el operador corrige y reintenta. En Guided la guía visual
+  no deja enviar el "No" (spec 010, R10)
 
 **Comportamiento post-Save exitoso:**
 - Sub-modal se cierra (JS)
@@ -397,7 +403,7 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
 
 ## Paso 3 — Search / Start Order
 
-**StepType:** `Search` | **StepWeight:** 5% con Assembly (Redefinity) · 15% en Moldeo (pesos por guía en la BD: `CLAUDE.md` → "Ponderación de pasos") | **Validación:** secuencia pura; en áreas con checklist (Moldeo) además las respuestas de LC Moldeo y la verificación final
+**StepType:** `Search` | **Validación:** secuencia pura; en áreas con checklist (Moldeo) además las respuestas de LC Moldeo y la verificación final
 
 **Acceso:** directamente en el Dashboard — campo SFC en la search bar.
 
@@ -412,7 +418,9 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
                                     Ícono browse a la derecha abre Browse Work List.
 ```
 
-**Importante:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). No es readonly. El legacy lo tenía readonly — corrección para el nuevo sistema.
+**MES real:** el campo SFC es **editable y acepta entrada directa** (escaneo o teclado). En el
+simulador `TxtSFC` es readonly y el SFC se elige vía Browse Work List (spec 005, ver
+"Implementación en el simulador" abajo).
 
 ### Sub-modal: Browse Work List (ruta alternativa)
 
@@ -455,7 +463,7 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 ### Reglas de negocio
 - No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
-- Bifurcación por SerializationType: Serialized = escaneo pieza por pieza; NonSerialized = selección de lote/batch (documentar en área específica)
+- Bifurcación por SerializationType (`CLAUDE.md` → "Ejes de variación"): ver "Implementación en el simulador"
 
 ### Implementación en el simulador (specs 005 y 008)
 - `TxtSFC` es readonly: el SFC se elige solo vía Browse Work List (spec 005).
@@ -487,7 +495,7 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 
 ## Paso 4 — Assembly (condicional: RequiresAssembly = true)
 
-**StepType:** `Assembly` | **StepWeight:** 15% | **Validación:** solo secuencia; el paso se completa con todo el BOM ensamblado (spec 008)
+**StepType:** `Assembly` | **Validación:** solo secuencia; el paso se completa con todo el BOM ensamblado (spec 008)
 
 **Acceso:** [Assemble] en la barra de acción (paso presente solo si RequiresAssembly = true).
 
@@ -600,7 +608,7 @@ Assemble Components                                                        (?)
 
 ## Paso 5 — DC Collect (condicional: RequiresDataCollection = true)
 
-**StepType:** `DataCollection` | **StepWeight:** 30% | **Validación:** JSON `{"<paramId>": "<valor>"}` tipado por DataType
+**StepType:** `DataCollection` | **Validación:** JSON `{"<paramId>": "<valor>"}` tipado por DataType
 
 **Acceso:** [DC Collect] en la barra de acción. Solo si `RequiresDataCollection = true` para el área.
 
@@ -730,7 +738,7 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
 
 ## Paso 6 — Closing Line Clearance (condicional por área)
 
-**StepType:** `LineClearance` | **StepWeight:** 5% | **Validación:** respuesta = "Sí" (true)
+**StepType:** `LineClearance` | **Validación:** respuesta = "Sí" (true)
 
 > **Estructura y flujo idénticos al Paso 2.** Ver sección "Paso 2 — Line Clearance" para la documentación completa de modales, estados y reglas.
 
@@ -742,6 +750,8 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
 | Área **sin** Closing LC | El flujo omite este paso — el motor avanza directamente al Paso 7 |
 
 La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): si el área no tiene un `TrainingStep` de tipo `LineClearance` en la posición de cierre, no existe en la secuencia. No requiere cambio de código.
+Hoy todas las guías lo incluyen: por regla de negocio el Cierre es igual en todas las áreas
+(`CLAUDE.md` → "Flujo estándar").
 
 ---
 
@@ -749,7 +759,7 @@ La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): s
 
 ## Paso 7 — SFC Split (solo NonSerialized)
 
-**StepType:** `SFC_Split` | **StepWeight:** 5% | **Validación:** al menos un split exitoso
+**StepType:** `SFC_Split` | **Validación:** al menos un split exitoso
 
 **Acceso:** seleccionar una fila del POD → Sidebar → [SFC Split]. Las guías Serialized omiten este paso.
 
@@ -782,7 +792,7 @@ Operador verifica la nueva fila en el POD antes de continuar.
 
 ## Paso 8 — Log NC
 
-**StepType:** `LogNC` | **StepWeight:** 10% | **Validación:** NC Code existe en catálogo del área
+**StepType:** `LogNC` | **Validación:** NC Code existe en catálogo del área
 
 **Acceso:** Sidebar → [Log NC].
 
@@ -860,7 +870,7 @@ El campo SFC en la search bar queda vacío tras el scrap.
 
 ## Paso 9 — Complete
 
-**StepType:** `Complete` | **StepWeight:** 10% | **Validación:** secuencia pura (siempre true)
+**StepType:** `Complete` | **Validación:** secuencia pura (siempre true)
 
 **Acceso:** [Complete] en la barra de acción.
 
@@ -885,16 +895,17 @@ El campo SFC en la search bar queda vacío tras el scrap.
 
 ## Flujo completo documentado ✓
 
-| Paso | StepType | Weight estándar | Condicional |
-|---|---|---|---|
-| 1 — Resource Setup | `ResourceSetup` | 20% | No |
-| 2 — Line Clearance apertura | `LineClearance` | 10% | No |
-| 3 — Search / Start Order | `Search` | 0% (secuencia pura) | No — absorbe peso de pasos ausentes a nivel de guía |
-| 4 — Assembly | `Assembly` | 15% | RequiresAssembly |
-| 5 — DC Collect | `DataCollection` | 30% | RequiresDataCollection |
-| 6 — Closing Line Clearance | `LineClearance` | 10% | Condicional por área |
-| 7 — SFC Split | `SFC_Split` | 5% | Solo NonSerialized |
-| 8 — Log NC | `LogNC` | 10% | No |
-| 9 — Complete | `Complete` | 10% | No |
+| Paso | StepType | Condicional |
+|---|---|---|
+| 1 — Resource Setup | `ResourceSetup` | No |
+| 2 — Line Clearance apertura | `LineClearance` | No |
+| 3 — Search / Start Order | `Search` | No |
+| 4 — Assembly | `Assembly` | RequiresAssembly |
+| 5 — DC Collect | `DataCollection` | RequiresDataCollection |
+| 6 — Closing Line Clearance | `LineClearance` | No (ver Paso 6) |
+| 7 — SFC Split | `SFC_Split` | Solo NonSerialized |
+| 8 — Log NC | `LogNC` | No |
+| 9 — Complete | `Complete` | No |
 
-> **Sobre los pesos:** los pesos fijos definidos en `CLAUDE.md` (ResourceSetup 20% + LC 10% + Assembly 15% + DataCollection 30% + NC 15% + Complete 10% = 100%) aplican cuando todos los pasos están presentes. Cuando un paso condicional está ausente (ej. Assembly en Moldeo), su peso se redistribuye a pasos de secuencia pura como Search — esto ocurre en el seed de la guía (`TrainingStep.Weight`), no en el `ScoreCalculator`. Los pesos de cada instancia de guía siempre suman 1.00.
+Pesos de cada paso por guía: `CLAUDE.md` → "Ponderación de pasos" (la fuente de verdad es
+`TrainingSteps.Weight` en la BD).

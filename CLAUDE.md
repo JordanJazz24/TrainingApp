@@ -1,51 +1,81 @@
 # MESTrainingSimulator
 
-## Contexto de negocio
+Plataforma interna de entrenamiento y evaluación para operadores de manufactura médica:
+flujos guiados inspirados en SAP MES, con progreso, puntaje y desempeño evaluados en el
+servidor. Puede crecer a dashboards, métricas por operador, preguntas con más fallos y
+reportes. Parte de los datos está hardcodeada porque representa pantallas y valores del día
+a día del operador; eso no justifica una mala arquitectura: capas separadas, mantenible y
+extensible.
 
-- Esta es una plataforma interna de entrenamiento y evaluación para operadores de manufactura médica.
-- El objetivo es simular flujos guiados de entrenamiento inspirados en procesos tipo SAP MES, y evaluar progreso, puntaje y desempeño desde el servidor.
-- Parte de los datos puede estar quemada o hardcodeada porque representa pantallas y valores que el operador verá en su día a día.
-- Eso no justifica una mala arquitectura: la plataforma debe ser mantenible, separada en capas y extensible.
-- El sistema puede evolucionar para incluir guías de entrenamiento, evaluaciones, puntajes, dashboards, preguntas con mayor índice de fallo, métricas por operador y reportes de desempeño.
+Este archivo tiene solo **reglas vigentes**. El historial (qué se cerró y cuándo) va en el
+roadmap.
+
+## Mapa de documentos
+
+| Qué | Dónde | Cuándo leerlo |
+|---|---|---|
+| Reglas de dominio, arquitectura, convenciones y comandos | este archivo | siempre |
+| **Dónde quedamos**: fase actual y siguiente, pendientes, deuda, estado de la BD del usuario e historial de fases | `docs/roadmap.md` → "📍 Estado actual" | al iniciar cada sesión |
+| Proceso de trabajo: spec o plan directo, entregas, verificación, `/code-review` calibrado, auditorías, commits, ramas y worktrees, scripts de BD, fidelidad de pantallas | `docs/process.md` | antes de proponer o empezar trabajo |
+| Mecanismos y decisiones de diseño: árbol del código, motor del POD, controles de paso, guía de Guided, Session y caché de empleados | `docs/architecture.md` | antes de tocar `GuidedTest`, controles, `BLL/Training` o auth |
+| Términos MES (SFC, LC, Shop Order, POD…) | `docs/glossary.md` | ante un término desconocido |
+| Cómo se ve y se opera cada pantalla del MES real | `docs/ui-reference/` (`general-flow.md`, un archivo por área, `inventario-pantallas.md`) | antes de tocar UI |
+| Specs y planes por entregas | `docs/specs/` | al trabajar en esa spec |
+| Auditorías (hallazgos AUD-n, decisiones D-n) | `docs/audits/` (una por archivo) | al citar un hallazgo o una decisión |
+
+**Cada regla vive en un solo lugar.** Los demás documentos la referencian
+(`CLAUDE.md → sección`) en vez de copiarla. Las specs y las auditorías son registro
+histórico: no se reescriben, se enmiendan con fecha. Qué se actualiza en cada cierre:
+`docs/process.md` → "Documentación".
+
+## Reglas de trabajo (siempre)
+
+- Respetar el alcance de la fase en curso: su "No incluye" en el roadmap. Las features de
+  fases futuras que se filtran a fases anteriores son la causa principal de la deuda técnica.
+- Funcionalidad o reglas de negocio nuevas: `/spec` aprobada antes de planificar. Los bugs
+  van con un plan directo (`docs/process.md`).
+- El usuario prueba en el navegador y confirma ("funciona") **antes de cada commit**. Nunca
+  afirmar que la UI funciona sin esa confirmación.
+- Rama de desarrollo `TrainingApp`. No tocar `main`: ahí sube los cambios el usuario (D-5).
 
 ## Legacy
 
-- El directorio `/MES Simulator Legacy` contiene la aplicación anterior.
-- `/MES Simulator Legacy/CLAUDE_Legacy_Reference.md` existe solo como referencia funcional y de dominio.
-- No se debe actualizar ni usar como arquitectura destino.
-- Se puede revisar para entender flujos de negocio, reglas del tutorial guiado, pantallas, pasos y datos reutilizables o migrables.
-- No copiar patrones de mala arquitectura del legacy: `[WebMethod]` para lógica de negocio, `DataSet` como modelo de dominio, `sessionStorage` como fuente global de estado, ni lógica de negocio en code-behind.
-- Si una sección del tutorial puede reutilizarse tal cual, documentarlo explícitamente.
-- Si una sección cambia de parámetros o de reglas, modelarla de forma nueva en el dominio.
+- `/MES Simulator Legacy` es la aplicación anterior y
+  `/MES Simulator Legacy/CLAUDE_Legacy_Reference.md` es solo referencia funcional y de
+  dominio: sirve para entender flujos, reglas del tutorial guiado, pantallas, pasos y datos
+  migrables. No se actualiza ni es la arquitectura destino.
+- No copiar sus patrones: `[WebMethod]` para lógica de negocio, `DataSet` como modelo de
+  dominio, `sessionStorage` como estado global ni lógica de negocio en code-behind.
+- Si una sección del tutorial se reutiliza tal cual, documentarlo explícitamente. Si cambia
+  de parámetros o de reglas, modelarla de nuevo en el dominio.
 
 ## Arquitectura objetivo y seguridad
 
-- El servidor es la única fuente de verdad para progreso, puntuaciones, estado de sesión, validaciones del flujo y resultados de evaluación.
-- Las páginas ASPX no deben poder saltarse pasos ni modificar el estado real de negocio directamente.
-- La lógica de negocio vive en la capa BLL — nunca en code-behind ni en stored procedures.
-- Cada capa tiene una responsabilidad única y no viola la dirección de dependencias: Presentación → BLL → DAL → Domain.
-- Proteger autenticación, autorización, integridad de progreso y validaciones del lado servidor.
-- El nivel de seguridad es proporcional al contexto: simulador interno de entrenamiento.
-- Las contraseñas nunca se almacenan en texto plano — hashing con **PBKDF2** (`Rfc2898DeriveBytes`, nativo en .NET FW 4.7.2). Confirmado como definitivo — reemplaza cualquier mención previa de SHA256+salt o BCrypt.
-- Contraseña por defecto (`Shared/Constants.cs`) y estado de sesión del operador (solo servidor, tras auth): ver Key Conventions.
+- El servidor es la **única fuente de verdad** para progreso, puntajes, estado de sesión,
+  validaciones del flujo y resultados. Las páginas ASPX no pueden saltarse pasos ni modificar
+  el estado de negocio directamente.
+- La lógica de negocio vive en la BLL, nunca en code-behind ni en stored procedures.
+  Dependencias solo hacia abajo: Presentación → BLL → DAL → Domain.
+- Proteger autenticación, autorización, integridad del progreso y validaciones del lado
+  servidor, en proporción al contexto: un simulador interno de entrenamiento.
+- Contraseñas con **PBKDF2** (`Rfc2898DeriveBytes`, en `Shared/PasswordHelper.cs`), nunca en
+  texto plano. Definitivo: reemplaza cualquier mención previa de SHA256+salt o BCrypt.
 
 ## Reglas de Negocio del Dominio
 
-Estas reglas ya están cerradas con el negocio y son la fuente de verdad para modelar
-`Domain/`, `BLL/Scoring/` y cualquier stored procedure de catálogo. No re-derivar
-estas reglas desde el legacy ni asumir variantes sin confirmar primero.
+Cerradas con negocio. Son la fuente de verdad para `Domain/`, `BLL/Scoring/` y los stored
+procedures de catálogo. No re-derivarlas del legacy ni asumir variantes sin confirmar.
 
 ### Jerarquía
 
 ```
-Product (producto de más alto nivel — línea de manufactura)
-  └─ Area (sublínea de ensamblaje dentro del Product)
-       └─ [FUTURO] Operation — hoy las guías son generales por Area, no por Operation.
-            Cada Area puede tener entre 3 y 10 Operations a futuro. El esquema debe
-            dejar previsto este nivel (FK nullable) aunque hoy no se use.
+Product (línea de manufactura)
+  └─ Area (sublínea de ensamblaje)
+       └─ [FUTURO] Operation: hoy las guías son generales por Area. Cada Area tendrá de 3 a
+          10 Operations; el esquema ya lo prevé (FK nullable) aunque no se use.
 ```
 
-**Estructura oficial de Products y Areas** (fuente de verdad; confirmada con negocio 2026-09-25):
+**Products y Areas oficiales** (confirmado con negocio 2026-09-25):
 
 | Product | Areas |
 |---|---|
@@ -54,133 +84,125 @@ Product (producto de más alto nivel — línea de manufactura)
 | **Sensores** | LoFlo, Capnotrack, Mainstream, Source, Reusables, Detector |
 | **R&C** | Moldeo |
 
-Un área se carga en BD recién cuando se migra su catálogo (sus flags son `NOT NULL` y
-solo se conocen al validarla con negocio). Hoy existen en BD: Moldeo (catálogo real),
-LoFlo, Redefinity y Subensamble 1 (flags y catálogos de ejemplo, `05_SeedData.sql`).
+Un área se carga en BD cuando se migra su catálogo (sus flags son `NOT NULL` y solo se
+conocen al validarla con negocio). Áreas en BD y sus flags:
 
-**Áreas objetivo del roadmap (en orden de migración):**
+| Área | Origen | Flags |
+|---|---|---|
+| **Moldeo** (R&C) | catálogo real (`06_RCMoldeoCatalog.sql`, guía en `07`) | NonSerialized · Assembly no · DC sí · checklist de Start sí |
+| **LoFlo** (Sensores) | ejemplo en `05`; catálogo de la Fase 7 pendiente | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC sí · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
+| **Redefinity** (Catéteres) | **datos de ejemplo** en `05` ("NO USAR EN PRODUCCIÓN"), para probar el camino Serialized en dev | Serialized · Assembly sí · DC sí (no son decisiones de negocio) |
+| **Subensamble 1** (Wires) | ejemplo en `05` | no son decisiones de negocio |
 
-| Área | Product | Fase | Flags confirmados |
-|---|---|---|---|
-| **Moldeo** | R&C | Fase 2 ✅ | NonSerialized, RequiresAssembly=false, RequiresDataCollection=true |
-| **LoFlo** | Sensores | Fase 7 | Serialized, RequiresAssembly=true, RequiresDataCollection=true, RequiresNCComponent=true, RequiresStartChecklist=false (confirmado 2026-10-07). DC Groups, parámetros, códigos NC y BOM: simulados por ahora. Valida que el motor sea genérico. |
+**Particularidades de Moldeo:**
+- El ID del molde (`DCGTM_ID_MOLDE/A`) es un **DataCollectionParameter**, no Assembly
+  (`RequiresAssembly = false`, confirmado con negocio).
+- Las 3 preguntas de LC Moldeo (`DCGTM_LC_MOLDEO/A`, dentro del Start) **no** son
+  DataCollectionParameters: son parte del checklist de Start (4 modales en `SearchControl`)
+  y las califica `StepValidator` en el paso Search.
 
-> **Notas de dominio:**
-> - Redefinity (Catéteres) es un área real, pero sus flags, su guía y su catálogo en
->   `05_SeedData.sql` son **datos de ejemplo** (marcado "DATOS DE EJEMPLO — NO USAR EN
->   PRODUCCIÓN") para probar el camino Serialized en dev. No representan decisiones de negocio.
-> - El catálogo real de R&C/Moldeo vive en `06_RCMoldeoCatalog.sql`.
-> - En R&C/Moldeo el ID del molde (DCGTM_ID_MOLDE/A) es un **DataCollectionParameter**,
->   no Assembly. RequiresAssembly=false está confirmado con negocio.
-> - Las 3 preguntas de LC Moldeo (DCGTM_LC_MOLDEO/A, capturadas dentro del Start)
->   NO son DataCollectionParameters — son un paso LineClearance adicional específico
->   del Start de R&C. El StepValidator (Fase 3) las gestiona hardcodeadas por área.
+### Ejes de variación (independientes: ninguno se deriva de otro)
 
-### Ejes de variación — son independientes entre sí, no se derivan uno del otro
+- **SerializationType** — la diferencia aparece **solo en Search/Start y en Cierre/Scrap**.
+  Resource Setup es idéntico en ambos tipos.
+  - `Serialized`: la Shop Order genera varios SFC individuales con identidad y trazabilidad
+    propias (ej. 989609001101-01, -02, -03). Se escanean uno a uno o se eligen varios en
+    Browse Work List. Scrap: selección individual.
+  - `NonSerialized`: un único SFC con cantidad (ej. SFC 50012345, Qty 500); no existen SFCs
+    tipo 50012345-001. MES controla la cantidad total. Scrap: split de la cantidad del lote.
+- **RequiresAssembly** y **RequiresDataCollection** (`bool`, hoy por Area; se moverán a
+  Operation cuando exista): independientes de SerializationType. Una operación serializada
+  puede no requerir DC (confirmado con negocio). Nunca asumir "serializado ⇒ Assembly".
+- El login a SAP NetWeaver **no** se evalúa: es solo carga de escenario.
 
-- **SerializationType** (`Serialized | NonSerialized`): la diferencia aparece en el paso
-  Search/Start Order — NO en Resource Setup. Resource Setup solo asocia el recurso
-  (estación) a la Shop Order y las herramientas requeridas; es idéntico en ambos tipos.
+### Flujo estándar de una TrainingGuide
 
-  - `Serialized`: la Shop Order genera múltiples SFC individuales (ej. 989609001101-01,
-    989609001101-02, 989609001101-03). Cada SFC tiene identidad y trazabilidad propia.
-    El operador escanea SFCs individuales o selecciona varios desde Browse Work List.
-    MES mantiene cada SFC como entidad independiente. Al scrapear: selección individual.
-  - `NonSerialized`: la Shop Order genera un único SFC con una cantidad asociada (ej.
-    SFC = 50012345, Qty = 500). No existen SFCs individuales tipo 50012345-001.
-    El operador escanea o selecciona la Shop Order/SFC una vez. MES controla cantidad
-    total, no unidades. Al scrapear: split de cantidad del lote.
-
-  Afecta el modo de interacción en Search/Start y en el paso de Cierre/Scrap únicamente.
-- **RequiresAssembly** (`bool`) y **RequiresDataCollection** (`bool`): flags
-  independientes, hoy a nivel `Area` (con intención de moverse a `Operation` cuando
-  exista esa granularidad). NO se derivan de `SerializationType` — una operación
-  serializada puede no requerir Data Collection, y esto ya se confirmó con negocio.
-  No asumir que "serializado implica Assembly" sin el flag explícito.
-- El login a SAP NetWeaver NO es parte de la evaluación — es solo carga de escenario.
-
-### Flujo estándar de una TrainingGuide (Apertura + Cierre)
-
-Los primeros 3 pasos de Apertura y los 4 pasos de Cierre son siempre iguales para
-todas las Areas/Products. Solo cambia el catálogo de datos (códigos NC, parámetros
-de Data Collection), nunca la secuencia de tipos de paso:
+Los 3 primeros pasos de Apertura y los de Cierre son iguales en todas las Areas; solo cambia
+el catálogo (códigos NC, parámetros de DC), nunca la secuencia de tipos de paso.
 
 ```
-Apertura:
-  1. Resource Setup      — asocia el recurso (estación) a la Shop Order y las
-                            herramientas/equipos requeridos para la operación.
-                            Ejemplo: Resource = R_SCN_MASK_1,
-                              Shop Order = 303406950, Tool = 10033058, Tool = 10087734.
-                            NO define qué piezas se van a procesar — eso es Search/Start.
-                            Captura libre (sin validar contra catálogo). Se califica
-                            por SECUENCIA correcta y por Setup State = "Set Up"
-                            (guardar en "Open" es intento fallido); los recursos
-                            capturados no se califican.
-  2. Line Clearance      — pregunta sí/no.
-  3. Search/Start Order  — AQUÍ aparece la diferencia por SerializationType.
-                            Se califica por SECUENCIA correcta (el operador debe saber
-                            que este es el paso que sigue).
-     ↳ Serialized:    la Shop Order tiene múltiples SFC individuales. El operador
-                        escanea SFCs uno a uno o selecciona varios desde Browse
-                        Work List y ejecuta Start. El POD carga las piezas
-                        individuales seleccionadas. En el simulador (spec 008):
-                        3-5 piezas por orden, Start/Assembly/DC/Complete trabajan
-                        todas las piezas juntas (selección parcial = aviso sin
-                        penalización) y TxtSFC muestra "[N SELECTED]".
-     ↳ NonSerialized: la Shop Order tiene un único SFC con cantidad total (ej.
-                        Qty=500). El operador escanea/selecciona ese SFC una vez
-                        y ejecuta Start. El POD carga ese único SFC con su
-                        cantidad.
-  4. Assembly            — condicional a RequiresAssembly. La Component List es el
-                            BOM de la operación (AssemblyComponents, simulado por
-                            ahora). Cada componente se ensambla con un escaneo
-                            numérico que cubre toda su Qty y se aplica a todas las
-                            piezas seleccionadas ("Apply to all SFCs"). El paso se
-                            completa con todo el BOM ensamblado. No valida el
-                            barcode contra el número de parte; se califica solo por
-                            secuencia (spec 008).
-  5. Data Collection     — condicional a RequiresDataCollection. Parámetros
-                            de catálogo por Area (ej. "posición del detector").
-
-Cierre:
-  6. Line Clearance      — igual que el de apertura.
-  7. SFC Split           — paso independiente sólo en guías NonSerialized;
-                            permite dividir filas del lote antes de continuar.
-  8. Log NC/Scrap        — catálogo de códigos por Area.
-  9. Complete            — cierra el proceso de manufactura.
+Apertura
+  1. Resource Setup   Asocia el recurso (estación) a la Shop Order y las herramientas
+                      (ej. R_SCN_MASK_1, Shop Order 303406950, Tools 10033058 y 10087734).
+                      No define qué piezas se procesan (eso es Search/Start). Captura libre,
+                      sin validar contra catálogo. Se califica por SECUENCIA y por
+                      Setup State = "Set Up" (guardar en "Open" es intento fallido); los
+                      recursos capturados no se califican.
+  2. Line Clearance   Pregunta sí/no.
+  3. Search/Start     Se califica por SECUENCIA. Aquí aparece la diferencia por
+                      SerializationType:
+                      · Serialized: 3-5 piezas por orden en el simulador; Start, Assembly,
+                        DC y Complete trabajan todas las piezas juntas (selección parcial =
+                        aviso sin penalización); TxtSFC muestra "[N SELECTED]".
+                      · NonSerialized: se selecciona el único SFC una vez; el POD lo carga
+                        con su cantidad.
+                      · Con checklist de Start (RequiresStartChecklist, hoy solo Moldeo):
+                        Start abre 4 modales y se califican sus respuestas.
+  4. Assembly         Si RequiresAssembly. Component List = BOM de la operación
+                      (AssemblyComponents, simulado). Un escaneo numérico por componente
+                      cubre toda su Qty y se aplica a todas las piezas ("Apply to all
+                      SFCs"). Termina con todo el BOM ensamblado. No valida el barcode
+                      contra el número de parte: se califica solo por secuencia.
+  5. Data Collection  Si RequiresDataCollection. Parámetros de catálogo por Area, por pieza.
+Cierre
+  6. Line Clearance   Igual que el de apertura.
+  7. SFC Split        Solo en guías NonSerialized: divide filas del lote antes de seguir.
+  8. Log NC/Scrap     Catálogo de códigos por Area.
+  9. Complete         Cierra el proceso de manufactura.
 ```
 
 ### Modos de sesión (`TrainingSession.Mode`)
 
-- **Guided**: reintentos ilimitados por paso hasta acertar; no bloquea el avance ni
-  aplica penalización — es práctica, no evaluación. Con la guía visual (spec 010, R10)
-  la decisión incorrecta no se envía, así que casi siempre queda un intento por paso:
-  es lo esperado (decisión del usuario, 2026-10-07). Qué pasos fallan más por guía se
-  mide con **Assessment**.
-- **Assessment**: hay puntaje mínimo de aprobación. Cada paso debe completarse
-  correctamente antes de desbloquear el siguiente (gate-keeping en tiempo real).
-  Aplica penalización por reintento:
+- **Guided** — práctica: reintentos ilimitados, sin penalización ni bloqueo. La guía visual
+  no deja enviar la decisión incorrecta, así que casi siempre queda un intento por paso: es
+  lo esperado (decisión del usuario, 2026-10-07). Los pasos que más fallan se miden con
+  Assessment.
+- **Assessment** — evaluación con puntaje mínimo de aprobación (`ScoreCalculator.PassingScore`
+  = 0.70). Cada paso se completa antes de desbloquear el siguiente, con penalización por
+  reintento:
 
   ```
-  PenaltyFactor(intento 1) = 1.00  (100%)
-  PenaltyFactor(intento 2) = 0.80  (80%)
-  PenaltyFactor(intento 3) = 0.60  (60%)
-  PenaltyFactor(intento 4+) = 0.00 — el paso se marca fallido pero el sistema
-                                      FUERZA el avance al siguiente paso (no
-                                      debe quedar bloqueada la evaluación).
+  PenaltyFactor(intento 1)  = 1.00
+  PenaltyFactor(intento 2)  = 0.80
+  PenaltyFactor(intento 3)  = 0.60
+  PenaltyFactor(intento 4+) = 0.00 → el paso queda fallido y el sistema FUERZA el avance
+                                     al siguiente (la evaluación nunca queda bloqueada)
 
-  StepScore = StepWeight × PenaltyFactor(intento_en_que_acertó)
+  StepScore = StepWeight × PenaltyFactor(intento en que acertó)
   ```
 
-  Esta fórmula aplica igual a pasos con contenido validable (Data Collection,
-  NC/Scrap) y a pasos sin contenido (Resource Setup, Search/Navigation) — en
-  estos últimos, cada intento fuera de secuencia cuenta como intento fallido.
+  Aplica igual a pasos con contenido (Data Collection, NC) y a pasos de secuencia (Resource
+  Setup, Search): en estos, cada intento fuera de secuencia es un intento fallido.
+
+### Qué cuenta como intento
+
+- **Formato vs. decisión.** Un error de *formato* (campo requerido vacío, Shop Order o
+  barcode no numérico, filas faltantes, marcado `<x`) lo bloquea el control y **no** cuenta
+  como intento. Toda *decisión* del operador (Sí/No, Setup State, código NC, valores de DC,
+  elegir la fila en Log NC y Complete) se envía siempre al servidor y la califica
+  `StepValidator`. Nunca rechazar una decisión en el control ni revelar la respuesta correcta
+  en Assessment (el mensaje solo muestra los intentos restantes). Excepción: en Data
+  Collection un campo vacío sí es intento fallido.
+- **Acción incorrecta** (spec 007): botón equivocado dentro de un paso (ej. Add o Done en
+  vez de Add-Done) o gate de fila sin cumplir → `StepAnswers.Invalid` a la BLL, intento
+  fallido. Complete acepta solo `"complete"`.
+- **Secuencia en Assessment (S2):** todos los botones del POD están habilitados, incluidos
+  los que no aplican al área y las acciones del MES sin lógica (Work Instructions, Reports,
+  Place Back in Queue, Tool List, las opciones de relleno de Activities). Un click en un
+  botón que no es el del paso actual es un intento fallido **del paso actual**, con el mismo
+  mensaje genérico (no revela que fue de secuencia), y no abre su control. La secuencia se
+  evalúa antes que los avisos de formato. Activities → LC entra en la regla.
+- **Nunca cuentan:** navegación (Browse Work List, selección de filas, Abandon, Logout) y
+  salir de un control sin responder (✗ / Return to POD).
+- **Avance forzado:** Resource Setup forzado carga la orden por defecto (Shop Order
+  `303406950`), ignorando lo capturado; Start forzado deja el POD como si Start se hubiera
+  ejecutado.
 
 ### Ponderación de pasos (`StepWeight`) — la fuente de verdad es la BD
 
-Cada paso de una guía tiene su peso en `TrainingSteps.Weight` (0.00-1.00) y
-`ScoreCalculator` usa ese valor. Los pesos de una guía **deben sumar 1.00**: el cálculo no
-normaliza (una guía que sume 0.90 nunca llega a 100%). Pesos actuales (2026-10-07):
+Cada paso tiene su peso en `TrainingSteps.Weight` (0.00-1.00) y `ScoreCalculator` usa ese
+valor. Los pesos de una guía **deben sumar 1.00**: el cálculo no normaliza (una guía que
+suma 0.90 nunca llega a 100%). Pesos actuales (verificados contra `05` y `07`, 2026-10-07):
 
 ```
 Paso                        Moldeo (07)   Redefinity (05, ejemplo)
@@ -196,203 +218,154 @@ Complete                       0.10          0.10
 Total                          1.00          1.00
 ```
 
-Resource Setup, Data Collection, Log NC y Complete pesan lo mismo en las dos. Lo que
-cambia es Search: en Moldeo absorbe el peso de Assembly, que no tiene, menos el de SFC
-Split, que sí tiene. Una guía nueva (ej. LoFlo, Fase 7) define sus pesos en su script SQL
-y debe sumar 1.00.
+En Moldeo, Search absorbe el peso de Assembly (que no tiene) menos el de SFC Split (que sí
+tiene). Una guía nueva (ej. LoFlo) define sus pesos en su script SQL y debe sumar 1.00.
 
-### Catálogos que deben vivir en BD, nunca hardcodeados en código
+### Catálogos en BD (nunca hardcodeados en código)
 
-- `NCCodes` — códigos de scrap/NC, varían por Area.
-- `DataCollectionGroups` — DC Groups por Area (a futuro, por Operation) con `IsRequired`:
-  una pieza completa Data Collection al guardar todos los grupos obligatorios; si el
-  área no tiene ninguno, basta uno cualquiera (spec 008). Moldeo: solo
-  `DCGTM_FECHA_EXPIRACION_NIR/A` es obligatorio.
-- `DataCollectionParameters` — cada uno pertenece a un DC Group (`DataCollectionGroupId`).
-- `AssemblyComponents` — BOM de la operación (hoy por Area, `OperationId` nullable):
-  `PartNumber`/`Revision`, `Description`, `Qty` decimal. **Por ahora simulado.** No existe
-  un conteo esperado de escaneos (se eliminó `ExpectedComponentCount`, spec 008).
+- `NCCodes`: códigos de scrap/NC por Area.
+- `DataCollectionGroups`: por Area (a futuro, por Operation), con `IsRequired`. Una pieza
+  completa Data Collection al guardar todos los grupos obligatorios; si el área no tiene
+  ninguno, basta uno cualquiera. Moldeo: solo `DCGTM_FECHA_EXPIRACION_NIR/A` es obligatorio.
+- `DataCollectionParameters`: cada uno pertenece a un grupo (`DataCollectionGroupId`).
+- `AssemblyComponents`: BOM de la operación (hoy por Area, `OperationId` nullable),
+  `PartNumber`/`Revision`, `Description`, `Qty` decimal. Simulado por ahora. No hay conteo
+  esperado de escaneos (`ExpectedComponentCount` se eliminó).
 - Flags de `Areas`: `SerializationType`, `RequiresAssembly`, `RequiresDataCollection`,
-  `RequiresNCComponent` y `RequiresStartChecklist` (Start abre la secuencia de 4 modales;
-  hoy solo Moldeo).
+  `RequiresNCComponent` y `RequiresStartChecklist`.
+- Datos de simulación (preguntas LC, parámetros de DC, códigos NC) van en scripts de
+  `Database/StoredProcedures/`, nunca en arrays de la BLL ni en `Web.config`. Excepción
+  aceptada (D-6): la pregunta de Line Clearance ("¿La limpieza de linea se ejecuto?") es la
+  misma en todas las operaciones y queda en el código.
 
-## Roadmap
-
-- **Dónde quedamos:** al iniciar una sesión, leer primero `docs/roadmap.md` → sección **"📍 Estado actual"** (último commit, bloqueantes, deuda conocida y proceso acordado).
-- **Historial completo** (objetivo + "No incluye" de cada fase): `docs/roadmap.md`. Las auditorías viven aparte, una por archivo en `docs/audits/` (el roadmap solo las referencia).
-- **Reglas de oro:** cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la causa principal de deuda técnica temprana es que features de fases futuras se filtran en fases anteriores. Respetar siempre el "No incluye" de la fase en curso.
-- **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007) · 6.5 Fidelidad de UI/UX (cerrada 2026-10-02) · 6.6 Overlays guiados (cerrada 2026-10-07, spec 010) · 5 ScoreCalculator: cobertura de tests (cerrada 2026-10-07, `docs/specs/fase-5-plan.md`). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
-- **Spec 008 cerrada ✅ (2026-09-28):** el motor soporta áreas Serialized (piezas con SFC propio, multi-selección, Start directo), Assembly con BOM y Data Collection por pieza con grupos obligatorios. Resolvió los bloqueantes #1, #2 y #4 de la Fase 7.
-- **Auditoría del proyecto ✅ (2026-10-01/02):** lista única de 32 hallazgos (AUD-01…32), decisiones D-1…D-8 y 5 entregas verificadas (E1 bugs del flujo · E2 auth y secretos · E3 integridad del puntaje · E4 capas · E5 limpieza). Detalle y pendientes en `docs/audits/2026-10-01-auditoria.md`. AUD-16, 25 y 26 los cerró la spec 009. AUD-28/29 en la Fase 9.
-- **6.5 · Fidelidad de UI/UX con el SAP MES real ✅** (cerrada 2026-10-02): cada pantalla y modal del POD replica su captura real (inventario `docs/ui-reference/inventario-pantallas.md`: ✅ 14 · ⚪ 2 sin captura).
-- **Spec 009 · Motor del POD en la BLL cerrada ✅ (2026-10-05, 6 entregas):** `PodService` decide el flujo del POD (orden simulada, selección como intento o aviso, secuencia, avance forzado); la página solo pinta. Contexto una vez por request (Line Clearance: de ~21 a 5 conexiones). El estado del POD sigue en Session y, si se pierde, se reconstruye (D-10). Una sola sesión activa por operador (D-9). Cerró AUD-16, 25 y 26. Detalle: `docs/specs/009-motor-pod.md` y `009-plan.md`.
-- **Auditoría final antes de la 6.6 ✅ (2026-10-06):** revisión de la spec 009 + regresión completa en el navegador. 12 hallazgos (AUD-33…44, 1 Medio: el logout), decisiones D-13…D-16 y 4 entregas verificadas (E1 logout · E2 invariantes de la BLL · E3 la página lee el flujo del contexto y los catálogos se cargan una vez por request · E4 limpieza). AUD-40/42 diferidos. Detalle: `docs/audits/2026-10-06-auditoria-final.md`.
-- **Spec 010 · 6.6 Overlays guiados cerrada ✅ (2026-10-07, 5 entregas + E2b):** en Guided, guía clic por clic por los 9 pasos (siempre activa, bloqueante, solo avanza con la respuesta correcta, globo final); nada en Assessment. Solo presentación. De paso: en Serialized el POD vuelve sin selección tras Start, Assembly y DC. Detalle: `docs/specs/010-overlays-guiados.md` y `010-plan.md`. Diferidas: códigos NC comunes y capturas ⚪.
-- **Ahora — 7 · Catálogo de LoFlo (segunda área), desbloqueada** (#3 resuelto 2026-10-07: flags confirmados; DC, NC y BOM simulados). Script SQL con el catálogo de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM y guía (pesos que sumen 1.00, ver "Ponderación de pasos"). Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas. La Fase 8 (validación interna) se hará en su momento.
-
-## Domain Glossary
-
-Glosario de términos MES (SFC, LC, Shop Order, SFO, Employee vs. Operator, Product/Area/Operation, SerializationType, SessionMode, StepWeight…): `docs/glossary.md`.
-
-## Architecture: N-Tier (3 capas)
+## Arquitectura: N-Tier
 
 ```
-MES Training Simulator/                    ← raíz del repositorio
-├── TrainingApp/                           ← proyecto Web Forms (.NET FW 4.7.2)
-│   ├── Pages/
-│   │   ├── SessionHelper.cs               ← re-hidrata Session (vía AuthService), aviso de
-│   │   │                                     cambio de contraseña del primer acceso y logout
-│   │   ├── Auth/
-│   │   │   ├── Login.aspx + .cs
-│   │   │   └── ChangePassword.aspx + .cs
-│   │   └── Training/
-│   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
-│   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
-│   │       ├── SessionPodStateStore.cs    ← IPodStateStore sobre la Session (spec 009)
-│   │       ├── Guide/                     ← guía visual de Guided (spec 010): GuideScriptBuilder
-│   │       │                                 (guion por tipo de paso y textos), GuideSubstep,
-│   │       │                                 GuideMoment (qué dejó la página en pantalla)
-│   │       └── Models/                    ← modelos de UI: StepViewModel (+ EventArgs),
-│   │                                         IStepControl, PodWorkListRow
-│   ├── UI/
-│   │   ├── Controls/Training/             ← un UserControl por tipo de paso (spec 006):
-│   │   │                                     ResourceSetup, LineClearance, Search (4 modales
-│   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
-│   │   │                                     LogNC, Complete
-│   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
-│   │                                         + íconos + pod-guide.js/.css (motor de la guía,
-│   │                                         solo en Guided)
-│   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
-│   │   ├── Auth/
-│   │   │   └── AuthService.cs
-│   │   ├── Training/
-│   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products)
-│   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
-│   │   │   ├── PodService.cs              ← motor del POD (spec 009): LoadContext (una vez
-│   │   │   │                                 por request) y comandos que registran intentos
-│   │   │   │                                 (intento + avance atómico con spStepAttemptRecord);
-│   │   │   │                                 arma el StepValidator con los catálogos del contexto
-│   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje, estado y
-│   │   │   │                                 catálogos del área (perezosos, una vez por request)
-│   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
-│   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
-│   │   │   ├── PodState.cs                ← estado del POD (orden + avance) e IPodStateStore
-│   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
-│   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
-│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, start, acción inválida)
-│   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
-│   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
-│   │   │   ├── SplitSfcGenerator.cs       ← SFC nuevo de cada SFC Split (Fase 6.5)
-│   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
-│   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
-│   │   └── Scoring/
-│   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
-│   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
-│   │       ├── StepValidationContext.cs   ← área y catálogos que usa el validador
-│   │       └── DataCollectionCompletionRule.cs ← grupos DC obligatorios
-│   ├── DAL/
-│   │   ├── Infrastructure/
-│   │   │   ├── Database.cs                ← wrapper ADO.NET (SqlConnection + SqlCommand)
-│   │   │   └── DatabaseFactory.cs         ← lee connection string de Web.config
-│   │   └── Repositories/                  ← uno por tabla: Employee (API, lista en memoria
-│   │                                         con precarga y refresco), Operator, Product, Area,
-│   │                                         TrainingGuide, TrainingSession, StepAttempt,
-│   │                                         NCCode, DataCollectionGroup,
-│   │                                         DataCollectionParameter, AssemblyComponent
-│   ├── Domain/                            ← POCOs puros, sin dependencias
-│   │   ├── Employee.cs, Operator.cs, Product.cs
-│   │   ├── Area.cs                        ← SerializationType + flags (Requires*)
-│   │   ├── TrainingGuide.cs, TrainingStep.cs (StepWeight)
-│   │   ├── TrainingSession.cs (SessionMode), TrainingSessionStepAttempt.cs
-│   │   ├── Operation.cs                   ← POCO mínimo, entidad FUTURA inactiva
-│   │   ├── NCCode.cs, DataCollectionGroup.cs, DataCollectionParameter.cs
-│   │   └── AssemblyComponent.cs           ← BOM (Qty decimal)
-│   ├── Shared/
-│   │   ├── Constants.cs                   ← DEFAULT_PASSWORD, SessionKeys
-│   │   └── PasswordHelper.cs              ← hashing y comparación
-│   └── Web.config
-├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
-├── Database/
-│   └── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
-└── docs/                                  ← roadmap.md (estado actual), glossary.md, audits/,
-                                              specs/ (NNN-*.md + NNN-plan.md), ui-reference/
+TrainingApp/                  Web Forms (.NET FW 4.7.2)
+  Pages/                      code-behind: Auth/, Training/ (POD, guía de Guided, modelos de UI)
+  UI/Controls/Training/       un UserControl por tipo de paso
+  UI/master/                  MasterPages (heredan AntiXsrfMasterPage), pod.css, pod-guide.js
+  BLL/  Auth/ Training/ Scoring/
+  DAL/  Infrastructure/ Repositories/   (un repositorio por tabla)
+  Domain/                     POCOs puros
+  Shared/                     Constants.cs, PasswordHelper.cs
+TrainingApp.Test/             NUnit 4: reglas de la BLL con datos en memoria
+Database/StoredProcedures/    00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
 ```
 
-### Regla de dependencias
+Árbol completo con la responsabilidad de cada archivo: `docs/architecture.md`.
 
-```
-Pages (code-behind)
-    └── BLL (services)
-            └── DAL (repositories)
-                    └── Domain (POCOs)
-```
+**Regla de dependencias:** Pages → BLL → DAL → Domain. Ninguna capa referencia hacia arriba;
+el code-behind nunca llama al DAL.
 
-Ninguna capa puede referenciar hacia arriba. Code-behind nunca llama a DAL directamente.
-
-### Domain/ — cuándo usarlo
-
-Solo entidades POCO puras. Sin lógica, sin atributos de ORM, sin referencias a System.Web ni ADO.NET. Si una clase tiene lógica que cruza features (scoring, validación de pasos), va en `BLL/Scoring/`.
-
-**Colecciones de navegación:** `TrainingGuide` expone `List<TrainingStep> Steps` porque una guía sin pasos es un objeto incompleto para cualquier uso. El repositorio que cargue una `TrainingGuide` **debe** poblar `Steps` explícitamente (JOIN en el stored proc o segunda consulta). Nunca asumir que la lista está cargada si no fue pedida explícitamente.
-
-Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `TrainingSessionStepAttempt`), **no** se expone colección en el POCO — la BLL pide cada repositorio por separado y compone el resultado. Evita listas que podrían ser `null` silenciosamente.
+**Domain:** solo POCOs, sin lógica, sin atributos de ORM, sin `System.Web` ni ADO.NET. La
+lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
+- `TrainingGuide.Steps` sí es una colección de navegación (una guía sin pasos está
+  incompleta): el repositorio que carga una guía **debe** poblarla (JOIN o segunda consulta).
+  Nunca asumir que una colección está cargada si no se pidió.
+- Las relaciones situacionales (ej. `TrainingSession` + sus `TrainingSessionStepAttempt`)
+  **no** se exponen como colección: la BLL pide cada repositorio y compone el resultado.
 
 ## Auth Flow
 
-1. Operario ingresa `code1` + contraseña en `Login.aspx`.
-2. `AuthService` → `EmployeeRepository.GetByCode1(code1)` → lista de la API `Constants.EmployeeApiUrl` en memoria del proceso (se precarga al arrancar y se refresca en segundo plano cada `Constants.EmployeeCacheMinutes`: el login no espera a la API; si la API falla se sigue sirviendo la última lista; solo falla si nunca se pudo descargar).
-3. `code1` no existe en la lista → error "Código de empleado no registrado".
-4. Existe → buscar `Operator` local. **Sin registro (primer acceso):** contraseña debe ser `DEFAULT_PASSWORD` → crear `Operator` con `IsFirstLogin = true` → `ChangePassword.aspx` (si no, error). **Con registro:** validar contra `Operator.PasswordHash` (PBKDF2).
-5. Operario cambia la contraseña (`AuthService.ChangePassword`: pide **siempre** la actual —en el primer acceso es la por defecto— y la nueva no puede ser la por defecto) → se guarda hasheada, `IsFirstLogin = false` → cuenta activada.
-6. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` + `SessionHelper.SetOperatorSession` (`OperatorId`, `Code1`, `Name`, `IsFirstLogin`; la misma escritura al re-hidratar la Session). Mientras `IsFirstLogin`, `StartSession` y `GuidedTest` redirigen a `ChangePassword` (auditoría AUD-08).
+1. El operador ingresa `code1` + contraseña en `Login.aspx`.
+2. `AuthService` busca el `code1` en la lista de empleados de la API (`EmployeeRepository`,
+   en memoria; caché y fallos: `docs/architecture.md`). Si no existe → "Código de empleado
+   no registrado". Autorregistro: cualquier empleado de la lista puede activar su cuenta,
+   sin alta por parte de un admin.
+3. Sin `Operator` local (primer acceso): la contraseña debe ser `Constants.DEFAULT_PASSWORD`
+   → se crea el `Operator` con `IsFirstLogin = true` → `ChangePassword.aspx`. Con
+   `Operator`: se valida contra `PasswordHash` (PBKDF2).
+4. `AuthService.ChangePassword` pide **siempre** la contraseña actual (en el primer acceso, la
+   por defecto) y la nueva no puede ser la por defecto → se guarda hasheada e
+   `IsFirstLogin = false`.
+5. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
+   `SessionHelper.SetOperatorSession`. Mientras `IsFirstLogin`, `StartSession` y `GuidedTest`
+   redirigen a `ChangePassword` (AUD-08).
+
+## Convenciones clave
+
+**Datos**
+- **Sin ORM**: toda consulta pasa por stored procedures vía ADO.NET (`SqlCommand` +
+  `SqlDataReader`); cero SQL inline en C#. Es el estándar de la empresa y la app se audita:
+  no proponer EF, Dapper ni otro ORM.
+- El DAL devuelve POCOs de `Domain/`, nunca `DataSet` ni `DataTable`.
+- Connection string `"Default"` fuera del repo: `TrainingApp/connectionStrings.config`
+  (`configSource` desde `Web.config`, en `.gitignore`; en un checkout nuevo se copia de
+  `connectionStrings.config.example`). Nunca hardcodeada ni versionada (AUD-04).
+
+**Capas**
+- Code-behind solo UI: visibilidad, binding y redirecciones. Sin lógica de negocio ni DAL.
+- La BLL valida las reglas de negocio y **protege sus invariantes** sin confiar en que la
+  página ya validó: `PodService.LoadContext` recibe el `operatorId` autenticado y solo
+  devuelve contexto para una sesión propia y en curso; el paso actual lo define el servidor;
+  `TrainingSessionService.Abandon` valida el dueño. Violar un invariante es una excepción, no
+  un intento. Intento y avance/cierre se guardan juntos en una transacción
+  (`spStepAttemptRecord`) (AUD-05/06, spec 009).
+- **Estado del POD solo en la BLL**: la orden simulada y el avance de Assembly/DC (`PodState`)
+  solo los modifica `PodService`; la página y los controles leen el `PodContext` del request.
+  Una sola sesión activa por operador (D-9). Mecanismo: `docs/architecture.md`.
+- Sin `[WebMethod]` para lógica de negocio: si hace falta AJAX, un `IHttpHandler` (.ashx) o
+  un endpoint mínimo.
+
+**Sesión y seguridad**
+- `Session` se escribe solo desde el servidor tras autenticarse, nunca desde JavaScript.
+  Toda página con operador llama `SessionHelper.EnsureOperatorSession()` al inicio de
+  `Page_Load` (false → Login) y después `MustChangePassword()` (true → ChangePassword). Las
+  claves nuevas de operador se agregan solo en `SessionHelper.SetOperatorSession`.
+- `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
+  no en `Web.config` ni hardcodeadas en páginas.
+- Toda página usa `Site.Master` o `Training.Master` (heredan `AntiXsrfMasterPage`,
+  anti-CSRF). Texto del servidor hacia un `<script>`: `HttpUtility.JavaScriptStringEncode` o
+  `JavaScriptSerializer`; texto al HTML con `<%#: %>`. ASP.NET rechaza postbacks con marcado
+  (`<x`): los controles lo bloquean como formato.
+
+**POD y controles** (detalle y decisiones cerradas: `docs/architecture.md`)
+- Controles de paso **estáticos** declarados en `GuidedTest.aspx`, alternando `Visible`;
+  nunca `LoadControl` dinámico (spec 006).
+- **Un postback por paso**: los estados intermedios (wizard de modales, paginación, Save
+  Draft) se resuelven en el cliente.
+- **Guía visual de Guided** (spec 010): solo presentación, no decide el flujo ni guarda
+  estado; Assessment no recibe ni el motor ni el guion. Toda pantalla o control nuevo del POD
+  necesita sus anclas `data-guide` (nunca ids) y su guion en `GuideScriptBuilder`.
+
+**Código**
+- Nullable: `<Nullable>enable</Nullable>` en el csproj cuando sea posible, o comentarios de
+  nullable si no. No usar referencias nulas sin validar.
 
 ## Tech Stack
 
-- **Plataforma:** .NET Framework 4.7.2 · ASP.NET Web Forms (ASPX + code-behind) · ADO.NET puro + SQL Server stored procedures · Visual Studio 2019/2022
-- **Auth/Sesión:** ASP.NET Forms Authentication · `HttpSessionState` (server-side) · PBKDF2 (`Rfc2898DeriveBytes`, en `PasswordHelper.cs`)
-- **Empleados/Tests:** API `https://miappcr.com/api/basico/generalData/allUser/basicInfo` (refresco cada `Constants.EmployeeCacheMinutes` = 30 min, timeout `EmployeeApiTimeoutSeconds` = 10 s, en `EmployeeRepository`) · NUnit 4 (.NET FW 4.7.2)
+- .NET Framework 4.7.2 · ASP.NET Web Forms (ASPX + code-behind) · ADO.NET + stored
+  procedures de SQL Server · Visual Studio 2019/2022 + IIS Express. Es el estándar que exige
+  la empresa (la app se audita): no proponer migrar a .NET moderno.
+- Forms Authentication · `HttpSessionState` (server-side, timeout 60 min) · PBKDF2.
+- Empleados: API `Constants.EmployeeApiUrl` · Tests: NUnit 4 (.NET FW 4.7.2).
 
-## Key Conventions
+## Correr local, compilar y probar
 
-- **Sin ORM** — toda consulta a DB pasa por stored procedures. Cero inline SQL en C#.
-- **DAL devuelve POCOs** — los repositorios mapean `SqlDataReader` a entidades `Domain/`. Nunca devuelven `DataSet` ni `DataTable`.
-- **Code-behind es solo UI** — el archivo `.aspx.cs` solo controla visibilidad de controles, binding de datos y redirecciones. Sin lógica de negocio, sin llamadas directas al DAL.
-- **BLL valida, no el code-behind** — toda validación de reglas de negocio ocurre en los services.
-- **Session solo desde el servidor** — `Session["OperatorId"]` etc. se escribe únicamente tras autenticación exitosa. Nunca se escribe desde JavaScript ni desde el cliente.
-- **Contraseña por defecto en Constants.cs** — `Constants.DEFAULT_PASSWORD`. No en `Web.config`, no hardcodeada en páginas.
-- **Connection string fuera del repo** — clave `"Default"`, leída por `DatabaseFactory`. Vive en `TrainingApp/connectionStrings.config` (`configSource` desde `Web.config`, en `.gitignore`); en un checkout nuevo se copia de `connectionStrings.config.example`. Nunca hardcodeada ni versionada (auditoría AUD-04).
-- **La BLL protege sus invariantes** — `PodService.LoadContext` recibe el `operatorId` autenticado y solo devuelve contexto para una sesión propia y en curso; los comandos de `PodService` que registran intentos usan ese contexto (el paso actual lo define el servidor), y `spStepAttemptRecord` vuelve a validar en su transacción estado, paso y número de intento: si la sesión cambió, falla sin guardar nada. `TrainingSessionService.Abandon` recibe el `operatorId` y valida el dueño. Violarlos es una excepción, no un intento. El intento y el avance/cierre se guardan juntos (transacción). No confiar en que la página ya validó (auditoría AUD-05/06, spec 009).
-- **Estado del POD solo en la BLL (spec 009)** — la orden simulada y el avance de Assembly/DC viven en un `PodState` en Session (una clave por sesión, `SessionPodStateStore`) y solo los modifica `PodService`. La página y los controles arman la UI con el `PodContext` del request y nunca tocan esas claves ni modifican la orden. Los avisos de formato llegan como `PodNotice` y la página elige el texto. Si el estado falta (Session reciclada), `PodService.LoadContext` lo reconstruye con la orden por defecto (D-10). Una sola sesión activa por operador: iniciar una guía (`PodService.StartSession`) o hacer logout (`SessionHelper.Logout`) abandona las `InProgress` (D-9), e iniciar una guía también descarta el estado del POD de las sesiones anteriores (AUD-41).
-- **Seguridad en presentación** — toda página usa `Site.Master` o `Training.Master` (heredan `AntiXsrfMasterPage`, anti-CSRF). Texto que va a un `<script>` desde el servidor: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; data-binding de texto al HTML con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean como formato en el cliente (auditoría E2/E5).
-- **URL de la API de empleados en `Constants.EmployeeApiUrl`** — nunca hardcodeada en el repositorio. `EmployeeRepository` guarda la lista en memoria del proceso (`_current`): `Global.Application_Start` la precarga en segundo plano (`AuthService.WarmUpEmployees`) y, cuando vence (`Constants.EmployeeCacheMinutes`, default 30 min), el siguiente login la sigue usando y dispara un refresco en segundo plano (uno a la vez). Si la API falla o devuelve una lista vacía (B-1), se sigue sirviendo la última lista y se reintenta a los `EmployeeApiRetryMinutes`; cada descarga espera como máximo `EmployeeApiTimeoutSeconds`. La primera descarga es una sola aunque lleguen varios logins a la vez. Solo falla si nunca hubo una descarga exitosa (performance, 2026-10-07).
-  - **Limitación conocida y aceptada:** `_current` es una variable en memoria del proceso de IIS. Si el App Pool se recicla (restart programado, idle timeout, crash) mientras la API externa está caída, la variable se pierde y el siguiente request fallará hasta que la API vuelva a responder. Este riesgo es aceptable dado el contexto (simulador interno de entrenamiento — no es un sistema de producción crítico). Si en el futuro se requiere persistencia ante reciclo, la lista cacheada debería guardarse en disco o en un caché distribuido.
-- **Datos de simulación en stored procedures o scripts SQL** — preguntas LC, parámetros DataCollection, códigos NC van en `Database/StoredProcedures/`. No en arrays dentro de BLL ni en Web.config. Excepción aceptada (D-6 de la auditoría, 2026-10-02): la pregunta del paso Line Clearance ("¿La limpieza de linea se ejecuto?", en `GuidedTest`) es la misma en todas las operaciones y queda en el código.
-- **Sin [WebMethod] para lógica de negocio** — si se necesita AJAX, usar un `IHttpHandler` (.ashx) o un endpoint mínimo. Nunca lógica de negocio en `[WebMethod]` de una página.
-- **Formato vs. decisión en los controles de paso** — el control (JS + code-behind) solo bloquea errores de *formato* (campo requerido vacío, Shop Order no numérico, filas faltantes); no cuentan como intento. Toda *decisión* del operador (Sí/No, Setup State, código NC, valores de DC) se envía siempre al servidor y la califica `StepValidator`. Nunca rechazar una decisión en el control ni revelar la respuesta correcta en Assessment. Excepción aceptada: en Data Collection un campo vacío sí cuenta como intento fallido. En Guided, la guía visual (spec 010, enmienda R10) no deja avanzar con una decisión incorrecta: es presentación, el control y `StepValidator` no cambian y el servidor le manda las respuestas esperadas solo en Guided.
-- **Guía visual de Guided (spec 010)** — es solo presentación: no decide nada del flujo ni guarda estado. En cada respuesta, solo en Guided, `GuidedTest.OnPreRender` arma el guion con `GuideScriptBuilder` (subpasos y textos, en el código) a partir del `PodContext`, y lo pasa con `JavaScriptSerializer` a `PodGuide.start`; Assessment no recibe ni el motor ni el guion (AC-2). Los handlers anotan el `GuideMoment` (abrió, incorrecto, avance, resuelto) que fija la entrada. Los elementos se anclan con `data-guide` (nunca ids). Un control o pantalla nueva del POD necesita sus anclas y su guion. Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (Training.Master): esperan a la guía solo si ella los muestra (R9).
-- **Controles de paso estáticos (spec 006)** — los UserControls de paso se declaran en `GuidedTest.aspx` y se alterna `Visible`; nunca `LoadControl` dinámico. Cerrado: las decisiones de arquitectura de `GuidedTest` están en `docs/roadmap.md` → Fase 6.
-- **Nullable** — habilitar `<Nullable>enable</Nullable>` en csproj cuando sea posible, o usar comentarios de nullable si el proyecto no lo soporta. Evitar referencias nulas sin validar.
+- **Local:** abrir `TrainingApp.slnx` → crear `TrainingApp/connectionStrings.config` desde el
+  `.example` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` en
+  orden numérico (`00`–`07`) → F5 con IIS Express.
+- **Tests:** unit tests de la BLL (servicios, scoring) con datos en memoria, sin BD. La
+  integración del DAL, contra una BD de test dedicada (LocalDB); Testcontainers descartado.
+  Las ASPX no se prueban.
+- Nunca `dotnet build` ni `dotnet test`: usar estos comandos.
 
-## Running Locally & Testing
-
-- Correr local: abrir `TrainingApp.slnx` (VS 2019/2022) → crear `TrainingApp/connectionStrings.config` desde `connectionStrings.config.example` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` → F5 con IIS Express.
-- `TrainingApp.Test/` — NUnit 4 (.NET FW 4.7.2). Integración DAL contra BD de test dedicada (LocalDB); Testcontainers descartado (fricción en FW 4.7.2).
-- Unit tests BLL (services, scoring) con datos en memoria, sin DB. Las ASPX no se prueban (no hay `WebApplicationFactory` en FW).
-- Correr tests: Visual Studio → Test > Run All Tests (Test Explorer).
-
-### Build y validación (proceso usado desde la Fase 6)
-
-1. **Rebuild completo** (el build incremental puede no recompilar; los warnings MSB3061 de `bin\roslyn` bloqueado por IIS Express/VS son inofensivos):
+1. **Rebuild completo** (el incremental puede no recompilar; los warnings MSB3061 de
+   `bin\roslyn` bloqueado por IIS Express/VS son inofensivos):
    `& "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" "TrainingApp\TrainingApp.csproj" /t:Rebuild /p:Configuration=Debug /v:minimal /nologo "/clp:ErrorsOnly;Summary" /nowarn:MSB3061`
-2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup. Usar una carpeta temporal de ruta **corta** (con rutas largas falla por el límite de Windows, ej. `bootstrap...css.map`):
+2. **Precompilar el markup** siempre que se toque `.aspx`/`.ascx`/`.master`: MSBuild no los
+   compila en un Web Application Project y un error de markup aparecería recién en runtime.
+   Carpeta de salida de ruta **corta** (las largas fallan por el límite de Windows):
    `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" (Join-Path $env:TEMP "mespc")`
-   `Web.config` tiene `optimizeCompilations="true"` (tras un rebuild IIS Express solo recompila el markup que cambió). Si después de cambiar la firma de algo que usa el markup aparece un error raro en runtime, borrar `%TEMP%\Temporary ASP.NET Files\vs`. Release lo quita.
-3. **Compilar `TrainingApp.Test` y correr los tests** cuando cambie algo de la BLL o el Domain (hoy cubren reglas puras de BLL; `ScoreCalculatorTests.cs` cubre todo `ScoreCalculator` desde la Fase 5: si se toca el puntaje, tiene que seguir en verde):
+   `Web.config` tiene `optimizeCompilations="true"`: si tras cambiar la firma de algo que usa
+   el markup aparece un error raro en runtime, borrar `%TEMP%\Temporary ASP.NET Files\vs`.
+3. **Tests**, cuando cambie la BLL o el Domain (`ScoreCalculatorTests.cs` cubre todo
+   `ScoreCalculator` desde la Fase 5: si se toca el puntaje, tiene que seguir en verde):
+   compilar `TrainingApp.Test` y correr
    `& "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "TrainingApp.Test\bin\Debug\TrainingApp.Test.dll"`
-4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`). No hay scripts de migración: los cambios de esquema van directo a `00_Schema.sql` y el `ALTER` para la BD existente se le entrega al usuario aparte (indicando si después hay que volver a correr algún script de SPs).
-5. **Verificación en navegador por el usuario**: se le entrega un checklist por criterio de aceptación; el usuario prueba y confirma ("funciona") **antes de cada commit**. Nunca afirmar que la UI funciona sin esa confirmación.
-6. **Commit** con mensaje que referencie la spec (`feat: ... (spec NNN)`) y la línea `Co-Authored-By` vigente.
 
-## Skills Available
+## Skills
 
-`/scaffold` — add a new feature slice · `/code-review` — multi-dimension review, siempre con nivel y archivos según la complejidad (regla en `docs/roadmap.md` → "Cómo retomar" → Proceso acordado)
+`/scaffold` (nueva feature slice) · `/code-review` (siempre con nivel, archivos y foco:
+`docs/process.md` → "/code-review calibrado").

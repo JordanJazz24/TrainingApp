@@ -7,13 +7,19 @@ Leer en paralelo con `general-flow.md` — este archivo solo documenta lo que ca
 
 ## Flags del área
 
-| Flag | Valor | Impacto |
-|---|---|---|
-| `SerializationType` | `NonSerialized` | Lotes/batch (ver variaciones en Paso 3 y Paso 7) |
-| `RequiresAssembly` | `false` | Paso 4 ausente — su peso (15%) absorbido por Search en el seed |
-| `RequiresDataCollection` | `true` | Paso 5 presente |
+Flags y pesos de la guía: `CLAUDE.md` → "Jerarquía" y "Ponderación de pasos" (no se copian
+aquí). Impacto en las pantallas:
 
-**Pasos activos en la guía:** 1 · 2 · 3 · 3.1 (LC Moldeo) · 5 · 6 · 7 · 8
+| Flag | Impacto |
+|---|---|
+| `NonSerialized` | Un SFC de lote: selección de una fila; hay SFC Split (Paso 7) |
+| `RequiresAssembly = false` | Paso 4 ausente |
+| `RequiresDataCollection = true` | Paso 5 presente |
+| `RequiresStartChecklist = true` | Start abre los 4 modales (Paso 3.1) |
+
+**Pasos de la guía (8):** 1 Resource Setup · 2 LC · 3 Search/Start (con 3.1, el checklist) ·
+5 DC · 6 LC de cierre · 7 SFC Split · 8 Log NC · 9 Complete (numeración de
+`general-flow.md`).
 
 ---
 
@@ -44,7 +50,7 @@ Tras el banner, el POD se puebla y el flujo continúa normalmente (Paso 5 → DC
 **Nota:** esta secuencia ocurre **dentro** del paso Search/Start Order, como un flujo condicional específico de Moldeo/R&C.
 
 > **Importante:** La secuencia incluye 4 modales (no 3): ID del Molde → Verificaciones → Parámetros MSS → Verificación Final.  
-> Las 3 preguntas del Modal 2 (Verificaciones) son un LineClearance adicional específico de esta área, hardcodeado en `StepValidator`.
+> Las 3 preguntas del Modal 2 (Verificaciones) son un LineClearance adicional específico de esta área: viven en `SearchControl` y las califica `StepValidator` en el paso Search.
 
 ### Estructura: 4 modales secuenciales
 
@@ -100,7 +106,7 @@ Contiene las primeras preguntas boolean del Line Clearance de Moldeo.
 - **[Save]:** avanza al Modal 3
 
 > Las etiquetas exactas de las preguntas vienen de las imágenes de referencia. El texto está
-> hardcodeado en `StepValidator` por área (`AreaId` = R&C/Moldeo).
+> hardcodeado en `SearchControl.ascx`; `StepValidator` califica las respuestas.
 
 ---
 
@@ -153,8 +159,8 @@ Pregunta final de verificación según MSS.
 
 ## Paso 4 — Assembly (AUSENTE en Moldeo)
 
-`RequiresAssembly = false` → el paso no existe en la guía. \
-**Su peso (15%) está absorbido por Search en el seed (`07_RCMoldeoGuide.sql`).**
+`RequiresAssembly = false` → el paso no existe en la guía. Search absorbe su peso
+(`CLAUDE.md` → "Ponderación de pasos").
 
 ---
 
@@ -167,13 +173,13 @@ sin completar el paso. Hay una sola pieza (el lote): el indicador muestra `(1/1)
 
 ---
 
-## Paso 6 — SFC Split (NonSerialized)
+## Paso 7 — SFC Split (NonSerialized)
 
-Moldeo incluye `SFC_Split` como paso independiente con peso 5%. Permite múltiples splits; la X vuelve al POD para seleccionar otra fila y [Close] avanza sólo después de un split exitoso.
+Moldeo incluye `SFC_Split` como paso independiente. Permite múltiples splits; la X vuelve al POD para seleccionar otra fila y [Close] avanza sólo después de un split exitoso.
 
-## Paso 7 — Log NC
+## Paso 8 — Log NC
 
-`LogNC` conserva únicamente el flujo NC/scrap y pesa 10%. Al completarlo, avanza a Complete.
+`LogNC` conserva únicamente el flujo NC/scrap. Al completarlo, avanza a Complete.
 
 ---
 

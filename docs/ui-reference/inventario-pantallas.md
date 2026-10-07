@@ -45,7 +45,7 @@ contra las 25 capturas de la carpeta._
 | 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | ✅ |
 | 16 | Resultado de Complete | 9 | — | No aplica: en el MES real Complete no tiene pantalla, solo termina la orden (usuario, 2026-10-07) |
 
-**Resumen:** ✅ 14 · 🟡 0 · ⚪ 2 (2026-10-01, tras la entrega 9). **Criterio de cierre cumplido:** todas las pantallas con captura están fieles; las 2 sin captura (#8 y #16) quedan pendientes y no bloquean.
+**Resumen:** ✅ 14 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). **Criterio de cierre cumplido (2026-10-01, tras la entrega 9):** todas las pantallas con captura están fieles; la #8 queda pendiente y no bloquea.
 
 ## Diferencias pendientes por pantalla
 

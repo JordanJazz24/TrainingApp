@@ -445,3 +445,32 @@ subpaso informativo va en todos los mensajes de confirmación, la nota cortada d
 decía "el resto sigue igual" y el resto del guion no tiene cambios._
 
 Ninguna abierta.
+
+---
+
+## Anexo — Investigación previa a la spec (2026-10-05)
+
+> Movido desde `docs/roadmap.md` (Fase 6.6) el 2026-10-07, al reorganizar la documentación.
+> Es el contexto con el que se escribió esta spec; lo decidido está en las secciones de arriba.
+
+- **Reformulación propuesta antes de la spec:** en Guided, una guía visual sobre el POD
+  (oscurece la pantalla, resalta el elemento y muestra un globo) que lleva al operador por
+  cada subpaso de la UI del paso actual (ej. Resource Setup: botón → Retrieve → Setup State
+  "Set Up" → recursos → Save). Guion por tipo de paso (8), parametrizado con los flags del
+  área, no por área. El servidor manda el paso actual; el JS solo conoce el guion. Nada en
+  Assessment. Anclas propias `data-guide`, no ids.
+- **Legacy** (`UI/Dashboard/js/guidedTest.v1.0.0.js`, solo referencia): tour propio en JS sin
+  librería; overlay oscuro con hueco (`clip-path`) sobre el elemento, globo con "Paso N de
+  M"; avanzaba al hacer click en el elemento, con "Continuar" en campos de captura y solo en
+  los banners (2 s); esperaba a que apareciera el elemento en los modales. Dos tours fijos
+  (apertura y cierre) en `sessionStorage`, por subpaso y con textos de Moldeo ("Ingrese
+  **200**"). No dependía del modo.
+- **App de entonces:** muchos botones clave sin id (Retrieve de RS y LC, Collect de LC,
+  Assemble por fila, Save de los modales 1-3 de Start) y los `runat="server"` con prefijo
+  (`MainContent_BtnStart`): por eso las anclas propias. Los modales sí tenían id estático
+  (`modalResourceSetup`, `modalSearch1-4`, `modalSFCSplit`…). `Training.Master` ya cargaba
+  jQuery 3.7, Bootstrap 5 y SweetAlert2. Los íconos "Help" del POD no tenían función. El hint
+  por tipo de paso (`GetHint`) solo aparecía después de un error en Guided.
+- **Preguntas de diseño que quedaban abiertas:** overlay sobre modales apilados (z-index sobre
+  los backdrops; LC usa submodal); reanudar el subpaso tras cada postback; avance por tiempo o
+  por acción; reposicionar tras un error; pantallas ⚪ del inventario.
