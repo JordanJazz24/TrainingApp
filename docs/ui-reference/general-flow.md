@@ -466,7 +466,10 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 - **Serialized:** la orden tiene 3-5 piezas `{ShopOrder}-{sufijo}` (en `New`). Browse Work
   List permite multi-selección (click alterna la fila, sin columna Status) y `TxtSFC`
   muestra el SFC o `[N SELECTED]`. Start exige **todas** las piezas (si no, aviso sin
-  intento), las pasa a `Active`, las carga en el POD y quedan seleccionadas.
+  intento), las pasa a `Active` y las carga en el POD **sin seleccionar**: el operador las
+  selecciona de una vez (Select All) para la actividad siguiente. Corrección del usuario
+  (2026-10-07): en el MES real no quedan seleccionadas; antes el simulador las dejaba
+  seleccionadas. Lo mismo al volver de Assembly y de Data Collection.
 - **NonSerialized:** un solo SFC de lote; selección de una fila.
 
 ### Diferencias SAP real vs. Legacy
@@ -498,8 +501,10 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 ### Trigger
 
 El operador tiene seleccionadas las filas del POD → presiona **[Assemble]**. En Serialized
-tienen que estar **todas** las piezas (aviso sin intento si falta alguna; tras el Start ya
-quedan seleccionadas). `TxtSFC` muestra `[N SELECTED]` (en la captura real: `[250 SELECTED]`).
+tienen que estar **todas** las piezas (aviso sin intento si falta alguna). Tras el Start el
+POD las muestra sin seleccionar (corrección 2026-10-07): el operador presiona Select All.
+`TxtSFC` muestra `[N SELECTED]` (en la captura real: `[250 SELECTED]`) y queda vacío mientras
+no hay selección.
 
 ### Vista: Component List (reemplaza POD Work List)
 

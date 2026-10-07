@@ -16,7 +16,7 @@ se filtran en fases anteriores.
 > una sesión de trabajo relevante. Mantenerla corta: el detalle va en la sección de la
 > fase, en la spec o en el archivo de la auditoría.
 
-**Última actualización:** 2026-10-06 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 010, entrega 1 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 010, entrega 4 (`git log --oneline -10` para ver el estado real)
 
 **Lo último cerrado:** la **auditoría final antes de la 6.6** (2026-10-06,
 `docs/audits/2026-10-06-auditoria-final.md`): revisión de la spec 009 sin vulnerabilidades
@@ -28,10 +28,10 @@ logout), todo verificado por el usuario. Antes: la spec 009 · motor del POD (20
 
 - **Ahora — 6.6 · Overlays guiados (spec 010) 🚧.** Spec aprobada
   (`docs/specs/010-overlays-guiados.md`) y plan aprobado en 5 entregas con P-1 a P-8
-  (`docs/specs/010-plan.md`). **E1, E2, E2b y E3 verificadas** (motor de la guía,
-  Resource Setup, hints en español, Line Clearance, Start, Assembly y Data Collection;
-  enmiendas R10/R11: la guía solo avanza con la respuesta correcta). Sigue la E4: SFC
-  Split, Log NC, Complete y globo final.
+  (`docs/specs/010-plan.md`). **E1 a E4 verificadas** (la guía cubre los 9 pasos del
+  flujo y el globo final; enmiendas R10/R11: solo avanza con la respuesta correcta). En la
+  E4 se corrigió el POD: en Serialized vuelve sin selección tras Start, Assembly y DC, como
+  el MES real. Sigue la E5: regresión completa y cierre de docs.
 - **En paralelo — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de
   LoFlo, a confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo.
 - **En pausa — Fase 5 (tests):** hasta el final, por decisión del usuario.

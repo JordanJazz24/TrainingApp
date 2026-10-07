@@ -44,6 +44,23 @@ namespace TrainingApp.Pages.Training.Guide
                 }
             }
 
+            // Sesión completada (R6): un último globo sobre "Session Complete".
+            if (moment.Kind == GuideMomentKind.SessionCompleted)
+            {
+                script.Substeps.Add(new GuideSubstep
+                {
+                    Key       = "final",
+                    Anchor    = Anchor("pod-final"),
+                    Mode      = GuideMode.Final,
+                    StepLabel = "Guía completada",
+                    Index     = 1,
+                    Total     = 1,
+                    Html      = H("Completó la guía. Cuando se sienta listo, intente el ", B("Assessment"), ".")
+                });
+                script.EntryKey = "final";
+                return script;
+            }
+
             var current = ctx.CurrentStepOrDefault;
             if (ctx.Session.Status == SessionStatus.InProgress && current != null)
             {
@@ -69,6 +86,9 @@ namespace TrainingApp.Pages.Training.Guide
                 case StepType.Search:         return Start(ctx, step);
                 case StepType.Assembly:       return Assembly(ctx, step, moment);
                 case StepType.DataCollection: return DataCollection(ctx, step, moment);
+                case StepType.SFC_Split:      return SfcSplit(ctx, step);
+                case StepType.LogNC:          return LogNC(ctx, step);
+                case StepType.Complete:       return Complete(ctx, step);
                 default:                      return null;
             }
         }
@@ -316,6 +336,114 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
+        // SFC Split (solo NonSerialized): la fila del lote, la cantidad, Split, su mensaje,
+        // Close y el banner como cola.
+        private static StepScript SfcSplit(PodContext ctx, TrainingStep step)
+        {
+            var s = new StepScript(step, "SFC Split") { OpenedName = "qty", TailName = "banner" };
+            s.ProgressByDetail["split"] = "created";
+
+            var lot = ctx.State.Order?.ActiveRows().FirstOrDefault(r => !r.IsFromSplit);
+            AddRowSelection(s, "select", lot, ctx.State.Order?.SFCCode, null);
+            s.Add("open", GuideMode.Click, Anchor("pod-sfc-split"), postback: true,
+                html: H("Presione ", B("SFC Split"), " para dividir el lote."));
+            s.Add("qty", GuideMode.Capture, Anchor("split-qty"), format: GuideFormat.Digits,
+                html: H("Ingrese la cantidad a dividir, por ejemplo ",
+                    B(PodDefaults.DefaultSplitQty.ToString(CultureInfo.InvariantCulture)), "."));
+            s.Add("split", GuideMode.Click, Anchor("split-split"), postback: true,
+                html: H("Presione ", B("Split"), "."));
+            s.Add("created", GuideMode.Info, Anchor("split-created"),
+                html: H("Verifique el mensaje ", B("New SFC … created with quantity …"), ": se creó un SFC nuevo con esa cantidad."));
+            s.Add("close", GuideMode.Click, Anchor("split-close"), postback: true,
+                html: H("Presione ", B("Close"), " para terminar el split."));
+            s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                html: H("Verifique el mensaje ", B("SFC Split completed successfully"), "."));
+            return s;
+        }
+
+        // Log NC: la fila a scrapear (NonSerialized: la del split; Serialized: una pieza, así
+        // que primero se quita la selección que venía de los pasos anteriores), toda la NC
+        // Selection (R6: cualquier código es válido), Component si el área lo pide y Add-Done.
+        private static StepScript LogNC(PodContext ctx, TrainingStep step)
+        {
+            bool needsComponent = ctx.Area.RequiresNCComponent;
+            var s = new StepScript(step, "Log NC")
+            {
+                OpenedName    = "list",
+                IncorrectName = needsComponent ? "component" : "addDone",
+                TailName      = "banner"
+            };
+            s.OpenedByDetail["entry"] = needsComponent ? "component" : "addDone";
+
+            var order = ctx.State.Order;
+            if (ctx.Area.SerializationType == SerializationType.Serialized)
+            {
+                var piece = order?.ActiveRows().FirstOrDefault();
+                s.Add("clear", GuideMode.Click, Anchor("pod-select-all"),
+                    done: new[] { "!" + Anchor("pod-row") + ".selected" },
+                    html: H("Presione ", B("Select All"), " para quitar la selección de todas las piezas."));
+                AddRowSelection(s, "select", piece, null, "Seleccione una pieza para registrar el defecto, por ejemplo ");
+            }
+            else
+            {
+                var splitRow = order?.ActiveRows().FirstOrDefault(r => r.IsFromSplit);
+                AddRowSelection(s, "select", splitRow, null, "Seleccione el SFC creado por el split, ");
+            }
+
+            s.Add("open", GuideMode.Click, Anchor("pod-lognc"), postback: true,
+                html: H("Presione ", B("Log NC"), " para registrar un defecto."));
+            s.Add("list", GuideMode.Click, Anchor("nc-list"), postback: true,
+                html: H("Presione ", B("Log NC"), " en el código del defecto. En el simulador cualquier código es válido."));
+            if (needsComponent)
+                s.Add("component", GuideMode.Capture, Anchor("nc-component"), format: GuideFormat.Required,
+                    html: H("Ingrese el componente, por ejemplo ", B(ExampleBarcode), "."));
+            s.Add("addDone", GuideMode.Click, Anchor("nc-add-done"), postback: true,
+                html: H("Presione ", B("Add-Done"), " para registrar el NC."));
+            s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                html: H("Verifique el mensaje de ", B("scrap"), ": las unidades se dieron de baja."));
+            return s;
+        }
+
+        // Complete: las filas que quedan (Serialized: todas con Select All; NonSerialized: el
+        // lote) y Complete. Con él termina la sesión y aparece el globo final.
+        private static StepScript Complete(PodContext ctx, TrainingStep step)
+        {
+            var s = new StepScript(step, "Complete");
+            var order = ctx.State.Order;
+            var rows = order?.ActiveRows() ?? new List<SimulatedOrderRow>();
+            if (ctx.Area.SerializationType == SerializationType.Serialized)
+                s.Add("select", GuideMode.Click, Anchor("pod-select-all"), done: AllSelected(rows),
+                    html: H("Presione ", B("Select All"), " para seleccionar todas las piezas."));
+            else
+                AddRowSelection(s, "select", rows.FirstOrDefault(), order?.SFCCode, null);
+            s.Add("complete", GuideMode.Click, Anchor("pod-complete"), postback: true,
+                html: H("Presione ", B("Complete"), " para cerrar la orden."));
+            return s;
+        }
+
+        // Seleccionar exactamente una fila del POD: avanza cuando esa fila (y ninguna otra)
+        // queda seleccionada. prefix: texto antes del SFC; sin él, "Seleccione el SFC {sfc}."
+        private static void AddRowSelection(StepScript s, string name, SimulatedOrderRow row,
+            string fallbackSfc, string prefix)
+        {
+            string sfc = row?.SFCCode ?? fallbackSfc;
+            string html = prefix == null
+                ? SelectSfc(sfc)
+                : H(prefix, B(sfc ?? string.Empty), ".");
+            if (row == null)
+            {
+                s.Add(name, GuideMode.Click, Anchor("pod-row"), html: html);
+                return;
+            }
+            s.Add(name, GuideMode.Click, Anchor("pod-row") + Attr("data-row-id", row.RowId),
+                done: new[]
+                {
+                    SelectedRow(row.RowId),
+                    "!" + Anchor("pod-row") + ".selected:not(" + Attr("data-row-id", row.RowId) + ")"
+                },
+                html: html);
+        }
+
         // Piezas de Data Collection: las que fijó la BLL al abrirlo o, antes de abrirlo, las
         // filas activas de la orden (las mismas que tomará: todas en Serialized, el lote en
         // NonSerialized).
@@ -392,20 +520,20 @@ namespace TrainingApp.Pages.Training.Guide
             var rows = order?.ActiveRows() ?? new List<SimulatedOrderRow>();
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
-                s.Add("select", GuideMode.Click, Anchor("pod-select-all"),
-                    done: rows.Select(r => SelectedRow(r.RowId)).ToArray(),
+                s.Add("select", GuideMode.Click, Anchor("pod-select-all"), done: AllSelected(rows),
                     html: H("Presione ", B("Select All"), " para seleccionar todas las piezas."));
                 return;
             }
 
-            var row = rows.FirstOrDefault();
-            s.Add("select", GuideMode.Click,
-                row != null ? Anchor("pod-row") + Attr("data-row-id", row.RowId) : Anchor("pod-row"),
-                done: row != null ? new[] { SelectedRow(row.RowId) } : null,
-                html: SelectSfc(row?.SFCCode ?? order?.SFCCode));
+            AddRowSelection(s, "select", rows.FirstOrDefault(), order?.SFCCode, null);
         }
 
         private static string SelectedRow(string rowId) => Anchor("pod-row") + ".selected" + Attr("data-row-id", rowId);
+
+        // "Todas las filas seleccionadas". Sin filas no hay condición de hecho (una lista vacía
+        // daría el subpaso por hecho sin que el operador haga nada).
+        private static string[] AllSelected(IList<SimulatedOrderRow> rows)
+            => rows.Count == 0 ? null : rows.Select(r => SelectedRow(r.RowId)).ToArray();
 
         // ── Helpers ─────────────────────────────────────────────────────────
 

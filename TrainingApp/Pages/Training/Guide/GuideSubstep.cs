@@ -12,6 +12,7 @@ namespace TrainingApp.Pages.Training.Guide
         public const string Verify  = "verify";  // revisa un valor en pantalla y "Continuar"
         public const string Info    = "info";    // explica lo que se ve y "Continuar"
         public const string Scan    = "scan";    // escanea (o escribe + Enter); avanza solo (R6)
+        public const string Final   = "final";   // globo final sobre "Session Complete", con OK
     }
 
     // Regla de un campo de un bloque con decisión (Data Collection, R10): las mismas que

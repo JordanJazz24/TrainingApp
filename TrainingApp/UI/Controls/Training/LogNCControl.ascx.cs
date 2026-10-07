@@ -19,6 +19,10 @@ namespace TrainingApp.UI.Controls.Training
         // El operador sale al POD sin responder: el host cierra el control.
         public event EventHandler OnReturnToPod;
 
+        // Se eligió un código en NC Selection y se abrió NC Data Entry (la guía de Guided entra
+        // en el formulario, spec 010).
+        public event EventHandler OnCodeSelected;
+
         public void Initialize()
         {
             PnlNCSelection.Visible = false;
@@ -75,6 +79,7 @@ namespace TrainingApp.UI.Controls.Training
 
             // La NC Selection List queda visible detrás del modal (spec 007).
             PnlNCEntry.Visible = true;
+            OnCodeSelected?.Invoke(this, EventArgs.Empty);
         }
 
         protected void BtnCloseEntry_Click(object sender, EventArgs e)

@@ -239,7 +239,23 @@ Con la guía activa, el helper no programa nada y la guía oculta el mensaje al 
   - Moldeo: DC solo con `DCGTM_FECHA_EXPIRACION_NIR/A`, y un valor fuera de rango →
     vuelve al bloque.
 
-### Entrega 4 — SFC Split, Log NC, Complete y globo final
+### Entrega 4 — SFC Split, Log NC, Complete y globo final — verificada (2026-10-07)
+
+- **Notas de implementación:**
+  - Los clics de selección avanzan recién cuando la selección queda como pide el paso
+    (`done` con condiciones negadas: "ninguna otra fila seleccionada").
+  - Log NC en Serialized: primero Select All para quitar la selección y después una sola
+    pieza, para no scrapear todas menos una.
+  - Momentos: `Progress(paso, "split")` tras un Split y `Opened(paso, "entry")` al elegir un
+    código NC (evento nuevo `OnCodeSelected` del control). Globo final con OK
+    (`SessionCompleted`).
+  - `/code-review low` (3 archivos): con cero filas activas la selección quedaba "hecha";
+    corregido (sin filas no hay condición de hecho).
+- **Bug reportado al probar (2026-10-07), corregido en el POD (ambos modos):** en Serialized
+  las piezas quedaban seleccionadas tras el Start (decisión de la spec 008) y la guía saltaba
+  la selección de Assembly y DC. En el MES real no quedan seleccionadas: el POD vuelve **sin
+  selección** tras Start, Assembly y DC, y el campo SFC queda vacío hasta seleccionar
+  (decisiones del usuario). Corregidos `008-plan.md` y `general-flow.md`.
 
 - SFC Split: fila del lote, Qty, Split, "New SFC … created", Close y banner.
 - Log NC: fila a scrapear (la del split en NonSerialized, una pieza en Serialized), toda la

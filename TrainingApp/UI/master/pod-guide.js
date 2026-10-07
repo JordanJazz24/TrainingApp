@@ -31,8 +31,13 @@
     // Un desplegable con respuesta esperada (decisión) también avanza con "Continuar", que se
     // habilita solo con el valor correcto; elegir no avanza solo (R11).
     function needsContinue(s) {
-        return s.mode === 'capture' || s.mode === 'verify' || s.mode === 'info' ||
+        return s.mode === 'capture' || s.mode === 'verify' || s.mode === 'info' || s.mode === 'final' ||
             (s.mode === 'change' && s.expect != null);
+    }
+
+    // Subpasos que solo se leen: lo resaltado no se toca (R11).
+    function readOnly(s) {
+        return s.mode === 'info' || s.mode === 'final';
     }
 
     // ── Elementos ────────────────────────────────────────────────────
@@ -106,12 +111,22 @@
         return v !== '' && !/[<>]/.test(v);
     }
 
-    // ¿El subpaso ya está hecho? (filas ya seleccionadas, Add visible tras escanear)
+    // ¿El subpaso ya está hecho? (filas ya seleccionadas, Add visible tras escanear). Cada
+    // selector debe tener un elemento visible; con "!" adelante, ninguno (ej. "ninguna fila
+    // seleccionada").
     function doneNow(s) {
         if (!s || !s.done) return false;
         return s.done.every(function (sel) {
-            return Array.prototype.some.call(document.querySelectorAll(sel), isVisible);
+            var negate = sel.charAt(0) === '!';
+            var any = Array.prototype.some.call(document.querySelectorAll(negate ? sel.substring(1) : sel), isVisible);
+            return negate ? !any : any;
         });
+    }
+
+    // Avanza cuando la pantalla queda como pide el subpaso, no con el clic: escaneo (Add
+    // visible) y selección de filas (un clic puede deseleccionar).
+    function waitsForDone(s) {
+        return s.mode === 'scan' || (s.mode === 'click' && !s.postback && s.done != null);
     }
 
     // Formato y, en una decisión, la respuesta correcta (R10: sin aviso propio; "Continuar"
@@ -134,7 +149,7 @@
     function continueEnabled() {
         var s = current();
         if (!s) return false;
-        if (state === 'failsafe' || s.mode === 'info' || !target) return true;
+        if (state === 'failsafe' || readOnly(s) || !target) return true;
         return answerOk(s, target);
     }
 
@@ -160,10 +175,11 @@
     function render() {
         var s = current();
         globe.querySelector('.pg-step').textContent  = s.step;
-        globe.querySelector('.pg-count').textContent = 'Subpaso ' + s.index + ' de ' + s.total;
+        globe.querySelector('.pg-count').textContent = s.mode === 'final' ? '' : 'Subpaso ' + s.index + ' de ' + s.total;
         // HTML armado y codificado en el servidor (GuideScriptBuilder).
         globe.querySelector('.pg-text').innerHTML = s.html;
         globe.querySelector('.pg-actions').style.display = needsContinue(s) ? '' : 'none';
+        globe.querySelector('.pg-continue').textContent = s.mode === 'final' ? 'OK' : 'Continuar';
         updateContinue();
     }
 
@@ -319,7 +335,7 @@
 
     function onTargetClick() {
         var s = current();
-        if (s.mode !== 'click') return;
+        if (s.mode !== 'click' || waitsForDone(s)) return;
         if (s.postback) {
             // La página se envía: no se muestra nada ni se acepta otro clic hasta la respuesta.
             since = Date.now();
@@ -381,8 +397,9 @@
             return;
         }
         // shown
-        // Escaneo (R6): el lector termina en Enter y el control muestra Add; ahí se avanza.
-        if (current().mode === 'scan' && doneNow(current())) { advance(); return; }
+        // Escaneo (R6: el lector termina en Enter y el control muestra Add) y selección de
+        // filas: se avanza cuando la pantalla queda como pide el subpaso.
+        if (waitsForDone(current()) && doneNow(current())) { advance(); return; }
         if (!el) { search(); return; }
         target = el;
         place();
@@ -395,10 +412,10 @@
             (node.closest('[data-guide-free]') || node.closest('.swal2-container')));
     }
 
-    // Lo resaltado en un subpaso informativo es de solo lectura (R11): solo el globo.
+    // Lo resaltado en un subpaso informativo (o el globo final) es de solo lectura (R11).
     function targetEditable() {
         var s = current();
-        return !!(target && s && s.mode !== 'info');
+        return !!(target && s && !readOnly(s));
     }
 
     function allowed(node) {

@@ -358,14 +358,16 @@ namespace TrainingApp.Pages.Training
             }
             else if (step.StepType == StepType.Assembly)
             {
-                // La Component List reemplazaba el POD: se vuelve a pintar con la selección.
-                // Mensaje del MES real al terminar el BOM (Fase 6.5).
+                // La Component List reemplazaba el POD: vuelve sin selección, como el real
+                // (2026-10-07). Mensaje del MES real al terminar el BOM (Fase 6.5).
+                ClearPodSelection(area);
                 BindWorkList(area, session);
                 ShowBanner("All components processed at this operation");
             }
             else if (step.StepType == StepType.DataCollection)
             {
-                // La Data Collection List reemplazaba el POD.
+                // La Data Collection List reemplazaba el POD: vuelve sin selección (2026-10-07).
+                ClearPodSelection(area);
                 BindWorkList(area, session);
             }
             else if (step.StepType == StepType.SFC_Split)
@@ -455,6 +457,8 @@ namespace TrainingApp.Pages.Training
             }
 
             e.IsApplied = true;
+            // Spec 010: la guía entra en el mensaje "New SFC … created".
+            _guideMoment = GuideMoment.Progress(step, "split");
             e.RemainingQty = result.RemainingQty;
             e.NewSfcCode = result.NewSfcCode;
             BindWorkList(area, session);
@@ -546,6 +550,13 @@ namespace TrainingApp.Pages.Training
 
             if (ClearSelectionAroundSplit(forcedStep))
                 rebind = true;
+
+            // Como en el submit normal: tras Assembly y DC el POD vuelve sin selección.
+            if (forcedStep == StepType.Assembly || forcedStep == StepType.DataCollection)
+            {
+                ClearPodSelection(area);
+                rebind = true;
+            }
 
             // ShowStartedOrder ya vuelve a pintar el POD.
             if (podChanged && forcedStep == StepType.Search)
@@ -671,30 +682,32 @@ namespace TrainingApp.Pages.Training
         }
 
         // Start completado (directo, con checklist o forzado): la BLL ya pasó las piezas a
-        // Active y el POD las carga. Serialized: quedan seleccionadas, como en el POD real.
+        // Active y el POD las carga sin seleccionar, como el POD real: el operador las
+        // selecciona para la actividad siguiente (corrección del usuario, 2026-10-07).
         // NonSerialized: el SFC del lote queda fijo en el header, tomado de la orden (servidor).
         private void ShowStartedOrder(Area area, TrainingSession session)
         {
-            ClearRowSelection();
-
             var order = Order;
+            ClearPodSelection(area);
             if (order != null)
             {
-                if (area.SerializationType == SerializationType.Serialized)
-                {
-                    var active = order.ActiveRows();
-                    HfSelectedRowIds.Value = string.Join(",", active.Select(r => r.RowId));
-                    TxtSFC.Text            = DescribeSelection(active);
-                }
-                else
-                {
+                if (area.SerializationType == SerializationType.NonSerialized)
                     TxtSFC.Text = order.SFCCode;
-                }
 
                 SetSearchHeader(order.ShopOrderInput, SimulatedOrderRow.StatusActive);
             }
 
             BindWorkList(area, session);
+        }
+
+        // El POD vuelve sin selección (tras Start, Assembly y DC, como el real). Serialized: el
+        // campo SFC refleja la selección, así que queda vacío. NonSerialized: es el SFC del lote
+        // y no cambia (spec 007).
+        private void ClearPodSelection(Area area)
+        {
+            ClearRowSelection();
+            if (area.SerializationType == SerializationType.Serialized)
+                TxtSFC.Text = string.Empty;
         }
 
         protected void BtnAssemble_ServerClick(object sender, EventArgs e)
@@ -748,6 +761,14 @@ namespace TrainingApp.Pages.Training
             }
 
             OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
+        }
+
+        // Spec 010: se eligió un código NC y se abrió NC Data Entry; la guía entra en el
+        // formulario. Mismo guard de sender que los demás handlers del control.
+        protected void HandleNCCodeSelected(object sender, EventArgs e)
+        {
+            if (_ctx == null || !ReferenceEquals(sender, CtrlLogNC)) return;
+            _guideMoment = GuideMoment.Opened(_ctx.CurrentStep, "entry");
         }
 
         // Spec 010: Collect abrió el Data Collection Entry de un grupo; la guía entra en sus

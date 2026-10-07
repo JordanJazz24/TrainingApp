@@ -18,7 +18,7 @@
                     OnClick="BtnReturnPOD_Click" CausesValidation="false" />
             </div>
         </div>
-        <div class="nc-grid">
+        <div class="nc-grid" data-guide="nc-list">
             <asp:Repeater ID="RptNCCodes" runat="server">
                 <ItemTemplate>
                     <div class="nc-cell" data-nc-index="<%# Container.ItemIndex %>">
@@ -91,7 +91,7 @@
                         <span class="nc-form-label">Component:</span>
                         <span class="mes-field nc-form-input">
                             <asp:TextBox ID="TxtComponent" runat="server"
-                                ValidationGroup="ncGroup" />
+                                ValidationGroup="ncGroup" data-guide="nc-component" />
                             <span class="mes-field-icon">&#10697;</span>
                         </span>
                         <span></span>
@@ -120,7 +120,7 @@
                         CssClass="mes-btn mes-ico mes-ico-check"
                         OnClick="BtnWrongButton_Click" CausesValidation="false" />
                     <asp:Button ID="BtnAddDone" runat="server" Text="Add-Done"
-                        CssClass="mes-btn mes-ico mes-ico-check"
+                        CssClass="mes-btn mes-ico mes-ico-check" data-guide="nc-add-done"
                         ValidationGroup="ncGroup"
                         OnClick="BtnAddDone_Click" />
                     <asp:Button ID="BtnReturnPOD" runat="server" Text="Return to POD"

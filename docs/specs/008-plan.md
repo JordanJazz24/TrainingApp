@@ -54,7 +54,9 @@ ese paso. Cada entrega: build + precompilación de markup → checklist → el u
       (NonSerialized: máx. 1).
 - [x] Start directo si `RequiresStartChecklist = 0` (todas las piezas o aviso; pasa a
       `Active`; `SubmitStep`); `StepValidator` da Search por correcto sin checklist.
-      Tras el Start, las piezas iniciadas quedan seleccionadas en el POD.
+      Tras el Start, las piezas iniciadas quedan seleccionadas en el POD. **Corregido
+      2026-10-07 (spec 010, E4):** en el MES real el POD las carga sin seleccionar; también
+      vuelve sin selección tras Assembly y DC.
 - [x] S2: orden por defecto genera piezas (E8); Start forzado activa todas (E9).
 - [x] Refactor de selección (`HfSelectedRowIds`, `HfBrowseRowIds`).
 - [x] **Checklist del usuario** (incluye regresión de Moldeo). Corrección posterior: Resource

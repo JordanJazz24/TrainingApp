@@ -123,7 +123,7 @@
             <span>DC Collect</span>
         </button>
         <button id="BtnComplete" runat="server" class="pod-action-btn" disabled="disabled"
-            onserverclick="BtnComplete_ServerClick">
+            onserverclick="BtnComplete_ServerClick" data-guide="pod-complete">
             <img src="<%=ResolveUrl("~/UI/master/imgs/complete-icon.png")%>" alt="" />
             <span>Complete</span>
         </button>
@@ -195,6 +195,7 @@
                                           OnOnGroupSubmit="HandleGroupSubmit" OnOnGroupOpened="HandleGroupOpened"
                                           OnOnReturnToPod="HandleReturnToPod" />
                 <uc:LogNCControl          ID="CtrlLogNC"          runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"
+                                          OnOnCodeSelected="HandleNCCodeSelected"
                                           OnOnReturnToPod="HandleReturnToPod" />
                 <uc:CompleteControl       ID="CtrlComplete"       runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
             </asp:Panel>
@@ -203,12 +204,13 @@
         <%-- ══ PANEL DERECHO ═══════════════════════════════════════════ --%>
         <div class="pod-sidebar">
             <button id="BtnSFCSplit" runat="server" class="pod-sidebar-btn" disabled="disabled"
-                onserverclick="BtnSFCSplit_ServerClick" onclick="if (!podValidateSFCSplit()) return false;">
+                onserverclick="BtnSFCSplit_ServerClick" onclick="if (!podValidateSFCSplit()) return false;"
+                data-guide="pod-sfc-split">
                 <img src="<%=ResolveUrl("~/UI/master/imgs/split-icon.png")%>" alt="" />
                 <span>SFC Split</span>
             </button>
             <button id="BtnLogNC" runat="server" class="pod-sidebar-btn" disabled="disabled"
-                onserverclick="BtnLogNC_ServerClick">
+                onserverclick="BtnLogNC_ServerClick" data-guide="pod-lognc">
                 <img src="<%=ResolveUrl("~/UI/master/imgs/log_NC-Icon.png")%>" alt="" />
                 <span>Log NC</span>
             </button>
@@ -292,7 +294,7 @@
 
     <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
     <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
-        <div class="pod-completion-card">
+        <div class="pod-completion-card" data-guide="pod-final">
             <h3 class="mb-4">Session Complete</h3>
             <div class="mb-3 fs-4">
                 Score: <strong><asp:Literal ID="LitFinalScore" runat="server" /></strong>

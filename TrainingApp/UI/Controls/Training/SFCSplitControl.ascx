@@ -23,7 +23,7 @@
             </div>
             <div class="modal-body split-body">
                 <%-- Confirmación del real, arriba: "☑ New SFC {sfc} created with quantity {n}" --%>
-                <asp:Panel ID="PnlSplitConfirm" runat="server" Visible="false" CssClass="split-message">
+                <asp:Panel ID="PnlSplitConfirm" runat="server" Visible="false" CssClass="split-message" data-guide="split-created">
                     <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true">
                         <rect x="1" y="1" width="18" height="18" rx="3"
                             fill="#7cc36a" stroke="#3d6b33" stroke-width="1.5" />
@@ -48,7 +48,7 @@
                              cantidad vacía o fuera de rango la avisa BtnSplit_Click con SweetAlert. --%>
                         <span class="split-input-box">
                             <asp:TextBox ID="TxtQtyToSplit" runat="server"
-                                CssClass="split-input" TextMode="Number"
+                                CssClass="split-input" TextMode="Number" data-guide="split-qty"
                                 oninput="splitSyncClear(this)" />
                             <button type="button" class="split-clear" title="Clear"
                                 onclick="splitClearQty(this)">&#10005;</button>
@@ -58,10 +58,10 @@
 
                 <div class="split-actions">
                     <asp:Button ID="BtnSplit" runat="server" Text="Split"
-                        CssClass="mes-btn-outline"
+                        CssClass="mes-btn-outline" data-guide="split-split"
                         CausesValidation="false" OnClick="BtnSplit_Click" />
                     <asp:Button ID="BtnCloseSplit" runat="server" Text="Close"
-                        CssClass="mes-btn-outline"
+                        CssClass="mes-btn-outline" data-guide="split-close"
                         OnClick="BtnCloseSplit_Click" CausesValidation="false" />
                 </div>
             </div>
