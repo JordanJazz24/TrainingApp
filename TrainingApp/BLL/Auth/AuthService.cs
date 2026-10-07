@@ -53,6 +53,13 @@ namespace TrainingApp.BLL.Auth
                 : LoginResult.Ok(op);
         }
 
+        // Precarga la lista de empleados en segundo plano al arrancar la aplicación
+        // (Global.Application_Start): el primer login no espera a la API.
+        public void WarmUpEmployees()
+        {
+            _employeeRepo.WarmUp();
+        }
+
         // Operador local por code1, para re-hidratar la Session cuando se pierde con el login
         // vigente (SessionHelper; auditoría AUD-15).
         public Operator GetOperatorByCode1(string code1)

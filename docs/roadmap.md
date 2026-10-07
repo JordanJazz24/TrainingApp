@@ -27,6 +27,13 @@ POD: en Serialized vuelve sin selección tras Start, Assembly y DC, como el MES 
 Detalle: `docs/specs/010-overlays-guiados.md` y `010-plan.md`. Antes: la auditoría final
 (2026-10-06).
 
+**Arreglo de rendimiento del arranque (2026-10-07, sin spec):** `optimizeCompilations` en
+`Web.config` (Login tras un rebuild: de ~4 s a ~1,7 s), la lista de empleados se precarga al
+arrancar y se refresca en segundo plano (ningún login espera a la API; timeout de 10 s y
+una sola descarga a la vez), y `/bundles` y `/Content` quedan accesibles sin login (Login y
+ChangePassword recibían el HTML del Login en vez de sus JS). La re-hidratación de la Session
+ya era barata (una consulta). Pendiente para la Fase 9: el arranque en frío en IIS (abajo).
+
 - **Ahora — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de LoFlo, a
   confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo. La guía de la 6.6 ya
   la cubre sin trabajo extra (guion por tipo de paso y flags del área).
@@ -444,5 +451,10 @@ Correcciones de UX, bugs de flujo, ajustes de catálogo.
 ### Fase 9 — Deploy del MVP
 **Objetivo:** Deploy en servidor interno con IIS. Configuración de
 connection string de producción, App Pool, permisos, prueba de humo.
+- **Arranque en frío en IIS** (medido 2026-10-07 en desarrollo): tras reciclar el App Pool
+  (por horario o por inactividad), el primer request compila el markup (3-10 s por carpeta;
+  ~18 s todo el sitio). Resolver al publicar: precompilar el sitio y configurar el App Pool
+  con `startMode="AlwaysRunning"`, `preloadEnabled="true"` (Application Initialization) e
+  idle timeout 0.
 **No incluye:** CI/CD automatizado, monitoreo avanzado.
 

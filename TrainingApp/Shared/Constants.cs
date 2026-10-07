@@ -10,6 +10,13 @@ namespace TrainingApp.Shared
         // Minutes before the employee list cache is refreshed from the API
         public const int EmployeeCacheMinutes = 30;
 
+        // Espera máxima de una descarga de la API de empleados (hoy tarda 0,5-1,6 s).
+        public const int EmployeeApiTimeoutSeconds = 10;
+
+        // Si la API falló al refrescar, minutos hasta el siguiente intento (mientras tanto se
+        // sigue sirviendo la última lista).
+        public const int EmployeeApiRetryMinutes = 1;
+
         public static class SessionKeys
         {
             public const string OperatorId = "OperatorId";
