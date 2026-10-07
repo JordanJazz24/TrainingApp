@@ -1,7 +1,7 @@
 # Plan de implementación — Spec 010
 
 **Spec:** `docs/specs/010-overlays-guiados.md` (Approved 2026-10-06)
-**Plan:** aprobado (2026-10-06), con las propuestas P-1 a P-8
+**Plan:** aprobado (2026-10-06), con las propuestas P-1 a P-8 · **Cerrado ✅ (2026-10-07)**
 **Arquitectura:** N-Tier (Pages → BLL → DAL → Domain). La guía es **solo presentación**:
 no toca BLL, DAL, Domain ni la BD. Lee el `PodContext` que la página ya carga una vez por
 request.
@@ -264,7 +264,10 @@ Con la guía activa, el helper no programa nada y la guía oculta el mensaje al 
 - **AC:** 11, 12, 13 y 20 en esos mensajes.
 - **Checklist:** Moldeo y Redefinity en Guided de punta a punta.
 
-### Entrega 5 — Regresión y cierre
+### Entrega 5 — Regresión y cierre — verificada (2026-10-07)
+
+- Sin código nuevo (sin `/code-review`): regresión completa en el navegador por el usuario
+  y cierre de docs (spec, plan, roadmap, `CLAUDE.md`).
 
 - Pasada completa en el navegador:
   - Moldeo y Redefinity en Guided y en Assessment;
@@ -340,7 +343,7 @@ SFC Split | Log NC | Complete}".
 **Assembly**
 1. Serialized: Presione **Select All** para seleccionar todas las piezas. · NonSerialized: Seleccione el SFC **{sfc}**.
 2. Presione **Assemble** para abrir la Component List.
-3. Presione **Assemble** en el componente **{número de parte}**.
+3. Presione **Assemble** en el componente **{número de parte}/{revisión}**.
 4. Escanee el código de barras del componente, por ejemplo **10087734**.
 5. Presione **Add** para registrar el componente.
 6. Verifique el mensaje de confirmación: el componente quedó ensamblado.
@@ -353,7 +356,7 @@ SFC Split | Log NC | Complete}".
 3. Presione **Collect** en el grupo **{grupo}**. (Serialized: "… para la pieza **{sfc}**")
 4. Ingrese los valores:
    - Numeric: "**{parámetro}**: entre **{min}** y **{max}** {unidad}"; solo mínimo: "mayor o igual a **{min}**"; solo máximo: "menor o igual a **{max}**"; sin rango: "un valor numérico".
-   - Boolean: "**{parámetro}**: **Sí**".
+   - Boolean: "**{parámetro}**: **Si**" (como la opción del desplegable).
    - Date: "**{parámetro}**: una fecha válida, por ejemplo **{hoy + 1 año}**".
 5. Presione **Save** para guardar el grupo.
 6. Grupo: Verifique el mensaje **All data for DC group {grupo} has been collected**. · Pieza: Verifique el mensaje: la pieza **{sfc}** completó Data Collection y sigue la siguiente.
@@ -368,17 +371,17 @@ SFC Split | Log NC | Complete}".
 7. Verifique el mensaje **SFC Split completed successfully**.
 
 **Log NC**
-1. NonSerialized: Seleccione el SFC creado por el split, **{sfc}**. · Serialized: Seleccione una pieza para registrar el defecto.
+1. NonSerialized: Seleccione el SFC creado por el split, **{sfc}**. · Serialized: (1a) Presione **Select All** para quitar la selección de todas las piezas (se salta si no hay nada seleccionado); (1b) Seleccione una pieza para registrar el defecto, por ejemplo **{sfc}**.
 2. Presione **Log NC** para registrar un defecto.
 3. Presione **Log NC** en el código del defecto. En el simulador cualquier código es válido.
 4. Ingrese el componente, por ejemplo **10087734**.
 5. Presione **Add-Done** para registrar el NC.
-6. Verifique el mensaje **{…} scrapped**: las unidades se dieron de baja.
+6. Verifique el mensaje de **scrap**: las unidades se dieron de baja.
 
 **Complete**
 1. Serialized: Presione **Select All** para seleccionar todas las piezas. · NonSerialized: Seleccione el SFC **{sfc}**.
 2. Presione **Complete** para cerrar la orden.
-3. Completó la guía. Cuando se sienta listo, intente el Assessment. [OK]
+3. (Globo "Guía completada") Completó la guía. Cuando se sienta listo, intente el **Assessment**. [OK]
 
 **Hints tras un intento fallido (R7 + P-6)**
 
@@ -389,7 +392,7 @@ SFC Split | Log NC | Complete}".
 | Start (checklist) | Responda 'Sí' a las verificaciones y presione Save. |
 | Data Collection | Complete todos los parámetros dentro de su rango y presione Save (no Save Draft). |
 | SFC Split | Seleccione una fila del POD, divida una cantidad válida y presione Close. |
-| Log NC | Seleccione un código NC, ingrese el Component y presione Add-Done. |
+| Log NC | Seleccione un código NC, ingrese el Component y presione Add-Done. (Sin Component en el área: "Seleccione un código NC y presione Add-Done.") |
 | Assembly | Ensamble cada componente de la Component List: escanee su código y presione Add. |
 | Complete | Presione Complete para cerrar la orden. |
 | Complete sin filas (Serialized / NonSerialized) | Seleccione todas las filas para completar. / Seleccione 1 fila para completar. |

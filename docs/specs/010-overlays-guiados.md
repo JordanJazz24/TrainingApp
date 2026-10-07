@@ -1,6 +1,6 @@
 # Spec 010: Overlays guiados (Fase 6.6)
 
-**Status:** Approved (2026-10-06) · enmendada 2026-10-06 (R10: solo avanza con la respuesta correcta; R11: los desplegables avanzan con "Continuar" y lo informativo es de solo lectura)
+**Status:** Cerrada ✅ (2026-10-07) · Approved (2026-10-06) · enmendada 2026-10-06 (R10: solo avanza con la respuesta correcta; R11: los desplegables avanzan con "Continuar" y lo informativo es de solo lectura)
 **Date:** 2026-10-06
 **Plan:** `docs/specs/010-plan.md`
 **Origen:** `docs/roadmap.md` → Fase 6.6. Entrada: `docs/ui-reference/inventario-pantallas.md`.

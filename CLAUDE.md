@@ -206,14 +206,14 @@ Complete:         10%
 - **Dónde quedamos:** al iniciar una sesión, leer primero `docs/roadmap.md` → sección **"📍 Estado actual"** (último commit, bloqueantes, deuda conocida y proceso acordado).
 - **Historial completo** (objetivo + "No incluye" de cada fase): `docs/roadmap.md`. Las auditorías viven aparte, una por archivo en `docs/audits/` (el roadmap solo las referencia).
 - **Reglas de oro:** cada fase tiene un alcance cerrado. No mezclar tareas de otras fases — la causa principal de deuda técnica temprana es que features de fases futuras se filtran en fases anteriores. Respetar siempre el "No incluye" de la fase en curso.
-- **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007) · 6.5 Fidelidad de UI/UX (cerrada 2026-10-02). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
+- **Completadas ✅:** 0 Setup · 1 Auth · 2 Dominio y catálogo de R&C · 3 Motor de TrainingGuide · 4 TrainingSession y modos · 6 UserControls por tipo de paso (cerrada 2026-09-24, specs 004-007) · 6.5 Fidelidad de UI/UX (cerrada 2026-10-02) · 6.6 Overlays guiados (cerrada 2026-10-07, spec 010). **Después de la 7:** 8 Validación interna · 9 Deploy del MVP.
 - **Spec 008 cerrada ✅ (2026-09-28):** el motor soporta áreas Serialized (piezas con SFC propio, multi-selección, Start directo), Assembly con BOM y Data Collection por pieza con grupos obligatorios. Resolvió los bloqueantes #1, #2 y #4 de la Fase 7.
 - **Auditoría del proyecto ✅ (2026-10-01/02):** lista única de 32 hallazgos (AUD-01…32), decisiones D-1…D-8 y 5 entregas verificadas (E1 bugs del flujo · E2 auth y secretos · E3 integridad del puntaje · E4 capas · E5 limpieza). Detalle y pendientes en `docs/audits/2026-10-01-auditoria.md`. AUD-16, 25 y 26 los cerró la spec 009. AUD-28/29 en la Fase 9.
 - **6.5 · Fidelidad de UI/UX con el SAP MES real ✅** (cerrada 2026-10-02): cada pantalla y modal del POD replica su captura real (inventario `docs/ui-reference/inventario-pantallas.md`: ✅ 14 · ⚪ 2 sin captura).
 - **Spec 009 · Motor del POD en la BLL cerrada ✅ (2026-10-05, 6 entregas):** `PodService` decide el flujo del POD (orden simulada, selección como intento o aviso, secuencia, avance forzado); la página solo pinta. Contexto una vez por request (Line Clearance: de ~21 a 5 conexiones). El estado del POD sigue en Session y, si se pierde, se reconstruye (D-10). Una sola sesión activa por operador (D-9). Cerró AUD-16, 25 y 26. Detalle: `docs/specs/009-motor-pod.md` y `009-plan.md`.
 - **Auditoría final antes de la 6.6 ✅ (2026-10-06):** revisión de la spec 009 + regresión completa en el navegador. 12 hallazgos (AUD-33…44, 1 Medio: el logout), decisiones D-13…D-16 y 4 entregas verificadas (E1 logout · E2 invariantes de la BLL · E3 la página lee el flujo del contexto y los catálogos se cargan una vez por request · E4 limpieza). AUD-40/42 diferidos. Detalle: `docs/audits/2026-10-06-auditoria-final.md`.
-- **Ahora — 6.6 · Overlays guiados 🚧** (spec 010 aprobada, `docs/specs/010-overlays-guiados.md`; plan en 5 entregas + E2b, `010-plan.md`; E1-E4 ✅): guía paso a paso en Guided sobre la interfaz cerrada en la 6.5; por tipo de paso, no por área. Solo presentación: no toca BLL, DAL ni BD.
-- **En paralelo — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada por el #3** (confirmar con negocio los flags reales de LoFlo). Script SQL con el catálogo real de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM (simulado) y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas.
+- **Spec 010 · 6.6 Overlays guiados cerrada ✅ (2026-10-07, 5 entregas + E2b):** en Guided, guía clic por clic por los 9 pasos (siempre activa, bloqueante, solo avanza con la respuesta correcta, globo final); nada en Assessment. Solo presentación. De paso: en Serialized el POD vuelve sin selección tras Start, Assembly y DC. Detalle: `docs/specs/010-overlays-guiados.md` y `010-plan.md`. Diferidas: códigos NC comunes y capturas ⚪.
+- **Ahora — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada por el #3** (confirmar con negocio los flags reales de LoFlo). Script SQL con el catálogo real de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM (simulado) y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas.
 - **En pausa ⏸️ — 5 · ScoreCalculator: cobertura de tests.** Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
 
 ## Domain Glossary
@@ -235,6 +235,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
 │   │       ├── SessionPodStateStore.cs    ← IPodStateStore sobre la Session (spec 009)
+│   │       ├── Guide/                     ← guía visual de Guided (spec 010): GuideScriptBuilder
+│   │       │                                 (guion por tipo de paso y textos), GuideSubstep,
+│   │       │                                 GuideMoment (qué dejó la página en pantalla)
 │   │       └── Models/                    ← modelos de UI: StepViewModel (+ EventArgs),
 │   │                                         IStepControl, PodWorkListRow
 │   ├── UI/
@@ -243,7 +246,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
 │   │   │                                     LogNC, Complete
 │   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
-│   │                                         + íconos
+│   │                                         + íconos + pod-guide.js/.css (motor de la guía,
+│   │                                         solo en Guided)
 │   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
 │   │   ├── Auth/
 │   │   │   └── AuthService.cs
@@ -351,6 +355,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 - **Datos de simulación en stored procedures o scripts SQL** — preguntas LC, parámetros DataCollection, códigos NC van en `Database/StoredProcedures/`. No en arrays dentro de BLL ni en Web.config. Excepción aceptada (D-6 de la auditoría, 2026-10-02): la pregunta del paso Line Clearance ("¿La limpieza de linea se ejecuto?", en `GuidedTest`) es la misma en todas las operaciones y queda en el código.
 - **Sin [WebMethod] para lógica de negocio** — si se necesita AJAX, usar un `IHttpHandler` (.ashx) o un endpoint mínimo. Nunca lógica de negocio en `[WebMethod]` de una página.
 - **Formato vs. decisión en los controles de paso** — el control (JS + code-behind) solo bloquea errores de *formato* (campo requerido vacío, Shop Order no numérico, filas faltantes); no cuentan como intento. Toda *decisión* del operador (Sí/No, Setup State, código NC, valores de DC) se envía siempre al servidor y la califica `StepValidator`. Nunca rechazar una decisión en el control ni revelar la respuesta correcta en Assessment. Excepción aceptada: en Data Collection un campo vacío sí cuenta como intento fallido. En Guided, la guía visual (spec 010, enmienda R10) no deja avanzar con una decisión incorrecta: es presentación, el control y `StepValidator` no cambian y el servidor le manda las respuestas esperadas solo en Guided.
+- **Guía visual de Guided (spec 010)** — es solo presentación: no decide nada del flujo ni guarda estado. En cada respuesta, solo en Guided, `GuidedTest.OnPreRender` arma el guion con `GuideScriptBuilder` (subpasos y textos, en el código) a partir del `PodContext`, y lo pasa con `JavaScriptSerializer` a `PodGuide.start`; Assessment no recibe ni el motor ni el guion (AC-2). Los handlers anotan el `GuideMoment` (abrió, incorrecto, avance, resuelto) que fija la entrada. Los elementos se anclan con `data-guide` (nunca ids). Un control o pantalla nueva del POD necesita sus anclas y su guion. Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (Training.Master): esperan a la guía solo si ella los muestra (R9).
 - **Controles de paso estáticos (spec 006)** — los UserControls de paso se declaran en `GuidedTest.aspx` y se alterna `Visible`; nunca `LoadControl` dinámico. Cerrado: las decisiones de arquitectura de `GuidedTest` están en `docs/roadmap.md` → Fase 6.
 - **Nullable** — habilitar `<Nullable>enable</Nullable>` en csproj cuando sea posible, o usar comentarios de nullable si el proyecto no lo soporta. Evitar referencias nulas sin validar.
 

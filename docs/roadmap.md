@@ -16,24 +16,23 @@ se filtran en fases anteriores.
 > una sesión de trabajo relevante. Mantenerla corta: el detalle va en la sección de la
 > fase, en la spec o en el archivo de la auditoría.
 
-**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 010, entrega 4 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 010, entrega 4; la E5 cerró la fase (`git log --oneline -10` para ver el estado real)
 
-**Lo último cerrado:** la **auditoría final antes de la 6.6** (2026-10-06,
-`docs/audits/2026-10-06-auditoria-final.md`): revisión de la spec 009 sin vulnerabilidades
-nuevas; 12 hallazgos AUD-33…44 (1 Medio: el logout no cerraba la sesión tras completar la
-guía), decisiones D-13 a D-16, 4 entregas (E1 logout, E2 invariantes de la BLL, E3 página
-sin decisiones y catálogos una vez por request, E4 limpieza) y la pasada final en el
-navegador (Moldeo y Redefinity en ambos modos, pérdida de la Session, sesión única y
-logout), todo verificado por el usuario. Antes: la spec 009 · motor del POD (2026-10-05).
+**Lo último cerrado:** la **Fase 6.6 · Overlays guiados** (spec 010, 2026-10-07): en
+Guided, una guía visual lleva al operador clic por clic por los 9 pasos del flujo (y un
+globo final), solo deja avanzar con la respuesta correcta (R10) y no se puede cerrar; en
+Assessment no existe. Solo presentación: sin cambios de BLL, DAL ni BD. 5 entregas + E2b,
+todas verificadas por el usuario, más la regresión completa (E5). De paso se corrigió el
+POD: en Serialized vuelve sin selección tras Start, Assembly y DC, como el MES real.
+Detalle: `docs/specs/010-overlays-guiados.md` y `010-plan.md`. Antes: la auditoría final
+(2026-10-06).
 
-- **Ahora — 6.6 · Overlays guiados (spec 010) 🚧.** Spec aprobada
-  (`docs/specs/010-overlays-guiados.md`) y plan aprobado en 5 entregas con P-1 a P-8
-  (`docs/specs/010-plan.md`). **E1 a E4 verificadas** (la guía cubre los 9 pasos del
-  flujo y el globo final; enmiendas R10/R11: solo avanza con la respuesta correcta). En la
-  E4 se corrigió el POD: en Serialized vuelve sin selección tras Start, Assembly y DC, como
-  el MES real. Sigue la E5: regresión completa y cierre de docs.
-- **En paralelo — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de
-  LoFlo, a confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo.
+- **Ahora — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de LoFlo, a
+  confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo. La guía de la 6.6 ya
+  la cubre sin trabajo extra (guion por tipo de paso y flags del área).
+- **Pendientes del usuario de la spec 010 (decisiones diferidas):** los códigos NC más
+  comunes, para que la guía los sugiera (hoy resalta toda la lista), y las capturas de las
+  pantallas ⚪ del inventario (#8 y #16), para ajustar su guion si cambian.
 - **En pausa — Fase 5 (tests):** hasta el final, por decisión del usuario.
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
   `connectionStrings.config`.
@@ -363,7 +362,7 @@ checklist → prueba del usuario → commit → actualizar el inventario.
 
 ---
 
-### Fase 6.6 — Overlays guiados 🚧 (spec 010 aprobada; plan en `docs/specs/010-plan.md`)
+### Fase 6.6 — Overlays guiados ✅ (cerrada 2026-10-07; spec 010 y `docs/specs/010-plan.md`)
 **Objetivo:** en modo Guided, overlays que guían al operador paso a paso sobre la interfaz
 ya cerrada en la 6.5 (qué botón, campo o modal usar en cada paso).
 **A definir en la spec:** si aplican solo en Guided (en Assessment no pueden revelar el
@@ -373,7 +372,15 @@ Entrada: el inventario de pantallas de la 6.5.
 **No incluye:** cambios de UI de las pantallas del MES (eso es la 6.5), reglas de negocio
 nuevas.
 
-**Notas para la spec 010 (sin empezar las preguntas):**
+**Resultado (2026-10-07):** guía clic por clic en Guided sobre los 9 pasos, siempre activa y
+bloqueante (Logout y Abandon libres), textos en español con respuestas concretas y valores
+de ejemplo, solo avanza con la respuesta correcta (R10), los mensajes del MES esperan a la
+guía (R9), falla segura si no encuentra un elemento y globo final. Motor JS propio
+(`UI/master/pod-guide.js`), guion en `Pages/Training/Guide`, anclas `data-guide`. Nada en
+Assessment. Entregas: E1 motor + Resource Setup · E2 Line Clearance + Start · E2b respuesta
+correcta · E3 Assembly + DC · E4 Split + Log NC + Complete · E5 regresión.
+
+**Notas previas a la spec 010 (histórico):**
 - **Reformulación propuesta, sin confirmar por el usuario:** en modo **Guided**, una guía
   visual sobre el POD (oscurece la pantalla, resalta el elemento y muestra un globo con la
   instrucción) que lleva al operador por cada **subpaso de la UI** del paso actual (ej.
