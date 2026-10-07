@@ -28,9 +28,6 @@ código:** Fase 5, entrega 3 (`git log --oneline -10` para ver el estado real)
 - **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
   sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (inventario #8).
   El detalle por paso en el resumen final se verá en su momento.
-- **Acción del usuario, ahora:** correr los scripts `01`–`07` reescritos (limpieza del
-  2026-10-07; `00` no cambió el esquema) y probar la app. Corrige la unidad "Ω" de
-  Redefinity, que estaba guardada como "O".
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
   `connectionStrings.config`.
 
@@ -66,7 +63,7 @@ corrió el usuario:
 | 2026-10-01 | ALTER + `02`, `05`, `06` | Columna `DataCollectionParameters.Description` (Fase 6.5, E8) |
 | 2026-10-02 | `03`, después `03` y `04` | Auditoría E1 y E3: `spTrainingSessionAbandonActiveByOperator`; `spStepAttemptRecord` reemplaza a los SPs de intento, avance y cierre |
 | 2026-10-05 | `03` | Spec 009 E6: `spTrainingSessionAbandonActiveByOperator` sin `@TrainingGuideId` |
-| pendiente | `01`–`07` | Limpieza de scripts (2026-10-07): `CREATE OR ALTER`, catálogos como tablas de valores, transacciones, `spTrainingGuideSync` |
+| 2026-10-07 | `01`–`07` | Limpieza de scripts (2026-10-07): `CREATE OR ALTER`, catálogos como tablas de valores, transacciones, `spTrainingGuideSync` |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`), LoFlo provisoria y Subensamble 1.
