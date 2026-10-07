@@ -240,4 +240,197 @@ namespace TrainingApp.Test
             Assert.That(Score(steps, attempts), Is.EqualTo(0.90m));
         }
     }
+
+    // Sesiones completas con los pesos reales de cada guía. Copia de la BD: si cambian los
+    // scripts de origen, hay que actualizar estos valores.
+    [TestFixture]
+    public class ScoreCalculatorGuideTests
+    {
+        private readonly ScoreCalculator _calc = new ScoreCalculator();
+
+        // Database/StoredProcedures/07_RCMoldeoGuide.sql — NonSerialized, sin Assembly, con SFC Split.
+        private static List<TrainingStep> MoldeoGuide()
+        {
+            return Guide(
+                (StepType.ResourceSetup,  0.20m),
+                (StepType.LineClearance,  0.05m),
+                (StepType.Search,         0.15m),
+                (StepType.DataCollection, 0.30m),
+                (StepType.LineClearance,  0.05m),
+                (StepType.SFC_Split,      0.05m),
+                (StepType.LogNC,          0.10m),
+                (StepType.Complete,       0.10m));
+        }
+
+        // Database/StoredProcedures/05_SeedData.sql (datos de ejemplo) — Serialized, con
+        // Assembly, sin SFC Split. Misma forma que tendrá LoFlo (Fase 7).
+        private static List<TrainingStep> RedefinityGuide()
+        {
+            return Guide(
+                (StepType.ResourceSetup,  0.20m),
+                (StepType.LineClearance,  0.05m),
+                (StepType.Search,         0.05m),
+                (StepType.Assembly,       0.15m),
+                (StepType.DataCollection, 0.30m),
+                (StepType.LineClearance,  0.05m),
+                (StepType.LogNC,          0.10m),
+                (StepType.Complete,       0.10m));
+        }
+
+        // Pasos en el orden de la guía; Id = Order = posición.
+        private static List<TrainingStep> Guide(params (StepType Type, decimal Weight)[] steps)
+        {
+            return steps
+                .Select((s, i) => new TrainingStep { Id = i + 1, Order = i + 1, StepType = s.Type, Weight = s.Weight })
+                .ToList();
+        }
+
+        private static IEnumerable<TestCaseData> RealGuides()
+        {
+            yield return new TestCaseData(MoldeoGuide()).SetArgDisplayNames("Moldeo");
+            yield return new TestCaseData(RedefinityGuide()).SetArgDisplayNames("Redefinity");
+        }
+
+        private const int Forced = 0;   // en las tablas de resultados: el paso se forzó sin acierto
+
+        // Un resultado por paso, en orden: el intento en que acertó, o Forced.
+        private static List<TrainingSessionStepAttempt> Run(IList<TrainingStep> steps, params int[] outcomes)
+        {
+            var attempts = new List<TrainingSessionStepAttempt>();
+            for (int i = 0; i < steps.Count; i++)
+            {
+                attempts.AddRange(outcomes[i] == Forced
+                    ? ScoreData.FailedTimes(steps[i].Id, ScoreCalculator.MaxScoredAttempts + 1)
+                    : ScoreData.CorrectOn(steps[i].Id, outcomes[i]));
+            }
+            return attempts;
+        }
+
+        private static int[] All(int outcome, int count)
+        {
+            return Enumerable.Repeat(outcome, count).ToArray();
+        }
+
+        // Revisa las copias de este archivo, no el SQL: si cambian los scripts, este test no
+        // lo detecta (por eso el comentario de origen en cada guía).
+        [Test]
+        public void GuideCopies_WeightsSumOne()
+        {
+            Assert.That(MoldeoGuide().Sum(s => s.Weight), Is.EqualTo(1.00m));
+            Assert.That(RedefinityGuide().Sum(s => s.Weight), Is.EqualTo(1.00m));
+        }
+
+        private static IEnumerable<TestCaseData> GuidesWithAbsentStep()
+        {
+            yield return new TestCaseData(MoldeoGuide(), StepType.Assembly).SetArgDisplayNames("Moldeo sin Assembly");
+            yield return new TestCaseData(RedefinityGuide(), StepType.SFC_Split).SetArgDisplayNames("Redefinity sin SFC Split");
+        }
+
+        // Pasos opcionales ausentes: la guía no tiene el paso y sus pesos ya lo absorben, así
+        // que todo correcto da 1.00 (el cálculo no completa ni descuenta nada por el ausente).
+        [TestCaseSource(nameof(GuidesWithAbsentStep))]
+        public void PerfectRun_ScoresOne_WithOptionalStepAbsent(List<TrainingStep> guide, StepType absent)
+        {
+            Assert.That(guide.Select(s => s.StepType), Has.None.EqualTo(absent));
+
+            var attempts = Run(guide, All(1, guide.Count));
+
+            Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment), Is.EqualTo(1.00m));
+        }
+
+        [TestCaseSource(nameof(RealGuides))]
+        public void Assessment_AllStepsForced_ScoresZero(List<TrainingStep> guide)
+        {
+            var attempts = Run(guide, All(Forced, guide.Count));
+
+            Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment), Is.EqualTo(0m));
+        }
+
+        [TestCaseSource(nameof(RealGuides))]
+        public void SameAttempts_GuidedVsAssessment(List<TrainingStep> guide)
+        {
+            var attempts = Run(guide, All(3, guide.Count));
+
+            Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Guided), Is.EqualTo(1.00m));
+            Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment), Is.EqualTo(0.60m));
+        }
+
+        // Moldeo sin Data Collection (forzado, −0.30) queda justo en el mínimo y aprueba.
+        [Test]
+        public void Moldeo_LosingDataCollection_PassesAtSeventy()
+        {
+            var guide = MoldeoGuide();
+            //                     RS LC Se DC      LC SS NC Co
+            var attempts = Run(guide, 1, 1, 1, Forced, 1, 1, 1, 1);
+            decimal score = _calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment);
+
+            Assert.That(score, Is.EqualTo(0.70m));
+            Assert.That(ScoreCalculator.IsPassed(score), Is.True);
+        }
+
+        // Además, un reintento en Line Clearance (0.05 × 0.20 = −0.01) deja 0.69: no aprueba.
+        [Test]
+        public void Moldeo_LosingDataCollectionAndOneRetry_FailsAtSixtyNine()
+        {
+            var guide = MoldeoGuide();
+            //                     RS LC Se DC      LC SS NC Co
+            var attempts = Run(guide, 1, 2, 1, Forced, 1, 1, 1, 1);
+            decimal score = _calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment);
+
+            Assert.That(score, Is.EqualTo(0.69m));
+            Assert.That(ScoreCalculator.IsPassed(score), Is.False);
+        }
+
+        // El cálculo no depende del estado de la sesión: una abandonada a mitad de la guía
+        // vale la suma de los pasos resueltos. (Que FinalScore solo se guarde al completar lo
+        // decide spStepAttemptRecord, no ScoreCalculator.)
+        [Test]
+        public void AbandonedMidway_ScoresResolvedStepsOnly()
+        {
+            var guide = MoldeoGuide();
+            // RS al 1.º, LC al 1.º, Search al 2.º, DC forzado; el resto sin intentos.
+            var attempts = ScoreData.CorrectOn(1, 1)
+                .Concat(ScoreData.CorrectOn(2, 1))
+                .Concat(ScoreData.CorrectOn(3, 2))
+                .Concat(ScoreData.FailedTimes(4, ScoreCalculator.MaxScoredAttempts + 1))
+                .ToList();
+
+            Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment),
+                        Is.EqualTo(0.37m));   // 0.20 + 0.05 + 0.15 × 0.80 + 0
+        }
+
+        // Barrido: cada paso resuelto en el intento 1, 2, 3 o forzado (4^8 combinaciones por
+        // guía). El puntaje está entre 0 y 1, tiene a lo sumo 2 decimales (FinalScore es
+        // DECIMAL(5,2): el redondeo de la BD no lo cambia) y es Σ peso × factor, con los
+        // factores de CLAUDE.md escritos aquí, no tomados de GetPenaltyFactor.
+        [TestCaseSource(nameof(RealGuides))]
+        public void Assessment_EveryOutcomeCombination_IsExactAndInRange(List<TrainingStep> guide)
+        {
+            int[] outcomes = { 1, 2, 3, Forced };
+            decimal[] factors = { 1.00m, 0.80m, 0.60m, 0.00m };
+            int combinations = (int)System.Math.Pow(outcomes.Length, guide.Count);
+            var failures = new List<string>();
+
+            for (int combo = 0; combo < combinations && failures.Count < 5; combo++)
+            {
+                var stepOutcomes = new int[guide.Count];
+                decimal expected = 0m;
+                int rest = combo;
+                for (int i = 0; i < guide.Count; i++)
+                {
+                    int pick = rest % outcomes.Length;
+                    rest /= outcomes.Length;
+                    stepOutcomes[i] = outcomes[pick];
+                    expected += guide[i].Weight * factors[pick];
+                }
+
+                decimal score = _calc.CalculateSessionScore(guide, Run(guide, stepOutcomes), SessionMode.Assessment);
+
+                if (score != expected || score < 0m || score > 1m || decimal.Round(score, 2) != score)
+                    failures.Add("[" + string.Join(",", stepOutcomes) + "] → " + score + " (esperado " + expected + ")");
+            }
+
+            Assert.That(failures, Is.Empty);
+        }
+    }
 }

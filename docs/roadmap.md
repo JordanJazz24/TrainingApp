@@ -16,9 +16,16 @@ se filtran en fases anteriores.
 > una sesión de trabajo relevante. Mantenerla corta: el detalle va en la sección de la
 > fase, en la spec o en el archivo de la auditoría.
 
-**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** spec 010, entrega 4; la E5 cerró la fase (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` (desarrollo; `main` la actualiza el usuario) · **Último commit de código:** Fase 5, entrega 3 (`git log --oneline -10` para ver el estado real)
 
-**Lo último cerrado:** la **Fase 6.6 · Overlays guiados** (spec 010, 2026-10-07): en
+**Lo último cerrado:** la **Fase 5 · ScoreCalculator: cobertura de tests** (2026-10-07,
+3 entregas, sin spec: `docs/specs/fase-5-plan.md`). `TrainingApp.Test/ScoreCalculatorTests.cs`
+cubre todas las ramas de `ScoreCalculator`, las guías reales de Moldeo y Redefinity, el
+límite de aprobación y un barrido de las 65 536 combinaciones de cada guía. El código
+cumplía todas las reglas: no hubo cambios al algoritmo. De paso, los pesos de
+`CLAUDE.md` se alinearon con la BD (manda la BD; los pesos de una guía suman 1.00).
+
+**Antes:** la **Fase 6.6 · Overlays guiados** (spec 010, 2026-10-07): en
 Guided, una guía visual lleva al operador clic por clic por los 9 pasos del flujo (y un
 globo final), solo deja avanzar con la respuesta correcta (R10) y no se puede cerrar; en
 Assessment no existe. Solo presentación: sin cambios de BLL, DAL ni BD. 5 entregas + E2b,
@@ -34,15 +41,12 @@ una sola descarga a la vez), y `/bundles` y `/Content` quedan accesibles sin log
 ChangePassword recibían el HTML del Login en vez de sus JS). La re-hidratación de la Session
 ya era barata (una consulta). Pendiente para la Fase 9: el arranque en frío en IIS (abajo).
 
-- **Ahora — Fase 5 (tests de `ScoreCalculator`):** decisión del usuario (2026-10-07): va
-  antes de la 7 y de la 8, para que el puntaje esté cubierto antes de que lo usen
-  operadores reales. Sin `/spec` (el alcance ya está en "Fase 5", abajo): **plan directo en
-  entregas chicas**, guardado en `docs/specs/fase-5-plan.md`, aprobado por el usuario antes
-  de implementar. Punto de partida en "Fase 5" → "Punto de partida".
-- **Después — Fase 7 (LoFlo), desbloqueada:** el #3 se resolvió (2026-10-07). Todas las
+- **Ahora — Fase 7 (LoFlo), desbloqueada:** el #3 se resolvió (2026-10-07). Todas las
   áreas de Sensores son Serialized, con Assembly, Data Collection y Component en NC; sin
   checklist de Start (era propio de Moldeo). DC Groups, parámetros, códigos NC y BOM se
-  simulan por ahora. La guía de la 6.6 la cubre sin trabajo extra.
+  simulan por ahora. La guía de la 6.6 la cubre sin trabajo extra. Los pesos de su guía
+  deben sumar 1.00 (`CLAUDE.md` → "Ponderación de pasos"; LoFlo tiene la forma de
+  Redefinity: con Assembly, sin SFC Split).
 - **Fase 8 (validación interna):** en su momento, por decisión del usuario.
 - **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
   sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (#8). Complete no
@@ -107,9 +111,11 @@ aceptado, y se sumaron AUD-40 y AUD-42 (diferidos).
 - **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
   resuelto (`history.replaceState`). Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
-- **Cobertura de tests (Fase 5, la siguiente):** `ScoreCalculator` sin cobertura NUnit y
-  `StepValidator` con cobertura parcial. `PodService` crea sus repositorios internamente,
-  así que hoy no se puede probar sin BD (fuera del alcance de la Fase 5).
+- **Cobertura de tests:** `ScoreCalculator` está cubierto (Fase 5). `StepValidator` tiene
+  cobertura parcial. `PodService` crea sus repositorios internamente, así que lo que hace
+  alrededor del puntaje (registrar el intento, avance forzado, guardar `FinalScore`) no se
+  puede probar sin BD; se probó en el navegador (spec 009, auditoría final). Si se quiere
+  cubrir, sería otra fase (interfaces de repositorio o integración contra LocalDB).
 - **`CompleteControl`** está declarado e implementa `IStepControl`, pero no tiene UI:
   Complete se resuelve directo desde `BtnComplete`. Desde E5 su evento tiene accessors
   vacíos (como DC y Assembly).
@@ -224,7 +230,7 @@ Spec de referencia: `docs/specs/003-training-session-y-modos.md` (Approved 2026-
 
 ---
 
-### Fase 5 — ScoreCalculator: cobertura de tests ▶️ (siguiente; decisión del usuario 2026-10-07: antes de la 7 y la 8)
+### Fase 5 — ScoreCalculator: cobertura de tests ✅ (completada 2026-10-07; decisión del usuario: antes de la 7 y la 8)
 **Objetivo:** `ScoreCalculator` ya está implementado. Esta fase lo blinda
 con tests NUnit exhaustivos: todos los casos de penalización, force-advance,
 pasos opcionales ausentes, sesiones completadas vs. abandonadas.

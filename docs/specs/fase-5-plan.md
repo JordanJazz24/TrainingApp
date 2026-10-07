@@ -8,7 +8,7 @@ UI. Si un test muestra que el código no cumple una regla, **no se corrige dentr
 fase**: se le presenta al usuario como decisión (corregir el código o confirmar la regla
 y documentarla primero).
 
-**Estado:** aprobado por el usuario (2026-10-07).
+**Estado:** aprobado (2026-10-07) · ✅ completada (2026-10-07, 3 entregas).
 
 ## Punto de partida
 
@@ -90,29 +90,49 @@ Guías chicas armadas en el test (2-3 pasos) para aislar cada regla. 12 casos nu
 - [x] **No normaliza:** una guía cuyos pesos suman 0.90, todo correcto al primer intento,
       da 0.90 (no 1.00). Deja escrito el riesgo de cargar mal los pesos de una guía.
 
-## Entrega 3 — Sesiones completas con las guías reales y cierre de la fase
+## Entrega 3 — Sesiones completas con las guías reales y cierre de la fase ✅ (2026-10-07)
 
-- [ ] **Pasos opcionales ausentes:** Moldeo (sin Assembly, con SFC Split) y Redefinity
+12 casos nuevos (`ScoreCalculatorGuideTests`); suite completa 67/67 en verde.
+Comprobación de que los tests detectan errores: con la penalización del 2.º intento
+cambiada a 0.75 fallan 8 tests (cambio revertido). `/code-review low`: 2 hallazgos
+válidos aplicados (`GuideCopies_WeightsSumOne` renombrado, porque revisa las copias y no
+el SQL; `PerfectRun_…` ahora comprueba que el paso opcional falta de verdad) y 1 falso
+positivo (los pesos de `CLAUDE.md` ya se corrigieron en la entrega 1).
+
+- [x] **Pasos opcionales ausentes:** Moldeo (sin Assembly, con SFC Split) y Redefinity
       (con Assembly, sin SFC Split) dan 1.00 con todo correcto al primer intento: el paso
       que no existe en la guía no cuenta ni resta.
-- [ ] Peor caso en Assessment: todos los pasos forzados → 0.
-- [ ] Los mismos intentos en Guided y en Assessment dan puntajes distintos (Guided 1.00).
-- [ ] **Límite de aprobación con Moldeo:** perder Data Collection entera (forzado, −0.30)
+- [x] Peor caso en Assessment: todos los pasos forzados → 0.
+- [x] Los mismos intentos en Guided y en Assessment dan puntajes distintos (Guided 1.00).
+- [x] **Límite de aprobación con Moldeo:** perder Data Collection entera (forzado, −0.30)
       → 0.70 → aprueba; además un reintento en Line Clearance (0.05 × 0.20 = −0.01) →
       0.69 → no aprueba.
-- [ ] **Completada vs. abandonada:** el cálculo no depende del estado de la sesión. Con
+- [x] **Completada vs. abandonada:** el cálculo no depende del estado de la sesión. Con
       los intentos de una sesión abandonada a mitad de la guía, el puntaje es la suma de
       los pasos resueltos (lo que se guardaría para el instructor). Que `FinalScore` solo
       se escribe al completar lo hace `spStepAttemptRecord`, no `ScoreCalculator` (fuera
       de esta fase).
-- [ ] **Barrido exhaustivo** de las dos guías reales: cada paso resuelto en el intento 1,
+- [x] **Barrido exhaustivo** de las dos guías reales: cada paso resuelto en el intento 1,
       2, 3 o forzado (4⁸ = 65 536 combinaciones por guía, en memoria). En todas: el puntaje
       está entre 0 y 1, tiene como máximo 2 decimales (la columna `FinalScore` es
       `DECIMAL(5,2)`: el redondeo de la BD no cambia el resultado) y es igual a la suma de
       `peso × factor` de cada paso.
-- [ ] Tabla en este plan: cada rama de `ScoreCalculator` → el test que la cubre.
-- [ ] Cierre: `docs/roadmap.md` (Fase 5 ✅, "Estado actual" → Fase 7) y `CLAUDE.md`
+- [x] Tabla en este plan: cada rama de `ScoreCalculator` → el test que la cubre (abajo).
+- [x] Cierre: `docs/roadmap.md` (Fase 5 ✅, "Estado actual" → Fase 7) y `CLAUDE.md`
       (Roadmap → "Ahora").
+
+### Cobertura de ramas de `ScoreCalculator`
+
+| Rama | Test |
+|---|---|
+| `IsPassed`: `>= 0.70` verdadero / falso | `IsPassed_UsesSeventyPercentThreshold` |
+| `CalculateSessionScore`: paso con acierto | `Assessment_StepScoreIsWeightTimesPenalty` y siguientes |
+| `CalculateSessionScore`: paso sin acierto (forzado o pendiente) | `Assessment_ForcedWithoutCorrectAttempt_ScoresZero`, `InProgress_ScoresOnlyResolvedSteps` |
+| `CalculateSessionScore`: primer acierto por `AttemptNumber` | `FirstCorrectAttemptCounts_EvenIfUnordered` |
+| `GetPenaltyFactor`: Guided | `GetPenaltyFactor_Guided_NeverPenalizes` |
+| `GetPenaltyFactor`: Assessment, casos 1 / 2 / 3 / default | `GetPenaltyFactor_Assessment_PenalizesEachRetry` |
+| `ShouldForceAdvance`: Assessment y `n > 3` (cada operando) | `ShouldForceAdvance_Assessment_FromFourthAttempt`, `ShouldForceAdvance_Guided_Never` |
+| Constantes `PassingScore` y `MaxScoredAttempts` | `Constants_MatchBusinessRules` |
 
 ## Verificación de cada entrega
 
