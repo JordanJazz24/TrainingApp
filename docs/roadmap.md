@@ -15,16 +15,20 @@
 > auditoría.
 
 **Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` · **Último commit de
-código:** Fase 5, entrega 3 (`git log --oneline -10` para ver el estado real)
+código:** Fase 5, entrega 3; después, docs y scripts SQL (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 7 (LoFlo), desbloqueada.** Script SQL con el catálogo de LoFlo: solo datos,
   cero código. Flags confirmados en `CLAUDE.md` → "Jerarquía"; DC, NC y BOM simulados. Los
   pesos de su guía deben sumar 1.00 (`CLAUDE.md` → "Ponderación de pasos"); LoFlo tiene la
   forma de Redefinity: con Assembly, sin SFC Split. La guía de Guided (6.6) la cubre sin
-  trabajo extra. Alcance: "Fase 7", abajo.
+  trabajo extra. Plantilla: `06`/`07`, con la guía cargada por `spTrainingGuideSync`
+  (`docs/process.md` → "Base de datos"). Alcance: "Fase 7", abajo.
 - **Después — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
-- **Lo último cerrado:** la **Fase 5 · tests de `ScoreCalculator`** (2026-10-07). Antes, la
-  6.6 (overlays guiados) y un arreglo de rendimiento del arranque (ver "Historial").
+- **Lo último cerrado (2026-10-07):** la **Fase 5 · tests de `ScoreCalculator`**; después,
+  sin fase, la **reorganización de la documentación** (cada regla en un solo lugar: mapa en
+  `CLAUDE.md`, nuevos `docs/process.md` y `docs/architecture.md`; la memoria solo guarda lo
+  que no va al repo) y la **limpieza de los scripts SQL** (corridos y probados por el
+  usuario). Antes, la 6.6 (overlays guiados) y un arreglo de rendimiento (ver "Historial").
 - **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
   sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (inventario #8).
   El detalle por paso en el resumen final se verá en su momento.
@@ -254,6 +258,14 @@ esperan a la guía (R9), falla segura y globo final. Nada en Assessment. Mecanis
 `docs/architecture.md` → "Guía visual de Guided". De paso, en Serialized el POD vuelve sin
 selección tras Start, Assembly y DC, como el MES real. La investigación previa (legacy y app)
 quedó como anexo en `docs/specs/010-overlays-guiados.md`.
+
+### Reorganización de la documentación (2026-10-07, sin spec)
+Cada regla en un solo lugar. `CLAUDE.md` quedó con solo reglas vigentes y un mapa de
+documentos (de 37,5 KB a 22,9 KB); el proceso pasó a `docs/process.md` y los mecanismos a
+`docs/architecture.md`; el roadmap quedó como estado + historial; el glosario, solo
+definiciones. Se quitaron los pesos copiados en `docs/ui-reference/` (estaban desalineados
+de la BD). La memoria pasó de 10 a 4 entradas (perfil, reporte semanal, `/btw` y dónde
+anotar cada cosa).
 
 ### Limpieza de scripts SQL (2026-10-07, sin spec)
 Mismos 8 archivos y numeración (decisión del usuario). Los SPs pasan a `CREATE OR ALTER` sin
