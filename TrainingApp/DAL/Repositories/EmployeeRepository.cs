@@ -14,8 +14,9 @@ namespace TrainingApp.DAL.Repositories
     // Lista de empleados de la API de la empresa, en memoria del proceso. Se descarga al
     // arrancar la aplicación (WarmUp) y, cuando vence (Constants.EmployeeCacheMinutes), se
     // refresca en segundo plano: un login nunca espera a la API salvo que todavía no exista
-    // ninguna lista. Si la API falla al refrescar, se sigue sirviendo la última lista y se
-    // reintenta a los Constants.EmployeeApiRetryMinutes. Solo falla si nunca se pudo descargar.
+    // ninguna lista. Si la API falla al refrescar (o devuelve una lista vacía), se sigue
+    // sirviendo la última lista y se reintenta a los Constants.EmployeeApiRetryMinutes. Solo
+    // falla si nunca se pudo descargar.
     public class EmployeeRepository
     {
         private static readonly HttpClient _http = new HttpClient
@@ -143,6 +144,13 @@ namespace TrainingApp.DAL.Repositories
                               .GetAwaiter()
                               .GetResult();
             var dtos = JsonConvert.DeserializeObject<List<EmployeeDto>>(json);
+
+            // Una lista vacía (o null) es una falla de la API, no "nadie es empleado": si se
+            // aceptara, todos los logins darían "Código de empleado no registrado" hasta el
+            // próximo refresco. Así se conserva la última lista y se reintenta (B-1).
+            if (dtos == null || dtos.Count == 0)
+                throw new InvalidOperationException("La API de empleados devolvió una lista vacía.");
+
             return dtos.Select(d => new Employee
             {
                 Code1     = d.Code1,
