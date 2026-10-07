@@ -233,7 +233,7 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 
 ## Paso 2 — Line Clearance
 
-**StepType:** `LineClearance` | **StepWeight:** 10% | **Validación:** respuesta = "Sí" (true)
+**StepType:** `LineClearance` | **StepWeight:** 5% | **Validación:** respuesta = "Sí" (true)
 
 **Acceso:** Sidebar → [Activities ▼] → "Data Collection Standalone"
 
@@ -397,7 +397,7 @@ Ambos modales se pre-renderizan en el DOM al cargar el control. Ninguno requiere
 
 ## Paso 3 — Search / Start Order
 
-**StepType:** `Search` | **StepWeight:** 15% (hereda peso de Assembly cuando RequiresAssembly=false) | **Validación:** secuencia pura; en áreas con checklist (Moldeo) además las respuestas de LC Moldeo y la verificación final
+**StepType:** `Search` | **StepWeight:** 5% con Assembly (Redefinity) · 15% en Moldeo (pesos por guía en la BD: `CLAUDE.md` → "Ponderación de pasos") | **Validación:** secuencia pura; en áreas con checklist (Moldeo) además las respuestas de LC Moldeo y la verificación final
 
 **Acceso:** directamente en el Dashboard — campo SFC en la search bar.
 
@@ -730,7 +730,7 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
 
 ## Paso 6 — Closing Line Clearance (condicional por área)
 
-**StepType:** `LineClearance` | **StepWeight:** 10% | **Validación:** respuesta = "Sí" (true)
+**StepType:** `LineClearance` | **StepWeight:** 5% | **Validación:** respuesta = "Sí" (true)
 
 > **Estructura y flujo idénticos al Paso 2.** Ver sección "Paso 2 — Line Clearance" para la documentación completa de modales, estados y reglas.
 

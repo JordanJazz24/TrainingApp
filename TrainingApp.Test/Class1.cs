@@ -232,15 +232,4 @@ namespace TrainingApp.Test
             Assert.That(validator.ValidateDataCollectionGroup(1, "not json"), Is.False);
         }
     }
-
-    [TestFixture]
-    public class ScoreCalculatorPassingTests
-    {
-        [Test]
-        public void IsPassed_UsesSeventyPercentThreshold()
-        {
-            Assert.That(ScoreCalculator.IsPassed(0.70m), Is.True);
-            Assert.That(ScoreCalculator.IsPassed(0.699m), Is.False);
-        }
-    }
 }

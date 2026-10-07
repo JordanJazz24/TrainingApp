@@ -176,17 +176,30 @@ Cierre:
   NC/Scrap) y a pasos sin contenido (Resource Setup, Search/Navigation) — en
   estos últimos, cada intento fuera de secuencia cuenta como intento fallido.
 
-### Ponderación de pasos (`StepWeight`) — fija, no varía por Area
+### Ponderación de pasos (`StepWeight`) — la fuente de verdad es la BD
+
+Cada paso de una guía tiene su peso en `TrainingSteps.Weight` (0.00-1.00) y
+`ScoreCalculator` usa ese valor. Los pesos de una guía **deben sumar 1.00**: el cálculo no
+normaliza (una guía que sume 0.90 nunca llega a 100%). Pesos actuales (2026-10-07):
 
 ```
-Resource Setup:   20%
-Line Clearance:   10%
-Data Collection:  30%
-Assembly:         15%
-SFC Split:         5% (sólo NonSerialized)
-NC/Scrap:         10%
-Complete:         10%
+Paso                        Moldeo (07)   Redefinity (05, ejemplo)
+Resource Setup                 0.20          0.20
+Line Clearance (apertura)      0.05          0.05
+Search / Start                 0.15          0.05
+Assembly                        —            0.15
+Data Collection                0.30          0.30
+Line Clearance (cierre)        0.05          0.05
+SFC Split (NonSerialized)      0.05           —
+Log NC/Scrap                   0.10          0.10
+Complete                       0.10          0.10
+Total                          1.00          1.00
 ```
+
+Resource Setup, Data Collection, Log NC y Complete pesan lo mismo en las dos. Lo que
+cambia es Search: en Moldeo absorbe el peso de Assembly, que no tiene, menos el de SFC
+Split, que sí tiene. Una guía nueva (ej. LoFlo, Fase 7) define sus pesos en su script SQL
+y debe sumar 1.00.
 
 ### Catálogos que deben vivir en BD, nunca hardcodeados en código
 
