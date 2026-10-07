@@ -34,13 +34,20 @@ una sola descarga a la vez), y `/bundles` y `/Content` quedan accesibles sin log
 ChangePassword recibían el HTML del Login en vez de sus JS). La re-hidratación de la Session
 ya era barata (una consulta). Pendiente para la Fase 9: el arranque en frío en IIS (abajo).
 
-- **Ahora — Fase 7 (LoFlo) ⛔:** solo espera el bloqueante #3 (flags reales de LoFlo, a
-  confirmar con negocio). Qué pedirle a negocio: en "Fase 7", abajo. La guía de la 6.6 ya
-  la cubre sin trabajo extra (guion por tipo de paso y flags del área).
-- **Pendientes del usuario de la spec 010 (decisiones diferidas):** los códigos NC más
-  comunes, para que la guía los sugiera (hoy resalta toda la lista), y las capturas de las
-  pantallas ⚪ del inventario (#8 y #16), para ajustar su guion si cambian.
-- **En pausa — Fase 5 (tests):** hasta el final, por decisión del usuario.
+- **Ahora — Fase 5 (tests de `ScoreCalculator`):** decisión del usuario (2026-10-07): va
+  antes de la 7 y de la 8, para que el puntaje esté cubierto antes de que lo usen
+  operadores reales. Sin `/spec` (el alcance ya está en "Fase 5", abajo): **plan directo en
+  entregas chicas**, guardado en `docs/specs/fase-5-plan.md`, aprobado por el usuario antes
+  de implementar. Punto de partida en "Fase 5" → "Punto de partida".
+- **Después — Fase 7 (LoFlo), desbloqueada:** el #3 se resolvió (2026-10-07). Todas las
+  áreas de Sensores son Serialized, con Assembly, Data Collection y Component en NC; sin
+  checklist de Start (era propio de Moldeo). DC Groups, parámetros, códigos NC y BOM se
+  simulan por ahora. La guía de la 6.6 la cubre sin trabajo extra.
+- **Fase 8 (validación interna):** en su momento, por decisión del usuario.
+- **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
+  sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (#8). Complete no
+  tiene pantalla en el MES real (#16 no aplica) y las capturas de banners no hacen falta
+  por ahora. El detalle por paso en el resumen final se verá en su momento.
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
   `connectionStrings.config`.
 
@@ -60,6 +67,15 @@ ya era barata (una consulta). Pendiente para la Fase 9: el arranque en frío en 
      con una ronda de preguntas si hace falta (así se hicieron el arreglo de F5, S1 y S2).
    - Cada entrega: rebuild + `aspnet_compiler` + tests (`CLAUDE.md` → "Build y
      validación") → checklist → el usuario prueba en el navegador → commit.
+   - **`/code-review` calibrado (pedido del usuario, 2026-10-06):** siempre con nivel,
+     archivos y foco; nunca sin argumentos. Solo markup/textos o un ajuste chico pedido al
+     probar → sin review; lógica chica sobre una base revisada → `low --max-findings 5`
+     solo sobre los archivos con lógica; lógica nueva o infraestructura → `medium` con
+     foco; seguridad, auth o Session → `high` o `/security-review`. Decirle en una línea
+     qué nivel y qué archivos y por qué. Verificar cada hallazgo contra el código antes de
+     aplicarlo (en la spec 010 varios fueron falsos positivos).
+   - Enmiendas de una spec aprobada (ej. R10/R11 de la spec 010): primero la enmienda
+     fechada en la spec, después el código.
    - **Proceso de una auditoría** (funcionó bien en E1-E5): Fase A solo lectura → Fase B
      lista única en su archivo de `docs/audits/` → Fase C entregas: implementar →
      `/dotnet-claude-kit:verify` con MSBuild Rebuild y `aspnet_compiler` (no `dotnet build`
@@ -79,7 +95,7 @@ ya era barata (una consulta). Pendiente para la Fase 9: el arranque en frío en 
 |---|---|---|---|
 | 1 | **Start de Serialized**: una fila por pieza con SFC propio, txtSFC por selección, multi-selección en el POD | LoFlo es Serialized | ✅ Resuelto (spec 008, entrega 2) |
 | 2 | **Assembly no puede completarse** (`ExpectedComponentCount` nulo, `ExpectedCount = 3` hardcodeado) | LoFlo tiene Assembly según CLAUDE.md | ✅ Resuelto (spec 008, entrega 3): Assembly rediseñado con el BOM; `ExpectedComponentCount` eliminado |
-| 3 | **Flags reales de LoFlo a confirmar con negocio**: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresNCComponent` (1 provisorio, spec 007), `RequiresDataCollection` ("variable" según CLAUDE.md) | Sin esto el catálogo de la Fase 7 no se puede escribir | **Pendiente de negocio** |
+| 3 | **Flags reales de LoFlo a confirmar con negocio**: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresNCComponent` (1 provisorio, spec 007), `RequiresDataCollection` ("variable" según CLAUDE.md) | Sin esto el catálogo de la Fase 7 no se puede escribir | ✅ Resuelto (2026-10-07): Sensores = Serialized, Assembly, DC y Component en NC; sin checklist de Start; DC, NC y BOM simulados |
 | 4 | **Huecos de UI de Assembly**: la X del Component List y Return to POD vacíos | Se ejercitan por primera vez con LoFlo | ✅ Resuelto (spec 008, entrega 3) |
 
 ### Deuda y riesgos conocidos (no bloquean la Fase 7)
@@ -91,9 +107,9 @@ aceptado, y se sumaron AUD-40 y AUD-42 (diferidos).
 - **Botón Atrás del navegador** todavía puede reenviar un POST viejo. F5 sí está
   resuelto (`history.replaceState`). Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
-- **Fase 5 en pausa:** `ScoreCalculator` y `StepValidator` sin cobertura NUnit. La spec
-  006 dejó los tests fuera de los criterios de aceptación. `PodService` crea sus
-  repositorios internamente, así que hoy no se puede probar sin BD.
+- **Cobertura de tests (Fase 5, la siguiente):** `ScoreCalculator` sin cobertura NUnit y
+  `StepValidator` con cobertura parcial. `PodService` crea sus repositorios internamente,
+  así que hoy no se puede probar sin BD (fuera del alcance de la Fase 5).
 - **`CompleteControl`** está declarado e implementa `IStepControl`, pero no tiene UI:
   Complete se resuelve directo desde `BtnComplete`. Desde E5 su evento tiene accessors
   vacíos (como DC y Assembly).
@@ -208,13 +224,23 @@ Spec de referencia: `docs/specs/003-training-session-y-modos.md` (Approved 2026-
 
 ---
 
-### Fase 5 — ScoreCalculator: cobertura de tests ⏸️ (en pausa)
+### Fase 5 — ScoreCalculator: cobertura de tests ▶️ (siguiente; decisión del usuario 2026-10-07: antes de la 7 y la 8)
 **Objetivo:** `ScoreCalculator` ya está implementado. Esta fase lo blinda
 con tests NUnit exhaustivos: todos los casos de penalización, force-advance,
 pasos opcionales ausentes, sesiones completadas vs. abandonadas.
 Es el componente más sensible del sistema — debe tener cobertura total
 antes de que usuarios reales generen puntajes.
 **No incluye:** nuevas features, cambios al algoritmo.
+**Punto de partida (2026-10-07):**
+- `BLL/Scoring/ScoreCalculator.cs`: `CalculateSessionScore(...)`, `GetPenaltyFactor(intento,
+  modo)`, `ShouldForceAdvance(intento, modo)`, `IsPassed(puntaje)`, `PassingScore = 0.70`,
+  `MaxScoredAttempts = 3`. Reglas en `CLAUDE.md` → "Modos de sesión" y "Ponderación de
+  pasos" (Guided sin penalización; Assessment 1.0 / 0.8 / 0.6 / 0 con avance forzado).
+- `TrainingApp.Test/` (NUnit 4.6.1 + NUnit3TestAdapter, referencia al proyecto web): hoy un
+  solo archivo, `Class1.cs`, con tests de `StepValidator`, Start sin checklist,
+  `SerialSfcGenerator`, `PieceSelectionRule` y `AssemblyProgress`. Nada de `ScoreCalculator`.
+- Correr: compilar `TrainingApp.Test` y `vstest.console.exe` (`CLAUDE.md` → "Build y
+  validación", paso 3). En esta fase los tests sí son el criterio de aceptación.
 
 ---
 
@@ -421,7 +447,7 @@ correcta · E3 Assembly + DC · E4 Split + Log NC + Complete · E5 regresión.
 
 ---
 
-### Fase 7 — Catálogo de LoFlo (segunda área) ⛔ (bloqueada solo por el bloqueante #3: flags de negocio)
+### Fase 7 — Catálogo de LoFlo (segunda área) — desbloqueada (#3 resuelto 2026-10-07; va después de la 5)
 **Objetivo:** Script SQL con el catálogo real de LoFlo (Sensores).
 Solo carga de datos — cero código nuevo. Valida que el motor de Fases 3-4
 es verdaderamente genérico y que `RequiresAssembly`/`RequiresDataCollection`
@@ -431,13 +457,14 @@ funcionan con la configuración real de LoFlo.
 obligatorios, sus `DataCollectionParameters`, el BOM en `AssemblyComponents` (simulado
 por ahora, ≥1 componente si `RequiresAssembly = 1`) y la guía con sus pasos.
 **No incluye:** cambios al motor, nuevas pantallas.
-**Qué pedirle a negocio** para escribir el script de LoFlo:
-1. Flags: `RequiresAssembly` (BD = false, CLAUDE.md = true), `RequiresDataCollection`,
-   `RequiresNCComponent`.
-2. DC Groups de la operación que se entrena, **cuáles son obligatorios**, y sus
-   parámetros (tipo, unidad, rangos).
-3. Códigos NC de LoFlo.
-4. BOM (números de parte y cantidades): puede seguir **simulado** (decisión del usuario).
+**Respuesta de negocio (2026-10-07)** para escribir el script de LoFlo:
+1. Flags: todas las áreas de Sensores son **Serialized** y siempre hacen Assembly, Data
+   Collection y Component en NC estándar: `RequiresAssembly = 1`,
+   `RequiresDataCollection = 1`, `RequiresNCComponent = 1`. `RequiresStartChecklist = 0`
+   (el checklist de Start era propio de Moldeo).
+2. DC Groups (con obligatorios) y sus parámetros: **simulados** por ahora.
+3. Códigos NC de LoFlo: **simulados** por ahora.
+4. BOM: **simulado**.
 
 ---
 

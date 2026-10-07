@@ -63,7 +63,7 @@ LoFlo, Redefinity y Subensamble 1 (flags y catálogos de ejemplo, `05_SeedData.s
 | Área | Product | Fase | Flags confirmados |
 |---|---|---|---|
 | **Moldeo** | R&C | Fase 2 ✅ | NonSerialized, RequiresAssembly=false, RequiresDataCollection=true |
-| **LoFlo** | Sensores | Fase 7 | RequiresAssembly=true, RequiresDataCollection variable. Valida que el motor sea genérico. |
+| **LoFlo** | Sensores | Fase 7 | Serialized, RequiresAssembly=true, RequiresDataCollection=true, RequiresNCComponent=true, RequiresStartChecklist=false (confirmado 2026-10-07). DC Groups, parámetros, códigos NC y BOM: simulados por ahora. Valida que el motor sea genérico. |
 
 > **Notas de dominio:**
 > - Redefinity (Catéteres) es un área real, pero sus flags, su guía y su catálogo en
@@ -152,9 +152,11 @@ Cierre:
 
 ### Modos de sesión (`TrainingSession.Mode`)
 
-- **Guided**: reintentos ilimitados por paso hasta acertar. Se guarda un contador
-  de intentos por paso (para reporte al instructor), pero no bloquea el avance ni
-  aplica penalización — es práctica, no evaluación.
+- **Guided**: reintentos ilimitados por paso hasta acertar; no bloquea el avance ni
+  aplica penalización — es práctica, no evaluación. Con la guía visual (spec 010, R10)
+  la decisión incorrecta no se envía, así que casi siempre queda un intento por paso:
+  es lo esperado (decisión del usuario, 2026-10-07). Qué pasos fallan más por guía se
+  mide con **Assessment**.
 - **Assessment**: hay puntaje mínimo de aprobación. Cada paso debe completarse
   correctamente antes de desbloquear el siguiente (gate-keeping en tiempo real).
   Aplica penalización por reintento:
@@ -213,8 +215,8 @@ Complete:         10%
 - **Spec 009 · Motor del POD en la BLL cerrada ✅ (2026-10-05, 6 entregas):** `PodService` decide el flujo del POD (orden simulada, selección como intento o aviso, secuencia, avance forzado); la página solo pinta. Contexto una vez por request (Line Clearance: de ~21 a 5 conexiones). El estado del POD sigue en Session y, si se pierde, se reconstruye (D-10). Una sola sesión activa por operador (D-9). Cerró AUD-16, 25 y 26. Detalle: `docs/specs/009-motor-pod.md` y `009-plan.md`.
 - **Auditoría final antes de la 6.6 ✅ (2026-10-06):** revisión de la spec 009 + regresión completa en el navegador. 12 hallazgos (AUD-33…44, 1 Medio: el logout), decisiones D-13…D-16 y 4 entregas verificadas (E1 logout · E2 invariantes de la BLL · E3 la página lee el flujo del contexto y los catálogos se cargan una vez por request · E4 limpieza). AUD-40/42 diferidos. Detalle: `docs/audits/2026-10-06-auditoria-final.md`.
 - **Spec 010 · 6.6 Overlays guiados cerrada ✅ (2026-10-07, 5 entregas + E2b):** en Guided, guía clic por clic por los 9 pasos (siempre activa, bloqueante, solo avanza con la respuesta correcta, globo final); nada en Assessment. Solo presentación. De paso: en Serialized el POD vuelve sin selección tras Start, Assembly y DC. Detalle: `docs/specs/010-overlays-guiados.md` y `010-plan.md`. Diferidas: códigos NC comunes y capturas ⚪.
-- **Ahora — 7 · Catálogo de LoFlo (segunda área) ⛔ bloqueada por el #3** (confirmar con negocio los flags reales de LoFlo). Script SQL con el catálogo real de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM (simulado) y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas.
-- **En pausa ⏸️ — 5 · ScoreCalculator: cobertura de tests.** Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
+- **Ahora — 5 · ScoreCalculator: cobertura de tests** (decisión del usuario, 2026-10-07: va antes de la 7 y de la 8). Tests NUnit exhaustivos de `ScoreCalculator` (penalización, force-advance, pasos opcionales ausentes, completadas vs. abandonadas). Debe tener cobertura total antes de que usuarios reales generen puntajes. *No incluye:* nuevas features, cambios al algoritmo.
+- **Después — 7 · Catálogo de LoFlo (segunda área), desbloqueada** (#3 resuelto 2026-10-07: flags confirmados; DC, NC y BOM simulados). Script SQL con el catálogo de LoFlo (Sensores): flags, NC Codes, DC Groups (con obligatorios) y parámetros, BOM y guía. Solo carga de datos — cero código nuevo; valida que el motor es genérico. *No incluye:* cambios al motor, nuevas pantallas. La Fase 8 (validación interna) se hará en su momento.
 
 ## Domain Glossary
 
@@ -373,7 +375,7 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 2. **Precompilar el markup**: MSBuild **no** compila `.aspx`/`.ascx` en un Web Application Project, así que un error de markup (`Register`, atributos, eventos declarativos) aparecería recién en runtime. Hay que precompilar siempre que se toque markup. Usar una carpeta temporal de ruta **corta** (con rutas largas falla por el límite de Windows, ej. `bootstrap...css.map`):
    `& "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe" -v / -p "<ruta>\TrainingApp" (Join-Path $env:TEMP "mespc")`
    `Web.config` tiene `optimizeCompilations="true"` (tras un rebuild IIS Express solo recompila el markup que cambió). Si después de cambiar la firma de algo que usa el markup aparece un error raro en runtime, borrar `%TEMP%\Temporary ASP.NET Files\vs`. Release lo quita.
-3. **Compilar `TrainingApp.Test` y correr los tests** cuando cambie algo de la BLL o el Domain (hoy los tests cubren las reglas puras de BLL; no son criterio de aceptación, ver Fase 5 en pausa; en la auditoría 2026-10 el usuario los dejó fuera):
+3. **Compilar `TrainingApp.Test` y correr los tests** cuando cambie algo de la BLL o el Domain (hoy cubren reglas puras de BLL; fuera de la Fase 5 no son criterio de aceptación; en la Fase 5 —la siguiente, decisión del 2026-10-07— sí lo son):
    `& "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" "TrainingApp.Test\bin\Debug\TrainingApp.Test.dll"`
 4. **Scripts SQL**: la conexión MCP a SQL Server es de **solo lectura**, así que los scripts de `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`). No hay scripts de migración: los cambios de esquema van directo a `00_Schema.sql` y el `ALTER` para la BD existente se le entrega al usuario aparte (indicando si después hay que volver a correr algún script de SPs).
 5. **Verificación en navegador por el usuario**: se le entrega un checklist por criterio de aceptación; el usuario prueba y confirma ("funciona") **antes de cada commit**. Nunca afirmar que la UI funciona sin esa confirmación.
@@ -381,4 +383,4 @@ Para relaciones que se componen situacionalmente (ej. `TrainingSession` + sus `T
 
 ## Skills Available
 
-`/scaffold` — add a new feature slice · `/code-review` — multi-dimension review
+`/scaffold` — add a new feature slice · `/code-review` — multi-dimension review, siempre con nivel y archivos según la complejidad (regla en `docs/roadmap.md` → "Cómo retomar" → Proceso acordado)

@@ -432,7 +432,7 @@ dos cubren todos los flags.
 | Decisión | Fallback elegido | Se revisa cuando |
 |---|---|---|
 | Códigos NC sugeridos en Log NC (R6) | La guía resalta toda la lista: cualquiera es válido | El usuario confirme con negocio los códigos más comunes |
-| Pantallas ⚪ #8 y #16 (R3) | Guion sobre la UI actual | Llegue la captura del MES real y la pantalla cambie |
+| Pantallas ⚪ #8 y #16 (R3) | Guion sobre la UI actual | Llegue la captura del MES real de los modales del Start de Moldeo (#8). #16 no aplica: Complete no tiene pantalla en el MES real (2026-10-07) |
 
 ## Open Questions
 

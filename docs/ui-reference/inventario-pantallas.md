@@ -43,7 +43,7 @@ contra las 25 capturas de la carpeta._
 | 13 | SFC Split Plug-In | 7 | `Split-log nc/modal sfc split`, `Split-log nc/split creado` | ✅ |
 | 14 | NC Selection | 8 | `Split-log nc/mensaje confirmacion scrap` (muestra la lista) | ✅ |
 | 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | ✅ |
-| 16 | Resultado de Complete | 9 | — | ⚪ |
+| 16 | Resultado de Complete | 9 | — | No aplica: en el MES real Complete no tiene pantalla, solo termina la orden (usuario, 2026-10-07) |
 
 **Resumen:** ✅ 14 · 🟡 0 · ⚪ 2 (2026-10-01, tras la entrega 9). **Criterio de cierre cumplido:** todas las pantallas con captura están fieles; las 2 sin captura (#8 y #16) quedan pendientes y no bloquean.
 
@@ -126,8 +126,8 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
 ## Capturas que faltan (pedirlas en planta)
 
 - Los 4 modales del Start de Moldeo (#8).
-- Lo que muestra el MES al ejecutar Complete (#16).
-- Los banners de Start, Assembly y Split.
+- ~~Lo que muestra el MES al ejecutar Complete (#16)~~: no tiene pantalla (2026-10-07).
+- ~~Los banners de Start, Assembly y Split~~: no hacen falta por ahora (2026-10-07).
 - NC Selection completa (la recortada se perdió).
 
 ## Elementos propios del simulador (fuera de la comparación)
