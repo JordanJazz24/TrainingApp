@@ -1,16 +1,11 @@
 -- ============================================================
--- 01_spOperator.sql
--- Stored procedures para la tabla Operators.
+-- 01_spOperator.sql — SPs de Operators (login, alta en el primer
+-- acceso y cambio de contraseña).
+-- Requiere: 00_Schema.sql · Re-ejecutable: sí (CREATE OR ALTER).
 -- ============================================================
 
--- -------------------------------------------------------
--- spOperatorGetByCode1
--- -------------------------------------------------------
-IF OBJECT_ID('dbo.spOperatorGetByCode1', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spOperatorGetByCode1;
-GO
-
-CREATE PROCEDURE dbo.spOperatorGetByCode1
+-- spOperatorGetByCode1 — operador local por su código de empleado.
+CREATE OR ALTER PROCEDURE dbo.spOperatorGetByCode1
     @Code1 NVARCHAR(50)
 AS
 BEGIN
@@ -21,15 +16,8 @@ BEGIN
 END;
 GO
 
--- -------------------------------------------------------
--- spOperatorInsert
--- Devuelve el Id del registro creado.
--- -------------------------------------------------------
-IF OBJECT_ID('dbo.spOperatorInsert', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spOperatorInsert;
-GO
-
-CREATE PROCEDURE dbo.spOperatorInsert
+-- spOperatorInsert — alta en el primer acceso. Devuelve el Id creado.
+CREATE OR ALTER PROCEDURE dbo.spOperatorInsert
     @Code1        NVARCHAR(50),
     @Name         NVARCHAR(200),
     @PasswordHash NVARCHAR(500),
@@ -44,15 +32,8 @@ BEGIN
 END;
 GO
 
--- -------------------------------------------------------
--- spOperatorUpdatePassword
--- También marca IsFirstLogin = 0.
--- -------------------------------------------------------
-IF OBJECT_ID('dbo.spOperatorUpdatePassword', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spOperatorUpdatePassword;
-GO
-
-CREATE PROCEDURE dbo.spOperatorUpdatePassword
+-- spOperatorUpdatePassword — guarda el hash nuevo y marca IsFirstLogin = 0.
+CREATE OR ALTER PROCEDURE dbo.spOperatorUpdatePassword
     @OperatorId   INT,
     @PasswordHash NVARCHAR(500)
 AS

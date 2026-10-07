@@ -1,26 +1,14 @@
 -- ============================================================
--- 04_spStepAttempt.sql
--- Stored procedures para TrainingSessionStepAttempts.
+-- 04_spStepAttempt.sql — SPs de TrainingSessionStepAttempts.
+-- Requiere: 00_Schema.sql · Re-ejecutable: sí (CREATE OR ALTER).
 -- ============================================================
 
--- -------------------------------------------------------
--- spStepAttemptRecord
--- Registra un intento y, en la misma transacción, avanza la
--- sesión al paso siguiente (@NextStepOrder) o la cierra con
--- su puntaje final (@FinalScore; Status 1 = Completed). Sin
--- ninguno de los dos, solo registra el intento (incorrecto).
--- Las decisiones (avanzar, cerrar, puntaje) las toma la BLL;
--- el SP solo las guarda juntas (auditoría AUD-06).
--- -------------------------------------------------------
-IF OBJECT_ID('dbo.spStepAttemptInsert', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spStepAttemptInsert;
-GO
-
-IF OBJECT_ID('dbo.spStepAttemptRecord', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spStepAttemptRecord;
-GO
-
-CREATE PROCEDURE dbo.spStepAttemptRecord
+-- spStepAttemptRecord — registra un intento y, en la misma transacción,
+-- avanza la sesión al paso siguiente (@NextStepOrder) o la cierra con su
+-- puntaje final (@FinalScore; Status 1 = Completed). Sin ninguno de los dos,
+-- solo registra el intento (incorrecto). Las decisiones (avanzar, cerrar,
+-- puntaje) las toma la BLL; el SP solo las guarda juntas (AUD-06).
+CREATE OR ALTER PROCEDURE dbo.spStepAttemptRecord
     @SessionId     INT,
     @StepId        INT,
     @StepOrder     INT,
@@ -68,15 +56,9 @@ BEGIN
 END;
 GO
 
--- -------------------------------------------------------
--- spStepAttemptGetBySession
--- Todos los intentos de una sesión, ordenados cronológicamente.
--- -------------------------------------------------------
-IF OBJECT_ID('dbo.spStepAttemptGetBySession', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spStepAttemptGetBySession;
-GO
-
-CREATE PROCEDURE dbo.spStepAttemptGetBySession
+-- spStepAttemptGetBySession — todos los intentos de una sesión, en orden
+-- cronológico. La BLL calcula con ellos el número de intento y el puntaje.
+CREATE OR ALTER PROCEDURE dbo.spStepAttemptGetBySession
     @SessionId INT
 AS
 BEGIN
@@ -86,14 +68,4 @@ BEGIN
     WHERE  SessionId = @SessionId
     ORDER  BY Timestamp;
 END;
-GO
-
--- -------------------------------------------------------
--- spStepAttemptGetBySessionAndStep
--- Sin uso: la BLL cuenta el AttemptNumber con los intentos de
--- spStepAttemptGetBySession (auditoría AUD-06). Se borra si
--- existe en una BD anterior.
--- -------------------------------------------------------
-IF OBJECT_ID('dbo.spStepAttemptGetBySessionAndStep', 'P') IS NOT NULL
-    DROP PROCEDURE dbo.spStepAttemptGetBySessionAndStep;
 GO

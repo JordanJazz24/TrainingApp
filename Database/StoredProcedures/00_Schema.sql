@@ -1,20 +1,19 @@
 -- ============================================================
--- 00_Schema.sql
--- Crea todas las tablas del esquema TrainingApp (esquema definitivo).
--- Seguro para re-ejecución: usa IF NOT EXISTS / IF OBJECT_ID.
+-- 00_Schema.sql — tablas del esquema de TrainingApp.
+-- Re-ejecutable: sí (crea solo las tablas e índices que faltan).
 --
--- Los cambios de esquema se integran directamente en este script;
--- no se mantienen scripts de migración en el repositorio.
---
--- Orden de ejecución en una BD nueva:
---   00_Schema.sql            — tablas
---   01_spOperator.sql        — SPs de Operators
---   02_spTrainingGuide.sql   — SPs de guías, pasos y catálogos
---   03_spTrainingSession.sql — SPs de sesiones
---   04_spStepAttempt.sql     — SPs de intentos por paso
---   05_SeedData.sql          — DATOS DE EJEMPLO (solo desarrollo)
---   06_RCMoldeoCatalog.sql   — catálogo real de R&C / Moldeo
---   07_RCMoldeoGuide.sql     — guía real de R&C / Moldeo
+-- Scripts de Database/StoredProcedures, en orden numérico:
+--   00_Schema.sql            tablas
+--   01_spOperator.sql        SPs de Operators
+--   02_spTrainingGuide.sql   SPs de guías y catálogos + spTrainingGuideSync
+--   03_spTrainingSession.sql SPs de sesiones
+--   04_spStepAttempt.sql     SPs de intentos por paso
+--   05_SeedData.sql          DATOS DE EJEMPLO (solo desarrollo)
+--   06_RCMoldeoCatalog.sql   catálogo real de R&C / Moldeo
+--   07_RCMoldeoGuide.sql     guía real de R&C / Moldeo
+-- Todos se pueden volver a correr sobre una BD existente. Reglas para
+-- escribirlos (esquema, SPs, datos, áreas nuevas): docs/process.md →
+-- "Base de datos".
 -- ============================================================
 
 -- -------------------------------------------------------

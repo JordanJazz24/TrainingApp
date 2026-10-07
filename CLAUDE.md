@@ -219,7 +219,8 @@ Total                          1.00          1.00
 ```
 
 En Moldeo, Search absorbe el peso de Assembly (que no tiene) menos el de SFC Split (que sí
-tiene). Una guía nueva (ej. LoFlo) define sus pesos en su script SQL y debe sumar 1.00.
+tiene). Una guía nueva (ej. LoFlo) define sus pesos en su script SQL y debe sumar 1.00
+(`spTrainingGuideSync` lo valida al cargarla).
 
 ### Catálogos en BD (nunca hardcodeados en código)
 

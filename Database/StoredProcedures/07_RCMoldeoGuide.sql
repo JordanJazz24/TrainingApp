@@ -1,44 +1,31 @@
 -- ============================================================
--- 07_RCMoldeoGuide.sql
--- Guía de entrenamiento real para R&C / Moldeo.
+-- 07_RCMoldeoGuide.sql — guía real de R&C / Moldeo.
+-- Requiere: 00–04 y 06_RCMoldeoCatalog.sql.
+-- Re-ejecutable: sí. Crea la guía si falta y, si existe, actualiza
+-- los pesos (spTrainingGuideSync). Aborta si no suman 1.00.
 --
--- Prerequisitos: 00_Schema.sql, 06_RCMoldeoCatalog.sql
--- Seguro para re-ejecución: INSERT solo si no existe.
---
--- Flujo de pasos y pesos:
---   1. ResourceSetup      0.20  — configuración previa al inicio
---   2. LineClearance      0.05  — LC estándar de apertura
---   3. Search             0.15  — navegación al Start Order
---   4. DataCollection     0.30  — 16 parámetros del catálogo Moldeo
---   5. LineClearance      0.05  — LC de cierre
---   6. SFC_Split          0.05  — división de lote NonSerialized
---   7. LogNC              0.10  — selección de NC code del catálogo Moldeo
---   8. Complete           0.10  — cierre del proceso
---
--- Suma de pesos: 0.20+0.05+0.15+0.30+0.05+0.05+0.10+0.10 = 1.00
+-- Pesos: CLAUDE.md → "Ponderación de pasos". Search absorbe el peso
+-- de Assembly (Moldeo no tiene) menos el de SFC Split (sí tiene).
+-- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
+--           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete
 -- ============================================================
+SET NOCOUNT ON;
 
-DECLARE @RCId   INT = (SELECT Id FROM dbo.Products WHERE Name = 'R&C');
-DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas   WHERE Name = 'Moldeo' AND ProductId = @RCId);
+DECLARE @AreaId INT = (SELECT a.Id FROM dbo.Areas a JOIN dbo.Products p ON p.Id = a.ProductId
+                       WHERE p.Name = 'R&C' AND a.Name = 'Moldeo');
 
-IF NOT EXISTS (
-    SELECT 1 FROM dbo.TrainingGuides
-    WHERE AreaId = @AreaId AND Title = 'Guía R&C Moldeo — Flujo Completo'
-)
-BEGIN
-    INSERT INTO dbo.TrainingGuides (AreaId, OperationId, Title, IsPublished, CreatedAt)
-    VALUES (@AreaId, NULL, 'Guía R&C Moldeo — Flujo Completo', 1, SYSUTCDATETIME());
-
-    DECLARE @GuideId INT = SCOPE_IDENTITY();
-
+DECLARE @Steps TABLE ([Order] INT, StepType TINYINT, Weight DECIMAL(5,2));
+INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     -- Apertura
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 0, 1, 0.20); -- ResourceSetup
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 1, 2, 0.05); -- LineClearance (apertura)
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 2, 3, 0.15); -- Search / Start Order
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 4, 4, 0.30); -- DataCollection
+    (1, 0, 0.20),   -- Resource Setup
+    (2, 1, 0.05),   -- Line Clearance (apertura)
+    (3, 2, 0.15),   -- Search / Start (con checklist de 4 modales)
+    (4, 4, 0.30),   -- Data Collection (obligatorio: DCGTM_FECHA_EXPIRACION_NIR/A)
     -- Cierre
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 1, 5, 0.05); -- LineClearance (cierre)
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 5, 6, 0.05); -- SFC Split
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 6, 7, 0.10); -- LogNC
-    INSERT INTO dbo.TrainingSteps (TrainingGuideId, StepType, [Order], Weight) VALUES (@GuideId, 7, 8, 0.10); -- Complete
-END;
+    (5, 1, 0.05),   -- Line Clearance (cierre)
+    (6, 5, 0.05),   -- SFC Split (NonSerialized)
+    (7, 6, 0.10),   -- Log NC
+    (8, 7, 0.10);   -- Complete
+
+DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
+EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía R&C Moldeo — Flujo Completo', @Steps = @Json;

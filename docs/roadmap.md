@@ -28,6 +28,9 @@ código:** Fase 5, entrega 3 (`git log --oneline -10` para ver el estado real)
 - **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
   sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (inventario #8).
   El detalle por paso en el resumen final se verá en su momento.
+- **Acción del usuario, ahora:** correr los scripts `01`–`07` reescritos (limpieza del
+  2026-10-07; `00` no cambió el esquema) y probar la app. Corrige la unidad "Ω" de
+  Redefinity, que estaba guardada como "O".
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
   `connectionStrings.config`.
 
@@ -63,6 +66,7 @@ corrió el usuario:
 | 2026-10-01 | ALTER + `02`, `05`, `06` | Columna `DataCollectionParameters.Description` (Fase 6.5, E8) |
 | 2026-10-02 | `03`, después `03` y `04` | Auditoría E1 y E3: `spTrainingSessionAbandonActiveByOperator`; `spStepAttemptRecord` reemplaza a los SPs de intento, avance y cierre |
 | 2026-10-05 | `03` | Spec 009 E6: `spTrainingSessionAbandonActiveByOperator` sin `@TrainingGuideId` |
+| pendiente | `01`–`07` | Limpieza de scripts (2026-10-07): `CREATE OR ALTER`, catálogos como tablas de valores, transacciones, `spTrainingGuideSync` |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`), LoFlo provisoria y Subensamble 1.
@@ -253,6 +257,15 @@ esperan a la guía (R9), falla segura y globo final. Nada en Assessment. Mecanis
 `docs/architecture.md` → "Guía visual de Guided". De paso, en Serialized el POD vuelve sin
 selección tras Start, Assembly y DC, como el MES real. La investigación previa (legacy y app)
 quedó como anexo en `docs/specs/010-overlays-guiados.md`.
+
+### Limpieza de scripts SQL (2026-10-07, sin spec)
+Mismos 8 archivos y numeración (decisión del usuario). Los SPs pasan a `CREATE OR ALTER` sin
+los `DROP` de SPs ya eliminados. Cada catálogo se declara una vez como tabla de valores y se
+actualiza o inserta en orden (los Ids no cambian), todo dentro de una transacción. Las guías
+se cargan con `spTrainingGuideSync` (nuevo, en `02`), que actualiza los pesos y aborta si no
+suman 1.00. Se corrigió un bug: los literales sin `N` guardaban "Ω" como "O". Se probó en
+LocalDB: la instalación limpia y la re-ejecución sobre una BD con sesiones dan los mismos
+datos e Ids que los scripts anteriores. Reglas: `docs/process.md` → "Base de datos".
 
 ### Arreglo de rendimiento del arranque ✅ (2026-10-07, sin spec)
 `optimizeCompilations` en `Web.config` (Login tras un rebuild: de ~4 s a ~1,7 s); la lista de

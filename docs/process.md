@@ -87,10 +87,29 @@ pida: él decidió dejarlos para fases propias.
 ## 6. Base de datos
 
 - La conexión MCP a SQL Server es de **solo lectura**: los scripts de
-  `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`).
-- No hay scripts de migración. Un cambio de esquema se escribe directo en `00_Schema.sql`, y
-  el `ALTER` para la BD existente se le entrega al usuario aparte, indicando qué scripts de
-  SPs volver a correr. Después se anota en el roadmap → "BD de desarrollo del usuario".
+  `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`07`; índice
+  en el encabezado de `00_Schema.sql`). Todos se pueden volver a correr sobre su BD.
+- Antes de entregarlos, probarlos en una BD descartable de LocalDB
+  (`(localdb)\MSSQLLocalDB`, con `sqlcmd -I -f 65001`): instalación limpia, re-ejecución
+  sobre una BD con sesiones e intentos, y comparación de datos contra la versión anterior.
+  Al terminar, borrar esa BD.
+- **Esquema:** no hay scripts de migración. Un cambio se escribe directo en `00_Schema.sql`
+  y el `ALTER` para la BD existente se entrega aparte, indicando qué otros scripts volver a
+  correr.
+- **SPs:** `CREATE OR ALTER`. Un SP que se elimina se borra de su script y se entrega un
+  `DROP` aparte (los scripts no arrastran borrados viejos).
+- **Datos:** cada script corre en una transacción (`SET XACT_ABORT ON`): si falla, no deja
+  nada. El script es la fuente de verdad de su catálogo: cada tabla se declara una vez como
+  tabla de valores, se actualiza lo que existe y se inserta lo que falta en el orden del
+  script (así los Ids no cambian). Nunca borra filas: las sesiones y los intentos las
+  referencian. Textos siempre con `N'…'` (sin la `N`, "Ω" se guardaba como "O").
+- **Guías:** se cargan con `spTrainingGuideSync` (en `02`): crea la guía si falta, actualiza
+  los pesos y aborta si no suman 1.00 o si la estructura de una guía existente cambió (eso
+  se resuelve a mano).
+- **Área nueva** (ej. LoFlo): un script de catálogo y uno de guía con la plantilla de `06` y
+  `07`. Un área de ejemplo de `05` que pase a tener catálogo real se deja de tocar en `05`.
+- Después de que el usuario corre un script, anotarlo en el roadmap → "BD de desarrollo del
+  usuario".
 
 ## 7. Ramas y worktrees
 
