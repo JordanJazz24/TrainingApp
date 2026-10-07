@@ -117,8 +117,11 @@ sin checklist de Start; DC Groups, parámetros, códigos NC y BOM se simulan por
 códigos NC, 3 DC Groups —2 obligatorios— con 6 parámetros y un BOM de 3 componentes, todo
 simulado y marcado `SIM` para retirarlo a mano cuando llegue el catálogo real) y
 `09_SensoresLoFloGuide.sql` (pesos de Redefinity). `05` dejó de tocar LoFlo. El motor resultó
-genérico: el único cambio de código fue un bug del markup (los campos numéricos de DC
-rechazaban decimales: `step="any"`). Probado en LocalDB y por el usuario en el navegador.
+genérico: los únicos cambios de código fueron dos bugs de `DataCollectionControl`, ambos
+anteriores a LoFlo: los campos numéricos rechazaban decimales (`step="any"`) y, tras cerrar un
+grupo con la ✕ y abrir otro, el Save podía caer con una excepción de validación de eventos
+(los campos dinámicos usaban IDs automáticos que se corrían; ahora tienen un ID fijo por
+parámetro). Probado en LocalDB y por el usuario en el navegador.
 
 ### Fase 8 — Validación interna
 **Objetivo:** sesión con trainer/operador real sobre R&C y LoFlo. Correcciones de UX, bugs de

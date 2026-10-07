@@ -183,11 +183,18 @@ namespace TrainingApp.UI.Controls.Training
             return text.EndsWith(":") ? text : text + ":";
         }
 
+        // ID fijo por parámetro: con IDs automáticos (ctl00, ctl01…) el contador no se reinicia
+        // al limpiar PhParameters, así que si en un request se pintan dos grupos (se cerró uno
+        // con la ✕, sin postback, y se abrió otro) los nombres se corren y en el Save el valor
+        // de un parámetro cae en el input de otro (ej. "4.9" en un DropDownList → excepción
+        // de validación de eventos).
+        private static string InputId(DataCollectionParameter param) => "DcParam" + param.Id;
+
         private static Control BuildInput(DataCollectionParameter param)
         {
             if (param.DataType == "Boolean")
             {
-                var ddl = new DropDownList { CssClass = "rs-select dc-param-input" };
+                var ddl = new DropDownList { ID = InputId(param), CssClass = "rs-select dc-param-input" };
                 ddl.Attributes["data-paramid"] = param.Id.ToString();
                 ddl.Items.Add(new ListItem("( Select )", ""));
                 ddl.Items.Add(new ListItem("NO", "false"));
@@ -195,7 +202,7 @@ namespace TrainingApp.UI.Controls.Training
                 return ddl;
             }
 
-            var txt = new TextBox { CssClass = "mes-input dc-param-input" };
+            var txt = new TextBox { ID = InputId(param), CssClass = "mes-input dc-param-input" };
             txt.Attributes["data-paramid"] = param.Id.ToString();
             if (param.DataType == "Numeric")
             {
