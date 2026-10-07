@@ -70,23 +70,24 @@ suite completa 43/43 en verde.
 - [x] Constantes fijadas: `PassingScore == 0.70`, `MaxScoredAttempts == 3` (si alguien
       las cambia, un test lo avisa).
 
-## Entrega 2 — `CalculateSessionScore` paso por paso
+## Entrega 2 — `CalculateSessionScore` paso por paso ✅ (2026-10-07)
 
-Guías chicas armadas en el test (2-3 pasos) para aislar cada regla.
+Guías chicas armadas en el test (2-3 pasos) para aislar cada regla. 12 casos nuevos
+(`ScoreCalculatorStepScoreTests`); suite completa 55/55 en verde.
 
-- [ ] Sin intentos → 0.
-- [ ] Un paso correcto al 1.er intento → su peso completo.
-- [ ] Correcto al 2.º → peso × 0.80; al 3.º → peso × 0.60 (Assessment).
-- [ ] Correcto al 4.º (Assessment) → 0: el paso se marca fallido aunque acierte.
-- [ ] 4 fallos y avance forzado (ningún intento correcto) → 0.
-- [ ] Guided: correcto al 5.º intento → peso completo.
-- [ ] Cuenta el **primer** correcto: si hay dos intentos correctos del mismo paso, vale el
+- [x] Sin intentos → 0.
+- [x] Un paso correcto al 1.er intento → su peso completo.
+- [x] Correcto al 2.º → peso × 0.80; al 3.º → peso × 0.60 (Assessment).
+- [x] Correcto al 4.º (Assessment) → 0: el paso se marca fallido aunque acierte.
+- [x] 4 fallos y avance forzado (ningún intento correcto) → 0.
+- [x] Guided: correcto al 5.º intento → peso completo.
+- [x] Cuenta el **primer** correcto: si hay dos intentos correctos del mismo paso, vale el
       de menor `AttemptNumber`, aunque la lista venga desordenada.
-- [ ] Intentos de un `StepId` que no está en la guía → se ignoran.
-- [ ] Paso todavía sin intentos (sesión en curso) → suma 0; el puntaje parcial es la suma
+- [x] Intentos de un `StepId` que no está en la guía → se ignoran.
+- [x] Paso todavía sin intentos (sesión en curso) → suma 0; el puntaje parcial es la suma
       de los pasos ya acertados (es el puntaje en vivo del POD).
-- [ ] Los intentos de un paso no afectan a otro paso.
-- [ ] **No normaliza:** una guía cuyos pesos suman 0.90, todo correcto al primer intento,
+- [x] Los intentos de un paso no afectan a otro paso.
+- [x] **No normaliza:** una guía cuyos pesos suman 0.90, todo correcto al primer intento,
       da 0.90 (no 1.00). Deja escrito el riesgo de cargar mal los pesos de una guía.
 
 ## Entrega 3 — Sesiones completas con las guías reales y cierre de la fase
