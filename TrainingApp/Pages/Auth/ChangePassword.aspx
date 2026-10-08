@@ -1,65 +1,63 @@
-<%@ Page Title="Cambiar Contraseña" Language="C#" MasterPageFile="~/UI/master/Site.Master"
+<%@ Page Title="Change Password" Language="C#" MasterPageFile="~/UI/master/Auth.Master"
     AutoEventWireup="true" CodeBehind="ChangePassword.aspx.cs"
     Inherits="TrainingApp.Pages.Auth.ChangePassword" %>
 
+<%-- Cambio de contraseña con el mismo marco y formulario del login NetWeaver. No hay
+     captura de esta pantalla del real: los textos (Old/New/Confirm Password, Change) siguen
+     los del cambio de contraseña de SAP NetWeaver. Los errores del servidor salen en un
+     SweetAlert (AuthMaster.ShowError). --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-4">
-            <h2 class="mb-2">Cambiar Contraseña</h2>
-            <asp:PlaceHolder ID="PhFirstLogin" runat="server" Visible="false">
-                <p class="text-muted mb-4">
-                    Por seguridad, debes establecer una contraseña personal antes de continuar.
-                    Como contraseña actual, usa la misma con la que entraste.
-                </p>
-            </asp:PlaceHolder>
+    <asp:PlaceHolder ID="PhFirstLogin" runat="server" Visible="false">
+        <p class="nw-message">
+            Por seguridad, debes establecer una contraseña personal antes de continuar.
+            Como contraseña actual, usa la misma con la que entraste.
+        </p>
+    </asp:PlaceHolder>
 
-            <asp:Label ID="LblError" runat="server" CssClass="alert alert-danger d-block mb-3"
-                Visible="false" />
-            <asp:Label ID="LblSuccess" runat="server" CssClass="alert alert-success d-block mb-3"
-                Visible="false" />
+    <asp:Panel ID="PnlChangePassword" runat="server" CssClass="nw-form" DefaultButton="BtnSave">
+        <asp:Label runat="server" AssociatedControlID="TxtCurrentPassword" CssClass="nw-label">
+            Old Password <span class="nw-star">*</span>
+        </asp:Label>
+        <asp:TextBox ID="TxtCurrentPassword" runat="server" TextMode="Password" CssClass="nw-input" />
+        <asp:RequiredFieldValidator ID="RfvCurrentPassword" runat="server"
+            ControlToValidate="TxtCurrentPassword"
+            ErrorMessage="Ingrese la contraseña actual."
+            CssClass="nw-validation" Display="Dynamic" />
 
-            <div class="mb-3">
-                <label for="TxtCurrentPassword" class="form-label">Contraseña actual</label>
-                <asp:TextBox ID="TxtCurrentPassword" runat="server" TextMode="Password"
-                    CssClass="form-control" />
-                <asp:RequiredFieldValidator ID="RfvCurrentPassword" runat="server"
-                    ControlToValidate="TxtCurrentPassword"
-                    ErrorMessage="Ingrese la contraseña actual."
-                    CssClass="text-danger small" Display="Dynamic" />
-            </div>
+        <asp:Label runat="server" AssociatedControlID="TxtNewPassword" CssClass="nw-label">
+            New Password <span class="nw-star">*</span>
+        </asp:Label>
+        <asp:TextBox ID="TxtNewPassword" runat="server" TextMode="Password" CssClass="nw-input" />
+        <asp:RequiredFieldValidator ID="RfvNewPassword" runat="server"
+            ControlToValidate="TxtNewPassword"
+            ErrorMessage="Ingrese la nueva contraseña."
+            CssClass="nw-validation" Display="Dynamic" />
+        <asp:RegularExpressionValidator ID="RevPasswordLength" runat="server"
+            ControlToValidate="TxtNewPassword"
+            ValidationExpression=".{8,}"
+            ErrorMessage="La contraseña debe tener al menos 8 caracteres."
+            CssClass="nw-validation" Display="Dynamic" />
 
-            <div class="mb-3">
-                <label for="TxtNewPassword" class="form-label">Nueva contraseña</label>
-                <asp:TextBox ID="TxtNewPassword" runat="server" TextMode="Password"
-                    CssClass="form-control" />
-                <asp:RequiredFieldValidator ID="RfvNewPassword" runat="server"
-                    ControlToValidate="TxtNewPassword"
-                    ErrorMessage="Ingrese la nueva contraseña."
-                    CssClass="text-danger small" Display="Dynamic" />
-                <asp:RegularExpressionValidator ID="RevPasswordLength" runat="server"
-                    ControlToValidate="TxtNewPassword"
-                    ValidationExpression=".{8,}"
-                    ErrorMessage="La contraseña debe tener al menos 8 caracteres."
-                    CssClass="text-danger small" Display="Dynamic" />
-            </div>
+        <asp:Label runat="server" AssociatedControlID="TxtConfirmPassword" CssClass="nw-label">
+            Confirm Password <span class="nw-star">*</span>
+        </asp:Label>
+        <asp:TextBox ID="TxtConfirmPassword" runat="server" TextMode="Password" CssClass="nw-input" />
+        <asp:RequiredFieldValidator ID="RfvConfirmPassword" runat="server"
+            ControlToValidate="TxtConfirmPassword"
+            ErrorMessage="Confirme la nueva contraseña."
+            CssClass="nw-validation" Display="Dynamic" />
+        <asp:CompareValidator ID="CvPasswords" runat="server"
+            ControlToValidate="TxtConfirmPassword"
+            ControlToCompare="TxtNewPassword"
+            ErrorMessage="Las contraseñas no coinciden."
+            CssClass="nw-validation" Display="Dynamic" />
 
-            <div class="mb-4">
-                <label for="TxtConfirmPassword" class="form-label">Confirmar contraseña</label>
-                <asp:TextBox ID="TxtConfirmPassword" runat="server" TextMode="Password"
-                    CssClass="form-control" />
-                <asp:RequiredFieldValidator ID="RfvConfirmPassword" runat="server"
-                    ControlToValidate="TxtConfirmPassword"
-                    ErrorMessage="Confirme la nueva contraseña."
-                    CssClass="text-danger small" Display="Dynamic" />
-                <asp:CompareValidator ID="CvPasswords" runat="server"
-                    ControlToValidate="TxtConfirmPassword"
-                    ControlToCompare="TxtNewPassword"
-                    ErrorMessage="Las contraseñas no coinciden."
-                    CssClass="text-danger small" Display="Dynamic" />
-            </div>
-
-            <asp:Button ID="BtnSave" runat="server" Text="Guardar"
-                CssClass="btn btn-primary w-100" OnClick="BtnSave_Click" />
+        <div class="nw-actions">
+            <asp:Button ID="BtnSave" runat="server" Text="Change"
+                CssClass="nw-button" OnClick="BtnSave_Click" />
+            <%-- Sale sin cambiar la contraseña: cierra la sesión y vuelve al Login. --%>
+            <asp:Button ID="BtnCancel" runat="server" Text="Cancel"
+                CssClass="nw-button" CausesValidation="false" OnClick="BtnCancel_Click" />
         </div>
-    </div>
+    </asp:Panel>
 </asp:Content>

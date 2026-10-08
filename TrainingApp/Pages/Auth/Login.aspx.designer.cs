@@ -3,7 +3,7 @@ namespace TrainingApp.Pages.Auth
 {
     public partial class Login
     {
-        protected global::System.Web.UI.WebControls.Label LblError;
+        protected global::System.Web.UI.WebControls.Panel PnlLogin;
         protected global::System.Web.UI.WebControls.TextBox TxtCode1;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvCode1;
         protected global::System.Web.UI.WebControls.TextBox TxtPassword;

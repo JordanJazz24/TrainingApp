@@ -316,10 +316,11 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
   claves nuevas de operador se agregan solo en `SessionHelper.SetOperatorSession`.
 - `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
   no en `Web.config` ni hardcodeadas en páginas.
-- Toda página usa `Site.Master` o `Training.Master` (heredan `AntiXsrfMasterPage`,
-  anti-CSRF). Texto del servidor hacia un `<script>`: `HttpUtility.JavaScriptStringEncode` o
-  `JavaScriptSerializer`; texto al HTML con `<%#: %>`. ASP.NET rechaza postbacks con marcado
-  (`<x`): los controles lo bloquean como formato.
+- Toda página usa `Site.Master`, `Training.Master` o `Auth.Master` (Login y Cambio de
+  contraseña; las tres heredan `AntiXsrfMasterPage`, anti-CSRF). Texto del servidor hacia un
+  `<script>`: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; texto al HTML
+  con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean
+  como formato.
 
 **POD y controles** (detalle y decisiones cerradas: `docs/architecture.md`)
 - Controles de paso **estáticos** declarados en `GuidedTest.aspx`, alternando `Visible`;

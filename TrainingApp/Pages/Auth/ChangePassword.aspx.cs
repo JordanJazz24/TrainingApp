@@ -3,6 +3,7 @@ using System.Web.Security;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
 using TrainingApp.Shared;
+using TrainingApp.UI.Master;
 
 namespace TrainingApp.Pages.Auth
 {
@@ -54,10 +55,12 @@ namespace TrainingApp.Pages.Auth
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
-        private void ShowError(string message)
+        // Salir sin cambiar la contraseña: cierra la sesión y vuelve al Login.
+        protected void BtnCancel_Click(object sender, EventArgs e)
         {
-            LblError.Text    = message;
-            LblError.Visible = true;
+            SessionHelper.Logout();
         }
+
+        private void ShowError(string message) => ((AuthMaster)Master).ShowError(message);
     }
 }

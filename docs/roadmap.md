@@ -14,11 +14,14 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-07 · **Branch:** `TrainingApp` · **Último commit de
-código:** Fase 7 (LoFlo) (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-08 · **Branch:** `TrainingApp` · **Último commit de
+código:** Login SAP NetWeaver (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
-- **Lo último cerrado (2026-10-07):** la **Fase 7 · catálogo de LoFlo** (`08`/`09`; NC, DC y
+- **Lo último cerrado (2026-10-08, sin fase):** Login y Cambio de contraseña con el diseño
+  del login SAP NetWeaver real (ver "Historial"). Las capturas del MES real pasaron al repo:
+  `docs/ui-reference/Screens SAP MES REAL/`.
+- **Antes (2026-10-07):** la **Fase 7 · catálogo de LoFlo** (`08`/`09`; NC, DC y
   BOM simulados con marca `SIM`), probada por el usuario en el navegador. Antes, la
   **Fase 5 · tests de `ScoreCalculator`**; después,
   sin fase, la **reorganización de la documentación** (cada regla en un solo lugar: mapa en
@@ -288,3 +291,13 @@ empleados se precarga al arrancar y se refresca en segundo plano (`docs/architec
 "API de empleados"); `/bundles` y `/Content` accesibles sin login (Login y ChangePassword
 recibían el HTML del Login en vez de sus JS). B-1: una lista vacía de la API no reemplaza la
 última. Pendiente para la Fase 9: el arranque en frío en IIS.
+
+### Login SAP NetWeaver ✅ (2026-10-08, sin spec)
+Login y Cambio de contraseña replican el login SAP NetWeaver real (captura `Login SAP
+NETWEAVER.png`) en un `Auth.Master` propio que hereda `AntiXsrfMasterPage`; `StartSession`
+sigue con `Site.Master`. La foto y el logo de SAP están recortados de la captura; sin
+Bootstrap. Decisiones del usuario: los errores del servidor van en SweetAlert, como el
+legacy, y Cambio de contraseña tiene Cancel, que cierra la sesión. Las validaciones no
+cambiaron. Cambio de contraseña no tiene captura: usa los textos del cambio de contraseña de
+NetWeaver (`docs/ui-reference/inventario-pantallas.md`). Probado por el usuario en el
+navegador.

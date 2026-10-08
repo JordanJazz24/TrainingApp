@@ -132,7 +132,7 @@ pida: él decidió dejarlos para fases propias.
 
 - El simulador replica el SAP MES real: el operador aprende a moverse en cada pantalla y qué
   dato va en cada campo; una UI inventada entrena otra cosa.
-- Fuente: capturas que aporta el usuario en `C:\Users\320313439\Pictures\TrainingApp\` (y lo
+- Fuente: capturas que aporta el usuario en `docs/ui-reference/Screens SAP MES REAL/` (y lo
   que consulta con operadores de planta), más lo ya documentado en `docs/ui-reference/`.
 - Antes de maquetar una pantalla, revisar su captura y su sección en `docs/ui-reference/`. No
   inventar estructura, textos ni de dónde sale cada valor (ej. Batch Number = Process Lot de

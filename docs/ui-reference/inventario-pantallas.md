@@ -5,7 +5,8 @@ capturas del MES real y su estado. Es el **criterio de cierre de la Fase 6.5** y
 **entrada de la spec de overlays guiados** (Fase 6.6): los overlays se anclan a estas
 pantallas.
 
-- Capturas: `C:\Users\320313439\Pictures\TrainingApp\` (rutas relativas a esa carpeta).
+- Capturas: `docs/ui-reference/Screens SAP MES REAL/` (rutas relativas a esa carpeta; hasta
+  el 2026-10-08 estaban en `C:\Users\320313439\Pictures\TrainingApp\`).
 - Detalle de cada pantalla: `general-flow.md` y `moldeo-flow.md`.
 - Plan y entregas de la fase: `docs/specs/fase-6.5-plan.md`.
 
@@ -138,4 +139,8 @@ tienen que considerar: **Score** (header), **Abandon Session** (pie), **Home** y
 intento.
 
 **Fuera del alcance de la Fase 6.5:** las páginas del simulador que no son del MES
-(Login, Cambio de contraseña, StartSession).
+(Login, Cambio de contraseña, StartSession). Desde el 2026-10-08, Login y Cambio de
+contraseña replican el login SAP NetWeaver real (captura `Login SAP NETWEAVER.png`) en
+`Auth.Master`; la foto y el logo de SAP están recortados de esa captura. Cambio de contraseña
+no tiene captura: usa el mismo marco con los textos del cambio de contraseña de NetWeaver
+(Old/New/Confirm Password, Change) más Cancel, que cierra la sesión.

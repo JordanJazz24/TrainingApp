@@ -1,0 +1,51 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Auth.master.cs"
+    Inherits="TrainingApp.UI.Master.AuthMaster" %>
+<%-- Login y Cambio de contraseña con el marco del login SAP NetWeaver real (captura
+     docs/ui-reference/Screens SAP MES REAL/Login SAP NETWEAVER.png): marco dorado, foto a la
+     izquierda, título, formulario, copyright y logo de SAP abajo, pestaña dorada al pie. --%>
+<!DOCTYPE html>
+<html lang="es">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - MES Training</title>
+
+    <link href="<%=ResolveUrl("~/UI/master/auth.css")%>" rel="stylesheet" />
+
+    <%-- SweetAlert2 en <head> para que los errores de RegisterStartupScript lo encuentren --%>
+    <script src="<%=ResolveUrl("~/Scripts/sweetalert2.all.min.js")%>"></script>
+</head>
+<body class="auth-page">
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%-- jquery + WebUIValidation: validadores de formato en el cliente --%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+            </Scripts>
+        </asp:ScriptManager>
+
+        <div class="nw-frame">
+            <div class="nw-panel">
+                <div class="nw-image">
+                    <img src="<%=ResolveUrl("~/UI/master/imgs/login.jpg")%>" alt="" />
+                </div>
+                <div class="nw-main">
+                    <h1 class="nw-title">SAP NetWeaver</h1>
+                    <div class="nw-content">
+                        <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+                    </div>
+                    <div class="nw-footer">
+                        <span class="nw-copyright">Copyright &copy; SAP AG. All Rights Reserved.</span>
+                        <img class="nw-logo" src="<%=ResolveUrl("~/UI/master/imgs/sap-logo.png")%>" alt="SAP" />
+                    </div>
+                </div>
+            </div>
+            <div class="nw-tab"></div>
+        </div>
+    </form>
+</body>
+</html>

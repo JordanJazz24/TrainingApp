@@ -2,6 +2,7 @@ using System;
 using System.Web.Security;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
+using TrainingApp.UI.Master;
 
 namespace TrainingApp.Pages.Auth
 {
@@ -56,10 +57,6 @@ namespace TrainingApp.Pages.Auth
             }
         }
 
-        private void ShowError(string message)
-        {
-            LblError.Text    = message;
-            LblError.Visible = true;
-        }
+        private void ShowError(string message) => ((AuthMaster)Master).ShowError(message);
     }
 }

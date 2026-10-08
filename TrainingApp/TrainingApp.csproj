@@ -140,6 +140,10 @@
       <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="UI\master\Site.Master" />
+    <Content Include="UI\master\Auth.Master" />
+    <Content Include="UI\master\auth.css" />
+    <Content Include="UI\master\imgs\login.jpg" />
+    <Content Include="UI\master\imgs\sap-logo.png" />
     <Content Include="UI\master\Training.Master" />
     <Content Include="UI\Controls\Training\LineClearanceControl.ascx" />
     <Content Include="UI\Controls\Training\CompleteControl.ascx" />
@@ -269,6 +273,13 @@
     <Compile Include="Pages\Training\Guide\GuideSubstep.cs" />
     <Compile Include="UI\master\AntiXsrfMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\master\Auth.master.cs">
+      <DependentUpon>Auth.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\master\Auth.master.designer.cs">
+      <DependentUpon>Auth.Master</DependentUpon>
     </Compile>
     <Compile Include="UI\master\Site.Master.cs">
       <DependentUpon>Site.Master</DependentUpon>
