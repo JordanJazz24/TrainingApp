@@ -20,7 +20,10 @@ código:** Login SAP NetWeaver (`git log --oneline -10` para ver el estado real)
 - **Ahora — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
 - **Lo último cerrado (2026-10-08, sin fase):** Login y Cambio de contraseña con el diseño
   del login SAP NetWeaver real (ver "Historial"). Las capturas del MES real pasaron al repo:
-  `docs/ui-reference/Screens SAP MES REAL/`.
+  `docs/ui-reference/Screens SAP MES REAL/`. Y el **ultrareview** de lo no auditado (ver
+  "Historial"): `main` = último estado revisado.
+- **Por probar en el navegador:** la guía de Log NC en una área Serialized en Guided (arranca
+  en "Subpaso 1": hallazgo del ultrareview, commit sin probar).
 - **Antes (2026-10-07):** la **Fase 7 · catálogo de LoFlo** (`08`/`09`; NC, DC y
   BOM simulados con marca `SIM`), probada por el usuario en el navegador. Antes, la
   **Fase 5 · tests de `ScoreCalculator`**; después,
@@ -301,3 +304,10 @@ legacy, y Cambio de contraseña tiene Cancel, que cierra la sesión. Las validac
 cambiaron. Cambio de contraseña no tiene captura: usa los textos del cambio de contraseña de
 NetWeaver (`docs/ui-reference/inventario-pantallas.md`). Probado por el usuario en el
 navegador.
+
+### Ultrareview ✅ (2026-10-08, sin spec)
+Por pedido del usuario, `main` se movió (fast-forward) a `25fa64f`, el cierre de la auditoría
+final: así `/ultrareview` sin argumentos revisa solo lo no auditado (6.6, rendimiento, Fase 5,
+scripts SQL, Fase 7). Un solo hallazgo, *nit*: en Serialized, la guía de Log NC empezaba con
+un subpaso "quitar la selección" que siempre se saltaba (el POD ya llega sin selección), y el
+contador arrancaba en "Subpaso 2". Se quitó el subpaso.

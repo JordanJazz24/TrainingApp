@@ -361,9 +361,10 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Log NC: la fila a scrapear (NonSerialized: la del split; Serialized: una pieza, así
-        // que primero se quita la selección que venía de los pasos anteriores), toda la NC
-        // Selection (R6: cualquier código es válido), Component si el área lo pide y Add-Done.
+        // Log NC: la fila a scrapear (NonSerialized: la del split; Serialized: una pieza), toda
+        // la NC Selection (R6: cualquier código es válido), Component si el área lo pide y
+        // Add-Done. El POD ya llega sin selección (GuidedTest la limpia tras Start, Assembly y
+        // DC): un subpaso para quitarla se saltaba siempre y el contador empezaba en 2.
         private static StepScript LogNC(PodContext ctx, TrainingStep step)
         {
             bool needsComponent = ctx.Area.RequiresNCComponent;
@@ -379,9 +380,6 @@ namespace TrainingApp.Pages.Training.Guide
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
                 var piece = order?.ActiveRows().FirstOrDefault();
-                s.Add("clear", GuideMode.Click, Anchor("pod-select-all"),
-                    done: new[] { "!" + Anchor("pod-row") + ".selected" },
-                    html: H("Presione ", B("Select All"), " para quitar la selección de todas las piezas."));
                 AddRowSelection(s, "select", piece, null, "Seleccione una pieza para registrar el defecto, por ejemplo ");
             }
             else
