@@ -460,6 +460,23 @@ Si el sistema no auto-inicia: el operador presiona **[Start]** en la barra de ac
 3. Verificar que la tabla POD muestre la orden con Status: Active
 4. Si la orden no inició: clic en [Start]
 
+### Procedimiento real (revisión con SAP MES, 2026-10-09)
+Fuente: el ingeniero de SAP MES (Diego), sobre Redefinity en Guided, y lo que el usuario vio
+en planta. Hallazgos y propuestas: roadmap → "Fase 8".
+- **La cola trae piezas de otras órdenes.** La operación casi siempre tiene en cola unidades
+  de otras órdenes o batch. El procedimiento es iniciar la orden que se va a manufacturar, no
+  seleccionar todo lo que hay en cola: eso puede iniciar unidades ajenas. El MES bloquea
+  iniciar unidades que no son de la orden (lo controla la configuración de la operación,
+  ligada al Line Clearance). El mensaje de error no tiene captura.
+- **Lo habitual es escanear la orden y dar Start.** Browse Work List se usa cuando se
+  trabajan varias órdenes a la vez.
+- **Start manual, confirmado.** Después de seleccionar hay que presionar [Start]. Solo carga
+  sola cuando el escáner está configurado para mandar el Enter (procedimientos que piden
+  escanear).
+- **Diferencia con el simulador:** la cola solo trae piezas de la orden y Start exige
+  seleccionarlas todas (spec 008), así que "seleccionar todo" siempre es correcto: entrena
+  el hábito que el procedimiento prohíbe.
+
 ### Reglas de negocio
 - No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
@@ -696,6 +713,12 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
    los obligatorios de la pieza → banner "SFC … completed. Next: … (n/N)"
 6. Con la última pieza completa, el paso termina y vuelve el POD
 
+**Revisión con SAP MES (2026-10-09):** recolectar por pieza es correcto, pero según la
+configuración de la operación el MES también permite recolectar para todas las piezas a la
+vez (con cientos de unidades es lo práctico). El simulador va pieza por pieza, como se vio
+en Sensores. El banner "SFC … completed. Next: …" no tiene captura y puede ser propio del
+simulador: verificarlo en el ambiente de calidad de SAP MES.
+
 ### Patrón compartido: DC Collect vs. Assembly
 
 | Elemento | Assembly | DC Collect |
@@ -856,6 +879,17 @@ El campo SFC en la search bar queda vacío tras el scrap.
   pieza para Complete (seleccionar todas = aviso sin intento). Sin fila = intento fallido.
 - Banner: "✓ All of {SFC} scrapped" (una) o "✓ N SFCs scrapped" (varias). En Serialized
   el SFC field queda vacío; en NonSerialized conserva el SFC del lote.
+
+### Métodos de NC en el MES real (revisión con SAP MES, 2026-10-09)
+Hoy se usan tres. Cuáles tiene cada operación depende de su configuración, que sigue los
+documentos de manufactura (auditados) de esa operación:
+- **Fast scrap:** botar unidades.
+- **Scrap / return component:** devolver, cambiar o botar un componente. Lleva pasos
+  adicionales; según el ingeniero, se olvidan o se hacen mal con frecuencia.
+- **Extensión de la operación:** regresar unidades a ciertas operaciones para retrabajo.
+
+El simulador modela un solo camino: registrar el código NC (y el componente si el área lo
+pide) y scrapear la pieza.
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |

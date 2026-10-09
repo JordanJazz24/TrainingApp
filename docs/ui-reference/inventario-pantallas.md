@@ -130,6 +130,10 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
 - ~~Lo que muestra el MES al ejecutar Complete (#16)~~: no tiene pantalla (2026-10-07).
 - ~~Los banners de Start, Assembly y Split~~: no hacen falta por ahora (2026-10-07).
 - NC Selection completa (la recortada se perdió).
+- Mensajes del MES sin captura, detectados en la revisión con SAP MES (2026-10-09): el error
+  al iniciar una pieza de otra orden, el de material equivocado en Assembly y el banner de
+  avance entre piezas en Data Collection. Fuente posible: el ambiente de calidad de SAP MES
+  que ofreció el ingeniero (acceso por coordinar).
 
 ## Elementos propios del simulador (fuera de la comparación)
 

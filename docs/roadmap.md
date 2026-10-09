@@ -17,14 +17,15 @@
 **Última actualización:** 2026-10-12 · **Branch:** `TrainingApp` · **Último commit de
 código:** refactor `Operator` → `User` (`git log --oneline -10` para ver el estado real)
 
-- **Ahora — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
-- **En diseño (sesión de arquitectura, 2026-10-08/09): módulo administrativo.** Propuesta,
-  sin aprobar: un solo login con un área `Pages/Admin` protegida por rol; roles como columna
-  de `Users` + un mapa rol → capacidades en la BLL (sin tabla de permisos); spec "Cuentas y
-  roles" (rol, reset de contraseña por admin, bloqueo, gestión de usuarios) antes de la
-  Fase 9, y dashboards y reportes después, con su propia spec. Faltan 3 respuestas del
-  usuario: quién ve los dashboards (¿supervisores por área?), si los operadores tienen
-  cuenta propia de Windows/AD y qué otros campos da la API de empleados.
+- **Ahora — Fase 8 (validación con negocio) y plan de la entrega de noviembre.** Tras las
+  reuniones del 2026-10-09 con el ingeniero de SAP MES y con Ernesto (MES), el usuario aprobó
+  (2026-10-12) el plan de la **Fase 8.5 · Entrega de noviembre** (ver su sección).
+  **Siguiente:** T1, la versión de prueba. Para mostrar a negocio:
+  [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
+  una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
+- **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
+  documento de la prueba práctica de Ernesto (T6, reunión del 15-16 oct) y el acceso al
+  ambiente de testing de SAP MES (T9: el usuario le envía su Code1 y su correo a Ernesto).
 - **Lo último cerrado (2026-10-12, sin fase):** refactor **`Operator` → `User`** en todas
   las capas (D-17, ver "Historial"): paso previo al módulo administrativo.
 - **Antes (2026-10-08):** Login y Cambio de contraseña con el diseño del login SAP
@@ -63,6 +64,9 @@ final (D-16) repasó esta lista.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.
 - **AUD-28/29** (endurecimiento del deploy y paquetes): en la Fase 9 (D-7).
+- **Contraseña por defecto versionada (D-18):** quien tenga acceso al repo la conoce y, con un
+  Code1, puede activar la cuenta de un compañero que aún no entró ("reclamo de cuenta
+  ajena"). Riesgo aceptado; se mitiga en la spec 013 (Fase 8.5).
 - **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
   reconstruir en Serialized): diferidos (D-16).
 
@@ -113,8 +117,10 @@ datos".
 | — · Auditoría + spec 009 (motor del POD) + auditoría final | ✅ | 2026-10-06 | `009-*.md`, `docs/audits/` |
 | 6.6 · Overlays guiados | ✅ | 2026-10-07 | `010-*.md` |
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
-| **8 · Validación interna** | ▶️ siguiente | | |
-| 9 · Deploy del MVP | pendiente | | |
+| **8 · Validación interna** | ▶️ en curso | | |
+| **8.5 · Entrega de noviembre** | ▶️ siguiente | 2.ª semana de nov. | specs 011-013 |
+| 9 · Deploy del MVP | pendiente (T1 adelanta una parte) | | |
+| 10 · Dashboard e historial por operador (T8) | pendiente | | |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -143,6 +149,88 @@ parámetro). Probado en LocalDB y por el usuario en el navegador.
 **Objetivo:** sesión con trainer/operador real sobre R&C y LoFlo. Correcciones de UX, bugs de
 flujo, ajustes de catálogo.
 **No incluye:** nuevas áreas, dashboard admin, reportes.
+
+#### Revisión con SAP MES (2026-10-09)
+30 minutos con el ingeniero de SAP MES (Diego) sobre Redefinity en Guided, desde el paso 3.
+Lo que se aprendió de cada pantalla está en `docs/ui-reference/general-flow.md` (pasos 3, 5
+y 8). Clasificación: **S** = funcionalidad nueva, necesita spec y sale de esta fase
+(`CLAUDE.md` → "Reglas de trabajo"); **B** = backlog.
+
+| Hallazgo | Clase | Siguiente paso |
+|---|---|---|
+| Start manual después de seleccionar; solo carga solo con escáner configurado | Confirmado | — |
+| Line Clearance de cierre igual al de apertura | Confirmado | — |
+| Flujo general (Start, Assembly, DC, LC, Complete) correcto; en piso hay muchas variantes | Confirmado | Decidir con negocio qué variantes entran |
+| La cola trae piezas de otras órdenes y el procedimiento es iniciar la orden. El simulador entrena "seleccionar todo" (Start exige todas, spec 008) | S | Piezas de otra orden en Browse Work List y elegir bien se califica (hoy seleccionar filas es navegación y nunca cuenta) |
+| Lo habitual es escanear la orden y dar Start | S | Escanear la Shop Order en `TxtSFC` (hoy readonly, spec 005). Misma spec que la anterior |
+| Log NC tiene tres métodos en uso (fast scrap, scrap/return component, extensión de la operación), según la operación | S | Decidir con negocio cuáles se entrenan |
+| DC por pieza o para todas, según la operación | B | Mantener por pieza; "aplicar a todas" como mejora |
+| Mensajes sin captura (pieza de otra orden, material equivocado, avance de DC) | Por verificar | Coordinar el ambiente de calidad que ofreció el ingeniero |
+
+Sin respuesta: Operations por área (solo un indicio: varía la configuración, no se habló de
+la secuencia), validación del material contra el BOM, catálogos reales de Sensores, Status
+`In Queue` en NonSerialized, uso de Disassemble/Hold y los dos pendientes de captura. El
+ingeniero recomendó definir alcance y requisitos con Ernesto antes de agregar variantes.
+
+#### Revisión con Ernesto, MES (2026-10-09)
+68 minutos: contexto de negocio y demo de Guided y Assessment.
+- **Contexto:** hoy no hay entrenamiento formal de MES (enseña el compañero de al lado); unas
+  1600 personas usan el sistema. Ernesto libera en 1-2 semanas una **prueba práctica en
+  papel** (parte de una CAPA): unos 10 puntos que suman 100, evaluada en producción. Pidió
+  que sea el **mínimo** que evalúe el simulador; los pesos y penalizaciones los define el
+  simulador. A futuro, la prueba en papel pasaría al simulador: eso sube la importancia de la
+  integridad de Assessment (identidad del operador, historial auditable).
+- **Entrega planeada:** segunda semana de noviembre de 2026 (Fase 8.5).
+- **Tareas que salieron** (el plan y su orden, en la Fase 8.5):
+
+| # | Tarea | Estado |
+|---|---|---|
+| T1 | Versión de prueba publicada para Ernesto y técnicos de MES | Fase 8.5 |
+| T2 | Escanear la Shop Order como camino principal de Search/Start (RF-17). Decidido en la reunión: escaneo principal + aviso de que Browse Work List también vale; sin agregar variabilidad | Fase 8.5, spec 011 |
+| T3 | **Modo práctica**, tercer modo: Assessment sin evaluación, sin la guía visual y con pistas ante la acción incorrecta | Fase 8.5, spec 012 |
+| T4 | Log NC: practicar los tres tipos de scrap (fast scrap, scrap/return component, extensión de la operación) | Espera T9 (pantallas reales) |
+| T5 | Guías por **área** (lo que pidió el equipo de Paola) o **dos escenarios** generales, serializado y por lote (recomendación de Ernesto), con los pasos opcionales siempre incluidos | **Decisión de negocio pendiente.** No tocar flags, catálogos ni el diseño del dashboard hasta que decidan |
+| T6 | Mapear los criterios de la prueba en papel a pasos del simulador (puede mover pesos; deben sumar 1.00) | Espera el documento de Ernesto |
+| T7 | Revisar los mensajes de la guía de Guided con los trainers (menos texto; burbuja de "lo que hay que recordar" o botón "?") | Contenido de `GuideScriptBuilder`, en paralelo |
+| T8 | Dashboard: historial por operador (intentos, fechas, duración por paso, registro de actividad) para ver dónde fallan antes de producción. Sin tiempo mínimo de práctica | Fase 10 |
+| T9 | Acceso al ambiente de **testing** de SAP MES (no el sandbox): mensajes reales, pantallas de los tres scraps y Start de Moldeo | Acción del usuario |
+
+Backlog: RF-16 (piezas de otras órdenes en Browse Work List; Diego a favor, Ernesto en contra
+de agregar variabilidad) y Data Collection "aplicar a todas las piezas".
+
+### Fase 8.5 — Entrega de noviembre
+**Objetivo:** versión de entrenamiento para la segunda semana de noviembre de 2026, con la
+identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
+Plan aprobado por el usuario el 2026-10-12. Cada tarea con funcionalidad nueva lleva su
+`/spec` (`docs/process.md`).
+
+| # | Tarea | Tipo | Depende de |
+|---|---|---|---|
+| 1 | **T1 · Versión de prueba** en IIS interno: valor nuevo de `DEFAULT_PASSWORD` (D-18); BD con `00`–`04` y `06`–`09` (**sin `05`**, solo dev); `debug=false` y `customErrors` (parte mínima de AUD-28). Los reset de los testers, por SQL. Los datos de la prueba se descartan | plan directo | — |
+| 2 | **T2 · Escanear la Shop Order** | spec 011 | — |
+| 3a | **`ModePolicy`**: concentrar en un objeto lo que hoy decide cada modo (penaliza, fuerza avance, guía visual, pistas). Refactor sin cambio de comportamiento, con tests | plan directo | — |
+| 3b | **T3 · Modo práctica.** Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | 3a |
+| 4 | **Cuentas, roles y registro de actividad:** columna de rol en `Users` + mapa rol → capacidades en la BLL; área `Pages/Admin` protegida por rol; reset de contraseña por admin (contraseña temporal); bloqueo por intentos fallidos; gestión de usuarios; guardar el motivo y la acción de cada intento (hoy `PodAttemptReason` se descarta) | spec 013 | — |
+| 5 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso | análisis | documento de Ernesto |
+| — | T4 entra solo si T9 llega a tiempo. T7 en paralelo cuando los trainers den el contenido | | |
+
+Si el tiempo no alcanza, se recorta T3, no la spec 013: sin identidad confiable ni historial
+auditable, Assessment no puede crecer hacia reemplazar la prueba en papel.
+
+**Decisiones del usuario (2026-10-12) para la spec 013 y la Fase 10:**
+- **D-18:** `DEFAULT_PASSWORD` sigue en `Constants` (versionado); para T1 solo cambia el
+  valor. Riesgo de reclamo de cuenta ajena aceptado (ver "Deuda y riesgos").
+- Solo los **administradores** ven resultados y dashboards: un único rol además del de
+  operador, sin alcance por área.
+- La API de empleados da solo Code1, nombre completo y correo: el área de un operador no sale
+  de la API. Si T5 decide escenarios, las métricas por área necesitan un área del usuario
+  asignada en la app (a decidir en la spec del dashboard).
+- Todos tienen cuenta corporativa (`nombre.apellido@philips.com`). Opciones a evaluar en la
+  spec 013 para cerrar el reclamo de cuenta ajena: enviar la contraseña inicial o temporal al
+  correo (requiere SMTP y que el operador lea el correo) o Windows Authentication (solo si
+  cada operador entrena con su propia sesión de Windows, no en un equipo compartido).
+
+**No incluye:** dashboard y reportes (Fase 10), nuevas áreas (espera T5), RF-16.
 
 ### Fase 9 — Deploy del MVP
 **Objetivo:** deploy en servidor interno con IIS: connection string de producción, App Pool,
