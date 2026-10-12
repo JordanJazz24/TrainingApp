@@ -35,6 +35,20 @@
 > - **AC-21:** Given la etiqueta visible, Then no tapa controles del POD que el paso actual
 >   necesite (botones, tabla, modales ni burbujas de la guía de Guided).
 
+> **Enmienda 2026-10-12 (desarrollo, E1 del plan; no cambia la intención):** afecta API
+> Contract y el punto 6 de Scope.
+>
+> - El aviso de Start con la orden incompleta (Serialized) **no** reutiliza
+>   `PodNotice.SelectAllPieces`: ese aviso también lo usan Assembly, DC y Complete, y con
+>   el texto nuevo le pediría escanear la Shop Order después del Start. Se agrega
+>   `PodNotice.StartWholeOrder`, que solo usa `ClickStart` en Serialized, con el texto del
+>   punto 6. `SelectAllPieces` conserva su texto para los otros pasos. Reemplaza la
+>   propuesta "un solo aviso para los dos caminos": sigue siendo uno solo para escaneo y
+>   Browse en el Start.
+> - Texto provisional de `SfcNotInOrder` (y del aviso del cliente, punto 5): neutro, "El
+>   número no corresponde a la orden de este recurso". No revela qué número sirve
+>   (AC-16). El texto real del MES sigue diferido a T9.
+
 ## Problem
 
 Hoy el simulador entrena un solo camino para cargar la orden en el POD: abrir Browse Work
