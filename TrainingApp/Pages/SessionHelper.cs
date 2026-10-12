@@ -20,21 +20,21 @@ namespace TrainingApp.Pages
         /// Si sesión está vacía pero usuario está autenticado, re-hidrata desde BD.
         /// </summary>
         /// <returns>True si sesión está poblada; False si usuario no está autenticado o fue eliminado de BD.</returns>
-        public static bool EnsureOperatorSession()
+        public static bool EnsureUserSession()
         {
             var context = HttpContext.Current;
             if (context.Session == null || !context.User.Identity.IsAuthenticated)
                 return false;
 
             // Session ya está poblada
-            if (context.Session[Constants.SessionKeys.OperatorId] != null)
+            if (context.Session[Constants.SessionKeys.UserId] != null)
                 return true;
 
             // Session perdida pero FormsAuth sigue válido — re-hidratar desde BD
             string code1 = context.User.Identity.Name;
-            var op = new AuthService().GetOperatorByCode1(code1);
+            var user = new AuthService().GetUserByCode1(code1);
 
-            if (op == null)
+            if (user == null)
             {
                 // Operador eliminado pero cookie aún válido — forzar logout
                 FormsAuthentication.SignOut();
@@ -43,7 +43,7 @@ namespace TrainingApp.Pages
             }
 
             // Re-establecer sesión
-            SetOperatorSession(op);
+            SetUserSession(user);
             return true;
         }
 
@@ -51,13 +51,13 @@ namespace TrainingApp.Pages
         /// Escribe en la Session los datos del operador autenticado. La usan el login y la
         /// re-hidratación, así una clave nueva no puede quedar en un solo lado.
         /// </summary>
-        public static void SetOperatorSession(Operator op)
+        public static void SetUserSession(User user)
         {
             var session = HttpContext.Current.Session;
-            session[Constants.SessionKeys.OperatorId]   = op.Id;
-            session[Constants.SessionKeys.Code1]        = op.Code1;
-            session[Constants.SessionKeys.Name]         = op.Name;
-            session[Constants.SessionKeys.IsFirstLogin] = op.IsFirstLogin;
+            session[Constants.SessionKeys.UserId]       = user.Id;
+            session[Constants.SessionKeys.Code1]        = user.Code1;
+            session[Constants.SessionKeys.Name]         = user.Name;
+            session[Constants.SessionKeys.IsFirstLogin] = user.IsFirstLogin;
         }
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace TrainingApp.Pages
             var context = HttpContext.Current;
             try
             {
-                if (EnsureOperatorSession())
+                if (EnsureUserSession())
                     new TrainingSessionService().AbandonAllActive(
-                        (int)context.Session[Constants.SessionKeys.OperatorId]);
+                        (int)context.Session[Constants.SessionKeys.UserId]);
             }
             finally
             {

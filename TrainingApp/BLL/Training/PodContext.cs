@@ -22,11 +22,11 @@ namespace TrainingApp.BLL.Training
         private Product                        _product;
         private bool                           _productLoaded;
 
-        internal PodContext(int operatorId, TrainingSession session, TrainingGuide guide, Area area,
+        internal PodContext(int userId, TrainingSession session, TrainingGuide guide, Area area,
             IList<TrainingSessionStepAttempt> attempts, PodState state, decimal score,
             TrainingGuideService catalog)
         {
-            OperatorId = operatorId;
+            UserId = userId;
             Session    = session;
             Guide      = guide;
             Area       = area;
@@ -36,7 +36,7 @@ namespace TrainingApp.BLL.Training
             _catalog   = catalog;
         }
 
-        public int OperatorId { get; }
+        public int UserId { get; }
         public TrainingSession Session { get; }
         public TrainingGuide Guide { get; }
         public Area Area { get; }

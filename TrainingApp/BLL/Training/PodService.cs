@@ -33,10 +33,10 @@ namespace TrainingApp.BLL.Training
         // Sesión, guía, área, intentos y estado del POD, una vez por request (AUD-25). null si
         // la sesión no existe, es de otro operador o ya no está en curso: la página vuelve a
         // StartSession, como antes.
-        public PodContext LoadContext(int sessionId, int operatorId)
+        public PodContext LoadContext(int sessionId, int userId)
         {
             var session = _sessionRepo.GetById(sessionId);
-            if (session == null || session.OperatorId != operatorId ||
+            if (session == null || session.UserId != userId ||
                 session.Status != SessionStatus.InProgress)
                 return null;
 
@@ -52,7 +52,7 @@ namespace TrainingApp.BLL.Training
             }
 
             decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
-            var ctx = new PodContext(operatorId, session, guide, area, attempts, state, score, _guideService);
+            var ctx = new PodContext(userId, session, guide, area, attempts, state, score, _guideService);
 
             // Después de Resource Setup siempre hay orden: si falta, se perdió la Session.
             if (state.Order == null && ctx.IsResolved(StepType.ResourceSetup))
@@ -101,16 +101,16 @@ namespace TrainingApp.BLL.Training
         // Inicia una guía: la BD abandona las otras sesiones en curso del operador (D-9) y aquí
         // se descarta el estado del POD de las sesiones anteriores de este login, abandonadas
         // o completadas (auditoría AUD-41).
-        public TrainingSession StartSession(int operatorId, int guideId, SessionMode mode)
+        public TrainingSession StartSession(int userId, int guideId, SessionMode mode)
         {
-            var session = _sessionService.Start(operatorId, guideId, mode);
+            var session = _sessionService.Start(userId, guideId, mode);
             _store.RemoveAll();
             return session;
         }
 
         public void Abandon(PodContext ctx)
         {
-            _sessionService.Abandon(ctx.Session.Id, ctx.OperatorId);
+            _sessionService.Abandon(ctx.Session.Id, ctx.UserId);
             _store.Remove(ctx.Session.Id);
         }
 

@@ -1046,7 +1046,7 @@ namespace TrainingApp.Pages.Training
         private PodContext LoadContext()
         {
             // Re-hidrata sesión si se perdió pero el usuario sigue autenticado
-            if (!SessionHelper.EnsureOperatorSession())
+            if (!SessionHelper.EnsureUserSession())
             {
                 Response.Redirect("~/Pages/Auth/Login.aspx");
                 return null;
@@ -1066,7 +1066,7 @@ namespace TrainingApp.Pages.Training
             }
 
             // null: la sesión no existe, es de otro operador o ya no está en curso.
-            var ctx = Pod.LoadContext(sessionId, CurrentOperatorId);
+            var ctx = Pod.LoadContext(sessionId, CurrentUserId);
             if (ctx == null)
             {
                 Response.Redirect("~/Pages/Training/StartSession.aspx");
@@ -1077,9 +1077,9 @@ namespace TrainingApp.Pages.Training
         }
 
         // Operador autenticado (Session escrita solo por el servidor tras el login; ya
-        // re-hidratada por EnsureOperatorSession). La BLL verifica con él que la sesión le
+        // re-hidratada por EnsureUserSession). La BLL verifica con él que la sesión le
         // pertenece (auditoría AUD-05).
-        private int CurrentOperatorId => (int)Session[Constants.SessionKeys.OperatorId];
+        private int CurrentUserId => (int)Session[Constants.SessionKeys.UserId];
 
         // ── UI helpers ───────────────────────────────────────────────────
         private void PopulateHeader(TrainingSession session, Area area, TrainingGuide guide)

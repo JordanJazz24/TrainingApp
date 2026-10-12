@@ -9,7 +9,7 @@
 
 -- spTrainingSessionInsert — crea la sesión. Devuelve el Id creado.
 CREATE OR ALTER PROCEDURE dbo.spTrainingSessionInsert
-    @OperatorId       INT,
+    @UserId           INT,
     @TrainingGuideId  INT,
     @Mode             TINYINT,
     @Status           TINYINT,
@@ -19,9 +19,9 @@ AS
 BEGIN
     SET NOCOUNT ON;
     INSERT INTO dbo.TrainingSessions
-        (OperatorId, TrainingGuideId, Mode, Status, CurrentStepOrder, FinalScore, StartedAt)
+        (UserId, TrainingGuideId, Mode, Status, CurrentStepOrder, FinalScore, StartedAt)
     VALUES
-        (@OperatorId, @TrainingGuideId, @Mode, @Status, @CurrentStepOrder, 0, @StartedAt);
+        (@UserId, @TrainingGuideId, @Mode, @Status, @CurrentStepOrder, 0, @StartedAt);
     SELECT SCOPE_IDENTITY();
 END;
 GO
@@ -32,7 +32,7 @@ CREATE OR ALTER PROCEDURE dbo.spTrainingSessionGetById
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, OperatorId, TrainingGuideId, Mode, Status,
+    SELECT Id, UserId, TrainingGuideId, Mode, Status,
            CurrentStepOrder, FinalScore, StartedAt, CompletedAt
     FROM   dbo.TrainingSessions
     WHERE  Id = @Id;
@@ -54,18 +54,18 @@ BEGIN
 END;
 GO
 
--- spTrainingSessionAbandonActiveByOperator — abandona todas las sesiones
--- InProgress del operador: una sola sesión activa por operador (D-9). Se usa
+-- spTrainingSessionAbandonActiveByUser — abandona todas las sesiones
+-- InProgress del usuario: una sola sesión activa por operador (D-9). Se usa
 -- al iniciar una guía y en el logout. Conserva los intentos (AUD-01, D-4).
-CREATE OR ALTER PROCEDURE dbo.spTrainingSessionAbandonActiveByOperator
-    @OperatorId INT
+CREATE OR ALTER PROCEDURE dbo.spTrainingSessionAbandonActiveByUser
+    @UserId INT
 AS
 BEGIN
     SET NOCOUNT ON;
     UPDATE dbo.TrainingSessions
     SET    Status      = 2,
            CompletedAt = SYSUTCDATETIME()
-    WHERE  OperatorId = @OperatorId
-    AND    Status     = 0;
+    WHERE  UserId = @UserId
+    AND    Status = 0;
 END;
 GO

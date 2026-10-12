@@ -1,23 +1,23 @@
 -- ============================================================
--- 01_spOperator.sql — SPs de Operators (login, alta en el primer
+-- 01_spUser.sql — SPs de Users (login, alta en el primer
 -- acceso y cambio de contraseña).
 -- Requiere: 00_Schema.sql · Re-ejecutable: sí (CREATE OR ALTER).
 -- ============================================================
 
--- spOperatorGetByCode1 — operador local por su código de empleado.
-CREATE OR ALTER PROCEDURE dbo.spOperatorGetByCode1
+-- spUserGetByCode1 — usuario local por su código de empleado.
+CREATE OR ALTER PROCEDURE dbo.spUserGetByCode1
     @Code1 NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
     SELECT Id, Code1, Name, PasswordHash, IsFirstLogin, CreatedAt
-    FROM   dbo.Operators
+    FROM   dbo.Users
     WHERE  Code1 = @Code1;
 END;
 GO
 
--- spOperatorInsert — alta en el primer acceso. Devuelve el Id creado.
-CREATE OR ALTER PROCEDURE dbo.spOperatorInsert
+-- spUserInsert — alta en el primer acceso. Devuelve el Id creado.
+CREATE OR ALTER PROCEDURE dbo.spUserInsert
     @Code1        NVARCHAR(50),
     @Name         NVARCHAR(200),
     @PasswordHash NVARCHAR(500),
@@ -26,22 +26,22 @@ CREATE OR ALTER PROCEDURE dbo.spOperatorInsert
 AS
 BEGIN
     SET NOCOUNT ON;
-    INSERT INTO dbo.Operators (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt)
+    INSERT INTO dbo.Users (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt)
     VALUES (@Code1, @Name, @PasswordHash, @IsFirstLogin, @CreatedAt);
     SELECT SCOPE_IDENTITY();
 END;
 GO
 
--- spOperatorUpdatePassword — guarda el hash nuevo y marca IsFirstLogin = 0.
-CREATE OR ALTER PROCEDURE dbo.spOperatorUpdatePassword
-    @OperatorId   INT,
+-- spUserUpdatePassword — guarda el hash nuevo y marca IsFirstLogin = 0.
+CREATE OR ALTER PROCEDURE dbo.spUserUpdatePassword
+    @UserId       INT,
     @PasswordHash NVARCHAR(500)
 AS
 BEGIN
     SET NOCOUNT ON;
-    UPDATE dbo.Operators
+    UPDATE dbo.Users
     SET    PasswordHash = @PasswordHash,
            IsFirstLogin = 0
-    WHERE  Id = @OperatorId;
+    WHERE  Id = @UserId;
 END;
 GO

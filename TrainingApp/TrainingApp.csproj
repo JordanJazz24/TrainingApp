@@ -184,7 +184,7 @@
     <Compile Include="DAL\Infrastructure\Database.cs" />
     <Compile Include="DAL\Infrastructure\DatabaseFactory.cs" />
     <Compile Include="DAL\Repositories\EmployeeRepository.cs" />
-    <Compile Include="DAL\Repositories\OperatorRepository.cs" />
+    <Compile Include="DAL\Repositories\UserRepository.cs" />
     <Compile Include="DAL\Repositories\TrainingGuideRepository.cs" />
     <Compile Include="DAL\Repositories\AreaRepository.cs" />
     <Compile Include="DAL\Repositories\NCCodeRepository.cs" />
@@ -195,7 +195,7 @@
     <Compile Include="DAL\Repositories\TrainingSessionRepository.cs" />
     <Compile Include="DAL\Repositories\StepAttemptRepository.cs" />
     <Compile Include="Domain\Employee.cs" />
-    <Compile Include="Domain\Operator.cs" />
+    <Compile Include="Domain\User.cs" />
     <Compile Include="Domain\Product.cs" />
     <Compile Include="Domain\Area.cs" />
     <Compile Include="Domain\TrainingGuide.cs" />

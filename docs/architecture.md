@@ -65,12 +65,12 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── Database.cs                ← wrapper ADO.NET (SqlConnection + SqlCommand)
 │   │   │   └── DatabaseFactory.cs         ← lee connection string de Web.config
 │   │   └── Repositories/                  ← uno por tabla: Employee (API, lista en memoria
-│   │                                         con precarga y refresco), Operator, Product, Area,
+│   │                                         con precarga y refresco), User, Product, Area,
 │   │                                         TrainingGuide, TrainingSession, StepAttempt,
 │   │                                         NCCode, DataCollectionGroup,
 │   │                                         DataCollectionParameter, AssemblyComponent
 │   ├── Domain/                            ← POCOs puros, sin dependencias
-│   │   ├── Employee.cs, Operator.cs, Product.cs
+│   │   ├── Employee.cs, User.cs, Product.cs
 │   │   ├── Area.cs                        ← SerializationType + flags (Requires*)
 │   │   ├── TrainingGuide.cs, TrainingStep.cs (StepWeight)
 │   │   ├── TrainingSession.cs (SessionMode), TrainingSessionStepAttempt.cs
@@ -87,20 +87,20 @@ MES Training Simulator/                    ← raíz del repositorio
 └── docs/                                  ← ver el mapa de documentos en CLAUDE.md
 ```
 
-## Sesión del operador (`Pages/SessionHelper.cs`)
+## Sesión del usuario (`Pages/SessionHelper.cs`)
 
 La Session (InProc) se pierde al cerrar el navegador, por timeout (60 min) o al reciclar el
 App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
-`Session[OperatorId]` sería null con el usuario autenticado.
+`Session[UserId]` sería null con el usuario autenticado.
 
-- `EnsureOperatorSession()`: si la Session está vacía y el usuario autenticado, la
-  re-hidrata con `AuthService.GetOperatorByCode1(User.Identity.Name)`. Se re-hidrata desde
+- `EnsureUserSession()`: si la Session está vacía y el usuario autenticado, la
+  re-hidrata con `AuthService.GetUserByCode1(User.Identity.Name)`. Se re-hidrata desde
   BD (una consulta) y no con `FormsAuthenticationTicket.UserData` (4 KB, no extensible).
-- `SetOperatorSession(Operator)`: **única** escritura de `OperatorId`, `Code1`, `Name` e
+- `SetUserSession(User)`: **única** escritura de `UserId`, `Code1`, `Name` e
   `IsFirstLogin`; la usan el login y la re-hidratación. Una sola escritura evita que una
   clave nueva quede solo en el login (como pasó con `IsFirstLogin`).
 - `MustChangePassword()`: true mientras `IsFirstLogin` (AUD-08).
-- `Logout()`: abandona las sesiones `InProgress` del operador (D-9) y cierra la sesión.
+- `Logout()`: abandona las sesiones `InProgress` del usuario (D-9) y cierra la sesión.
 
 ## API de empleados (`DAL/Repositories/EmployeeRepository`)
 
@@ -118,7 +118,7 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
 
 ## Motor del POD (spec 009)
 
-- **`PodService.LoadContext(operatorId, …)`** se llama una vez por request y devuelve el
+- **`PodService.LoadContext(sessionId, userId)`** se llama una vez por request y devuelve el
   `PodContext`: sesión, guía, área, intentos, puntaje, estado del POD y catálogos del área
   (perezosos, una vez por request). La página lee de ahí el paso actual, `IsResolved`,
   `IsPassed` y los catálogos; nunca de `TrainingGuideService` ni de `ScoreCalculator`.

@@ -269,19 +269,22 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 
 ## Auth Flow
 
+La cuenta local es `User` (tabla `Users`), nunca `Operator`: "operador" es la persona en la
+línea del MES y, a futuro, un rol (D-17).
+
 1. El operador ingresa `code1` + contraseña en `Login.aspx`.
 2. `AuthService` busca el `code1` en la lista de empleados de la API (`EmployeeRepository`,
    en memoria; caché y fallos: `docs/architecture.md`). Si no existe → "Código de empleado
    no registrado". Autorregistro: cualquier empleado de la lista puede activar su cuenta,
    sin alta por parte de un admin.
-3. Sin `Operator` local (primer acceso): la contraseña debe ser `Constants.DEFAULT_PASSWORD`
-   → se crea el `Operator` con `IsFirstLogin = true` → `ChangePassword.aspx`. Con
-   `Operator`: se valida contra `PasswordHash` (PBKDF2).
+3. Sin `User` local (primer acceso): la contraseña debe ser `Constants.DEFAULT_PASSWORD`
+   → se crea el `User` con `IsFirstLogin = true` → `ChangePassword.aspx`. Con
+   `User`: se valida contra `PasswordHash` (PBKDF2).
 4. `AuthService.ChangePassword` pide **siempre** la contraseña actual (en el primer acceso, la
    por defecto) y la nueva no puede ser la por defecto → se guarda hasheada e
    `IsFirstLogin = false`.
 5. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
-   `SessionHelper.SetOperatorSession`. Mientras `IsFirstLogin`, `StartSession` y `GuidedTest`
+   `SessionHelper.SetUserSession`. Mientras `IsFirstLogin`, `StartSession` y `GuidedTest`
    redirigen a `ChangePassword` (AUD-08).
 
 ## Convenciones clave
@@ -298,7 +301,7 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 **Capas**
 - Code-behind solo UI: visibilidad, binding y redirecciones. Sin lógica de negocio ni DAL.
 - La BLL valida las reglas de negocio y **protege sus invariantes** sin confiar en que la
-  página ya validó: `PodService.LoadContext` recibe el `operatorId` autenticado y solo
+  página ya validó: `PodService.LoadContext` recibe el `userId` autenticado y solo
   devuelve contexto para una sesión propia y en curso; el paso actual lo define el servidor;
   `TrainingSessionService.Abandon` valida el dueño. Violar un invariante es una excepción, no
   un intento. Intento y avance/cierre se guardan juntos en una transacción
@@ -311,9 +314,9 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 
 **Sesión y seguridad**
 - `Session` se escribe solo desde el servidor tras autenticarse, nunca desde JavaScript.
-  Toda página con operador llama `SessionHelper.EnsureOperatorSession()` al inicio de
+  Toda página con usuario autenticado llama `SessionHelper.EnsureUserSession()` al inicio de
   `Page_Load` (false → Login) y después `MustChangePassword()` (true → ChangePassword). Las
-  claves nuevas de operador se agregan solo en `SessionHelper.SetOperatorSession`.
+  claves nuevas del usuario se agregan solo en `SessionHelper.SetUserSession`.
 - `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
   no en `Web.config` ni hardcodeadas en páginas.
 - Toda página usa `Site.Master`, `Training.Master` o `Auth.Master` (Login y Cambio de

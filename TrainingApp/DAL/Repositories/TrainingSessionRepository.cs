@@ -13,7 +13,7 @@ namespace TrainingApp.DAL.Repositories
             {
                 var id = db.ExecuteScalar("spTrainingSessionInsert", cmd =>
                 {
-                    cmd.Parameters.AddWithValue("@OperatorId",       session.OperatorId);
+                    cmd.Parameters.AddWithValue("@UserId",           session.UserId);
                     cmd.Parameters.AddWithValue("@TrainingGuideId",  session.TrainingGuideId);
                     cmd.Parameters.AddWithValue("@Mode",             (int)session.Mode);
                     cmd.Parameters.AddWithValue("@Status",           (int)session.Status);
@@ -42,17 +42,17 @@ namespace TrainingApp.DAL.Repositories
                     cmd => cmd.Parameters.AddWithValue("@SessionId", sessionId));
         }
 
-        public void AbandonActiveByOperator(int operatorId)
+        public void AbandonActiveByUser(int userId)
         {
             using (var db = DatabaseFactory.Create())
-                db.ExecuteNonQuery("spTrainingSessionAbandonActiveByOperator",
-                    cmd => cmd.Parameters.AddWithValue("@OperatorId", operatorId));
+                db.ExecuteNonQuery("spTrainingSessionAbandonActiveByUser",
+                    cmd => cmd.Parameters.AddWithValue("@UserId", userId));
         }
 
         private static TrainingSession Map(SqlDataReader r) => new TrainingSession
         {
             Id              = Convert.ToInt32(r["Id"]),
-            OperatorId      = Convert.ToInt32(r["OperatorId"]),
+            UserId          = Convert.ToInt32(r["UserId"]),
             TrainingGuideId = Convert.ToInt32(r["TrainingGuideId"]),
             Mode            = (SessionMode)Convert.ToInt32(r["Mode"]),
             Status          = (SessionStatus)Convert.ToInt32(r["Status"]),

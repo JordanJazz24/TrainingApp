@@ -14,7 +14,7 @@ namespace TrainingApp.Pages.Training
         protected void Page_Load(object sender, EventArgs e)
         {
             // Re-hidratar sesión si se perdió pero FormsAuth sigue válido
-            if (!SessionHelper.EnsureOperatorSession())
+            if (!SessionHelper.EnsureUserSession())
             {
                 Response.Redirect("~/Pages/Auth/Login.aspx");
                 return;
@@ -50,10 +50,10 @@ namespace TrainingApp.Pages.Training
             }
 
             var mode = RbAssessment.Checked ? SessionMode.Assessment : SessionMode.Guided;
-            int operatorId = (int)Session[Constants.SessionKeys.OperatorId];
+            int userId = (int)Session[Constants.SessionKeys.UserId];
 
             // D-9 y AUD-41: deja una sola sesión en curso, también en el estado del POD.
-            var session = new PodService(new SessionPodStateStore(Session)).StartSession(operatorId, guideId, mode);
+            var session = new PodService(new SessionPodStateStore(Session)).StartSession(userId, guideId, mode);
             Response.Redirect("~/Pages/Training/GuidedTest.aspx?sessionId=" + session.Id);
         }
 

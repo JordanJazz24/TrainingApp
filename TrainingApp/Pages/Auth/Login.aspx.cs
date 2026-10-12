@@ -41,17 +41,17 @@ namespace TrainingApp.Pages.Auth
                     ShowError("Contraseña incorrecta.");
                     break;
 
-                // FirstLogin y Success solo difieren en Operator.IsFirstLogin, que
-                // SetOperatorSession guarda en la Session (auditoría AUD-08).
+                // FirstLogin y Success solo difieren en User.IsFirstLogin, que
+                // SetUserSession guarda en la Session (auditoría AUD-08).
                 case LoginStatus.FirstLogin:
-                    FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
-                    SessionHelper.SetOperatorSession(result.Operator);
+                    FormsAuthentication.SetAuthCookie(result.User.Code1, false);
+                    SessionHelper.SetUserSession(result.User);
                     Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
                     break;
 
                 case LoginStatus.Success:
-                    FormsAuthentication.SetAuthCookie(result.Operator.Code1, false);
-                    SessionHelper.SetOperatorSession(result.Operator);
+                    FormsAuthentication.SetAuthCookie(result.User.Code1, false);
+                    SessionHelper.SetUserSession(result.User);
                     Response.Redirect("~/Pages/Training/StartSession.aspx");
                     break;
             }

@@ -19,7 +19,7 @@ namespace TrainingApp.Shared
 
         public static class SessionKeys
         {
-            public const string OperatorId = "OperatorId";
+            public const string UserId     = "UserId";
             public const string Code1      = "Code1";
             public const string Name       = "Name";
 

@@ -14,12 +14,21 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-08 · **Branch:** `TrainingApp` · **Último commit de
-código:** Login SAP NetWeaver (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-12 · **Branch:** `TrainingApp` · **Último commit de
+código:** refactor `Operator` → `User` (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8 (validación interna)**, en su momento, por decisión del usuario.
-- **Lo último cerrado (2026-10-08, sin fase):** Login y Cambio de contraseña con el diseño
-  del login SAP NetWeaver real (ver "Historial"). Las capturas del MES real pasaron al repo:
+- **En diseño (sesión de arquitectura, 2026-10-08/09): módulo administrativo.** Propuesta,
+  sin aprobar: un solo login con un área `Pages/Admin` protegida por rol; roles como columna
+  de `Users` + un mapa rol → capacidades en la BLL (sin tabla de permisos); spec "Cuentas y
+  roles" (rol, reset de contraseña por admin, bloqueo, gestión de usuarios) antes de la
+  Fase 9, y dashboards y reportes después, con su propia spec. Faltan 3 respuestas del
+  usuario: quién ve los dashboards (¿supervisores por área?), si los operadores tienen
+  cuenta propia de Windows/AD y qué otros campos da la API de empleados.
+- **Lo último cerrado (2026-10-12, sin fase):** refactor **`Operator` → `User`** en todas
+  las capas (D-17, ver "Historial"): paso previo al módulo administrativo.
+- **Antes (2026-10-08):** Login y Cambio de contraseña con el diseño del login SAP
+  NetWeaver real (ver "Historial"). Las capturas del MES real pasaron al repo:
   `docs/ui-reference/Screens SAP MES REAL/`. Y el **ultrareview** de lo no auditado (ver
   "Historial"): `main` = último estado revisado.
 - **Por probar en el navegador:** la guía de Log NC en una área Serialized en Guided (arranca
@@ -71,6 +80,7 @@ corrió el usuario:
 | 2026-10-05 | `03` | Spec 009 E6: `spTrainingSessionAbandonActiveByOperator` sin `@TrainingGuideId` |
 | 2026-10-07 | `01`–`07` | Limpieza de scripts (2026-10-07): `CREATE OR ALTER`, catálogos como tablas de valores, transacciones, `spTrainingGuideSync` |
 | 2026-10-07 | `08`, `09` | Fase 7: catálogo y guía de LoFlo |
+| 2026-10-12 | ALTER + `01_spUser`, `03` | D-17: `Operators` → `Users`, `OperatorId` → `UserId`, SPs `spUser*` y `spTrainingSessionAbandonActiveByUser` |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
@@ -311,3 +321,17 @@ final: así `/ultrareview` sin argumentos revisa solo lo no auditado (6.6, rendi
 scripts SQL, Fase 7). Un solo hallazgo, *nit*: en Serialized, la guía de Log NC empezaba con
 un subpaso "quitar la selección" que siempre se saltaba (el POD ya llega sin selección), y el
 contador arrancaba en "Subpaso 2". Se quitó el subpaso.
+
+### Refactor `Operator` → `User` ✅ (2026-10-09 a 2026-10-12, sin spec)
+**D-17 (usuario):** la cuenta local se llama `User` (tabla `Users`, `TrainingSessions.UserId`).
+"Operator" es un término del MES (POD = *Production Operator Dashboard*; operador = persona
+en la línea) y, con el módulo administrativo, una tabla `Operators` con administradores sería
+contradictoria; "Operator" queda como futuro valor de rol. Se hizo antes del módulo admin y
+del deploy (después habría más referencias y datos reales que migrar). Refactor puro, sin
+cambio de comportamiento: Domain, DAL (SPs `spUser*`, `spTrainingSessionAbandonActiveByUser`,
+`@UserId`, `r["UserId"]`), BLL, páginas, `SessionKeys.UserId`, scripts `00`, `01_spUser`
+(antes `01_spOperator`) y `03`; los textos de UI no cambiaron. Para la BD existente, un ALTER
+aparte (`sp_rename`, conserva los datos) + `01` y `03`. Verificación: build, tests,
+`aspnet_compiler`, barrido de texto, contrato DAL ↔ SPs en LocalDB (cada SP, parámetro y
+columna que nombra el DAL existe), BD migrada idéntica a una instalación limpia y prueba en
+el navegador por el usuario.

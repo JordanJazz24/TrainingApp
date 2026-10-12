@@ -4,7 +4,7 @@
 --
 -- Scripts de Database/StoredProcedures, en orden numérico:
 --   00_Schema.sql            tablas
---   01_spOperator.sql        SPs de Operators
+--   01_spUser.sql            SPs de Users
 --   02_spTrainingGuide.sql   SPs de guías y catálogos + spTrainingGuideSync
 --   03_spTrainingSession.sql SPs de sesiones
 --   04_spStepAttempt.sql     SPs de intentos por paso
@@ -58,17 +58,17 @@ CREATE TABLE dbo.Operations (
 );
 
 -- -------------------------------------------------------
--- Operators
+-- Users  (cuenta local de un empleado de la API; antes Operators, D-17)
 -- -------------------------------------------------------
-IF OBJECT_ID('dbo.Operators', 'U') IS NULL
-CREATE TABLE dbo.Operators (
+IF OBJECT_ID('dbo.Users', 'U') IS NULL
+CREATE TABLE dbo.Users (
     Id           INT IDENTITY(1,1) PRIMARY KEY,
     Code1        NVARCHAR(50)  NOT NULL,
     Name         NVARCHAR(200) NOT NULL,
     PasswordHash NVARCHAR(500) NOT NULL,
     IsFirstLogin BIT           NOT NULL DEFAULT 1,
     CreatedAt    DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
-    CONSTRAINT UQ_Operators_Code1 UNIQUE (Code1)
+    CONSTRAINT UQ_Users_Code1 UNIQUE (Code1)
 );
 
 -- -------------------------------------------------------
@@ -109,7 +109,7 @@ CREATE TABLE dbo.TrainingSteps (
 IF OBJECT_ID('dbo.TrainingSessions', 'U') IS NULL
 CREATE TABLE dbo.TrainingSessions (
     Id               INT IDENTITY(1,1) PRIMARY KEY,
-    OperatorId       INT          NOT NULL REFERENCES dbo.Operators(Id),
+    UserId           INT          NOT NULL REFERENCES dbo.Users(Id),
     TrainingGuideId  INT          NOT NULL REFERENCES dbo.TrainingGuides(Id),
     Mode             TINYINT      NOT NULL,
     Status           TINYINT      NOT NULL DEFAULT 0,

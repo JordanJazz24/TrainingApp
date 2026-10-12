@@ -13,7 +13,7 @@ namespace TrainingApp.BLL.Auth
     public class LoginResult
     {
         public LoginStatus Status { get; set; }
-        public Operator Operator { get; set; }
+        public User User { get; set; }
 
         public static LoginResult NotFound() =>
             new LoginResult { Status = LoginStatus.EmployeeNotFound };
@@ -21,10 +21,10 @@ namespace TrainingApp.BLL.Auth
         public static LoginResult Invalid() =>
             new LoginResult { Status = LoginStatus.InvalidCredentials };
 
-        public static LoginResult AsFirstLogin(Operator op) =>
-            new LoginResult { Status = LoginStatus.FirstLogin, Operator = op };
+        public static LoginResult AsFirstLogin(User user) =>
+            new LoginResult { Status = LoginStatus.FirstLogin, User = user };
 
-        public static LoginResult Ok(Operator op) =>
-            new LoginResult { Status = LoginStatus.Success, Operator = op };
+        public static LoginResult Ok(User user) =>
+            new LoginResult { Status = LoginStatus.Success, User = user };
     }
 }

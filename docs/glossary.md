@@ -23,7 +23,7 @@
 | **NC / Scrap** | Registro de material no conforme o scrap con código de causa. |
 | **SFC Split** | Divide la cantidad de un SFC de lote (NonSerialized) creando un SFC nuevo de la misma Shop Order. |
 | **Employee** | Empleado de la API de la empresa (`Constants.EmployeeApiUrl`); no se guarda en la BD. Si su `code1` está en la lista, puede activar su cuenta. |
-| **Operator** | Employee que completó el primer acceso y cambió su contraseña: tiene cuenta activa. |
+| **User** | Cuenta local de un Employee (tabla `Users`): se crea en su primer acceso y queda activa al cambiar la contraseña por defecto. No llamarla Operator: "operador" es la persona en la línea (D-17). |
 | **Product / Area / Operation** | Línea de manufactura / sublínea de ensamblaje / [futuro] subdivisión del Area. Jerarquía y lista oficial: `CLAUDE.md` → "Jerarquía". |
 | **TrainingGuide** | Plantilla de pasos que define el flujo del operador (qué pasos, en qué orden, con qué pesos). Inmutable una vez publicada. No llamarla WorkflowDefinition. |
 | **TrainingSession** | Ejecución de una TrainingGuide por un operador: paso actual, intentos y, al terminar, el puntaje final. |

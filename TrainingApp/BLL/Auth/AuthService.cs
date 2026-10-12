@@ -8,12 +8,12 @@ namespace TrainingApp.BLL.Auth
     public class AuthService
     {
         private readonly EmployeeRepository _employeeRepo;
-        private readonly OperatorRepository _operatorRepo;
+        private readonly UserRepository _userRepo;
 
         public AuthService()
         {
             _employeeRepo = new EmployeeRepository();
-            _operatorRepo = new OperatorRepository();
+            _userRepo = new UserRepository();
         }
 
         public LoginResult Login(string code1, string password)
@@ -23,16 +23,16 @@ namespace TrainingApp.BLL.Auth
             if (employee == null)
                 return LoginResult.NotFound();
 
-            // Step 2: check for existing local Operator record
-            var op = _operatorRepo.GetByCode1(code1);
+            // Step 2: check for existing local User record
+            var user = _userRepo.GetByCode1(code1);
 
-            if (op == null)
+            if (user == null)
             {
                 // First access — no local record yet; validate against default password
                 if (password != Constants.DEFAULT_PASSWORD)
                     return LoginResult.Invalid();
 
-                op = new Operator
+                user = new User
                 {
                     Code1        = employee.Code1,
                     Name         = employee.FullName,
@@ -40,17 +40,17 @@ namespace TrainingApp.BLL.Auth
                     IsFirstLogin = true,
                     CreatedAt    = DateTime.UtcNow
                 };
-                op.Id = _operatorRepo.Insert(op);
-                return LoginResult.AsFirstLogin(op);
+                user.Id = _userRepo.Insert(user);
+                return LoginResult.AsFirstLogin(user);
             }
 
             // Step 3: existing account — verify stored hash
-            if (!PasswordHelper.Verify(password, op.PasswordHash))
+            if (!PasswordHelper.Verify(password, user.PasswordHash))
                 return LoginResult.Invalid();
 
-            return op.IsFirstLogin
-                ? LoginResult.AsFirstLogin(op)
-                : LoginResult.Ok(op);
+            return user.IsFirstLogin
+                ? LoginResult.AsFirstLogin(user)
+                : LoginResult.Ok(user);
         }
 
         // Precarga la lista de empleados en segundo plano al arrancar la aplicación
@@ -62,27 +62,27 @@ namespace TrainingApp.BLL.Auth
 
         // Operador local por code1, para re-hidratar la Session cuando se pierde con el login
         // vigente (SessionHelper; auditoría AUD-15).
-        public Operator GetOperatorByCode1(string code1)
+        public User GetUserByCode1(string code1)
         {
-            return _operatorRepo.GetByCode1(code1);
+            return _userRepo.GetByCode1(code1);
         }
 
         // Cambio de contraseña (auditoría AUD-09, decisión D-3): siempre pide la actual; en el
         // primer acceso la actual es la por defecto. Guardar también activa la cuenta
-        // (spOperatorUpdatePassword pone IsFirstLogin = 0).
+        // (spUserUpdatePassword pone IsFirstLogin = 0).
         public ChangePasswordStatus ChangePassword(string code1, string currentPassword, string newPassword)
         {
-            var op = _operatorRepo.GetByCode1(code1);
-            if (op == null)
-                return ChangePasswordStatus.OperatorNotFound;
+            var user = _userRepo.GetByCode1(code1);
+            if (user == null)
+                return ChangePasswordStatus.UserNotFound;
 
-            if (!PasswordHelper.Verify(currentPassword ?? string.Empty, op.PasswordHash))
+            if (!PasswordHelper.Verify(currentPassword ?? string.Empty, user.PasswordHash))
                 return ChangePasswordStatus.InvalidCurrentPassword;
 
             if (newPassword == Constants.DEFAULT_PASSWORD)
                 return ChangePasswordStatus.NewPasswordIsDefault;
 
-            _operatorRepo.UpdatePassword(op.Id, PasswordHelper.Hash(newPassword));
+            _userRepo.UpdatePassword(user.Id, PasswordHelper.Hash(newPassword));
             return ChangePasswordStatus.Success;
         }
     }

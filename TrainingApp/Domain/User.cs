@@ -2,7 +2,9 @@ using System;
 
 namespace TrainingApp.Domain
 {
-    public class Operator
+    // Cuenta local de un Employee de la API (primer acceso completado o en curso). Antes se
+    // llamaba Operator; "operador" queda como término del MES (D-17).
+    public class User
     {
         public int Id { get; set; }
         public string Code1 { get; set; }

@@ -8,7 +8,7 @@ namespace TrainingApp.Domain
     public class TrainingSession
     {
         public int Id { get; set; }
-        public int OperatorId { get; set; }
+        public int UserId { get; set; }
         public int TrainingGuideId { get; set; }
         public SessionMode Mode { get; set; }
         public SessionStatus Status { get; set; }

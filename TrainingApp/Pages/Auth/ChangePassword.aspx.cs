@@ -14,7 +14,7 @@ namespace TrainingApp.Pages.Auth
         protected void Page_Load(object sender, EventArgs e)
         {
             // Re-hidrata la Session si se perdió con el login vigente (auditoría AUD-10).
-            if (!SessionHelper.EnsureOperatorSession())
+            if (!SessionHelper.EnsureUserSession())
             {
                 Response.Redirect("~/Pages/Auth/Login.aspx");
                 return;
@@ -43,7 +43,7 @@ namespace TrainingApp.Pages.Auth
                     ShowError("La nueva contraseña no puede ser la contraseña por defecto.");
                     return;
 
-                case ChangePasswordStatus.OperatorNotFound:
+                case ChangePasswordStatus.UserNotFound:
                     // Operador eliminado con el login vigente: se cierra la sesión.
                     FormsAuthentication.SignOut();
                     Session.Abandon();
