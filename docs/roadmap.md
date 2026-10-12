@@ -15,19 +15,23 @@
 > auditoría.
 
 **Última actualización:** 2026-10-12 · **Branch:** `TrainingApp` · **Último commit de
-código:** refactor `Operator` → `User` (`git log --oneline -10` para ver el estado real)
+código:** preparación de la versión de prueba (T1) (`git log --oneline -10` para ver el
+estado real)
 
-- **Ahora — Fase 8 (validación con negocio) y plan de la entrega de noviembre.** Tras las
-  reuniones del 2026-10-09 con el ingeniero de SAP MES y con Ernesto (MES), el usuario aprobó
-  (2026-10-12) el plan de la **Fase 8.5 · Entrega de noviembre** (ver su sección).
-  **Siguiente:** T1, la versión de prueba. Para mostrar a negocio:
+- **Ahora — Fase 8 (validación con negocio) y Fase 8.5 · Entrega de noviembre** (plan
+  aprobado el 2026-10-12, ver su sección). **T1 preparado** (ver "Historial"); la prueba en
+  el servidor real queda diferida (D-19). **Siguiente:** spec 011 (T2), en diseño en otra
+  sesión; la 012 incluye `ModePolicy` como su primera entrega. Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
   documento de la prueba práctica de Ernesto (T6, reunión del 15-16 oct) y el acceso al
   ambiente de testing de SAP MES (T9: el usuario le envía su Code1 y su correo a Ernesto).
-- **Lo último cerrado (2026-10-12, sin fase):** refactor **`Operator` → `User`** en todas
-  las capas (D-17, ver "Historial"): paso previo al módulo administrativo.
+- **Lo último cerrado (2026-10-12):** **T1 · preparación de la versión de prueba**
+  (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
+  refactor **`Operator` → `User`** en todas las capas (D-17, ver "Historial"): paso previo
+  al módulo administrativo.
+- **Diferido (D-19):** probar T1 en el servidor IIS real (checklist en "Historial" → T1).
 - **Antes (2026-10-08):** Login y Cambio de contraseña con el diseño del login SAP
   NetWeaver real (ver "Historial"). Las capturas del MES real pasaron al repo:
   `docs/ui-reference/Screens SAP MES REAL/`. Y el **ultrareview** de lo no auditado (ver
@@ -423,3 +427,29 @@ aparte (`sp_rename`, conserva los datos) + `01` y `03`. Verificación: build, te
 `aspnet_compiler`, barrido de texto, contrato DAL ↔ SPs en LocalDB (cada SP, parámetro y
 columna que nombra el DAL existe), BD migrada idéntica a una instalación limpia y prueba en
 el navegador por el usuario.
+
+### T1 · Preparación de la versión de prueba ✅ (2026-10-12, Fase 8.5, plan directo)
+Configuración para publicar la versión de prueba en el IIS interno (Ernesto y técnicos de
+MES). **Decisiones del usuario (2026-10-12):** `DEFAULT_PASSWORD` **conserva su valor** (no
+cambia, a diferencia del plan) y la BD de prueba **incluye `05`** (Redefinity y Subensamble 1
+de ejemplo). Con el valor de siempre, el reclamo de cuenta ajena (D-18) es más fácil: la
+spec 013 debe cerrarlo antes de que entren operadores reales.
+- `Web.Release.config` agrega `customErrors mode="RemoteOnly"` (parte mínima de AUD-28);
+  `debug` y `optimizeCompilations` ya se quitaban. Transformación verificada con
+  `XmlTransform`.
+- `Database/Ops/ResetUserPassword.sql` (temporal hasta el reset por admin de la spec 013):
+  con el `@Code1` de un tester, vuelve la cuenta a la contraseña por defecto con
+  `IsFirstLogin = 1`, sin borrar sesiones ni intentos. El hash va precalculado con
+  `PasswordHelper.Hash` (T-SQL no reproduce el PBKDF2 de la app); si cambia
+  `DEFAULT_PASSWORD`, se regenera con el comando del encabezado.
+- Probado en LocalDB: reset con Code1 existente e inexistente, e instalación limpia `00`–`09`
+  (3 guías publicadas, pesos en 1.00).
+- **Pasos de publicación:** BD con `00`–`09` en orden → publicar desde VS en **Release** con
+  el `connectionStrings.config` del servidor → App Pool con `idleTimeout` ≥ 60 min (o 0;
+  AUD-28: si el proceso se detiene, la Session InProc se pierde).
+- **D-19 (usuario, 2026-10-12):** se commitea como *preparación* y se da por aprobado **sin
+  probarlo en el servidor real**; esa prueba queda diferida. Checklist pendiente: el
+  `web.config` publicado no tiene `debug="true"` y sí `customErrors`; desde otra PC, ya
+  autenticado, `…/Pages/Training/GuidedTest.aspx?sessionId=<b>` muestra el "Runtime Error"
+  genérico sin detalle; reset de un tester → entra con la contraseña por defecto y lo manda a
+  cambiarla; aparecen las guías de Redefinity, Moldeo y LoFlo.
