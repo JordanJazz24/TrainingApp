@@ -3,6 +3,38 @@
 **Status:** Approved (2026-10-12)
 **Date:** 2026-10-12 · **Approved:** 2026-10-12 (usuario, con las propuestas de diseño incluidas)
 
+> **Enmienda 2026-10-12 (usuario, en la sesión de desarrollo, al planificar):** tres huecos
+> resueltos antes de tocar código. Afecta los puntos 3 y 4 de Scope, Domain Model, API
+> Contract y AC-14; agrega AC-18 a AC-21.
+>
+> 1. **Start con texto sin Enter.** Si escribe o escanea en `TxtSFC` sin dar Enter y
+>    presiona Start, **solo cuando Search es el paso actual**, Start primero resuelve el texto
+>    como si fuera Enter: si es válido, lo carga y sigue con el Start; si no es de la orden,
+>    sale el aviso del punto 5 en el cliente, sin postback ni intento. En Assessment, un
+>    Start fuera de turno sigue llegando al servidor y es intento fallido por secuencia (S2):
+>    el chequeo del cliente no aplica en ese caso (mismo patrón que `SetClientRowCheck`).
+> 2. **Validación en el servidor para NonSerialized.** Reemplaza "el servidor no cambia su
+>    forma de validar" (Domain Model). Hoy `ClickStart` acepta cualquier `scannedSfc` no
+>    vacío porque `TxtSFC` era readonly; con el campo editable, un número ajeno iniciaría el
+>    lote. `ClickStart` compara `scannedSfc` (sin espacios al inicio ni al final) con el SFC
+>    del lote y con la Shop Order de la orden; si no coincide, responde con un aviso nuevo,
+>    `PodNotice.SfcNotInOrder`, **sin intento** y con el mismo texto que el aviso del
+>    cliente. La firma de `ClickStart` no cambia. AC-14 se amplía a NonSerialized.
+> 3. **Ubicación de la etiqueta.** Precisa el punto 3 de Scope ("junto al POD y fuera del
+>    marco del MES"): **tarjeta flotante fija en la esquina inferior derecha, encima del
+>    POD**, como una etiqueta pegada a la pantalla. El POD conserva todo su ancho.
+>
+> Criterios nuevos:
+> - **AC-18:** Given Search como paso actual y un valor de la orden escrito sin Enter, When
+>   presiona Start, Then se carga y el Start sigue como en AC-11.
+> - **AC-19:** Given Search como paso actual y un texto que no es de la orden escrito sin
+>   Enter, When presiona Start, Then aparece el aviso del punto 5, sin postback ni intento.
+> - **AC-20:** Given NonSerialized y un `scannedSfc` que no es el SFC del lote ni la Shop Order
+>   (por ejemplo, manipulado en el cliente), When llega el Start al servidor, Then responde
+>   `SfcNotInOrder` y no registra intento ni inicia el lote.
+> - **AC-21:** Given la etiqueta visible, Then no tapa controles del POD que el paso actual
+>   necesite (botones, tabla, modales ni burbujas de la guía de Guided).
+
 ## Problem
 
 Hoy el simulador entrena un solo camino para cargar la orden en el POD: abrir Browse Work
