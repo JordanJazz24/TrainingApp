@@ -134,6 +134,10 @@ las listas (entrega 7) y en DC/NC Entry (entrega 8)._
   al iniciar una pieza de otra orden, el de material equivocado en Assembly y el banner de
   avance entre piezas en Data Collection. Fuente posible: el ambiente de calidad de SAP MES
   que ofreció el ingeniero (acceso por coordinar).
+- Detectadas al contrastar la WI QD001001524 (2026-10-12, `wi-produccion-disposables.md`):
+  la Data Collection List con un grupo ya guardado (✔ en [Collect], W15), las ventanas de
+  Log Buyoff y de firma electrónica al completar (W17) y el POD de una orden con su Process
+  Lot junto a Assemble Components (W13).
 
 ## Elementos propios del simulador (fuera de la comparación)
 

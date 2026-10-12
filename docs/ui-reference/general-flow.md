@@ -5,6 +5,9 @@ Fuente de verdad de **cómo se ve y se opera** cada pantalla. Las reglas de nego
 puntaje (pesos, qué cuenta como intento, modos) están en `CLAUDE.md`; aquí no se copian.
 
 > Documentos por área (`moldeo-flow.md`, etc.) solo registrarán lo que difiere de este flujo general.
+>
+> Procedimiento oficial del MES real (WI QD001001524) y su contraste con cada paso:
+> `wi-produccion-disposables.md` (hallazgos W1-W22).
 
 ---
 
@@ -924,6 +927,11 @@ pide) y scrapear la pieza.
   **Serialized (spec 008):** todas las filas que quedan en el POD (algunas = aviso sin intento).
 
 > **Diferencia con legacy:** el legacy implementaba un modal "Complete Section" + overlay "Log Buyoff" con credenciales (User ID + Password). El flujo real SAP es directo. Si alguna área requiere confirmación adicional (buyoff, firma), se documenta en su archivo de área.
+>
+> **Enmienda 2026-10-12:** según la WI QD001001524, el Complete directo es una de tres
+> variantes; las otras son **Log Buyoff** (operaciones de 50 SFC o menos por transacción)
+> y **firma electrónica** (mover toda la orden). Falta saber cuál tienen las áreas
+> simuladas: `wi-produccion-disposables.md` → W17.
 
 ---
 

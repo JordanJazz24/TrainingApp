@@ -33,4 +33,11 @@
 | **StepWeight** | Peso de un paso sobre el puntaje final (`TrainingSteps.Weight`). Pesos y reglas: `CLAUDE.md` → "Ponderación de pasos". |
 | **Intento** | Cada envío que califica el servidor. Qué cuenta y qué no (formato vs. decisión, acción incorrecta, secuencia S2, avance forzado): `CLAUDE.md` → "Qué cuenta como intento". |
 | **Avance forzado (force-advance)** | En Assessment, al 4.º intento (`ScoreCalculator.ShouldForceAdvance`) el paso queda fallido con 0 puntos y el sistema avanza solo al siguiente. |
+| **MPI** | Manufacturing Process Instruction: instrucción de proceso de cada operación. El MES la abre desde [Work Instruction]; los parámetros de DC se recolectan según ella. |
+| **eDHR / eLHR** | Registro electrónico histórico del dispositivo (producto terminado) / del lote (sub-ensamble). Lo que el MES registra queda en ellos. |
+| **Log Buyoff** | Aprobación electrónica al completar (usuario y contraseña o tarjeta, luego [Accept]) en operaciones de 50 SFC o menos por transacción. El simulador no la tiene: `ui-reference/wi-produccion-disposables.md` → W17. |
+| **Firma electrónica (eSignature)** | Firma con usuario y contraseña ("Data Collection Authentication") al completar operaciones que mueven toda la orden. |
+| **Fast scrap / Fast repair / Extended fast repair** | Métodos de Log NC, reconocibles por el prefijo del código: `F_FS` desecha la unidad, `F_FR` quita o cambia un componente (Return o Scrap), `F_FX` regresa la unidad a una operación anterior. |
+| **Hold** | Retención de una Shop Order o un Process Lot (Activities → SFC Place Hold / Release Hold; Future Hold, hasta una operación). La usa Calidad. |
+| **Time-Based Assembly** | Ensamble automático de componentes al hacer Start, desde ranuras cargadas en la estación. Solo en algunas estaciones; no se simula. |
 | **Guía visual** | Overlay de Guided (Fase 6.6) que lleva al operador clic por clic. Mecanismo: `docs/architecture.md`. |

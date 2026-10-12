@@ -27,6 +27,10 @@ estado real)
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
   documento de la prueba práctica de Ernesto (T6, reunión del 15-16 oct) y el acceso al
   ambiente de testing de SAP MES (T9: el usuario le envía su Code1 y su correo a Ernesto).
+- **Documentación (2026-10-12):** contraste con la WI oficial de MES QD001001524
+  (`docs/ui-reference/wi-produccion-disposables.md`). Confirma el flujo; las preguntas que
+  deja (buyoff al completar, herramientas opcionales, LC de cierre) están en "Fase 8" →
+  "Contraste con la WI".
 - **Lo último cerrado (2026-10-12):** **T1 · preparación de la versión de prueba**
   (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
   refactor **`Operator` → `User`** en todas las capas (D-17, ver "Historial"): paso previo
@@ -201,6 +205,25 @@ ingeniero recomendó definir alcance y requisitos con Ernesto antes de agregar v
 
 Backlog: RF-16 (piezas de otras órdenes en Browse Work List; Diego a favor, Ernesto en contra
 de agregar variabilidad) y Data Collection "aplicar a todas las piezas".
+
+#### Contraste con la WI QD001001524 (2026-10-12)
+El manual oficial de ejecución de órdenes en MES (Disposables, rev. 27) confirma la secuencia
+y la operación de todos los pasos del simulador. Detalle y hallazgos W1-W22:
+`docs/ui-reference/wi-produccion-disposables.md`. No abre trabajo por sí mismo; deja
+preguntas para Ernesto (T6) y el ambiente de testing (T9):
+- **W17:** ¿Moldeo y LoFlo completan con Log Buyoff, con firma o directo? Las guías
+  Serialized (3-5 piezas) caen en el rango del buyoff (50 SFC o menos).
+- **W3:** ¿hay operaciones sin herramientas en Resource Setup? El simulador exige al menos una.
+- **W7:** ¿de dónde sale el Line Clearance de cierre? La WI solo lo repite por condiciones
+  (cambio de usuario, tiempo, SFC activo, cambio de orden).
+- **W13 / W15:** batch del componente en Assembly y ícono ✔ del grupo de DC guardado
+  (capturas pendientes en `inventario-pantallas.md`).
+- **W20:** `F_FR_GENERAL` está en el catálogo de scrap de Moldeo, pero en el MES es un código
+  de reparación.
+- Para T4, la WI ya describe los pasos de la reparación rápida (`F_FR`) y la extendida
+  (`F_FX`) (W21); faltan las pantallas.
+- Para la spec 011 (T2): si se escribe la Shop Order, el MES real rechaza una orden distinta a
+  la del Resource Setup (W9).
 
 ### Fase 8.5 — Entrega de noviembre
 **Objetivo:** versión de entrenamiento para la segunda semana de noviembre de 2026, con la
