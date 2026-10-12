@@ -20,8 +20,9 @@ estado real)
 
 - **Ahora — Fase 8 (validación con negocio) y Fase 8.5 · Entrega de noviembre** (plan
   aprobado el 2026-10-12, ver su sección). **T1 preparado** (ver "Historial"); la prueba en
-  el servidor real queda diferida (D-19). **Siguiente:** spec 011 (T2), en diseño en otra
-  sesión; la 012 incluye `ModePolicy` como su primera entrega. Para mostrar a negocio:
+  el servidor real queda diferida (D-19). **Siguiente:** implementar la spec 011 (T2,
+  aprobada el 2026-10-12: `docs/specs/011-escanear-shop-order.md`); en paralelo, la spec 012
+  en diseño, que incluye `ModePolicy` como su primera entrega. Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
@@ -210,11 +211,10 @@ Plan aprobado por el usuario el 2026-10-12. Cada tarea con funcionalidad nueva l
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
-| 1 | **T1 · Versión de prueba** en IIS interno: valor nuevo de `DEFAULT_PASSWORD` (D-18); BD con `00`–`04` y `06`–`09` (**sin `05`**, solo dev); `debug=false` y `customErrors` (parte mínima de AUD-28). Los reset de los testers, por SQL. Los datos de la prueba se descartan | plan directo | — |
-| 2 | **T2 · Escanear la Shop Order** | spec 011 | — |
-| 3a | **`ModePolicy`**: concentrar en un objeto lo que hoy decide cada modo (penaliza, fuerza avance, guía visual, pistas). Refactor sin cambio de comportamiento, con tests | plan directo | — |
-| 3b | **T3 · Modo práctica.** Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | 3a |
-| 4 | **Cuentas, roles y registro de actividad:** columna de rol en `Users` + mapa rol → capacidades en la BLL; área `Pages/Admin` protegida por rol; reset de contraseña por admin (contraseña temporal); bloqueo por intentos fallidos; gestión de usuarios; guardar el motivo y la acción de cada intento (hoy `PodAttemptReason` se descarta) | spec 013 | — |
+| 1 | ✅ **T1 · Versión de prueba** en IIS interno (`d60bdfb`): `DEFAULT_PASSWORD` con su valor de siempre (D-18); BD con `00`–`09`, **incluido `05`** (Redefinity y Subensamble 1 de ejemplo: avisar a los testers que son demostración); `customErrors` en Release (parte mínima de AUD-28); reset de testers con `Database/Ops/ResetUserPassword.sql`. Prueba en el servidor real diferida (D-19). Los datos de la prueba se descartan | plan directo | — |
+| 2 | **T2 · Escanear la Shop Order** (spec aprobada el 2026-10-12) | spec 011 | — |
+| 3 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
+| 4 | **Cuentas, roles y registro de actividad:** columna de rol en `Users` + mapa rol → capacidades en la BLL; área `Pages/Admin` protegida por rol; reset de contraseña por admin (contraseña temporal); bloqueo por intentos fallidos; gestión de usuarios; guardar el motivo y la acción de cada intento (hoy `PodAttemptReason` se descarta). **Obligatorio:** cerrar el reclamo de cuenta ajena antes de que entren operadores reales (D-18) | spec 013 | — |
 | 5 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso | análisis | documento de Ernesto |
 | — | T4 entra solo si T9 llega a tiempo. T7 en paralelo cuando los trainers den el contenido | | |
 
@@ -222,8 +222,10 @@ Si el tiempo no alcanza, se recorta T3, no la spec 013: sin identidad confiable 
 auditable, Assessment no puede crecer hacia reemplazar la prueba en papel.
 
 **Decisiones del usuario (2026-10-12) para la spec 013 y la Fase 10:**
-- **D-18:** `DEFAULT_PASSWORD` sigue en `Constants` (versionado); para T1 solo cambia el
-  valor. Riesgo de reclamo de cuenta ajena aceptado (ver "Deuda y riesgos").
+- **D-18:** `DEFAULT_PASSWORD` sigue en `Constants` (versionado) y, en T1, con su valor de
+  siempre (corrección del usuario, 2026-10-12: no se cambia). Riesgo de reclamo de cuenta
+  ajena aceptado para la versión de prueba (ver "Deuda y riesgos"); la spec 013 lo cierra
+  antes de que entren operadores reales.
 - Solo los **administradores** ven resultados y dashboards: un único rol además del de
   operador, sin alcance por área.
 - La API de empleados da solo Code1, nombre completo y correo: el área de un operador no sale
