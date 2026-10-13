@@ -17,13 +17,14 @@
 **Última actualización:** 2026-10-13 · **Branch:** `TrainingApp` · **Último commit de
 código:** spec 011, entrega 1 (`git log --oneline -10` para ver el estado real)
 
-- **Ahora — Fase 8 (validación con negocio) y Fase 8.5 · Entrega de noviembre** (plan
-  aprobado el 2026-10-12, ver su sección). **T1 preparado** (ver "Historial"); la prueba en
+- **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
+  2026-10-13: 011 → 013 → tres scraps → modo práctica; ver su sección). La Fase 8 cerró el
+  2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
   el servidor real queda diferida (D-19). **Spec 011 (T2) en curso:** plan
   `docs/specs/011-plan.md`; **E1 ✅** (carga desde `TxtSFC`, probada por el usuario).
   **Siguiente:** E2, la etiqueta simulada. Pendiente del usuario: B-1 (Browse después del
-  Start reescribe `TxtSFC` y la selección del POD; ya pasaba antes de la spec). En paralelo, la spec 012
-  en diseño, que incluye `ModePolicy` como su primera entrega. Para mostrar a negocio:
+  Start reescribe `TxtSFC` y la selección del POD; ya pasaba antes de la spec). En paralelo, la spec 013
+  (cuentas y roles) en diseño. Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
@@ -123,8 +124,8 @@ datos".
 | — · Auditoría + spec 009 (motor del POD) + auditoría final | ✅ | 2026-10-06 | `009-*.md`, `docs/audits/` |
 | 6.6 · Overlays guiados | ✅ | 2026-10-07 | `010-*.md` |
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
-| **8 · Validación interna** | ▶️ en curso | | |
-| **8.5 · Entrega de noviembre** | ▶️ siguiente | 2.ª semana de nov. | specs 011-013 |
+| 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
+| **8.5 · Entrega de noviembre** | ▶️ en curso | 2.ª semana de nov. | specs 011-014 |
 | 9 · Deploy del MVP | pendiente (T1 adelanta una parte) | | |
 | 10 · Dashboard e historial por operador (T8) | pendiente | | |
 
@@ -151,10 +152,13 @@ grupo con la ✕ y abrir otro, el Save podía caer con una excepción de validac
 (los campos dinámicos usaban IDs automáticos que se corrían; ahora tienen un ID fijo por
 parámetro). Probado en LocalDB y por el usuario en el navegador.
 
-### Fase 8 — Validación interna
+### Fase 8 — Validación interna ✅ (2026-10-12)
 **Objetivo:** sesión con trainer/operador real sobre R&C y LoFlo. Correcciones de UX, bugs de
 flujo, ajustes de catálogo.
 **No incluye:** nuevas áreas, dashboard admin, reportes.
+**Resultado:** revisiones con el ingeniero de SAP MES y con Ernesto (2026-10-09) y
+validación con técnicos de MES (2026-10-12), que aprobaron el flujo general y la fidelidad de
+la interfaz. Lo que pide funcionalidad nueva pasó a la Fase 8.5.
 
 #### Revisión con SAP MES (2026-10-09)
 30 minutos con el ingeniero de SAP MES (Diego) sobre Redefinity en Guided, desde el paso 3.
@@ -194,7 +198,7 @@ ingeniero recomendó definir alcance y requisitos con Ernesto antes de agregar v
 | T1 | Versión de prueba publicada para Ernesto y técnicos de MES | Fase 8.5 |
 | T2 | Escanear la Shop Order como camino principal de Search/Start (RF-17). Decidido en la reunión: escaneo principal + aviso de que Browse Work List también vale; sin agregar variabilidad | Fase 8.5, spec 011 |
 | T3 | **Modo práctica**, tercer modo: Assessment sin evaluación, sin la guía visual y con pistas ante la acción incorrecta | Fase 8.5, spec 012 |
-| T4 | Log NC: practicar los tres tipos de scrap (fast scrap, scrap/return component, extensión de la operación) | Espera T9 (pantallas reales) |
+| T4 | Log NC: practicar los tres tipos de scrap (fast scrap, scrap/return component, extensión de la operación) | Fase 8.5, spec 014 (UI espera pantallas) |
 | T5 | Guías por **área** (lo que pidió el equipo de Paola) o **dos escenarios** generales, serializado y por lote (recomendación de Ernesto), con los pasos opcionales siempre incluidos | **Decisión de negocio pendiente.** No tocar flags, catálogos ni el diseño del dashboard hasta que decidan |
 | T6 | Mapear los criterios de la prueba en papel a pasos del simulador (puede mover pesos; deben sumar 1.00) | Espera el documento de Ernesto |
 | T7 | Revisar los mensajes de la guía de Guided con los trainers (menos texto; burbuja de "lo que hay que recordar" o botón "?") | Contenido de `GuideScriptBuilder`, en paralelo |
@@ -202,25 +206,59 @@ ingeniero recomendó definir alcance y requisitos con Ernesto antes de agregar v
 | T9 | Acceso al ambiente de **testing** de SAP MES (no el sandbox): mensajes reales, pantallas de los tres scraps y Start de Moldeo | Acción del usuario |
 
 Backlog: RF-16 (piezas de otras órdenes en Browse Work List; Diego a favor, Ernesto en contra
-de agregar variabilidad) y Data Collection "aplicar a todas las piezas".
+de agregar variabilidad). Data Collection "aplicar a todas las piezas" se descartó el
+2026-10-12 (ver abajo).
+
+#### Validación con técnicos de MES (2026-10-12) y contraste con la WI
+Validación sin transcripción; contraste con la WI de producción QD001001524 rev. 27
+(sesión "contraste-manual-sap-mes", rama `docs/wi-produccion-contraste`, archivo
+`docs/ui-reference/wi-produccion-disposables.md`). Aclarado por el usuario.
+- **Aprobado:** flujo general, fidelidad de la interfaz y orden actual de los pasos. La orden
+  **no** se escanea antes de Resource Setup, aunque la WI 6.4 lo sugiera (descartado por el
+  usuario; coincide con la spec 011).
+- **Data Collection pieza por pieza:** se mantiene; "aplicar a todas las piezas" queda
+  descartado.
+- **Complete:** solo el flujo directo. Las variantes de la WI (Log Buyoff, firma electrónica,
+  supervisor que completa por otro) quedan como **simplificación aceptada**
+  (`docs/ui-reference/general-flow.md` → Paso 9).
+- **Tool List:** descartado por ahora. Lo pidieron antes del LC de apertura, pero la WI solo
+  lo usa para cambiar una herramienta de un SFC ya iniciado, y lo hace un técnico, ingeniero
+  o supervisor, no el operador; las herramientas iniciales ya se asocian en Resource Setup.
+- **Tres tipos de scrap (T4):** los piden otra vez; ya son tres fuentes (Diego, Ernesto y los
+  técnicos), así que sube de prioridad. La WI documenta el flujo de cada uno: desecho rápido
+  (`F_FS…`, lo que el simulador ya hace), reparación rápida (`F_FR…`, quitar y devolver o
+  desechar un componente y agregar el nuevo) y reparación rápida extendida (`F_FX…`, volver a
+  otra operación; con `F_FX_GENERAL`, el MPI y su revisión o el NCR en Comments). Faltan las
+  pantallas: imágenes del .docx de la WI o T9.
+- **T10 · Preparación antes de SAP (nueva, WI 6.4, pasos 1 a 3):** limpiar historial y caché
+  con el Code1, abrir "Recursos MES" con el Code1 y el código del recurso, y login de MES
+  (Code1 + contraseña, o PIN + tarjeta), verificando que el Code1 sea el correcto. Se repite
+  al inicio de cada turno y al cambiar de estación. Choca con `CLAUDE.md` ("el login a SAP
+  NetWeaver no se evalúa"): necesita spec. Abierto: si se evalúa en Assessment (con peso, y
+  los pesos siguen sumando 1.00) o solo se enseña en Guided; si es común a todas las áreas;
+  si incluye el logout obligatorio de la WI 6.5 (descansos, fin de turno, cambio de estación
+  u operador). Sin capturas: no inventar UI (`docs/process.md` §8).
 
 ### Fase 8.5 — Entrega de noviembre
 **Objetivo:** versión de entrenamiento para la segunda semana de noviembre de 2026, con la
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
-Plan aprobado por el usuario el 2026-10-12. Cada tarea con funcionalidad nueva lleva su
-`/spec` (`docs/process.md`).
+Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** tras la validación
+con técnicos: 011 → 013 → tres scraps → modo práctica. Cada tarea con funcionalidad nueva
+lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
 | 1 | ✅ **T1 · Versión de prueba** en IIS interno (`d60bdfb`): `DEFAULT_PASSWORD` con su valor de siempre (D-18); BD con `00`–`09`, **incluido `05`** (Redefinity y Subensamble 1 de ejemplo: avisar a los testers que son demostración); `customErrors` en Release (parte mínima de AUD-28); reset de testers con `Database/Ops/ResetUserPassword.sql`. Prueba en el servidor real diferida (D-19). Los datos de la prueba se descartan | plan directo | — |
-| 2 | **T2 · Escanear la Shop Order** (spec aprobada el 2026-10-12) | spec 011 | — |
-| 3 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
-| 4 | **Cuentas, roles y registro de actividad:** columna de rol en `Users` + mapa rol → capacidades en la BLL; área `Pages/Admin` protegida por rol; reset de contraseña por admin (contraseña temporal); bloqueo por intentos fallidos; gestión de usuarios; guardar el motivo y la acción de cada intento (hoy `PodAttemptReason` se descarta). **Obligatorio:** cerrar el reclamo de cuenta ajena antes de que entren operadores reales (D-18) | spec 013 | — |
-| 5 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso | análisis | documento de Ernesto |
-| — | T4 entra solo si T9 llega a tiempo. T7 en paralelo cuando los trainers den el contenido | | |
+| 2 | **T2 · Escanear la Shop Order** (spec aprobada el 2026-10-12; plan `011-plan.md`) | spec 011 | — |
+| 3 | **Cuentas, roles y registro de actividad:** columna de rol en `Users` + mapa rol → capacidades en la BLL; área `Pages/Admin` protegida por rol; reset de contraseña por admin (contraseña temporal); bloqueo por intentos fallidos; gestión de usuarios; guardar el motivo y la acción de cada intento (hoy `PodAttemptReason` se descarta). **Obligatorio:** cerrar el reclamo de cuenta ajena antes de que entren operadores reales (D-18) | spec 013 (en diseño) | — |
+| 4 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
+| 5 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
+| 6 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso. Puede reordenar este plan (por ejemplo, subir T10) | análisis | documento de Ernesto (15-16 oct) |
+| — | **T10 · Preparación antes de SAP** (spec 015): después de noviembre, salvo que el documento de Ernesto la pida. T7 en paralelo cuando los trainers den el contenido | | |
 
-Si el tiempo no alcanza, se recorta T3, no la spec 013: sin identidad confiable ni historial
-auditable, Assessment no puede crecer hacia reemplazar la prueba en papel.
+Si el tiempo no alcanza, se recorta primero T3 (modo práctica) y después T4 si las pantallas
+no llegan; nunca la spec 013: sin identidad confiable ni historial auditable, Assessment no
+puede crecer hacia reemplazar la prueba en papel.
 
 **Decisiones del usuario (2026-10-12) para la spec 013 y la Fase 10:**
 - **D-18:** `DEFAULT_PASSWORD` sigue en `Constants` (versionado) y, en T1, con su valor de
@@ -237,7 +275,9 @@ auditable, Assessment no puede crecer hacia reemplazar la prueba en papel.
   correo (requiere SMTP y que el operador lea el correo) o Windows Authentication (solo si
   cada operador entrena con su propia sesión de Windows, no en un equipo compartido).
 
-**No incluye:** dashboard y reportes (Fase 10), nuevas áreas (espera T5), RF-16.
+**No incluye:** dashboard y reportes (Fase 10), nuevas áreas (espera T5), RF-16, T10
+(salvo que lo pida T6) y lo descartado el 2026-10-12: Tool List, variantes de Complete y
+Data Collection para todas las piezas.
 
 ### Fase 9 — Deploy del MVP
 **Objetivo:** deploy en servidor interno con IIS: connection string de producción, App Pool,

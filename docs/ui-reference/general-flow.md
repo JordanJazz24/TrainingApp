@@ -716,7 +716,8 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
 **Revisión con SAP MES (2026-10-09):** recolectar por pieza es correcto, pero según la
 configuración de la operación el MES también permite recolectar para todas las piezas a la
 vez (con cientos de unidades es lo práctico). El simulador va pieza por pieza, como se vio
-en Sensores. El banner "SFC … completed. Next: …" no tiene captura y puede ser propio del
+en Sensores. **Validación con técnicos (2026-10-12):** pieza por pieza se mantiene;
+"aplicar a todas las piezas" queda descartado. El banner "SFC … completed. Next: …" no tiene captura y puede ser propio del
 simulador: verificarlo en el ambiente de calidad de SAP MES.
 
 ### Patrón compartido: DC Collect vs. Assembly
@@ -924,6 +925,11 @@ pide) y scrapear la pieza.
   **Serialized (spec 008):** todas las filas que quedan en el POD (algunas = aviso sin intento).
 
 > **Diferencia con legacy:** el legacy implementaba un modal "Complete Section" + overlay "Log Buyoff" con credenciales (User ID + Password). El flujo real SAP es directo. Si alguna área requiere confirmación adicional (buyoff, firma), se documenta en su archivo de área.
+
+> **Simplificación aceptada (validación con técnicos, 2026-10-12):** la WI de producción
+> QD001001524 rev. 27 describe variantes de Complete (Log Buyoff, firma electrónica,
+> supervisor que completa por otro). El simulador entrena solo el flujo directo:
+> seleccionar las piezas o el lote y presionar Complete.
 
 ---
 
