@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System;
+using System.Web;
 using System.Web.Security;
 using TrainingApp.BLL.Auth;
 using TrainingApp.BLL.Training;
@@ -91,14 +92,44 @@ namespace TrainingApp.Pages
         /// Escribe en la Session los datos del operador autenticado. La usan el login y la
         /// re-hidratación, así una clave nueva no puede quedar en un solo lado.
         /// </summary>
-        public static void SetUserSession(User user)
+        public static void SetUserSession(User user, LoginResult login = null)
         {
             var session = HttpContext.Current.Session;
             session[Constants.SessionKeys.UserId]       = user.Id;
             session[Constants.SessionKeys.Code1]        = user.Code1;
             session[Constants.SessionKeys.Name]         = user.Name;
             session[Constants.SessionKeys.IsFirstLogin] = user.IsFirstLogin;
+
+            // Solo el login conoce el acceso anterior (spec 013, AC-17).
+            if (login != null)
+                session[Constants.SessionKeys.LastAccess] = login.PreviousLoginAt.HasValue
+                    ? "Último acceso: " + ToLocal(login.PreviousLoginAt.Value).ToString("dd/MM/yyyy HH:mm")
+                    : "Primer acceso";
         }
+
+        /// <summary>
+        /// "Último acceso: …" o "Primer acceso" del login actual; null si la Session se
+        /// re-hidrató (no se sabe el anterior).
+        /// </summary>
+        public static string LastAccessText()
+            => HttpContext.Current.Session?[Constants.SessionKeys.LastAccess] as string;
+
+        // Hora de planta (Costa Rica, UTC-6 sin horario de verano), sin depender de la zona
+        // horaria configurada en el servidor.
+        private static readonly TimeZoneInfo PlantTimeZone =
+            TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time");
+
+        /// <summary>
+        /// Fecha UTC de la BD en la hora de planta, para mostrarla.
+        /// </summary>
+        public static DateTime ToLocal(DateTime utc)
+            => TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), PlantTimeZone);
+
+        /// <summary>
+        /// Mensaje de cuenta bloqueada (spec 013, AC-14/15), el mismo en los dos logins.
+        /// </summary>
+        public static string LockedMessage(DateTime lockedUntilUtc)
+            => "Cuenta bloqueada; intente de nuevo a las " + ToLocal(lockedUntilUtc).ToString("HH:mm") + ".";
 
         /// <summary>
         /// Cierra la sesión del operador y lo manda al login. Antes abandona sus sesiones de

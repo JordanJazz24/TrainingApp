@@ -14,7 +14,10 @@ namespace TrainingApp.UI.Master
                 && Session[Constants.SessionKeys.Code1] != null;
             PhUser.Visible = signedIn;
             if (signedIn)
-                LitUser.Text = HttpUtility.HtmlEncode(Session[Constants.SessionKeys.Code1].ToString());
+            {
+                LitUser.Text      = HttpUtility.HtmlEncode(Session[Constants.SessionKeys.Code1].ToString());
+                LitLastLogin.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
+            }
         }
 
         protected void BtnLogout_Click(object sender, EventArgs e)

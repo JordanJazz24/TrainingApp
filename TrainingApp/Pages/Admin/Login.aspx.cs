@@ -43,6 +43,11 @@ namespace TrainingApp.Pages.Admin
                     ShowError("Contraseña incorrecta.");
                     break;
 
+                // Cuenta bloqueada por logins fallidos (spec 013, AC-14/15).
+                case LoginStatus.Locked:
+                    ShowError(SessionHelper.LockedMessage(result.LockedUntil.Value));
+                    break;
+
                 case LoginStatus.WrongPortal:
                     ShowError("Sin acceso administrativo.");
                     break;
@@ -51,13 +56,13 @@ namespace TrainingApp.Pages.Admin
                 // guarda en la Session (AC-6: el admin creado por script cambia su contraseña).
                 case LoginStatus.FirstLogin:
                     FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-                    SessionHelper.SetUserSession(result.User);
+                    SessionHelper.SetUserSession(result.User, result);
                     Response.Redirect(SessionHelper.AdminChangePasswordUrl);
                     break;
 
                 case LoginStatus.Success:
                     FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-                    SessionHelper.SetUserSession(result.User);
+                    SessionHelper.SetUserSession(result.User, result);
                     Response.Redirect(SessionHelper.AdminHomeUrl);
                     break;
             }

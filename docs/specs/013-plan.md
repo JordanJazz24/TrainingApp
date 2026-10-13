@@ -87,18 +87,26 @@ solo traduce un botón de relleno a su constante.
   la autorización se evalúa sobre esa ruta. El login de admin caía en la regla de
   `Pages/Admin` y en un bucle con el login de SAP. `Web.config` abre las dos formas.
 
-### E2 — Bloqueo y último acceso  ☐
-- [ ] SPs `spUserLoginFailed` (suma atómica; bloquea con el umbral y la duración que pasa la
+### E2 — Bloqueo y último acceso  ✅ (2026-10-13, probada por el usuario)
+- [x] SPs `spUserLoginFailed` (suma atómica; bloquea con el umbral y la duración que pasa la
       BLL) y `spUserLoginSucceeded` (contador a 0, desbloquea, `LastLoginAt`).
-- [ ] `AuthService.Login`: bloqueo antes de la contraseña; quinto fallo → `Locked` con la
+- [x] `AuthService.Login`: bloqueo antes de la contraseña; quinto fallo → `Locked` con la
       hora de fin; correcto → devuelve el `LastLoginAt` anterior y lo actualiza. El primer
       acceso sin `User` no cuenta (AC-18).
-- [ ] Mensajes en los dos logins ("Cuenta bloqueada; intente de nuevo a las HH:mm") y el
+- [x] Mensajes en los dos logins ("Cuenta bloqueada; intente de nuevo a las HH:mm") y el
       último acceso (P-4). `ResetUserPassword.sql` desbloquea.
 - **AC:** 14, 15, 16, 17, 18.
 - **Review:** `medium`, `AuthService.cs` y `01_spUser.sql`; foco: el orden bloqueo →
   contraseña, el contador no se pierde con dos fallos simultáneos, un bloqueo no revela si la
   contraseña era correcta.
+- **Resultado:** review `medium`, 10 hallazgos; se aplicaron 7. Lo principal: logins
+  simultáneos. `spUserLoginFailed` no suma con la cuenta ya bloqueada y
+  `spUserLoginSucceeded` no quita un bloqueo vigente (devuelve 0 y la BLL responde
+  `Locked`). Además: el alta guarda `LastLoginAt`, el tiempo se toma después de la API, la
+  hora de planta es explícita (`Central America Standard Time`) y hay un solo mensaje de
+  bloqueo (`SessionHelper.LockedMessage`). No aplicados: el bloqueo como enumeración y
+  bloqueo ajeno (propio de la regla de la spec) y los tests de `LoginLockPolicy`
+  (`docs/process.md` §5).
 
 ### E3 — Gestión de usuarios  ☐
 - [ ] `IUserRepository`; `UserAdminService` (`BLL/Admin/`): `Search`, `Create`,

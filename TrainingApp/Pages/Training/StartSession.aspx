@@ -5,7 +5,9 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="row justify-content-center mt-5">
         <div class="col-md-5">
-            <h3 class="mb-4">Iniciar sesión de entrenamiento</h3>
+            <h3 class="mb-1">Iniciar sesión de entrenamiento</h3>
+            <%-- Último acceso anterior (spec 013): si no fue el operador, avisa al trainer. --%>
+            <asp:Label ID="LblLastAccess" runat="server" CssClass="text-muted small d-block mb-4" />
 
             <asp:Label ID="LblError" runat="server" CssClass="alert alert-danger d-block mb-3"
                 Visible="false" />

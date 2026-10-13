@@ -1,4 +1,5 @@
 using System;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TrainingApp.BLL.Training;
@@ -35,7 +36,10 @@ namespace TrainingApp.Pages.Training
             }
 
             if (!IsPostBack)
+            {
+                LblLastAccess.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
                 LoadProducts();
+            }
         }
 
         protected void DdlProduct_SelectedIndexChanged(object sender, EventArgs e)

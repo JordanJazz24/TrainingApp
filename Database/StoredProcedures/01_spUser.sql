@@ -26,12 +26,13 @@ CREATE OR ALTER PROCEDURE dbo.spUserInsert
     @PasswordHash NVARCHAR(500),
     @IsFirstLogin BIT,
     @CreatedAt    DATETIME2,
-    @Role         TINYINT = 1
+    @Role         TINYINT   = 1,
+    @LastLoginAt  DATETIME2 = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
-    INSERT INTO dbo.Users (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt, Role)
-    VALUES (@Code1, @Name, @PasswordHash, @IsFirstLogin, @CreatedAt, @Role);
+    INSERT INTO dbo.Users (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt, Role, LastLoginAt)
+    VALUES (@Code1, @Name, @PasswordHash, @IsFirstLogin, @CreatedAt, @Role, @LastLoginAt);
     SELECT SCOPE_IDENTITY();
 END;
 GO
@@ -47,5 +48,52 @@ BEGIN
     SET    PasswordHash = @PasswordHash,
            IsFirstLogin = 0
     WHERE  Id = @UserId;
+END;
+GO
+
+-- spUserLoginFailed — un login fallido con la cuenta existente (spec 013).
+-- Suma el fallo en un solo UPDATE (dos fallos simultáneos no se pisan). Al
+-- llegar a @LockThreshold bloquea hasta @LockedUntil y el contador vuelve a 0.
+-- Si otro request ya la bloqueó, no suma (un bloqueo no cuenta fallos). La
+-- regla (umbral y duración) la decide la BLL. Devuelve el LockedUntil vigente:
+-- si es posterior a @Now, la cuenta está bloqueada.
+CREATE OR ALTER PROCEDURE dbo.spUserLoginFailed
+    @UserId        INT,
+    @LockThreshold INT,
+    @LockedUntil   DATETIME2,
+    @Now           DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.Users
+    SET    FailedLoginCount = CASE WHEN FailedLoginCount + 1 >= @LockThreshold
+                                   THEN 0 ELSE FailedLoginCount + 1 END,
+           LockedUntil      = CASE WHEN FailedLoginCount + 1 >= @LockThreshold
+                                   THEN @LockedUntil ELSE LockedUntil END
+    WHERE  Id = @UserId
+      AND  (LockedUntil IS NULL OR LockedUntil <= @Now);
+
+    SELECT LockedUntil FROM dbo.Users WHERE Id = @UserId;
+END;
+GO
+
+-- spUserLoginSucceeded — login correcto (spec 013): reinicia el contador,
+-- quita un bloqueo vencido y guarda el último acceso (UTC). Si otro request
+-- bloqueó la cuenta mientras se revisaba la contraseña, no entra: devuelve 0
+-- (filas actualizadas) y el bloqueo sigue.
+CREATE OR ALTER PROCEDURE dbo.spUserLoginSucceeded
+    @UserId      INT,
+    @LastLoginAt DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.Users
+    SET    FailedLoginCount = 0,
+           LockedUntil      = NULL,
+           LastLoginAt      = @LastLoginAt
+    WHERE  Id = @UserId
+      AND  (LockedUntil IS NULL OR LockedUntil <= @LastLoginAt);
+
+    SELECT @@ROWCOUNT;
 END;
 GO

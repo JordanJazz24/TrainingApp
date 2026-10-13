@@ -66,6 +66,11 @@ namespace TrainingApp.Pages.Auth
                     ShowError("Contraseña incorrecta.");
                     break;
 
+                // Cuenta bloqueada por logins fallidos (spec 013, AC-14/15).
+                case LoginStatus.Locked:
+                    ShowError(SessionHelper.LockedMessage(result.LockedUntil.Value));
+                    break;
+
                 // Un admin en el login de SAP (spec 013, AC-2b): no entra y no suma un fallo.
                 case LoginStatus.WrongPortal:
                     ((AuthMaster)Master).ShowError("Use el acceso administrativo.",
@@ -76,13 +81,13 @@ namespace TrainingApp.Pages.Auth
                 // SetUserSession guarda en la Session (auditoría AUD-08).
                 case LoginStatus.FirstLogin:
                     FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-                    SessionHelper.SetUserSession(result.User);
+                    SessionHelper.SetUserSession(result.User, result);
                     Response.Redirect(SessionHelper.TrainingChangePasswordUrl);
                     break;
 
                 case LoginStatus.Success:
                     FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-                    SessionHelper.SetUserSession(result.User);
+                    SessionHelper.SetUserSession(result.User, result);
                     Response.Redirect(SessionHelper.TrainingHomeUrl);
                     break;
             }
