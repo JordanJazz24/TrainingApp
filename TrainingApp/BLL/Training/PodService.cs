@@ -175,7 +175,7 @@ namespace TrainingApp.BLL.Training
 
         // Click en Start. Avisos de formato, sin intento: sin orden (Resource Setup pendiente o
         // Session perdida); Serialized sin todas las piezas elegidas en Browse Work List (spec
-        // 008); NonSerialized sin SFC. Con checklist (Moldeo) pide abrirlo; sin checklist, el
+        // 008); NonSerialized sin SFC o con uno que no es del lote (spec 011). Con checklist (Moldeo) pide abrirlo; sin checklist, el
         // Start se califica solo por secuencia y las piezas pasan a Active.
         public PodCommandResult ClickStart(PodContext ctx, ICollection<string> browseRowIds, string scannedSfc)
         {
@@ -189,11 +189,17 @@ namespace TrainingApp.BLL.Training
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
                 if (!IsBrowseSelectionValid(order, browseRowIds))
-                    return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
+                    return PodCommandResult.WithNotice(PodNotice.StartWholeOrder);
             }
             else if (string.IsNullOrWhiteSpace(scannedSfc))
             {
                 return PodCommandResult.WithNotice(PodNotice.SfcRequired);
+            }
+            else if (!order.IsLotReference(scannedSfc))
+            {
+                // Spec 011 (enmienda E-2): TxtSFC es editable; el cliente ya lo avisa, esto
+                // cubre una manipulación. Ningún lote ajeno se inicia.
+                return PodCommandResult.WithNotice(PodNotice.SfcNotInOrder);
             }
 
             if (ctx.Area.RequiresStartChecklist)

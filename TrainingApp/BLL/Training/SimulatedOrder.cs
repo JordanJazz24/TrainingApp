@@ -70,6 +70,14 @@ namespace TrainingApp.BLL.Training
             return order;
         }
 
+        // NonSerialized (spec 011): lo escaneado o escrito en el campo SFC nombra el lote si es
+        // su SFC o la Shop Order (sin espacios al inicio ni al final; el resto, exacto).
+        public bool IsLotReference(string scanned)
+        {
+            string value = (scanned ?? string.Empty).Trim();
+            return value.Length > 0 && (value == SFCCode || value == ShopOrderInput);
+        }
+
         // Filas iniciadas: las que muestra el POD.
         public IList<SimulatedOrderRow> ActiveRows()
             => Rows.Where(r => r.IsActive).ToList();

@@ -58,3 +58,4 @@ node_modules/
 
 # Cadena de conexión local (auditoría AUD-04; plantilla: connectionStrings.config.example)
 TrainingApp/connectionStrings.config
+/.claude/worktrees/spec-011

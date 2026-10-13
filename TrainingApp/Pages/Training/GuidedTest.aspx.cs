@@ -134,10 +134,6 @@ namespace TrainingApp.Pages.Training
             // (en HandleControlSubmit, que corre después de Page_Load).
             PnlBannerZone.Visible = false;
 
-            // Atributo HTML y no la propiedad ReadOnly: con ReadOnly=true ASP.NET ignora
-            // el valor posteado y el SFC elegido en Browse se perdería en cada postback.
-            TxtSFC.Attributes["readonly"] = "readonly";
-
             // El logout no depende de la sesión de entrenamiento (auditoría AUD-33): se atiende
             // antes de cargar el contexto, que redirige a StartSession si la guía ya se
             // completó o se abandonó (panel final, pestaña vieja tras D-9).
@@ -202,8 +198,28 @@ namespace TrainingApp.Pages.Training
         protected override void OnPreRender(EventArgs e)
         {
             base.OnPreRender(e);
+            ApplySfcFieldMode();
             RegisterGuide();
         }
+
+        // Spec 011: TxtSFC se escribe o se escanea hasta el Start (la carga la resuelve el
+        // cliente, como Browse Work List); con el Start ya ejecutado vuelve a ser de solo
+        // lectura, como antes. Atributo HTML y no la propiedad ReadOnly: con ReadOnly=true
+        // ASP.NET ignora el valor posteado y lo cargado se perdería en cada postback. Se decide
+        // en PreRender porque el Start de este mismo request ya lo cambia (los atributos
+        // persisten en ViewState).
+        private void ApplySfcFieldMode()
+        {
+            if (PodOrderStarted)
+                TxtSFC.Attributes["readonly"] = "readonly";
+            else
+                TxtSFC.Attributes.Remove("readonly");
+        }
+
+        // Aviso del cliente para un número que no es de la orden (spec 011, punto 5): el mismo
+        // texto que SfcNotInOrder del servidor, ya codificado para un string de JS.
+        protected string ScanNoticeTitleJs => HttpUtility.JavaScriptStringEncode(NoticeText(PodNotice.SfcNotInOrder).Title);
+        protected string ScanNoticeTextJs  => HttpUtility.JavaScriptStringEncode(NoticeText(PodNotice.SfcNotInOrder).Text);
 
         // Guía visual (spec 010): solo en Guided. Assessment no recibe el motor, el guion, los
         // textos ni el estado (AC-2). Pasos sin guion todavía: la guía no se muestra.
@@ -1212,6 +1228,9 @@ namespace TrainingApp.Pages.Training
             // un click fuera de secuencia tiene que llegar al servidor para contar.
             SetClientRowCheck(BtnDCCollection, "podValidateDCCollect", stepType == StepType.DataCollection);
             SetClientRowCheck(BtnSFCSplit, "podValidateSFCSplit", stepType == StepType.SFC_Split);
+            // Spec 011 (enmienda E-1): con Search como paso actual, Start carga primero lo escrito
+            // en TxtSFC sin Enter. Fuera de turno no hay chequeo: el click cuenta en Assessment (S2).
+            SetClientRowCheck(BtnStart, "podLoadBeforeStart", stepType == StepType.Search);
 
             if (enableAll)
             {
@@ -1305,8 +1324,17 @@ namespace TrainingApp.Pages.Training
                 case PodNotice.SelectAllPieces:
                     return ("Selecciona todas las piezas",
                         "En el simulador se trabajan todas las piezas juntas: selecciona todas las filas.");
+                // Spec 011, punto 6: un solo aviso para el escaneo y Browse Work List.
+                case PodNotice.StartWholeOrder:
+                    return ("Inicia la orden completa",
+                        "En esta guía se trabaja la orden completa: escanea la Shop Order o selecciona todas las piezas en Browse Work List.");
                 case PodNotice.SfcRequired:
                     return ("Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
+                // Texto provisional hasta tener el mensaje real del MES (spec 011, T9). Neutro:
+                // en Assessment no dice qué número sirve (AC-16).
+                case PodNotice.SfcNotInOrder:
+                    return ("SFC no encontrado",
+                        "El número no corresponde a la orden de este recurso.");
                 case PodNotice.SelectOneRow:
                     return ("Selecciona una fila", "Debes seleccionar una fila de la orden en la tabla antes de continuar.");
                 case PodNotice.SelectRowToSplit:

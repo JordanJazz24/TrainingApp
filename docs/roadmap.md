@@ -14,14 +14,15 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-12 · **Branch:** `TrainingApp` · **Último commit de
-código:** preparación de la versión de prueba (T1) (`git log --oneline -10` para ver el
-estado real)
+**Última actualización:** 2026-10-13 · **Branch:** `TrainingApp` · **Último commit de
+código:** spec 011, entrega 1 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8 (validación con negocio) y Fase 8.5 · Entrega de noviembre** (plan
   aprobado el 2026-10-12, ver su sección). **T1 preparado** (ver "Historial"); la prueba en
-  el servidor real queda diferida (D-19). **Siguiente:** implementar la spec 011 (T2,
-  aprobada el 2026-10-12: `docs/specs/011-escanear-shop-order.md`); en paralelo, la spec 012
+  el servidor real queda diferida (D-19). **Spec 011 (T2) en curso:** plan
+  `docs/specs/011-plan.md`; **E1 ✅** (carga desde `TxtSFC`, probada por el usuario).
+  **Siguiente:** E2, la etiqueta simulada. Pendiente del usuario: B-1 (Browse después del
+  Start reescribe `TxtSFC` y la selección del POD; ya pasaba antes de la spec). En paralelo, la spec 012
   en diseño, que incluye `ModePolicy` como su primera entrega. Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
