@@ -3,6 +3,36 @@
 **Status:** Approved (2026-10-13)
 **Date:** 2026-10-13 · **Approved:** 2026-10-13 (usuario, con las propuestas de diseño incluidas)
 
+> **Enmienda 2026-10-13 (usuario, en la sesión de desarrollo, al probar E3):** afecta Scope
+> (puntos 4 y 7, Out), Edge Cases, AC-12 y AC-13, y Deferred Decisions.
+>
+> 1. **Sale "Dar o quitar el rol de admin".** El rol de una cuenta existente ya no se cambia
+>    desde la UI. Los admins nuevos se crean con "Crear usuario" y el rol Administrador, o
+>    con `Database/Ops/CreateAdmin.sql`; el script puede seguir promoviendo una cuenta
+>    existente (operación manual del DBA). Desaparecen AC-12, AC-13 y el caso borde de "dos
+>    admins quitándose el rol a la vez".
+> 2. **Entra "Borrar usuario"** (antes en Out como "desactivar cuentas"):
+>    - Borra el usuario, sus `TrainingSessions` y sus `TrainingSessionStepAttempts` en una
+>      transacción, **sin recuperación**.
+>    - Si tiene registros, antes una alerta: "tiene N sesiones de entrenamiento; se borrarán
+>      su historial y sus puntajes y no se pueden recuperar". Sin registros (por ejemplo, un
+>      admin), solo la confirmación normal.
+>    - **Nadie se borra a sí mismo** (BLL y UI). Así el sistema nunca queda sin admins:
+>      siempre queda quien borra. Reemplaza la regla "nunca sin admins" del punto 7.
+>    - Si el empleado sigue en la API, puede volver a activar su cuenta por autorregistro,
+>      sin historial. Desaparece del dashboard de la Fase 10.
+>    - Su sesión abierta se cierra en el siguiente request: la caché del rol se invalida y la
+>      cuenta ya no tiene rol.
+> - **AC-12 (reemplazado):** Given un usuario sin registros, When el admin lo borra, Then
+>   desaparece de la lista.
+> - **AC-13 (reemplazado):** Given un operador con N sesiones, When el admin lo borra, Then ve
+>   la alerta con N y, al confirmar, se borran el usuario y su historial.
+> - **AC-13b:** Given su propia fila, Then el admin no puede borrarse.
+> - **Deferred Decisions, fila nueva:** borrar el historial de Assessment sin recuperación
+>   contradice un historial auditable. Respaldo elegido: borrado definitivo (usuario). Se
+>   revisa (desactivar en lugar de borrar) si Assessment pasa a usarse como evidencia de la
+>   CAPA, junto con D-20.
+
 ## Problem
 
 Hoy todo usuario es igual: cualquier empleado de la API activa su cuenta con su Code1 y la
