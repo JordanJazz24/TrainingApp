@@ -30,6 +30,7 @@ namespace TrainingApp.DAL.Repositories
                     cmd.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
                     cmd.Parameters.AddWithValue("@IsFirstLogin", user.IsFirstLogin);
                     cmd.Parameters.AddWithValue("@CreatedAt",    user.CreatedAt);
+                    cmd.Parameters.AddWithValue("@Role",         (byte)user.Role);
                 });
                 return Convert.ToInt32(id);
             }
@@ -47,12 +48,19 @@ namespace TrainingApp.DAL.Repositories
 
         private static User Map(SqlDataReader r) => new User
         {
-            Id           = Convert.ToInt32(r["Id"]),
-            Code1        = r["Code1"].ToString(),
-            Name         = r["Name"].ToString(),
-            PasswordHash = r["PasswordHash"].ToString(),
-            IsFirstLogin = Convert.ToBoolean(r["IsFirstLogin"]),
-            CreatedAt    = Convert.ToDateTime(r["CreatedAt"])
+            Id               = Convert.ToInt32(r["Id"]),
+            Code1            = r["Code1"].ToString(),
+            Name             = r["Name"].ToString(),
+            PasswordHash     = r["PasswordHash"].ToString(),
+            IsFirstLogin     = Convert.ToBoolean(r["IsFirstLogin"]),
+            CreatedAt        = Convert.ToDateTime(r["CreatedAt"]),
+            Role             = (UserRole)Convert.ToByte(r["Role"]),
+            LastLoginAt      = NullableDate(r["LastLoginAt"]),
+            FailedLoginCount = Convert.ToInt32(r["FailedLoginCount"]),
+            LockedUntil      = NullableDate(r["LockedUntil"])
         };
+
+        private static DateTime? NullableDate(object value)
+            => value == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(value);
     }
 }

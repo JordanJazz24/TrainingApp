@@ -20,6 +20,13 @@ namespace TrainingApp.Pages.Auth
                 return;
             }
 
+            // El admin cambia su contraseña con el diseño administrativo (spec 013, AC-2d).
+            if (SessionHelper.CanManageUsers())
+            {
+                Response.Redirect(SessionHelper.AdminChangePasswordUrl);
+                return;
+            }
+
             if (!IsPostBack)
                 PhFirstLogin.Visible = SessionHelper.MustChangePassword();
         }

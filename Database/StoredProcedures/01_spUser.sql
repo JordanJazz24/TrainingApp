@@ -1,6 +1,7 @@
 -- ============================================================
 -- 01_spUser.sql — SPs de Users (login, alta en el primer
--- acceso y cambio de contraseña).
+-- acceso, cambio de contraseña y, desde la spec 013, rol,
+-- bloqueo, último acceso y gestión por un administrador).
 -- Requiere: 00_Schema.sql · Re-ejecutable: sí (CREATE OR ALTER).
 -- ============================================================
 
@@ -10,24 +11,27 @@ CREATE OR ALTER PROCEDURE dbo.spUserGetByCode1
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, Code1, Name, PasswordHash, IsFirstLogin, CreatedAt
+    SELECT Id, Code1, Name, PasswordHash, IsFirstLogin, CreatedAt,
+           Role, LastLoginAt, FailedLoginCount, LockedUntil
     FROM   dbo.Users
     WHERE  Code1 = @Code1;
 END;
 GO
 
--- spUserInsert — alta en el primer acceso. Devuelve el Id creado.
+-- spUserInsert — alta en el primer acceso o por un administrador (con su
+-- rol: 1 = Operator, 2 = Administrator). Devuelve el Id creado.
 CREATE OR ALTER PROCEDURE dbo.spUserInsert
     @Code1        NVARCHAR(50),
     @Name         NVARCHAR(200),
     @PasswordHash NVARCHAR(500),
     @IsFirstLogin BIT,
-    @CreatedAt    DATETIME2
+    @CreatedAt    DATETIME2,
+    @Role         TINYINT = 1
 AS
 BEGIN
     SET NOCOUNT ON;
-    INSERT INTO dbo.Users (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt)
-    VALUES (@Code1, @Name, @PasswordHash, @IsFirstLogin, @CreatedAt);
+    INSERT INTO dbo.Users (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt, Role)
+    VALUES (@Code1, @Name, @PasswordHash, @IsFirstLogin, @CreatedAt, @Role);
     SELECT SCOPE_IDENTITY();
 END;
 GO

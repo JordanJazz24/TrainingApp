@@ -16,7 +16,10 @@ namespace TrainingApp.BLL.Auth
             _userRepo = new UserRepository();
         }
 
-        public LoginResult Login(string code1, string password)
+        // Login por uno de los dos portales (spec 013). Cada uno acepta solo el rol con su
+        // capacidad (AccessPolicy.CanUsePortal); el otro rol recibe WrongPortal, que no cuenta
+        // como fallo porque la contraseña era correcta.
+        public LoginResult Login(string code1, string password, LoginPortal portal)
         {
             // Step 1: verify code1 exists in external company API
             var employee = _employeeRepo.GetByCode1(code1);
@@ -32,13 +35,21 @@ namespace TrainingApp.BLL.Auth
                 if (password != Constants.DEFAULT_PASSWORD)
                     return LoginResult.Invalid();
 
+                // El autorregistro es solo para entrenar: sin cuenta no hay acceso
+                // administrativo (spec 013, P-3) y no se crea nada. Va después de la
+                // contraseña, como con una cuenta: el login de admin no revela qué Code1
+                // tienen cuenta.
+                if (portal != LoginPortal.Training)
+                    return LoginResult.WrongPortal();
+
                 user = new User
                 {
                     Code1        = employee.Code1,
                     Name         = employee.FullName,
                     PasswordHash = PasswordHelper.Hash(Constants.DEFAULT_PASSWORD),
                     IsFirstLogin = true,
-                    CreatedAt    = DateTime.UtcNow
+                    CreatedAt    = DateTime.UtcNow,
+                    Role         = UserRole.Operator
                 };
                 user.Id = _userRepo.Insert(user);
                 return LoginResult.AsFirstLogin(user);
@@ -47,6 +58,9 @@ namespace TrainingApp.BLL.Auth
             // Step 3: existing account — verify stored hash
             if (!PasswordHelper.Verify(password, user.PasswordHash))
                 return LoginResult.Invalid();
+
+            if (!AccessPolicy.CanUsePortal(user.Role, portal))
+                return LoginResult.WrongPortal();
 
             return user.IsFirstLogin
                 ? LoginResult.AsFirstLogin(user)

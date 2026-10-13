@@ -141,6 +141,11 @@
     </Content>
     <Content Include="UI\master\Site.Master" />
     <Content Include="UI\master\Auth.Master" />
+    <Content Include="UI\master\Admin.Master" />
+    <Content Include="UI\master\admin.css" />
+    <Content Include="Pages\Admin\Login.aspx" />
+    <Content Include="Pages\Admin\ChangePassword.aspx" />
+    <Content Include="Pages\Admin\Users.aspx" />
     <Content Include="UI\master\auth.css" />
     <Content Include="UI\master\imgs\login.jpg" />
     <Content Include="UI\master\imgs\sap-logo.png" />
@@ -275,6 +280,37 @@
     <Compile Include="UI\master\AntiXsrfMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="UI\master\Admin.master.cs">
+      <DependentUpon>Admin.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\master\Admin.master.designer.cs">
+      <DependentUpon>Admin.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\ChangePassword.aspx.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\ChangePassword.aspx.designer.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\Users.aspx.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\Users.aspx.designer.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BLL\Auth\AccessPolicy.cs" />
+    <Compile Include="BLL\Auth\RoleCache.cs" />
+    <Compile Include="Pages\UserPrincipal.cs" />
     <Compile Include="UI\master\Auth.master.cs">
       <DependentUpon>Auth.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -355,7 +391,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Pages\Admin\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

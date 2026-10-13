@@ -20,6 +20,13 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Spec 013: solo entrena quien tiene la capacidad; un admin va a su módulo (AC-3).
+            if (!SessionHelper.CanTrain())
+            {
+                SessionHelper.RedirectHome();
+                return;
+            }
+
             // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
             if (SessionHelper.MustChangePassword())
             {

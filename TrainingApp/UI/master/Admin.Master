@@ -1,0 +1,51 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Admin.master.cs"
+    Inherits="TrainingApp.UI.Master.AdminMaster" %>
+<%-- Módulo administrativo (spec 013): diseño neutro con Bootstrap, sin el marco del MES ni el
+     de SAP NetWeaver (esos son parte de la simulación). Lo usan el login, el cambio de
+     contraseña y la gestión de usuarios del admin. --%>
+<!DOCTYPE html>
+<html lang="es">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%: Page.Title %> - MES Training · Administración</title>
+
+    <link href="<%=ResolveUrl("~/Content/bootstrap.min.css")%>" rel="stylesheet" />
+    <link href="<%=ResolveUrl("~/UI/master/admin.css")%>" rel="stylesheet" />
+
+    <%-- SweetAlert2 en <head> para que los mensajes de RegisterStartupScript lo encuentren --%>
+    <script src="<%=ResolveUrl("~/Scripts/sweetalert2.all.min.js")%>"></script>
+</head>
+<body class="admin-page">
+    <form runat="server">
+        <asp:ScriptManager runat="server">
+            <Scripts>
+                <%-- jquery + WebUIValidation: validadores de formato en el cliente --%>
+                <asp:ScriptReference Name="MsAjaxBundle" />
+                <asp:ScriptReference Name="jquery" />
+                <asp:ScriptReference Name="WebForms.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebForms.js" />
+                <asp:ScriptReference Name="WebUIValidation.js" Assembly="System.Web" Path="~/Scripts/WebForms/WebUIValidation.js" />
+                <asp:ScriptReference Name="WebFormsBundle" />
+            </Scripts>
+        </asp:ScriptManager>
+
+        <nav class="navbar navbar-dark admin-nav">
+            <div class="container">
+                <span class="navbar-brand">MES Training · Administración</span>
+                <asp:PlaceHolder ID="PhUser" runat="server" Visible="false">
+                    <div class="admin-user">
+                        <span class="admin-user-code"><asp:Literal ID="LitUser" runat="server" /></span>
+                        <asp:Literal ID="LitLastLogin" runat="server" />
+                        <asp:LinkButton ID="BtnLogout" runat="server" CssClass="btn btn-outline-light btn-sm"
+                            CausesValidation="false" OnClick="BtnLogout_Click">Cerrar sesión</asp:LinkButton>
+                    </div>
+                </asp:PlaceHolder>
+            </div>
+        </nav>
+
+        <main class="container admin-main">
+            <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+        </main>
+    </form>
+</body>
+</html>

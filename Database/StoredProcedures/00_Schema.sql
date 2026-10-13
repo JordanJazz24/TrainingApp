@@ -59,15 +59,21 @@ CREATE TABLE dbo.Operations (
 
 -- -------------------------------------------------------
 -- Users  (cuenta local de un empleado de la API; antes Operators, D-17)
+-- Role: 1=Operator, 2=Administrator (spec 013; roles excluyentes)
+-- LastLoginAt / LockedUntil en UTC. FailedLoginCount: fallos seguidos.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.Users', 'U') IS NULL
 CREATE TABLE dbo.Users (
-    Id           INT IDENTITY(1,1) PRIMARY KEY,
-    Code1        NVARCHAR(50)  NOT NULL,
-    Name         NVARCHAR(200) NOT NULL,
-    PasswordHash NVARCHAR(500) NOT NULL,
-    IsFirstLogin BIT           NOT NULL DEFAULT 1,
-    CreatedAt    DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
+    Id               INT IDENTITY(1,1) PRIMARY KEY,
+    Code1            NVARCHAR(50)  NOT NULL,
+    Name             NVARCHAR(200) NOT NULL,
+    PasswordHash     NVARCHAR(500) NOT NULL,
+    IsFirstLogin     BIT           NOT NULL DEFAULT 1,
+    CreatedAt        DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
+    Role             TINYINT       NOT NULL DEFAULT 1,
+    LastLoginAt      DATETIME2     NULL,
+    FailedLoginCount INT           NOT NULL DEFAULT 0,
+    LockedUntil      DATETIME2     NULL,
     CONSTRAINT UQ_Users_Code1 UNIQUE (Code1)
 );
 
@@ -121,15 +127,21 @@ CREATE TABLE dbo.TrainingSessions (
 
 -- -------------------------------------------------------
 -- TrainingSessionStepAttempts
+-- Reason: AttemptReason de la BLL (0=None, 1=OutOfSequence, 2=WrongDecision,
+--         3=InvalidAction, 4=MissingSelection, 5=EmptyRequiredField); Action: código de
+--         la acción del operador (AttemptActions). Null en los intentos anteriores a la
+--         spec 013.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSessionStepAttempts', 'U') IS NULL
 CREATE TABLE dbo.TrainingSessionStepAttempts (
     Id            INT IDENTITY(1,1) PRIMARY KEY,
-    SessionId     INT       NOT NULL REFERENCES dbo.TrainingSessions(Id),
-    StepId        INT       NOT NULL REFERENCES dbo.TrainingSteps(Id),
-    AttemptNumber INT       NOT NULL,
-    IsCorrect     BIT       NOT NULL,
-    Timestamp     DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    SessionId     INT          NOT NULL REFERENCES dbo.TrainingSessions(Id),
+    StepId        INT          NOT NULL REFERENCES dbo.TrainingSteps(Id),
+    AttemptNumber INT          NOT NULL,
+    IsCorrect     BIT          NOT NULL,
+    Timestamp     DATETIME2    NOT NULL DEFAULT SYSUTCDATETIME(),
+    Reason        TINYINT      NULL,
+    Action        NVARCHAR(50) NULL
 );
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_StepAttempts_Session'
