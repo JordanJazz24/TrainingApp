@@ -18,12 +18,13 @@
 código:** spec 011, entrega 3 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
-  2026-10-13: 011 → 013 → tres scraps → modo práctica; ver su sección). La Fase 8 cerró el
+  2026-10-13 tras la trainer: T7 → 013 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
   2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
   el servidor real queda diferida (D-19). **Spec 011 (T2) ✅** (2026-10-13, ver
   "Historial"): escanear la Shop Order, etiqueta simulada y guía de Guided, probada por el
-  usuario. **Siguiente:** implementar la spec 013 (cuentas, roles y
-  registro de actividad; aprobada el 2026-10-13: `docs/specs/013-cuentas-roles-actividad.md`). Para mostrar a negocio:
+  usuario. **Siguiente:** T7 (mensajes y alertas de la guía, plan
+  directo) y después implementar la spec 013 (cuentas, roles y registro de actividad;
+  aprobada el 2026-10-13: `docs/specs/013-cuentas-roles-actividad.md`). Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
@@ -239,27 +240,66 @@ Validación sin transcripción; contraste con la WI de producción QD001001524 r
   NetWeaver no se evalúa"): necesita spec. Abierto: si se evalúa en Assessment (con peso, y
   los pesos siguen sumando 1.00) o solo se enseña en Guided; si es común a todas las áreas;
   si incluye el logout obligatorio de la WI 6.5 (descansos, fin de turno, cambio de estación
-  u operador). Sin capturas: no inventar UI (`docs/process.md` §8).
+  u operador). Sin capturas: no inventar UI (`docs/process.md` §8). Spec 016 (ver la
+  retroalimentación de la trainer).
+
+#### Retroalimentación de la trainer (Carla, Wires línea final, 2026-10-13)
+Fuente: sesión "Reuniones y dudas". Validación final con ella en 1-2 semanas.
+- **Confirmado:** flujo e interfaz ("un espejo de producción"); escanear la Shop Order como
+  la spec 011 (en Wires también escanean pieza por pieza o eligen de la lista);
+  `[N SELECTED]` igual al real; las dos formas de salir de Assembly existen (se deja igual);
+  DC pieza por pieza y LC de cierre (Wires no hace LC de cierre: nota en la guía).
+- **Los 3 errores más graves:** (1) scrapear las unidades equivocadas: el más grave, el MES no
+  lo detecta y les pasa a veteranos → spec 014 (la guía indica la pieza defectuosa y, en
+  Assessment, scrapear otra es intento fallido; usuario, 2026-10-13); (2) iniciar piezas que
+  no son de la orden o la estación → RF-16 sigue diferido (usuario); lo cubren en parte la
+  alerta de Search/Start (T7) y la spec 011; (3) no hacer Remove All de los equipos en
+  Resource Setup → spec 015. Pasos más críticos para ella: Resource Setup y scrap (el peso de
+  Log NC, hoy 0.10, se revisa con T6).
+- **Preparación antes de SAP (T10):** viene de una CAPA y en planta se audita que entren por
+  el Repositorio: script de limpieza de caché → Repositorio con dos registros obligatorios en
+  cualquier orden, "Recursos" (escanear el recurso) y "Ahora Ahora" (Code1, registro de
+  unidades por hora) → login de MES. El usuario: se agrega sí o sí → spec 016 (espera
+  capturas).
+- **Logout** como último paso después de Complete (un clic) + nota "cierre sesión siempre que
+  deje la estación": hubo CAPAs por Code1 compartidos y sesiones abiertas. Según ella el MES
+  se cierra solo a los 15 min (sin verificar: T9) → spec 015.
+- **Decisiones del usuario (2026-10-13):** Resource Setup arranca con equipos precargados (del
+  turno o lote anterior) que hay que quitar con Remove All → spec 015. **Grupo de DC
+  "Trainer"** (existe en toda la planta, opcional en el MES real pero siempre usado en
+  entrenamiento: el nombre de la persona en entrenamiento, solo letras, porque trabaja con el
+  Code1 del trainer hasta certificarse) reemplaza el tercer grupo opcional de Redefinity y
+  LoFlo → spec 015. Piezas por orden Serialized: 4-5 (hoy 3-5) para que alcancen los tres
+  scraps → spec 014. **Mensajes de la guía** aprobados, con notas de **alerta** en rojo en
+  Resource Setup (Retrieve y Set Up; Remove All y escanear lo que está en la estación; al
+  inicio del turno y en cada cambio de lote), LC de cierre (no aplica en algunas
+  operaciones), Search/Start (solo piezas de su orden y estación) y DC (grupo Trainer); y
+  mensajes normales en LC de apertura, DC, Log NC y Logout → T7.
+- **Menores:** texto mal escrito ("RCI" o similar) en la selección de producto o área (bug);
+  lentitud por enlace remoto (Fase 9); los errores del MES son un recuadro rojo arriba y las
+  confirmaciones duran 5 s (`docs/ui-reference/general-flow.md`).
 
 ### Fase 8.5 — Entrega de noviembre
 **Objetivo:** versión de entrenamiento para la segunda semana de noviembre de 2026, con la
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
-Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** tras la validación
-con técnicos: 011 → 013 → tres scraps → modo práctica. Cada tarea con funcionalidad nueva
-lleva su `/spec` (`docs/process.md`).
+Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
+la validación con técnicos y tras la trainer. Orden vigente: **T7 → 013 → 015 → 014 → 016 →
+012**. Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
 | 1 | ✅ **T1 · Versión de prueba** en IIS interno (`d60bdfb`): `DEFAULT_PASSWORD` con su valor de siempre (D-18); BD con `00`–`09`, **incluido `05`** (Redefinity y Subensamble 1 de ejemplo: avisar a los testers que son demostración); `customErrors` en Release (parte mínima de AUD-28); reset de testers con `Database/Ops/ResetUserPassword.sql`. Prueba en el servidor real diferida (D-19). Los datos de la prueba se descartan | plan directo | — |
 | 2 | ✅ **T2 · Escanear la Shop Order** (2026-10-13, `bf19e54`; plan `011-plan.md`) | spec 011 | — |
-| 3 | **Cuentas, roles y registro de actividad** (spec aprobada el 2026-10-13): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, dar o quitar admin), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
-| 4 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
-| 5 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
-| 6 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso. Puede reordenar este plan (por ejemplo, subir T10) | análisis | documento de Ernesto (15-16 oct) |
-| — | **T10 · Preparación antes de SAP** (spec 015): después de noviembre, salvo que el documento de Ernesto la pida. T7 en paralelo cuando los trainers den el contenido | | |
+| 3 | **T7 · Mensajes y alertas de la guía de Guided** (retroalimentación de la trainer): notas de alerta en rojo en Resource Setup, LC de cierre y Search/Start, y los mensajes aprobados de LC de apertura, DC y Log NC. Las notas de Logout y del grupo Trainer entran con la spec 015. Junto con el bug del texto mal escrito en la selección de área | plan directo | — |
+| 4 | **Cuentas, roles y registro de actividad** (spec aprobada el 2026-10-13): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, dar o quitar admin), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
+| 5 | **Ajustes de la trainer:** Resource Setup con equipos precargados que hay que quitar con Remove All (qué cuenta como intento fallido); **Logout** como último paso después de Complete (hoy Logout es navegación y nunca cuenta: cambia esa regla y, si tiene peso, los pesos de todas las guías); **grupo de DC "Trainer"** (nombre, solo letras; reemplaza el tercer grupo opcional de Redefinity y LoFlo; decidir si es obligatorio en el simulador y si va por pieza) | spec 015 | — |
+| 6 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). Incluye: la guía indica la pieza defectuosa y, en Assessment, scrapear otra es intento fallido (error 1 de la trainer); 4-5 piezas por orden Serialized. La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
+| 7 | **T10 · Preparación antes de SAP:** limpieza de caché, Repositorio ("Recursos" y "Ahora Ahora") y login de MES. Se agrega sí o sí (usuario), pero entra en noviembre solo si llegan las capturas | spec 016 | capturas |
+| 8 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
+| 9 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso. Revisar el peso de Log NC (la trainer lo considera crítico). Puede reordenar este plan | análisis | documento de Ernesto (15-16 oct) |
 
-Si el tiempo no alcanza, se recorta primero T3 (modo práctica) y después T4 si las pantallas
-no llegan; nunca la spec 013: sin ella solo el desarrollador administra las cuentas y no se
+Si el tiempo no alcanza, se recorta primero T3 (modo práctica), después T10 y T4 si las
+capturas o las pantallas no llegan; nunca la spec 013: sin ella solo el desarrollador administra las cuentas y no se
 guarda el registro de actividad que necesita el dashboard.
 
 **Decisiones del usuario (2026-10-12 y 2026-10-13) para la spec 013 y la Fase 10:**
@@ -279,8 +319,8 @@ guarda el registro de actividad que necesita el dashboard.
   operador lea el correo) o Windows Authentication (solo si cada operador entrena con su
   propia sesión de Windows).
 
-**No incluye:** dashboard y reportes (Fase 10), nuevas áreas (espera T5), RF-16, T10
-(salvo que lo pida T6) y lo descartado el 2026-10-12: Tool List, variantes de Complete y
+**No incluye:** dashboard y reportes (Fase 10), nuevas áreas (espera T5), RF-16 (diferido
+otra vez el 2026-10-13, aunque lo pide la trainer) y lo descartado el 2026-10-12: Tool List, variantes de Complete y
 Data Collection para todas las piezas.
 
 ### Fase 9 — Deploy del MVP

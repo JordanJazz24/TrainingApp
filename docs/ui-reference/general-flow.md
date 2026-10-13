@@ -110,6 +110,9 @@ botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo v
 | NC Data Entry | Subencabezado `SFC: …` con (?) |
 | Data Collection Standalone, Browse Work List | Solo la barra de título |
 
+**Mensajes del MES real** (trainer de Wires, 2026-10-13, sin captura): los errores aparecen
+en un **recuadro rojo arriba**; las confirmaciones duran unos **5 segundos**.
+
 ---
 
 ## Paso 1 — Resource Setup
@@ -186,6 +189,12 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 - **Exactamente 1 Shop Order** — ni 0 ni 2+
 - **Al menos 1 Tool Number**
 - **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
+
+**Procedimiento real (trainer de Wires, 2026-10-13):** al inicio del turno y en cada cambio
+de lote, el operador hace **Remove All** de los equipos que quedaron cargados (del turno o
+lote anterior) y escanea los que están físicamente en la estación. Error frecuente: asumir
+que los equipos cargados son los de la estación y trabajar con una herramienta equivocada.
+El simulador lo entrenará con equipos precargados (spec 015). Sin captura del Remove All.
 
 ### Validaciones del UserControl (lado cliente + servidor)
 
@@ -765,6 +774,10 @@ simulador: verificarlo en el ambiente de calidad de SAP MES.
 **StepType:** `LineClearance` | **Validación:** respuesta = "Sí" (true)
 
 > **Estructura y flujo idénticos al Paso 2.** Ver sección "Paso 2 — Line Clearance" para la documentación completa de modales, estados y reglas.
+
+> **Trainer de Wires (2026-10-13):** en algunas operaciones no aplica; por ejemplo, Wires
+> línea final no hace LC de cierre. El simulador lo mantiene y la guía lo aclara con una
+> alerta (T7).
 
 ### Condicionalidad
 
