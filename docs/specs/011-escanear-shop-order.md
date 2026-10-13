@@ -49,6 +49,19 @@
 >   número no corresponde a la orden de este recurso". No revela qué número sirve
 >   (AC-16). El texto real del MES sigue diferido a T9.
 
+> **Enmienda 2026-10-13 (usuario, en la sesión de desarrollo, con E3):** visibilidad de la
+> etiqueta. Afecta los puntos 3 y 8 de Scope, AC-4 y AC-21.
+>
+> - La etiqueta se ve **desde que hay orden** (Resource Setup guardado, también el forzado)
+>   **hasta el Start**, y **desaparece con el Start**. Reemplaza "la etiqueta deja de cargar
+>   al tocarla" del punto 8 (visible pero inerte).
+> - No aparece solo en el paso Search: en Assessment, que apareciera justo con Search le
+>   indicaría al operador que ya le toca Start y revelaría la secuencia (S2). Además, AC-13
+>   permite escanear antes de tiempo.
+> - **AC-4 (reemplazado):** Given el Start ya ejecutado, Then no se ve la etiqueta.
+> - **AC-21 (se simplifica):** aplica solo antes del Start; después no hay tarjeta que pueda
+>   tapar Assembly, DC ni Log NC.
+
 ## Problem
 
 Hoy el simulador entrena un solo camino para cargar la orden en el POD: abrir Browse Work
