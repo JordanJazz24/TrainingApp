@@ -70,11 +70,11 @@ Registradas en la spec (bloque "Enmienda 2026-10-12", commit `1865c03`), con AC-
   `IsLotReference` (`docs/process.md` §5), `data-loaded` (lo usa E3). **B-1** (ya existía):
   Browse después del Start reescribe `TxtSFC` y la selección del POD; decide el usuario.
 
-### E2 — Etiqueta simulada  ☐
-- [ ] `Scripts/JsBarcode.code128.min.js` (versión fija) y su `<script>` en `GuidedTest.aspx`.
-- [ ] Tarjeta flotante (markup + `pod.css`): Shop Order en texto + Code 128 con tamaño legible
+### E2 — Etiqueta simulada  ✅ (2026-10-13, probada por el usuario)
+- [x] `Scripts/JsBarcode.code128.min.js` (versión fija) y su `<script>` en `GuidedTest.aspx`.
+- [x] Tarjeta flotante (markup + `pod.css`): Shop Order en texto + Code 128 con tamaño legible
       por un lector de imagen; por debajo de los modales; visible si hay orden.
-- [ ] Clic en las barras → escribe la Shop Order en `TxtSFC` y llama `podLoadScan`; inerte con
+- [x] Clic en las barras → escribe la Shop Order en `TxtSFC` y llama `podLoadScan`; inerte con
       Search resuelto.
 - **AC:** 1, 2, 3, 4, 6 (tocar las barras), 11, 21.
 - **AC-21 (no tapar controles):** la tarjeta va por debajo de los modales y de la guía
@@ -84,6 +84,11 @@ Registradas en la spec (bloque "Enmienda 2026-10-12", commit `1865c03`), con AC-
   al probar tapa algo, se propone una enmienda (por ejemplo, ocultarla con el Start, que hoy
   la spec deja visible e inerte) antes de cambiar el código.
 - **Review:** ninguno (markup, CSS y una línea de JS que reusa E1).
+- **Resultado:** tarjeta de 64 px de alto como máximo sobre el lado vacío del pie (80 px), por debajo de los
+  modales y de la guía. JsBarcode 3.11.6 (MIT), idéntico en cdnjs y npm, en el `.csproj`.
+  Con la orden por defecto, el código mide 101 módulos (214 px). En el mismo commit, **B-1**
+  (aprobado por el usuario): después del Start, el OK de Browse solo cierra el modal. **Sin
+  probar**, entra al checklist de E3.
 
 ### E3 — Guía de Guided  ☐
 - [ ] Anclas `data-guide`: `pod-label`, `pod-label-barcode`, `pod-sfc`.

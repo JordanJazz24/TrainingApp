@@ -341,6 +341,39 @@ body {
 
 .pod-abandon-btn { background: #fff; }
 
+/* ── Etiqueta de la orden (spec 011) ────────────────────────
+   Fuera del MES: la etiqueta impresa pegada junto a la pantalla. Fija sobre el lado derecho
+   del pie, que está vacío (60 px de botones + 10 px de padding arriba y abajo), y más baja
+   que él: no tapa el panel derecho ni la tabla (AC-21). Por debajo de los modales de
+   Bootstrap (1050/1055) y de la guía (1059). */
+.pod-order-label {
+    position: fixed;
+    right: 14px;
+    bottom: 8px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-height: 64px;
+    padding: 4px 6px 4px 12px;
+    background: #fff;
+    border: 1px solid #cfcfcf;
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.pod-order-label-text { display: flex; flex-direction: column; line-height: 1.15; }
+.pod-order-label-caption {
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #555;
+}
+.pod-order-label-text strong { font-size: 0.95rem; letter-spacing: 0.03em; }
+.pod-order-label-barcode { display: block; height: 56px; cursor: pointer; }
+.pod-order-label.is-inert .pod-order-label-barcode { cursor: default; }
+
 /* ── POD Work List y Browse Work List (tablas del MES) ─────── */
 .pod-work-list,
 .pod-browse-list { width: 100%; margin: 0; font-size: 0.8rem; }

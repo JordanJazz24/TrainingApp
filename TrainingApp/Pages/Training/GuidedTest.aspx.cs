@@ -199,8 +199,22 @@ namespace TrainingApp.Pages.Training
         {
             base.OnPreRender(e);
             ApplySfcFieldMode();
+            ApplyOrderLabel();
             RegisterGuide();
         }
+
+        // Etiqueta de la orden (spec 011): visible si hay orden, con su Shop Order (la por
+        // defecto si Resource Setup avanzó forzado: AC-3). Se decide después de los handlers
+        // porque Resource Setup de este mismo request crea la orden. Visible persiste en
+        // ViewState: se asigna en cada request.
+        private void ApplyOrderLabel()
+        {
+            var order = Order;
+            PnlOrderLabel.Visible = order != null && !PnlCompleted.Visible;
+            LabelShopOrder = order?.ShopOrderInput ?? string.Empty;
+        }
+
+        protected string LabelShopOrder { get; private set; } = string.Empty;
 
         // Spec 011: TxtSFC se escribe o se escanea hasta el Start (la carga la resuelve el
         // cliente, como Browse Work List); con el Start ya ejecutado vuelve a ser de solo

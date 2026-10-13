@@ -292,6 +292,21 @@
 
     </div><%-- /pod-shell --%>
 
+    <%-- ══ ETIQUETA DE LA ORDEN (spec 011) ════════════════════════════════ --%>
+    <%-- No es parte del MES: simula la etiqueta impresa de la orden, pegada junto a la
+         pantalla (abajo a la derecha, sobre el lado vacío del pie: no tapa controles, AC-21).
+         Aparece cuando hay orden (Resource Setup, también forzado) y se escanea con un lector
+         de imagen o tocando las barras. Después del Start queda visible pero no carga nada. --%>
+    <asp:Panel ID="PnlOrderLabel" runat="server" Visible="false" CssClass="pod-order-label" data-guide="pod-label">
+        <div class="pod-order-label-text">
+            <span class="pod-order-label-caption">Shop Order</span>
+            <strong><%: LabelShopOrder %></strong>
+        </div>
+        <svg class="pod-order-label-barcode" data-guide="pod-label-barcode"
+            data-value="<%: LabelShopOrder %>" onclick="scanOrderLabel(this)"
+            role="img" aria-label="Shop Order <%: LabelShopOrder %>"></svg>
+    </asp:Panel>
+
     <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
     <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
         <div class="pod-completion-card" data-guide="pod-final">
@@ -396,6 +411,9 @@
 </asp:Content>
 
 <asp:Content ID="ScriptContent" ContentPlaceHolderID="ScriptContent" runat="server">
+<%-- Code 128 de la etiqueta (spec 011): copia local con versión fija, sin CDN (la red de
+     planta puede bloquearlo). Solo el formato CODE128. --%>
+<script src="<%=ResolveUrl("~/Scripts/JsBarcode.code128-3.11.6.min.js")%>"></script>
 <script>
     // F5 después de un postback reenviaría el último POST y volvería a ejecutar la
     // acción (split duplicado, intento fallido extra, control reabierto). Reemplazar
@@ -526,14 +544,17 @@
 
     // Browse elige las piezas (o el SFC del lote) para Search/Start, no filas del POD:
     // HfSelectedRowIds solo se llena con selectWorkListRow().
+    // Después del Start (B-1) la orden ya está cargada: OK solo cierra, sin tocar TxtSFC ni la
+    // selección del POD (HfSelectedSFC).
     function confirmBrowseSelection() {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalBrowseWorkList'));
+        if (podOrderStarted) { modal.hide(); return; }
+
         var rows = document.querySelectorAll('#browseWorkListBody tr.table-primary');
         if (rows.length === 0 && !podMultiSelect) return;
 
         loadOrderRows(Array.prototype.slice.call(rows));
-
-        bootstrap.Modal.getInstance(
-            document.getElementById('modalBrowseWorkList')).hide();
+        modal.hide();
     }
 
     // ── Carga de la orden para el Start (Browse Work List y escaneo, spec 011) ────
@@ -638,7 +659,28 @@
         loadOrderRows(rows);
         if (shown.trim() !== txt.value) txt.value = shown;
     }
+    // Tocar las barras equivale a escanear la etiqueta: escribe la Shop Order en TxtSFC y la
+    // carga. Después del Start (TxtSFC de solo lectura) no hace nada (AC-4).
+    function scanOrderLabel(barcode) {
+        var txt = document.getElementById('<%= TxtSFC.ClientID %>');
+        if (podOrderStarted || !txt || txt.readOnly) return;
+        txt.value = barcode.getAttribute('data-value') || '';
+        podLoadScan(txt.value);
+    }
+
+    function renderOrderLabel() {
+        var barcode = document.querySelector('.pod-order-label-barcode');
+        if (!barcode || typeof JsBarcode !== 'function') return;
+        // Módulo de 2 px y barras de 44 px: legible para un lector de imagen desde el monitor.
+        JsBarcode(barcode, barcode.getAttribute('data-value'), {
+            format: 'CODE128', width: 2, height: 44, margin: 6,
+            displayValue: false, background: '#ffffff', lineColor: '#000000'
+        });
+        if (podOrderStarted) barcode.closest('.pod-order-label').classList.add('is-inert');
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        renderOrderLabel();
         restoreOrderLoad();
         var txt = document.getElementById('<%= TxtSFC.ClientID %>');
         if (!txt) return;

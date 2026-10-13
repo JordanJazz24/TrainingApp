@@ -366,6 +366,15 @@ namespace TrainingApp.Pages.Training
         protected global::TrainingApp.UI.Controls.Training.CompleteControl CtrlComplete;
 
         /// <summary>
+        /// PnlOrderLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel PnlOrderLabel;
+
+        /// <summary>
         /// PnlCompleted control.
         /// </summary>
         /// <remarks>

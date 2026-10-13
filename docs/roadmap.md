@@ -15,15 +15,16 @@
 > auditoría.
 
 **Última actualización:** 2026-10-13 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 011, entrega 1 (`git log --oneline -10` para ver el estado real)
+código:** spec 011, entrega 2 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13: 011 → 013 → tres scraps → modo práctica; ver su sección). La Fase 8 cerró el
   2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
   el servidor real queda diferida (D-19). **Spec 011 (T2) en curso:** plan
-  `docs/specs/011-plan.md`; **E1 ✅** (carga desde `TxtSFC`, probada por el usuario).
-  **Siguiente:** E2, la etiqueta simulada. Pendiente del usuario: B-1 (Browse después del
-  Start reescribe `TxtSFC` y la selección del POD; ya pasaba antes de la spec). En paralelo, la spec 013
+  `docs/specs/011-plan.md`; **E1 ✅** (carga desde `TxtSFC`) y **E2 ✅** (etiqueta
+  simulada), probadas por el usuario; el arreglo de B-1 (Browse después del Start solo cierra)
+  va en el commit de E2 **sin probar**: entra al checklist de E3. **Siguiente:** E3, la guía
+  de Guided. En paralelo, la spec 013
   (cuentas y roles) en diseño. Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
@@ -70,7 +71,8 @@ final (D-16) repasó esta lista.
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.
-- **AUD-28/29** (endurecimiento del deploy y paquetes): en la Fase 9 (D-7).
+- **AUD-28/29** (endurecimiento del deploy y paquetes): en la Fase 9 (D-7). El inventario
+  de AUD-29 suma JsBarcode 3.11.6 (`Scripts/`, spec 011).
 - **Contraseña por defecto versionada (D-18):** quien tenga acceso al repo la conoce y, con un
   Code1, puede activar la cuenta de un compañero que aún no entró ("reclamo de cuenta
   ajena"). Riesgo aceptado; se mitiga en la spec 013 (Fase 8.5).
