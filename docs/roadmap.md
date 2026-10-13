@@ -22,7 +22,8 @@ código:** spec 011, entrega 3 (`git log --oneline -10` para ver el estado real)
   2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
   el servidor real queda diferida (D-19). **Spec 011 (T2) ✅** (2026-10-13, ver
   "Historial"): escanear la Shop Order, etiqueta simulada y guía de Guided, probada por el
-  usuario. **Siguiente:** la spec 013 (cuentas y roles), en diseño en la otra sesión. Para mostrar a negocio:
+  usuario. **Siguiente:** implementar la spec 013 (cuentas, roles y
+  registro de actividad; aprobada el 2026-10-13: `docs/specs/013-cuentas-roles-actividad.md`). Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
@@ -72,7 +73,9 @@ final (D-16) repasó esta lista.
   de AUD-29 suma JsBarcode 3.11.6 (`Scripts/`, spec 011).
 - **Contraseña por defecto versionada (D-18):** quien tenga acceso al repo la conoce y, con un
   Code1, puede activar la cuenta de un compañero que aún no entró ("reclamo de cuenta
-  ajena"). Riesgo aceptado; se mitiga en la spec 013 (Fase 8.5).
+  ajena"); un reset por admin vuelve a abrirlo (spec 013). Riesgo aceptado también en
+  producción (D-20): solo detección, con trainer presente y último acceso visible. Se revisa
+  si Assessment pasa a usarse como evidencia de la CAPA.
 - **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
   reconstruir en Serialized): diferidos (D-16).
 
@@ -248,31 +251,33 @@ lleva su `/spec` (`docs/process.md`).
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
 | 1 | ✅ **T1 · Versión de prueba** en IIS interno (`d60bdfb`): `DEFAULT_PASSWORD` con su valor de siempre (D-18); BD con `00`–`09`, **incluido `05`** (Redefinity y Subensamble 1 de ejemplo: avisar a los testers que son demostración); `customErrors` en Release (parte mínima de AUD-28); reset de testers con `Database/Ops/ResetUserPassword.sql`. Prueba en el servidor real diferida (D-19). Los datos de la prueba se descartan | plan directo | — |
-| 2 | **T2 · Escanear la Shop Order** (spec aprobada el 2026-10-12; plan `011-plan.md`) | spec 011 | — |
-| 3 | **Cuentas, roles y registro de actividad:** columna de rol en `Users` + mapa rol → capacidades en la BLL; área `Pages/Admin` protegida por rol; reset de contraseña por admin (contraseña temporal); bloqueo por intentos fallidos; gestión de usuarios; guardar el motivo y la acción de cada intento (hoy `PodAttemptReason` se descarta). **Obligatorio:** cerrar el reclamo de cuenta ajena antes de que entren operadores reales (D-18) | spec 013 (en diseño) | — |
+| 2 | ✅ **T2 · Escanear la Shop Order** (2026-10-13, `bf19e54`; plan `011-plan.md`) | spec 011 | — |
+| 3 | **Cuentas, roles y registro de actividad** (spec aprobada el 2026-10-13): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, dar o quitar admin), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
 | 4 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
 | 5 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
 | 6 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso. Puede reordenar este plan (por ejemplo, subir T10) | análisis | documento de Ernesto (15-16 oct) |
 | — | **T10 · Preparación antes de SAP** (spec 015): después de noviembre, salvo que el documento de Ernesto la pida. T7 en paralelo cuando los trainers den el contenido | | |
 
 Si el tiempo no alcanza, se recorta primero T3 (modo práctica) y después T4 si las pantallas
-no llegan; nunca la spec 013: sin identidad confiable ni historial auditable, Assessment no
-puede crecer hacia reemplazar la prueba en papel.
+no llegan; nunca la spec 013: sin ella solo el desarrollador administra las cuentas y no se
+guarda el registro de actividad que necesita el dashboard.
 
-**Decisiones del usuario (2026-10-12) para la spec 013 y la Fase 10:**
+**Decisiones del usuario (2026-10-12 y 2026-10-13) para la spec 013 y la Fase 10:**
 - **D-18:** `DEFAULT_PASSWORD` sigue en `Constants` (versionado) y, en T1, con su valor de
-  siempre (corrección del usuario, 2026-10-12: no se cambia). Riesgo de reclamo de cuenta
-  ajena aceptado para la versión de prueba (ver "Deuda y riesgos"); la spec 013 lo cierra
-  antes de que entren operadores reales.
+  siempre (corrección del usuario, 2026-10-12: no se cambia).
+- **D-20 (2026-10-13, spec 013):** el reclamo de cuenta ajena **no se cierra**: solo
+  detección (trainer presente en las sesiones + último acceso visible para el usuario), con
+  el riesgo aceptado también en producción. Reemplaza el "obligatorio" que tenía la 013. Se
+  revisa si Assessment pasa a usarse como evidencia de la CAPA o si se entrena sin trainer.
 - Solo los **administradores** ven resultados y dashboards: un único rol además del de
   operador, sin alcance por área.
 - La API de empleados da solo Code1, nombre completo y correo: el área de un operador no sale
   de la API. Si T5 decide escenarios, las métricas por área necesitan un área del usuario
   asignada en la app (a decidir en la spec del dashboard).
-- Todos tienen cuenta corporativa (`nombre.apellido@philips.com`). Opciones a evaluar en la
-  spec 013 para cerrar el reclamo de cuenta ajena: enviar la contraseña inicial o temporal al
-  correo (requiere SMTP y que el operador lea el correo) o Windows Authentication (solo si
-  cada operador entrena con su propia sesión de Windows, no en un equipo compartido).
+- Todos tienen cuenta corporativa (`nombre.apellido@philips.com`). Si se revisa D-20, las
+  opciones son un código de activación del trainer, el correo (requiere SMTP y que el
+  operador lea el correo) o Windows Authentication (solo si cada operador entrena con su
+  propia sesión de Windows).
 
 **No incluye:** dashboard y reportes (Fase 10), nuevas áreas (espera T5), RF-16, T10
 (salvo que lo pida T6) y lo descartado el 2026-10-12: Tool List, variantes de Complete y
