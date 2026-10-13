@@ -71,6 +71,10 @@ namespace TrainingApp.Pages.Training.Guide
         // guía lo salta al llegar (filas ya seleccionadas) o avanza (escaneo con Add visible).
         public List<string> Done { get; set; }
 
+        // Selectores de elementos que, además del resaltado, se pueden usar en este subpaso
+        // (spec 011: el campo SFC mientras se resalta la etiqueta). null si no hay.
+        public List<string> Free { get; set; }
+
         // Info sobre un mensaje del MES: la guía lo oculta al presionar "Continuar" (R9).
         public bool HideOnContinue { get; set; }
 
@@ -117,6 +121,7 @@ namespace TrainingApp.Pages.Training.Guide
                         max    = f.Max
                     }).ToList(),
                     done     = s.Done,
+                    free     = s.Free,
                     hide     = s.HideOnContinue,
                     retry    = s.RetryKey,
                     step     = s.StepLabel,

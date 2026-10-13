@@ -1,7 +1,7 @@
 # Plan de implementación — Spec 011
 
 **Spec:** `docs/specs/011-escanear-shop-order.md` (Approved 2026-10-12)
-**Plan:** aprobado por el usuario (2026-10-12).
+**Plan:** aprobado por el usuario (2026-10-12) · **Cerrado ✅ (2026-10-13)**
 **Arquitectura:** N-Tier. La carga por escaneo es **presentación** (cliente, como Browse Work
 List); el único cambio de la BLL es la validación del SFC de NonSerialized en
 `PodService.ClickStart` (enmienda E-2). Sin cambios de esquema, Domain, DAL ni SPs.
@@ -90,16 +90,20 @@ Registradas en la spec (bloque "Enmienda 2026-10-12", commit `1865c03`), con AC-
   (aprobado por el usuario): después del Start, el OK de Browse solo cierra el modal. **Sin
   probar**, entra al checklist de E3.
 
-### E3 — Guía de Guided  ☐
-- [ ] Anclas `data-guide`: `pod-label`, `pod-label-barcode`, `pod-sfc`.
-- [ ] `pod-guide.js`: elementos libres por subpaso.
-- [ ] `GuideScriptBuilder.Start`: escaneo (etiqueta, `TxtSFC` libre, avanza al cargar la
+### E3 — Guía de Guided  ✅ (2026-10-13, probada por el usuario)
+- [x] Anclas `data-guide`: `pod-label`, `pod-label-barcode`, `pod-sfc`.
+- [x] `pod-guide.js`: elementos libres por subpaso.
+- [x] `GuideScriptBuilder.Start`: escaneo (etiqueta, `TxtSFC` libre, avanza al cargar la
       orden completa) → burbuja informativa en el ícono de Browse ("también sirve, sobre todo
       con varias órdenes") → Start → checklist de Moldeo sin cambios. Se quitan los subpasos
       de Browse del camino principal.
 - **AC:** 15, 16.
 - **Review:** `low --max-findings 5`, `pod-guide.js` y `GuideScriptBuilder.cs`; foco: el
   bloqueo no deja escapar clics fuera del guion y Assessment no recibe nada.
+- **Resultado:** `pod-guide.js` admite elementos libres por subpaso (`free`: se suben sobre
+  el oscurecido mientras el subpaso está en pantalla; el foco cae en ellos si lo resaltado no
+  tiene campo). Review `low` sin hallazgos. En el mismo commit, la tercera enmienda
+  (`2e96361`): la etiqueta desaparece con el Start. B-1 probado.
 
 ## Fuera de este plan
 

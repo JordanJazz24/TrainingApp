@@ -203,14 +203,14 @@ namespace TrainingApp.Pages.Training
             RegisterGuide();
         }
 
-        // Etiqueta de la orden (spec 011): visible si hay orden, con su Shop Order (la por
-        // defecto si Resource Setup avanzó forzado: AC-3). Se decide después de los handlers
-        // porque Resource Setup de este mismo request crea la orden. Visible persiste en
-        // ViewState: se asigna en cada request.
+        // Etiqueta de la orden (spec 011, enmienda 2026-10-13): visible desde que hay orden
+        // hasta el Start, con su Shop Order (la por defecto si Resource Setup avanzó forzado:
+        // AC-3). Se decide después de los handlers porque Resource Setup o el Start de este
+        // mismo request la cambian. Visible persiste en ViewState: se asigna en cada request.
         private void ApplyOrderLabel()
         {
             var order = Order;
-            PnlOrderLabel.Visible = order != null && !PnlCompleted.Visible;
+            PnlOrderLabel.Visible = order != null && !PodOrderStarted && !PnlCompleted.Visible;
             LabelShopOrder = order?.ShopOrderInput ?? string.Empty;
         }
 

@@ -372,7 +372,6 @@ body {
 }
 .pod-order-label-text strong { font-size: 0.95rem; letter-spacing: 0.03em; }
 .pod-order-label-barcode { display: block; height: 56px; cursor: pointer; }
-.pod-order-label.is-inert .pod-order-label-barcode { cursor: default; }
 
 /* ── POD Work List y Browse Work List (tablas del MES) ─────── */
 .pod-work-list,

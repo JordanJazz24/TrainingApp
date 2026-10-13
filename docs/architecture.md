@@ -180,6 +180,10 @@ Decisiones cerradas: no reabrir sin spec.
   incorrecto, avance, resuelto), que fija la entrada del guion.
 - Los elementos se anclan con `data-guide`, nunca con ids. Un control o pantalla nueva del
   POD necesita sus anclas y su guion.
+- **Elementos libres de un subpaso** (`GuideSubstep.Free`, spec 011): además del resaltado,
+  se pueden usar mientras el subpaso está en pantalla (suben sobre el oscurecido como Logout).
+  Si lo resaltado no tiene campo, el foco va al primero libre. Lo usa el escaneo de Start:
+  resalta la etiqueta de la orden y deja libre `TxtSFC`.
 - La guía no deja avanzar con una decisión incorrecta (R10): el control y `StepValidator` no
   cambian; el servidor le manda las respuestas esperadas solo en Guided.
 - Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (`Training.Master`) y

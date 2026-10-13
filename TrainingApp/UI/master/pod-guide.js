@@ -25,6 +25,7 @@
     var paused = false;        // hay un SweetAlert abierto
     var pendingRetry = null;   // subpaso al que volver al cerrar un aviso de formato
     var frame = null, globe = null;
+    var lifted = [];           // elementos libres del subpaso, subidos sobre el oscurecido
 
     function current() { return substeps[idx] || null; }
 
@@ -221,6 +222,30 @@
         document.querySelectorAll('[data-guide-free]').forEach(function (b) {
             b.classList.toggle('pg-lift', lift);
         });
+        liftFree(next === 'shown' ? current() : null);
+    }
+
+    // Elementos libres del subpaso (spec 011): además del resaltado, se pueden usar mientras
+    // el subpaso está en pantalla (ej. el campo SFC junto a la etiqueta que se escanea).
+    function freeEls(s) {
+        if (!s || !s.free) return [];
+        var els = [];
+        s.free.forEach(function (sel) {
+            Array.prototype.forEach.call(document.querySelectorAll(sel), function (el) {
+                if (isVisible(el)) els.push(el);
+            });
+        });
+        return els;
+    }
+
+    function liftFree(s) {
+        lifted.forEach(function (el) { el.classList.remove('pg-lift'); });
+        lifted = freeEls(s);
+        lifted.forEach(function (el) { el.classList.add('pg-lift'); });
+    }
+
+    function inLifted(node) {
+        return lifted.some(function (el) { return el.contains(node); });
     }
 
     function hideVisuals() {
@@ -242,7 +267,9 @@
         var s = current();
         if (s.mode === 'capture' || s.mode === 'verify' || s.mode === 'scan' ||
             (s.mode === 'change' && s.expect != null)) {
-            var field = focusables(el)[0];
+            // Sin campo en lo resaltado (la etiqueta), el foco va al primer elemento libre: el
+            // lector escribe donde está el foco.
+            var field = focusables(el)[0] || freeFields()[0];
             if (field && document.activeElement !== field) field.focus();
         }
     }
@@ -421,7 +448,12 @@
     function allowed(node) {
         if (isFree(node)) return true;
         if (state !== 'shown' || !node || !node.closest) return false;
-        return (targetEditable() && target.contains(node)) || (globe && globe.contains(node));
+        return (targetEditable() && target.contains(node)) || inLifted(node) ||
+            (globe && globe.contains(node));
+    }
+
+    function freeFields() {
+        return lifted.reduce(function (list, el) { return list.concat(focusables(el)); }, []);
     }
 
     function blocking() {
@@ -457,6 +489,7 @@
     function cycleFocus(back) {
         // Con un modal abierto su trampa de foco no deja salir: solo el elemento resaltado.
         var list = targetEditable() ? focusables(target) : [];
+        list = list.concat(freeFields());
         if (!topModal()) list = list.concat(focusables(globe));
         if (list.length === 0) return;
         var i = list.indexOf(document.activeElement);

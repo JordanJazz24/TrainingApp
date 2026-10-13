@@ -15,17 +15,14 @@
 > auditoría.
 
 **Última actualización:** 2026-10-13 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 011, entrega 2 (`git log --oneline -10` para ver el estado real)
+código:** spec 011, entrega 3 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13: 011 → 013 → tres scraps → modo práctica; ver su sección). La Fase 8 cerró el
   2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
-  el servidor real queda diferida (D-19). **Spec 011 (T2) en curso:** plan
-  `docs/specs/011-plan.md`; **E1 ✅** (carga desde `TxtSFC`) y **E2 ✅** (etiqueta
-  simulada), probadas por el usuario; el arreglo de B-1 (Browse después del Start solo cierra)
-  va en el commit de E2 **sin probar**: entra al checklist de E3. **Siguiente:** E3, la guía
-  de Guided. En paralelo, la spec 013
-  (cuentas y roles) en diseño. Para mostrar a negocio:
+  el servidor real queda diferida (D-19). **Spec 011 (T2) ✅** (2026-10-13, ver
+  "Historial"): escanear la Shop Order, etiqueta simulada y guía de Guided, probada por el
+  usuario. **Siguiente:** la spec 013 (cuentas y roles), en diseño en la otra sesión. Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
@@ -498,3 +495,14 @@ spec 013 debe cerrarlo antes de que entren operadores reales.
   autenticado, `…/Pages/Training/GuidedTest.aspx?sessionId=<b>` muestra el "Runtime Error"
   genérico sin detalle; reset de un tester → entra con la contraseña por defecto y lo manda a
   cambiarla; aparecen las guías de Redefinity, Moldeo y LoFlo.
+
+### Spec 011 · Escanear la Shop Order ✅ (2026-10-13, Fase 8.5, T2)
+Plan `docs/specs/011-plan.md`, tres entregas probadas por el usuario: **E1** (`5976d22`)
+carga desde `TxtSFC` (Shop Order o SFC de la orden + Enter, en el cliente como Browse Work
+List; Start resuelve lo escrito sin Enter; la BLL valida el SFC de NonSerialized con
+`PodNotice.SfcNotInOrder` y el Start de Serialized avisa con `StartWholeOrder`); **E2**
+(`1db8c23`) etiqueta simulada con Code 128 (JsBarcode 3.11.6 local) sobre el lado vacío del
+pie, y **B-1** (ya existía: después del Start el OK de Browse solo cierra); **E3** guía de
+Guided (resalta la etiqueta con `TxtSFC` libre, burbuja de Browse, Start) y la etiqueta
+desaparece con el Start. Tres enmiendas de la spec, todas decididas por el usuario
+(`1865c03`, `b6846b9`, `2e96361`). Sin cambios de esquema ni SPs.

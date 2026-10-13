@@ -295,8 +295,8 @@
     <%-- ══ ETIQUETA DE LA ORDEN (spec 011) ════════════════════════════════ --%>
     <%-- No es parte del MES: simula la etiqueta impresa de la orden, pegada junto a la
          pantalla (abajo a la derecha, sobre el lado vacío del pie: no tapa controles, AC-21).
-         Aparece cuando hay orden (Resource Setup, también forzado) y se escanea con un lector
-         de imagen o tocando las barras. Después del Start queda visible pero no carga nada. --%>
+         Se ve desde que hay orden (Resource Setup, también forzado) hasta el Start, y se
+         escanea con un lector de imagen o tocando las barras. --%>
     <asp:Panel ID="PnlOrderLabel" runat="server" Visible="false" CssClass="pod-order-label" data-guide="pod-label">
         <div class="pod-order-label-text">
             <span class="pod-order-label-caption">Shop Order</span>
@@ -660,7 +660,7 @@
         if (shown.trim() !== txt.value) txt.value = shown;
     }
     // Tocar las barras equivale a escanear la etiqueta: escribe la Shop Order en TxtSFC y la
-    // carga. Después del Start (TxtSFC de solo lectura) no hace nada (AC-4).
+    // carga. Con el Start la etiqueta ya no se muestra; el chequeo cubre una página vieja.
     function scanOrderLabel(barcode) {
         var txt = document.getElementById('<%= TxtSFC.ClientID %>');
         if (podOrderStarted || !txt || txt.readOnly) return;
@@ -676,7 +676,6 @@
             format: 'CODE128', width: 2, height: 44, margin: 6,
             displayValue: false, background: '#ffffff', lineColor: '#000000'
         });
-        if (podOrderStarted) barcode.closest('.pod-order-label').classList.add('is-inert');
     }
 
     document.addEventListener('DOMContentLoaded', function () {

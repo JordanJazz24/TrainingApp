@@ -162,22 +162,26 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Search/Start: Browse Work List, selección y Start. Con el checklist de Start (hoy
-        // Moldeo) siguen sus 4 modales; los formularios de varios campos van por bloque (R7).
+        // Search/Start (spec 011): escanear la etiqueta de la orden (o tocar las barras, o
+        // escribir la Shop Order en SFC) y Start; Browse Work List se menciona como camino
+        // alternativo. Con el checklist de Start (hoy Moldeo) siguen sus 4 modales; los
+        // formularios de varios campos van por bloque (R7).
         private static StepScript Start(PodContext ctx, TrainingStep step)
         {
             var s = new StepScript(step, "Start") { TailName = "banner" };
 
-            s.Add("browse", GuideMode.Click, Anchor("pod-browse"),
-                html: H("Presione el ícono ", B("Browse Work List"), " (⧉), junto a SFC, para buscar la orden."));
-            if (ctx.Area.SerializationType == SerializationType.Serialized)
-                s.Add("select", GuideMode.Click, Anchor("browse-select-all"),
-                    html: H("Presione ", B("Select All"), " para seleccionar todas las piezas de la orden."));
-            else
-                s.Add("select", GuideMode.Click, Anchor("browse-row"),
-                    html: SelectSfc(ctx.State.Order?.SFCCode));
-            s.Add("ok", GuideMode.Click, Anchor("browse-ok"),
-                html: H("Presione ", B("OK"), " para cargar la selección en el POD."));
+            // Avanza cuando la orden completa (todas las piezas o el lote) queda cargada en
+            // SFC; una sola pieza no alcanza. Si ya estaba cargada, se salta.
+            bool serialized = ctx.Area.SerializationType == SerializationType.Serialized;
+            s.Add("scan", GuideMode.Scan, Anchor("pod-label"),
+                free: new[] { Anchor("pod-sfc") },
+                done: new[] { Anchor("pod-sfc") + Attr("data-loaded", "order") },
+                html: H("Escanee la etiqueta de la orden con el lector o toque las barras: la ",
+                    B("Shop Order"), serialized ? " carga todas las piezas. " : " carga el SFC del lote. ",
+                    "También puede escribir el número en ", B("SFC"), " y presionar Enter."));
+            s.Add("browse", GuideMode.Info, Anchor("pod-browse"),
+                html: H("La orden también se puede cargar con ", B("Browse Work List"),
+                    " (⧉), sobre todo cuando se trabaja con varias órdenes a la vez."));
             s.Add("start", GuideMode.Click, Anchor("pod-start"), postback: true,
                 html: H("Presione ", B("Start"), " para iniciar la orden."));
 
@@ -663,7 +667,7 @@ namespace TrainingApp.Pages.Training.Guide
             public void Add(string name, string mode, string anchor, string html,
                 bool pickLast = false, bool postback = false, string format = null,
                 bool hide = false, string retry = null, string expect = null,
-                List<GuideField> fields = null, string[] done = null)
+                List<GuideField> fields = null, string[] done = null, string[] free = null)
             {
                 _items.Add(new GuideSubstep
                 {
@@ -676,6 +680,7 @@ namespace TrainingApp.Pages.Training.Guide
                     Expect         = expect,
                     Fields         = fields,
                     Done           = done?.ToList(),
+                    Free           = free?.ToList(),
                     HideOnContinue = hide,
                     RetryKey       = retry != null ? Key(retry) : null,
                     StepLabel      = _label,
