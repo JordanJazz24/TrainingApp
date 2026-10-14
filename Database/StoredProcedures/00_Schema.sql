@@ -183,7 +183,9 @@ CREATE TABLE dbo.DataCollectionGroups (
 
 -- -------------------------------------------------------
 -- DataCollectionParameters  (varían por Area; a futuro por Operation)
--- DataType: 'Numeric' | 'Boolean' | 'Date'
+-- DataType: 'Numeric' | 'Boolean' | 'Date' | 'PersonName' (nombre de la
+--   persona en entrenamiento del grupo DCGTM_TRAINEE/A: letras y espacios,
+--   opcional; spec 015)
 -- MinValue/MaxValue: NULL para tipos no numéricos, o cuando el rango
 --   está pendiente de confirmación contra la MSS del área.
 -- DisplayOrder: orden de presentación al operador dentro del paso.

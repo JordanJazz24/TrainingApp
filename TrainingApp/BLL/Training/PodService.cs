@@ -358,6 +358,11 @@ namespace TrainingApp.BLL.Training
             result.PieceSfcCode = piece.SFCCode;
 
             var validator = BuildValidator(ctx, StepType.DataCollection);
+            // Nombre del grupo Trainer inválido (spec 015): el control lo bloquea como formato;
+            // si llega es una manipulación y no cuenta (auditoría AUD-36).
+            if (validator.HasInvalidPersonName(group.Id, answersJson))
+                return new DataCollectionSubmitResult { Outcome = DataCollectionOutcome.Ignored };
+
             if (!validator.ValidateDataCollectionGroup(group.Id, answersJson))
             {
                 // Avance forzado (E5): RecordAttempt descarta el avance parcial. Registro de

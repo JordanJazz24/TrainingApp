@@ -84,15 +84,30 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Co
 ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------
--- DataCollectionGroups de ejemplo: 2 obligatorios + 1 opcional, para
--- probar la regla de completitud de DC por pieza (spec 008).
+-- DataCollectionGroups de ejemplo: 2 obligatorios + el grupo Trainer
+-- opcional (real, spec 015), para probar la regla de completitud de DC
+-- por pieza (spec 008).
 -- ------------------------------------------------------------
+-- Spec 015 (D-23): el grupo Trainer reemplaza al opcional
+-- DCGTM_CONDICIONES_AMBIENTE/A. Una BD anterior lo renombra en sitio (el Id
+-- no cambia) y su parámetro pasa a ser el del nombre; si quedara otro, se
+-- borra después de los parámetros: excepción a "nunca borra filas", nada
+-- referencia grupos ni parámetros de DC.
+IF EXISTS (SELECT 1 FROM dbo.DataCollectionGroups WHERE AreaId = @AreaId AND Code = N'DCGTM_CONDICIONES_AMBIENTE/A')
+   AND NOT EXISTS (SELECT 1 FROM dbo.DataCollectionGroups WHERE AreaId = @AreaId AND Code = N'DCGTM_TRAINEE/A')
+    UPDATE dbo.DataCollectionGroups SET Code = N'DCGTM_TRAINEE/A'
+    WHERE  AreaId = @AreaId AND Code = N'DCGTM_CONDICIONES_AMBIENTE/A';
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId AND Name = N'NOMBRE_EN_ENTRENAMIENTO')
+    UPDATE dbo.DataCollectionParameters SET Name = N'NOMBRE_EN_ENTRENAMIENTO'
+    WHERE  AreaId = @AreaId AND Name = N'Humedad relativa';
+
 DECLARE @Grp TABLE (Seq INT IDENTITY, Code NVARCHAR(100), Description NVARCHAR(200),
                     CollectDataAt NVARCHAR(50), IsRequired BIT, DisplayOrder INT);
 INSERT INTO @Grp (Code, Description, CollectDataAt, IsRequired, DisplayOrder) VALUES
     (N'DCGTM_GENERAL/A',              N'Data Collection General',      'Anytime',    1, 1),
     (N'DCGTM_DETECTOR_BDR/A',         N'Verificación del detector BDR', 'Post-Start', 1, 2),
-    (N'DCGTM_CONDICIONES_AMBIENTE/A', N'Condiciones de ambiente',      'Anytime',    0, 3);
+    (N'DCGTM_TRAINEE/A',              N'Entrenamiento personal',       'Anytime',    0, 3);
 
 UPDATE t
 SET    Description = s.Description, CollectDataAt = s.CollectDataAt,
@@ -118,7 +133,7 @@ INSERT INTO @Prm (GroupCode, Name, Description, DataType, Unit, MinValue, MaxVal
     (N'DCGTM_GENERAL/A',              N'Temperatura de proceso',      N'Process temperature',        'Numeric', N'°C', 22,  26, 2),
     (N'DCGTM_DETECTOR_BDR/A',         N'Resistencia del detector',    N'Detector resistance',        'Numeric', N'Ω',  90, 110, 3),
     (N'DCGTM_DETECTOR_BDR/A',         N'¿Detector sin daño visible?', N'Detector visual inspection', 'Boolean', 'N/A', NULL, NULL, 4),
-    (N'DCGTM_CONDICIONES_AMBIENTE/A', N'Humedad relativa',            N'Relative humidity',          'Numeric', '%',   30,  60, 5);
+    (N'DCGTM_TRAINEE/A',              N'NOMBRE_EN_ENTRENAMIENTO',     N'SIM: nombre de la persona en entrenamiento', 'PersonName', 'N/A', NULL, NULL, 5);
 
 UPDATE t
 SET    DataCollectionGroupId = g.Id, Description = s.Description, DataType = s.DataType, Unit = s.Unit,
@@ -135,6 +150,12 @@ FROM   @Prm s
 JOIN   dbo.DataCollectionGroups g ON g.AreaId = @AreaId AND g.Code = s.GroupCode
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters t WHERE t.AreaId = @AreaId AND t.Name = s.Name)
 ORDER  BY s.Seq;
+
+-- Spec 015 (D-23): el grupo Trainer tiene solo el parámetro del nombre.
+DELETE p
+FROM   dbo.DataCollectionParameters p
+JOIN   dbo.DataCollectionGroups g ON g.Id = p.DataCollectionGroupId
+WHERE  g.AreaId = @AreaId AND g.Code = N'DCGTM_TRAINEE/A' AND p.Name <> N'NOMBRE_EN_ENTRENAMIENTO';
 
 -- ------------------------------------------------------------
 -- AssemblyComponents: BOM simulado (prefijo SIM-). Uno con Qty

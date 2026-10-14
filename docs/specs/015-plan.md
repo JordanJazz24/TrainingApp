@@ -94,25 +94,25 @@ checklist en el navegador, "funciona" y commit con el roadmap.
       como formato. La alerta de T7 en REMOVE ALL no cambia.
 - [x] `GetHint` de Resource Setup: mencionar quitar los equipos anteriores (Guided).
 
-## Entrega 2 — Grupo de DC Trainer (C, AC-14 a AC-18)
+## Entrega 2 — Grupo de DC Trainer (C, AC-14 a AC-18) ✅ (2026-10-14)
 
-- [ ] `BLL/Scoring/PersonNameRule.cs`: letras Unicode (`\p{L}`) y espacios, de 2 a 60
+- [x] `BLL/Scoring/PersonNameRule.cs`: letras Unicode (`\p{L}`) y espacios, de 2 a 60
       caracteres tras recortar; vacío es válido. Una sola regla para la BLL y el control.
-- [ ] `StepValidator.ValidateParamValue`: `DataType = "PersonName"` → vacío válido o nombre
+- [x] `StepValidator.ValidateParamValue`: `DataType = "PersonName"` → vacío válido o nombre
       válido. `ValidateDataCollectionGroup` deja de tratar como fallido el vacío de este tipo
       (la regla "un campo vacío es intento fallido" sigue para los demás tipos).
-- [ ] `PodService.SubmitDataCollectionGroup`: un nombre inválido que llega al servidor es una
+- [x] `PodService.SubmitDataCollectionGroup`: un nombre inválido que llega al servidor es una
       manipulación (el control ya lo bloquea): sin intento (`Ignored`), como AUD-36.
-- [ ] `DataCollectionControl`: input de texto para `PersonName` (`maxlength=60`); validación de
+- [x] `DataCollectionControl`: input de texto para `PersonName` (`maxlength=60`); validación de
       formato en el cliente con el mismo patrón (aviso, sin postback) y en el servidor antes
       de enviar.
-- [ ] SQL (D-23): `05` (Redefinity) y `08` (LoFlo) renombran en sitio el tercer grupo a
+- [x] SQL (D-23): `05` (Redefinity) y `08` (LoFlo) renombran en sitio el tercer grupo a
       `DCGTM_TRAINEE/A` "Entrenamiento personal", `Anytime`, `IsRequired = 0`, con el
       parámetro `NOMBRE_EN_ENTRENAMIENTO` (marca `SIM` en la descripción: el nombre real no se
       conoce) y borran los parámetros sobrantes del grupo; `06` (Moldeo) lo **agrega** al
       final. `00`: comentario de `DataType` con `PersonName`. Probado en LocalDB (limpia,
       re-ejecución, comparación).
-- [ ] Guía (D-24): subpaso Info sobre la fila del grupo Trainer con la nota.
+- [x] Guía (D-24): subpaso Info sobre la fila del grupo Trainer con la nota.
 
 ## Entrega 3 — Logout como último paso (B, AC-6 a AC-13)
 

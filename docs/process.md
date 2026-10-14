@@ -132,7 +132,9 @@ pida: él decidió dejarlos para fases propias.
   nada. El script es la fuente de verdad de su catálogo: cada tabla se declara una vez como
   tabla de valores, se actualiza lo que existe y se inserta lo que falta en el orden del
   script (así los Ids no cambian). Nunca borra filas: las sesiones y los intentos las
-  referencian. Textos siempre con `N'…'` (sin la `N`, "Ω" se guardaba como "O").
+  referencian. Excepción (spec 015, D-23): los parámetros de DC sobrantes de un grupo
+  reemplazado, porque nada referencia grupos ni parámetros de DC. Textos siempre con `N'…'`
+  (sin la `N`, "Ω" se guardaba como "O").
 - **Guías:** se cargan con `spTrainingGuideSync` (en `02`): crea la guía si falta, actualiza
   los pesos y aborta si no suman 1.00 o si la estructura de una guía existente cambió (eso
   se resuelve a mano).

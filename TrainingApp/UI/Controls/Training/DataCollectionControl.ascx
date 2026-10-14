@@ -92,7 +92,7 @@
             <div class="modal-footer mes-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
                     CssClass="mes-btn mes-ico mes-ico-save" data-guide="dc-save"
-                    OnClientClick="collectDCAnswers()"
+                    OnClientClick="return collectDCAnswers();"
                     OnClick="BtnSave_Click" />
                 <%-- Save Draft no guarda nada en el simulador: solo orienta al operador,
                      sin postback para no perder los valores ya cargados. --%>
@@ -110,12 +110,31 @@
 
 <script>
 function collectDCAnswers() {
+    // Nombre del grupo Trainer (spec 015): formato, sin postback ni intento. Vacío es válido.
+    var namePattern = new RegExp('<%= PersonNamePattern %>', 'u');
+    var badName = Array.prototype.some.call(document.querySelectorAll('[data-personname]'), function(el) {
+        var v = (el.value || '').trim();
+        return v !== '' && !namePattern.test(v);
+    });
+    if (badName) {
+        dcShowInvalidName();
+        return false;
+    }
+
     var answers = {};
     document.querySelectorAll('[data-paramid]').forEach(function(el) {
         answers[el.getAttribute('data-paramid')] = el.value;
     });
     document.getElementById('HfAnswers').value = JSON.stringify(answers);
     return true;
+}
+// Aviso de formato del nombre; SweetAlert puede cerrar el modal estático: se vuelve a mostrar.
+function dcShowInvalidName() {
+    Swal.fire({ icon: 'warning', title: 'Nombre inválido',
+        text: 'El nombre solo puede tener letras y espacios, de 2 a 60 caracteres.' }).then(function() {
+        var el = document.getElementById('modalDCEntry');
+        if (el && !el.classList.contains('show')) showModalSafe('modalDCEntry');
+    });
 }
 function clearDCFields() {
     document.querySelectorAll('[data-paramid]').forEach(function(el) {

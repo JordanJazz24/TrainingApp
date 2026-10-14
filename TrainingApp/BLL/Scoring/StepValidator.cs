@@ -143,8 +143,8 @@ namespace TrainingApp.BLL.Scoring
         }
 
         // Save de un DC Group (spec 008): el Answer tiene que traer todos los parámetros del
-        // grupo, solo esos, y con valores válidos. Un campo vacío es intento fallido (regla
-        // de CLAUDE.md para Data Collection).
+        // grupo, solo esos, y con valores válidos. Un campo vacío es intento fallido (regla de
+        // docs/domain.md para Data Collection), salvo el nombre del grupo Trainer (spec 015).
         public bool ValidateDataCollectionGroup(int groupId, string submittedAnswer)
         {
             if (string.IsNullOrWhiteSpace(submittedAnswer))
@@ -196,8 +196,9 @@ namespace TrainingApp.BLL.Scoring
                 }
             }
 
+            // El nombre del grupo Trainer vacío no falta: es opcional (spec 015).
             return _ctx.DataCollectionParams
-                .Where(p => p.DataCollectionGroupId == groupId)
+                .Where(p => p.DataCollectionGroupId == groupId && p.DataType != PersonNameRule.DataType)
                 .Any(p =>
                 {
                     string value;
@@ -207,8 +208,18 @@ namespace TrainingApp.BLL.Scoring
                 });
         }
 
+        // Spec 015: un nombre del grupo Trainer que no cumple PersonNameRule. El control lo bloquea
+        // como formato, así que si llega es una manipulación: no se califica.
+        public bool HasInvalidPersonName(int groupId, string submittedAnswer)
+            => PersonNameRule.HasInvalid(
+                _ctx.DataCollectionParams.Where(p => p.DataCollectionGroupId == groupId), submittedAnswer);
+
         private static bool ValidateParamValue(DataCollectionParameter param, string value)
         {
+            // El nombre del grupo Trainer es opcional (spec 015): vacío es válido.
+            if (param.DataType == PersonNameRule.DataType)
+                return PersonNameRule.IsValid(value);
+
             if (string.IsNullOrWhiteSpace(value))
                 return false;
 

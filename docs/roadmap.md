@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-14 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 015, entrega 1 (`git log --oneline -10` para ver el estado real)
+código:** spec 015, entrega 2 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -28,7 +28,9 @@ código:** spec 015, entrega 1 (`git log --oneline -10` para ver el estado real)
   trainer en la guía de Guided y el producto R&C → **S&RC**. **En curso: spec 015** (ajustes de
   la trainer; `docs/specs/015-ajustes-trainer.md`, plan en `015-plan.md`). **E1 ✅** (2026-10-14,
   probada por el usuario): Resource Setup abre con equipos precargados y guardar con alguno es
-  intento fallido. **Siguiente:** E2, grupo de DC Trainer. Orden vigente: 015 → 014 → 016 → 012.
+  intento fallido. **E2 ✅** (2026-10-14, probada): grupo de DC `DCGTM_TRAINEE/A` opcional en
+  Moldeo, LoFlo y Redefinity, con el nombre de la persona en entrenamiento (formato).
+  **Siguiente:** E3, Logout como último paso. Orden vigente: 015 → 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
@@ -103,9 +105,10 @@ corrió el usuario:
 | 2026-10-12 | ALTER + `01_spUser`, `03` | D-17: `Operators` → `Users`, `OperatorId` → `UserId`, SPs `spUser*` y `spTrainingSessionAbandonActiveByUser` |
 | 2026-10-14 | ALTER de la spec 013 + `01_spUser`, `04`, `Ops/CreateAdmin` | Spec 013: `Users.Role`, `LastLoginAt`, `FailedLoginCount`, `LockedUntil`; `TrainingSessionStepAttempts.Reason` y `Action`; SPs de login, bloqueo y gestión de usuarios; primer admin |
 | 2026-10-14 | `06`, `07` | T7: el producto `R&C` → `S&RC` y el título de su guía, renombrados en sitio |
+| 2026-10-14 | `05`, `06`, `08` | Spec 015 E2: grupo `DCGTM_TRAINEE/A` (renombra en sitio el tercer grupo opcional de Redefinity y LoFlo; en Moldeo se agrega) |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
-obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
+obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
 Limpieza del 2026-09-25: las migraciones (`08`–`11` y los ALTER de `06`) se integraron al
 esquema y se borraron. Cómo se entregan los cambios de esquema: `docs/process.md` → "Base de
 datos".

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
@@ -292,7 +293,7 @@ namespace TrainingApp.Pages.Training.Guide
             AddPodSelection(s, ctx, AllPiecesNote);
             s.Add("open", GuideMode.Click, Anchor("pod-dc-collect"), postback: true,
                 html: H("Presione ", B("DC Collect"), " para abrir la Data Collection List."),
-                note: H("La cantidad de datos depende de la operación."));
+                note: H("La cantidad de datos a ingresar, dependerá de la operación."));
 
             var groups = ctx.DataCollectionGroups;
             var required = groups.Where(g => g.IsRequired).ToList();
@@ -303,6 +304,20 @@ namespace TrainingApp.Pages.Training.Guide
             int currentPiece = progress?.CurrentIndex ?? 0;
             string justSaved = s.DetailOf(moment, GuideMomentKind.Progress);
             bool serialized = ctx.Area.SerializationType == SerializationType.Serialized;
+
+            // Grupo Trainer (spec 015, D-24): la guía no pasa por él; una nota sobre su fila, una
+            // sola vez, al abrir la lista con la primera pieza y antes del primer Collect.
+            var trainer = groups.FirstOrDefault(g => ctx.DataCollectionParameters.Any(p =>
+                p.DataCollectionGroupId == g.Id && p.DataType == PersonNameRule.DataType));
+            if (trainer != null)
+            {
+                s.Add("trainer", GuideMode.Info, Anchor("dc-collect") + Attr("data-group", trainer.Code),
+                    html: H(B("NOTA: "), "Complete ", B(trainer.Code), " únicamente cuando esté realizando un entrenamiento e ingrese su nombre."));
+                bool started = pieces.Count > 0 && progress != null &&
+                    (currentPiece > 0 || progress.SavedGroupIds(pieces[0].RowId).Count > 0);
+                if (started) s.Hide("trainer");
+                else s.OpenedName = "trainer";
+            }
 
             for (int pi = 0; pi < pieces.Count; pi++)
             {
