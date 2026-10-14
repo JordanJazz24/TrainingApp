@@ -82,9 +82,12 @@ checklist en el navegador, "funciona" y commit con el roadmap.
       espacios), además de Setup State. Motivo `WrongDecision`, mensaje genérico. El avance
       forzado no cambia.
 - [ ] `GuidedTest` pasa los precargados en el ViewModel; `ResourceSetupControl` los guarda en
-      un campo oculto y `rsRetrieve` los agrega a la tabla **solo en el primer Retrieve** de
-      esa apertura (Shop Order + 2 Tool Number). Tras un postback se restauran desde
+      un campo oculto y los pinta en la tabla **al abrir el control** (Shop Order + 2 Tool
+      Number); Retrieve solo habilita la edición (enmienda 2026-10-14 de la spec; antes:
+      "rsRetrieve los agrega en el primer Retrieve"). Tras un postback se restauran desde
       `HfRows`, como hoy.
+- [ ] Save con un precargado y sin una Shop Order válida y propia: el intento fallido se
+      registra pero no se crea la orden simulada (decisión del `/code-review` de E1).
 - [ ] D-26: la validación de formato del control se salta si alguna fila trae un valor
       precargado; el Save se envía igual.
 - [ ] Guía (D-25): `Reject` en los subpasos `shopOrder` y `tool`; `pod-guide.js` lo revisa

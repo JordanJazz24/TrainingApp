@@ -3,6 +3,21 @@
 **Status:** Approved (2026-10-14)
 **Date:** 2026-10-14 · **Approved:** 2026-10-14 (usuario, con las propuestas de diseño incluidas)
 
+> **Enmienda 2026-10-14 (usuario, al probar la Entrega 1):** afecta el punto 1 de Scope y
+> AC-1.
+>
+> - El control de Resource Setup **abre con los equipos precargados ya en la tabla**;
+>   **Retrieve** solo habilita la edición (Setup State, toolbar y Save), como antes de esta
+>   spec. Motivo del usuario: que aparezcan al hacer Retrieve puede confundir. Reemplaza "al
+>   hacer Retrieve, la tabla aparece con los equipos…" del punto 1.
+> - **AC-1 (reemplazado):** Given Resource Setup, When se abre el control, Then la tabla
+>   muestra una Shop Order y 2 herramientas precargadas, distintas de `303406950`, en Guided
+>   y en Assessment; Retrieve solo habilita la edición.
+> - **Decisión de implementación** (desarrollo, del `/code-review` de la Entrega 1): si el
+>   Save trae un precargado y no hay una Shop Order válida y propia (distinta de la
+>   precargada), el intento fallido se registra pero **no se crea la orden simulada** (antes
+>   podía crearse con la Shop Order del lote anterior). No cambia la calificación (AC-2).
+
 ## Problem
 
 En la validación con la trainer de Wires (2026-10-13, roadmap → Fase 8 → "Retroalimentación
