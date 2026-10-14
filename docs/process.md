@@ -8,7 +8,7 @@
 
 | Pedido | Camino |
 |---|---|
-| Funcionalidad o reglas de negocio nuevas (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. Spec y plan, en la sesión de diseño; la implementación, en la de desarrollo (ver "Dos sesiones"). |
+| Funcionalidad o reglas de negocio nuevas (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. Spec y plan, en la sesión de Arquitectura y Planeación; la implementación, en la de Desarrollo (ver "Tres sesiones de trabajo"). |
 | Pocas decisiones acotadas (3-6 preguntas, una pantalla) | Una ronda de `AskUserQuestion` + plan directo; las decisiones se anotan en el roadmap. |
 | Bugs, robustez, rendimiento | Plan corto en el chat e implementación directa, sin spec. Ofrecer spec solo si aparecen decisiones de negocio. |
 
@@ -24,27 +24,43 @@
   con fecha en la spec ("enmendada AAAA-MM-DD") **antes** de tocar código. Nunca divergir en
   silencio.
 - **Decisiones que bloquean** una entrega: se preguntan juntas, numeradas (D-1, D-2…), cada
-  una con una propuesta. El usuario responde en bloque. Se anotan en el archivo de la
-  auditoría o en la spec. La numeración D-n es continua entre auditorías.
+  una con opciones y una **recomendada**, con la herramienta de preguntas (`AskUserQuestion`),
+  no como texto para responder en bloque (usuario, 2026-10-14). Se anotan en el archivo de la
+  auditoría, la spec o el plan. La numeración D-n es continua entre auditorías, specs y
+  planes: antes de numerar, buscar la última en el repo (`grep "D-[0-9]"`).
 - **Bugs que ya existían**, encontrados en un review o un refactor: no se arreglan en
   silencio. Se presentan como B-1, B-2… con una propuesta y decide el usuario (D-12).
 
-### Dos sesiones: diseño y desarrollo (usuario, 2026-10-14)
+### Tres sesiones de trabajo (usuario, 2026-10-14)
 
-| Sesión | Hace | No hace |
-|---|---|---|
-| **Diseño** (arquitectura y planificación) | `/spec`, enmiendas de spec y **plan por entregas** (`docs/specs/NNN-plan.md`), con la aprobación del usuario; secciones de fases y planes del roadmap; decisiones de diseño | Código |
-| **Desarrollo** | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, "Estado actual", "Historial", la fila de la BD del usuario, `CLAUDE.md`, `docs/domain.md` y `docs/architecture.md` | Specs ni planes |
+El usuario trabaja con tres sesiones de Claude en paralelo, cada una con un foco. Se llaman
+así entre ellas al mandarse mensajes ("Reuniones y dudas", la de arquitectura y
+planeación, "desarrollo").
 
-- El traspaso es el repo: la spec y el plan aprobados en `docs/specs/`. Además, las sesiones
-  se avisan por mensaje (spec o plan aprobado, entrega cerrada, algo que no cierra).
-- Si al ejecutar algo de la spec o del plan no cierra, desarrollo avisa a diseño, que
-  propone la enmienda al usuario y la registra **antes** de que se toque código. Las
-  decisiones menores que no cambian ni la spec ni el plan las toma desarrollo con el usuario
-  y las informa.
-- Cada sesión commitea los docs que le tocan; diseño trabaja en un worktree de docs y hace
-  `merge --ff-only` en la carpeta real (sección 7) sin tocar el trabajo sin commitear de
-  desarrollo.
+| Sesión | Para qué se usa | Hace | No hace |
+|---|---|---|---|
+| **Reuniones y Dudas** | Documentar notas de reuniones, aclaraciones funcionales, decisiones de negocio, validaciones con usuarios expertos y descubrimientos del proceso | Registra lo que se habló y lo que decidió el usuario; lo manda a Arquitectura y Planeación para que lo lleve a specs y roadmap; puede documentar pantallas en `docs/ui-reference/` | Specs, planes ni código |
+| **Arquitectura y Planeación** | Analizar alternativas, diseñar soluciones, definir arquitectura, modelar datos, evaluar trade-offs y planificar funcionalidades o fases | `/spec`, enmiendas de spec y **plan por entregas** (`docs/specs/NNN-plan.md`), con la aprobación del usuario; orden de tareas y secciones de fases y planes del roadmap; decisiones de diseño | Código |
+| **Desarrollo** | Solo la implementación: construir lo ya definido y aprobado, sin desviar la conversación hacia negocio o diseño | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, "Estado actual", "Historial", la fila de la BD del usuario, `CLAUDE.md`, `docs/domain.md` y `docs/architecture.md` | Specs ni planes; discusiones de negocio o diseño (las deriva) |
+
+- El traspaso es el repo: lo que sale de Reuniones y Dudas, en el roadmap y
+  `docs/ui-reference/`; la spec y el plan aprobados, en `docs/specs/`. Además, las sesiones
+  se avisan por mensaje (hallazgo de reunión, spec o plan aprobado, entrega cerrada, algo
+  que no cierra).
+- Si al ejecutar algo de la spec o del plan no cierra, Desarrollo avisa a Arquitectura y
+  Planeación, que propone la enmienda al usuario y la registra **antes** de que se toque
+  código. Las decisiones menores que no cambian ni la spec ni el plan las toma Desarrollo con
+  el usuario y las informa.
+- **Docs en git:** cada sesión commitea los docs que le tocan. Arquitectura y Planeación
+  trabaja en un worktree de docs con nombre propio (`.claude/worktrees/docs-<tema>`, rama
+  `docs/<tema>`; nunca un nombre que use Desarrollo) creado desde `TrainingApp`, y lo integra
+  con `git merge --ff-only` en la carpeta real (sección 7), sin tocar el trabajo sin
+  commitear de Desarrollo. Si Desarrollo tiene sin commitear un archivo que el commit de docs
+  también toca, el fast-forward se rechaza: se espera su commit y se trae el de docs encima
+  (cherry-pick en una rama nueva desde `TrainingApp`).
+- **Reparto del roadmap:** Arquitectura y Planeación escribe las secciones de fases, planes y
+  revisiones con negocio, y el orden de tareas; Desarrollo, "Estado actual", "Historial" y
+  "BD de desarrollo del usuario".
 
 ## 2. Cada entrega
 

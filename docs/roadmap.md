@@ -61,6 +61,17 @@ código:** spec 015, entrega 2 (`git log --oneline -10` para ver el estado real)
   El detalle por paso en el resumen final se verá en su momento.
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
   `connectionStrings.config`.
+- **Acción del usuario (2026-10-14):**
+  - Abrir en el navegador la **hoja de requerimientos** (enlace de "Ahora"): desde el
+    2026-10-13 ninguna sesión puede leerla. Si ya no existe, "Reuniones y Dudas" crea una
+    nueva y se cambia el enlace.
+  - **Integrar `docs/wi-produccion-contraste`** (rama y worktree `wi-contraste` de la
+    sesión del contraste con la WI): trae `docs/ui-reference/wi-produccion-disposables.md`,
+    que el roadmap cita (Fase 8) y que la spec 014 (tres scraps) necesita. Hasta integrarla,
+    ese archivo no está en `TrainingApp`.
+  - **Limpieza de git:** la rama local `docs/hallazgos-sap-mes` ya está integrada por
+    cherry-pick (`b830e1e`): se borra con `git branch -D`. La rama remota `origin/spec-013`
+    quedó con E1 y E2 de antes del rebase: se borra si el usuario lo decide.
 
 ### Deuda y riesgos conocidos
 
