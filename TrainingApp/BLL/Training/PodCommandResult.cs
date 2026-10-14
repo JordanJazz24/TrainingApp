@@ -45,7 +45,7 @@ namespace TrainingApp.BLL.Training
         // Intento registrado; null si el comando no calificó el paso.
         public StepSubmitResult Step { get; set; }
 
-        public PodAttemptReason AttemptReason { get; set; }
+        public PodAttemptReason FeedbackReason { get; set; }
 
         // Start en un área con checklist: la página abre la secuencia de modales.
         public bool OpenChecklist { get; set; }

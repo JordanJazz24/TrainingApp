@@ -243,15 +243,17 @@ pesos en su script SQL y debe sumar 1.00 (`spTrainingGuideSync` lo valida al car
 
 ```
 TrainingApp/                  Web Forms (.NET FW 4.7.2)
-  Pages/                      code-behind: Auth/, Training/ (POD, guía de Guided, modelos de UI)
+  Pages/                      code-behind: Auth/ (login de SAP), Admin/ (módulo administrativo),
+                              Training/ (POD, guía de Guided, modelos de UI)
   UI/Controls/Training/       un UserControl por tipo de paso
   UI/master/                  MasterPages (heredan AntiXsrfMasterPage), pod.css, pod-guide.js
-  BLL/  Auth/ Training/ Scoring/
+  BLL/  Auth/ Admin/ Training/ Scoring/
   DAL/  Infrastructure/ Repositories/   (un repositorio por tabla)
   Domain/                     POCOs puros
   Shared/                     Constants.cs, PasswordHelper.cs
 TrainingApp.Test/             NUnit 4: reglas de la BLL con datos en memoria
 Database/StoredProcedures/    00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
+Database/Ops/                 scripts manuales: primer admin, reset de contraseña
 ```
 
 Árbol completo con la responsabilidad de cada archivo: `docs/architecture.md`.
@@ -270,22 +272,48 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 ## Auth Flow
 
 La cuenta local es `User` (tabla `Users`), nunca `Operator`: "operador" es la persona en la
-línea del MES y, a futuro, un rol (D-17).
+línea del MES y uno de los dos roles (D-17).
 
-1. El operador ingresa `code1` + contraseña en `Login.aspx`.
+**Roles (spec 013), excluyentes:** `Users.Role` = **Operator** (entrena) o **Administrator**
+(administra usuarios y **no** entrena). Qué puede cada rol vive en un solo lugar,
+`AccessPolicy` (`CanTrain`, `CanManageUsers`): las páginas y los servicios preguntan por la
+capacidad, nunca por el nombre del rol. El rol de cada request lo arma `Global.asax`
+(`Application_PostAuthenticateRequest` → `UserPrincipal`, con `RoleCache` de 2 min); con él
+`Web.config` protege `Pages/Admin` (solo Administrator) y `Pages/Training` (solo Operator), y
+las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va a su inicio
+(`SessionHelper.RedirectHome`), nunca al login.
+
+1. **Dos logins, mismo `AuthService.Login`:** el de SAP NetWeaver (`Pages/Auth/Login.aspx`,
+   parte de la simulación) acepta solo operadores; el administrativo
+   (`Pages/Admin/Login.aspx`), solo admins. El rol equivocado con la contraseña correcta
+   recibe el camino correcto y no suma un fallo. Forms tiene un solo `loginUrl` (el de SAP):
+   un request sin sesión a `Pages/Admin/` sigue al login de admin.
 2. `AuthService` busca el `code1` en la lista de empleados de la API (`EmployeeRepository`,
    en memoria; caché y fallos: `docs/architecture.md`). Si no existe → "Código de empleado
-   no registrado". Autorregistro: cualquier empleado de la lista puede activar su cuenta,
-   sin alta por parte de un admin.
+   no registrado". **Autorregistro** (solo por el login de SAP, como Operator): cualquier
+   empleado de la lista activa su cuenta. **Alta por un admin**: Gestión de usuarios crea la
+   cuenta con su rol y la contraseña por defecto. El primer admin, por
+   `Database/Ops/CreateAdmin.sql`.
 3. Sin `User` local (primer acceso): la contraseña debe ser `Constants.DEFAULT_PASSWORD`
-   → se crea el `User` con `IsFirstLogin = true` → `ChangePassword.aspx`. Con
-   `User`: se valida contra `PasswordHash` (PBKDF2).
-4. `AuthService.ChangePassword` pide **siempre** la contraseña actual (en el primer acceso, la
-   por defecto) y la nueva no puede ser la por defecto → se guarda hasheada e
-   `IsFirstLogin = false`.
-5. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
-   `SessionHelper.SetUserSession`. Mientras `IsFirstLogin`, `StartSession` y `GuidedTest`
-   redirigen a `ChangePassword` (AUD-08).
+   → se crea el `User` con `IsFirstLogin = true` → cambio de contraseña. Con `User`: primero
+   el **bloqueo** y después `PasswordHash` (PBKDF2).
+4. **Bloqueo** (`LoginLockPolicy`): 5 fallos seguidos bloquean la cuenta 15 minutos; se
+   desbloquea sola al vencer, antes por un admin o con un reset. El contador vuelve a 0 al
+   bloquear o con un login correcto. El primer acceso sin `User` no cuenta fallos.
+5. `AuthService.ChangePassword` pide **siempre** la contraseña actual (en el primer acceso o
+   tras un reset, la por defecto) y la nueva no puede ser la por defecto → se guarda hasheada
+   e `IsFirstLogin = false`. El operador lo hace en la pantalla de SAP; el admin, en la
+   administrativa.
+6. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
+   `SessionHelper.SetUserSession`. Mientras `IsFirstLogin`, las páginas del rol redirigen al
+   cambio de contraseña (AUD-08). El usuario ve su **último acceso anterior** ("Primer
+   acceso" si no hay): si no fue él, avisa al trainer (única detección del reclamo de cuenta
+   ajena, D-20).
+7. **Gestión de usuarios** (`Pages/Admin/Users.aspx`, `UserAdminService`): lista paginada con
+   búsqueda, crear, resetear contraseña (vuelve a la por defecto y desbloquea), desbloquear y
+   borrar (borra la cuenta y su historial; nadie se borra a sí mismo). El rol de una cuenta
+   existente no se cambia desde la UI (enmienda de la spec 013). Cada método verifica en la
+   BLL que quien llama es admin.
 
 ## Convenciones clave
 
@@ -319,8 +347,9 @@ línea del MES y, a futuro, un rol (D-17).
   claves nuevas del usuario se agregan solo en `SessionHelper.SetUserSession`.
 - `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
   no en `Web.config` ni hardcodeadas en páginas.
-- Toda página usa `Site.Master`, `Training.Master` o `Auth.Master` (Login y Cambio de
-  contraseña; las tres heredan `AntiXsrfMasterPage`, anti-CSRF). Texto del servidor hacia un
+- Toda página usa `Site.Master`, `Training.Master`, `Auth.Master` (Login y Cambio de
+  contraseña de SAP) o `Admin.Master` (módulo administrativo, diseño neutro); las cuatro
+  heredan `AntiXsrfMasterPage` (anti-CSRF). Texto del servidor hacia un
   `<script>`: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; texto al HTML
   con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean
   como formato.

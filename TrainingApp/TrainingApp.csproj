@@ -231,6 +231,7 @@
     <Compile Include="BLL\Training\SimulatedOrder.cs" />
     <Compile Include="BLL\Training\SimulatedOrderRow.cs" />
     <Compile Include="BLL\Training\StepAnswers.cs" />
+    <Compile Include="BLL\Training\AttemptActions.cs" />
     <Compile Include="BLL\Training\PodDefaults.cs" />
     <Compile Include="BLL\Training\PodState.cs" />
     <Compile Include="BLL\Training\PodContext.cs" />

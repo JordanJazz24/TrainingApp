@@ -1,7 +1,7 @@
 # Plan de implementación — Spec 013
 
 **Spec:** `docs/specs/013-cuentas-roles-actividad.md` (Approved 2026-10-13)
-**Plan:** aprobado por el usuario (2026-10-13). Se implementa en la rama `spec-013` (worktree) hasta que el usuario confirme pasarla a `TrainingApp`.
+**Plan:** aprobado por el usuario (2026-10-13). E1-E3 en la rama `spec-013` (worktree), integrada en `TrainingApp` el 2026-10-14 (rebase + `--ff-only`); E4 sobre `TrainingApp` · **Cerrado ✅ (2026-10-14)**
 **Arquitectura:** N-Tier. Reglas de acceso, bloqueo y gestión en la BLL (`BLL/Auth/`,
 `BLL/Admin/`); los SPs solo guardan (salvo "nunca sin admins", que la spec pone en el SP por
 la concurrencia). Páginas nuevas en `Pages/Admin/` con `Admin.Master`.
@@ -140,15 +140,15 @@ solo traduce un botón de relleno a su constante.
   enum: excepción. No aplicados: contraseña por defecto de admins nuevos (D-20) y
   consultas repetidas. Review `low` del borrado: sin cambios. Tests: 88 (21 de la spec 013).
 
-### E4 — Registro de actividad  ☐
-- [ ] Domain: `AttemptReason`; `TrainingSessionStepAttempt.Reason` y `.Action`.
-- [ ] BLL: `AttemptActions` (catálogo de arriba); `RecordAttempt` recibe motivo y acción;
+### E4 — Registro de actividad  ✅ (2026-10-14, probada por el usuario)
+- [x] Domain: `AttemptReason`; `TrainingSessionStepAttempt.Reason` y `.Action`.
+- [x] BLL: `AttemptActions` (catálogo de arriba); `RecordAttempt` recibe motivo y acción;
       `CheckSequence` recibe la acción del botón; `ClickNonStepAction(ctx, action)`;
       `StepValidator` dice si a un DC le falta un valor.
-- [ ] `spStepAttemptRecord` con `@Reason` y `@Action` (misma transacción);
+- [x] `spStepAttemptRecord` con `@Reason` y `@Action` (misma transacción);
       `spStepAttemptGetBySession` los devuelve (null en los viejos).
-- [ ] `GuidedTest`: cada botón de relleno pasa su acción.
-- [ ] Cierre de la spec: `CLAUDE.md` → "Auth Flow" (roles, creación por admin, bloqueo,
+- [x] `GuidedTest`: cada botón de relleno pasa su acción.
+- [x] Cierre de la spec: `CLAUDE.md` → "Auth Flow" (roles, creación por admin, bloqueo,
       último acceso) y la lista de MasterPages; `docs/architecture.md` (estructura,
       principal con rol); roadmap.
 - **AC:** 19, 20, 21 (`ScoreCalculatorTests` en verde). Se verifican con una consulta a
@@ -156,6 +156,15 @@ solo traduce un botón de relleno a su constante.
 - **Review:** `medium`, `PodService.cs`, `AttemptActions.cs`, `StepAttemptRepository.cs`,
   `04_spStepAttempt.sql`; foco: todo intento lleva motivo y acción, la secuencia S2 y el
   puntaje no cambian.
+- **Resultado:** review `medium`, 9 hallazgos; se aplicaron 4. La acción del registro es
+  obligatoria y de 50 caracteres como máximo. Los botones de relleno están en un solo mapa
+  (`GuidedTest.NonStepActions`). `ForSubmit` no inventa acciones. `PodCommandResult.AttemptReason`
+  pasó a llamarse `FeedbackReason`. No aplicados: el orden del despliegue (los scripts van
+  antes), DC con un vacío y un fuera de rango a la vez (queda `EmptyRequiredField`), doble
+  lectura del JSON de DC y tests del catálogo (`docs/process.md` §5). Verificado en la BD
+  del usuario: un intento correcto de Guided con `ResourceSetup.Save` y uno fuera de
+  secuencia de Assessment con `OutOfSequence` y `POD.Start` (AC-20). AC-21 (intentos viejos
+  en NULL) verificado en LocalDB.
 
 ## Fuera de este plan
 

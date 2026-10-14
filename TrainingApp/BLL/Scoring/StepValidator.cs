@@ -143,6 +143,34 @@ namespace TrainingApp.BLL.Scoring
             return true;
         }
 
+        // Registro de actividad (spec 013): un Save de DC incorrecto por un valor vacío o que
+        // falta (EmptyRequiredField) y no por un valor fuera de rango (WrongDecision).
+        public bool HasMissingDataCollectionValue(int groupId, string submittedAnswer)
+        {
+            Dictionary<string, string> submitted = null;
+            if (!string.IsNullOrWhiteSpace(submittedAnswer))
+            {
+                try
+                {
+                    submitted = JsonConvert.DeserializeObject<Dictionary<string, string>>(submittedAnswer);
+                }
+                catch (JsonException)
+                {
+                    return false;
+                }
+            }
+
+            return _ctx.DataCollectionParams
+                .Where(p => p.DataCollectionGroupId == groupId)
+                .Any(p =>
+                {
+                    string value;
+                    return submitted == null
+                        || !submitted.TryGetValue(p.Id.ToString(CultureInfo.InvariantCulture), out value)
+                        || string.IsNullOrWhiteSpace(value);
+                });
+        }
+
         private static bool ValidateParamValue(DataCollectionParameter param, string value)
         {
             if (string.IsNullOrWhiteSpace(value))

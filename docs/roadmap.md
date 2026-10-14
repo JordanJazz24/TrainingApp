@@ -14,23 +14,27 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-13 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 011, entrega 3 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-14 · **Branch:** `TrainingApp` · **Último commit de
+código:** spec 013, entrega 4 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: T7 → 013 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
   2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
   el servidor real queda diferida (D-19). **Spec 011 (T2) ✅** (2026-10-13, ver
   "Historial"): escanear la Shop Order, etiqueta simulada y guía de Guided, probada por el
-  usuario. **Siguiente:** T7 (mensajes y alertas de la guía, plan
-  directo) y después implementar la spec 013 (cuentas, roles y registro de actividad;
-  aprobada el 2026-10-13: `docs/specs/013-cuentas-roles-actividad.md`). Para mostrar a negocio:
+  usuario. **Spec 013 ✅** (2026-10-14, ver "Historial"): roles, login de admin, bloqueo,
+  último acceso, gestión de usuarios con borrado y registro de actividad. El usuario decidió
+  terminarla antes que T7. **Siguiente:** T7 (mensajes y alertas de la guía, plan directo;
+  decidido: burbuja roja propia para las alertas; el bug de "RCI" sería el producto
+  R&C → **S&RC**, por confirmar al empezar). Orden vigente: T7 → 015 → 014 → 016 → 012.
+  Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
   documento de la prueba práctica de Ernesto (T6, reunión del 15-16 oct) y el acceso al
   ambiente de testing de SAP MES (T9: el usuario le envía su Code1 y su correo a Ernesto).
-- **Lo último cerrado (2026-10-12):** **T1 · preparación de la versión de prueba**
+- **Lo último cerrado (2026-10-14):** **spec 013** (cuentas, roles y registro de
+  actividad). Antes (2026-10-12), **T1 · preparación de la versión de prueba**
   (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
   refactor **`Operator` → `User`** en todas las capas (D-17, ver "Historial"): paso previo
   al módulo administrativo.
@@ -95,6 +99,7 @@ corrió el usuario:
 | 2026-10-07 | `01`–`07` | Limpieza de scripts (2026-10-07): `CREATE OR ALTER`, catálogos como tablas de valores, transacciones, `spTrainingGuideSync` |
 | 2026-10-07 | `08`, `09` | Fase 7: catálogo y guía de LoFlo |
 | 2026-10-12 | ALTER + `01_spUser`, `03` | D-17: `Operators` → `Users`, `OperatorId` → `UserId`, SPs `spUser*` y `spTrainingSessionAbandonActiveByUser` |
+| 2026-10-14 | ALTER de la spec 013 + `01_spUser`, `04`, `Ops/CreateAdmin` | Spec 013: `Users.Role`, `LastLoginAt`, `FailedLoginCount`, `LockedUntil`; `TrainingSessionStepAttempts.Reason` y `Action`; SPs de login, bloqueo y gestión de usuarios; primer admin |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
@@ -551,3 +556,18 @@ pie, y **B-1** (ya existía: después del Start el OK de Browse solo cierra); **
 Guided (resalta la etiqueta con `TxtSFC` libre, burbuja de Browse, Start) y la etiqueta
 desaparece con el Start. Tres enmiendas de la spec, todas decididas por el usuario
 (`1865c03`, `b6846b9`, `2e96361`). Sin cambios de esquema ni SPs.
+
+### Spec 013 · Cuentas, roles y registro de actividad ✅ (2026-10-14, Fase 8.5)
+Plan `docs/specs/013-plan.md`, cuatro entregas probadas por el usuario. E1-E3 se hicieron en
+la rama `spec-013` (worktree) mientras el usuario validaba con un técnico en la carpeta real;
+después se hizo rebase sobre `TrainingApp` y merge `--ff-only` (sin conflictos). **E1**
+(`e4ef6ae`): roles excluyentes Operator / Administrator (`AccessPolicy`), login de admin
+aparte (`Pages/Admin`, `Admin.Master`), rol en cada request (`UserPrincipal` + `RoleCache`),
+`<location>` por rol y `CreateAdmin.sql`. Bug al probar: FriendlyUrls quita el `.aspx` y el
+login de admin entraba en un bucle con el de SAP. **E2** (`5ea64e4`): bloqueo de 15 min tras
+5 fallos (atómico frente a logins simultáneos) y último acceso visible, en hora de planta.
+**E3** (`85bf5a5`): gestión de usuarios (lista paginada, crear, reset, desbloquear y
+**borrar** con su historial). La enmienda del usuario al probar sacó el cambio de rol desde
+la UI (`9cfe566`). **E4:** cada intento guarda motivo (`AttemptReason`) y acción
+(`AttemptActions`) en la misma transacción. Reviews: `high` en E1 y E3, `medium` en E2 y E4.
+Tests: 88 (21 nuevos). `CLAUDE.md` → "Auth Flow" y `docs/architecture.md` actualizados.

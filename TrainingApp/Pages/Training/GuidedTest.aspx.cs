@@ -901,7 +901,7 @@ namespace TrainingApp.Pages.Training
             if (result.Step != null)
             {
                 ApplySubmitResult(result.Step, session, guide, area, step,
-                    AttemptFeedback(result.AttemptReason, area));
+                    AttemptFeedback(result.FeedbackReason, area));
                 return;
             }
 
@@ -915,15 +915,36 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            HandleOutOfSequence(Pod.ClickNonStepAction(_ctx), session, guide, area, step);
+            HandleOutOfSequence(Pod.ClickNonStepAction(_ctx, NonStepAction(sender)), session, guide, area, step);
         }
 
-        private System.Web.UI.HtmlControls.HtmlButton[] NonStepActionButtons => new[]
+        // Botón de relleno → su acción en el registro de actividad (spec 013). Es también la lista
+        // de botones de relleno (SetActiveButton): un botón nuevo se agrega aquí una sola vez.
+        private Dictionary<System.Web.UI.HtmlControls.HtmlButton, string> NonStepActions =>
+            new Dictionary<System.Web.UI.HtmlControls.HtmlButton, string>
+            {
+                { BtnWorkInstructions,      AttemptActions.WorkInstruction },
+                { BtnReports,               AttemptActions.Reports },
+                { BtnPlaceBackInQueue,      AttemptActions.PlaceBackInQueue },
+                { BtnToolList,              AttemptActions.ToolList },
+                { BtnAsBuiltConfig,         AttemptActions.AsBuiltConfig },
+                { BtnLogComment,            AttemptActions.LogComment },
+                { BtnSfcPlaceHold,          AttemptActions.SfcPlaceHold },
+                { BtnSfcReleaseHold,        AttemptActions.SfcReleaseHold },
+                { BtnRemoveFutureHold,      AttemptActions.RemoveFutureHold },
+                { BtnChangeEquipmentStatus, AttemptActions.ChangeEquipmentStatus },
+                { BtnTimeSensitiveMaterial, AttemptActions.TimeSensitiveMaterial }
+            };
+
+        private string NonStepAction(object sender)
         {
-            BtnWorkInstructions, BtnReports, BtnPlaceBackInQueue, BtnToolList,
-            BtnAsBuiltConfig, BtnLogComment, BtnSfcPlaceHold, BtnSfcReleaseHold,
-            BtnRemoveFutureHold, BtnChangeEquipmentStatus, BtnTimeSensitiveMaterial
-        };
+            var button = sender as System.Web.UI.HtmlControls.HtmlButton;
+            if (button == null || !NonStepActions.TryGetValue(button, out string action))
+                throw new InvalidOperationException("Botón de relleno sin acción en el registro de actividad.");
+            return action;
+        }
+
+        private IEnumerable<System.Web.UI.HtmlControls.HtmlButton> NonStepActionButtons => NonStepActions.Keys;
 
         protected void BtnComplete_ServerClick(object sender, EventArgs e)
         {
@@ -940,7 +961,7 @@ namespace TrainingApp.Pages.Training
             }
 
             ApplySubmitResult(result.Step, session, guide, area, step,
-                AttemptFeedback(result.AttemptReason, area));
+                AttemptFeedback(result.FeedbackReason, area));
         }
 
         protected void BtnAbandon_Click(object sender, EventArgs e)
