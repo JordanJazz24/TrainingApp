@@ -8,7 +8,7 @@
 
 | Pedido | Camino |
 |---|---|
-| Funcionalidad o reglas de negocio nuevas (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. |
+| Funcionalidad o reglas de negocio nuevas (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. Spec y plan, en la sesión de diseño; la implementación, en la de desarrollo (ver "Dos sesiones"). |
 | Pocas decisiones acotadas (3-6 preguntas, una pantalla) | Una ronda de `AskUserQuestion` + plan directo; las decisiones se anotan en el roadmap. |
 | Bugs, robustez, rendimiento | Plan corto en el chat e implementación directa, sin spec. Ofrecer spec solo si aparecen decisiones de negocio. |
 
@@ -28,6 +28,23 @@
   auditoría o en la spec. La numeración D-n es continua entre auditorías.
 - **Bugs que ya existían**, encontrados en un review o un refactor: no se arreglan en
   silencio. Se presentan como B-1, B-2… con una propuesta y decide el usuario (D-12).
+
+### Dos sesiones: diseño y desarrollo (usuario, 2026-10-14)
+
+| Sesión | Hace | No hace |
+|---|---|---|
+| **Diseño** (arquitectura y planificación) | `/spec`, enmiendas de spec y **plan por entregas** (`docs/specs/NNN-plan.md`), con la aprobación del usuario; secciones de fases y planes del roadmap; decisiones de diseño | Código |
+| **Desarrollo** | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, "Estado actual", "Historial", la fila de la BD del usuario, `CLAUDE.md` y `docs/architecture.md` | Specs ni planes |
+
+- El traspaso es el repo: la spec y el plan aprobados en `docs/specs/`. Además, las sesiones
+  se avisan por mensaje (spec o plan aprobado, entrega cerrada, algo que no cierra).
+- Si al ejecutar algo de la spec o del plan no cierra, desarrollo avisa a diseño, que
+  propone la enmienda al usuario y la registra **antes** de que se toque código. Las
+  decisiones menores que no cambian ni la spec ni el plan las toma desarrollo con el usuario
+  y las informa.
+- Cada sesión commitea los docs que le tocan; diseño trabaja en un worktree de docs y hace
+  `merge --ff-only` en la carpeta real (sección 7) sin tocar el trabajo sin commitear de
+  desarrollo.
 
 ## 2. Cada entrega
 
