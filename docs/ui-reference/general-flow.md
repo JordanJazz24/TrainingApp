@@ -2,7 +2,7 @@
 
 Documento acumulativo. Flujo común a todas las áreas. Se actualiza pantalla por pantalla conforme se analiza el SAP MES real.
 Fuente de verdad de **cómo se ve y se opera** cada pantalla. Las reglas de negocio y de
-puntaje (pesos, qué cuenta como intento, modos) están en `CLAUDE.md`; aquí no se copian.
+puntaje (pesos, qué cuenta como intento, modos) están en `docs/domain.md`; aquí no se copian.
 
 > Documentos por área (`moldeo-flow.md`, etc.) solo registrarán lo que difiere de este flujo general.
 
@@ -185,7 +185,7 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 - **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
 - **El orden de las filas es libre** — no se exige que Shop Order sea la primera fila
 - **Setup State DEBE ser "Set Up"**: es una *decisión* del operador; guardar en "Open" se
-  envía al servidor y es intento fallido (`CLAUDE.md` → "Qué cuenta como intento")
+  envía al servidor y es intento fallido (`docs/domain.md` → "Qué cuenta como intento")
 - **Exactamente 1 Shop Order** — ni 0 ni 2+
 - **Al menos 1 Tool Number**
 - **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
@@ -489,7 +489,7 @@ en planta. Hallazgos y propuestas: roadmap → "Fase 8".
 ### Reglas de negocio
 - No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
-- Bifurcación por SerializationType (`CLAUDE.md` → "Ejes de variación"): ver "Implementación en el simulador"
+- Bifurcación por SerializationType (`docs/domain.md` → "Ejes de variación"): ver "Implementación en el simulador"
 
 ### Implementación en el simulador (specs 005 y 008)
 - `TxtSFC` es readonly: el SFC se elige solo vía Browse Work List (spec 005).
@@ -788,7 +788,7 @@ simulador: verificarlo en el ambiente de calidad de SAP MES.
 
 La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): si el área no tiene un `TrainingStep` de tipo `LineClearance` en la posición de cierre, no existe en la secuencia. No requiere cambio de código.
 Hoy todas las guías lo incluyen: por regla de negocio el Cierre es igual en todas las áreas
-(`CLAUDE.md` → "Flujo estándar").
+(`docs/domain.md` → "Flujo estándar").
 
 ---
 
@@ -960,5 +960,5 @@ pide) y scrapear la pieza.
 | 8 — Log NC | `LogNC` | No |
 | 9 — Complete | `Complete` | No |
 
-Pesos de cada paso por guía: `CLAUDE.md` → "Ponderación de pasos" (la fuente de verdad es
+Pesos de cada paso por guía: `docs/domain.md` → "Ponderación de pasos" (la fuente de verdad es
 `TrainingSteps.Weight` en la BD).

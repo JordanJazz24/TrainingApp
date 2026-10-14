@@ -1,8 +1,8 @@
 # Arquitectura — mecanismos y decisiones de diseño
 
-> Las **reglas** (capas, invariantes, convenciones) están en `CLAUDE.md`. Este archivo explica
-> **cómo** están implementadas y registra las decisiones de diseño cerradas: no reabrirlas sin
-> spec. Actualizarlo cuando cambie la estructura del código o se cierre una decisión.
+> Las **reglas** (capas, invariantes, convenciones) están en `CLAUDE.md`, y las de negocio en
+> `docs/domain.md`. Este archivo explica **cómo** están implementadas y registra las
+> decisiones de diseño cerradas: no reabrirlas sin spec. Actualizarlo cuando cambie la estructura del código o se cierre una decisión.
 
 ## Estructura del código
 

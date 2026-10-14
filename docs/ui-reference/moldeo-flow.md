@@ -7,7 +7,7 @@ Leer en paralelo con `general-flow.md` — este archivo solo documenta lo que ca
 
 ## Flags del área
 
-Flags y pesos de la guía: `CLAUDE.md` → "Jerarquía" y "Ponderación de pasos" (no se copian
+Flags y pesos de la guía: `docs/domain.md` → "Jerarquía" y "Ponderación de pasos" (no se copian
 aquí). Impacto en las pantallas:
 
 | Flag | Impacto |
@@ -160,7 +160,7 @@ Pregunta final de verificación según MSS.
 ## Paso 4 — Assembly (AUSENTE en Moldeo)
 
 `RequiresAssembly = false` → el paso no existe en la guía. Search absorbe su peso
-(`CLAUDE.md` → "Ponderación de pasos").
+(`docs/domain.md` → "Ponderación de pasos").
 
 ---
 

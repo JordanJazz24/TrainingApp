@@ -34,7 +34,7 @@
 | Sesión | Hace | No hace |
 |---|---|---|
 | **Diseño** (arquitectura y planificación) | `/spec`, enmiendas de spec y **plan por entregas** (`docs/specs/NNN-plan.md`), con la aprobación del usuario; secciones de fases y planes del roadmap; decisiones de diseño | Código |
-| **Desarrollo** | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, "Estado actual", "Historial", la fila de la BD del usuario, `CLAUDE.md` y `docs/architecture.md` | Specs ni planes |
+| **Desarrollo** | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, "Estado actual", "Historial", la fila de la BD del usuario, `CLAUDE.md`, `docs/domain.md` y `docs/architecture.md` | Specs ni planes |
 
 - El traspaso es el repo: la spec y el plan aprobados en `docs/specs/`. Además, las sesiones
   se avisan por mensaje (spec o plan aprobado, entrega cerrada, algo que no cierra).
@@ -85,6 +85,19 @@ qué nivel, qué archivos y por qué.
 | Lógica chica sobre una base ya revisada | `low --max-findings 5`, solo los archivos con lógica, foco explícito |
 | Lógica nueva o infraestructura (motor, BLL) | `medium` con foco explícito (qué reglas e invariantes revisar) |
 | Seguridad, auth, Session o un cambio grande | `high` o `/security-review` |
+
+**Riesgo proporcional (usuario, 2026-10-14).** El foco del review incluye el modelo de
+amenaza: un simulador interno de entrenamiento, con operadores autenticados y sin
+incentivo para atacarlo. Pedirle al revisor que descarte, y al verificar hallazgos
+descartar en una línea:
+- escenarios que necesitan HTML o JS manipulado, dos pestañas, doble click o postbacks
+  repetidos, cuando la BLL ya protege la invariante y el efecto queda en la UI del propio
+  usuario;
+- carga, concurrencia entre muchos usuarios y rendimiento a escala.
+
+Siguen en alcance siempre: las invariantes del servidor (progreso, puntaje, paso actual,
+dueño de la sesión, intento y avance en la misma transacción) y lo que cruza usuarios. En
+auth, Session, roles y gestión de usuarios no se descarta nada por este criterio.
 
 ## 4. Auditorías
 
@@ -163,14 +176,16 @@ pida: él decidió dejarlos para fases propias.
 |---|---|
 | Cerrar una entrega o una sesión de trabajo relevante | `docs/roadmap.md` → "📍 Estado actual" (corto) y la casilla del plan |
 | Cerrar una fase | Su sección del roadmap: resultado, commits y fecha |
-| Fijar una regla nueva (negocio, convención) | `CLAUDE.md`, en **un solo lugar**; los demás documentos la referencian |
+| Fijar una regla de negocio del dominio (flujo, intentos, pesos, flags, catálogos) | `docs/domain.md`, en **un solo lugar**; los demás documentos la referencian |
+| Fijar una regla general (capas, seguridad, convención, comando) | `CLAUDE.md`, en **un solo lugar**. Mantenerlo corto: se carga en cada turno; lo que solo hace falta para cierta tarea va a un doc con su puntero en el mapa |
 | Cerrar una decisión de diseño o cambiar la estructura del código | `docs/architecture.md` |
 | Aprender algo de una pantalla del MES | `docs/ui-reference/` |
 | Acordar una forma de trabajar | Este archivo |
 | Correr un script de BD (el usuario) | Roadmap → "BD de desarrollo del usuario" |
 
 - No copiar reglas ni tablas (pesos, flags, fórmulas) en otros documentos: enlazar
-  `CLAUDE.md → sección`. Las copias se desalinean (pasó con los pesos en `general-flow.md`).
+  `CLAUDE.md → sección` o `docs/domain.md → sección`. Las copias se desalinean (pasó con los
+  pesos en `general-flow.md`).
 - Specs y auditorías son registro histórico: no se reescriben; se enmiendan con fecha.
 - Cuando el usuario cita un plan propuesto en un `/btw` (la respuesta no queda guardada),
   reconstruirlo, anotarlo marcado como reconstrucción y pedirle que lo corrija.
