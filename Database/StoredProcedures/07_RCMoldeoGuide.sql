@@ -1,5 +1,5 @@
 -- ============================================================
--- 07_RCMoldeoGuide.sql — guía real de R&C / Moldeo.
+-- 07_RCMoldeoGuide.sql — guía real de S&RC / Moldeo.
 -- Requiere: 00–04 y 06_RCMoldeoCatalog.sql.
 -- Re-ejecutable: sí. Crea la guía si falta y, si existe, actualiza
 -- los pesos (spTrainingGuideSync). Aborta si no suman 1.00.
@@ -12,7 +12,13 @@
 SET NOCOUNT ON;
 
 DECLARE @AreaId INT = (SELECT a.Id FROM dbo.Areas a JOIN dbo.Products p ON p.Id = a.ProductId
-                       WHERE p.Name = 'R&C' AND a.Name = 'Moldeo');
+                       WHERE p.Name = 'S&RC' AND a.Name = 'Moldeo');
+
+-- El título anterior (con 'R&C', hasta el 2026-10-14) se renombra en sitio: spTrainingGuideSync
+-- busca la guía por título y, si no, crearía otra.
+UPDATE dbo.TrainingGuides SET Title = N'Guía S&RC Moldeo — Flujo Completo'
+WHERE AreaId = @AreaId AND Title = N'Guía R&C Moldeo — Flujo Completo'
+  AND NOT EXISTS (SELECT 1 FROM dbo.TrainingGuides WHERE AreaId = @AreaId AND Title = N'Guía S&RC Moldeo — Flujo Completo');
 
 DECLARE @Steps TABLE ([Order] INT, StepType TINYINT, Weight DECIMAL(5,2));
 INSERT INTO @Steps ([Order], StepType, Weight) VALUES
@@ -28,4 +34,4 @@ INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     (8, 7, 0.10);   -- Complete
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
-EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía R&C Moldeo — Flujo Completo', @Steps = @Json;
+EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía S&RC Moldeo — Flujo Completo', @Steps = @Json;

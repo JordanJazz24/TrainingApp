@@ -167,6 +167,7 @@
         globe.innerHTML =
             '<div class="pg-head"><span class="pg-step"></span><span class="pg-count"></span></div>' +
             '<div class="pg-text"></div>' +
+            '<div class="pg-note"></div>' +
             '<div class="pg-actions"><button type="button" class="pg-continue">Continuar</button></div>';
         document.body.appendChild(frame);
         document.body.appendChild(globe);
@@ -179,6 +180,11 @@
         globe.querySelector('.pg-count').textContent = s.mode === 'final' ? '' : 'Subpaso ' + s.index + ' de ' + s.total;
         // HTML armado y codificado en el servidor (GuideScriptBuilder).
         globe.querySelector('.pg-text').innerHTML = s.html;
+        // Nota de la trainer (T7), normal o alerta; oculta si el subpaso no la trae.
+        var note = globe.querySelector('.pg-note');
+        note.innerHTML = s.note || '';
+        note.style.display = s.note ? '' : 'none';
+        note.classList.toggle('pg-note-alert', s.alert === true);
         globe.querySelector('.pg-actions').style.display = needsContinue(s) ? '' : 'none';
         globe.querySelector('.pg-continue').textContent = s.mode === 'final' ? 'OK' : 'Continuar';
         updateContinue();

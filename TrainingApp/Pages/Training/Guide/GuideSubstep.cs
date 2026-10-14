@@ -87,6 +87,12 @@ namespace TrainingApp.Pages.Training.Guide
 
         // HTML de la instrucción: texto codificado y valores en <strong>.
         public string Html { get; set; }
+
+        // Nota de la trainer dentro del globo, después de la instrucción (T7). null si no hay.
+        public string NoteHtml { get; set; }
+
+        // La nota es una alerta (en rojo): lo que no hay que olvidar en planta.
+        public bool NoteIsAlert { get; set; }
     }
 
     // Lo que recibe el motor en cada respuesta: los subpasos y la clave de entrada.
@@ -127,7 +133,9 @@ namespace TrainingApp.Pages.Training.Guide
                     step     = s.StepLabel,
                     index    = s.Index,
                     total    = s.Total,
-                    html     = s.Html
+                    html     = s.Html,
+                    note     = s.NoteHtml,
+                    alert    = s.NoteIsAlert
                 }).ToList()
             };
         }

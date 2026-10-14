@@ -9,8 +9,8 @@
 --   03_spTrainingSession.sql SPs de sesiones
 --   04_spStepAttempt.sql     SPs de intentos por paso
 --   05_SeedData.sql          DATOS DE EJEMPLO (solo desarrollo)
---   06_RCMoldeoCatalog.sql   catálogo real de R&C / Moldeo
---   07_RCMoldeoGuide.sql     guía real de R&C / Moldeo
+--   06_RCMoldeoCatalog.sql   catálogo real de S&RC / Moldeo
+--   07_RCMoldeoGuide.sql     guía real de S&RC / Moldeo
 --   08_SensoresLoFloCatalog.sql  catálogo de Sensores / LoFlo (flags reales; NC, DC y BOM simulados)
 --   09_SensoresLoFloGuide.sql    guía de Sensores / LoFlo
 -- Todos se pueden volver a correr sobre una BD existente. Reglas para

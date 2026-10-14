@@ -1,5 +1,5 @@
 -- ============================================================
--- 06_RCMoldeoCatalog.sql — catálogo real de R&C / Moldeo:
+-- 06_RCMoldeoCatalog.sql — catálogo real de S&RC / Moldeo:
 -- Product, Area (flags), NCCodes, DataCollectionGroups y
 -- DataCollectionParameters. La guía está en 07_RCMoldeoGuide.sql.
 -- Requiere: 00_Schema.sql.
@@ -23,10 +23,16 @@ BEGIN TRANSACTION;
 --   RequiresNCComponent    0 — NC Data Entry no pide Component
 --   RequiresStartChecklist 1 — Start abre la secuencia de 4 modales
 -- ------------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'R&C')
-    INSERT INTO dbo.Products (Name) VALUES ('R&C');
+-- El producto se llamaba 'R&C' hasta el 2026-10-14 (T7: su nombre es S&RC, confirmado
+-- por el usuario). Una BD anterior se renombra en sitio: el Id no cambia.
+IF EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'R&C')
+   AND NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'S&RC')
+    UPDATE dbo.Products SET Name = 'S&RC' WHERE Name = 'R&C';
 
-DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = 'R&C');
+IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'S&RC')
+    INSERT INTO dbo.Products (Name) VALUES ('S&RC');
+
+DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = 'S&RC');
 
 IF NOT EXISTS (SELECT 1 FROM dbo.Areas WHERE ProductId = @ProductId AND Name = 'Moldeo')
     INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
@@ -162,4 +168,4 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters t WHERE t.AreaId =
 ORDER  BY s.Seq;
 
 COMMIT TRANSACTION;
-PRINT N'Catálogo de R&C / Moldeo cargado.';
+PRINT N'Catálogo de S&RC / Moldeo cargado.';

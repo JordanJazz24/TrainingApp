@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-14 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 013, entrega 4 (`git log --oneline -10` para ver el estado real)
+código:** T7, mensajes y alertas de la guía (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -24,17 +24,17 @@ código:** spec 013, entrega 4 (`git log --oneline -10` para ver el estado real)
   "Historial"): escanear la Shop Order, etiqueta simulada y guía de Guided, probada por el
   usuario. **Spec 013 ✅** (2026-10-14, ver "Historial"): roles, login de admin, bloqueo,
   último acceso, gestión de usuarios con borrado y registro de actividad. El usuario decidió
-  terminarla antes que T7. **Siguiente:** T7 (mensajes y alertas de la guía, plan directo;
-  decidido: burbuja roja propia para las alertas; el bug de "RCI" sería el producto
-  R&C → **S&RC**, por confirmar al empezar). Orden vigente: T7 → 015 → 014 → 016 → 012.
+  terminarla antes que T7. **T7 ✅** (2026-10-14, ver "Historial"): notas y alertas de la
+  trainer en la guía de Guided y el producto R&C → **S&RC**. **Siguiente:** spec 015 (ajustes
+  de la trainer). Orden vigente: 015 → 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
 - **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
   documento de la prueba práctica de Ernesto (T6, reunión del 15-16 oct) y el acceso al
   ambiente de testing de SAP MES (T9: el usuario le envía su Code1 y su correo a Ernesto).
-- **Lo último cerrado (2026-10-14):** **spec 013** (cuentas, roles y registro de
-  actividad). Antes (2026-10-12), **T1 · preparación de la versión de prueba**
+- **Lo último cerrado (2026-10-14):** **T7** (mensajes y alertas de la guía). Antes, la
+  **spec 013** (cuentas, roles y registro de actividad). Antes (2026-10-12), **T1 · preparación de la versión de prueba**
   (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
   refactor **`Operator` → `User`** en todas las capas (D-17, ver "Historial"): paso previo
   al módulo administrativo.
@@ -100,6 +100,7 @@ corrió el usuario:
 | 2026-10-07 | `08`, `09` | Fase 7: catálogo y guía de LoFlo |
 | 2026-10-12 | ALTER + `01_spUser`, `03` | D-17: `Operators` → `Users`, `OperatorId` → `UserId`, SPs `spUser*` y `spTrainingSessionAbandonActiveByUser` |
 | 2026-10-14 | ALTER de la spec 013 + `01_spUser`, `04`, `Ops/CreateAdmin` | Spec 013: `Users.Role`, `LastLoginAt`, `FailedLoginCount`, `LockedUntil`; `TrainingSessionStepAttempts.Reason` y `Action`; SPs de login, bloqueo y gestión de usuarios; primer admin |
+| 2026-10-14 | `06`, `07` | T7: el producto `R&C` → `S&RC` y el título de su guía, renombrados en sitio |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + 1 opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
@@ -295,7 +296,7 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 |---|---|---|---|
 | 1 | ✅ **T1 · Versión de prueba** en IIS interno (`d60bdfb`): `DEFAULT_PASSWORD` con su valor de siempre (D-18); BD con `00`–`09`, **incluido `05`** (Redefinity y Subensamble 1 de ejemplo: avisar a los testers que son demostración); `customErrors` en Release (parte mínima de AUD-28); reset de testers con `Database/Ops/ResetUserPassword.sql`. Prueba en el servidor real diferida (D-19). Los datos de la prueba se descartan | plan directo | — |
 | 2 | ✅ **T2 · Escanear la Shop Order** (2026-10-13, `bf19e54`; plan `011-plan.md`) | spec 011 | — |
-| 3 | **T7 · Mensajes y alertas de la guía de Guided** (retroalimentación de la trainer): notas de alerta en rojo en Resource Setup, LC de cierre y Search/Start, y los mensajes aprobados de LC de apertura, DC y Log NC. Las notas de Logout y del grupo Trainer entran con la spec 015. Junto con el bug del texto mal escrito en la selección de área | plan directo | — |
+| 3 | ✅ **T7 · Mensajes y alertas de la guía de Guided** (2026-10-14) (retroalimentación de la trainer): notas de alerta en rojo en Resource Setup, LC de cierre y Search/Start, y los mensajes aprobados de LC de apertura, DC y Log NC. Las notas de Logout y del grupo Trainer entran con la spec 015. Junto con el bug del texto mal escrito en la selección de área | plan directo | — |
 | 4 | ✅ **Cuentas, roles y registro de actividad** (2026-10-14, `e4ef6ae`…`5b9091a`; plan `013-plan.md`): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, borrar con su historial; el rol no se cambia desde la UI, enmienda del 2026-10-13), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
 | 5 | **Ajustes de la trainer:** Resource Setup con equipos precargados que hay que quitar con Remove All (qué cuenta como intento fallido); **Logout** como último paso después de Complete (hoy Logout es navegación y nunca cuenta: cambia esa regla y, si tiene peso, los pesos de todas las guías); **grupo de DC "Trainer"** (nombre, solo letras; reemplaza el tercer grupo opcional de Redefinity y LoFlo; decidir si es obligatorio en el simulador y si va por pieza) | spec 015 | — |
 | 6 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). Incluye: la guía indica la pieza defectuosa y, en Assessment, scrapear otra es intento fallido (error 1 de la trainer); 4-5 piezas por orden Serialized. La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
@@ -571,3 +572,16 @@ login de admin entraba en un bucle con el de SAP. **E2** (`5ea64e4`): bloqueo de
 la UI (`9cfe566`). **E4:** cada intento guarda motivo (`AttemptReason`) y acción
 (`AttemptActions`) en la misma transacción. Reviews: `high` en E1 y E3, `medium` en E2 y E4.
 Tests: 88 (21 nuevos). `CLAUDE.md` → "Auth Flow" y `docs/architecture.md` actualizados.
+
+### T7 · Mensajes y alertas de la guía ✅ (2026-10-14, Fase 8.5, plan directo)
+Retroalimentación de la trainer, con textos de la sesión de planeación y la revisión del
+usuario. Las notas van **dentro del globo** de la guía, después de la instrucción y solo en
+el subpaso donde aplican (`GuideSubstep.NoteHtml`; en rojo con `NoteIsAlert`). La primera
+versión, con una burbuja roja aparte en todo el paso, la descartó el usuario por ruido visual.
+**Alertas:** Resource Setup subpaso 3 (Remove All y escanear los equipos de la estación, por
+trazabilidad), Start subpaso 1 (solo piezas de su orden y estación) y LC de cierre subpaso 1
+(no aplica en algunas operaciones). **Notas:** LC de apertura (cuándo se hace), Select All de
+Assembly y DC en Serialized (el simulador trabaja todas las piezas; el MES real, cualquier
+selección), DC Collect y Log NC. **Bug "RCI":** el producto R&C se llama **S&RC** (confirmado
+por el usuario); `06` y `07` lo renombran en sitio (`spTrainingGuideSync` busca la guía por
+título). Probado por el usuario en el navegador.

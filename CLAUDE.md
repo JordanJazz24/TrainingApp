@@ -82,14 +82,14 @@ Product (línea de manufactura)
 | **Wires** | Subensamble 1, Subensamble 2, Composite Core, Línea Final, Testing, Backend |
 | **Catéteres** | Redefinity, EEP, Ice, PV 35, PV 18, Otw |
 | **Sensores** | LoFlo, Capnotrack, Mainstream, Source, Reusables, Detector |
-| **R&C** | Moldeo |
+| **S&RC** | Moldeo |
 
 Un área se carga en BD cuando se migra su catálogo (sus flags son `NOT NULL` y solo se
 conocen al validarla con negocio). Áreas en BD y sus flags:
 
 | Área | Origen | Flags |
 |---|---|---|
-| **Moldeo** (R&C) | catálogo real (`06_RCMoldeoCatalog.sql`, guía en `07`) | NonSerialized · Assembly no · DC sí · checklist de Start sí |
+| **Moldeo** (S&RC) | catálogo real (`06_RCMoldeoCatalog.sql`, guía en `07`) | NonSerialized · Assembly no · DC sí · checklist de Start sí |
 | **LoFlo** (Sensores) | `08_SensoresLoFloCatalog.sql`, guía en `09` (Fase 7) | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC sí · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
 | **Redefinity** (Catéteres) | **datos de ejemplo** en `05` ("NO USAR EN PRODUCCIÓN"), para probar el camino Serialized en dev | Serialized · Assembly sí · DC sí (no son decisiones de negocio) |
 | **Subensamble 1** (Wires) | ejemplo en `05` | no son decisiones de negocio |

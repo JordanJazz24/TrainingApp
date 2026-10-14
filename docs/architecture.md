@@ -243,6 +243,10 @@ Decisiones cerradas: no reabrir sin spec.
   se pueden usar mientras el subpaso está en pantalla (suben sobre el oscurecido como Logout).
   Si lo resaltado no tiene campo, el foco va al primero libre. Lo usa el escaneo de Start:
   resalta la etiqueta de la orden y deja libre `TxtSFC`.
+- **Notas y alertas de la trainer** (T7): `GuideSubstep.NoteHtml` va dentro del mismo globo,
+  después de la instrucción, y solo en el subpaso donde aplica; con `NoteIsAlert` se pinta en
+  rojo. Nunca una burbuja aparte (decisión del usuario, 2026-10-14: ruido visual). Son texto
+  del guion, como las instrucciones.
 - La guía no deja avanzar con una decisión incorrecta (R10): el control y `StepValidator` no
   cambian; el servidor le manda las respuestas esperadas solo en Guided.
 - Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (`Training.Master`) y
