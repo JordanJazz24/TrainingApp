@@ -229,8 +229,9 @@
 
     function blocks(st) { return st === 'shown' || st === 'searching' || st === 'waiting'; }
 
-    // Único lugar que cambia el estado. Mientras la guía bloquea, Logout y Abandon quedan por
-    // encima de todo, también de los modales (R2: siempre libres).
+    // Único lugar que cambia el estado. Mientras la guía bloquea, los elementos libres (Abandon;
+    // Logout solo con la sesión cerrada, spec 015) quedan por encima de todo, también de los
+    // modales (R2).
     function setState(next) {
         state = next;
         var lift = blocks(next);

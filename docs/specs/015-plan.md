@@ -114,37 +114,37 @@ checklist en el navegador, "funciona" y commit con el roadmap.
       re-ejecución, comparación).
 - [x] Guía (D-24): subpaso Info sobre la fila del grupo Trainer con la nota.
 
-## Entrega 3 — Logout como último paso (B, AC-6 a AC-13)
+## Entrega 3 — Logout como último paso (B, AC-6 a AC-13) ✅ (2026-10-14)
 
-- [ ] `StepType.Logout = 8`; `StepAnswers.Logout = "logout"`; `StepValidator`: correcto solo con
+- [x] `StepType.Logout = 8`; `StepAnswers.Logout = "logout"`; `StepValidator`: correcto solo con
       `"logout"`; `AttemptActions.Logout = "POD.Logout"` (+ `ForSubmit`).
-- [ ] `PodService.ClickLogout(ctx)`: `CheckSequence(StepType.Logout, …)` (Assessment fuera de
+- [x] `PodService.ClickLogout(ctx)`: `CheckSequence(StepType.Logout, …)` (Assessment fuera de
       turno = intento fallido del paso actual; Guided se ignora) y, en el paso Logout,
       `SubmitStep(ctx, StepAnswers.Logout)`, que cierra la sesión por ser el último paso.
-- [ ] `GuidedTest`: el ícono Logout pasa por `Pod.ClickLogout` y `ApplySubmitResult` (resumen
+- [x] `GuidedTest`: el ícono Logout pasa por `Pod.ClickLogout` y `ApplySubmitResult` (resumen
       final con `SessionCompleted`); `Page_Load` solo llama `SessionHelper.Logout()` sin
       sesión en curso (D-21). `SetActiveButton`: en Guided el ícono solo se habilita en el paso
       Logout; en Assessment siempre. Ancla `data-guide="pod-logout"` en lugar de
       `data-guide-free`. Complete resuelto (D-22): las filas salen del POD y aparece el banner
       provisional `SFC {sfc} completed` / `{N} SFCs completed`.
-- [ ] Guía: guion de Logout (subpaso 1 sobre el ícono, con la nota literal del punto 9 de la
+- [x] Guía: guion de Logout (subpaso 1 sobre el ícono, con la nota literal del punto 9 de la
       spec) y `GetHint` de Logout. El globo final sigue apareciendo al cerrar la sesión.
-- [ ] SQL: `02` (`spTrainingGuideSync`: `StepType > 8`), `05`, `07` y `09` con Logout después
+- [x] SQL: `02` (`spTrainingGuideSync`: `StepType > 8`), `05`, `07` y `09` con Logout después
       de Complete y Complete 0.05 (suman 1.00); comentario de `StepType` en `00`, `07` y `09`.
       Probado en LocalDB, también sobre una BD con una sesión en curso.
-- [ ] `ScoreCalculatorTests` siguen en verde (AC-13). Tests nuevos de la BLL (validador de
+- [x] `ScoreCalculatorTests` siguen en verde (AC-13). Tests nuevos de la BLL (validador de
       Resource Setup y de Logout, `PersonNameRule`) solo si el usuario los pide
       (`docs/process.md` §5).
 
 ## Al cerrar la spec
 
-- [ ] `CLAUDE.md`: flujo estándar (paso 10 Logout; Complete ya no cierra), "Qué cuenta como
+- [x] `docs/domain.md` (antes `CLAUDE.md`): flujo estándar (paso 10 Logout; Complete ya no cierra), "Qué cuenta como
       intento" (Logout deja de ser navegación; Abandon sigue; precargado antes que formato,
       D-26), tabla de pesos, Resource Setup (precargados) y catálogos (`DCGTM_TRAINEE/A`,
       `PersonName`).
-- [ ] `docs/architecture.md` (precargados en `PodState`, Logout simulado) y
+- [x] `docs/architecture.md` (precargados en `PodState`, Logout simulado) y
       `docs/ui-reference/general-flow.md` (pasos Resource Setup, Complete y Logout).
-- [ ] Roadmap: fila 5 de la Fase 8.5, "Estado actual", "Historial" y "BD de desarrollo".
+- [x] Roadmap: fila 5 de la Fase 8.5, "Estado actual", "Historial" y "BD de desarrollo".
 
 ## Review
 

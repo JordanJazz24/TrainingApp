@@ -26,6 +26,7 @@ namespace TrainingApp.BLL.Scoring
         //                                     final son true. Sin checklist (Start directo, spec 008):
         //                                     solo secuencia, cualquier Answer es correcto.
         //   Complete                        : "complete"      (any other value = incorrect, e.g. no row selected — spec 007)
+        //   Logout                          : "logout"        (último paso: el clic en el ícono Logout, spec 015)
         //   LineClearance                   : "true" | "false"
         //   Assembly                        : no se valida por Answer: el paso se completa en
         //                                     PodService.AssembleComponent al quedar
@@ -50,6 +51,9 @@ namespace TrainingApp.BLL.Scoring
 
                 case StepType.Complete:
                     return submittedAnswer == "complete";
+
+                case StepType.Logout:
+                    return submittedAnswer == "logout";
 
                 case StepType.LineClearance:
                     return submittedAnswer == "true";

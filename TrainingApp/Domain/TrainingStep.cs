@@ -9,7 +9,8 @@ namespace TrainingApp.Domain
         DataCollection = 4,
         SFC_Split = 5,
         LogNC = 6,
-        Complete = 7
+        Complete = 7,
+        Logout = 8
     }
 
     public class TrainingStep

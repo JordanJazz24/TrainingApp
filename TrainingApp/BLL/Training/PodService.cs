@@ -93,6 +93,11 @@ namespace TrainingApp.BLL.Training
                         SaveState(ctx);
                     }
                 }
+                else if (step.StepType == StepType.Complete)
+                {
+                    // Spec 015 (D-22): las filas completadas ya no están en el POD.
+                    RemoveRows(ctx, ctx.State.Order.ActiveRows());
+                }
             }
 
             ctx.Rebuilt = true;
@@ -530,15 +535,48 @@ namespace TrainingApp.BLL.Training
                 if (selection == PieceSelectionResult.MissingPieces)
                     return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
                 if (PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, selection))
-                    return FailedAttempt(ctx, PodAttemptReason.NoRowToComplete, AttemptActions.Complete);
+                    return FailedComplete(ctx);
             }
             else if (!IsSingleRow(selected))
             {
-                return FailedAttempt(ctx, PodAttemptReason.NoRowToComplete, AttemptActions.Complete);
+                return FailedComplete(ctx);
             }
 
-            return new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Complete) };
+            // Spec 015 (D-22): Complete ya no cierra la sesión (sigue Logout); las filas
+            // completadas salen del POD, como el SFC que pasa a la siguiente operación.
+            var result = new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Complete) };
+            if (result.Step.Outcome != StepSubmitOutcome.Incorrect)
+                result.Completed = RemoveRows(ctx, selected);
+            return result;
         }
+
+        // Complete sin la selección del paso: intento fallido. Si avanza forzado, el POD queda
+        // como tras un Complete hecho (D-22): sin filas.
+        private PodCommandResult FailedComplete(PodContext ctx)
+        {
+            var result = FailedAttempt(ctx, PodAttemptReason.NoRowToComplete, AttemptActions.Complete);
+            if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
+                result.Completed = RemoveRows(ctx, ctx.State.Order?.ActiveRows() ?? new List<SimulatedOrderRow>());
+            return result;
+        }
+
+        private IList<SimulatedOrderRow> RemoveRows(PodContext ctx, IList<SimulatedOrderRow> rows)
+        {
+            if (rows.Count == 0) return rows;
+            ctx.State.Order.Remove(rows);
+            SaveState(ctx);
+            return rows;
+        }
+
+        // ── Logout ───────────────────────────────────────────────────────
+
+        // Ícono Logout del header (spec 015): en el último paso es su respuesta correcta y cierra
+        // la sesión de entrenamiento con su resumen (simulado: la sesión de la app sigue).
+        // Antes, es un botón más del POD (S2): intento fallido del paso actual en Assessment,
+        // ignorado en Guided.
+        public PodCommandResult ClickLogout(PodContext ctx)
+            => CheckSequence(ctx, StepType.Logout, AttemptActions.Logout)
+               ?? new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Logout) };
 
         // ── Acciones del MES que no son un paso ──────────────────────────
 
@@ -574,7 +612,7 @@ namespace TrainingApp.BLL.Training
         // el paso se hubiera hecho, para que el resto de la evaluación se pueda completar.
         // Assembly y DC no necesitan nada: RecordAttempt ya descartó su avance parcial.
         // Devuelve true si la página tiene que volver a pintar el POD (Resource Setup y Start
-        // siempre; SFC Split solo si se aplicó el split por defecto).
+        // siempre; SFC Split solo si se aplicó el split por defecto; Complete si quitó filas).
         private bool RestoreAfterForcedAdvance(PodContext ctx, StepType forcedStep)
         {
             switch (forcedStep)
@@ -591,6 +629,11 @@ namespace TrainingApp.BLL.Training
 
                 case StepType.SFC_Split:
                     return ApplyDefaultSplit(ctx);
+
+                case StepType.Complete:
+                    // Spec 015 (D-22): como un Complete hecho, las filas salen del POD.
+                    var active = ctx.State.Order?.ActiveRows() ?? new List<SimulatedOrderRow>();
+                    return RemoveRows(ctx, active).Count > 0;
 
                 default:
                     return false;

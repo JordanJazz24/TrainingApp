@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-14 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 015, entrega 2 (`git log --oneline -10` para ver el estado real)
+código:** spec 015, entrega 3 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -25,12 +25,10 @@ código:** spec 015, entrega 2 (`git log --oneline -10` para ver el estado real)
   usuario. **Spec 013 ✅** (2026-10-14, ver "Historial"): roles, login de admin, bloqueo,
   último acceso, gestión de usuarios con borrado y registro de actividad. El usuario decidió
   terminarla antes que T7. **T7 ✅** (2026-10-14, ver "Historial"): notas y alertas de la
-  trainer en la guía de Guided y el producto R&C → **S&RC**. **En curso: spec 015** (ajustes de
-  la trainer; `docs/specs/015-ajustes-trainer.md`, plan en `015-plan.md`). **E1 ✅** (2026-10-14,
-  probada por el usuario): Resource Setup abre con equipos precargados y guardar con alguno es
-  intento fallido. **E2 ✅** (2026-10-14, probada): grupo de DC `DCGTM_TRAINEE/A` opcional en
-  Moldeo, LoFlo y Redefinity, con el nombre de la persona en entrenamiento (formato).
-  **Siguiente:** E3, Logout como último paso. Orden vigente: 015 → 014 → 016 → 012.
+  trainer en la guía de Guided y el producto R&C → **S&RC**. **Spec 015 ✅** (2026-10-14, ver
+  "Historial"): equipos precargados en Resource Setup, grupo de DC Trainer y Logout como
+  último paso, probada por el usuario. **Siguiente:** spec 014 (tres tipos de scrap). Orden
+  vigente: 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
@@ -117,6 +115,7 @@ corrió el usuario:
 | 2026-10-14 | ALTER de la spec 013 + `01_spUser`, `04`, `Ops/CreateAdmin` | Spec 013: `Users.Role`, `LastLoginAt`, `FailedLoginCount`, `LockedUntil`; `TrainingSessionStepAttempts.Reason` y `Action`; SPs de login, bloqueo y gestión de usuarios; primer admin |
 | 2026-10-14 | `06`, `07` | T7: el producto `R&C` → `S&RC` y el título de su guía, renombrados en sitio |
 | 2026-10-14 | `05`, `06`, `08` | Spec 015 E2: grupo `DCGTM_TRAINEE/A` (renombra en sitio el tercer grupo opcional de Redefinity y LoFlo; en Moldeo se agrega) |
+| 2026-10-14 | `02`, `05`, `07`, `09` | Spec 015 E3: paso Logout (`StepType` 8) al final de las 3 guías, Complete 0.05 y Logout 0.05 |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.
@@ -314,7 +313,7 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 2 | ✅ **T2 · Escanear la Shop Order** (2026-10-13, `bf19e54`; plan `011-plan.md`) | spec 011 | — |
 | 3 | ✅ **T7 · Mensajes y alertas de la guía de Guided** (2026-10-14) (retroalimentación de la trainer): notas de alerta en rojo en Resource Setup, LC de cierre y Search/Start, y los mensajes aprobados de LC de apertura, DC y Log NC. Las notas de Logout y del grupo Trainer entran con la spec 015. Junto con el bug del texto mal escrito en la selección de área | plan directo | — |
 | 4 | ✅ **Cuentas, roles y registro de actividad** (2026-10-14, `e4ef6ae`…`5b9091a`; plan `013-plan.md`): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, borrar con su historial; el rol no se cambia desde la UI, enmienda del 2026-10-13), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
-| 5 | **Ajustes de la trainer** (spec aprobada el 2026-10-14): Resource Setup con equipos precargados (generados en cada Retrieve; guardar con alguno es intento fallido); **Logout** como último paso después de Complete (0.05, sale de Complete; clic simulado → resumen; antes del último paso, intento fallido en Assessment e ignorado en Guided); grupo de DC **`DCGTM_TRAINEE/A`** opcional en todas las áreas con DC (nombre: letras y espacios, formato) | spec 015 | — |
+| 5 | ✅ **Ajustes de la trainer** (2026-10-14) (spec aprobada el 2026-10-14): Resource Setup con equipos precargados (generados al abrir el control; guardar con alguno es intento fallido); **Logout** como último paso después de Complete (0.05, sale de Complete; clic simulado → resumen; antes del último paso, intento fallido en Assessment e ignorado en Guided); grupo de DC **`DCGTM_TRAINEE/A`** opcional en todas las áreas con DC (nombre: letras y espacios, formato) | spec 015 | — |
 | 6 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). Incluye: la guía indica la pieza defectuosa y, en Assessment, scrapear otra es intento fallido (error 1 de la trainer); 4-5 piezas por orden Serialized. La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
 | 7 | **T10 · Preparación antes de SAP:** limpieza de caché, Repositorio ("Recursos" y "Ahora Ahora") y login de MES. Se agrega sí o sí (usuario), pero entra en noviembre solo si llegan las capturas | spec 016 | capturas |
 | 8 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
@@ -601,3 +600,19 @@ Assembly y DC en Serialized (el simulador trabaja todas las piezas; el MES real,
 selección), DC Collect y Log NC. **Bug "RCI":** el producto R&C se llama **S&RC** (confirmado
 por el usuario); `06` y `07` lo renombran en sitio (`spTrainingGuideSync` busca la guía por
 título). Probado por el usuario en el navegador.
+
+### Spec 015 · Ajustes de la trainer ✅ (2026-10-14, Fase 8.5)
+Tres prácticas de planta de la retroalimentación de la trainer de Wires, en tres entregas
+probadas por el usuario. **E1 — Resource Setup con equipos precargados:** el control abre con
+una Shop Order y 2 herramientas "del turno anterior" (las genera la BLL en cada apertura;
+enmienda: ya en la tabla, no al hacer Retrieve). Guardar con alguna es decisión equivocada;
+con alguna en la tabla el control no aplica el formato (D-26) y, sin Shop Order propia, la
+orden no se crea. En Guided, la captura no acepta un precargado (D-25). **E2 — Grupo de DC
+Trainer:** `DCGTM_TRAINEE/A` opcional en Moldeo, LoFlo y Redefinity (en `05` y `08` reemplaza
+en sitio al tercer grupo opcional, D-23), con el nombre de la persona en entrenamiento
+(`PersonName`: letras y espacios, 2-60, vacío válido; inválido = formato) y la nota de la
+guía (D-24). **E3 — Logout como último paso:** `StepType.Logout` (0.05, sale de Complete).
+Simulado: cierra la sesión de entrenamiento con el resumen sin salir de la app; antes del
+último paso es un intento fallido en Assessment y está deshabilitado en Guided; con la sesión
+cerrada sale de la app (D-21). Complete deja el POD vacío con un banner **provisional** (D-22).
+Reglas en `docs/domain.md`.

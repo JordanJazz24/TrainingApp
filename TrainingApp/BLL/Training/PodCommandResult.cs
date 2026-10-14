@@ -57,6 +57,10 @@ namespace TrainingApp.BLL.Training
         // Log NC resuelto: filas que salieron de la orden (scrap).
         public IList<SimulatedOrderRow> Scrapped { get; set; }
 
+        // Complete resuelto (spec 015, D-22): filas que salieron del POD (pasan a la siguiente
+        // operación).
+        public IList<SimulatedOrderRow> Completed { get; set; }
+
         public static PodCommandResult WithNotice(PodNotice notice)
             => new PodCommandResult { Notice = notice };
     }

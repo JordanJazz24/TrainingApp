@@ -171,8 +171,8 @@ BEGIN
         THROW 50010, N'spTrainingGuideSync: el área no existe (¿se corrió su script de catálogo?).', 1;
     IF @Count = 0 OR @Max <> @Count OR EXISTS (SELECT 1 FROM @S WHERE [Order] < 1)
         THROW 50011, N'spTrainingGuideSync: el orden de los pasos tiene que ser 1..N, sin huecos.', 1;
-    IF EXISTS (SELECT 1 FROM @S WHERE StepType > 7 OR Weight < 0 OR Weight > 1)
-        THROW 50012, N'spTrainingGuideSync: StepType fuera de 0-7 o Weight fuera de 0.00-1.00.', 1;
+    IF EXISTS (SELECT 1 FROM @S WHERE StepType > 8 OR Weight < 0 OR Weight > 1)
+        THROW 50012, N'spTrainingGuideSync: StepType fuera de 0-8 o Weight fuera de 0.00-1.00.', 1;
     IF @Sum <> 1.00
     BEGIN
         DECLARE @MsgSum NVARCHAR(200) = CONCAT(N'spTrainingGuideSync: los pesos de "', @Title, N'" suman ', @Sum, N'; tienen que sumar 1.00.');

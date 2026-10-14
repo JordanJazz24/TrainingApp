@@ -48,7 +48,7 @@ DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE Name = 'Redefinity');
 -- ------------------------------------------------------------
 -- Guía de Redefinity (sin SFC Split: el área es Serialized)
 -- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
---           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete
+--           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete · 8 Logout
 -- ------------------------------------------------------------
 DECLARE @Steps TABLE ([Order] INT, StepType TINYINT, Weight DECIMAL(5,2));
 INSERT INTO @Steps ([Order], StepType, Weight) VALUES
@@ -59,7 +59,8 @@ INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     (5, 4, 0.30),   -- Data Collection
     (6, 1, 0.05),   -- Line Clearance (cierre)
     (7, 6, 0.10),   -- Log NC
-    (8, 7, 0.10);   -- Complete
+    (8, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
+    (9, 8, 0.05);   -- Logout
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía Redefinity — Flujo Completo', @Steps = @Json;

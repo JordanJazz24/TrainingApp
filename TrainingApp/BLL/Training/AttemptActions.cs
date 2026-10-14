@@ -21,6 +21,7 @@ namespace TrainingApp.BLL.Training
         public const string SFCSplit             = "POD.SFCSplit";
         public const string LogNC                = "POD.LogNC";
         public const string Complete             = "POD.Complete";
+        public const string Logout               = "POD.Logout";
 
         public const string WorkInstruction       = "POD.WorkInstruction";
         public const string Reports               = "POD.Reports";
@@ -55,6 +56,7 @@ namespace TrainingApp.BLL.Training
                 case StepType.SFC_Split:     return SFCSplitClose;
                 case StepType.LogNC:         return answer == StepAnswers.Invalid ? LogNCWrongButton : LogNCAddDone;
                 case StepType.Complete:      return Complete;
+                case StepType.Logout:        return Logout;
                 // Assembly y DC no se califican por respuesta (SubmitStep los rechaza).
                 default: throw new InvalidOperationException("El paso no tiene acción de envío.");
             }

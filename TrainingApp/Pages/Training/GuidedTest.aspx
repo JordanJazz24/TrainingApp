@@ -41,7 +41,9 @@
                 <asp:Literal ID="LitModeBadge" runat="server" />
             </asp:Panel>
             <%-- Home y Help: solo visuales, como en el MES real. No hacen nada ni cuentan
-                 como intento (navegación, igual que Logout). --%>
+                 como intento (navegación). Logout es el último paso de la guía (spec 015):
+                 con la sesión de entrenamiento cerrada sale de la app (D-21). Un solo envío
+                 por render: un doble clic en el último paso no debe saltar el resumen. --%>
             <button type="button" class="pod-header-icon" title="Home" aria-label="Home">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
@@ -49,7 +51,8 @@
                 </svg>
             </button>
             <button id="BtnLogout" runat="server" title="Logout" aria-label="Logout"
-                class="pod-header-icon" onserverclick="BtnLogout_ServerClick" data-guide-free="">
+                class="pod-header-icon" onserverclick="BtnLogout_ServerClick" data-guide="pod-logout"
+                onclick="if (this.getAttribute('data-sent')) return false; this.setAttribute('data-sent', '1');">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                     <path d="M12 3v8" /><path d="M6.3 6.8a8 8 0 1 0 11.4 0" />

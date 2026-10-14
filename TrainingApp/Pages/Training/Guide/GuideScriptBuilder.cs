@@ -90,6 +90,7 @@ namespace TrainingApp.Pages.Training.Guide
                 case StepType.SFC_Split:      return SfcSplit(ctx, step);
                 case StepType.LogNC:          return LogNC(ctx, step);
                 case StepType.Complete:       return Complete(ctx, step);
+                case StepType.Logout:         return Logout(step);
                 default:                      return null;
             }
         }
@@ -437,10 +438,11 @@ namespace TrainingApp.Pages.Training.Guide
         }
 
         // Complete: las filas que quedan (Serialized: todas con Select All; NonSerialized: el
-        // lote) y Complete. Con él termina la sesión y aparece el globo final.
+        // lote) y Complete. Sigue Logout (spec 015): el banner de Complete es la cola del paso.
         private static StepScript Complete(PodContext ctx, TrainingStep step)
         {
-            var s = new StepScript(step, "Complete");
+            // Cola: el banner de Complete (spec 015, D-22) antes de seguir con Logout.
+            var s = new StepScript(step, "Complete") { TailName = "banner" };
             var order = ctx.State.Order;
             var rows = order?.ActiveRows() ?? new List<SimulatedOrderRow>();
             if (ctx.Area.SerializationType == SerializationType.Serialized)
@@ -450,6 +452,24 @@ namespace TrainingApp.Pages.Training.Guide
                 AddRowSelection(s, "select", rows.FirstOrDefault(), order?.SFCCode, null);
             s.Add("complete", GuideMode.Click, Anchor("pod-complete"), postback: true,
                 html: H("Presione ", B("Complete"), " para cerrar la orden."));
+            s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                html: H("Verifique el mensaje: las piezas completadas salen del POD y pasan a la siguiente operación."));
+            return s;
+        }
+
+        // Logout (spec 015): el ícono del header, con la nota de la trainer (resumen del punto 9
+        // de la spec). Al cerrar la sesión sigue el globo final.
+        private static StepScript Logout(TrainingStep step)
+        {
+            var s = new StepScript(step, "Logout");
+            s.Add("logout", GuideMode.Click, Anchor("pod-logout"), postback: true,
+                html: H("Presione el ícono ", B("Logout"), " para cerrar su sesión en MES."),
+                note: string.Join("<br>",
+                    H("Cierre sesión ", B("siempre que deje de usar el sistema"), ", por ejemplo:"),
+                    H("• En descansos o al terminar el turno."),
+                    H("• Al cambiar de estación, actividad, producto, orden o línea."),
+                    H("• Al entregar la estación a otro operador."),
+                    H("Nunca deje su sesión abierta donde otra persona pueda usarla.")));
             return s;
         }
 

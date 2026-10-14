@@ -60,13 +60,14 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 catálogos del área (perezosos, una vez por request)
 │   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
 │   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
-│   │   │   ├── PodState.cs                ← estado del POD (orden + avance) e IPodStateStore
+│   │   │   ├── PodState.cs                ← estado del POD (orden + avance + precargados) e IPodStateStore
 │   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
 │   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
-│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, start, acción inválida)
+│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, logout, start, acción inválida)
 │   │   │   ├── AttemptActions.cs          ← catálogo de acciones del registro de actividad
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
+│   │   │   ├── PreloadedEquipment.cs      ← equipos precargados de Resource Setup y su generador (spec 015)
 │   │   │   ├── SplitSfcGenerator.cs       ← SFC nuevo de cada SFC Split (Fase 6.5)
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
 │   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
@@ -74,7 +75,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
 │   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
 │   │       ├── StepValidationContext.cs   ← área y catálogos que usa el validador
-│   │       └── DataCollectionCompletionRule.cs ← grupos DC obligatorios
+│   │       ├── DataCollectionCompletionRule.cs ← grupos DC obligatorios
+│   │       ├── PreloadedEquipmentRule.cs  ← ¿un valor es un equipo precargado? (spec 015)
+│   │       └── PersonNameRule.cs          ← nombre del grupo Trainer (spec 015)
 │   ├── DAL/
 │   │   ├── Infrastructure/
 │   │   │   ├── Database.cs                ← wrapper ADO.NET (SqlConnection + SqlCommand)
@@ -188,7 +191,9 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   si la sesión cambió, falla sin guardar nada.
 - **Código nuevo del POD** = un comando en `PodService`; la página solo traduce el
   `PodCommandResult` (`PodNotice`, intento) a UI y elige los textos de los avisos.
-- **Estado (`PodState`)**: orden simulada + avance de Assembly y DC, en Session bajo una
+- **Estado (`PodState`)**: orden simulada + avance de Assembly y DC + equipos precargados
+  de Resource Setup (spec 015: los genera `OpenResourceSetup` en cada apertura, viajan con el
+  control en un campo oculto sin otro postback y se descartan al resolver el paso), en Session bajo una
   clave por sesión (`SessionPodStateStore`). Si falta (Session reciclada), `LoadContext` lo
   reconstruye con la orden por defecto (D-10). Diferidos: AUD-40 (`PodState` mutable desde
   fuera de `PodService`, solo por convención) y AUD-42 (tras reconstruir en Serialized pueden
@@ -196,6 +201,13 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
 - **Una sesión activa por operador (D-9):** `PodService.StartSession` y
   `SessionHelper.Logout` abandonan las `InProgress`. Iniciar una guía también descarta el
   estado del POD de las sesiones anteriores (AUD-41).
+- **Logout simulado (spec 015):** el ícono del header es el último paso
+  (`PodService.ClickLogout`): con la sesión en curso pasa por `CheckSequence` y, en su paso,
+  cierra la sesión de entrenamiento con el resumen, sin tocar la sesión de la app. Sin
+  sesión en curso (resumen final, pestaña vieja), `GuidedTest.LoadContext` llama
+  `SessionHelper.Logout()` (D-21, AUD-33). Logout no tiene control de paso
+  (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
+  también al forzarse y al reconstruir el estado.
 
 ## `GuidedTest` y controles de paso (Fase 6, specs 004-007)
 

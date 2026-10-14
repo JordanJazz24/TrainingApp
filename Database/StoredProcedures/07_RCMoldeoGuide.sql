@@ -7,7 +7,7 @@
 -- Pesos: CLAUDE.md → "Ponderación de pasos". Search absorbe el peso
 -- de Assembly (Moldeo no tiene) menos el de SFC Split (sí tiene).
 -- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
---           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete
+--           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete · 8 Logout
 -- ============================================================
 SET NOCOUNT ON;
 
@@ -31,7 +31,8 @@ INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     (5, 1, 0.05),   -- Line Clearance (cierre)
     (6, 5, 0.05),   -- SFC Split (NonSerialized)
     (7, 6, 0.10),   -- Log NC
-    (8, 7, 0.10);   -- Complete
+    (8, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
+    (9, 8, 0.05);   -- Logout
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía S&RC Moldeo — Flujo Completo', @Steps = @Json;

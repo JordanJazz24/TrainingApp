@@ -139,7 +139,9 @@ en un **recuadro rojo arriba**; las confirmaciones duran unos **5 segundos**.
   ← todos deshabilitados
 ────────────────────────────────────────────────────────
   Setup Type                    Setup Type Value
-  (tabla vacía)
+  Shop Order                    {precargada}     ← equipos del turno anterior (spec 015)
+  Tool Number                   {precargada}
+  Tool Number                   {precargada}
 ────────────────────────────────────────────────────────
                     [Save]  [Clear]
 ```
@@ -147,7 +149,7 @@ en un **recuadro rojo arriba**; las confirmaciones duran unos **5 segundos**.
 **Estado 2 — después de Retrieve**
 - Setup State cambia a dropdown editable con "Set Up" seleccionado
 - Toolbar habilitado
-- Tabla muestra filas existentes (si las hay)
+- La tabla conserva las filas precargadas; Retrieve no agrega filas (enmienda de la spec 015)
 
 **Estructura de cada fila:**
 ```
@@ -194,7 +196,14 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 de lote, el operador hace **Remove All** de los equipos que quedaron cargados (del turno o
 lote anterior) y escanea los que están físicamente en la estación. Error frecuente: asumir
 que los equipos cargados son los de la estación y trabajar con una herramienta equivocada.
-El simulador lo entrenará con equipos precargados (spec 015). Sin captura del Remove All.
+Sin captura del Remove All.
+
+**Equipos precargados (spec 015, 2026-10-14):** el modal abre con una Shop Order y 2
+herramientas precargadas (las genera la BLL en cada apertura, distintas de `303406950`).
+Guardar con alguna en la tabla es intento fallido (mensaje genérico en Assessment); vale
+cualquier forma de quitarlas (Remove All o Remove Selected). Con alguna en la tabla, el
+control no muestra los avisos de formato de abajo (D-26). En Guided, la captura de la Shop
+Order y de la herramienta no acepta un valor precargado.
 
 ### Validaciones del UserControl (lado cliente + servidor)
 
@@ -927,15 +936,21 @@ pide) y scrapear la pieza.
 ### Flujo del operador
 1. Seleccionar fila(s) del SFC u orden de planta en el POD Work List
 2. Clic en **[Complete]** en la barra de acción
-3. El sistema completa la orden y los SFCs seleccionados
-4. **Fin del proceso**
+3. El sistema completa la orden y los SFCs seleccionados: las filas salen del POD (pasan a la
+   siguiente operación)
+4. Sigue el Paso 10 — Logout (spec 015)
 
 ### Reglas de negocio
 - No valida contenido — se califica por secuencia
-- El operador debe saber que este es el paso final del cierre
+- Ya no es el último paso: la sesión sigue con Logout (spec 015)
 - Todos los pasos anteriores deben estar completos antes de llegar aquí
 - Sin fila seleccionada = intento fallido (spec 007). NonSerialized: una fila.
   **Serialized (spec 008):** todas las filas que quedan en el POD (algunas = aviso sin intento).
+
+**Mensaje después de Complete — PROVISIONAL (spec 015, D-22):** banner genérico con el formato
+de los demás banners del POD: `SFC {sfc} completed` (NonSerialized) o `{N} SFCs completed`
+(Serialized). Pendiente: reemplazarlo con el texto real cuando haya captura
+(`docs/process.md` §8).
 
 > **Diferencia con legacy:** el legacy implementaba un modal "Complete Section" + overlay "Log Buyoff" con credenciales (User ID + Password). El flujo real SAP es directo. Si alguna área requiere confirmación adicional (buyoff, firma), se documenta en su archivo de área.
 
@@ -943,6 +958,30 @@ pide) y scrapear la pieza.
 > QD001001524 rev. 27 describe variantes de Complete (Log Buyoff, firma electrónica,
 > supervisor que completa por otro). El simulador entrena solo el flujo directo:
 > seleccionar las piezas o el lote y presionar Complete.
+
+---
+
+## Paso 10 — Logout (spec 015)
+
+**StepType:** `Logout` | **Validación:** secuencia (correcto solo con el ícono Logout)
+
+**Acceso:** ícono **Logout** del header del POD.
+
+### Flujo del operador
+1. Clic en el ícono **Logout** del header
+
+### Reglas de negocio
+- **Simulado:** registra el paso, cierra la sesión de entrenamiento y muestra el resumen
+  final. No cierra la sesión de la app y no hay pantalla de logout del MES (sin captura).
+- **Antes del último paso:** en Assessment es un botón más del POD (intento fallido del paso
+  actual, mensaje genérico, no cierra nada); en Guided está deshabilitado. Para salir a mitad
+  de una sesión queda Abandon.
+- **Con la sesión ya cerrada** (resumen final): el ícono cierra la sesión de la app (D-21).
+- **Guía de Guided:** el subpaso señala el ícono con la nota de la trainer ("Cierra sesión en
+  MES siempre que dejes de usar activamente el sistema…").
+
+**Procedimiento real (trainer de Wires, 2026-10-13):** cerrar sesión siempre que se deja la
+estación: hubo CAPAs por Code1 compartidos y sesiones abiertas.
 
 ---
 
@@ -959,6 +998,7 @@ pide) y scrapear la pieza.
 | 7 — SFC Split | `SFC_Split` | Solo NonSerialized |
 | 8 — Log NC | `LogNC` | No |
 | 9 — Complete | `Complete` | No |
+| 10 — Logout | `Logout` | No (spec 015) |
 
 Pesos de cada paso por guía: `docs/domain.md` → "Ponderación de pasos" (la fuente de verdad es
 `TrainingSteps.Weight` en la BD).
