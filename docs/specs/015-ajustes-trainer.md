@@ -1,7 +1,18 @@
 # Spec 015: Ajustes de la trainer (Remove All, Logout final y grupo Trainer)
 
-**Status:** Approved (2026-10-14)
+**Status:** Implemented (2026-10-14, `61950a4`, `b6ae1c2` y `0050d4d`)
 **Date:** 2026-10-14 · **Approved:** 2026-10-14 (usuario, con las propuestas de diseño incluidas)
+
+> **Decisiones de implementación de la Entrega 3** (desarrollo con el usuario, 2026-10-14;
+> no cambian la spec):
+>
+> - Logout se envía **una sola vez por render**: un doble clic en el último paso saltaba el
+>   resumen y cerraba la sesión de la app.
+> - Con la sesión de entrenamiento cerrada, el ícono Logout queda libre también con el globo
+>   final de la guía.
+> - Tras Complete, el header de la orden queda vacío.
+> - NonSerialized: Complete quita solo la fila elegida; el avance forzado y la reconstrucción
+>   quitan todas las filas activas.
 
 > **Enmienda 2026-10-14 (usuario, al probar la Entrega 1):** afecta el punto 1 de Scope y
 > AC-1.
