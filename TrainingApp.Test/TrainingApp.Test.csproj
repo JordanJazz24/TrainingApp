@@ -126,6 +126,7 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScoreCalculatorTests.cs" />
+    <Compile Include="UserAdminServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

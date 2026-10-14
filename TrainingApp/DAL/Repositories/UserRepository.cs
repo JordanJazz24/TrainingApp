@@ -1,12 +1,101 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using TrainingApp.DAL.Infrastructure;
 using TrainingApp.Domain;
 
 namespace TrainingApp.DAL.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
+        // THROW de spUserDelete: quien borra ya no es admin o se borra a sí mismo.
+        private const int CallerNotAllowedError = 50011;
+
+        // Violación de UQ_Users_Code1 (índice único / restricción única).
+        private const int UniqueIndexError      = 2601;
+        private const int UniqueConstraintError = 2627;
+
+        public User GetById(int userId)
+        {
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spUserGetById",
+                cmd => cmd.Parameters.AddWithValue("@UserId", userId)))
+            {
+                return reader.Read() ? Map(reader) : null;
+            }
+        }
+
+        public IList<UserSummary> Search(string text, int offset, int pageSize, out int total)
+        {
+            var users = new List<UserSummary>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spUserSearch", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Text",     (object)text ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Offset",   offset);
+                cmd.Parameters.AddWithValue("@PageSize", pageSize);
+            }))
+            {
+                total = reader.Read() ? Convert.ToInt32(reader["Total"]) : 0;
+                if (reader.NextResult())
+                    while (reader.Read())
+                    {
+                        var summary = new UserSummary { SessionCount = Convert.ToInt32(reader["SessionCount"]) };
+                        Fill(summary, reader);
+                        users.Add(summary);
+                    }
+            }
+            return users;
+        }
+
+        public void ResetPassword(int userId, string passwordHash)
+        {
+            using (var db = DatabaseFactory.Create())
+                db.ExecuteNonQuery("spUserResetPassword", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@UserId",       userId);
+                    cmd.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                });
+        }
+
+        public void Unlock(int userId)
+        {
+            using (var db = DatabaseFactory.Create())
+                db.ExecuteNonQuery("spUserUnlock",
+                    cmd => cmd.Parameters.AddWithValue("@UserId", userId));
+        }
+
+        public bool Delete(int callerId, int userId)
+        {
+            try
+            {
+                using (var db = DatabaseFactory.Create())
+                    db.ExecuteNonQuery("spUserDelete", cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@CallerId", callerId);
+                        cmd.Parameters.AddWithValue("@UserId",   userId);
+                    });
+                return true;
+            }
+            catch (SqlException ex) when (ex.Number == CallerNotAllowedError)
+            {
+                return false;
+            }
+        }
+
+        public bool TryInsert(User user)
+        {
+            try
+            {
+                user.Id = Insert(user);
+                return true;
+            }
+            catch (SqlException ex) when (ex.Number == UniqueIndexError || ex.Number == UniqueConstraintError)
+            {
+                return false;
+            }
+        }
+
         public User GetByCode1(string code1)
         {
             using (var db = DatabaseFactory.Create())
@@ -81,19 +170,26 @@ namespace TrainingApp.DAL.Repositories
             }
         }
 
-        private static User Map(SqlDataReader r) => new User
+        private static User Map(SqlDataReader r)
         {
-            Id               = Convert.ToInt32(r["Id"]),
-            Code1            = r["Code1"].ToString(),
-            Name             = r["Name"].ToString(),
-            PasswordHash     = r["PasswordHash"].ToString(),
-            IsFirstLogin     = Convert.ToBoolean(r["IsFirstLogin"]),
-            CreatedAt        = Convert.ToDateTime(r["CreatedAt"]),
-            Role             = (UserRole)Convert.ToByte(r["Role"]),
-            LastLoginAt      = NullableDate(r["LastLoginAt"]),
-            FailedLoginCount = Convert.ToInt32(r["FailedLoginCount"]),
-            LockedUntil      = NullableDate(r["LockedUntil"])
-        };
+            var user = new User();
+            Fill(user, r);
+            return user;
+        }
+
+        private static void Fill(User user, SqlDataReader r)
+        {
+            user.Id               = Convert.ToInt32(r["Id"]);
+            user.Code1            = r["Code1"].ToString();
+            user.Name             = r["Name"].ToString();
+            user.PasswordHash     = r["PasswordHash"].ToString();
+            user.IsFirstLogin     = Convert.ToBoolean(r["IsFirstLogin"]);
+            user.CreatedAt        = Convert.ToDateTime(r["CreatedAt"]);
+            user.Role             = (UserRole)Convert.ToByte(r["Role"]);
+            user.LastLoginAt      = NullableDate(r["LastLoginAt"]);
+            user.FailedLoginCount = Convert.ToInt32(r["FailedLoginCount"]);
+            user.LockedUntil      = NullableDate(r["LockedUntil"]);
+        }
 
         private static DateTime? NullableDate(object value)
             => value == null || value == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(value);

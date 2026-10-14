@@ -311,6 +311,10 @@
     <Compile Include="BLL\Auth\AccessPolicy.cs" />
     <Compile Include="BLL\Auth\RoleCache.cs" />
     <Compile Include="BLL\Auth\LoginLockPolicy.cs" />
+    <Compile Include="BLL\Admin\UserAdminService.cs" />
+    <Compile Include="DAL\Repositories\IUserRepository.cs" />
+    <Compile Include="Domain\UserSummary.cs" />
+    <Compile Include="Pages\Admin\UserListRow.cs" />
     <Compile Include="Pages\UserPrincipal.cs" />
     <Compile Include="UI\master\Auth.master.cs">
       <DependentUpon>Auth.Master</DependentUpon>

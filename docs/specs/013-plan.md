@@ -108,22 +108,37 @@ solo traduce un botón de relleno a su constante.
   bloqueo ajeno (propio de la regla de la spec) y los tests de `LoginLockPolicy`
   (`docs/process.md` §5).
 
-### E3 — Gestión de usuarios  ☐
-- [ ] `IUserRepository`; `UserAdminService` (`BLL/Admin/`): `Search`, `Create`,
+### E3 — Gestión de usuarios  ✅ (2026-10-14, probada por el usuario)
+- [x] `IUserRepository`; `UserAdminService` (`BLL/Admin/`): `Search`, `Create`,
       `ResetPassword`, `Unlock`, `SetRole`. Cada método verifica la capacidad del admin
       autenticado (si no, excepción). Nadie cambia su propio rol; "nunca sin admins" en el SP
       dentro de la transacción (la BLL traduce el error a un aviso). Un operador que pasa a
       admin pierde su entrenamiento en curso (D-9).
-- [ ] SPs: búsqueda paginada, alta con rol, reset, desbloqueo y cambio de rol.
-- [ ] `Users.aspx`: búsqueda, tabla paginada (Code1, nombre, rol, estado, creada, último
+- [x] SPs: búsqueda paginada, alta con rol, reset, desbloqueo y cambio de rol.
+- [x] `Users.aspx`: búsqueda, tabla paginada (Code1, nombre, rol, estado, creada, último
       acceso), alta (Code1 + rol), y por fila reset, desbloquear y dar o quitar admin, con
       confirmación.
-- [ ] Tests: AC-5 (cada método con un usuario sin la capacidad lanza excepción) y
+- [x] Tests: AC-5 (cada método con un usuario sin la capacidad lanza excepción) y
       `AccessPolicy`.
 - **AC:** 5, 7, 8, 9, 10, 11, 12, 13.
 - **Review:** `high`, `BLL/Admin`, `UserRepository.cs`, `01_spUser.sql` y `Users.aspx(.cs)`;
   foco: ningún método confía en la página, "nunca sin admins" con dos admins a la vez,
   búsqueda sin SQL dinámico.
+- **Enmienda de la spec (2026-10-13, usuario, al probar; registrada en `9cfe566`):** sale
+  dar o quitar el rol de admin (`SetRole` y `spUserSetRole`) y entra **Borrar usuario**.
+  `spUserDelete` borra intentos, sesiones y usuario en una transacción. Con historial, la
+  confirmación es una alerta con la cantidad de sesiones (`SessionCount` en
+  `spUserSearch`). Nadie se borra a sí mismo, y el SP lo vuelve a verificar bajo un lock de
+  aplicación.
+- **Resultado:** review `high`, 10 hallazgos; se aplicaron 7. (1) Quien pide un cambio
+  sigue siendo admin, verificado en el SP bajo el lock. (2) La acción es idempotente
+  (`history.replaceState` y el rol pedido en el botón; luego salió con la enmienda).
+  (3) El abandono del entrenamiento va en la misma transacción (luego salió con la
+  enmienda). (4) El alta no falla si el empleado se autorregistra a la vez (`TryInsert`).
+  (5) Patrón de búsqueda sin truncar y texto de 100 caracteres como máximo. (6) Un admin
+  degradado en otro proceso vuelve a su inicio en vez de ver un error. (7) Rol fuera del
+  enum: excepción. No aplicados: contraseña por defecto de admins nuevos (D-20) y
+  consultas repetidas. Review `low` del borrado: sin cambios. Tests: 88 (21 de la spec 013).
 
 ### E4 — Registro de actividad  ☐
 - [ ] Domain: `AttemptReason`; `TrainingSessionStepAttempt.Reason` y `.Action`.

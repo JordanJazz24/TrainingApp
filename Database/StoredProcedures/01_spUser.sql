@@ -97,3 +97,117 @@ BEGIN
     SELECT @@ROWCOUNT;
 END;
 GO
+
+-- ── Gestión de usuarios (spec 013): solo la usa UserAdminService, que
+-- verifica antes que quien llama es administrador. ───────────────────────
+
+-- spUserGetById — usuario por Id (el admin autenticado y el usuario sobre
+-- el que actúa).
+CREATE OR ALTER PROCEDURE dbo.spUserGetById
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, Code1, Name, PasswordHash, IsFirstLogin, CreatedAt,
+           Role, LastLoginAt, FailedLoginCount, LockedUntil
+    FROM   dbo.Users
+    WHERE  Id = @UserId;
+END;
+GO
+
+-- spUserSearch — una página de la lista, ordenada por nombre. @Text vacío
+-- = todos; si no, el Code1 o el nombre lo contienen (los comodines de LIKE
+-- que escriba el admin se toman literales). Dos resultados: el total y las
+-- filas de la página, cada una con su cantidad de sesiones de entrenamiento.
+CREATE OR ALTER PROCEDURE dbo.spUserSearch
+    @Text     NVARCHAR(200),
+    @Offset   INT,
+    @PageSize INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Pattern NVARCHAR(4000) = NULL;
+    IF LTRIM(RTRIM(ISNULL(@Text, N''))) <> N''
+        SET @Pattern = N'%' + REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(@Text)),
+                           N'[', N'[[]'), N'%', N'[%]'), N'_', N'[_]') + N'%';
+
+    SELECT COUNT(*) AS Total
+    FROM   dbo.Users
+    WHERE  @Pattern IS NULL OR Code1 LIKE @Pattern OR Name LIKE @Pattern;
+
+    SELECT u.Id, u.Code1, u.Name, u.PasswordHash, u.IsFirstLogin, u.CreatedAt,
+           u.Role, u.LastLoginAt, u.FailedLoginCount, u.LockedUntil,
+           (SELECT COUNT(*) FROM dbo.TrainingSessions s WHERE s.UserId = u.Id) AS SessionCount
+    FROM   dbo.Users u
+    WHERE  @Pattern IS NULL OR u.Code1 LIKE @Pattern OR u.Name LIKE @Pattern
+    ORDER  BY u.Name, u.Code1
+    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+END;
+GO
+
+-- spUserResetPassword — vuelve a la contraseña por defecto (@PasswordHash)
+-- con el cambio obligatorio y desbloquea (P-2). No toca el historial.
+CREATE OR ALTER PROCEDURE dbo.spUserResetPassword
+    @UserId       INT,
+    @PasswordHash NVARCHAR(500)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.Users
+    SET    PasswordHash     = @PasswordHash,
+           IsFirstLogin     = 1,
+           FailedLoginCount = 0,
+           LockedUntil      = NULL
+    WHERE  Id = @UserId;
+END;
+GO
+
+-- spUserUnlock — desbloqueo por un admin antes de que venza.
+CREATE OR ALTER PROCEDURE dbo.spUserUnlock
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.Users
+    SET    FailedLoginCount = 0,
+           LockedUntil      = NULL
+    WHERE  Id = @UserId;
+END;
+GO
+
+-- spUserDelete — borra la cuenta y todo su historial de entrenamiento
+-- (intentos y sesiones), en una transacción y sin recuperación (spec 013,
+-- enmienda 2026-10-13). Bajo un lock de aplicación, para que dos admins que
+-- se borran entre sí no dejen el sistema sin administradores:
+--   · @CallerId (el admin que borra) tiene que seguir siendo admin y no puede
+--     borrarse a sí mismo (THROW 50011).
+CREATE OR ALTER PROCEDURE dbo.spUserDelete
+    @CallerId INT,
+    @UserId   INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+    BEGIN TRANSACTION;
+
+    EXEC sp_getapplock @Resource = N'TrainingApp.UserRoles', @LockMode = N'Exclusive',
+                       @LockOwner = N'Transaction';
+
+    IF @CallerId = @UserId
+       OR NOT EXISTS (SELECT 1 FROM dbo.Users WHERE Id = @CallerId AND Role = 2)
+    BEGIN
+        ROLLBACK TRANSACTION;
+        THROW 50011, N'spUserDelete: quien borra no es administrador o se borra a sí mismo.', 1;
+    END;
+
+    DELETE a
+    FROM   dbo.TrainingSessionStepAttempts a
+    JOIN   dbo.TrainingSessions s ON s.Id = a.SessionId
+    WHERE  s.UserId = @UserId;
+
+    DELETE FROM dbo.TrainingSessions WHERE UserId = @UserId;
+    DELETE FROM dbo.Users WHERE Id = @UserId;
+
+    COMMIT TRANSACTION;
+END;
+GO
