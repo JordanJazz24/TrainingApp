@@ -218,8 +218,10 @@
     <Compile Include="BLL\Auth\ChangePasswordStatus.cs" />
     <Compile Include="BLL\Scoring\ScoreCalculator.cs" />
     <Compile Include="BLL\Scoring\StepValidationContext.cs" />
+    <Compile Include="BLL\Scoring\PreloadedEquipmentRule.cs" />
     <Compile Include="BLL\Scoring\StepValidator.cs" />
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
+    <Compile Include="BLL\Training\PreloadedEquipment.cs" />
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\SplitSfcGenerator.cs" />
     <Compile Include="BLL\Training\PieceSelectionRule.cs" />

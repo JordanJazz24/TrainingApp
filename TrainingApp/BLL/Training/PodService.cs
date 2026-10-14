@@ -138,8 +138,17 @@ namespace TrainingApp.BLL.Training
 
         // ── Resource Setup y Line Clearance ──────────────────────────────
 
+        // Cada apertura genera otros equipos precargados (spec 015): Retrieve los muestra y el
+        // Save no puede dejar ninguno. Viajan con el control, sin otro postback.
         public PodCommandResult OpenResourceSetup(PodContext ctx)
-            => CheckSequence(ctx, StepType.ResourceSetup, AttemptActions.ResourceSetup) ?? new PodCommandResult();
+        {
+            var sequence = CheckSequence(ctx, StepType.ResourceSetup, AttemptActions.ResourceSetup);
+            if (sequence != null) return sequence;
+
+            ctx.State.PreloadedEquipment = PreloadedEquipmentGenerator.Generate(new Random());
+            SaveState(ctx);
+            return new PodCommandResult();
+        }
 
         // Line Clearance se abre desde Activities ("Data Collection Standalone").
         public PodCommandResult OpenLineClearance(PodContext ctx)
@@ -149,18 +158,24 @@ namespace TrainingApp.BLL.Training
         // orden con la Shop Order capturada, también en un intento fallido ("Open"), como
         // antes (spec 005). Si el paso avanzó forzado, la orden sale de la Shop Order genérica
         // e ignora lo capturado (S2 / spec 008, E8).
+        // Con un equipo precargado en las filas, el control no aplica el formato (D-26, spec
+        // 015): la Shop Order puede faltar y el intento se registra igual. Sin una Shop Order
+        // válida y propia (no la del lote anterior), la orden no se crea: el paso sigue pendiente.
         public StepSubmitResult SubmitResourceSetup(PodContext ctx, string answer, string shopOrderInput)
         {
             EnsureCurrentStep(ctx, StepType.ResourceSetup);
+            bool validShopOrder = SimulatedOrder.IsValidShopOrder(shopOrderInput) &&
+                ctx.State.PreloadedEquipment?.Contains(shopOrderInput) != true;
             // El control ya lo avisa como formato; si llega mal es una manipulación o un error
             // de programación: no se registra nada (auditoría AUD-36).
-            if (!SimulatedOrder.IsValidShopOrder(shopOrderInput))
+            if (!validShopOrder && !BuildValidator(ctx, StepType.ResourceSetup).HasPreloadedValue(answer))
                 throw new ArgumentException("La Shop Order debe ser numérica.", nameof(shopOrderInput));
 
             var result = SubmitStep(ctx, answer);
-            CreateOrder(ctx, result.Outcome == StepSubmitOutcome.FailedForced
-                ? PodDefaults.DefaultShopOrder
-                : shopOrderInput);
+            if (result.Outcome == StepSubmitOutcome.FailedForced)
+                CreateOrder(ctx, PodDefaults.DefaultShopOrder);
+            else if (validShopOrder)
+                CreateOrder(ctx, shopOrderInput);
             return result;
         }
 
@@ -637,7 +652,9 @@ namespace TrainingApp.BLL.Training
                 ValidNCCodes         = stepType == StepType.LogNC
                     ? ctx.NCCodes : new List<NCCode>(),
                 DataCollectionParams = stepType == StepType.DataCollection
-                    ? ctx.DataCollectionParameters : new List<DataCollectionParameter>()
+                    ? ctx.DataCollectionParameters : new List<DataCollectionParameter>(),
+                PreloadedValues      = stepType == StepType.ResourceSetup
+                    ? ctx.State.PreloadedEquipment?.AllValues() : null
             });
         }
 
@@ -668,7 +685,9 @@ namespace TrainingApp.BLL.Training
 
         private void DiscardProgress(PodContext ctx, StepType resolvedStep)
         {
-            if (resolvedStep == StepType.Assembly)
+            if (resolvedStep == StepType.ResourceSetup)
+                ctx.State.PreloadedEquipment = null;
+            else if (resolvedStep == StepType.Assembly)
                 ctx.State.Assembly = null;
             else if (resolvedStep == StepType.DataCollection)
                 ctx.State.DataCollection = null;
@@ -748,7 +767,7 @@ namespace TrainingApp.BLL.Training
             ctx.Score = score;
 
             // Paso resuelto (correcto, forzado o fin de la sesión): su avance parcial de Assembly
-            // o DC ya no se usa.
+            // o DC, o los equipos precargados de Resource Setup, ya no se usan.
             if (result.Outcome != StepSubmitOutcome.Incorrect)
                 DiscardProgress(ctx, step.StepType);
 

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Script.Serialization;
 using System.Web.UI;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.Pages.Training.Models;
 
@@ -37,10 +39,20 @@ namespace TrainingApp.UI.Controls.Training
             HfRows.Value            = string.Empty;
             HfSetupState.Value      = string.Empty;
             HfRetrieved.Value       = "false";
+            HfPreloaded.Value       = string.Empty;
             DdlSetupState.ClearSelection();
             PnlRecordChange.Visible = false;
 
             if (ViewModel == null) return;
+
+            // Equipos del turno anterior (spec 015): los generó la BLL al abrir el control y el
+            // modal abre con ellos en la tabla.
+            if (ViewModel.ExtraData.TryGetValue("Preloaded", out var preloadedData) &&
+                preloadedData is PreloadedEquipment preloaded)
+            {
+                HfPreloaded.Value = new JavaScriptSerializer().Serialize(PreloadedRows(preloaded));
+                Page.ClientScript.RegisterStartupScript(GetType(), "rsPreloaded", "rsShowPreloaded();", true);
+            }
             LitSite.Text     = Page.Server.HtmlEncode(
                 ViewModel.ExtraData.ContainsKey("Site") ? ViewModel.ExtraData["Site"]?.ToString() : PodDefaults.Site);
             LitResource.Text = Page.Server.HtmlEncode(
@@ -83,9 +95,14 @@ namespace TrainingApp.UI.Controls.Training
 
             // Server-side fallback: extraer y validar el Shop Order numérico (spec 005).
             // rsPrepareSubmit() ya valida esto en cliente; aquí re-validamos igual que
-            // el resto de las reglas de este método (belt-and-suspenders).
-            string shopOrderInput = ExtractShopOrderValue(rows);
-            if (!SimulatedOrder.IsValidShopOrder(shopOrderInput))
+            // el resto de las reglas de este método (belt-and-suspenders). Con un equipo
+            // precargado en las filas no hay aviso de formato (D-26, spec 015): lo califica
+            // la BLL.
+            var preloaded      = PreloadedValues();
+            bool hasPreloaded  = rows.Any(r => r.TryGetValue("value", out var v) &&
+                                               PreloadedEquipmentRule.IsPreloaded(preloaded, v));
+            string shopOrderInput = ExtractShopOrderValue(rows, hasPreloaded ? preloaded : null);
+            if (!hasPreloaded && !SimulatedOrder.IsValidShopOrder(shopOrderInput))
             {
                 Page.ClientScript.RegisterStartupScript(GetType(), "swalRS",
                     "Swal.fire({icon:'warning',title:'Shop Order inválido'," +
@@ -161,14 +178,44 @@ namespace TrainingApp.UI.Controls.Training
             return rows;
         }
 
-        private static string ExtractShopOrderValue(IEnumerable<Dictionary<string, string>> rows)
+        // La Shop Order de las filas: la primera. Con precargados (D-26) puede haber varias: la
+        // primera numérica que no es del lote anterior, o la primera si no hay ninguna así.
+        private static string ExtractShopOrderValue(IEnumerable<Dictionary<string, string>> rows,
+            IList<string> preloaded)
         {
+            string first = null;
             foreach (var row in rows)
             {
-                if (row.TryGetValue("type", out var type) && type == "Shop Order")
-                    return row.TryGetValue("value", out var value) ? value?.Trim() : null;
+                if (!row.TryGetValue("type", out var type) || type != "Shop Order") continue;
+                string value = row.TryGetValue("value", out var raw) ? raw?.Trim() : null;
+                if (preloaded == null) return value;
+                if (SimulatedOrder.IsValidShopOrder(value) && !PreloadedEquipmentRule.IsPreloaded(preloaded, value))
+                    return value;
+                if (first == null) first = value;
             }
-            return null;
+            return first;
+        }
+
+        // Filas {type, value} de los equipos precargados, como las arma el cliente.
+        private static List<Dictionary<string, string>> PreloadedRows(PreloadedEquipment preloaded)
+        {
+            var rows = new List<Dictionary<string, string>>
+            {
+                new Dictionary<string, string> { ["type"] = "Shop Order", ["value"] = preloaded.ShopOrder }
+            };
+            foreach (var tool in preloaded.ToolNumbers)
+                rows.Add(new Dictionary<string, string> { ["type"] = "Tool Number", ["value"] = tool });
+            return rows;
+        }
+
+        // Valores precargados de esta apertura. Solo deciden si se omite el aviso de formato
+        // (D-26); la calificación es de la BLL, contra los del PodState.
+        private IList<string> PreloadedValues()
+        {
+            var values = new List<string>();
+            foreach (var row in TryParseRows(HfPreloaded.Value) ?? new List<Dictionary<string, string>>())
+                if (row.TryGetValue("value", out var value)) values.Add(value);
+            return values;
         }
     }
 }

@@ -16,6 +16,10 @@ namespace TrainingApp.BLL.Training
 
         // null hasta la primera apertura de DC (que fija las piezas), o cuando el paso ya se resolvió.
         public DataCollectionProgress DataCollection { get; set; }
+
+        // Equipos precargados de la apertura actual de Resource Setup (spec 015); null fuera de
+        // ese paso o cuando ya se resolvió.
+        public PreloadedEquipment PreloadedEquipment { get; set; }
     }
 
     // Dónde guarda la BLL el estado del POD. La BLL no depende de System.Web: la página le

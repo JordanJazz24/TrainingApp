@@ -69,30 +69,30 @@ checklist en el navegador, "funciona" y commit con el roadmap.
   igual. Los precargados ya están en el cliente (campo oculto de la Entrega 1), así que no
   hace falta otra llamada.
 
-## Entrega 1 — Resource Setup con equipos precargados (A, AC-1 a AC-5)
+## Entrega 1 — Resource Setup con equipos precargados (A, AC-1 a AC-5) ✅ (2026-10-14)
 
-- [ ] `BLL/Training/PreloadedEquipment.cs` (`[Serializable]`: `ShopOrder`, `ToolNumbers`) y
+- [x] `BLL/Training/PreloadedEquipment.cs` (`[Serializable]`: `ShopOrder`, `ToolNumbers`) y
       `PreloadedEquipmentGenerator` (como `SerialSfcGenerator`): Shop Order de 9 dígitos y 2
       herramientas de 8, aleatorios y distintos de `PodDefaults.DefaultShopOrder` y de los
       ejemplos de la guía (`10033058`, `10087734`).
-- [ ] `PodState.PreloadedEquipment`: lo fija `PodService.OpenResourceSetup` cuando la
+- [x] `PodState.PreloadedEquipment`: lo fija `PodService.OpenResourceSetup` cuando la
       secuencia es correcta (cada apertura lo regenera); se descarta al resolver el paso.
-- [ ] `StepValidationContext.PreloadedValues` y `StepValidator.ValidateResourceSetup`:
+- [x] `StepValidationContext.PreloadedValues` y `StepValidator.ValidateResourceSetup`:
       incorrecto si alguna fila trae un valor precargado (comparación por valor, sin
       espacios), además de Setup State. Motivo `WrongDecision`, mensaje genérico. El avance
       forzado no cambia.
-- [ ] `GuidedTest` pasa los precargados en el ViewModel; `ResourceSetupControl` los guarda en
+- [x] `GuidedTest` pasa los precargados en el ViewModel; `ResourceSetupControl` los guarda en
       un campo oculto y los pinta en la tabla **al abrir el control** (Shop Order + 2 Tool
       Number); Retrieve solo habilita la edición (enmienda 2026-10-14 de la spec; antes:
       "rsRetrieve los agrega en el primer Retrieve"). Tras un postback se restauran desde
       `HfRows`, como hoy.
-- [ ] Save con un precargado y sin una Shop Order válida y propia: el intento fallido se
+- [x] Save con un precargado y sin una Shop Order válida y propia: el intento fallido se
       registra pero no se crea la orden simulada (decisión del `/code-review` de E1).
-- [ ] D-26: la validación de formato del control se salta si alguna fila trae un valor
+- [x] D-26: la validación de formato del control se salta si alguna fila trae un valor
       precargado; el Save se envía igual.
-- [ ] Guía (D-25): `Reject` en los subpasos `shopOrder` y `tool`; `pod-guide.js` lo revisa
+- [x] Guía (D-25): `Reject` en los subpasos `shopOrder` y `tool`; `pod-guide.js` lo revisa
       como formato. La alerta de T7 en REMOVE ALL no cambia.
-- [ ] `GetHint` de Resource Setup: mencionar quitar los equipos anteriores (Guided).
+- [x] `GetHint` de Resource Setup: mencionar quitar los equipos anteriores (Guided).
 
 ## Entrega 2 — Grupo de DC Trainer (C, AC-14 a AC-18)
 

@@ -98,6 +98,14 @@
         return true;
     }
 
+    // Valores que la captura no acepta, como un formato (spec 015, D-25: los equipos
+    // precargados de Resource Setup). Sin espacios, con el conjunto de PreloadedEquipmentRule.
+    function rejected(s, value) {
+        if (!s.reject) return false;
+        var v = (value || '').replace(/[ \t\r\n]/g, '');
+        return s.reject.some(function (r) { return (r || '').replace(/[ \t\r\n]/g, '') === v; });
+    }
+
     // Regla de un campo de un bloque con decisión (Data Collection): las de StepValidator.
     function fieldOk(rule, el) {
         if (!el) return false;
@@ -143,7 +151,8 @@
             return !(f.tagName === 'INPUT' && /^(hidden|button|submit|reset|image)$/i.test(f.type));
         });
         return fields.every(function (f) {
-            return formatOk(s.format, f.value) && (s.expect == null || f.value === s.expect);
+            return formatOk(s.format, f.value) && !rejected(s, f.value) &&
+                (s.expect == null || f.value === s.expect);
         });
     }
 

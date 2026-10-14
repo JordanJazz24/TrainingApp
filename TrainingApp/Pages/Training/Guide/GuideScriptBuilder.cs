@@ -81,7 +81,7 @@ namespace TrainingApp.Pages.Training.Guide
         {
             switch (step.StepType)
             {
-                case StepType.ResourceSetup:  return ResourceSetup(step);
+                case StepType.ResourceSetup:  return ResourceSetup(ctx, step);
                 case StepType.LineClearance:  return LineClearance(ctx, step);
                 case StepType.Search:         return Start(ctx, step);
                 case StepType.Assembly:       return Assembly(ctx, step, moment);
@@ -95,8 +95,10 @@ namespace TrainingApp.Pages.Training.Guide
 
         // ── Guion por tipo de paso ──────────────────────────────────────────
 
-        private static StepScript ResourceSetup(TrainingStep step)
+        private static StepScript ResourceSetup(PodContext ctx, TrainingStep step)
         {
+            // D-25 (spec 015): la Shop Order y la herramienta no pueden ser equipos precargados.
+            var preloaded = ctx.State.PreloadedEquipment?.AllValues();
             var s = new StepScript(step, "Resource Setup")
             {
                 OpenedName    = "retrieve",
@@ -115,6 +117,7 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("insertShopOrder", GuideMode.Click, Anchor("rs-insert-new"),
                 html: H("Presione ", B("INSERT NEW"), " para agregar una fila."));
             s.Add("shopOrder", GuideMode.Capture, Anchor("rs-row-value"), pickLast: true, format: GuideFormat.Digits,
+                reject: preloaded,
                 html: H("La fila nueva es de tipo ", B("Shop Order"), ". Ingrese el número de la orden, por ejemplo ",
                     B(PodDefaults.DefaultShopOrder), "."));
             s.Add("insertTool", GuideMode.Click, Anchor("rs-insert-new"),
@@ -122,6 +125,7 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("toolType", GuideMode.Change, Anchor("rs-row-type"), pickLast: true, expect: AnswerToolNumber,
                 html: H("Cambie el tipo de la fila nueva a ", B("Tool Number"), "."));
             s.Add("tool", GuideMode.Capture, Anchor("rs-row-value"), pickLast: true, format: GuideFormat.Required,
+                reject: preloaded,
                 html: H("Ingrese el número de la herramienta, por ejemplo ", B(ExampleToolNumber), "."));
             s.Add("table", GuideMode.Info, Anchor("rs-table"),
                 html: H("En esta sección se agregan todos los recursos, herramientas y materiales asociados a su operación."));
@@ -686,7 +690,7 @@ namespace TrainingApp.Pages.Training.Guide
                 bool pickLast = false, bool postback = false, string format = null,
                 bool hide = false, string retry = null, string expect = null,
                 List<GuideField> fields = null, string[] done = null, string[] free = null,
-                string note = null, string alert = null)
+                string note = null, string alert = null, IList<string> reject = null)
             {
                 _items.Add(new GuideSubstep
                 {
@@ -697,6 +701,7 @@ namespace TrainingApp.Pages.Training.Guide
                     Postback       = postback,
                     Format         = format,
                     Expect         = expect,
+                    Reject         = reject?.ToList(),
                     Fields         = fields,
                     Done           = done?.ToList(),
                     Free           = free?.ToList(),

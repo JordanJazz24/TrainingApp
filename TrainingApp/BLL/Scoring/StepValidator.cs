@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,7 +18,9 @@ namespace TrainingApp.BLL.Scoring
 
         // submittedAnswer formats by StepType:
         //   ResourceSetup                   : JSON {"setupState":"...","rows":[...]} — correct only with
-        //                                     setupState "Set Up" (rows/Shop Order are format, validated by the control)
+        //                                     setupState "Set Up" and no preloaded equipment left in
+        //                                     the rows (spec 015); the rest of the rows/Shop Order is
+        //                                     format, validated by the control
         //   Search                          : áreas con RequiresStartChecklist: JSON de SearchControl — correcto
         //                                     solo si las respuestas LC Moldeo (verif*) y la verificación
         //                                     final son true. Sin checklist (Start directo, spec 008):
@@ -70,13 +72,47 @@ namespace TrainingApp.BLL.Scoring
         private static readonly string[] SearchRequiredConfirmations =
             { "verifCalibracion", "verifD0128682", "verifD0128035", "verificacionFinal" };
 
-        private static bool ValidateResourceSetup(string submittedAnswer)
+        private bool ValidateResourceSetup(string submittedAnswer)
         {
             var answer = TryParseObject(submittedAnswer);
             object setupState;
             return answer != null
                 && answer.TryGetValue("setupState", out setupState)
-                && setupState as string == "Set Up";
+                && setupState as string == "Set Up"
+                && !HasPreloadedValue(submittedAnswer);
+        }
+
+        // Spec 015: alguna fila del Save de Resource Setup trae un equipo precargado (por valor,
+        // sin espacios, con cualquier tipo de fila). Es una decisión equivocada, no formato.
+        public bool HasPreloadedValue(string submittedAnswer)
+        {
+            var preloaded = _ctx.PreloadedValues;
+            if (preloaded == null || preloaded.Count == 0) return false;
+
+            ResourceSetupAnswer answer;
+            try
+            {
+                answer = string.IsNullOrWhiteSpace(submittedAnswer)
+                    ? null : JsonConvert.DeserializeObject<ResourceSetupAnswer>(submittedAnswer);
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
+            if (answer?.Rows == null) return false;
+
+            return answer.Rows.Any(row =>
+            {
+                string value;
+                return row != null && row.TryGetValue("value", out value)
+                    && PreloadedEquipmentRule.IsPreloaded(preloaded, value);
+            });
+        }
+
+        private sealed class ResourceSetupAnswer
+        {
+            [JsonProperty("rows")]
+            public List<Dictionary<string, string>> Rows { get; set; }
         }
 
         private static bool ValidateSearch(string submittedAnswer)

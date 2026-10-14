@@ -64,6 +64,10 @@ namespace TrainingApp.Pages.Training.Guide
         // campos del subpaso para avanzar. null en los campos libres y los clics.
         public string Expect { get; set; }
 
+        // Valores que "Continuar" no acepta en una captura, como un formato (spec 015, D-25: los
+        // equipos precargados de Resource Setup). null si no hay. Solo los recibe Guided.
+        public List<string> Reject { get; set; }
+
         // Reglas por campo de un bloque (Data Collection); null si no aplica.
         public List<GuideField> Fields { get; set; }
 
@@ -118,6 +122,7 @@ namespace TrainingApp.Pages.Training.Guide
                     postback = s.Postback,
                     format   = s.Format,
                     expect   = s.Expect,
+                    reject   = s.Reject,
                     fields   = s.Fields?.Select(f => new
                     {
                         sel    = f.Selector,

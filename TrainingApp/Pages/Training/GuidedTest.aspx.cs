@@ -1040,6 +1040,10 @@ namespace TrainingApp.Pages.Training
 
             switch (step.StepType)
             {
+                case StepType.ResourceSetup:
+                    vm.ExtraData["Preloaded"] = _ctx.State.PreloadedEquipment;
+                    break;
+
                 case StepType.LineClearance:
                     vm.ExtraData["QuestionText"] = PodDefaults.LineClearanceQuestion;
                     break;
@@ -1421,7 +1425,7 @@ namespace TrainingApp.Pages.Training
             {
                 case StepType.LogNC when !area.RequiresNCComponent:
                     return "Seleccione un código NC y presione Add-Done.";
-                case StepType.ResourceSetup:  return "Presione Retrieve, verifique que Setup State esté en 'Set Up', agregue las filas y presione Save.";
+                case StepType.ResourceSetup:  return "Presione Retrieve, quite los equipos anteriores (REMOVE ALL), agregue sus filas, verifique que Setup State esté en 'Set Up' y presione Save.";
                 case StepType.LineClearance:  return "Responda 'Si' para confirmar la limpieza de línea.";
                 case StepType.Search:         return "Responda 'Sí' a las verificaciones y presione Save.";
                 case StepType.DataCollection: return "Complete todos los parámetros dentro de su rango y presione Save (no Save Draft).";

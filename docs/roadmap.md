@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-14 · **Branch:** `TrainingApp` · **Último commit de
-código:** T7, mensajes y alertas de la guía (`git log --oneline -10` para ver el estado real)
+código:** spec 015, entrega 1 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -25,9 +25,10 @@ código:** T7, mensajes y alertas de la guía (`git log --oneline -10` para ver 
   usuario. **Spec 013 ✅** (2026-10-14, ver "Historial"): roles, login de admin, bloqueo,
   último acceso, gestión de usuarios con borrado y registro de actividad. El usuario decidió
   terminarla antes que T7. **T7 ✅** (2026-10-14, ver "Historial"): notas y alertas de la
-  trainer en la guía de Guided y el producto R&C → **S&RC**. **Siguiente:** implementar la spec 015
-  (ajustes de la trainer; aprobada el 2026-10-14: `docs/specs/015-ajustes-trainer.md`). Orden
-  vigente: 015 → 014 → 016 → 012.
+  trainer en la guía de Guided y el producto R&C → **S&RC**. **En curso: spec 015** (ajustes de
+  la trainer; `docs/specs/015-ajustes-trainer.md`, plan en `015-plan.md`). **E1 ✅** (2026-10-14,
+  probada por el usuario): Resource Setup abre con equipos precargados y guardar con alguno es
+  intento fallido. **Siguiente:** E2, grupo de DC Trainer. Orden vigente: 015 → 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
