@@ -18,7 +18,7 @@
 código:** spec 013, entrega 4 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
-  2026-10-13 tras la trainer: T7 → 013 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
+  2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
   2026-10-12 con la validación con técnicos. **T1 preparado** (ver "Historial"); la prueba en
   el servidor real queda diferida (D-19). **Spec 011 (T2) ✅** (2026-10-13, ver
   "Historial"): escanear la Shop Order, etiqueta simulada y guía de Guided, probada por el
@@ -288,15 +288,15 @@ Fuente: sesión "Reuniones y dudas". Validación final con ella en 1-2 semanas.
 **Objetivo:** versión de entrenamiento para la segunda semana de noviembre de 2026, con la
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
 Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
-la validación con técnicos y tras la trainer. Orden vigente: **T7 → 013 → 015 → 014 → 016 →
-012**. Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
+la validación con técnicos y tras la trainer; el usuario terminó la 013 antes que T7
+(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 → 016 → 012**. Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
 | 1 | ✅ **T1 · Versión de prueba** en IIS interno (`d60bdfb`): `DEFAULT_PASSWORD` con su valor de siempre (D-18); BD con `00`–`09`, **incluido `05`** (Redefinity y Subensamble 1 de ejemplo: avisar a los testers que son demostración); `customErrors` en Release (parte mínima de AUD-28); reset de testers con `Database/Ops/ResetUserPassword.sql`. Prueba en el servidor real diferida (D-19). Los datos de la prueba se descartan | plan directo | — |
 | 2 | ✅ **T2 · Escanear la Shop Order** (2026-10-13, `bf19e54`; plan `011-plan.md`) | spec 011 | — |
 | 3 | **T7 · Mensajes y alertas de la guía de Guided** (retroalimentación de la trainer): notas de alerta en rojo en Resource Setup, LC de cierre y Search/Start, y los mensajes aprobados de LC de apertura, DC y Log NC. Las notas de Logout y del grupo Trainer entran con la spec 015. Junto con el bug del texto mal escrito en la selección de área | plan directo | — |
-| 4 | **Cuentas, roles y registro de actividad** (spec aprobada el 2026-10-13): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, dar o quitar admin), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
+| 4 | ✅ **Cuentas, roles y registro de actividad** (2026-10-14, `e4ef6ae`…`5b9091a`; plan `013-plan.md`): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, borrar con su historial; el rol no se cambia desde la UI, enmienda del 2026-10-13), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
 | 5 | **Ajustes de la trainer:** Resource Setup con equipos precargados que hay que quitar con Remove All (qué cuenta como intento fallido); **Logout** como último paso después de Complete (hoy Logout es navegación y nunca cuenta: cambia esa regla y, si tiene peso, los pesos de todas las guías); **grupo de DC "Trainer"** (nombre, solo letras; reemplaza el tercer grupo opcional de Redefinity y LoFlo; decidir si es obligatorio en el simulador y si va por pieza) | spec 015 | — |
 | 6 | **T4 · Tres tipos de scrap** en Log NC (desecho rápido, reparación rápida, reparación rápida extendida; Ernesto pide obligar los tres). Incluye: la guía indica la pieza defectuosa y, en Assessment, scrapear otra es intento fallido (error 1 de la trainer); 4-5 piezas por orden Serialized. La spec de reglas y calificación se puede escribir desde la WI; la UI espera pantallas. También depende de T5: la reparación rápida cambia un componente y Moldeo no tiene BOM; obligar los tres cambia la estructura de Log NC y los pesos de todas las guías | spec 014 | pantallas (WI o T9), T5 |
 | 7 | **T10 · Preparación antes de SAP:** limpieza de caché, Repositorio ("Recursos" y "Ahora Ahora") y login de MES. Se agrega sí o sí (usuario), pero entra en noviembre solo si llegan las capturas | spec 016 | capturas |
