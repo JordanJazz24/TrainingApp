@@ -1,8 +1,8 @@
 # Arquitectura — mecanismos y decisiones de diseño
 
-> Las **reglas** (capas, invariantes, convenciones) están en `CLAUDE.md`. Este archivo explica
-> **cómo** están implementadas y registra las decisiones de diseño cerradas: no reabrirlas sin
-> spec. Actualizarlo cuando cambie la estructura del código o se cierre una decisión.
+> Las **reglas** (capas, invariantes, convenciones) están en `CLAUDE.md`, y las de negocio en
+> `docs/domain.md`. Este archivo explica **cómo** están implementadas y registra las
+> decisiones de diseño cerradas: no reabrirlas sin spec. Actualizarlo cuando cambie la estructura del código o se cierre una decisión.
 
 ## Estructura del código
 
@@ -11,10 +11,15 @@ MES Training Simulator/                    ← raíz del repositorio
 ├── TrainingApp/                           ← proyecto Web Forms (.NET FW 4.7.2)
 │   ├── Pages/
 │   │   ├── SessionHelper.cs               ← re-hidrata Session (vía AuthService), aviso de
-│   │   │                                     cambio de contraseña del primer acceso y logout
-│   │   ├── Auth/
+│   │   │                                     cambio de contraseña, capacidades del request,
+│   │   │                                     inicio y login por rol, último acceso y logout
+│   │   ├── UserPrincipal.cs               ← principal con el rol (spec 013), lo arma Global.asax
+│   │   ├── Auth/                          ← login y cambio de contraseña de SAP (operadores)
 │   │   │   ├── Login.aspx + .cs
 │   │   │   └── ChangePassword.aspx + .cs
+│   │   ├── Admin/                         ← módulo administrativo (spec 013, Admin.Master):
+│   │   │                                     Login, ChangePassword, Users (gestión de
+│   │   │                                     usuarios) y UserListRow (fila de la lista)
 │   │   └── Training/
 │   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
@@ -34,7 +39,16 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │                                         solo en Guided)
 │   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
 │   │   ├── Auth/
-│   │   │   └── AuthService.cs
+│   │   │   ├── AuthService.cs             ← login por portal, bloqueo, último acceso, cambio
+│   │   │   │                                 de contraseña
+│   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers) y
+│   │   │   │                                 qué login acepta cada rol (spec 013)
+│   │   │   ├── RoleCache.cs               ← rol por Code1, 2 min (Global.asax)
+│   │   │   ├── LoginLockPolicy.cs         ← 5 fallos → 15 min de bloqueo
+│   │   │   └── LoginResult.cs, ChangePasswordStatus.cs
+│   │   ├── Admin/
+│   │   │   └── UserAdminService.cs        ← gestión de usuarios: cada método verifica que
+│   │   │                                     quien llama es admin (spec 013)
 │   │   ├── Training/
 │   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products)
 │   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
@@ -46,12 +60,14 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 catálogos del área (perezosos, una vez por request)
 │   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
 │   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
-│   │   │   ├── PodState.cs                ← estado del POD (orden + avance) e IPodStateStore
+│   │   │   ├── PodState.cs                ← estado del POD (orden + avance + precargados) e IPodStateStore
 │   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
 │   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
-│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, start, acción inválida)
+│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, logout, start, acción inválida)
+│   │   │   ├── AttemptActions.cs          ← catálogo de acciones del registro de actividad
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
+│   │   │   ├── PreloadedEquipment.cs      ← equipos precargados de Resource Setup y su generador (spec 015)
 │   │   │   ├── SplitSfcGenerator.cs       ← SFC nuevo de cada SFC Split (Fase 6.5)
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
 │   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
@@ -59,21 +75,26 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
 │   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
 │   │       ├── StepValidationContext.cs   ← área y catálogos que usa el validador
-│   │       └── DataCollectionCompletionRule.cs ← grupos DC obligatorios
+│   │       ├── DataCollectionCompletionRule.cs ← grupos DC obligatorios
+│   │       ├── PreloadedEquipmentRule.cs  ← ¿un valor es un equipo precargado? (spec 015)
+│   │       └── PersonNameRule.cs          ← nombre del grupo Trainer (spec 015)
 │   ├── DAL/
 │   │   ├── Infrastructure/
 │   │   │   ├── Database.cs                ← wrapper ADO.NET (SqlConnection + SqlCommand)
 │   │   │   └── DatabaseFactory.cs         ← lee connection string de Web.config
 │   │   └── Repositories/                  ← uno por tabla: Employee (API, lista en memoria
-│   │                                         con precarga y refresco), User, Product, Area,
+│   │                                         con precarga y refresco), User (+ IUserRepository
+│   │                                         para los tests de la gestión), Product, Area,
 │   │                                         TrainingGuide, TrainingSession, StepAttempt,
 │   │                                         NCCode, DataCollectionGroup,
 │   │                                         DataCollectionParameter, AssemblyComponent
 │   ├── Domain/                            ← POCOs puros, sin dependencias
-│   │   ├── Employee.cs, User.cs, Product.cs
+│   │   ├── Employee.cs, Product.cs
+│   │   ├── User.cs (UserRole), UserSummary.cs ← cuenta local; UserSummary suma sus sesiones
 │   │   ├── Area.cs                        ← SerializationType + flags (Requires*)
 │   │   ├── TrainingGuide.cs, TrainingStep.cs (StepWeight)
-│   │   ├── TrainingSession.cs (SessionMode), TrainingSessionStepAttempt.cs
+│   │   ├── TrainingSession.cs (SessionMode)
+│   │   ├── TrainingSessionStepAttempt.cs  ← intento + AttemptReason y acción (spec 013)
 │   │   ├── Operation.cs                   ← POCO mínimo, entidad FUTURA inactiva
 │   │   ├── NCCode.cs, DataCollectionGroup.cs, DataCollectionParameter.cs
 │   │   └── AssemblyComponent.cs           ← BOM (Qty decimal)
@@ -83,7 +104,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   └── Web.config
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
 ├── Database/
-│   └── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
+│   ├── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
+│   └── Ops/                               ← scripts manuales: CreateAdmin, ResetUserPassword
 └── docs/                                  ← ver el mapa de documentos en CLAUDE.md
 ```
 
@@ -96,11 +118,51 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
 - `EnsureUserSession()`: si la Session está vacía y el usuario autenticado, la
   re-hidrata con `AuthService.GetUserByCode1(User.Identity.Name)`. Se re-hidrata desde
   BD (una consulta) y no con `FormsAuthenticationTicket.UserData` (4 KB, no extensible).
-- `SetUserSession(User)`: **única** escritura de `UserId`, `Code1`, `Name` e
-  `IsFirstLogin`; la usan el login y la re-hidratación. Una sola escritura evita que una
-  clave nueva quede solo en el login (como pasó con `IsFirstLogin`).
+- `SetUserSession(User, LoginResult)`: **única** escritura de `UserId`, `Code1`, `Name`,
+  `IsFirstLogin` y `LastAccess`; la usan el login y la re-hidratación. Una sola escritura
+  evita que una clave nueva quede solo en el login (como pasó con `IsFirstLogin`).
+  `LastAccess` (el último acceso anterior, spec 013) solo lo conoce el login: tras
+  re-hidratar no se muestra.
+- Capacidades del request (spec 013): `CurrentRole()` sale del `UserPrincipal`;
+  `CanTrain()` / `CanManageUsers()` preguntan a `AccessPolicy`; `RedirectHome()` manda a
+  quien no tiene la capacidad de una página a su inicio (sin rol: logout). `Logout()` vuelve
+  al login de admin o al de SAP según el rol.
 - `MustChangePassword()`: true mientras `IsFirstLogin` (AUD-08).
 - `Logout()`: abandona las sesiones `InProgress` del usuario (D-9) y cierra la sesión.
+
+## Roles, logins y gestión de usuarios (spec 013)
+
+- **Rol en cada request:** `Global.Application_PostAuthenticateRequest` arma un
+  `UserPrincipal` con el rol de `RoleCache` (2 min; un borrado o `CreateAdmin.sql` se ve al
+  vencer, o al instante si lo hizo este proceso). No usa la Session: la autorización por
+  `<location>` corre antes de que exista. `Web.config`: `Pages/Admin` solo Administrator,
+  `Pages/Training` solo Operator, el login y el cambio de contraseña de admin abiertos **con
+  y sin `.aspx`** (FriendlyUrls redirige a la URL sin extensión y la autorización se evalúa
+  sobre esa ruta; sin las dos, el login de admin entraba en un bucle con el de SAP).
+- **Un solo `loginUrl`** (el de SAP): un request sin sesión a `Pages/Admin/` cae ahí con su
+  `ReturnUrl` y el login de SAP lo reenvía al de admin. Con sesión, cualquier login manda a
+  su inicio (`RedirectHome`): un operador en `Pages/Admin` vuelve a entrenar sin bucle.
+- **Bloqueo y logins simultáneos:** `spUserLoginFailed` no suma con la cuenta ya bloqueada y
+  `spUserLoginSucceeded` no quita un bloqueo vigente (devuelve 0 y la BLL responde
+  `Locked`). Las fechas se guardan en UTC y se muestran en la hora de planta
+  (`Central America Standard Time`, `SessionHelper.ToLocal`).
+- **Gestión de usuarios:** `UserAdminService` recibe el Id del admin autenticado y lo
+  verifica antes de tocar nada (`UnauthorizedAccessException` si no es admin; la página
+  manda al inicio). `spUserDelete` borra intentos, sesiones y usuario en una transacción,
+  bajo un lock de aplicación, y vuelve a verificar que quien borra sigue siendo admin y no se
+  borra a sí mismo (dos admins borrándose a la vez no dejan cero admins).
+
+## Registro de actividad (spec 013)
+
+- Cada intento guarda `Reason` (`AttemptReason`: `None` si es correcto, `OutOfSequence`,
+  `WrongDecision`, `InvalidAction`, `MissingSelection`, `EmptyRequiredField`) y `Action`
+  (`AttemptActions`), en `spStepAttemptRecord`, en la misma transacción que el avance.
+- `PodService.RecordAttempt` los recibe de cada comando: `CheckSequence` con el botón
+  presionado, `SubmitStep` con la acción del envío (`AttemptActions.ForSubmit`), Assembly y
+  DC con la suya, `FailedAttempt` con `MissingSelection`. Los botones de relleno pasan su
+  acción desde la página (`GuidedTest.NonStepAction`).
+- Sin UI: lo consume el dashboard de la Fase 10. Los intentos anteriores tienen `NULL`
+  ("sin dato").
 
 ## API de empleados (`DAL/Repositories/EmployeeRepository`)
 
@@ -129,7 +191,9 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   si la sesión cambió, falla sin guardar nada.
 - **Código nuevo del POD** = un comando en `PodService`; la página solo traduce el
   `PodCommandResult` (`PodNotice`, intento) a UI y elige los textos de los avisos.
-- **Estado (`PodState`)**: orden simulada + avance de Assembly y DC, en Session bajo una
+- **Estado (`PodState`)**: orden simulada + avance de Assembly y DC + equipos precargados
+  de Resource Setup (spec 015: los genera `OpenResourceSetup` en cada apertura, viajan con el
+  control en un campo oculto sin otro postback y se descartan al resolver el paso), en Session bajo una
   clave por sesión (`SessionPodStateStore`). Si falta (Session reciclada), `LoadContext` lo
   reconstruye con la orden por defecto (D-10). Diferidos: AUD-40 (`PodState` mutable desde
   fuera de `PodService`, solo por convención) y AUD-42 (tras reconstruir en Serialized pueden
@@ -137,6 +201,13 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
 - **Una sesión activa por operador (D-9):** `PodService.StartSession` y
   `SessionHelper.Logout` abandonan las `InProgress`. Iniciar una guía también descarta el
   estado del POD de las sesiones anteriores (AUD-41).
+- **Logout simulado (spec 015):** el ícono del header es el último paso
+  (`PodService.ClickLogout`): con la sesión en curso pasa por `CheckSequence` y, en su paso,
+  cierra la sesión de entrenamiento con el resumen, sin tocar la sesión de la app. Sin
+  sesión en curso (resumen final, pestaña vieja), `GuidedTest.LoadContext` llama
+  `SessionHelper.Logout()` (D-21, AUD-33). Logout no tiene control de paso
+  (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
+  también al forzarse y al reconstruir el estado.
 
 ## `GuidedTest` y controles de paso (Fase 6, specs 004-007)
 
@@ -180,6 +251,14 @@ Decisiones cerradas: no reabrir sin spec.
   incorrecto, avance, resuelto), que fija la entrada del guion.
 - Los elementos se anclan con `data-guide`, nunca con ids. Un control o pantalla nueva del
   POD necesita sus anclas y su guion.
+- **Elementos libres de un subpaso** (`GuideSubstep.Free`, spec 011): además del resaltado,
+  se pueden usar mientras el subpaso está en pantalla (suben sobre el oscurecido como Logout).
+  Si lo resaltado no tiene campo, el foco va al primero libre. Lo usa el escaneo de Start:
+  resalta la etiqueta de la orden y deja libre `TxtSFC`.
+- **Notas y alertas de la trainer** (T7): `GuideSubstep.NoteHtml` va dentro del mismo globo,
+  después de la instrucción, y solo en el subpaso donde aplica; con `NoteIsAlert` se pinta en
+  rojo. Nunca una burbuja aparte (decisión del usuario, 2026-10-14: ruido visual). Son texto
+  del guion, como las instrucciones.
 - La guía no deja avanzar con una decisión incorrecta (R10): el control y `StepValidator` no
   cambian; el servidor le manda las respuestas esperadas solo en Guided.
 - Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (`Training.Master`) y

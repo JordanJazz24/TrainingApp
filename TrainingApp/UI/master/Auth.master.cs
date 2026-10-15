@@ -13,5 +13,16 @@ namespace TrainingApp.UI.Master
                 HttpUtility.JavaScriptStringEncode(message));
             Page.ClientScript.RegisterStartupScript(GetType(), "authError", script, true);
         }
+
+        // Error con un enlace al camino correcto (spec 013: un admin en el login de SAP).
+        public void ShowError(string message, string linkText, string linkUrl)
+        {
+            string html = HttpUtility.HtmlEncode(message) + "<br /><a href=\"" +
+                HttpUtility.HtmlAttributeEncode(linkUrl) + "\">" + HttpUtility.HtmlEncode(linkText) + "</a>";
+            string script = string.Format(
+                "Swal.fire({{ icon: 'error', title: 'Error', html: '{0}' }});",
+                HttpUtility.JavaScriptStringEncode(html));
+            Page.ClientScript.RegisterStartupScript(GetType(), "authError", script, true);
+        }
     }
 }

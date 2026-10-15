@@ -25,6 +25,8 @@ namespace TrainingApp.DAL.Repositories
                     cmd.Parameters.AddWithValue("@Timestamp",     attempt.Timestamp);
                     cmd.Parameters.AddWithValue("@NextStepOrder", (object)nextStepOrder ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@FinalScore",    (object)finalScore ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Reason",        attempt.Reason.HasValue ? (object)(byte)attempt.Reason.Value : DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Action",        (object)attempt.Action ?? DBNull.Value);
                 });
         }
 
@@ -49,7 +51,10 @@ namespace TrainingApp.DAL.Repositories
                 StepId        = Convert.ToInt32(r["StepId"]),
                 AttemptNumber = Convert.ToInt32(r["AttemptNumber"]),
                 IsCorrect     = Convert.ToBoolean(r["IsCorrect"]),
-                Timestamp     = Convert.ToDateTime(r["Timestamp"])
+                Timestamp     = Convert.ToDateTime(r["Timestamp"]),
+                // Null en los intentos anteriores a la spec 013 (AC-21).
+                Reason        = r["Reason"] == DBNull.Value ? (AttemptReason?)null : (AttemptReason)Convert.ToByte(r["Reason"]),
+                Action        = r["Action"] == DBNull.Value ? null : r["Action"].ToString()
             };
     }
 }

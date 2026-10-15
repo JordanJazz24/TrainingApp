@@ -8,6 +8,8 @@
 -- puntaje final (@FinalScore; Status 1 = Completed). Sin ninguno de los dos,
 -- solo registra el intento (incorrecto). Las decisiones (avanzar, cerrar,
 -- puntaje) las toma la BLL; el SP solo las guarda juntas (AUD-06).
+-- @Reason y @Action: registro de actividad (spec 013), en la misma
+-- transacción; null solo para quien todavía no los manda.
 CREATE OR ALTER PROCEDURE dbo.spStepAttemptRecord
     @SessionId     INT,
     @StepId        INT,
@@ -16,7 +18,9 @@ CREATE OR ALTER PROCEDURE dbo.spStepAttemptRecord
     @IsCorrect     BIT,
     @Timestamp     DATETIME2,
     @NextStepOrder INT          = NULL,
-    @FinalScore    DECIMAL(5,2) = NULL
+    @FinalScore    DECIMAL(5,2) = NULL,
+    @Reason        TINYINT      = NULL,
+    @Action        NVARCHAR(50) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -37,9 +41,9 @@ BEGIN
         THROW 50002, N'spStepAttemptRecord: la sesión cambió mientras se registraba el intento.', 1;
 
     INSERT INTO dbo.TrainingSessionStepAttempts
-        (SessionId, StepId, AttemptNumber, IsCorrect, Timestamp)
+        (SessionId, StepId, AttemptNumber, IsCorrect, Timestamp, Reason, Action)
     VALUES
-        (@SessionId, @StepId, @AttemptNumber, @IsCorrect, @Timestamp);
+        (@SessionId, @StepId, @AttemptNumber, @IsCorrect, @Timestamp, @Reason, @Action);
 
     IF @FinalScore IS NOT NULL
         UPDATE dbo.TrainingSessions
@@ -63,7 +67,7 @@ CREATE OR ALTER PROCEDURE dbo.spStepAttemptGetBySession
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, SessionId, StepId, AttemptNumber, IsCorrect, Timestamp
+    SELECT Id, SessionId, StepId, AttemptNumber, IsCorrect, Timestamp, Reason, Action
     FROM   dbo.TrainingSessionStepAttempts
     WHERE  SessionId = @SessionId
     ORDER  BY Timestamp;

@@ -45,6 +45,27 @@
 .pg-count { color: #6c757d; white-space: nowrap; }
 .pg-text strong { color: #000; }
 
+/* Nota de la trainer dentro del globo, después de la instrucción (T7). */
+.pg-note {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #e3e6ea;
+    color: #495057;
+    font-size: 0.85rem;
+}
+.pg-note strong { color: #000; }
+
+/* La nota como alerta: lo que no hay que olvidar en planta. */
+.pg-note.pg-note-alert {
+    padding: 6px 8px;
+    border: 1px solid #e0a3a0;
+    border-left: 4px solid #c62828;
+    border-radius: 4px;
+    background: #fdecea;
+    color: #8a1c1c;
+}
+.pg-note.pg-note-alert strong { color: #6b1010; }
+
 .pg-actions { margin-top: 10px; text-align: right; }
 .pg-continue {
     padding: 4px 14px;

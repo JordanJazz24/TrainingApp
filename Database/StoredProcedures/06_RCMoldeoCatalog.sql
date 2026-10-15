@@ -1,5 +1,5 @@
 -- ============================================================
--- 06_RCMoldeoCatalog.sql — catálogo real de R&C / Moldeo:
+-- 06_RCMoldeoCatalog.sql — catálogo real de S&RC / Moldeo:
 -- Product, Area (flags), NCCodes, DataCollectionGroups y
 -- DataCollectionParameters. La guía está en 07_RCMoldeoGuide.sql.
 -- Requiere: 00_Schema.sql.
@@ -23,10 +23,16 @@ BEGIN TRANSACTION;
 --   RequiresNCComponent    0 — NC Data Entry no pide Component
 --   RequiresStartChecklist 1 — Start abre la secuencia de 4 modales
 -- ------------------------------------------------------------
-IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'R&C')
-    INSERT INTO dbo.Products (Name) VALUES ('R&C');
+-- El producto se llamaba 'R&C' hasta el 2026-10-14 (T7: su nombre es S&RC, confirmado
+-- por el usuario). Una BD anterior se renombra en sitio: el Id no cambia.
+IF EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'R&C')
+   AND NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'S&RC')
+    UPDATE dbo.Products SET Name = 'S&RC' WHERE Name = 'R&C';
 
-DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = 'R&C');
+IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = 'S&RC')
+    INSERT INTO dbo.Products (Name) VALUES ('S&RC');
+
+DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = 'S&RC');
 
 IF NOT EXISTS (SELECT 1 FROM dbo.Areas WHERE ProductId = @ProductId AND Name = 'Moldeo')
     INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
@@ -89,9 +95,10 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Co
 ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------
--- DataCollectionGroups — 6 grupos. Obligatorio solo
+-- DataCollectionGroups — 7 grupos. Obligatorio solo
 -- DCGTM_FECHA_EXPIRACION_NIR/A (fechas de kerosene y tintas): el paso
 -- DC se completa al guardarlo. La UI no indica cuál es obligatorio.
+-- DCGTM_TRAINEE/A: grupo Trainer, opcional (spec 015).
 -- ------------------------------------------------------------
 DECLARE @Grp TABLE (Seq INT IDENTITY, Code NVARCHAR(100), Description NVARCHAR(200),
                     CollectDataAt NVARCHAR(50), IsRequired BIT, DisplayOrder INT);
@@ -101,7 +108,8 @@ INSERT INTO @Grp (Code, Description, CollectDataAt, IsRequired, DisplayOrder) VA
     (N'DCGTM_VERIFICACION_MOLDEO_MAQUINA_OP/A', N'Verificación IDMold & IDIMM', 'Pre-Start',  0, 3),
     (N'DCGTM_FECHA_EXPIRACION_NIR/A',           N'Fechas de Expiración',        'Post-Start', 1, 4),
     (N'DCGTM_ENTREGA_PRIMERA_PIEZA/A',          N'First Shot Entregado',        'Post-Start', 0, 5),
-    (N'DCGTM_ENTREGA_PRIMERA_PIEZA_NIR/A',      N'First Shot NIR Entregado',    'Post-Start', 0, 6);
+    (N'DCGTM_ENTREGA_PRIMERA_PIEZA_NIR/A',      N'First Shot NIR Entregado',    'Post-Start', 0, 6),
+    (N'DCGTM_TRAINEE/A',                        N'Entrenamiento personal',      'Anytime',    0, 7);
 
 UPDATE t
 SET    Description = s.Description, CollectDataAt = s.CollectDataAt,
@@ -116,7 +124,7 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionGroups t WHERE t.AreaId = @Ar
 ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------
--- DataCollectionParameters — 16 parámetros, cada uno en su grupo.
+-- DataCollectionParameters — 17 parámetros, cada uno en su grupo.
 --   · Name: la pregunta. Description: la línea "Description: …" de Data
 --     Collection Entry, tomada del legacy (main.aspx, main.v1.0.0.js); las
 --     de First Shot se redactaron desde su pregunta.
@@ -124,6 +132,8 @@ ORDER  BY s.Seq;
 --   · "Colling Time" se escribe así en el legacy.
 --   · Las 3 preguntas de LC Moldeo del checklist de Start NO son
 --     parámetros: viven en SearchControl y las califica StepValidator.
+--   · NOMBRE_EN_ENTRENAMIENTO (grupo Trainer, spec 015): nombre provisional
+--     (SIM); el del MES real no se conoce.
 -- ------------------------------------------------------------
 DECLARE @Prm TABLE (Seq INT IDENTITY, GroupCode NVARCHAR(100), Name NVARCHAR(200), Description NVARCHAR(200),
                     DataType NVARCHAR(20), Unit NVARCHAR(50), DisplayOrder INT);
@@ -143,7 +153,8 @@ INSERT INTO @Prm (GroupCode, Name, Description, DataType, Unit, DisplayOrder) VA
     (N'DCGTM_FECHA_EXPIRACION_NIR/A',           N'Fecha de Expiración Kerosene',              N'Ingrese la fecha de expiración kerosene',        'Date',    'MM/DD/AA', 13),
     (N'DCGTM_FECHA_EXPIRACION_NIR/A',           N'Fecha de Expiración de Tintas',             N'Ingrese la fecha de expiración de Priscone',     'Date',    'MM/DD/AA', 16),
     (N'DCGTM_ENTREGA_PRIMERA_PIEZA/A',          N'First Shot entregado - OPE',                N'Entrega de First Shot a calidad (OPE)',          'Boolean', 'N/A',     14),
-    (N'DCGTM_ENTREGA_PRIMERA_PIEZA_NIR/A',      N'First Shot NIR entregado - OPE',            N'Entrega de First Shot NIR a calidad (OPE)',      'Boolean', 'N/A',     15);
+    (N'DCGTM_ENTREGA_PRIMERA_PIEZA_NIR/A',      N'First Shot NIR entregado - OPE',            N'Entrega de First Shot NIR a calidad (OPE)',      'Boolean', 'N/A',     15),
+    (N'DCGTM_TRAINEE/A',                        N'NOMBRE_EN_ENTRENAMIENTO',                   N'SIM: nombre de la persona en entrenamiento',     'PersonName', 'N/A',  17);
 
 UPDATE t
 SET    DataCollectionGroupId = g.Id, Description = s.Description, DataType = s.DataType,
@@ -162,4 +173,4 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters t WHERE t.AreaId =
 ORDER  BY s.Seq;
 
 COMMIT TRANSACTION;
-PRINT N'Catálogo de R&C / Moldeo cargado.';
+PRINT N'Catálogo de S&RC / Moldeo cargado.';

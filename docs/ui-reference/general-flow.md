@@ -2,7 +2,7 @@
 
 Documento acumulativo. Flujo común a todas las áreas. Se actualiza pantalla por pantalla conforme se analiza el SAP MES real.
 Fuente de verdad de **cómo se ve y se opera** cada pantalla. Las reglas de negocio y de
-puntaje (pesos, qué cuenta como intento, modos) están en `CLAUDE.md`; aquí no se copian.
+puntaje (pesos, qué cuenta como intento, modos) están en `docs/domain.md`; aquí no se copian.
 
 > Documentos por área (`moldeo-flow.md`, etc.) solo registrarán lo que difiere de este flujo general.
 >
@@ -113,6 +113,9 @@ botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo v
 | NC Data Entry | Subencabezado `SFC: …` con (?) |
 | Data Collection Standalone, Browse Work List | Solo la barra de título |
 
+**Mensajes del MES real** (trainer de Wires, 2026-10-13, sin captura): los errores aparecen
+en un **recuadro rojo arriba**; las confirmaciones duran unos **5 segundos**.
+
 ---
 
 ## Paso 1 — Resource Setup
@@ -139,7 +142,9 @@ botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo v
   ← todos deshabilitados
 ────────────────────────────────────────────────────────
   Setup Type                    Setup Type Value
-  (tabla vacía)
+  Shop Order                    {precargada}     ← equipos del turno anterior (spec 015)
+  Tool Number                   {precargada}
+  Tool Number                   {precargada}
 ────────────────────────────────────────────────────────
                     [Save]  [Clear]
 ```
@@ -147,7 +152,7 @@ botón de salida de cada modal (Cancel, Close o volver a NC Selection). Debajo v
 **Estado 2 — después de Retrieve**
 - Setup State cambia a dropdown editable con "Set Up" seleccionado
 - Toolbar habilitado
-- Tabla muestra filas existentes (si las hay)
+- La tabla conserva las filas precargadas; Retrieve no agrega filas (enmienda de la spec 015)
 
 **Estructura de cada fila:**
 ```
@@ -185,10 +190,23 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 - **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
 - **El orden de las filas es libre** — no se exige que Shop Order sea la primera fila
 - **Setup State DEBE ser "Set Up"**: es una *decisión* del operador; guardar en "Open" se
-  envía al servidor y es intento fallido (`CLAUDE.md` → "Qué cuenta como intento")
+  envía al servidor y es intento fallido (`docs/domain.md` → "Qué cuenta como intento")
 - **Exactamente 1 Shop Order** — ni 0 ni 2+
 - **Al menos 1 Tool Number**
 - **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
+
+**Procedimiento real (trainer de Wires, 2026-10-13):** al inicio del turno y en cada cambio
+de lote, el operador hace **Remove All** de los equipos que quedaron cargados (del turno o
+lote anterior) y escanea los que están físicamente en la estación. Error frecuente: asumir
+que los equipos cargados son los de la estación y trabajar con una herramienta equivocada.
+Sin captura del Remove All.
+
+**Equipos precargados (spec 015, 2026-10-14):** el modal abre con una Shop Order y 2
+herramientas precargadas (las genera la BLL en cada apertura, distintas de `303406950`).
+Guardar con alguna en la tabla es intento fallido (mensaje genérico en Assessment); vale
+cualquier forma de quitarlas (Remove All o Remove Selected). Con alguna en la tabla, el
+control no muestra los avisos de formato de abajo (D-26). En Guided, la captura de la Shop
+Order y de la herramienta no acepta un valor precargado.
 
 ### Validaciones del UserControl (lado cliente + servidor)
 
@@ -483,7 +501,7 @@ en planta. Hallazgos y propuestas: roadmap → "Fase 8".
 ### Reglas de negocio
 - No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
-- Bifurcación por SerializationType (`CLAUDE.md` → "Ejes de variación"): ver "Implementación en el simulador"
+- Bifurcación por SerializationType (`docs/domain.md` → "Ejes de variación"): ver "Implementación en el simulador"
 
 ### Implementación en el simulador (specs 005 y 008)
 - `TxtSFC` es readonly: el SFC se elige solo vía Browse Work List (spec 005).
@@ -719,7 +737,8 @@ NonSerialized hay una sola pieza, el lote: `(1/1)`.
 **Revisión con SAP MES (2026-10-09):** recolectar por pieza es correcto, pero según la
 configuración de la operación el MES también permite recolectar para todas las piezas a la
 vez (con cientos de unidades es lo práctico). El simulador va pieza por pieza, como se vio
-en Sensores. El banner "SFC … completed. Next: …" no tiene captura y puede ser propio del
+en Sensores. **Validación con técnicos (2026-10-12):** pieza por pieza se mantiene;
+"aplicar a todas las piezas" queda descartado. El banner "SFC … completed. Next: …" no tiene captura y puede ser propio del
 simulador: verificarlo en el ambiente de calidad de SAP MES.
 
 ### Patrón compartido: DC Collect vs. Assembly
@@ -768,6 +787,10 @@ simulador: verificarlo en el ambiente de calidad de SAP MES.
 
 > **Estructura y flujo idénticos al Paso 2.** Ver sección "Paso 2 — Line Clearance" para la documentación completa de modales, estados y reglas.
 
+> **Trainer de Wires (2026-10-13):** en algunas operaciones no aplica; por ejemplo, Wires
+> línea final no hace LC de cierre. El simulador lo mantiene y la guía lo aclara con una
+> alerta (T7).
+
 ### Condicionalidad
 
 | Escenario | Comportamiento |
@@ -777,7 +800,7 @@ simulador: verificarlo en el ambiente de calidad de SAP MES.
 
 La condicionalidad vive en el **catálogo de guías** (`TrainingGuide.Steps`): si el área no tiene un `TrainingStep` de tipo `LineClearance` en la posición de cierre, no existe en la secuencia. No requiere cambio de código.
 Hoy todas las guías lo incluyen: por regla de negocio el Cierre es igual en todas las áreas
-(`CLAUDE.md` → "Flujo estándar").
+(`docs/domain.md` → "Flujo estándar").
 
 ---
 
@@ -916,22 +939,53 @@ pide) y scrapear la pieza.
 ### Flujo del operador
 1. Seleccionar fila(s) del SFC u orden de planta en el POD Work List
 2. Clic en **[Complete]** en la barra de acción
-3. El sistema completa la orden y los SFCs seleccionados
-4. **Fin del proceso**
+3. El sistema completa la orden y los SFCs seleccionados: las filas salen del POD (pasan a la
+   siguiente operación)
+4. Sigue el Paso 10 — Logout (spec 015)
 
 ### Reglas de negocio
 - No valida contenido — se califica por secuencia
-- El operador debe saber que este es el paso final del cierre
+- Ya no es el último paso: la sesión sigue con Logout (spec 015)
 - Todos los pasos anteriores deben estar completos antes de llegar aquí
 - Sin fila seleccionada = intento fallido (spec 007). NonSerialized: una fila.
   **Serialized (spec 008):** todas las filas que quedan en el POD (algunas = aviso sin intento).
 
+**Mensaje después de Complete — PROVISIONAL (spec 015, D-22):** banner genérico con el formato
+de los demás banners del POD: `SFC {sfc} completed` (NonSerialized) o `{N} SFCs completed`
+(Serialized). Pendiente: reemplazarlo con el texto real cuando haya captura
+(`docs/process.md` §8).
+
 > **Diferencia con legacy:** el legacy implementaba un modal "Complete Section" + overlay "Log Buyoff" con credenciales (User ID + Password). El flujo real SAP es directo. Si alguna área requiere confirmación adicional (buyoff, firma), se documenta en su archivo de área.
 >
-> **Enmienda 2026-10-12:** según la WI QD001001524, el Complete directo es una de tres
-> variantes; las otras son **Log Buyoff** (operaciones de 50 SFC o menos por transacción)
-> y **firma electrónica** (mover toda la orden). Falta saber cuál tienen las áreas
-> simuladas: `wi-produccion-disposables.md` → W17.
+> **Simplificación aceptada (validación con técnicos, 2026-10-12):** la WI de producción
+> QD001001524 rev. 27 describe variantes de Complete (Log Buyoff en operaciones de 50 SFC o
+> menos, firma electrónica al mover toda la orden, supervisor que completa por otro;
+> `wi-produccion-disposables.md` → W17). El simulador entrena solo el flujo directo:
+> seleccionar las piezas o el lote y presionar Complete.
+
+---
+
+## Paso 10 — Logout (spec 015)
+
+**StepType:** `Logout` | **Validación:** secuencia (correcto solo con el ícono Logout)
+
+**Acceso:** ícono **Logout** del header del POD.
+
+### Flujo del operador
+1. Clic en el ícono **Logout** del header
+
+### Reglas de negocio
+- **Simulado:** registra el paso, cierra la sesión de entrenamiento y muestra el resumen
+  final. No cierra la sesión de la app y no hay pantalla de logout del MES (sin captura).
+- **Antes del último paso:** en Assessment es un botón más del POD (intento fallido del paso
+  actual, mensaje genérico, no cierra nada); en Guided está deshabilitado. Para salir a mitad
+  de una sesión queda Abandon.
+- **Con la sesión ya cerrada** (resumen final): el ícono cierra la sesión de la app (D-21).
+- **Guía de Guided:** el subpaso señala el ícono con la nota de la trainer ("Cierra sesión en
+  MES siempre que dejes de usar activamente el sistema…").
+
+**Procedimiento real (trainer de Wires, 2026-10-13):** cerrar sesión siempre que se deja la
+estación: hubo CAPAs por Code1 compartidos y sesiones abiertas.
 
 ---
 
@@ -948,6 +1002,7 @@ pide) y scrapear la pieza.
 | 7 — SFC Split | `SFC_Split` | Solo NonSerialized |
 | 8 — Log NC | `LogNC` | No |
 | 9 — Complete | `Complete` | No |
+| 10 — Logout | `Logout` | No (spec 015) |
 
-Pesos de cada paso por guía: `CLAUDE.md` → "Ponderación de pasos" (la fuente de verdad es
+Pesos de cada paso por guía: `docs/domain.md` → "Ponderación de pasos" (la fuente de verdad es
 `TrainingSteps.Weight` en la BD).

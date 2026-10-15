@@ -259,7 +259,8 @@ namespace TrainingApp.Test
                 (StepType.LineClearance,  0.05m),
                 (StepType.SFC_Split,      0.05m),
                 (StepType.LogNC,          0.10m),
-                (StepType.Complete,       0.10m));
+                (StepType.Complete,       0.05m),
+                (StepType.Logout,         0.05m));
         }
 
         // Database/StoredProcedures/05_SeedData.sql (datos de ejemplo) — Serialized, con
@@ -274,7 +275,8 @@ namespace TrainingApp.Test
                 (StepType.DataCollection, 0.30m),
                 (StepType.LineClearance,  0.05m),
                 (StepType.LogNC,          0.10m),
-                (StepType.Complete,       0.10m));
+                (StepType.Complete,       0.05m),
+                (StepType.Logout,         0.05m));
         }
 
         // Pasos en el orden de la guía; Id = Order = posición.
@@ -360,8 +362,8 @@ namespace TrainingApp.Test
         public void Moldeo_LosingDataCollection_PassesAtSeventy()
         {
             var guide = MoldeoGuide();
-            //                     RS LC Se DC      LC SS NC Co
-            var attempts = Run(guide, 1, 1, 1, Forced, 1, 1, 1, 1);
+            //                     RS LC Se DC      LC SS NC Co Lo
+            var attempts = Run(guide, 1, 1, 1, Forced, 1, 1, 1, 1, 1);
             decimal score = _calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment);
 
             Assert.That(score, Is.EqualTo(0.70m));
@@ -373,8 +375,8 @@ namespace TrainingApp.Test
         public void Moldeo_LosingDataCollectionAndOneRetry_FailsAtSixtyNine()
         {
             var guide = MoldeoGuide();
-            //                     RS LC Se DC      LC SS NC Co
-            var attempts = Run(guide, 1, 2, 1, Forced, 1, 1, 1, 1);
+            //                     RS LC Se DC      LC SS NC Co Lo
+            var attempts = Run(guide, 1, 2, 1, Forced, 1, 1, 1, 1, 1);
             decimal score = _calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment);
 
             Assert.That(score, Is.EqualTo(0.69m));
@@ -399,7 +401,7 @@ namespace TrainingApp.Test
                         Is.EqualTo(0.37m));   // 0.20 + 0.05 + 0.15 × 0.80 + 0
         }
 
-        // Barrido: cada paso resuelto en el intento 1, 2, 3 o forzado (4^8 combinaciones por
+        // Barrido: cada paso resuelto en el intento 1, 2, 3 o forzado (4^9 combinaciones por
         // guía). El puntaje está entre 0 y 1, tiene a lo sumo 2 decimales (FinalScore es
         // DECIMAL(5,2): el redondeo de la BD no lo cambia) y es Σ peso × factor, con los
         // factores de CLAUDE.md escritos aquí, no tomados de GetPenaltyFactor.

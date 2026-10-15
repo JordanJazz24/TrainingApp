@@ -25,6 +25,7 @@
     var paused = false;        // hay un SweetAlert abierto
     var pendingRetry = null;   // subpaso al que volver al cerrar un aviso de formato
     var frame = null, globe = null;
+    var lifted = [];           // elementos libres del subpaso, subidos sobre el oscurecido
 
     function current() { return substeps[idx] || null; }
 
@@ -97,6 +98,14 @@
         return true;
     }
 
+    // Valores que la captura no acepta, como un formato (spec 015, D-25: los equipos
+    // precargados de Resource Setup). Sin espacios, con el conjunto de PreloadedEquipmentRule.
+    function rejected(s, value) {
+        if (!s.reject) return false;
+        var v = (value || '').replace(/[ \t\r\n]/g, '');
+        return s.reject.some(function (r) { return (r || '').replace(/[ \t\r\n]/g, '') === v; });
+    }
+
     // Regla de un campo de un bloque con decisión (Data Collection): las de StepValidator.
     function fieldOk(rule, el) {
         if (!el) return false;
@@ -142,7 +151,8 @@
             return !(f.tagName === 'INPUT' && /^(hidden|button|submit|reset|image)$/i.test(f.type));
         });
         return fields.every(function (f) {
-            return formatOk(s.format, f.value) && (s.expect == null || f.value === s.expect);
+            return formatOk(s.format, f.value) && !rejected(s, f.value) &&
+                (s.expect == null || f.value === s.expect);
         });
     }
 
@@ -166,6 +176,7 @@
         globe.innerHTML =
             '<div class="pg-head"><span class="pg-step"></span><span class="pg-count"></span></div>' +
             '<div class="pg-text"></div>' +
+            '<div class="pg-note"></div>' +
             '<div class="pg-actions"><button type="button" class="pg-continue">Continuar</button></div>';
         document.body.appendChild(frame);
         document.body.appendChild(globe);
@@ -178,6 +189,11 @@
         globe.querySelector('.pg-count').textContent = s.mode === 'final' ? '' : 'Subpaso ' + s.index + ' de ' + s.total;
         // HTML armado y codificado en el servidor (GuideScriptBuilder).
         globe.querySelector('.pg-text').innerHTML = s.html;
+        // Nota de la trainer (T7), normal o alerta; oculta si el subpaso no la trae.
+        var note = globe.querySelector('.pg-note');
+        note.innerHTML = s.note || '';
+        note.style.display = s.note ? '' : 'none';
+        note.classList.toggle('pg-note-alert', s.alert === true);
         globe.querySelector('.pg-actions').style.display = needsContinue(s) ? '' : 'none';
         globe.querySelector('.pg-continue').textContent = s.mode === 'final' ? 'OK' : 'Continuar';
         updateContinue();
@@ -213,14 +229,39 @@
 
     function blocks(st) { return st === 'shown' || st === 'searching' || st === 'waiting'; }
 
-    // Único lugar que cambia el estado. Mientras la guía bloquea, Logout y Abandon quedan por
-    // encima de todo, también de los modales (R2: siempre libres).
+    // Único lugar que cambia el estado. Mientras la guía bloquea, los elementos libres (Abandon;
+    // Logout solo con la sesión cerrada, spec 015) quedan por encima de todo, también de los
+    // modales (R2).
     function setState(next) {
         state = next;
         var lift = blocks(next);
         document.querySelectorAll('[data-guide-free]').forEach(function (b) {
             b.classList.toggle('pg-lift', lift);
         });
+        liftFree(next === 'shown' ? current() : null);
+    }
+
+    // Elementos libres del subpaso (spec 011): además del resaltado, se pueden usar mientras
+    // el subpaso está en pantalla (ej. el campo SFC junto a la etiqueta que se escanea).
+    function freeEls(s) {
+        if (!s || !s.free) return [];
+        var els = [];
+        s.free.forEach(function (sel) {
+            Array.prototype.forEach.call(document.querySelectorAll(sel), function (el) {
+                if (isVisible(el)) els.push(el);
+            });
+        });
+        return els;
+    }
+
+    function liftFree(s) {
+        lifted.forEach(function (el) { el.classList.remove('pg-lift'); });
+        lifted = freeEls(s);
+        lifted.forEach(function (el) { el.classList.add('pg-lift'); });
+    }
+
+    function inLifted(node) {
+        return lifted.some(function (el) { return el.contains(node); });
     }
 
     function hideVisuals() {
@@ -242,7 +283,9 @@
         var s = current();
         if (s.mode === 'capture' || s.mode === 'verify' || s.mode === 'scan' ||
             (s.mode === 'change' && s.expect != null)) {
-            var field = focusables(el)[0];
+            // Sin campo en lo resaltado (la etiqueta), el foco va al primer elemento libre: el
+            // lector escribe donde está el foco.
+            var field = focusables(el)[0] || freeFields()[0];
             if (field && document.activeElement !== field) field.focus();
         }
     }
@@ -421,7 +464,12 @@
     function allowed(node) {
         if (isFree(node)) return true;
         if (state !== 'shown' || !node || !node.closest) return false;
-        return (targetEditable() && target.contains(node)) || (globe && globe.contains(node));
+        return (targetEditable() && target.contains(node)) || inLifted(node) ||
+            (globe && globe.contains(node));
+    }
+
+    function freeFields() {
+        return lifted.reduce(function (list, el) { return list.concat(focusables(el)); }, []);
     }
 
     function blocking() {
@@ -457,6 +505,7 @@
     function cycleFocus(back) {
         // Con un modal abierto su trampa de foco no deja salir: solo el elemento resaltado.
         var list = targetEditable() ? focusables(target) : [];
+        list = list.concat(freeFields());
         if (!topModal()) list = list.concat(focusables(globe));
         if (list.length === 0) return;
         var i = list.indexOf(document.activeElement);

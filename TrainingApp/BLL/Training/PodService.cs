@@ -93,6 +93,11 @@ namespace TrainingApp.BLL.Training
                         SaveState(ctx);
                     }
                 }
+                else if (step.StepType == StepType.Complete)
+                {
+                    // Spec 015 (D-22): las filas completadas ya no están en el POD.
+                    RemoveRows(ctx, ctx.State.Order.ActiveRows());
+                }
             }
 
             ctx.Rebuilt = true;
@@ -129,34 +134,53 @@ namespace TrainingApp.BLL.Training
                 throw new InvalidOperationException("El paso actual no se califica por respuesta.");
 
             bool isCorrect = BuildValidator(ctx, step.StepType).Validate(step, submittedAnswer);
-            return RecordAttempt(ctx, step, isCorrect);
+            // Registro de actividad (spec 013): un botón equivocado dentro del paso es una acción
+            // inválida; el resto, una decisión incorrecta.
+            var reason = submittedAnswer == StepAnswers.Invalid
+                ? AttemptReason.InvalidAction : AttemptReason.WrongDecision;
+            return RecordAttempt(ctx, step, isCorrect, reason, AttemptActions.ForSubmit(step.StepType, submittedAnswer));
         }
 
         // ── Resource Setup y Line Clearance ──────────────────────────────
 
+        // Cada apertura genera otros equipos precargados (spec 015): Retrieve los muestra y el
+        // Save no puede dejar ninguno. Viajan con el control, sin otro postback.
         public PodCommandResult OpenResourceSetup(PodContext ctx)
-            => CheckSequence(ctx, StepType.ResourceSetup) ?? new PodCommandResult();
+        {
+            var sequence = CheckSequence(ctx, StepType.ResourceSetup, AttemptActions.ResourceSetup);
+            if (sequence != null) return sequence;
+
+            ctx.State.PreloadedEquipment = PreloadedEquipmentGenerator.Generate(new Random());
+            SaveState(ctx);
+            return new PodCommandResult();
+        }
 
         // Line Clearance se abre desde Activities ("Data Collection Standalone").
         public PodCommandResult OpenLineClearance(PodContext ctx)
-            => CheckSequence(ctx, StepType.LineClearance) ?? new PodCommandResult();
+            => CheckSequence(ctx, StepType.LineClearance, AttemptActions.DCStandalone) ?? new PodCommandResult();
 
         // Resource Setup: califica el Setup State y, ya registrado el intento (AUD-06), crea la
         // orden con la Shop Order capturada, también en un intento fallido ("Open"), como
         // antes (spec 005). Si el paso avanzó forzado, la orden sale de la Shop Order genérica
         // e ignora lo capturado (S2 / spec 008, E8).
+        // Con un equipo precargado en las filas, el control no aplica el formato (D-26, spec
+        // 015): la Shop Order puede faltar y el intento se registra igual. Sin una Shop Order
+        // válida y propia (no la del lote anterior), la orden no se crea: el paso sigue pendiente.
         public StepSubmitResult SubmitResourceSetup(PodContext ctx, string answer, string shopOrderInput)
         {
             EnsureCurrentStep(ctx, StepType.ResourceSetup);
+            bool validShopOrder = SimulatedOrder.IsValidShopOrder(shopOrderInput) &&
+                ctx.State.PreloadedEquipment?.Contains(shopOrderInput) != true;
             // El control ya lo avisa como formato; si llega mal es una manipulación o un error
             // de programación: no se registra nada (auditoría AUD-36).
-            if (!SimulatedOrder.IsValidShopOrder(shopOrderInput))
+            if (!validShopOrder && !BuildValidator(ctx, StepType.ResourceSetup).HasPreloadedValue(answer))
                 throw new ArgumentException("La Shop Order debe ser numérica.", nameof(shopOrderInput));
 
             var result = SubmitStep(ctx, answer);
-            CreateOrder(ctx, result.Outcome == StepSubmitOutcome.FailedForced
-                ? PodDefaults.DefaultShopOrder
-                : shopOrderInput);
+            if (result.Outcome == StepSubmitOutcome.FailedForced)
+                CreateOrder(ctx, PodDefaults.DefaultShopOrder);
+            else if (validShopOrder)
+                CreateOrder(ctx, shopOrderInput);
             return result;
         }
 
@@ -175,11 +199,11 @@ namespace TrainingApp.BLL.Training
 
         // Click en Start. Avisos de formato, sin intento: sin orden (Resource Setup pendiente o
         // Session perdida); Serialized sin todas las piezas elegidas en Browse Work List (spec
-        // 008); NonSerialized sin SFC. Con checklist (Moldeo) pide abrirlo; sin checklist, el
+        // 008); NonSerialized sin SFC o con uno que no es del lote (spec 011). Con checklist (Moldeo) pide abrirlo; sin checklist, el
         // Start se califica solo por secuencia y las piezas pasan a Active.
         public PodCommandResult ClickStart(PodContext ctx, ICollection<string> browseRowIds, string scannedSfc)
         {
-            var sequence = CheckSequence(ctx, StepType.Search);
+            var sequence = CheckSequence(ctx, StepType.Search, AttemptActions.Start);
             if (sequence != null) return sequence;
 
             var order = ctx.State.Order;
@@ -189,11 +213,17 @@ namespace TrainingApp.BLL.Training
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
                 if (!IsBrowseSelectionValid(order, browseRowIds))
-                    return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
+                    return PodCommandResult.WithNotice(PodNotice.StartWholeOrder);
             }
             else if (string.IsNullOrWhiteSpace(scannedSfc))
             {
                 return PodCommandResult.WithNotice(PodNotice.SfcRequired);
+            }
+            else if (!order.IsLotReference(scannedSfc))
+            {
+                // Spec 011 (enmienda E-2): TxtSFC es editable; el cliente ya lo avisa, esto
+                // cubre una manipulación. Ningún lote ajeno se inicia.
+                return PodCommandResult.WithNotice(PodNotice.SfcNotInOrder);
             }
 
             if (ctx.Area.RequiresStartChecklist)
@@ -249,7 +279,7 @@ namespace TrainingApp.BLL.Training
         // Abrir la Component List exige la selección del paso (aviso de formato, sin intento).
         public PodCommandResult OpenAssembly(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            return CheckSequence(ctx, StepType.Assembly)
+            return CheckSequence(ctx, StepType.Assembly, AttemptActions.Assemble)
                 ?? PodCommandResult.WithNotice(CheckPodSelection(ctx, StepType.Assembly, selectedRowIds));
         }
 
@@ -273,7 +303,8 @@ namespace TrainingApp.BLL.Training
             var progress = ctx.State.Assembly ?? new AssemblyProgress();
             if (progress.CoversWith(componentId, bom))
             {
-                result.StepResult = RecordAttempt(ctx, step, isCorrect: true);
+                result.StepResult = RecordAttempt(ctx, step, isCorrect: true,
+                    AttemptReason.None, AttemptActions.AssemblyAdd);
             }
             else
             {
@@ -293,7 +324,7 @@ namespace TrainingApp.BLL.Training
         // spec 008).
         public PodCommandResult OpenDataCollection(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            var sequence = CheckSequence(ctx, StepType.DataCollection);
+            var sequence = CheckSequence(ctx, StepType.DataCollection, AttemptActions.DCCollect);
             if (sequence != null) return sequence;
 
             var notice = CheckPodSelection(ctx, StepType.DataCollection, selectedRowIds);
@@ -331,11 +362,20 @@ namespace TrainingApp.BLL.Training
             var piece = progress.CurrentPiece;
             result.PieceSfcCode = piece.SFCCode;
 
-            if (!BuildValidator(ctx, StepType.DataCollection)
-                    .ValidateDataCollectionGroup(group.Id, answersJson))
+            var validator = BuildValidator(ctx, StepType.DataCollection);
+            // Nombre del grupo Trainer inválido (spec 015): el control lo bloquea como formato;
+            // si llega es una manipulación y no cuenta (auditoría AUD-36).
+            if (validator.HasInvalidPersonName(group.Id, answersJson))
+                return new DataCollectionSubmitResult { Outcome = DataCollectionOutcome.Ignored };
+
+            if (!validator.ValidateDataCollectionGroup(group.Id, answersJson))
             {
-                // Avance forzado (E5): RecordAttempt descarta el avance parcial.
-                result.StepResult = RecordAttempt(ctx, step, isCorrect: false);
+                // Avance forzado (E5): RecordAttempt descarta el avance parcial. Registro de
+                // actividad: un valor vacío se distingue de uno fuera de rango (spec 013).
+                var reason = validator.HasMissingDataCollectionValue(group.Id, answersJson)
+                    ? AttemptReason.EmptyRequiredField : AttemptReason.WrongDecision;
+                result.StepResult = RecordAttempt(ctx, step, isCorrect: false,
+                    reason, AttemptActions.DataCollectionSave);
                 result.Outcome = result.StepResult.Outcome == StepSubmitOutcome.Incorrect
                     ? DataCollectionOutcome.Incorrect
                     : DataCollectionOutcome.StepResolved;
@@ -356,7 +396,8 @@ namespace TrainingApp.BLL.Training
             // descarta el avance al resolver el paso.
             if (progress.CurrentIndex == progress.Pieces.Count - 1)
             {
-                result.StepResult = RecordAttempt(ctx, step, isCorrect: true);
+                result.StepResult = RecordAttempt(ctx, step, isCorrect: true,
+                    AttemptReason.None, AttemptActions.DataCollectionSave);
                 result.Outcome = DataCollectionOutcome.StepResolved;
                 return result;
             }
@@ -384,7 +425,7 @@ namespace TrainingApp.BLL.Training
         // Abrir SFC Split exige una fila seleccionada del POD (aviso de formato, sin intento).
         public PodCommandResult OpenSplit(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            return CheckSequence(ctx, StepType.SFC_Split)
+            return CheckSequence(ctx, StepType.SFC_Split, AttemptActions.SFCSplit)
                 ?? PodCommandResult.WithNotice(IsSingleRow(SelectedRows(ctx, selectedRowIds))
                     ? PodNotice.None
                     : PodNotice.SelectRowToSplit);
@@ -426,14 +467,14 @@ namespace TrainingApp.BLL.Training
         // 007): no hay gate en el cliente, el click tiene que llegar acá para contar.
         public PodCommandResult OpenLogNC(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            var sequence = CheckSequence(ctx, StepType.LogNC);
+            var sequence = CheckSequence(ctx, StepType.LogNC, AttemptActions.LogNC);
             if (sequence != null) return sequence;
 
             var scrappable = ScrappableRows(ctx, selectedRowIds, out bool noPieceLeft);
             if (noPieceLeft)
                 return PodCommandResult.WithNotice(PodNotice.NoPieceLeft);
             if (scrappable.Count == 0)
-                return FailedAttempt(ctx, PodAttemptReason.NoScrappableRow);
+                return FailedAttempt(ctx, PodAttemptReason.NoScrappableRow, AttemptActions.LogNC);
 
             return new PodCommandResult();
         }
@@ -484,7 +525,7 @@ namespace TrainingApp.BLL.Training
         // seleccionada es un intento fallido (spec 007).
         public PodCommandResult Complete(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            var sequence = CheckSequence(ctx, StepType.Complete);
+            var sequence = CheckSequence(ctx, StepType.Complete, AttemptActions.Complete);
             if (sequence != null) return sequence;
 
             var selected = SelectedRows(ctx, selectedRowIds);
@@ -494,30 +535,65 @@ namespace TrainingApp.BLL.Training
                 if (selection == PieceSelectionResult.MissingPieces)
                     return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
                 if (PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, selection))
-                    return FailedAttempt(ctx, PodAttemptReason.NoRowToComplete);
+                    return FailedComplete(ctx);
             }
             else if (!IsSingleRow(selected))
             {
-                return FailedAttempt(ctx, PodAttemptReason.NoRowToComplete);
+                return FailedComplete(ctx);
             }
 
-            return new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Complete) };
+            // Spec 015 (D-22): Complete ya no cierra la sesión (sigue Logout); las filas
+            // completadas salen del POD, como el SFC que pasa a la siguiente operación.
+            var result = new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Complete) };
+            if (result.Step.Outcome != StepSubmitOutcome.Incorrect)
+                result.Completed = RemoveRows(ctx, selected);
+            return result;
         }
+
+        // Complete sin la selección del paso: intento fallido. Si avanza forzado, el POD queda
+        // como tras un Complete hecho (D-22): sin filas.
+        private PodCommandResult FailedComplete(PodContext ctx)
+        {
+            var result = FailedAttempt(ctx, PodAttemptReason.NoRowToComplete, AttemptActions.Complete);
+            if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
+                result.Completed = RemoveRows(ctx, ctx.State.Order?.ActiveRows() ?? new List<SimulatedOrderRow>());
+            return result;
+        }
+
+        private IList<SimulatedOrderRow> RemoveRows(PodContext ctx, IList<SimulatedOrderRow> rows)
+        {
+            if (rows.Count == 0) return rows;
+            ctx.State.Order.Remove(rows);
+            SaveState(ctx);
+            return rows;
+        }
+
+        // ── Logout ───────────────────────────────────────────────────────
+
+        // Ícono Logout del header (spec 015): en el último paso es su respuesta correcta y cierra
+        // la sesión de entrenamiento con su resumen (simulado: la sesión de la app sigue).
+        // Antes, es un botón más del POD (S2): intento fallido del paso actual en Assessment,
+        // ignorado en Guided.
+        public PodCommandResult ClickLogout(PodContext ctx)
+            => CheckSequence(ctx, StepType.Logout, AttemptActions.Logout)
+               ?? new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Logout) };
 
         // ── Acciones del MES que no son un paso ──────────────────────────
 
         // Work Instructions, Reports, Place Back in Queue, Tool List y las opciones de relleno
         // de Activities no tienen lógica: en Assessment el click es un intento fallido del paso
-        // actual (S2); en Guided esos botones están deshabilitados.
-        public PodCommandResult ClickNonStepAction(PodContext ctx)
-            => CheckSequence(ctx, null) ?? new PodCommandResult();
+        // actual (S2); en Guided esos botones están deshabilitados. action: el botón (catálogo
+        // de AttemptActions), para el registro de actividad.
+        public PodCommandResult ClickNonStepAction(PodContext ctx, string action)
+            => CheckSequence(ctx, null, action) ?? new PodCommandResult();
 
         // ── Secuencia y avance forzado ───────────────────────────────────
 
         // null si el botón es el del paso actual. Si no: en Assessment, intento fallido del paso
         // actual y, si avanzó forzado, el POD queda como si el paso se hubiera hecho; en
         // Guided (o con la sesión ya cerrada) el click se ignora.
-        private PodCommandResult CheckSequence(PodContext ctx, StepType? clickedStepType)
+        // action: el botón presionado, para el registro de actividad (spec 013, AC-20).
+        private PodCommandResult CheckSequence(PodContext ctx, StepType? clickedStepType, string action)
         {
             var step = ctx.CurrentStep;
             if (step.StepType == clickedStepType) return null;
@@ -526,7 +602,7 @@ namespace TrainingApp.BLL.Training
             if (ctx.Session.Mode != SessionMode.Assessment || ctx.Session.Status != SessionStatus.InProgress)
                 return result;
 
-            result.Step = RecordAttempt(ctx, step, isCorrect: false);
+            result.Step = RecordAttempt(ctx, step, isCorrect: false, AttemptReason.OutOfSequence, action);
             if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
                 result.PodChanged = RestoreAfterForcedAdvance(ctx, step.StepType);
             return result;
@@ -536,7 +612,7 @@ namespace TrainingApp.BLL.Training
         // el paso se hubiera hecho, para que el resto de la evaluación se pueda completar.
         // Assembly y DC no necesitan nada: RecordAttempt ya descartó su avance parcial.
         // Devuelve true si la página tiene que volver a pintar el POD (Resource Setup y Start
-        // siempre; SFC Split solo si se aplicó el split por defecto).
+        // siempre; SFC Split solo si se aplicó el split por defecto; Complete si quitó filas).
         private bool RestoreAfterForcedAdvance(PodContext ctx, StepType forcedStep)
         {
             switch (forcedStep)
@@ -553,6 +629,11 @@ namespace TrainingApp.BLL.Training
 
                 case StepType.SFC_Split:
                     return ApplyDefaultSplit(ctx);
+
+                case StepType.Complete:
+                    // Spec 015 (D-22): como un Complete hecho, las filas salen del POD.
+                    var active = ctx.State.Order?.ActiveRows() ?? new List<SimulatedOrderRow>();
+                    return RemoveRows(ctx, active).Count > 0;
 
                 default:
                     return false;
@@ -619,7 +700,9 @@ namespace TrainingApp.BLL.Training
                 ValidNCCodes         = stepType == StepType.LogNC
                     ? ctx.NCCodes : new List<NCCode>(),
                 DataCollectionParams = stepType == StepType.DataCollection
-                    ? ctx.DataCollectionParameters : new List<DataCollectionParameter>()
+                    ? ctx.DataCollectionParameters : new List<DataCollectionParameter>(),
+                PreloadedValues      = stepType == StepType.ResourceSetup
+                    ? ctx.State.PreloadedEquipment?.AllValues() : null
             });
         }
 
@@ -632,13 +715,14 @@ namespace TrainingApp.BLL.Training
         }
 
         // Acción equivocada del operador en el paso actual (sin fila válida): intento fallido.
-        private PodCommandResult FailedAttempt(PodContext ctx, PodAttemptReason reason)
+        private PodCommandResult FailedAttempt(PodContext ctx, PodAttemptReason reason, string action)
         {
             EnsureInProgress(ctx);
             return new PodCommandResult
             {
-                Step          = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: false),
-                AttemptReason = reason
+                Step          = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: false,
+                    AttemptReason.MissingSelection, action),
+                FeedbackReason = reason
             };
         }
 
@@ -649,7 +733,9 @@ namespace TrainingApp.BLL.Training
 
         private void DiscardProgress(PodContext ctx, StepType resolvedStep)
         {
-            if (resolvedStep == StepType.Assembly)
+            if (resolvedStep == StepType.ResourceSetup)
+                ctx.State.PreloadedEquipment = null;
+            else if (resolvedStep == StepType.Assembly)
                 ctx.State.Assembly = null;
             else if (resolvedStep == StepType.DataCollection)
                 ctx.State.DataCollection = null;
@@ -662,8 +748,16 @@ namespace TrainingApp.BLL.Training
         // (spStepAttemptRecord, auditoría AUD-06): si falla, no queda un intento sin avance que
         // penalice el siguiente envío. Por eso el puntaje se calcula antes de guardar, con el
         // intento nuevo incluido. El contexto se actualiza solo después de guardar.
-        private StepSubmitResult RecordAttempt(PodContext ctx, TrainingStep step, bool isCorrect)
+        // Registro de actividad (spec 013): cada intento guarda su motivo (None si es correcto)
+        // y la acción del operador, en la misma transacción.
+        private StepSubmitResult RecordAttempt(PodContext ctx, TrainingStep step, bool isCorrect,
+            AttemptReason failureReason, string action)
         {
+            // Un error de programación, no un intento: sin acción el intento se confundiría con
+            // los anteriores a la spec 013, y una de más de 50 haría fallar el SP.
+            if (string.IsNullOrEmpty(action) || action.Length > AttemptActions.MaxLength)
+                throw new ArgumentException("Acción del registro de actividad inválida.", nameof(action));
+
             var session       = ctx.Session;
             int attemptNumber = ctx.Attempts.Count(a => a.StepId == step.Id) + 1;
 
@@ -673,7 +767,9 @@ namespace TrainingApp.BLL.Training
                 StepId        = step.Id,
                 AttemptNumber = attemptNumber,
                 IsCorrect     = isCorrect,
-                Timestamp     = DateTime.UtcNow
+                Timestamp     = DateTime.UtcNow,
+                Reason        = isCorrect ? AttemptReason.None : failureReason,
+                Action        = action
             };
             var attempts = new List<TrainingSessionStepAttempt>(ctx.Attempts) { attempt };
             decimal score = _scoreCalc.CalculateSessionScore(ctx.Guide.Steps, attempts, session.Mode);
@@ -719,7 +815,7 @@ namespace TrainingApp.BLL.Training
             ctx.Score = score;
 
             // Paso resuelto (correcto, forzado o fin de la sesión): su avance parcial de Assembly
-            // o DC ya no se usa.
+            // o DC, o los equipos precargados de Resource Setup, ya no se usan.
             if (result.Outcome != StepSubmitOutcome.Incorrect)
                 DiscardProgress(ctx, step.StepType);
 

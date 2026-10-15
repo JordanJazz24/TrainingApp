@@ -9,8 +9,8 @@
 --   03_spTrainingSession.sql SPs de sesiones
 --   04_spStepAttempt.sql     SPs de intentos por paso
 --   05_SeedData.sql          DATOS DE EJEMPLO (solo desarrollo)
---   06_RCMoldeoCatalog.sql   catálogo real de R&C / Moldeo
---   07_RCMoldeoGuide.sql     guía real de R&C / Moldeo
+--   06_RCMoldeoCatalog.sql   catálogo real de S&RC / Moldeo
+--   07_RCMoldeoGuide.sql     guía real de S&RC / Moldeo
 --   08_SensoresLoFloCatalog.sql  catálogo de Sensores / LoFlo (flags reales; NC, DC y BOM simulados)
 --   09_SensoresLoFloGuide.sql    guía de Sensores / LoFlo
 -- Todos se pueden volver a correr sobre una BD existente. Reglas para
@@ -59,15 +59,21 @@ CREATE TABLE dbo.Operations (
 
 -- -------------------------------------------------------
 -- Users  (cuenta local de un empleado de la API; antes Operators, D-17)
+-- Role: 1=Operator, 2=Administrator (spec 013; roles excluyentes)
+-- LastLoginAt / LockedUntil en UTC. FailedLoginCount: fallos seguidos.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.Users', 'U') IS NULL
 CREATE TABLE dbo.Users (
-    Id           INT IDENTITY(1,1) PRIMARY KEY,
-    Code1        NVARCHAR(50)  NOT NULL,
-    Name         NVARCHAR(200) NOT NULL,
-    PasswordHash NVARCHAR(500) NOT NULL,
-    IsFirstLogin BIT           NOT NULL DEFAULT 1,
-    CreatedAt    DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
+    Id               INT IDENTITY(1,1) PRIMARY KEY,
+    Code1            NVARCHAR(50)  NOT NULL,
+    Name             NVARCHAR(200) NOT NULL,
+    PasswordHash     NVARCHAR(500) NOT NULL,
+    IsFirstLogin     BIT           NOT NULL DEFAULT 1,
+    CreatedAt        DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
+    Role             TINYINT       NOT NULL DEFAULT 1,
+    LastLoginAt      DATETIME2     NULL,
+    FailedLoginCount INT           NOT NULL DEFAULT 0,
+    LockedUntil      DATETIME2     NULL,
     CONSTRAINT UQ_Users_Code1 UNIQUE (Code1)
 );
 
@@ -88,7 +94,8 @@ CREATE TABLE dbo.TrainingGuides (
 -- -------------------------------------------------------
 -- TrainingSteps
 -- StepType: 0=ResourceSetup, 1=LineClearance, 2=Search,
---           3=Assembly, 4=DataCollection, 5=SFC_Split, 6=LogNC, 7=Complete
+--           3=Assembly, 4=DataCollection, 5=SFC_Split, 6=LogNC, 7=Complete,
+--           8=Logout (spec 015)
 -- Weight: peso porcentual del paso (0.00-1.00), ej. 0.20
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSteps', 'U') IS NULL
@@ -121,15 +128,21 @@ CREATE TABLE dbo.TrainingSessions (
 
 -- -------------------------------------------------------
 -- TrainingSessionStepAttempts
+-- Reason: AttemptReason de la BLL (0=None, 1=OutOfSequence, 2=WrongDecision,
+--         3=InvalidAction, 4=MissingSelection, 5=EmptyRequiredField); Action: código de
+--         la acción del operador (AttemptActions). Null en los intentos anteriores a la
+--         spec 013.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSessionStepAttempts', 'U') IS NULL
 CREATE TABLE dbo.TrainingSessionStepAttempts (
     Id            INT IDENTITY(1,1) PRIMARY KEY,
-    SessionId     INT       NOT NULL REFERENCES dbo.TrainingSessions(Id),
-    StepId        INT       NOT NULL REFERENCES dbo.TrainingSteps(Id),
-    AttemptNumber INT       NOT NULL,
-    IsCorrect     BIT       NOT NULL,
-    Timestamp     DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    SessionId     INT          NOT NULL REFERENCES dbo.TrainingSessions(Id),
+    StepId        INT          NOT NULL REFERENCES dbo.TrainingSteps(Id),
+    AttemptNumber INT          NOT NULL,
+    IsCorrect     BIT          NOT NULL,
+    Timestamp     DATETIME2    NOT NULL DEFAULT SYSUTCDATETIME(),
+    Reason        TINYINT      NULL,
+    Action        NVARCHAR(50) NULL
 );
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_StepAttempts_Session'
@@ -171,7 +184,9 @@ CREATE TABLE dbo.DataCollectionGroups (
 
 -- -------------------------------------------------------
 -- DataCollectionParameters  (varían por Area; a futuro por Operation)
--- DataType: 'Numeric' | 'Boolean' | 'Date'
+-- DataType: 'Numeric' | 'Boolean' | 'Date' | 'PersonName' (nombre de la
+--   persona en entrenamiento del grupo DCGTM_TRAINEE/A: letras y espacios,
+--   opcional; spec 015)
 -- MinValue/MaxValue: NULL para tipos no numéricos, o cuando el rango
 --   está pendiente de confirmación contra la MSS del área.
 -- DisplayOrder: orden de presentación al operador dentro del paso.

@@ -97,6 +97,9 @@
                 <asp:HiddenField ID="HfRows"      runat="server" ClientIDMode="Static" />
                 <asp:HiddenField ID="HfSetupState" runat="server" ClientIDMode="Static" />
                 <asp:HiddenField ID="HfRetrieved" runat="server" ClientIDMode="Static" Value="false" />
+                <%-- Equipos precargados de esta apertura (spec 015): filas {type, value} que el
+                     servidor generó al abrir el control; el modal abre con ellos en la tabla. --%>
+                <asp:HiddenField ID="HfPreloaded" runat="server" ClientIDMode="Static" />
             </div>
             <div class="modal-footer rs-footer">
                 <asp:Button ID="BtnSave" runat="server" Text="Save"
@@ -210,6 +213,30 @@
             tbody.appendChild(tr);
     }
 
+    // Equipos precargados de esta apertura: [{type, value}], vacío si no hay.
+    function rsPreloadedRows() {
+        var hf = document.getElementById('HfPreloaded');
+        if (!hf || !hf.value) return [];
+        try { return JSON.parse(hf.value) || []; } catch (e) { return []; }
+    }
+
+    // Mismo conjunto que PreloadedEquipmentRule (\s de JS no coincide con el servidor).
+    // El modal abre con los equipos del turno anterior ya en la tabla (spec 015, ajuste del
+    // usuario al probar la E1); Retrieve solo habilita la edición. Tras un Save las filas
+    // vuelven desde HfRows.
+    window.rsShowPreloaded = function() {
+        document.getElementById('rsTableBody').innerHTML = '';
+        rsPreloadedRows().forEach(function(r) { addRow(r.type, r.value); });
+    };
+
+    function compact(value) { return (value || '').replace(/[ \t\r\n]/g, ''); }
+
+    // ¿Alguna fila trae un equipo precargado? (por valor, como lo compara el servidor)
+    function rsHasPreloaded(rows) {
+        var preloaded = rsPreloadedRows().map(function(r) { return compact(r.value); });
+        return rows.some(function(r) { return preloaded.indexOf(compact(r.value)) >= 0; });
+    }
+
     // ── Error helper: show SweetAlert then re-assert Bootstrap modal ─────────
     // BUG 2 fix: SweetAlert2 manipulates body overflow / backdrop on close,
     // which can cause Bootstrap to dismiss its own static modal. After the
@@ -236,6 +263,28 @@
             });
         });
 
+        // Sin < ni >: la validación de solicitudes de ASP.NET rechaza el postback con marcado y
+        // el operador vería una página de error (auditoría AUD-11). Va primero: aplica siempre.
+        var markupRow = rows.some(function(r) { return /[<>]/.test(r.value); });
+        if (markupRow) {
+            rsShowError('Caracteres no permitidos',
+                'Los valores no pueden contener los caracteres < ni >.');
+            return false;
+        }
+
+        // D-26 (spec 015): con un equipo precargado en la tabla, el error que se entrena manda
+        // sobre el formato. El Save va al servidor, que lo califica como decisión equivocada,
+        // y ningún aviso revela el problema.
+        if (!rsHasPreloaded(rows) && !rsFormatOk(rows)) return false;
+
+        // All validations passed — populate hidden fields for PostBack
+        document.getElementById('HfRows').value       = JSON.stringify(rows);
+        document.getElementById('HfSetupState').value = setupState;
+        return true;
+    };
+
+    // Formato de las filas (sin precargados): avisa y devuelve false si algo no cumple.
+    function rsFormatOk(rows) {
         // 2. At least one row exists
         if (rows.length === 0) {
             rsShowError('Sin recursos',
@@ -285,21 +334,8 @@
                 'Todas las filas deben tener un valor. Ninguna fila puede estar vacía.');
             return false;
         }
-
-        // 7. Sin < ni >: la validación de solicitudes de ASP.NET rechaza el postback con
-        //    marcado y el operador vería una página de error (auditoría AUD-11).
-        var markupRow = rows.some(function(r) { return /[<>]/.test(r.value); });
-        if (markupRow) {
-            rsShowError('Caracteres no permitidos',
-                'Los valores no pueden contener los caracteres < ni >.');
-            return false;
-        }
-
-        // All validations passed — populate hidden fields for PostBack
-        document.getElementById('HfRows').value       = JSON.stringify(rows);
-        document.getElementById('HfSetupState').value = setupState;
         return true;
-    };
+    }
 
     // ── Restore UI + rows on PostBack (called via RegisterStartupScript) ──────
     // BUG 3 fix: after a successful Save PostBack the modal re-renders from scratch.

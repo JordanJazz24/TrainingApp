@@ -26,6 +26,10 @@ namespace TrainingApp.Shared
             // true mientras el operador no cambió la contraseña del primer acceso (AUD-08).
             public const string IsFirstLogin = "IsFirstLogin";
 
+            // Texto del último acceso anterior al login actual (spec 013). Solo lo escribe el
+            // login: tras re-hidratar la Session no se conoce y no se muestra.
+            public const string LastAccess = "LastAccess";
+
             // Estado del POD: orden simulada y avance de Assembly y DC (spec 009). Solo lo usa
             // SessionPodStateStore. Clave completa: PodStatePrefix + TrainingSession.Id
             public const string PodStatePrefix = "GDT_Pod_";

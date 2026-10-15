@@ -1,0 +1,65 @@
+using System;
+using TrainingApp.Domain;
+
+namespace TrainingApp.BLL.Training
+{
+    // Catálogo de acciones del operador que guarda cada intento (spec 013, registro de
+    // actividad; tabla en docs/specs/013-plan.md). El catálogo final se revisa con el diseño
+    // del dashboard (Fase 10). Máximo 50 caracteres (TrainingSessionStepAttempts.Action).
+    public static class AttemptActions
+    {
+        // Largo de la columna TrainingSessionStepAttempts.Action.
+        public const int MaxLength = 50;
+
+        // Botones del POD (también los que no son un paso: un click fuera de secuencia en
+        // Assessment se registra con el botón presionado).
+        public const string ResourceSetup        = "POD.ResourceSetup";
+        public const string DCStandalone         = "POD.Activities.DCStandalone";
+        public const string Start                = "POD.Start";
+        public const string Assemble             = "POD.Assemble";
+        public const string DCCollect            = "POD.DCCollect";
+        public const string SFCSplit             = "POD.SFCSplit";
+        public const string LogNC                = "POD.LogNC";
+        public const string Complete             = "POD.Complete";
+        public const string Logout               = "POD.Logout";
+
+        public const string WorkInstruction       = "POD.WorkInstruction";
+        public const string Reports               = "POD.Reports";
+        public const string PlaceBackInQueue      = "POD.PlaceBackInQueue";
+        public const string ToolList              = "POD.ToolList";
+        public const string AsBuiltConfig         = "POD.Activities.AsBuiltConfig";
+        public const string LogComment            = "POD.Activities.LogComment";
+        public const string SfcPlaceHold          = "POD.Activities.SfcPlaceHold";
+        public const string SfcReleaseHold        = "POD.Activities.SfcReleaseHold";
+        public const string RemoveFutureHold      = "POD.Activities.RemoveFutureHold";
+        public const string ChangeEquipmentStatus = "POD.Activities.ChangeEquipmentStatus";
+        public const string TimeSensitiveMaterial = "POD.Activities.TimeSensitiveMaterial";
+
+        // Envíos de los controles de paso.
+        public const string ResourceSetupSave    = "ResourceSetup.Save";
+        public const string LineClearanceSave    = "LC.Save";
+        public const string StartChecklistSave   = "Start.Checklist.Save";
+        public const string AssemblyAdd          = "Assembly.Add";
+        public const string DataCollectionSave   = "DC.Save";
+        public const string SFCSplitClose        = "SFCSplit.Close";
+        public const string LogNCAddDone         = "LogNC.AddDone";
+        public const string LogNCWrongButton     = "LogNC.WrongButton";
+
+        // Acción de un envío por respuesta (StepValidator), según el paso y lo enviado.
+        public static string ForSubmit(StepType stepType, string answer)
+        {
+            switch (stepType)
+            {
+                case StepType.ResourceSetup: return ResourceSetupSave;
+                case StepType.LineClearance: return LineClearanceSave;
+                case StepType.Search:        return answer == StepAnswers.Start ? Start : StartChecklistSave;
+                case StepType.SFC_Split:     return SFCSplitClose;
+                case StepType.LogNC:         return answer == StepAnswers.Invalid ? LogNCWrongButton : LogNCAddDone;
+                case StepType.Complete:      return Complete;
+                case StepType.Logout:        return Logout;
+                // Assembly y DC no se califican por respuesta (SubmitStep los rechaza).
+                default: throw new InvalidOperationException("El paso no tiene acción de envío.");
+            }
+        }
+    }
+}

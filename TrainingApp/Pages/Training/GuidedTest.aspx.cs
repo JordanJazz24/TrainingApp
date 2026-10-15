@@ -38,8 +38,9 @@ namespace TrainingApp.Pages.Training
         // (firmado con MAC) y ApplyStepControlVisibility es el único que toca Visible.
         private const string OpenStepTypeKey = "GDT_OpenStepType";
 
+        // Pasos con control propio: Logout es el ícono del header (spec 015).
         private static readonly StepType[] AllStepTypes =
-            (StepType[])Enum.GetValues(typeof(StepType));
+            ((StepType[])Enum.GetValues(typeof(StepType))).Where(t => t != StepType.Logout).ToArray();
 
         private StepType? OpenStepType
         {
@@ -80,6 +81,8 @@ namespace TrainingApp.Pages.Training
                 case StepType.SFC_Split:      return CtrlSFCSplit;
                 case StepType.LogNC:          return CtrlLogNC;
                 case StepType.Complete:       return CtrlComplete;
+                // Sin control: los guards de sender comparan contra null y no aceptan nada.
+                case StepType.Logout:         return null;
                 default: throw new ArgumentOutOfRangeException(nameof(stepType), stepType, null);
             }
         }
@@ -134,19 +137,9 @@ namespace TrainingApp.Pages.Training
             // (en HandleControlSubmit, que corre después de Page_Load).
             PnlBannerZone.Visible = false;
 
-            // Atributo HTML y no la propiedad ReadOnly: con ReadOnly=true ASP.NET ignora
-            // el valor posteado y el SFC elegido en Browse se perdería en cada postback.
-            TxtSFC.Attributes["readonly"] = "readonly";
-
-            // El logout no depende de la sesión de entrenamiento (auditoría AUD-33): se atiende
-            // antes de cargar el contexto, que redirige a StartSession si la guía ya se
-            // completó o se abandonó (panel final, pestaña vieja tras D-9).
-            if (IsPostBack && IsPostBackFrom(BtnLogout))
-            {
-                SessionHelper.Logout();
-                return;
-            }
-
+            // Logout (spec 015): con la sesión de entrenamiento en curso es un botón del POD
+            // (BtnLogout_ServerClick); sin ella (resumen final, pestaña vieja tras D-9) LoadContext
+            // cierra la sesión de la app, como antes (AUD-33, D-21).
             _ctx = LoadContext();
             if (_ctx == null) return;
 
@@ -179,7 +172,8 @@ namespace TrainingApp.Pages.Training
                 if (_ctx.IsResolved(StepType.Search))
                 {
                     var order = Order;
-                    if (order != null) TxtSFC.Text = order.SFCCode;
+                    // Tras Complete el POD queda vacío (spec 015, D-22).
+                    if (order != null && !_ctx.IsResolved(StepType.Complete)) TxtSFC.Text = order.SFCCode;
                     BindWorkList(area, session);
                 }
             }
@@ -202,8 +196,42 @@ namespace TrainingApp.Pages.Training
         protected override void OnPreRender(EventArgs e)
         {
             base.OnPreRender(e);
+            ApplySfcFieldMode();
+            ApplyOrderLabel();
             RegisterGuide();
         }
+
+        // Etiqueta de la orden (spec 011, enmienda 2026-10-13): visible desde que hay orden
+        // hasta el Start, con su Shop Order (la por defecto si Resource Setup avanzó forzado:
+        // AC-3). Se decide después de los handlers porque Resource Setup o el Start de este
+        // mismo request la cambian. Visible persiste en ViewState: se asigna en cada request.
+        private void ApplyOrderLabel()
+        {
+            var order = Order;
+            PnlOrderLabel.Visible = order != null && !PodOrderStarted && !PnlCompleted.Visible;
+            LabelShopOrder = order?.ShopOrderInput ?? string.Empty;
+        }
+
+        protected string LabelShopOrder { get; private set; } = string.Empty;
+
+        // Spec 011: TxtSFC se escribe o se escanea hasta el Start (la carga la resuelve el
+        // cliente, como Browse Work List); con el Start ya ejecutado vuelve a ser de solo
+        // lectura, como antes. Atributo HTML y no la propiedad ReadOnly: con ReadOnly=true
+        // ASP.NET ignora el valor posteado y lo cargado se perdería en cada postback. Se decide
+        // en PreRender porque el Start de este mismo request ya lo cambia (los atributos
+        // persisten en ViewState).
+        private void ApplySfcFieldMode()
+        {
+            if (PodOrderStarted)
+                TxtSFC.Attributes["readonly"] = "readonly";
+            else
+                TxtSFC.Attributes.Remove("readonly");
+        }
+
+        // Aviso del cliente para un número que no es de la orden (spec 011, punto 5): el mismo
+        // texto que SfcNotInOrder del servidor, ya codificado para un string de JS.
+        protected string ScanNoticeTitleJs => HttpUtility.JavaScriptStringEncode(NoticeText(PodNotice.SfcNotInOrder).Title);
+        protected string ScanNoticeTextJs  => HttpUtility.JavaScriptStringEncode(NoticeText(PodNotice.SfcNotInOrder).Text);
 
         // Guía visual (spec 010): solo en Guided. Assessment no recibe el motor, el guion, los
         // textos ni el estado (AC-2). Pasos sin guion todavía: la guía no se muestra.
@@ -228,7 +256,14 @@ namespace TrainingApp.Pages.Training
         private void BindSearchHeader()
         {
             var order = Order;
-            if (order != null && _ctx.IsResolved(StepType.Search))
+            if (order != null && _ctx.IsResolved(StepType.Complete))
+            {
+                // Spec 015 (D-22): la orden ya salió del POD. Sin header; el campo SFC sigue de
+                // solo lectura y la etiqueta de la orden no vuelve (PodOrderStarted).
+                SetSearchHeader(string.Empty, string.Empty);
+                PodOrderStarted = true;
+            }
+            else if (order != null && _ctx.IsResolved(StepType.Search))
                 SetSearchHeader(order.ShopOrderInput, SimulatedOrderRow.StatusActive);
             else if (order != null && FindBrowseSelectedRows(order).Count > 0)
                 SetSearchHeader(order.ShopOrderInput, SfcStatusInQueue);
@@ -551,6 +586,13 @@ namespace TrainingApp.Pages.Training
             if (ClearSelectionAroundSplit(forcedStep))
                 rebind = true;
 
+            // Complete forzado (spec 015, D-22): la BLL quitó las filas del POD.
+            if (podChanged && forcedStep == StepType.Complete)
+            {
+                RepaintCompletedPod(area, session);
+                return;
+            }
+
             // Como en el submit normal: tras Assembly y DC el POD vuelve sin selección.
             if (forcedStep == StepType.Assembly || forcedStep == StepType.DataCollection)
             {
@@ -871,7 +913,7 @@ namespace TrainingApp.Pages.Training
             if (result.Step != null)
             {
                 ApplySubmitResult(result.Step, session, guide, area, step,
-                    AttemptFeedback(result.AttemptReason, area));
+                    AttemptFeedback(result.FeedbackReason, area));
                 return;
             }
 
@@ -885,15 +927,36 @@ namespace TrainingApp.Pages.Training
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
-            HandleOutOfSequence(Pod.ClickNonStepAction(_ctx), session, guide, area, step);
+            HandleOutOfSequence(Pod.ClickNonStepAction(_ctx, NonStepAction(sender)), session, guide, area, step);
         }
 
-        private System.Web.UI.HtmlControls.HtmlButton[] NonStepActionButtons => new[]
+        // Botón de relleno → su acción en el registro de actividad (spec 013). Es también la lista
+        // de botones de relleno (SetActiveButton): un botón nuevo se agrega aquí una sola vez.
+        private Dictionary<System.Web.UI.HtmlControls.HtmlButton, string> NonStepActions =>
+            new Dictionary<System.Web.UI.HtmlControls.HtmlButton, string>
+            {
+                { BtnWorkInstructions,      AttemptActions.WorkInstruction },
+                { BtnReports,               AttemptActions.Reports },
+                { BtnPlaceBackInQueue,      AttemptActions.PlaceBackInQueue },
+                { BtnToolList,              AttemptActions.ToolList },
+                { BtnAsBuiltConfig,         AttemptActions.AsBuiltConfig },
+                { BtnLogComment,            AttemptActions.LogComment },
+                { BtnSfcPlaceHold,          AttemptActions.SfcPlaceHold },
+                { BtnSfcReleaseHold,        AttemptActions.SfcReleaseHold },
+                { BtnRemoveFutureHold,      AttemptActions.RemoveFutureHold },
+                { BtnChangeEquipmentStatus, AttemptActions.ChangeEquipmentStatus },
+                { BtnTimeSensitiveMaterial, AttemptActions.TimeSensitiveMaterial }
+            };
+
+        private string NonStepAction(object sender)
         {
-            BtnWorkInstructions, BtnReports, BtnPlaceBackInQueue, BtnToolList,
-            BtnAsBuiltConfig, BtnLogComment, BtnSfcPlaceHold, BtnSfcReleaseHold,
-            BtnRemoveFutureHold, BtnChangeEquipmentStatus, BtnTimeSensitiveMaterial
-        };
+            var button = sender as System.Web.UI.HtmlControls.HtmlButton;
+            if (button == null || !NonStepActions.TryGetValue(button, out string action))
+                throw new InvalidOperationException("Botón de relleno sin acción en el registro de actividad.");
+            return action;
+        }
+
+        private IEnumerable<System.Web.UI.HtmlControls.HtmlButton> NonStepActionButtons => NonStepActions.Keys;
 
         protected void BtnComplete_ServerClick(object sender, EventArgs e)
         {
@@ -910,7 +973,30 @@ namespace TrainingApp.Pages.Training
             }
 
             ApplySubmitResult(result.Step, session, guide, area, step,
-                AttemptFeedback(result.AttemptReason, area));
+                AttemptFeedback(result.FeedbackReason, area));
+            ShowCompleted(area, session, result.Completed, banner: result.Step.Outcome == StepSubmitOutcome.Correct);
+        }
+
+        // Spec 015 (D-22): las filas completadas salen del POD (las quitó la BLL). Banner
+        // genérico PROVISIONAL hasta tener la captura real (general-flow → Paso 9).
+        private void ShowCompleted(Area area, TrainingSession session, IList<SimulatedOrderRow> rows, bool banner)
+        {
+            if (rows == null || rows.Count == 0 || session.Status != SessionStatus.InProgress) return;
+
+            RepaintCompletedPod(area, session);
+            if (banner)
+                ShowBanner(area.SerializationType == SerializationType.Serialized
+                    ? rows.Count + " SFCs completed"
+                    : "SFC " + rows[0].SFCCode + " completed", hideAfterMs: 5000);
+        }
+
+        // El POD después de Complete (normal o forzado): sin selección, sin SFC ni header.
+        private void RepaintCompletedPod(Area area, TrainingSession session)
+        {
+            ClearRowSelection();
+            TxtSFC.Text = string.Empty;
+            BindWorkList(area, session);
+            BindSearchHeader();
         }
 
         protected void BtnAbandon_Click(object sender, EventArgs e)
@@ -922,12 +1008,16 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
-        // Page_Load atiende el logout antes de cargar el contexto (AUD-33), así que este
-        // handler no llega a correr; el botón lo necesita para que ASP.NET le genere el
-        // __doPostBack.
+        // Logout con la sesión de entrenamiento en curso (spec 015): en el último paso registra
+        // el paso y muestra el resumen final, sin cerrar la sesión de la app; antes, es un
+        // botón más del POD (S2). Sin sesión en curso no llega acá: LoadContext ya salió (D-21).
         protected void BtnLogout_ServerClick(object sender, EventArgs e)
         {
-            SessionHelper.Logout();
+            var (session, guide, area, step) = GetContext();
+            if (session == null) return;
+            var result = Pod.ClickLogout(_ctx);
+            if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
         }
 
         // Los botones HTML del POD (Logout, Abandon) postean con __doPostBack.
@@ -942,6 +1032,10 @@ namespace TrainingApp.Pages.Training
             PnlCompleted.Visible = true;
             PnlScore.Visible     = false;
             BtnAbandon.Disabled  = true;
+            // Con la sesión cerrada, Logout sale de la app (D-21, spec 015), también con el globo
+            // final de la guía en pantalla.
+            BtnLogout.Disabled   = false;
+            BtnLogout.Attributes["data-guide-free"] = string.Empty;
 
             decimal finalScore = session.FinalScore * 100m;
             LitFinalScore.Text   = finalScore.ToString("F1") + "%";
@@ -989,6 +1083,10 @@ namespace TrainingApp.Pages.Training
 
             switch (step.StepType)
             {
+                case StepType.ResourceSetup:
+                    vm.ExtraData["Preloaded"] = _ctx.State.PreloadedEquipment;
+                    break;
+
                 case StepType.LineClearance:
                     vm.ExtraData["QuestionText"] = PodDefaults.LineClearanceQuestion;
                     break;
@@ -1043,37 +1141,41 @@ namespace TrainingApp.Pages.Training
         }
 
         // ── Session validation ───────────────────────────────────────────
+        // Sin un contexto de entrenamiento en curso, el ícono Logout sale de la app, como antes
+        // (AUD-33, D-21 de la spec 015): no depende de la sesión de entrenamiento ni de los
+        // otros chequeos del usuario. Cualquier otro request va a su página.
         private PodContext LoadContext()
         {
+            bool logoutClick = IsPostBack && IsPostBackFrom(BtnLogout);
+
             // Re-hidrata sesión si se perdió pero el usuario sigue autenticado
             if (!SessionHelper.EnsureUserSession())
-            {
-                Response.Redirect("~/Pages/Auth/Login.aspx");
-                return null;
-            }
+                return Leave(logoutClick, () => Response.Redirect("~/Pages/Auth/Login.aspx"));
+
+            // Spec 013: solo entrena quien tiene la capacidad; un admin vuelve a su módulo.
+            if (!SessionHelper.CanTrain())
+                return Leave(logoutClick, SessionHelper.RedirectHome);
 
             // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
             if (SessionHelper.MustChangePassword())
-            {
-                Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
-                return null;
-            }
-
-            if (!int.TryParse(Request.QueryString["sessionId"], out int sessionId))
-            {
-                Response.Redirect("~/Pages/Training/StartSession.aspx");
-                return null;
-            }
+                return Leave(logoutClick, () => Response.Redirect("~/Pages/Auth/ChangePassword.aspx"));
 
             // null: la sesión no existe, es de otro operador o ya no está en curso.
-            var ctx = Pod.LoadContext(sessionId, CurrentUserId);
+            var ctx = int.TryParse(Request.QueryString["sessionId"], out int sessionId)
+                ? Pod.LoadContext(sessionId, CurrentUserId) : null;
             if (ctx == null)
-            {
-                Response.Redirect("~/Pages/Training/StartSession.aspx");
-                return null;
-            }
+                return Leave(logoutClick, () => Response.Redirect("~/Pages/Training/StartSession.aspx"));
 
             return ctx;
+        }
+
+        private static PodContext Leave(bool logoutClick, Action redirect)
+        {
+            if (logoutClick)
+                SessionHelper.Logout();
+            else
+                redirect();
+            return null;
         }
 
         // Operador autenticado (Session escrita solo por el servidor tras el login; ya
@@ -1205,6 +1307,7 @@ namespace TrainingApp.Pages.Training
             BtnActivities.Disabled    = !enableAll;
             BtnSFCSplit.Disabled      = !enableAll;
             BtnLogNC.Disabled         = !enableAll;
+            BtnLogout.Disabled        = !enableAll;
             foreach (var decoy in NonStepActionButtons)
                 decoy.Disabled = !enableAll;
 
@@ -1212,6 +1315,9 @@ namespace TrainingApp.Pages.Training
             // un click fuera de secuencia tiene que llegar al servidor para contar.
             SetClientRowCheck(BtnDCCollection, "podValidateDCCollect", stepType == StepType.DataCollection);
             SetClientRowCheck(BtnSFCSplit, "podValidateSFCSplit", stepType == StepType.SFC_Split);
+            // Spec 011 (enmienda E-1): con Search como paso actual, Start carga primero lo escrito
+            // en TxtSFC sin Enter. Fuera de turno no hay chequeo: el click cuenta en Assessment (S2).
+            SetClientRowCheck(BtnStart, "podLoadBeforeStart", stepType == StepType.Search);
 
             if (enableAll)
             {
@@ -1246,6 +1352,9 @@ namespace TrainingApp.Pages.Training
                     break;
                 case StepType.Complete:
                     BtnComplete.Disabled = false;
+                    break;
+                case StepType.Logout:
+                    BtnLogout.Disabled = false;
                     break;
             }
         }
@@ -1305,8 +1414,17 @@ namespace TrainingApp.Pages.Training
                 case PodNotice.SelectAllPieces:
                     return ("Selecciona todas las piezas",
                         "En el simulador se trabajan todas las piezas juntas: selecciona todas las filas.");
+                // Spec 011, punto 6: un solo aviso para el escaneo y Browse Work List.
+                case PodNotice.StartWholeOrder:
+                    return ("Inicia la orden completa",
+                        "En esta guía se trabaja la orden completa: escanea la Shop Order o selecciona todas las piezas en Browse Work List.");
                 case PodNotice.SfcRequired:
                     return ("Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
+                // Texto provisional hasta tener el mensaje real del MES (spec 011, T9). Neutro:
+                // en Assessment no dice qué número sirve (AC-16).
+                case PodNotice.SfcNotInOrder:
+                    return ("SFC no encontrado",
+                        "El número no corresponde a la orden de este recurso.");
                 case PodNotice.SelectOneRow:
                     return ("Selecciona una fila", "Debes seleccionar una fila de la orden en la tabla antes de continuar.");
                 case PodNotice.SelectRowToSplit:
@@ -1351,7 +1469,7 @@ namespace TrainingApp.Pages.Training
             {
                 case StepType.LogNC when !area.RequiresNCComponent:
                     return "Seleccione un código NC y presione Add-Done.";
-                case StepType.ResourceSetup:  return "Presione Retrieve, verifique que Setup State esté en 'Set Up', agregue las filas y presione Save.";
+                case StepType.ResourceSetup:  return "Presione Retrieve, quite los equipos anteriores (REMOVE ALL), agregue sus filas, verifique que Setup State esté en 'Set Up' y presione Save.";
                 case StepType.LineClearance:  return "Responda 'Si' para confirmar la limpieza de línea.";
                 case StepType.Search:         return "Responda 'Sí' a las verificaciones y presione Save.";
                 case StepType.DataCollection: return "Complete todos los parámetros dentro de su rango y presione Save (no Save Draft).";
@@ -1359,6 +1477,7 @@ namespace TrainingApp.Pages.Training
                 case StepType.LogNC:          return "Seleccione un código NC, ingrese el Component y presione Add-Done.";
                 case StepType.Assembly:       return "Ensamble cada componente de la Component List: escanee su código y presione Add.";
                 case StepType.Complete:       return "Presione Complete para cerrar la orden.";
+                case StepType.Logout:         return "Presione el ícono Logout para cerrar su sesión en MES.";
                 default:                      return string.Empty;
             }
         }

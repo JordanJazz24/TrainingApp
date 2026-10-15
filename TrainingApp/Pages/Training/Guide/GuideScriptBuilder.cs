@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
@@ -81,22 +82,25 @@ namespace TrainingApp.Pages.Training.Guide
         {
             switch (step.StepType)
             {
-                case StepType.ResourceSetup:  return ResourceSetup(step);
-                case StepType.LineClearance:  return LineClearance(step);
+                case StepType.ResourceSetup:  return ResourceSetup(ctx, step);
+                case StepType.LineClearance:  return LineClearance(ctx, step);
                 case StepType.Search:         return Start(ctx, step);
                 case StepType.Assembly:       return Assembly(ctx, step, moment);
                 case StepType.DataCollection: return DataCollection(ctx, step, moment);
                 case StepType.SFC_Split:      return SfcSplit(ctx, step);
                 case StepType.LogNC:          return LogNC(ctx, step);
                 case StepType.Complete:       return Complete(ctx, step);
+                case StepType.Logout:         return Logout(step);
                 default:                      return null;
             }
         }
 
         // ── Guion por tipo de paso ──────────────────────────────────────────
 
-        private static StepScript ResourceSetup(TrainingStep step)
+        private static StepScript ResourceSetup(PodContext ctx, TrainingStep step)
         {
+            // D-25 (spec 015): la Shop Order y la herramienta no pueden ser equipos precargados.
+            var preloaded = ctx.State.PreloadedEquipment?.AllValues();
             var s = new StepScript(step, "Resource Setup")
             {
                 OpenedName    = "retrieve",
@@ -108,10 +112,14 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("retrieve", GuideMode.Click, Anchor("rs-retrieve"),
                 html: H("Presione ", B("Retrieve"), " para cargar la configuración del recurso."));
             s.Add("removeAll", GuideMode.Click, Anchor("rs-remove-all"),
-                html: H("Presione ", B("REMOVE ALL"), " para limpiar la tabla antes de agregar los recursos de esta orden."));
+                html: H("Presione ", B("REMOVE ALL"), " para limpiar la tabla antes de agregar los recursos de esta orden."),
+                alert: H("Si hay equipos registrados, haga ", B("Remove All"), " y escanee los de su estación. ",
+                    "No asuma que son los mismos que tiene en su mesa; sin ese registro se pierde la trazabilidad ",
+                    "de la operación, lo que puede conllevar acciones disciplinarias."));
             s.Add("insertShopOrder", GuideMode.Click, Anchor("rs-insert-new"),
                 html: H("Presione ", B("INSERT NEW"), " para agregar una fila."));
             s.Add("shopOrder", GuideMode.Capture, Anchor("rs-row-value"), pickLast: true, format: GuideFormat.Digits,
+                reject: preloaded,
                 html: H("La fila nueva es de tipo ", B("Shop Order"), ". Ingrese el número de la orden, por ejemplo ",
                     B(PodDefaults.DefaultShopOrder), "."));
             s.Add("insertTool", GuideMode.Click, Anchor("rs-insert-new"),
@@ -119,6 +127,7 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("toolType", GuideMode.Change, Anchor("rs-row-type"), pickLast: true, expect: AnswerToolNumber,
                 html: H("Cambie el tipo de la fila nueva a ", B("Tool Number"), "."));
             s.Add("tool", GuideMode.Capture, Anchor("rs-row-value"), pickLast: true, format: GuideFormat.Required,
+                reject: preloaded,
                 html: H("Ingrese el número de la herramienta, por ejemplo ", B(ExampleToolNumber), "."));
             s.Add("table", GuideMode.Info, Anchor("rs-table"),
                 html: H("En esta sección se agregan todos los recursos, herramientas y materiales asociados a su operación."));
@@ -134,9 +143,11 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Pasos 2 y 6: el mismo recorrido en apertura y en cierre.
-        private static StepScript LineClearance(TrainingStep step)
+        // Pasos 2 y 6: el mismo recorrido en apertura y en cierre. Cambian las notas de la
+        // trainer (T7): la de apertura dice cuándo se hace; la de cierre, que no siempre aplica.
+        private static StepScript LineClearance(PodContext ctx, TrainingStep step)
         {
+            bool closing = ctx.Guide.Steps.Any(x => x.StepType == StepType.LineClearance && x.Order < step.Order);
             var s = new StepScript(step, "Line Clearance")
             {
                 OpenedName    = "retrieve",
@@ -144,7 +155,10 @@ namespace TrainingApp.Pages.Training.Guide
                 TailName      = "saved"
             };
             s.Add("activities", GuideMode.Click, Anchor("pod-activities"),
-                html: H("Presione ", B("Activities..."), " para abrir el menú de actividades."));
+                html: H("Presione ", B("Activities..."), " para abrir el menú de actividades."),
+                note: closing ? null : H("Siempre después de ", B("Resource Setup"),
+                    " y en cada cambio de orden: la limpieza física y la del sistema."),
+                alert: closing ? H("En algunas operaciones no aplica (depende de la operación).") : null);
             s.Add("standalone", GuideMode.Click, Anchor("pod-dc-standalone"), postback: true,
                 html: H("Seleccione ", B("Data Collection Standalone"), " para registrar la limpieza de línea."));
             s.Add("retrieve", GuideMode.Click, Anchor("lc-retrieve"),
@@ -162,22 +176,27 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Search/Start: Browse Work List, selección y Start. Con el checklist de Start (hoy
-        // Moldeo) siguen sus 4 modales; los formularios de varios campos van por bloque (R7).
+        // Search/Start (spec 011): escanear la etiqueta de la orden (o tocar las barras, o
+        // escribir la Shop Order en SFC) y Start; Browse Work List se menciona como camino
+        // alternativo. Con el checklist de Start (hoy Moldeo) siguen sus 4 modales; los
+        // formularios de varios campos van por bloque (R7).
         private static StepScript Start(PodContext ctx, TrainingStep step)
         {
             var s = new StepScript(step, "Start") { TailName = "banner" };
 
-            s.Add("browse", GuideMode.Click, Anchor("pod-browse"),
-                html: H("Presione el ícono ", B("Browse Work List"), " (⧉), junto a SFC, para buscar la orden."));
-            if (ctx.Area.SerializationType == SerializationType.Serialized)
-                s.Add("select", GuideMode.Click, Anchor("browse-select-all"),
-                    html: H("Presione ", B("Select All"), " para seleccionar todas las piezas de la orden."));
-            else
-                s.Add("select", GuideMode.Click, Anchor("browse-row"),
-                    html: SelectSfc(ctx.State.Order?.SFCCode));
-            s.Add("ok", GuideMode.Click, Anchor("browse-ok"),
-                html: H("Presione ", B("OK"), " para cargar la selección en el POD."));
+            // Avanza cuando la orden completa (todas las piezas o el lote) queda cargada en
+            // SFC; una sola pieza no alcanza. Si ya estaba cargada, se salta.
+            bool serialized = ctx.Area.SerializationType == SerializationType.Serialized;
+            s.Add("scan", GuideMode.Scan, Anchor("pod-label"),
+                free: new[] { Anchor("pod-sfc") },
+                done: new[] { Anchor("pod-sfc") + Attr("data-loaded", "order") },
+                html: H("Escanee la etiqueta de la orden con el lector o toque las barras: la ",
+                    B("Shop Order"), serialized ? " carga todas las piezas. " : " carga el SFC del lote. ",
+                    "También puede escribir el número en ", B("SFC"), " y presionar Enter."),
+                alert: H("Asegúrese de trabajar solo las piezas de su orden y su estación."));
+            s.Add("browse", GuideMode.Info, Anchor("pod-browse"),
+                html: H("La orden también se puede cargar con ", B("Browse Work List"),
+                    " (⧉), sobre todo cuando se trabaja con varias órdenes a la vez."));
             s.Add("start", GuideMode.Click, Anchor("pod-start"), postback: true,
                 html: H("Presione ", B("Start"), " para iniciar la orden."));
 
@@ -218,7 +237,7 @@ namespace TrainingApp.Pages.Training.Guide
         private static StepScript Assembly(PodContext ctx, TrainingStep step, GuideMoment moment)
         {
             var s = new StepScript(step, "Assembly") { TailName = "banner" };
-            AddPodSelection(s, ctx);
+            AddPodSelection(s, ctx, AllPiecesNote);
             s.Add("open", GuideMode.Click, Anchor("pod-assemble"), postback: true,
                 html: H("Presione ", B("Assemble"), " para abrir la Component List."));
 
@@ -272,9 +291,10 @@ namespace TrainingApp.Pages.Training.Guide
         private static StepScript DataCollection(PodContext ctx, TrainingStep step, GuideMoment moment)
         {
             var s = new StepScript(step, "Data Collection");
-            AddPodSelection(s, ctx);
+            AddPodSelection(s, ctx, AllPiecesNote);
             s.Add("open", GuideMode.Click, Anchor("pod-dc-collect"), postback: true,
-                html: H("Presione ", B("DC Collect"), " para abrir la Data Collection List."));
+                html: H("Presione ", B("DC Collect"), " para abrir la Data Collection List."),
+                note: H("La cantidad de datos a ingresar, dependerá de la operación."));
 
             var groups = ctx.DataCollectionGroups;
             var required = groups.Where(g => g.IsRequired).ToList();
@@ -285,6 +305,20 @@ namespace TrainingApp.Pages.Training.Guide
             int currentPiece = progress?.CurrentIndex ?? 0;
             string justSaved = s.DetailOf(moment, GuideMomentKind.Progress);
             bool serialized = ctx.Area.SerializationType == SerializationType.Serialized;
+
+            // Grupo Trainer (spec 015, D-24): la guía no pasa por él; una nota sobre su fila, una
+            // sola vez, al abrir la lista con la primera pieza y antes del primer Collect.
+            var trainer = groups.FirstOrDefault(g => ctx.DataCollectionParameters.Any(p =>
+                p.DataCollectionGroupId == g.Id && p.DataType == PersonNameRule.DataType));
+            if (trainer != null)
+            {
+                s.Add("trainer", GuideMode.Info, Anchor("dc-collect") + Attr("data-group", trainer.Code),
+                    html: H(B("NOTA: "), "Complete ", B(trainer.Code), " únicamente cuando esté realizando un entrenamiento e ingrese su nombre."));
+                bool started = pieces.Count > 0 && progress != null &&
+                    (currentPiece > 0 || progress.SavedGroupIds(pieces[0].RowId).Count > 0);
+                if (started) s.Hide("trainer");
+                else s.OpenedName = "trainer";
+            }
 
             for (int pi = 0; pi < pieces.Count; pi++)
             {
@@ -389,7 +423,8 @@ namespace TrainingApp.Pages.Training.Guide
             }
 
             s.Add("open", GuideMode.Click, Anchor("pod-lognc"), postback: true,
-                html: H("Presione ", B("Log NC"), " para registrar un defecto."));
+                html: H("Presione ", B("Log NC"), " para registrar un defecto."),
+                note: H("Verifique que las piezas seleccionadas sean las defectuosas."));
             s.Add("list", GuideMode.Click, Anchor("nc-list"), postback: true,
                 html: H("Presione ", B("Log NC"), " en el código del defecto. En el simulador cualquier código es válido."));
             if (needsComponent)
@@ -403,10 +438,11 @@ namespace TrainingApp.Pages.Training.Guide
         }
 
         // Complete: las filas que quedan (Serialized: todas con Select All; NonSerialized: el
-        // lote) y Complete. Con él termina la sesión y aparece el globo final.
+        // lote) y Complete. Sigue Logout (spec 015): el banner de Complete es la cola del paso.
         private static StepScript Complete(PodContext ctx, TrainingStep step)
         {
-            var s = new StepScript(step, "Complete");
+            // Cola: el banner de Complete (spec 015, D-22) antes de seguir con Logout.
+            var s = new StepScript(step, "Complete") { TailName = "banner" };
             var order = ctx.State.Order;
             var rows = order?.ActiveRows() ?? new List<SimulatedOrderRow>();
             if (ctx.Area.SerializationType == SerializationType.Serialized)
@@ -416,6 +452,24 @@ namespace TrainingApp.Pages.Training.Guide
                 AddRowSelection(s, "select", rows.FirstOrDefault(), order?.SFCCode, null);
             s.Add("complete", GuideMode.Click, Anchor("pod-complete"), postback: true,
                 html: H("Presione ", B("Complete"), " para cerrar la orden."));
+            s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                html: H("Verifique el mensaje: las piezas completadas salen del POD y pasan a la siguiente operación."));
+            return s;
+        }
+
+        // Logout (spec 015): el ícono del header, con la nota de la trainer (resumen del punto 9
+        // de la spec). Al cerrar la sesión sigue el globo final.
+        private static StepScript Logout(TrainingStep step)
+        {
+            var s = new StepScript(step, "Logout");
+            s.Add("logout", GuideMode.Click, Anchor("pod-logout"), postback: true,
+                html: H("Presione el ícono ", B("Logout"), " para cerrar su sesión en MES."),
+                note: string.Join("<br>",
+                    H("Cierre sesión ", B("siempre que deje de usar el sistema"), ", por ejemplo:"),
+                    H("• En descansos o al terminar el turno."),
+                    H("• Al cambiar de estación, actividad, producto, orden o línea."),
+                    H("• Al entregar la estación a otro operador."),
+                    H("Nunca deje su sesión abierta donde otra persona pueda usarla.")));
             return s;
         }
 
@@ -510,16 +564,23 @@ namespace TrainingApp.Pages.Training.Guide
 
         private static string Num(decimal value) => value.ToString("0.######", CultureInfo.InvariantCulture);
 
+        // Nota de la selección de Assembly y DC en Serialized (T7): el simulador exige todas las
+        // piezas; el MES real, no.
+        private static readonly string AllPiecesNote = H("Para fines de entrenamiento se trabaja con todas las piezas de la orden; ",
+            "en el proceso real puede trabajar con cualquier pieza seleccionada.");
+
         // Selección de filas del POD antes de Assembly o DC (las exige la BLL: todas las piezas
         // en Serialized, el lote en NonSerialized). Se salta si ya están seleccionadas.
-        private static void AddPodSelection(StepScript s, PodContext ctx)
+        // serializedNote: nota del Select All de Serialized.
+        private static void AddPodSelection(StepScript s, PodContext ctx, string serializedNote)
         {
             var order = ctx.State.Order;
             var rows = order?.ActiveRows() ?? new List<SimulatedOrderRow>();
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
                 s.Add("select", GuideMode.Click, Anchor("pod-select-all"), done: AllSelected(rows),
-                    html: H("Presione ", B("Select All"), " para seleccionar todas las piezas."));
+                    html: H("Presione ", B("Select All"), " para seleccionar todas las piezas."),
+                    note: serializedNote);
                 return;
             }
 
@@ -663,7 +724,8 @@ namespace TrainingApp.Pages.Training.Guide
             public void Add(string name, string mode, string anchor, string html,
                 bool pickLast = false, bool postback = false, string format = null,
                 bool hide = false, string retry = null, string expect = null,
-                List<GuideField> fields = null, string[] done = null)
+                List<GuideField> fields = null, string[] done = null, string[] free = null,
+                string note = null, string alert = null, IList<string> reject = null)
             {
                 _items.Add(new GuideSubstep
                 {
@@ -674,12 +736,17 @@ namespace TrainingApp.Pages.Training.Guide
                     Postback       = postback,
                     Format         = format,
                     Expect         = expect,
+                    Reject         = reject?.ToList(),
                     Fields         = fields,
                     Done           = done?.ToList(),
+                    Free           = free?.ToList(),
                     HideOnContinue = hide,
                     RetryKey       = retry != null ? Key(retry) : null,
                     StepLabel      = _label,
-                    Html           = html
+                    Html           = html,
+                    // Nota de la trainer (T7), normal o alerta, solo en este subpaso.
+                    NoteHtml       = alert ?? note,
+                    NoteIsAlert    = alert != null
                 });
             }
 

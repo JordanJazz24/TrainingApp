@@ -141,6 +141,11 @@
     </Content>
     <Content Include="UI\master\Site.Master" />
     <Content Include="UI\master\Auth.Master" />
+    <Content Include="UI\master\Admin.Master" />
+    <Content Include="UI\master\admin.css" />
+    <Content Include="Pages\Admin\Login.aspx" />
+    <Content Include="Pages\Admin\ChangePassword.aspx" />
+    <Content Include="Pages\Admin\Users.aspx" />
     <Content Include="UI\master\auth.css" />
     <Content Include="UI\master\imgs\login.jpg" />
     <Content Include="UI\master\imgs\sap-logo.png" />
@@ -157,6 +162,7 @@
     <Content Include="UI\master\pod-guide.css" />
     <Content Include="UI\master\pod-guide.js" />
     <Content Include="Scripts\sweetalert2.all.min.js" />
+    <Content Include="Scripts\JsBarcode.code128-3.11.6.min.js" />
     <Content Include="UI\master\imgs\activities-icon.png" />
     <Content Include="UI\master\imgs\anular-icon.png" />
     <Content Include="UI\master\imgs\assemble fulfil.png" />
@@ -212,8 +218,11 @@
     <Compile Include="BLL\Auth\ChangePasswordStatus.cs" />
     <Compile Include="BLL\Scoring\ScoreCalculator.cs" />
     <Compile Include="BLL\Scoring\StepValidationContext.cs" />
+    <Compile Include="BLL\Scoring\PersonNameRule.cs" />
+    <Compile Include="BLL\Scoring\PreloadedEquipmentRule.cs" />
     <Compile Include="BLL\Scoring\StepValidator.cs" />
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
+    <Compile Include="BLL\Training\PreloadedEquipment.cs" />
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\SplitSfcGenerator.cs" />
     <Compile Include="BLL\Training\PieceSelectionRule.cs" />
@@ -225,6 +234,7 @@
     <Compile Include="BLL\Training\SimulatedOrder.cs" />
     <Compile Include="BLL\Training\SimulatedOrderRow.cs" />
     <Compile Include="BLL\Training\StepAnswers.cs" />
+    <Compile Include="BLL\Training\AttemptActions.cs" />
     <Compile Include="BLL\Training\PodDefaults.cs" />
     <Compile Include="BLL\Training\PodState.cs" />
     <Compile Include="BLL\Training\PodContext.cs" />
@@ -274,6 +284,42 @@
     <Compile Include="UI\master\AntiXsrfMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="UI\master\Admin.master.cs">
+      <DependentUpon>Admin.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\master\Admin.master.designer.cs">
+      <DependentUpon>Admin.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\ChangePassword.aspx.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\ChangePassword.aspx.designer.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\Users.aspx.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\Users.aspx.designer.cs">
+      <DependentUpon>Users.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BLL\Auth\AccessPolicy.cs" />
+    <Compile Include="BLL\Auth\RoleCache.cs" />
+    <Compile Include="BLL\Auth\LoginLockPolicy.cs" />
+    <Compile Include="BLL\Admin\UserAdminService.cs" />
+    <Compile Include="DAL\Repositories\IUserRepository.cs" />
+    <Compile Include="Domain\UserSummary.cs" />
+    <Compile Include="Pages\Admin\UserListRow.cs" />
+    <Compile Include="Pages\UserPrincipal.cs" />
     <Compile Include="UI\master\Auth.master.cs">
       <DependentUpon>Auth.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -354,7 +400,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Pages\Admin\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

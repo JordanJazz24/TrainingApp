@@ -5,7 +5,9 @@
 -- Temporal: lo reemplaza el reset por un administrador (spec 013).
 -- Uso: poner el Code1 en @Code1 y ejecutar. El usuario entra con
 -- Constants.DEFAULT_PASSWORD y la app lo manda a ChangePassword.
--- No borra sus sesiones ni sus intentos.
+-- También la desbloquea (spec 013). No borra sus sesiones ni sus
+-- intentos. Desde la spec 013 también lo hace un admin en Gestión de
+-- usuarios; el script queda para cuando no hay un admin disponible.
 --
 -- @DefaultPasswordHash es PasswordHelper.Hash(DEFAULT_PASSWORD)
 -- precalculado: T-SQL no reproduce el PBKDF2 de la app. Versionarlo
@@ -31,8 +33,10 @@ BEGIN
 END;
 
 UPDATE dbo.Users
-SET    PasswordHash = @DefaultPasswordHash,
-       IsFirstLogin = 1
+SET    PasswordHash     = @DefaultPasswordHash,
+       IsFirstLogin     = 1,
+       FailedLoginCount = 0,
+       LockedUntil      = NULL
 WHERE  Code1 = @Code1;
 
 PRINT N'Contraseña de ' + @Code1 + N' restablecida a la por defecto; deberá cambiarla al entrar.';

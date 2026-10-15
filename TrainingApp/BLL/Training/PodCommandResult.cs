@@ -8,7 +8,9 @@ namespace TrainingApp.BLL.Training
         None,
         ResourceSetupRequired,  // Start sin orden: Resource Setup pendiente
         SelectAllPieces,        // Serialized: el paso trabaja todas las piezas juntas (spec 008)
+        StartWholeOrder,        // Serialized: Start sin la orden completa cargada (spec 008 y 011)
         SfcRequired,            // NonSerialized: Start sin SFC escaneado o elegido
+        SfcNotInOrder,          // NonSerialized: Start con un SFC que no es el del lote ni la Shop Order (spec 011)
         SelectOneRow,           // NonSerialized: Assembly o DC sin la fila del lote seleccionada
         SelectRowToSplit,       // SFC Split sin una fila seleccionada
         SplitRequired,          // Close del SFC Split sin ningún split
@@ -43,7 +45,7 @@ namespace TrainingApp.BLL.Training
         // Intento registrado; null si el comando no calificó el paso.
         public StepSubmitResult Step { get; set; }
 
-        public PodAttemptReason AttemptReason { get; set; }
+        public PodAttemptReason FeedbackReason { get; set; }
 
         // Start en un área con checklist: la página abre la secuencia de modales.
         public bool OpenChecklist { get; set; }
@@ -54,6 +56,10 @@ namespace TrainingApp.BLL.Training
 
         // Log NC resuelto: filas que salieron de la orden (scrap).
         public IList<SimulatedOrderRow> Scrapped { get; set; }
+
+        // Complete resuelto (spec 015, D-22): filas que salieron del POD (pasan a la siguiente
+        // operación).
+        public IList<SimulatedOrderRow> Completed { get; set; }
 
         public static PodCommandResult WithNotice(PodNotice notice)
             => new PodCommandResult { Notice = notice };

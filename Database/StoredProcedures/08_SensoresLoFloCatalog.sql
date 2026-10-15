@@ -66,15 +66,30 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Co
 ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------
--- DataCollectionGroups — SIMULADOS. 2 obligatorios + 1 opcional: la
--- pieza completa DC al guardar los dos obligatorios.
+-- DataCollectionGroups — SIMULADOS. 2 obligatorios + el grupo Trainer
+-- opcional (real, spec 015): la pieza completa DC al guardar los dos
+-- obligatorios.
 -- ------------------------------------------------------------
+-- Spec 015 (D-23): el grupo Trainer reemplaza al opcional
+-- DCGTM_SIM_CONDICIONES_AMBIENTE/A. Una BD anterior lo renombra en sitio (el
+-- Id no cambia), su primer parámetro pasa a ser el del nombre y el sobrante
+-- se borra después de los parámetros: excepción a "nunca borra filas", nada
+-- referencia grupos ni parámetros de DC.
+IF EXISTS (SELECT 1 FROM dbo.DataCollectionGroups WHERE AreaId = @AreaId AND Code = N'DCGTM_SIM_CONDICIONES_AMBIENTE/A')
+   AND NOT EXISTS (SELECT 1 FROM dbo.DataCollectionGroups WHERE AreaId = @AreaId AND Code = N'DCGTM_TRAINEE/A')
+    UPDATE dbo.DataCollectionGroups SET Code = N'DCGTM_TRAINEE/A'
+    WHERE  AreaId = @AreaId AND Code = N'DCGTM_SIM_CONDICIONES_AMBIENTE/A';
+
+IF NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters WHERE AreaId = @AreaId AND Name = N'NOMBRE_EN_ENTRENAMIENTO')
+    UPDATE dbo.DataCollectionParameters SET Name = N'NOMBRE_EN_ENTRENAMIENTO'
+    WHERE  AreaId = @AreaId AND Name = N'Temperatura ambiente';
+
 DECLARE @Grp TABLE (Seq INT IDENTITY, Code NVARCHAR(100), Description NVARCHAR(200),
                     CollectDataAt NVARCHAR(50), IsRequired BIT, DisplayOrder INT);
 INSERT INTO @Grp (Code, Description, CollectDataAt, IsRequired, DisplayOrder) VALUES
     (N'DCGTM_SIM_LOFLO_EQUIPO/A',         N'Verificación del equipo de prueba', 'Pre-Start',  1, 1),
     (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'Prueba funcional del módulo',       'Post-Start', 1, 2),
-    (N'DCGTM_SIM_CONDICIONES_AMBIENTE/A', N'Condiciones de ambiente',           'Anytime',    0, 3);
+    (N'DCGTM_TRAINEE/A',                  N'Entrenamiento personal',            'Anytime',    0, 3);
 
 UPDATE t
 SET    Description = s.Description, CollectDataAt = s.CollectDataAt,
@@ -90,7 +105,8 @@ ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------
 -- DataCollectionParameters — SIMULADOS, cada uno en su grupo. Cubren
--- los 3 tipos (Numeric con rango, Boolean, Date).
+-- los 3 tipos (Numeric con rango, Boolean, Date) y el nombre del grupo
+-- Trainer (PersonName; nombre del parámetro provisional, SIM).
 -- ------------------------------------------------------------
 DECLARE @Prm TABLE (Seq INT IDENTITY, GroupCode NVARCHAR(100), Name NVARCHAR(200), Description NVARCHAR(200),
                     DataType NVARCHAR(20), Unit NVARCHAR(50), MinValue DECIMAL(10,4), MaxValue DECIMAL(10,4),
@@ -100,8 +116,7 @@ INSERT INTO @Prm (GroupCode, Name, Description, DataType, Unit, MinValue, MaxVal
     (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'Flujo de muestreo',                   N'Sample flow rate',                         'Numeric', 'mL/min',   45,   55,   2),
     (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'Lectura de CO2 con gas de calibración', N'CO2 reading (5% cal gas)',              'Numeric', '%',        4.8,  5.2,  3),
     (N'DCGTM_SIM_LOFLO_FUNCIONAL/A',      N'¿Prueba de fugas aprobada?',          N'Leak test',                                'Boolean', 'N/A',      NULL, NULL, 4),
-    (N'DCGTM_SIM_CONDICIONES_AMBIENTE/A', N'Temperatura ambiente',                N'Room temperature',                         'Numeric', N'°C',      18,   28,   5),
-    (N'DCGTM_SIM_CONDICIONES_AMBIENTE/A', N'Humedad relativa',                    N'Relative humidity',                        'Numeric', '%',        30,   60,   6);
+    (N'DCGTM_TRAINEE/A',                  N'NOMBRE_EN_ENTRENAMIENTO',             N'SIM: nombre de la persona en entrenamiento', 'PersonName', 'N/A',   NULL, NULL, 5);
 
 UPDATE t
 SET    DataCollectionGroupId = g.Id, Description = s.Description, DataType = s.DataType, Unit = s.Unit,
@@ -118,6 +133,12 @@ FROM   @Prm s
 JOIN   dbo.DataCollectionGroups g ON g.AreaId = @AreaId AND g.Code = s.GroupCode
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.DataCollectionParameters t WHERE t.AreaId = @AreaId AND t.Name = s.Name)
 ORDER  BY s.Seq;
+
+-- Spec 015 (D-23): el grupo Trainer tiene solo el parámetro del nombre.
+DELETE p
+FROM   dbo.DataCollectionParameters p
+JOIN   dbo.DataCollectionGroups g ON g.Id = p.DataCollectionGroupId
+WHERE  g.AreaId = @AreaId AND g.Code = N'DCGTM_TRAINEE/A' AND p.Name <> N'NOMBRE_EN_ENTRENAMIENTO';
 
 -- ------------------------------------------------------------
 -- AssemblyComponents — BOM SIMULADO (prefijo SIM-). Uno con Qty

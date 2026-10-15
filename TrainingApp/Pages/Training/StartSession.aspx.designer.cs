@@ -8,6 +8,7 @@ namespace TrainingApp.Pages.Training
 {
     public partial class StartSession
     {
+        protected global::System.Web.UI.WebControls.Label LblLastAccess;
         protected global::System.Web.UI.WebControls.Label LblError;
         protected global::System.Web.UI.WebControls.DropDownList DdlProduct;
         protected global::System.Web.UI.WebControls.DropDownList DdlArea;

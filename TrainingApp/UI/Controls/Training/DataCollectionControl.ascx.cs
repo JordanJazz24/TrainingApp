@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
-// DataCollectionParameter.DataType is a string: "Numeric" | "Boolean" | "Date" | "Text"
+// DataCollectionParameter.DataType is a string: "Numeric" | "Boolean" | "Date" | "Text" | "PersonName"
 
 namespace TrainingApp.UI.Controls.Training
 {
@@ -106,6 +108,15 @@ namespace TrainingApp.UI.Controls.Training
 
             string answersJson = HfAnswers.Value;
             if (string.IsNullOrEmpty(answersJson)) answersJson = "{}";
+
+            // Respaldo del aviso de formato del cliente (spec 015): un nombre inválido no se envía.
+            if (HasInvalidPersonName(answersJson))
+            {
+                Page.ClientScript.RegisterStartupScript(GetType(), "dcInvalidName",
+                    "showModalSafe('modalDCEntry'); dcShowInvalidName();", true);
+                return;
+            }
+
             OnGroupSubmit?.Invoke(this, new DataCollectionGroupSubmitEventArgs
             {
                 GroupCode   = ActiveGroup,
@@ -159,8 +170,11 @@ namespace TrainingApp.UI.Controls.Training
             {
                 var box = new Panel { CssClass = "dc-param" };
 
+                // El nombre del grupo Trainer es opcional (spec 015): sin asterisco.
+                string star = param.DataType == PersonNameRule.DataType
+                    ? string.Empty : "<span class=\"pod-star\">*</span> ";
                 box.Controls.Add(new LiteralControl(
-                    "<label class=\"dc-param-label\"><span class=\"pod-star\">*</span> " +
+                    "<label class=\"dc-param-label\">" + star +
                     Page.Server.HtmlEncode(QuestionLabel(param.Name)) + "</label>"));
                 if (!string.IsNullOrWhiteSpace(param.Description))
                     box.Controls.Add(new LiteralControl(
@@ -168,13 +182,17 @@ namespace TrainingApp.UI.Controls.Training
                         Page.Server.HtmlEncode(param.Description) + "</div>"));
                 box.Controls.Add(new LiteralControl(
                     "<div class=\"dc-param-type\"><span class=\"dc-param-key\">Data Type:</span> " +
-                    Page.Server.HtmlEncode(param.DataType) + "</div>" +
+                    Page.Server.HtmlEncode(DataTypeLabel(param.DataType)) + "</div>" +
                     "<button type=\"button\" class=\"mes-btn dc-param-comments\">Comments</button>"));
                 box.Controls.Add(BuildInput(param));
 
                 PhParameters.Controls.Add(box);
             }
         }
+
+        // PersonName es un tipo interno del simulador (spec 015): el MES muestra un texto libre.
+        private static string DataTypeLabel(string dataType)
+            => dataType == PersonNameRule.DataType ? "Text" : dataType;
 
         // El real termina cada pregunta con ":" (ej. "La limpieza de linea se ejecuto?:").
         private static string QuestionLabel(string name)
@@ -204,7 +222,13 @@ namespace TrainingApp.UI.Controls.Training
 
             var txt = new TextBox { ID = InputId(param), CssClass = "mes-input dc-param-input" };
             txt.Attributes["data-paramid"] = param.Id.ToString();
-            if (param.DataType == "Numeric")
+            if (param.DataType == PersonNameRule.DataType)
+            {
+                // Nombre de la persona en entrenamiento (spec 015): collectDCAnswers revisa el formato.
+                txt.MaxLength = PersonNameRule.MaxLength;
+                txt.Attributes["data-personname"] = "true";
+            }
+            else if (param.DataType == "Numeric")
             {
                 txt.Attributes["type"] = "number";
                 // Sin step el navegador usa step=1 y rechaza decimales (ej. CO2 4.8–5.2 en LoFlo).
@@ -214,6 +238,13 @@ namespace TrainingApp.UI.Controls.Training
                 txt.Attributes["type"] = "date";
             return txt;
         }
+
+        // Patrón del nombre para el JS del control (PersonNameRule).
+        protected string PersonNamePattern
+            => HttpUtility.JavaScriptStringEncode(PersonNameRule.ClientPattern);
+
+        private bool HasInvalidPersonName(string answersJson)
+            => PersonNameRule.HasInvalid(GetParameters(), answersJson);
 
         private IList<DataCollectionGroup> GetGroups()
         {

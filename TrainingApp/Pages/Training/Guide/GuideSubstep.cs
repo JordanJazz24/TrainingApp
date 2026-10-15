@@ -64,12 +64,20 @@ namespace TrainingApp.Pages.Training.Guide
         // campos del subpaso para avanzar. null en los campos libres y los clics.
         public string Expect { get; set; }
 
+        // Valores que "Continuar" no acepta en una captura, como un formato (spec 015, D-25: los
+        // equipos precargados de Resource Setup). null si no hay. Solo los recibe Guided.
+        public List<string> Reject { get; set; }
+
         // Reglas por campo de un bloque (Data Collection); null si no aplica.
         public List<GuideField> Fields { get; set; }
 
         // Selectores que, si todos tienen un elemento visible, dan el subpaso por hecho: la
         // guía lo salta al llegar (filas ya seleccionadas) o avanza (escaneo con Add visible).
         public List<string> Done { get; set; }
+
+        // Selectores de elementos que, además del resaltado, se pueden usar en este subpaso
+        // (spec 011: el campo SFC mientras se resalta la etiqueta). null si no hay.
+        public List<string> Free { get; set; }
 
         // Info sobre un mensaje del MES: la guía lo oculta al presionar "Continuar" (R9).
         public bool HideOnContinue { get; set; }
@@ -83,6 +91,12 @@ namespace TrainingApp.Pages.Training.Guide
 
         // HTML de la instrucción: texto codificado y valores en <strong>.
         public string Html { get; set; }
+
+        // Nota de la trainer dentro del globo, después de la instrucción (T7). null si no hay.
+        public string NoteHtml { get; set; }
+
+        // La nota es una alerta (en rojo): lo que no hay que olvidar en planta.
+        public bool NoteIsAlert { get; set; }
     }
 
     // Lo que recibe el motor en cada respuesta: los subpasos y la clave de entrada.
@@ -108,6 +122,7 @@ namespace TrainingApp.Pages.Training.Guide
                     postback = s.Postback,
                     format   = s.Format,
                     expect   = s.Expect,
+                    reject   = s.Reject,
                     fields   = s.Fields?.Select(f => new
                     {
                         sel    = f.Selector,
@@ -117,12 +132,15 @@ namespace TrainingApp.Pages.Training.Guide
                         max    = f.Max
                     }).ToList(),
                     done     = s.Done,
+                    free     = s.Free,
                     hide     = s.HideOnContinue,
                     retry    = s.RetryKey,
                     step     = s.StepLabel,
                     index    = s.Index,
                     total    = s.Total,
-                    html     = s.Html
+                    html     = s.Html,
+                    note     = s.NoteHtml,
+                    alert    = s.NoteIsAlert
                 }).ToList()
             };
         }

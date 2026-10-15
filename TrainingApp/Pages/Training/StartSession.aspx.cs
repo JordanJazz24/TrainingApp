@@ -1,4 +1,5 @@
 using System;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TrainingApp.BLL.Training;
@@ -20,6 +21,13 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Spec 013: solo entrena quien tiene la capacidad; un admin va a su módulo (AC-3).
+            if (!SessionHelper.CanTrain())
+            {
+                SessionHelper.RedirectHome();
+                return;
+            }
+
             // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
             if (SessionHelper.MustChangePassword())
             {
@@ -28,7 +36,10 @@ namespace TrainingApp.Pages.Training
             }
 
             if (!IsPostBack)
+            {
+                LblLastAccess.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
                 LoadProducts();
+            }
         }
 
         protected void DdlProduct_SelectedIndexChanged(object sender, EventArgs e)

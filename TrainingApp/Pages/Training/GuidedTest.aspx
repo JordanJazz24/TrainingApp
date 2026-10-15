@@ -41,7 +41,9 @@
                 <asp:Literal ID="LitModeBadge" runat="server" />
             </asp:Panel>
             <%-- Home y Help: solo visuales, como en el MES real. No hacen nada ni cuentan
-                 como intento (navegación, igual que Logout). --%>
+                 como intento (navegación). Logout es el último paso de la guía (spec 015):
+                 con la sesión de entrenamiento cerrada sale de la app (D-21). Un solo envío
+                 por render: un doble clic en el último paso no debe saltar el resumen. --%>
             <button type="button" class="pod-header-icon" title="Home" aria-label="Home">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
@@ -49,7 +51,8 @@
                 </svg>
             </button>
             <button id="BtnLogout" runat="server" title="Logout" aria-label="Logout"
-                class="pod-header-icon" onserverclick="BtnLogout_ServerClick" data-guide-free="">
+                class="pod-header-icon" onserverclick="BtnLogout_ServerClick" data-guide="pod-logout"
+                onclick="if (this.getAttribute('data-sent')) return false; this.setAttribute('data-sent', '1');">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                     <path d="M12 3v8" /><path d="M6.3 6.8a8 8 0 1 0 11.4 0" />
@@ -84,13 +87,13 @@
             <asp:Literal ID="LitResourceName" runat="server" /></span>
         <span class="pod-search-sfc">
             <span>SFC:</span>
-            <%-- Spec 005: TxtSFC ya no se edita a mano — la selección es solo vía
-                 Browse Work List (confirmBrowseSelection lo sigue completando).
-                 readonly se aplica como atributo HTML desde el code-behind: la
-                 propiedad ReadOnly haría que ASP.NET descarte el valor posteado. --%>
+            <%-- Spec 011: hasta el Start se escribe o se escanea la Shop Order o un SFC de
+                 la orden y Enter la carga (podLoadScan); Browse Work List también vale.
+                 Después del Start es de solo lectura (ApplySfcFieldMode). Sin placeholder,
+                 como el MES real: en Assessment nada dice cómo cargar la orden. --%>
             <span class="pod-sfc-box">
                 <asp:TextBox ID="TxtSFC" runat="server" CssClass="pod-sfc-input"
-                    placeholder="Use Browse Work List..." />
+                    autocomplete="off" data-guide="pod-sfc" />
                 <button type="button" class="pod-sfc-browse" data-guide="pod-browse"
                     data-bs-toggle="modal" data-bs-target="#modalBrowseWorkList"
                     title="Browse Work List">&#10697;</button>
@@ -292,6 +295,21 @@
 
     </div><%-- /pod-shell --%>
 
+    <%-- ══ ETIQUETA DE LA ORDEN (spec 011) ════════════════════════════════ --%>
+    <%-- No es parte del MES: simula la etiqueta impresa de la orden, pegada junto a la
+         pantalla (abajo a la derecha, sobre el lado vacío del pie: no tapa controles, AC-21).
+         Se ve desde que hay orden (Resource Setup, también forzado) hasta el Start, y se
+         escanea con un lector de imagen o tocando las barras. --%>
+    <asp:Panel ID="PnlOrderLabel" runat="server" Visible="false" CssClass="pod-order-label" data-guide="pod-label">
+        <div class="pod-order-label-text">
+            <span class="pod-order-label-caption">Shop Order</span>
+            <strong><%: LabelShopOrder %></strong>
+        </div>
+        <svg class="pod-order-label-barcode" data-guide="pod-label-barcode"
+            data-value="<%: LabelShopOrder %>" onclick="scanOrderLabel(this)"
+            role="img" aria-label="Shop Order <%: LabelShopOrder %>"></svg>
+    </asp:Panel>
+
     <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
     <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
         <div class="pod-completion-card" data-guide="pod-final">
@@ -396,6 +414,9 @@
 </asp:Content>
 
 <asp:Content ID="ScriptContent" ContentPlaceHolderID="ScriptContent" runat="server">
+<%-- Code 128 de la etiqueta (spec 011): copia local con versión fija, sin CDN (la red de
+     planta puede bloquearlo). Solo el formato CODE128. --%>
+<script src="<%=ResolveUrl("~/Scripts/JsBarcode.code128-3.11.6.min.js")%>"></script>
 <script>
     // F5 después de un postback reenviaría el último POST y volvería a ejecutar la
     // acción (split duplicado, intento fallido extra, control reabierto). Reemplazar
@@ -526,18 +547,46 @@
 
     // Browse elige las piezas (o el SFC del lote) para Search/Start, no filas del POD:
     // HfSelectedRowIds solo se llena con selectWorkListRow().
+    // Después del Start (B-1) la orden ya está cargada: OK solo cierra, sin tocar TxtSFC ni la
+    // selección del POD (HfSelectedSFC).
     function confirmBrowseSelection() {
+        var modal = bootstrap.Modal.getInstance(document.getElementById('modalBrowseWorkList'));
+        if (podOrderStarted) { modal.hide(); return; }
+
         var rows = document.querySelectorAll('#browseWorkListBody tr.table-primary');
         if (rows.length === 0 && !podMultiSelect) return;
 
-        var ids  = Array.prototype.map.call(rows, r => r.getAttribute('data-row-id'));
-        var sfcs = Array.prototype.map.call(rows, r => r.getAttribute('data-sfc'));
+        loadOrderRows(Array.prototype.slice.call(rows));
+        modal.hide();
+    }
+
+    // ── Carga de la orden para el Start (Browse Work List y escaneo, spec 011) ────
+    function browseRows() {
+        return Array.prototype.slice.call(document.querySelectorAll('#browseWorkListBody tr'));
+    }
+
+    // Deja cargadas las filas para el Start: lo mismo que el OK de Browse (TxtSFC, campos
+    // ocultos y header In Queue) y Browse marcado igual, para que muestre lo vigente. Gana la
+    // última acción: reemplaza lo cargado antes. El servidor revisa las filas en el Start.
+    function loadOrderRows(rows) {
+        var ids  = rows.map(r => r.getAttribute('data-row-id'));
+        var sfcs = rows.map(r => r.getAttribute('data-sfc'));
         var txt  = document.getElementById('<%= TxtSFC.ClientID %>');
-        if (txt) txt.value = describeSelection(sfcs);
+        if (txt) {
+            txt.value = describeSelection(sfcs);
+            // Lo que muestra el campo ya está cargado: el Start no lo vuelve a resolver.
+            txt.setAttribute('data-loaded-text', txt.value);
+            // La orden completa (o el lote) o una sola pieza: la guía avanza con la orden.
+            var all = browseRows().length;
+            txt.setAttribute('data-loaded', rows.length === 0 ? '' :
+                (!podMultiSelect || rows.length === all) ? 'order' : 'piece');
+        }
         var hf   = document.getElementById('<%= HfSelectedSFC.ClientID %>');
         if (hf) hf.value = sfcs.length === 1 ? sfcs[0] : '';
         var hfBrowse = document.getElementById('<%= HfBrowseRowIds.ClientID %>');
         if (hfBrowse) hfBrowse.value = ids.join(',');
+
+        browseRows().forEach(r => r.classList.toggle('table-primary', rows.indexOf(r) >= 0));
 
         // Antes del Start, la orden elegida queda In Queue (el servidor lo repite en cada
         // respuesta). Después del Start el header ya muestra la orden Active y no cambia.
@@ -546,10 +595,117 @@
             document.getElementById('podShopOrder').textContent = shopOrder;
             document.getElementById('podSfcStatus').textContent = rows.length > 0 ? 'In Queue' : '';
         }
-
-        bootstrap.Modal.getInstance(
-            document.getElementById('modalBrowseWorkList')).hide();
     }
+
+    // Filas que nombra lo escaneado o escrito (sin espacios al inicio ni al final; el resto,
+    // exacto): la Shop Order carga la orden completa (todas las piezas o el lote); un SFC,
+    // esa pieza o el lote. Sin orden (Resource Setup pendiente) no hay filas: nada coincide.
+    function resolveScan(text) {
+        var value = (text || '').trim();
+        var rows = browseRows();
+        if (!value || rows.length === 0) return [];
+        var ofOrder = rows.filter(r => r.getAttribute('data-shop-order') === value);
+        if (ofOrder.length > 0)
+            return podMultiSelect ? ofOrder : [ofOrder[0]];
+        return rows.filter(r => r.getAttribute('data-sfc') === value);
+    }
+
+    // Enter, el lector (manda el número y Enter) o las barras de la etiqueta. Cargar es
+    // navegación: un número que no es de la orden solo avisa, sin intento, y lo cargado no
+    // cambia (el campo vuelve a mostrarlo). Devuelve si cargó.
+    function podLoadScan(text) {
+        var rows = resolveScan(text);
+        var txt  = document.getElementById('<%= TxtSFC.ClientID %>');
+        if (rows.length === 0) {
+            if (txt) {
+                txt.value = txt.getAttribute('data-loaded-text') || '';
+                selectForNextScan(txt);
+            }
+            Swal.fire({ icon: 'warning', title: '<%= ScanNoticeTitleJs %>', text: '<%= ScanNoticeTextJs %>' });
+            return false;
+        }
+        loadOrderRows(rows);
+        if (txt) selectForNextScan(txt);
+        return true;
+    }
+
+    // El lector escribe donde está el foco: con el texto seleccionado, el escaneo siguiente
+    // lo reemplaza en vez de sumarse a lo cargado.
+    function selectForNextScan(txt) {
+        if (document.activeElement === txt) txt.select();
+    }
+
+    // Enmienda E-1: con Search como paso actual, Start carga primero lo que quedó escrito sin
+    // Enter. Vacío o ya cargado: sigue (el servidor da sus avisos de siempre).
+    function podLoadBeforeStart() {
+        var txt = document.getElementById('<%= TxtSFC.ClientID %>');
+        if (!txt || txt.readOnly) return true;
+        var value = txt.value.trim();
+        // Campo borrado: no queda nada cargado y el servidor da su aviso de siempre.
+        if (!value) { loadOrderRows([]); return true; }
+        if (value === (txt.getAttribute('data-loaded-text') || '')) return true;
+        return podLoadScan(value);
+    }
+
+    // Tras un postback el campo y los ocultos vuelven con lo cargado; se recuerda como
+    // cargado y Browse se marca igual. Lo escrito sin cargar queda pendiente para el Start.
+    // Después del Start TxtSFC y HfSelectedSFC son de la selección del POD: no se tocan.
+    function restoreOrderLoad() {
+        if (podOrderStarted) return;
+        var txt = document.getElementById('<%= TxtSFC.ClientID %>');
+        var hfBrowse = document.getElementById('<%= HfBrowseRowIds.ClientID %>');
+        if (!txt || !hfBrowse || !hfBrowse.value) return;
+        var ids  = hfBrowse.value.split(',');
+        var rows = browseRows().filter(r => ids.indexOf(r.getAttribute('data-row-id')) >= 0);
+        if (rows.length === 0) return;
+        var shown = txt.value;
+        loadOrderRows(rows);
+        if (shown.trim() !== txt.value) txt.value = shown;
+    }
+    // Tocar las barras equivale a escanear la etiqueta: escribe la Shop Order en TxtSFC y la
+    // carga. Con el Start la etiqueta ya no se muestra; el chequeo cubre una página vieja.
+    function scanOrderLabel(barcode) {
+        var txt = document.getElementById('<%= TxtSFC.ClientID %>');
+        if (podOrderStarted || !txt || txt.readOnly) return;
+        txt.value = barcode.getAttribute('data-value') || '';
+        podLoadScan(txt.value);
+    }
+
+    function renderOrderLabel() {
+        var barcode = document.querySelector('.pod-order-label-barcode');
+        if (!barcode || typeof JsBarcode !== 'function') return;
+        // Módulo de 2 px y barras de 44 px: legible para un lector de imagen desde el monitor.
+        JsBarcode(barcode, barcode.getAttribute('data-value'), {
+            format: 'CODE128', width: 2, height: 44, margin: 6,
+            displayValue: false, background: '#ffffff', lineColor: '#000000'
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        renderOrderLabel();
+        restoreOrderLoad();
+        var txt = document.getElementById('<%= TxtSFC.ClientID %>');
+        if (!txt) return;
+        // Enter nunca envía el formulario (haría clic en el primer botón, Logout). Lo que ya
+        // está cargado no se vuelve a resolver.
+        txt.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            if (txt.readOnly) return;
+            if (txt.value.trim() === (txt.getAttribute('data-loaded-text') || '')) { txt.select(); return; }
+            podLoadScan(txt.value);
+        });
+        // Al entrar al campo, lo escaneado después reemplaza lo cargado. Diferido: con un clic,
+        // el mouseup quitaría la selección.
+        txt.addEventListener('focus', function () {
+            if (!txt.readOnly) setTimeout(function () { txt.select(); }, 0);
+        });
+        // Formato: < y > no son parte de un número y ASP.NET rechaza el postback con marcado
+        // (<x). El campo viaja en cualquier postback, así que se quitan al escribir.
+        txt.addEventListener('input', function () {
+            if (/[<>]/.test(txt.value)) txt.value = txt.value.replace(/[<>]/g, '');
+        });
+    });
 
     // ── Abandon confirmation ─────────────────────────────────────────
     function confirmAbandon() {

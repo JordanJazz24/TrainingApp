@@ -16,12 +16,20 @@ namespace TrainingApp.BLL.Auth
             _userRepo = new UserRepository();
         }
 
-        public LoginResult Login(string code1, string password)
+        // Login por uno de los dos portales (spec 013). Cada uno acepta solo el rol con su
+        // capacidad (AccessPolicy.CanUsePortal); el otro rol recibe WrongPortal, que no cuenta
+        // como fallo porque la contraseña era correcta. Con cuenta: el bloqueo se revisa antes
+        // que la contraseña (LoginLockPolicy) y cada fallo suma; el login correcto reinicia el
+        // contador y devuelve el último acceso anterior.
+        public LoginResult Login(string code1, string password, LoginPortal portal)
         {
             // Step 1: verify code1 exists in external company API
             var employee = _employeeRepo.GetByCode1(code1);
             if (employee == null)
                 return LoginResult.NotFound();
+
+            // Después de la API (puede tardar con la caché fría): el bloqueo se mide desde aquí.
+            var now = DateTime.UtcNow;
 
             // Step 2: check for existing local User record
             var user = _userRepo.GetByCode1(code1);
@@ -32,25 +40,59 @@ namespace TrainingApp.BLL.Auth
                 if (password != Constants.DEFAULT_PASSWORD)
                     return LoginResult.Invalid();
 
+                // El autorregistro es solo para entrenar: sin cuenta no hay acceso
+                // administrativo (spec 013, P-3) y no se crea nada. Va después de la
+                // contraseña, como con una cuenta: el login de admin no revela qué Code1
+                // tienen cuenta.
+                if (portal != LoginPortal.Training)
+                    return LoginResult.WrongPortal();
+
                 user = new User
                 {
                     Code1        = employee.Code1,
                     Name         = employee.FullName,
                     PasswordHash = PasswordHelper.Hash(Constants.DEFAULT_PASSWORD),
                     IsFirstLogin = true,
-                    CreatedAt    = DateTime.UtcNow
+                    CreatedAt    = now,
+                    Role         = UserRole.Operator,
+                    LastLoginAt  = now
                 };
                 user.Id = _userRepo.Insert(user);
-                return LoginResult.AsFirstLogin(user);
+                return LoginResult.AsFirstLogin(user, previousLoginAt: null);
             }
 
-            // Step 3: existing account — verify stored hash
+            // Step 3: existing account. Bloqueada: no se mira la contraseña (no revela si era
+            // correcta) y no suma otro fallo.
+            if (LoginLockPolicy.IsLocked(user, now))
+                return LoginResult.Locked(user.LockedUntil.Value);
+
             if (!PasswordHelper.Verify(password, user.PasswordHash))
-                return LoginResult.Invalid();
+            {
+                var lockedUntil = _userRepo.RecordLoginFailure(user.Id,
+                    LoginLockPolicy.MaxFailedLogins, now.Add(LoginLockPolicy.LockDuration), now);
+                return lockedUntil.HasValue && lockedUntil.Value > now
+                    ? LoginResult.Locked(lockedUntil.Value)
+                    : LoginResult.Invalid();
+            }
+
+            if (!AccessPolicy.CanUsePortal(user.Role, portal))
+                return LoginResult.WrongPortal();
+
+            // El último acceso que ve el usuario es el anterior a este login (AC-17).
+            var previousLoginAt = user.LastLoginAt;
+            // Otro request pudo bloquearla mientras se revisaba la contraseña: el bloqueo gana.
+            if (!_userRepo.RecordLoginSuccess(user.Id, now))
+            {
+                var current = _userRepo.GetByCode1(code1);
+                return LoginResult.Locked(current?.LockedUntil ?? now.Add(LoginLockPolicy.LockDuration));
+            }
+            user.LastLoginAt      = now;
+            user.FailedLoginCount = 0;
+            user.LockedUntil      = null;
 
             return user.IsFirstLogin
-                ? LoginResult.AsFirstLogin(user)
-                : LoginResult.Ok(user);
+                ? LoginResult.AsFirstLogin(user, previousLoginAt)
+                : LoginResult.Ok(user, previousLoginAt);
         }
 
         // Precarga la lista de empleados en segundo plano al arrancar la aplicación

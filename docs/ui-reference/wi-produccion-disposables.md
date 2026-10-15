@@ -13,7 +13,7 @@ operación"). Que el simulador no tenga algo no es un defecto: los puntos marcad
 (`CLAUDE.md` → "Reglas de trabajo").
 
 Cómo se ve y se opera cada pantalla del simulador: `general-flow.md`. Reglas de puntaje:
-`CLAUDE.md`. Aquí no se copian.
+`docs/domain.md`. Aquí no se copian.
 
 **Clasificación** (la misma de la revisión con SAP MES, roadmap → "Fase 8"):
 - **Confirma** — la WI coincide con el simulador.
@@ -44,7 +44,7 @@ Cómo se ve y se opera cada pantalla del simulador: `general-flow.md`. Reglas de
 | W14 | Data Collection | "Apply to All SFCs" para recolectar en varias piezas a la vez | Confirma backlog |
 | W15 | Data Collection | El grupo completo se marca con un ✔ en [Collect]; el simulador lo deshabilita | Por verificar |
 | W16 | Data Collection | Save Draft sí guarda un borrador; el simulador no guarda nada | Contexto |
-| W17 | Complete | Tres variantes: directo, con **Log Buyoff** (≤50 SFC por transacción) o con **firma electrónica** (mover toda la orden). El simulador solo tiene el directo | A considerar |
+| W17 | Complete | Tres variantes: directo, con **Log Buyoff** (≤50 SFC por transacción) o con **firma electrónica** (mover toda la orden). El simulador solo tiene el directo | Decidido: simplificación aceptada |
 | W18 | SFC Split | Split para aislar la cantidad y luego scrap del SFC nuevo; recomendado después de Assembly y DC | Confirma |
 | W19 | Log NC | Fast scrap: Log NC → código `F_FS…` → Add-Done → "All of SFC Number scrapped" | Confirma |
 | W20 | Log NC | Prefijos reales: `F_FS` scrap, `F_FR` reparación rápida, `F_FX` reparación extendida, `F` fallas de DC. Moldeo incluye `F_FR_GENERAL` y el simulador lo trata como scrap | A considerar |
@@ -63,7 +63,7 @@ Cómo se ve y se opera cada pantalla del simulador: `general-flow.md`. Reglas de
 - **Logout (sección nueva de la rev. 27):** obligatorio en descansos, al terminar el turno, al
   cambiar de estación o de producto y siempre que otra persona pueda usar la sesión. Si no,
   las transacciones quedan con el usuario equivocado (trazabilidad del eDHR). **Contexto
-  (W22):** el simulador no evalúa el login ni el logout (`CLAUDE.md` → "Ejes de variación");
+  (W22):** el simulador no evalúa el login ni el logout (`docs/domain.md` → "Ejes de variación");
   es un buen mensaje para la guía o la capacitación (T7), no un paso.
 - La WI escanea la Shop Order o el SFC en el campo SFC **antes** del Resource Setup, con la
   nota "NO INICIE EL SFC en este momento". Cargar la orden no es iniciarla. En el simulador,
@@ -272,13 +272,15 @@ Number scrapped" → cerrar NC Selection.
   el rango del buyoff. Preguntar a Ernesto o en el ambiente de testing qué variante tienen
   Moldeo y LoFlo. Si entra, va con spec: es una decisión del operador en Complete (hoy solo
   acepta `"complete"`).
+  **Decidido (validación con técnicos, 2026-10-12):** simplificación aceptada, el simulador
+  entrena solo el Complete directo (`general-flow.md` → "Paso 9").
 
 ---
 
 ## Funciones de la WI fuera del simulador
 
 Ninguna está en el flujo de entrenamiento. Varias ya aparecen en el POD como botones de
-relleno (en Assessment cuentan como intento fallido de secuencia: `CLAUDE.md` → "Qué cuenta
+relleno (en Assessment cuentan como intento fallido de secuencia: `docs/domain.md` → "Qué cuenta
 como intento"). Sirven para que la guía o un trainer explique para qué son.
 
 | Función de la WI | Dónde está en el POD simulado | Quién la usa |

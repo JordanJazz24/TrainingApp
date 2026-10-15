@@ -7,7 +7,7 @@
 -- Pesos: CLAUDE.md → "Ponderación de pasos". Serialized con Assembly
 -- y sin SFC Split: la misma forma (y los mismos pesos) que Redefinity.
 -- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
---           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete
+--           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete · 8 Logout
 -- ============================================================
 SET NOCOUNT ON;
 
@@ -25,7 +25,8 @@ INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     -- Cierre
     (6, 1, 0.05),   -- Line Clearance (cierre)
     (7, 6, 0.10),   -- Log NC (con Component)
-    (8, 7, 0.10);   -- Complete
+    (8, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
+    (9, 8, 0.05);   -- Logout
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía Sensores LoFlo — Flujo Completo', @Steps = @Json;
