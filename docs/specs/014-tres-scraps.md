@@ -90,6 +90,23 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   material**, y Assembly Data muestra sus campos en **Assemble Components**, en la ventana
   del componente nuevo de la reparación rápida y en Remove component (respuesta a P-12).
   Assembly no cambia de puntaje.
+- **D-47 · Pieza reparada:** tras la reparación rápida o el Local Rework, la pieza queda
+  **activa** y sigue a Complete (confirma P-4); no se repite Data Collection ni nada más.
+- **D-48 · Add y Done** en NC Data Entry de los tres métodos siguen siendo botón equivocado
+  (spec 007): Add-Done es el único camino.
+- **D-49 · Nota de hallazgo de a uno:** el panel muestra **solo el hallazgo del paso
+  actual**, como "Hallazgo n de 3" (reemplaza "enumera los hallazgos" de P-2):
+  ```
+  ┌─ Hallazgo 2 de 3 ─────────────────────────┐
+  │ SFC 000123-048                             │
+  │ Defecto: Conector dañado                   │
+  │ Disposición: reemplazar el componente      │
+  │ 454000132321 (se desecha)                  │
+  └────────────────────────────────────────────┘
+  ```
+- **D-50 · Textos de la guía de los subpasos nuevos** (Browse, Remove component, ventana del
+  componente nuevo, disposición): los propone el plan y el usuario los aprueba antes de
+  implementar, como en T7.
 
 ## Propuestas de diseño
 
@@ -99,9 +116,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   simulados (`SIM`) de reparación rápida y 2-3 de extendida; en Moldeo (`06`),
   `F_FR_GENERAL` = `FastRepair` y `F_FX_GENERAL` = `ExtendedRepair`.
 - **P-2 · Nota de hallazgo:** panel del simulador con el estilo de la guía (no imita una
-  pantalla del MES), visible mientras el paso actual es de Log NC. Enumera los hallazgos en
-  el orden de los pasos, cada uno con el SFC, el defecto (la descripción del código) y la
-  disposición, sin nombrar el código.
+  pantalla del MES), visible mientras el paso actual es de Log NC, con el SFC, el defecto
+  (la descripción del código) y la disposición, sin nombrar el código. Uno a la vez: D-49.
 - **P-3 · Se califica al enviar:** la pieza y el código se califican juntos al registrar el
   NC (con el resto de las decisiones del método). Abrir Log NC con otra pieza y salir con
   Return to POD no cuenta.
@@ -364,9 +380,9 @@ Ninguna.
 - **AC-1:** Given una orden Serialized, Then tiene entre 4 y 5 piezas.
 - **AC-2:** Given Moldeo, LoFlo y Redefinity, Then cada código NC tiene su método y si exige
   Comments; LoFlo y Redefinity tienen códigos de los tres métodos.
-- **AC-3:** Given un paso de Log NC, Then la nota de hallazgo muestra, en orden, la pieza, el
-  defecto y la disposición de cada hallazgo, en Guided y en Assessment, sin nombrar el
-  código.
+- **AC-3:** Given un paso de Log NC, Then la nota de hallazgo muestra solo el hallazgo de ese
+  paso ("Hallazgo n de 3"): la pieza, el defecto y la disposición, en Guided y en
+  Assessment, sin nombrar el código.
 - **AC-4:** Given Guided en el subpaso 1 de Log NC, Then se ve la alerta de D-43 en rojo.
 - **AC-5:** Given cualquier código, When presiona ⧉ en Component, Then el Browse lista los
   componentes ensamblados en Assembly.
