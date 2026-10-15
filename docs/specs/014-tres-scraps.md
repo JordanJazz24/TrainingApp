@@ -86,6 +86,10 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
     pieza queda sin el componente y hay que volver a ensamblarlo; lo mismo pasa con Return."
 - **D-45 · Pesos de Moldeo:** la misma regla que en Serialized: tres pasos de 0.05 y Data
   Collection de 0.30 a 0.25.
+- **D-46 · W13 completo en la 014:** cada componente del BOM tiene su **tipo de control del
+  material**, y Assembly Data muestra sus campos en **Assemble Components**, en la ventana
+  del componente nuevo de la reparación rápida y en Remove component (respuesta a P-12).
+  Assembly no cambia de puntaje.
 
 ## Propuestas de diseño
 
@@ -112,7 +116,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   acepta ese botón en cualquiera de los tres.
 - ~~P-8 · Pesos de transición~~: descartada (llegaron las capturas de los tres métodos).
 
-**Nuevas (Claude, 2026-10-15, a confirmar antes de aprobar)**
+**Confirmadas por el usuario (2026-10-15)**; P-12 la cambió D-46
 - **P-9 · Pieza correcta en NonSerialized:** cualquiera de los SFC del split **que no se
   haya usado** en otro método; el SFC del lote es intento fallido. El hallazgo del lote dice
   "N unidades con {defecto}" (N es informativo, D-32).
@@ -126,15 +130,15 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   - Qty Required y Qty Assembled son la Qty del BOM.
   - Assembly Operation es la operación simulada del área (P-14) y Assembly Resource es el
     recurso de Resource Setup.
-  - Inventory SFC y Batch Number repiten lo que muestra hoy Assembly (Batch = Process Lot).
+  - Inventory SFC y Batch Number repiten la Assembly Data que se registró en Assembly para
+    ese componente (D-46, P-17).
   - ★ Qty to Remove viene en 1 y es editable: obligatorio y numérico, como formato; no se
     califica.
   - Remove Operation y Remove Resource vienen precargados y solo se leen.
   - Ref Des va vacío.
 - **P-12 · Ventana del componente nuevo (D-36):** reutiliza el modal de Assemble Components
-  del simulador **con los mismos campos que muestra hoy Assembly**. Si W13 (Assembly Data
-  por tipo de control del material) se implementa después, la reparación rápida hereda los
-  campos correctos. El dato capturado es formato y no se califica (como el barcode de
+  del simulador, con la Assembly Data **según el tipo de control del material** del
+  componente (D-46, P-17). El dato capturado es formato y no se califica (como el barcode de
   Assembly).
 - **P-13 · `NCCodes.RequiresComments`:** qué códigos exigen Comments es dato del catálogo:
   `F_FX_GENERAL` en Moldeo, y un código `SIM_FX_…` en LoFlo y en Redefinity. El hallazgo de
@@ -149,6 +153,21 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 - **P-16 · Complete en NonSerialized:** sigue pidiendo la fila del lote (decisión de la E3 de
   la spec 015); los SFC del split que quedan en el POD (reparación rápida, Local Rework) no
   se exigen.
+
+**Nueva (Claude, 2026-10-15, a confirmar antes de aprobar)**
+- **P-17 · Assembly Data por tipo de material (W13):** `AssemblyComponents` gana
+  `MaterialControl` (`Batch`, `InventorySfc`, `MaterialDocument`), simulado. Después del
+  escaneo del barcode (que no cambia), Assembly Data muestra:
+
+  | Control | Campos | Quién llena qué |
+  |---|---|---|
+  | `Batch` | ★ Batch Number | El simulador, al escanear: un batch simulado **del componente** (deja de ser el Process Lot de la orden) |
+  | `InventorySfc` | ★ Inventory SFC + ★ Batch Number (gris) | El operador escanea o escribe el Inventory SFC (formato: obligatorio, letras y números); el simulador llena el Batch |
+  | `MaterialDocument` | ★ Material Document Number | El operador lo escribe (formato: obligatorio, letras y números) |
+
+  Nada se califica (Assembly sigue calificándose por secuencia). El BOM simulado de LoFlo y
+  de Redefinity tiene **al menos un componente de cada tipo**, para que se practiquen los
+  tres. El de Moldeo depende de V-1.
 
 ## Scope
 
@@ -178,6 +197,11 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
    D-44 y P-13.
 7. **Orden fijo** de los pasos: desecho → reparación rápida → extendida. En NonSerialized,
    antes va **un** SFC Split con tres SFC (D-42, P-10).
+
+**Assembly Data por tipo de material** (D-46, P-17; W13 de la WI)
+8a. Assemble Components (paso Assembly) y la ventana del componente nuevo (reparación
+    rápida) muestran la Assembly Data según el `MaterialControl` del componente. Sin cambios
+    de puntaje ni de secuencia en Assembly.
 
 **Desecho rápido** (paso `LogNC`; captura `seleccion de la orden o sfc y click en LOG NC.png`)
 8. Flujo sin cambios: seleccionar la fila → [Log NC] → código `F_FS…` → NC Data Entry →
@@ -266,8 +290,8 @@ Total                           1.00          1.00          1.00
 - "Select next step for {SFC}" y la lista de operaciones de la ruta (D-37).
 - El flujo de Send to Routing (solo cuenta como botón equivocado).
 - Código `F` (fallas de DC, DC-DC ESign Exceptions) y Unscrap.
-- Calificar el contenido de Comments (D-38) y los datos del componente nuevo (P-12).
-- Assembly Data por tipo de control del material (W13): va con su propia spec.
+- Calificar el contenido de Comments (D-38), los datos del componente nuevo (P-12) y la
+  Assembly Data (P-17).
 - Que la pieza regresada a una operación anterior reaparezca en otra operación.
 
 ## Domain Model
@@ -281,6 +305,9 @@ Total                           1.00          1.00          1.00
   disposición y MPI simulado (extendida). Lo genera un generador nuevo (como
   `SerialSfcGenerator`).
 - **`SerialSfcGenerator.MinPieces`** = 4.
+- **`AssemblyComponent.MaterialControl`** (enum nuevo, P-17), columna `NOT NULL` en
+  `AssemblyComponents`; los scripts `05` y `08` la cargan, y el de Moldeo según V-1. Lo
+  registrado en Assembly por componente se guarda en `PodState` (lo lee Remove component).
 - **Operaciones simuladas** por área (P-14), en datos de catálogo.
 - **BOM de Moldeo:** según la verificación de D-41.
 - `spTrainingGuideSync` ya valida que los pesos sumen 1.00. Propuesta para el plan: que
@@ -384,6 +411,16 @@ Ninguna.
 - **AC-21:** Given Assessment, When elige la otra disposición, Then es intento fallido.
 - **AC-22:** Given Cancel en Select Disposition Function, Then no cuenta.
 
+**Assembly Data (W13)**
+- **AC-25:** Given un componente `Batch`, When escanea el barcode, Then ★ Batch Number se
+  llena con el batch simulado del componente (no con el Process Lot).
+- **AC-26:** Given un componente `InventorySfc`, When escanea y deja el Inventory SFC vacío,
+  Then el control lo bloquea como formato; con un valor, el Batch se llena solo.
+- **AC-27:** Given un componente `MaterialDocument`, Then pide ★ Material Document Number.
+- **AC-28:** Given LoFlo y Redefinity, Then su BOM tiene al menos un componente de cada tipo.
+- **AC-29:** Given Remove component, Then Inventory SFC y Batch Number muestran lo
+  registrado en Assembly para ese componente.
+
 **NonSerialized (Moldeo)**
 - **AC-23:** Given Moldeo, Then su SFC Split se resuelve con tres SFC del split, y cada paso
   de Log NC se hace sobre uno distinto.
@@ -410,10 +447,9 @@ credenciales).
 | Pesos de Log NC y de DC (D-29, D-45) | 0.05 × 3 y DC 0.25 | T6 (documento de Ernesto) |
 | Códigos simulados de reparación en LoFlo | `SIM_FR_…` y `SIM_FX_…` | Catálogo real de Sensores |
 | Operaciones del banner de la extendida (P-14) | Dos nombres simulados por área | V-2 o catálogo real de Operations |
-| Assembly Data por tipo de material (W13) | Los campos que muestra hoy Assembly | Su propia spec |
 
 ## Open Questions
 
-- Confirmar las propuestas nuevas **P-9 a P-16**.
+- Confirmar la propuesta **P-17** (Assembly Data por tipo de material).
 - Las verificaciones V-1 a V-3 no bloquean la aprobación, pero sí las entregas que dependen
   de ellas.
