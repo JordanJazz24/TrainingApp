@@ -216,8 +216,10 @@ preguntas para Ernesto (T6) y el ambiente de testing (T9):
 - **W3:** ¿hay operaciones sin herramientas en Resource Setup? El simulador exige al menos una.
 - **W7:** ¿de dónde sale el Line Clearance de cierre? La WI solo lo repite por condiciones
   (cambio de usuario, tiempo, SFC activo, cambio de orden).
-- **W13 / W15:** batch del componente en Assembly y ícono ✔ del grupo de DC guardado
-  (capturas pendientes en `inventario-pantallas.md`).
+- **W13 (resuelto 2026-10-15):** Assembly Data depende del control del material (Batch,
+  Inventory SFC + Batch o Material Document); el simulador siempre usa el Process Lot. Cambio
+  de catálogo y UI para la spec de T4 o una propia.
+- **W15:** ícono ✔ del grupo de DC guardado (captura pendiente en `inventario-pantallas.md`).
 - **W20:** `F_FR_GENERAL` está en el catálogo de scrap de Moldeo, pero en el MES es un código
   de reparación.
 - Para T4, la WI ya describe los pasos de la reparación rápida (`F_FR`) y la extendida

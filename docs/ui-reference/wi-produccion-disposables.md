@@ -40,7 +40,7 @@ Cómo se ve y se opera cada pantalla del simulador: `general-flow.md`. Reglas de
 | W10 | Search/Start | Primera operación de una ruta con fecha de expiración: iniciar 1 SFC y después el resto | Contexto |
 | W11 | Assembly | Seleccionar SFC → Assemble → escanear el 2D → Add → repetir; con el último, la lista se cierra sola | Confirma |
 | W12 | Assembly | Escanear un componente que no es de la operación da error; también material perecedero expirado | A considerar |
-| W13 | Assembly | El batch que se llena es el del **componente** escaneado (o su SFC de inventario o documento de material); el simulador pone el Process Lot de la orden | Por verificar |
+| W13 | Assembly | Assembly Data depende de cómo se controla el **material**: Batch Number, Inventory SFC + Batch Number o Material Document Number. El simulador siempre muestra un Batch Number con el Process Lot de la orden | A considerar |
 | W14 | Data Collection | "Apply to All SFCs" para recolectar en varias piezas a la vez | Confirma backlog |
 | W15 | Data Collection | El grupo completo se marca con un ✔ en [Collect]; el simulador lo deshabilita | Por verificar |
 | W16 | Data Collection | Save Draft sí guarda un borrador; el simulador no guarda nada | Contexto |
@@ -160,14 +160,22 @@ componente. Con el último, la lista se cierra sola.
   - `Not enough Quantity Available in Unrestricted Stock(Message 22801)`
 
   En ambos casos el operador avisa al encargado de materiales; no se resuelve en el POD.
-- **W13, Por verificar.** Según la WI, Assembly Data muestra el **SFC de inventario, el número
-  de batch o el documento de material del componente**, según el tipo de material. El
-  simulador llena ★ Batch Number con el Process Lot de la orden (`general-flow.md` → "Paso 4"
-  y `glossary.md`). En la captura `Assemble/asemble components modal - estado posterior al
-  escaneo` el valor es `0000168957` para un adhesivo (`453601048391`), con formato de batch
-  de SAP: apoya la WI. Falta confirmar que no coincide con el Process Lot de esa orden (no
-  hay captura de su POD). Si es el batch del componente, es un dato de la UI (no cambia el
-  puntaje).
+- **W13, A considerar** (resuelto con las imágenes de la WI, 2026-10-15). Assembly Data
+  muestra **una de tres configuraciones**, según cómo se controla el material del
+  componente en SAP:
+
+  | Control del material | Campos de Assembly Data | Fuente |
+  |---|---|---|
+  | Por batch | `★ Batch Number` | Captura real `Assemble/…posterior al escaneo`: `0000168957` para un adhesivo |
+  | Por inventario (recibido con Floor Stock Receipt) | `★ Inventory SFC` (se escanea) + `★ Batch Number` (en gris, lo llena MES desde el Inventory SFC) | WI, Assembly y el "Ejemplo" de la reparación rápida: `CR9AP1700000801` / `0301366528` |
+  | Por documento de material | `★ Material Document Number` | WI, Assembly |
+
+  El dato es **del material**, no de la orden. El simulador muestra siempre un solo
+  ★ Batch Number con el Process Lot de la orden (`general-flow.md` → "Paso 4" y
+  `glossary.md`). Para ser fiel: un tipo de dato de ensamble por componente en
+  `AssemblyComponents` (simulado) y que Assemble Components muestre sus campos. No cambia el
+  puntaje (Assembly se califica por secuencia), pero es regla de catálogo: va con spec. La
+  reparación rápida (W21) reutiliza el mismo modal, así que hereda los campos correctos.
 - **Contexto.** La cantidad solo se puede **bajar**. El MES no sirve para sobreconsumir: el
   componente extra se desecha por otro procedimiento (801061001).
 - Time-Based Assembly (ensamble automático al Start con ranuras, botón Cargar/Reponer, y sus
