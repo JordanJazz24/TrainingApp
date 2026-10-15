@@ -36,9 +36,9 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 - **D-29 · Tres pasos, 0.15 en total:** desecho rápido, reparación rápida y reparación
   extendida son **tres pasos** de la guía, en **orden fijo**, de **0.05** cada uno; Data
   Collection baja de 0.30 a 0.25.
-- ~~D-30 · Solo Serialized~~: **reemplazada por D-40.** Sigue vigente su segunda parte: qué
-  métodos entrena un área lo deciden **los pasos de su guía** (sin flag nuevo), así que si T5
-  cambia las guías, no cambia el código.
+- **D-30 · Solo áreas con Assembly** (vuelve a regir por D-53; D-40 la había reemplazado):
+  qué métodos entrena un área lo deciden **los pasos de su guía** (sin flag nuevo), así que
+  si T5 cambia las guías, no cambia el código.
 - **D-31 · Código exacto:** el hallazgo describe un defecto que corresponde a **un código del
   catálogo**; cualquier otro código, aunque sea del método correcto, es un intento fallido.
 - **D-32 · Lote:** en NonSerialized no se califica la cantidad del split. Se revisa con T5.
@@ -68,12 +68,9 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 - **D-39 · Component con Browse en todos los códigos:** el ⧉ del campo Component abre un
   **Browse** (Component | Description, OK / Cancel) con los componentes **ensamblados en
   Assembly**. Solo se califica en la reparación rápida.
-- **D-40 · Moldeo también con los tres** (reemplaza D-30).
-- **D-41 · Componentes de Moldeo:** Moldeo no tiene Assembly ni BOM; qué muestra el Browse en
-  su reparación rápida lo **verifica el usuario en el sandbox** (ver "Verificaciones
-  pendientes"). Hasta entonces, la reparación rápida de Moldeo espera.
-- **D-42 · Split en Moldeo:** **un solo paso SFC Split** que crea **tres SFC**, uno por
-  método; después vienen los tres pasos de Log NC.
+- ~~D-40 · Moldeo también con los tres~~: **revertida por D-53.**
+- ~~D-41 · Componentes de Moldeo~~: **resuelta por D-53** (V-1).
+- ~~D-42 · Split en Moldeo con tres SFC~~: **sin efecto por D-53.**
 - **D-43 · Alerta del subpaso 1 de Log NC** (en rojo, texto aprobado):
   > Revise el SFC de cada pieza seleccionada contra el hallazgo: solo deben estar las
   > defectuosas. Scrapear la unidad equivocada es el error más grave de este paso: el MES no
@@ -84,8 +81,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
     indica el MPI); no es común. En la mayoría de los casos se usa Scrap."
   - En "Do you want to add component…?": "Yes: agrega ahora el componente nuevo. No: la
     pieza queda sin el componente y hay que volver a ensamblarlo; lo mismo pasa con Return."
-- **D-45 · Pesos de Moldeo:** la misma regla que en Serialized: tres pasos de 0.05 y Data
-  Collection de 0.30 a 0.25.
+- ~~D-45 · Pesos de Moldeo~~: **sin efecto por D-53** (Moldeo no cambia de pesos).
 - **D-46 · W13 completo en la 014:** cada componente del BOM tiene su **tipo de control del
   material**, y Assembly Data muestra sus campos en **Assemble Components**, en la ventana
   del componente nuevo de la reparación rápida y en Remove component (respuesta a P-12).
@@ -111,6 +107,12 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   operación.
 - **D-52 · Nombres de operación con formato real** (P-14): número + código + descripción,
   p. ej. `020 O_LOFLO_SIM_ENSAMBLE` · "Ensamble (SIM)"; el banner nombra el código.
+- **D-53 · V-1 resuelta: Moldeo solo con desecho rápido** (usuario, 2026-10-15): la
+  operación de Moldeo no lleva Assembly, así que **se omiten la reparación rápida y la
+  extendida**. Moldeo sigue con SFC Split (un SFC, como hoy) + desecho rápido, con nota de
+  hallazgo y código exacto (P-6) y sus pesos actuales. `F_FR_GENERAL` y `F_FX_GENERAL`
+  siguen en su NC Selection (en el MES real aparecen) con su método, pero nunca son
+  correctos para el desecho.
 - **D-50 · Textos de la guía de los subpasos nuevos** (Browse, Remove component, ventana del
   componente nuevo, disposición): los propone el plan y el usuario los aprueba antes de
   implementar, como en T7.
@@ -140,12 +142,10 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 - ~~P-8 · Pesos de transición~~: descartada (llegaron las capturas de los tres métodos).
 
 **Confirmadas por el usuario (2026-10-15)**; P-12 la cambió D-46
-- **P-9 · Pieza correcta en NonSerialized:** cualquiera de los SFC del split **que no se
-  haya usado** en otro método; el SFC del lote es intento fallido. El hallazgo del lote dice
-  "N unidades con {defecto}" (N es informativo, D-32).
-- **P-10 · SFC Split en NonSerialized:** el paso se resuelve cuando existen tantos SFC del
-  split como pasos de Log NC tiene la guía (hoy 3). Los splits se hacen en el cliente y se
-  envían en un solo postback (`CLAUDE.md` → "POD y controles").
+- **P-9 · Pieza correcta en NonSerialized** (ajustada por D-53): el SFC del split; el SFC
+  del lote es intento fallido. El hallazgo del lote dice "N unidades con {defecto}" (N es
+  informativo, D-32).
+- ~~P-10 · SFC Split con varios SFC~~: **sin efecto por D-53**; el split no cambia.
 - **P-11 · Datos de Remove component** (captura `remove compoenet modal .png`):
   - SFC, Material/Vers. y Description salen de la orden simulada; Status = `Active`.
   - Routing/Vers. y BOM/Version son simulados (`SIM`).
@@ -164,7 +164,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   componente (D-46, P-17). El dato capturado es formato y no se califica (como el barcode de
   Assembly).
 - **P-13 · `NCCodes.RequiresComments`:** qué códigos exigen Comments es dato del catálogo:
-  `F_FX_GENERAL` en Moldeo, y un código `SIM_FX_…` en LoFlo y en Redefinity. El hallazgo de
+  un código `SIM_FX_…` en LoFlo y en Redefinity (y `F_FX_GENERAL` en Moldeo, aunque Moldeo
+  no entrena la extendida). El hallazgo de
   esos códigos trae un MPI y revisión simulados para escribir, sin calificarse (D-38). Nota
   de la guía: "Anote el MPI y su revisión, o el número de NCR."
 - **P-14 · Operaciones del banner de la extendida:** no hay `Operations` en uso. Cada área
@@ -174,9 +175,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   catálogo de cada área (dónde exactamente, lo decide el plan).
 - **P-15 · Cancel en "Select Disposition Function"** es salir sin responder: no cuenta y
   vuelve a NC Data Entry (como D-35).
-- **P-16 · Complete en NonSerialized:** sigue pidiendo la fila del lote (decisión de la E3 de
-  la spec 015); los SFC del split que quedan en el POD (reparación rápida, Local Rework) no
-  se exigen.
+- **P-16 · Complete en NonSerialized:** sigue pidiendo la fila del lote, como hoy (decisión
+  de la E3 de la spec 015).
 
 **Confirmada por el usuario (2026-10-15)**
 - **P-17 · Assembly Data por tipo de material (W13):** `AssemblyComponents` gana
@@ -191,7 +191,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 
   Nada se califica (Assembly sigue calificándose por secuencia). El BOM simulado de LoFlo y
   de Redefinity tiene **al menos un componente de cada tipo**, para que se practiquen los
-  tres. El de Moldeo depende de V-1.
+  tres. Moldeo no tiene BOM (D-53).
 
 ## Scope
 
@@ -204,7 +204,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
    simulados nuevos de LoFlo y Redefinity.
 3. **Hallazgos generados por la BLL** al iniciar la orden (Start): uno por cada paso de Log NC
    de la guía. En Serialized, cada uno sobre una pieza **distinta** elegida al azar; en
-   NonSerialized, sobre "N unidades" del lote (P-9). Cada uno lleva un código del método del
+   NonSerialized (Moldeo, un solo hallazgo), sobre "N unidades" del lote (P-9). Cada uno lleva un código del método del
    paso, elegido al azar del catálogo del área, y según el método:
    - reparación rápida: el componente a reemplazar (del BOM);
    - extendida: la disposición (Local Rework o Return to any previous) y, si el código exige
@@ -219,8 +219,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 6. **Guía de Guided:** alerta del subpaso 1 (D-43); la guía señala la pieza del hallazgo y no
    deja enviar otra pieza, otro código ni otra decisión (como D-25 de la spec 015); notas de
    D-44 y P-13.
-7. **Orden fijo** de los pasos: desecho → reparación rápida → extendida. En NonSerialized,
-   antes va **un** SFC Split con tres SFC (D-42, P-10).
+7. **Orden fijo** de los pasos: desecho → reparación rápida → extendida. Moldeo solo tiene
+   el desecho, después de su SFC Split como hoy (D-53).
 
 **Assembly Data por tipo de material** (D-46, P-17; W13 de la WI)
 8a. Assemble Components (paso Assembly) y la ventana del componente nuevo (reparación
@@ -230,11 +230,11 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 **Desecho rápido** (paso `LogNC`; captura `seleccion de la orden o sfc y click en LOG NC.png`)
 8. Flujo sin cambios: seleccionar la fila → [Log NC] → código `F_FS…` → NC Data Entry →
    Add-Done → banner "All of {SFC} scrapped".
-9. **Correcto** solo con la pieza del hallazgo (Serialized, D-33) o un SFC del split sin usar
+9. **Correcto** solo con la pieza del hallazgo (Serialized, D-33) o el SFC del split
    (NonSerialized, P-9) y el código exacto (D-31). Lo demás, en Assessment, es intento
    fallido con el mensaje genérico (no revela qué falló).
 
-**Reparación rápida** (paso `LogNCFastRepair`; capturas `browse component.png`, `mensaje
+**Reparación rápida** (paso `LogNCFastRepair`, solo LoFlo y Redefinity; capturas `browse component.png`, `mensaje
 eliminar componente.png`, `remove compoenet modal .png`, `confirmacion agregar compoenente
 .png` y `recorte de agregado del nuevo compoenente .png`)
 
@@ -262,7 +262,7 @@ eliminar componente.png`, `remove compoenet modal .png`, `confirmacion agregar c
     a agregar, Send to Routing).
 13. La pieza sigue en el POD (P-4).
 
-**Reparación extendida** (paso `LogNCExtendedRepair`; capturas `modal nc entry extended.png`
+**Reparación extendida** (paso `LogNCExtendedRepair`, solo LoFlo y Redefinity; capturas `modal nc entry extended.png`
 y `sub modal seleccion operaicon a ser devuelta .png`)
 
 14. Flujo:
@@ -285,24 +285,24 @@ y `sub modal seleccion operaicon a ser devuelta .png`)
     nombra la operación de P-14.
 
 **Guías y pesos**
-17. Las guías `05`, `07` y `09` agregan los dos pasos nuevos después del desecho, y `07`
-    pasa a tener tres SFC en su SFC Split. Pesos:
+17. Las guías `05` y `09` agregan los dos pasos nuevos después del desecho. La `07` (Moldeo)
+    no cambia de pasos ni de pesos (D-53). Pesos:
 
 ```
-Paso                         Moldeo (07)   LoFlo (09)   Redefinity (05, ejemplo)
-Resource Setup                  0.20          0.20          0.20
-Line Clearance (apertura)       0.05          0.05          0.05
-Search / Start                  0.15          0.05          0.05
-Assembly                         —            0.15          0.15
-Data Collection                 0.25          0.25          0.25   (antes 0.30)
-Line Clearance (cierre)         0.05          0.05          0.05
-SFC Split                       0.05           —             —
-Log NC · desecho rápido         0.05          0.05          0.05   (antes Log NC 0.10)
-Log NC · reparación rápida      0.05          0.05          0.05   (nuevo)
-Log NC · reparación extendida   0.05          0.05          0.05   (nuevo)
-Complete                        0.05          0.05          0.05
-Logout                          0.05          0.05          0.05
-Total                           1.00          1.00          1.00
+Paso                         Moldeo (07, sin cambios)   LoFlo (09)   Redefinity (05, ejemplo)
+Resource Setup                  0.20                       0.20          0.20
+Line Clearance (apertura)       0.05                       0.05          0.05
+Search / Start                  0.15                       0.05          0.05
+Assembly                         —                         0.15          0.15
+Data Collection                 0.30                       0.25          0.25   (antes 0.30)
+Line Clearance (cierre)         0.05                       0.05          0.05
+SFC Split                       0.05                        —             —
+Log NC · desecho rápido         0.10                       0.05          0.05   (antes 0.10)
+Log NC · reparación rápida       —                         0.05          0.05   (nuevo)
+Log NC · reparación extendida    —                         0.05          0.05   (nuevo)
+Complete                        0.05                       0.05          0.05
+Logout                          0.05                       0.05          0.05
+Total                           1.00                       1.00          1.00
 ```
 
 18. Si una captura nueva contradice esta spec, se enmienda antes del código.
@@ -310,6 +310,7 @@ Total                           1.00          1.00          1.00
 ### Out
 
 - Calificar la cantidad del split en NonSerialized (D-32).
+- Reparación rápida y extendida en Moldeo (D-53).
 - Return y No a agregar como camino válido, y el re-ensamble posterior (D-34).
 - "Select next step for {SFC}" y la lista de operaciones de la ruta (D-37).
 - El flujo de Send to Routing (solo cuenta como botón equivocado).
@@ -330,10 +331,9 @@ Total                           1.00          1.00          1.00
   `SerialSfcGenerator`).
 - **`SerialSfcGenerator.MinPieces`** = 4.
 - **`AssemblyComponent.MaterialControl`** (enum nuevo, P-17), columna `NOT NULL` en
-  `AssemblyComponents`; los scripts `05` y `08` la cargan, y el de Moldeo según V-1. Lo
+  `AssemblyComponents`; los scripts `05` y `08` la cargan (Moldeo no tiene BOM). Lo
   registrado en Assembly por componente se guarda en `PodState` (lo lee Remove component).
 - **Operaciones simuladas** por área (P-14), en datos de catálogo.
-- **BOM de Moldeo:** según la verificación de D-41.
 - `spTrainingGuideSync` ya valida que los pesos sumen 1.00. Propuesta para el plan: que
   rechace una guía con `LogNCFastRepair` en un área sin componentes.
 
@@ -371,8 +371,6 @@ Sin cambios: el POD opera sobre la sesión propia y en curso; solo Operator entr
   aborta si un paso existente cambia de `StepType` (`015-plan.md`). Los pasos nuevos van en
   medio (antes de Complete y Logout). El plan define cómo se migra (versión nueva de la guía
   o un cambio acotado del sync) sin romper las sesiones en curso ni el historial.
-- **Moldeo antes de la verificación de D-41:** su guía no puede tener la reparación rápida
-  sin componentes. El plan decide si Moldeo entra después, con sus tres pasos juntos.
 
 ## Non-Functional Requirements
 
@@ -389,7 +387,7 @@ Ninguna.
 - **AC-2:** Given Moldeo, LoFlo y Redefinity, Then cada código NC tiene su método y si exige
   Comments; LoFlo y Redefinity tienen códigos de los tres métodos.
 - **AC-3:** Given un paso de Log NC, Then la nota de hallazgo muestra solo el hallazgo de ese
-  paso ("Hallazgo n de 3"): la pieza, el defecto y la disposición, en Guided y en
+  paso ("Hallazgo n de 3"; en Moldeo, "1 de 1"): la pieza, el defecto y la disposición, en Guided y en
   Assessment, sin nombrar el código.
 - **AC-4:** Given Guided en el subpaso 1 de Log NC, Then se ve la alerta de D-43 en rojo.
 - **AC-5:** Given cualquier código, When presiona ⧉ en Component, Then el Browse lista los
@@ -400,10 +398,11 @@ Ninguna.
   queda fallido, se aplica la disposición del hallazgo y la sesión avanza.
 - **AC-8:** Given `ScoreCalculatorTests` y los tests de `StepValidator`, Then siguen en verde y
   cubren las reglas de pieza, código y decisiones de cada método.
-- **AC-9:** Given las tres guías, Then tienen los pasos y los pesos de la tabla y suman 1.00.
+- **AC-9:** Given las guías de LoFlo y Redefinity, Then tienen los pasos y los pesos de la
+  tabla y suman 1.00; la de Moldeo no cambia.
 
 **Desecho rápido**
-- **AC-10:** Given Assessment, When registra el NC con la pieza (o un SFC del split sin usar)
+- **AC-10:** Given Assessment, When registra el NC con la pieza (o el SFC del split)
   y el código del hallazgo, Then el paso se resuelve y la pieza se desecha.
 - **AC-11:** Given Assessment, When registra el NC sobre otra pieza, sobre la correcta y una
   más, sobre el SFC del lote o con otro código (aunque sea `F_FS`), Then es intento fallido
@@ -446,15 +445,15 @@ Ninguna.
   registrado en Assembly para ese componente.
 
 **NonSerialized (Moldeo)**
-- **AC-23:** Given Moldeo, Then su SFC Split se resuelve con tres SFC del split, y cada paso
-  de Log NC se hace sobre uno distinto.
+- **AC-23:** Given Moldeo, Then su guía solo tiene el desecho rápido, con hallazgo y código
+  exacto; elegir `F_FR_GENERAL` o `F_FX_GENERAL` es intento fallido.
 - **AC-24:** Given Complete en Moldeo, Then pide la fila del lote, como hoy.
 
 ## Verificaciones pendientes (el usuario, en el sandbox de MES)
 
 | # | Qué | Bloquea |
 |---|---|---|
-| V-1 | Qué componentes muestra el Browse en una reparación rápida de **Moldeo** (D-41) | Reparación rápida de Moldeo |
+| ~~V-1~~ | ~~Componentes de Moldeo~~: **resuelta** (D-53, Moldeo no lleva Assembly) | — |
 | V-2 | Qué pasa al elegir **Local Rework** y **Return to any previous**: banner, operación que nombra y si la pieza sigue en el POD | El banner y P-4 de la extendida (se construye con P-14 y se ajusta) |
 | V-3 | El mensaje o banner con el que termina la **reparación rápida** | El cierre de la reparación rápida |
 | V-4 | Captura completa de la **ventana del componente nuevo** | Opcional: hoy se construye con D-36 y P-12 |
@@ -468,11 +467,11 @@ credenciales).
 | Decisión | Respaldo elegido | Se revisa cuando |
 |---|---|---|
 | Cantidad del split en NonSerialized (D-32) | No se califica | T5 |
-| Pesos de Log NC y de DC (D-29, D-45) | 0.05 × 3 y DC 0.25 | T6 (documento de Ernesto) |
+| Pesos de Log NC y de DC (D-29) | 0.05 × 3 y DC 0.25 | T6 (documento de Ernesto) |
 | Códigos simulados de reparación en LoFlo | `SIM_FR_…` y `SIM_FX_…` | Catálogo real de Sensores |
 | Operaciones del banner de la extendida (P-14) | Dos nombres simulados por área | V-2 o catálogo real de Operations |
 
 ## Open Questions
 
-_Ninguna._ Las verificaciones V-1 a V-3 no bloquean la aprobación, pero sí las entregas que dependen
+_Ninguna._ Las verificaciones V-2 y V-3 no bloquean la aprobación, pero sí las entregas que dependen
   de ellas.
