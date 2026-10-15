@@ -959,7 +959,8 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    (`recorte de agregado del nuevo compoenente .png`): ★ Inventory SFC (`CR9AP1700000801`,
    con ⧉) y ★ Batch Number (`0301366528`, en gris). Se completan los datos que pida el
    material (W13 en `wi-produccion-disposables.md`) y se presiona [Add].
-5. **Sin captura:** el mensaje con que termina.
+5. **Sin captura:** el mensaje con que termina. El simulador usa un banner provisional
+   (spec 014, D-55).
 
 **Reparación extendida (`F_FX…`).**
 1. NC Data Entry (`modal nc entry extended.png`): ★ NC Code, Component (opcional) y
@@ -975,8 +976,10 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
      └─────────────────────────────────────────────────────────────┘
                                                         [✖ Cancel]
    ```
-3. Con Select se cierra todo y vuelve al POD con el banner "All of {SFC} will be processed
-   at {operación}".
+3. Con Select se cierra todo y vuelve al POD. Con **Return to any previous** (usuario,
+   2026-10-15): banner "All of {SFC} will be processed at {operación anterior}" y la pieza
+   sale del POD. Con **Local Rework**: otro banner con la operación actual; su texto exacto
+   no se conoce (provisional en el simulador, spec 014, D-54).
 4. **Sin verificar:** qué muestra cada disposición. La WI no tiene Disposition Function: tras
    "NC logged" muestra **"Select next step for {SFC}"** con las operaciones de la ruta
    (`010 O_VERR_W_ASSEMBLY_PREP` "Wire Assembly Preparation", `020 O_VERR_FIRST_DISTAL`

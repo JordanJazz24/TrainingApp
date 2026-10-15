@@ -113,6 +113,15 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   hallazgo y código exacto (P-6) y sus pesos actuales. `F_FR_GENERAL` y `F_FX_GENERAL`
   siguen en su NC Selection (en el MES real aparecen) con su método, pero nunca son
   correctos para el desecho.
+- **D-54 · V-2 resuelta para Return to any previous** (usuario, 2026-10-15): se cierra todo,
+  vuelve al POD con el banner **"All of {SFC} will be processed at {operación anterior}"** y
+  la pieza **sale del POD**. **Local Rework** muestra otro banner, con la operación actual;
+  su texto exacto queda por verificar (V-5). Mientras tanto: el mismo formato con la
+  operación actual, marcado **provisional**. La pieza sigue en el POD (P-4, D-47).
+- **D-55 · V-3, banner provisional:** no se sabe con qué mensaje termina la reparación
+  rápida. Mientras tanto: un banner verde **provisional** "Component {componente} replaced
+  on {SFC}", marcado como provisional en el código y en `general-flow.md` (como el de
+  Complete en la spec 015). Se cambia cuando se sepa el real.
 - **D-50 · Textos de la guía de los subpasos nuevos** (Browse, Remove component, ventana del
   componente nuevo, disposición): los propone el plan y el usuario los aprueba antes de
   implementar, como en T7.
@@ -249,7 +258,7 @@ eliminar componente.png`, `remove compoenet modal .png`, `confirmacion agregar c
             [Scrap]  [Return]  [Send to Routing]  [Cancel]             Scrap
       → Confirm "Do you want to add component to {SFC}?"               Yes
       → ventana del componente nuevo (P-12) → datos → [Add]
-      → vuelve al POD
+      → vuelve al POD → banner provisional (D-55)
     ```
 
 11. **Correcto** solo si la pieza, el código y el componente coinciden con el hallazgo, se
@@ -281,8 +290,9 @@ y `sub modal seleccion operaicon a ser devuelta .png`)
 15. **Correcto** solo si la pieza, el código y la disposición coinciden con el hallazgo
     (D-37b). Comments vacío con un código que lo exige es formato (D-38). El componente no se
     califica. Cancel no cuenta (P-15).
-16. Local Rework deja la pieza en el POD y Return to any previous la saca (P-4). El banner
-    nombra la operación de P-14.
+16. Return to any previous: banner con la operación anterior y la pieza sale del POD
+    (D-54). Local Rework: banner provisional con la operación actual y la pieza sigue en el
+    POD (D-54, V-5). Las operaciones son las de P-14.
 
 **Guías y pesos**
 17. Las guías `05` y `09` agregan los dos pasos nuevos después del desecho. La `07` (Moldeo)
@@ -412,8 +422,8 @@ Ninguna.
 
 **Reparación rápida**
 - **AC-13:** Given la pieza, el código y el componente del hallazgo, When responde Yes,
-  Scrap, Yes y completa la ventana del componente nuevo con Add, Then el paso se resuelve y
-  la pieza sigue en el POD.
+  Scrap, Yes y completa la ventana del componente nuevo con Add, Then el paso se resuelve,
+  aparece el banner provisional de D-55 y la pieza sigue en el POD.
 - **AC-14:** Given Assessment, When elige Return, responde No a agregar o presiona Send to
   Routing, Then es intento fallido con el mensaje genérico.
 - **AC-15:** Given Assessment, When responde No a remover o presiona Cancel en Remove
@@ -429,8 +439,8 @@ Ninguna.
 - **AC-19:** Given Add-Done válido, Then aparece "NC logged" y "Select Disposition Function
   for {SFC}" con Local Rework y Return to any previous.
 - **AC-20:** Given la disposición del hallazgo, When presiona su Select, Then se cierra todo,
-  aparece "All of {SFC} will be processed at {operación}" y la pieza queda o sale del POD
-  según la disposición.
+  aparece el banner de D-54 (operación anterior con Return to any previous y la pieza sale
+  del POD; operación actual, provisional, con Local Rework y la pieza sigue).
 - **AC-21:** Given Assessment, When elige la otra disposición, Then es intento fallido.
 - **AC-22:** Given Cancel en Select Disposition Function, Then no cuenta.
 
@@ -454,8 +464,9 @@ Ninguna.
 | # | Qué | Bloquea |
 |---|---|---|
 | ~~V-1~~ | ~~Componentes de Moldeo~~: **resuelta** (D-53, Moldeo no lleva Assembly) | — |
-| V-2 | Qué pasa al elegir **Local Rework** y **Return to any previous**: banner, operación que nombra y si la pieza sigue en el POD | El banner y P-4 de la extendida (se construye con P-14 y se ajusta) |
-| V-3 | El mensaje o banner con el que termina la **reparación rápida** | El cierre de la reparación rápida |
+| ~~V-2~~ | ~~Return to any previous~~: **resuelta** (D-54) | — |
+| V-3 | El mensaje o banner con el que termina la **reparación rápida** | Nada: banner provisional mientras tanto (D-55) |
+| V-5 | El banner exacto de **Local Rework** | Nada: banner provisional mientras tanto (D-54) |
 | V-4 | Captura completa de la **ventana del componente nuevo** | Opcional: hoy se construye con D-36 y P-12 |
 
 Para capturarlas se puede usar una sesión con Claude in Chrome o Playwright sobre el
@@ -473,5 +484,4 @@ credenciales).
 
 ## Open Questions
 
-_Ninguna._ Las verificaciones V-2 y V-3 no bloquean la aprobación, pero sí las entregas que dependen
-  de ellas.
+_Ninguna._ V-3, V-4 y V-5 no bloquean nada: hay respaldo provisional para cada una.
