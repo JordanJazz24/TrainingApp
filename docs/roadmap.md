@@ -52,7 +52,7 @@
   usuario ya tiene acceso al ambiente de testing de SAP MES.
 - **Documentación (2026-10-12 a 2026-10-15):** contraste con la WI oficial de MES
   QD001001524, integrado en `TrainingApp` (`docs/ui-reference/wi-produccion-disposables.md`,
-  W1-W22). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
+  W1-W23). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
   tipo de material (W13). Preguntas abiertas en "Fase 8" → "Contraste con la WI".
 - **Lo último cerrado (2026-10-20):** la **spec 012** (Práctica libre) y, antes, las
   **notas EP-7**. Antes (2026-10-19), la **spec 016**
@@ -324,7 +324,7 @@ Fuente: sesión "Reuniones y dudas". Validación final con ella en 1-2 semanas.
 
 #### Contraste con la WI QD001001524 (2026-10-12)
 El manual oficial de ejecución de órdenes en MES (Disposables, rev. 27) confirma la secuencia
-y la operación de todos los pasos del simulador. Detalle y hallazgos W1-W22:
+y la operación de todos los pasos del simulador. Detalle y hallazgos W1-W23:
 `docs/ui-reference/wi-produccion-disposables.md`. Lo ya decidido está en "Validación con
 técnicos" (arriba): W17 (Complete directo, simplificación aceptada), Tool List descartado,
 T10 desde la WI 6.4 y W9 cubierto por la spec 011. Quedan para Ernesto (T6) y el ambiente de
@@ -338,6 +338,9 @@ testing (T9):
   en la spec 014 (D-46, 2026-10-15) y se recortó el 2026-10-19 (enmienda 6): diferida hasta
   que T6, la trainer o T9 muestren errores con esos datos.
 - **W15:** ícono ✔ del grupo de DC guardado (captura pendiente en `inventario-pantallas.md`).
+- **W23 (2026-10-15, captura del POD real):** el SFC serializado es `{12NC}-{serial}`, no
+  `{ShopOrder}-{sufijo}` como en el simulador. Ajuste de la orden simulada, sin efecto en el
+  puntaje; candidato para la spec 014 (que ya cambia las piezas por orden) o un plan directo.
 - **W20:** `F_FR_GENERAL` está en el catálogo de scrap de Moldeo, pero en el MES es un código
   de reparación. Lo resuelve la spec 014 (método de cada código en el catálogo).
 - Para T4, la WI ya describe los pasos de la reparación rápida (`F_FR`) y la extendida

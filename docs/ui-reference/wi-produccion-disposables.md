@@ -50,6 +50,7 @@ Cómo se ve y se opera cada pantalla del simulador: `general-flow.md`. Reglas de
 | W20 | Log NC | Prefijos reales: `F_FS` scrap, `F_FR` reparación rápida, `F_FX` reparación extendida, `F` fallas de DC. Moldeo incluye `F_FR_GENERAL` y el simulador lo trata como scrap | A considerar |
 | W21 | Log NC | Pasos de la reparación rápida y la extendida, útiles para T4 | Contexto |
 | W22 | Sesión | Logout obligatorio en descansos, cambio de estación o de turno | Contexto |
+| W23 | Search/Start | El SFC serializado real es `{12NC del material}-{serial}` (ej. `300014142061-46705`); el simulador usa `{ShopOrder}-{sufijo}` | A considerar |
 
 ---
 
@@ -140,6 +141,22 @@ puede escanear la etiqueta Traveler del SFC directamente.
   inician unidades en la primera operación entre 11:30 p. m. y 12:30 a. m. ni durante un
   mantenimiento del MES (se pierden datos de expiración). Ninguna área simulada es primera
   operación con expiración que se sepa; no aplica hoy.
+- **W23, A considerar** (captura del POD real de Wires, 2026-10-15). Formato del SFC
+  serializado: `{12NC del material}-{serial}`, ej. `300014142061-46705`.
+  - **12NC** (`300014142061`): número de parte Philips de 12 dígitos del **producto**
+    ("OmniWire, 185CM, Straight Tip SoS"); igual en todas sus unidades. La WI de Colorado lo
+    define en 4.11 (Material/PN: 12NC, 10NC o 6NC). Los componentes del BOM también son 12NC
+    (ej. `453601048391`).
+  - **Serial** (`46705`): identifica la unidad. En la captura son consecutivos dentro de la
+    orden (46705-46716, 12 piezas). Si la numeración sigue entre órdenes del mismo producto o
+    se reinicia: no lo dicen los manuales.
+  - La **Shop Order** (`303628518`) no forma parte del SFC; va en su propia columna. La
+    herramienta de Shelf Life de la WI valida el mismo formato ("12 NC de 12 dígitos", guion,
+    solo números después).
+  - El simulador genera las piezas como `{ShopOrder}-{sufijo}` (ej. `303406950-430`). Para
+    la fidelidad, `{12NC}-{serial}`, con el 12NC del material de la guía. Importa para escanear
+    (spec 011): la orden y una pieza tienen que ser números claramente distintos. Es dato de
+    la orden simulada (`PodService`), sin efecto en el puntaje.
 
 ### 4. Assembly
 

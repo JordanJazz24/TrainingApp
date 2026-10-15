@@ -7,7 +7,7 @@ puntaje (pesos, qué cuenta como intento, modos) están en `docs/domain.md`; aqu
 > Documentos por área (`moldeo-flow.md`, etc.) solo registrarán lo que difiere de este flujo general.
 >
 > Procedimiento oficial del MES real (WI QD001001524) y su contraste con cada paso:
-> `wi-produccion-disposables.md` (hallazgos W1-W22).
+> `wi-produccion-disposables.md` (hallazgos W1-W23).
 
 ---
 

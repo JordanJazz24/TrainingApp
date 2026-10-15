@@ -33,6 +33,7 @@
 | **StepWeight** | Peso de un paso sobre el puntaje final (`TrainingSteps.Weight`). Pesos y reglas: `docs/domain.md` → "Ponderación de pasos". |
 | **Intento** | Cada envío que califica el servidor. Qué cuenta y qué no (formato vs. decisión, acción incorrecta, secuencia S2, avance forzado): `docs/domain.md` → "Qué cuenta como intento". |
 | **Avance forzado (force-advance)** | En Assessment, al 4.º intento (`ScoreCalculator.ShouldForceAdvance`) el paso queda fallido con 0 puntos y el sistema avanza solo al siguiente. |
+| **12NC** | Número de parte Philips de 12 dígitos: identifica un material o producto (no una unidad). Prefijo del SFC serializado real, `{12NC}-{serial}` (`ui-reference/wi-produccion-disposables.md` → W23). |
 | **MPI** | Manufacturing Process Instruction: instrucción de proceso de cada operación. El MES la abre desde [Work Instruction]; los parámetros de DC se recolectan según ella. |
 | **eDHR / eLHR** | Registro electrónico histórico del dispositivo (producto terminado) / del lote (sub-ensamble). Lo que el MES registra queda en ellos. |
 | **Log Buyoff** | Aprobación electrónica al completar (usuario y contraseña o tarjeta, luego [Accept]) en operaciones de 50 SFC o menos por transacción. El simulador no la tiene: `ui-reference/wi-produccion-disposables.md` → W17. |
