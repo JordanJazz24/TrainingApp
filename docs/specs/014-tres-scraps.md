@@ -104,6 +104,13 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   │ 454000132321 (se desecha)                  │
   └────────────────────────────────────────────┘
   ```
+- **D-51 · La extendida sigue la captura, no la WI:** la WI (respuesta de la sesión de
+  contraste, 2026-10-15) muestra "Select next step for {SFC}" con la lista de operaciones
+  justo después de "NC logged" y no tiene "Select Disposition Function" ni "Local Rework".
+  El usuario mantiene D-37 (su captura del sandbox): la WI queda como otra configuración de
+  operación.
+- **D-52 · Nombres de operación con formato real** (P-14): número + código + descripción,
+  p. ej. `020 O_LOFLO_SIM_ENSAMBLE` · "Ensamble (SIM)"; el banner nombra el código.
 - **D-50 · Textos de la guía de los subpasos nuevos** (Browse, Remove component, ventana del
   componente nuevo, disposición): los propone el plan y el usuario los aprueba antes de
   implementar, como en T7.
@@ -161,7 +168,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   esos códigos trae un MPI y revisión simulados para escribir, sin calificarse (D-38). Nota
   de la guía: "Anote el MPI y su revisión, o el número de NCR."
 - **P-14 · Operaciones del banner de la extendida:** no hay `Operations` en uso. Cada área
-  tiene dos nombres de operación simulados (`SIM`): la actual y una anterior. Local Rework →
+  tiene dos nombres de operación simulados (`SIM`), con formato real (D-52): la actual y una
+  anterior. Local Rework →
   el banner nombra la actual; Return to any previous → la anterior. Van en los scripts de
   catálogo de cada área (dónde exactamente, lo decide el plan).
 - **P-15 · Cancel en "Select Disposition Function"** es salir sin responder: no cuenta y

@@ -977,8 +977,14 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    ```
 3. Con Select se cierra todo y vuelve al POD con el banner "All of {SFC} will be processed
    at {operación}".
-4. **Sin verificar:** qué muestra cada disposición (si hay un paso "Select next step for
-   {SFC}" con la lista de operaciones, el simulador no lo modela).
+4. **Sin verificar:** qué muestra cada disposición. La WI no tiene Disposition Function: tras
+   "NC logged" muestra **"Select next step for {SFC}"** con las operaciones de la ruta
+   (`010 O_VERR_W_ASSEMBLY_PREP` "Wire Assembly Preparation", `020 O_VERR_FIRST_DISTAL`
+   "First Distal"; [Select] por fila, [Cancel]) y el banner "All of 989609001231-543988 will
+   be processed at O_VERR_FIRST_DISTAL", con el campo SFC vacío. El simulador sigue la
+   captura del sandbox (spec 014, D-51).
+5. **Códigos:** en una figura de la WI, el código de reparación rápida es `F_FASTREPAIR`, no
+   `F_FR…`. El método de un código no se deduce del prefijo.
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
