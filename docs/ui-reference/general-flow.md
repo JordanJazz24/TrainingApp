@@ -914,8 +914,71 @@ documentos de manufactura (auditados) de esa operación:
   adicionales; según el ingeniero, se olvidan o se hacen mal con frecuencia.
 - **Extensión de la operación:** regresar unidades a ciertas operaciones para retrabajo.
 
-El simulador modela un solo camino: registrar el código NC (y el componente si el área lo
-pide) y scrapear la pieza.
+Hoy el simulador modela un solo camino: registrar el código NC (y el componente si el área
+lo pide) y scrapear la pieza. Los tres métodos los trae la spec 014 (en borrador); sus
+reglas y su calificación viven en la spec, no aquí.
+
+### Pantallas de la reparación rápida y la extendida (usuario, 2026-10-15)
+
+Capturas en `Screens SAP MES REAL/Split - Log NC/`. Las anotó el usuario, que validó los
+flujos con una técnica de planta. En el MES real, la **disposición** la dictan el MPI o el
+NCR.
+
+**Component ⧉ → Browse** (`browse component.png`). Es el mismo campo de NC Data Entry para
+cualquier código.
+```
+  Browse                                                     [⤢][✕]
+  ┌──┬────────────────┬──────────────────────────────────┐
+  │  │ Component      │ Description                      │
+  │  │ 454000131551   │ FISH TAPE, LASER SHEATH          │
+  │■ │ 454000132321   │ DISPENSING HOOP, FISHTAPE (SMALL)│  ← fila elegida (azul)
+  └──┴────────────────┴──────────────────────────────────┘
+                                         [✓ OK]  [✖ Cancel]
+```
+Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
+
+**Reparación rápida (`F_FR…`).** Después de Add-Done en NC Data Entry:
+1. **Confirm** (`mensaje eliminar componente.png`): "Do you want to remove component from
+   {SFC}?" [Yes] [No].
+2. **Remove component** (`remove compoenet modal .png`), con dos secciones:
+   - **As-Built Configuration** (solo lectura):
+     - a la izquierda: SFC, Material/Vers., Routing/Vers., Actual Component/Vers.,
+       Description, Ref Des, Qty Required y Qty Assembled;
+     - a la derecha: Status, Description, BOM/Version, Assembly Operation, Assembly
+       Resource, Inventory SFC y Batch Number.
+   - **Remove assembly details:** ★ Qty to Remove (`1`), Remove Operation y Remove
+     Resource, ambos con ⧉.
+   - Botones abajo: [Scrap] [Return] [Send to Routing] [Cancel]. **Return** devuelve el
+     componente a inventario (solo si el MPI lo permite; poco común); **Scrap**, por
+     sobreconsumo o daño (el caso habitual).
+3. **Confirm** (`confirmacion agregar compoenente .png`): "Do you want to add component to
+   {SFC}?" [Yes] [No]. Con **No**, o con Return en el paso anterior, la pieza queda sin el
+   componente y hay que volver a ensamblarlo.
+4. Con **Yes**: ventana para agregar el componente nuevo, parecida a Assemble Components
+   (según la técnica, con diferencias; el manual no la muestra completa). Recorte
+   (`recorte de agregado del nuevo compoenente .png`): ★ Inventory SFC (`CR9AP1700000801`,
+   con ⧉) y ★ Batch Number (`0301366528`, en gris). Se completan los datos que pida el
+   material (W13 en `wi-produccion-disposables.md`) y se presiona [Add].
+5. **Sin captura:** el mensaje con que termina.
+
+**Reparación extendida (`F_FX…`).**
+1. NC Data Entry (`modal nc entry extended.png`): ★ NC Code, Component (opcional) y
+   ★ Comments. Con `F_FX_GENERAL`, Comments es obligatorio y lleva el MPI y su revisión, o
+   el número de NCR. Luego, [Add-Done].
+2. NC Data Entry muestra "✓ NC logged" arriba del SFC y abre un sub-modal
+   (`sub modal seleccion operaicon a ser devuelta .png`):
+   ```
+     Select Disposition Function for {SFC}                    [⤢][✕]
+     ┌─────────────────────────────────────────────────────────────┐
+     │ Local Rework                                    [✓ Select]  │
+     │ Return to any previous                          [✓ Select]  │
+     └─────────────────────────────────────────────────────────────┘
+                                                        [✖ Cancel]
+   ```
+3. Con Select se cierra todo y vuelve al POD con el banner "All of {SFC} will be processed
+   at {operación}".
+4. **Sin verificar:** qué muestra cada disposición (si hay un paso "Select next step for
+   {SFC}" con la lista de operaciones, el simulador no lo modela).
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
