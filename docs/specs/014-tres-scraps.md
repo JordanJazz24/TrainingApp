@@ -154,7 +154,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   la spec 015); los SFC del split que quedan en el POD (reparación rápida, Local Rework) no
   se exigen.
 
-**Nueva (Claude, 2026-10-15, a confirmar antes de aprobar)**
+**Confirmada por el usuario (2026-10-15)**
 - **P-17 · Assembly Data por tipo de material (W13):** `AssemblyComponents` gana
   `MaterialControl` (`Batch`, `InventorySfc`, `MaterialDocument`), simulado. Después del
   escaneo del barcode (que no cambia), Assembly Data muestra:
@@ -450,6 +450,5 @@ credenciales).
 
 ## Open Questions
 
-- Confirmar la propuesta **P-17** (Assembly Data por tipo de material).
-- Las verificaciones V-1 a V-3 no bloquean la aprobación, pero sí las entregas que dependen
+_Ninguna._ Las verificaciones V-1 a V-3 no bloquean la aprobación, pero sí las entregas que dependen
   de ellas.
