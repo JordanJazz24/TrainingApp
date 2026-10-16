@@ -119,6 +119,12 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 > cantidad del split (nota visible también en el SFC Split; el split forzado y la
 > reconstrucción usan N) y la guía de Guided abre con un subpaso Info que resalta la nota.
 > Textos en la spec y en la tabla de abajo.
+>
+> **Enmienda 3 de la spec (2026-10-16), dentro de la E1:** la cantidad del split se
+> califica contra N al presionar Split (Assessment: intento fallido, el split no se aplica y
+> el 4.º intento fuerza un split de N; Guided: la guía no lo deja). Un segundo Split después
+> del correcto es un aviso de formato. Test: N siempre de 1 a lote − 1. Al cerrar la spec,
+> `docs/domain.md` → "Qué cuenta como intento" lo recoge.
 
 ## Entrega 2 — Reparación rápida (AC-5, AC-13 a AC-17)
 

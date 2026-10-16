@@ -57,6 +57,23 @@
 >      revise el defecto, la cantidad y la disposición. Primero separe esas unidades con SFC
 >      Split; después las registra en Log NC."
 
+> **Enmienda 3 · 2026-10-16 (usuario, al probar la E1 en Moldeo):** **la cantidad del split
+> se califica** en Moldeo. Deja sin efecto D-32 y el "sin calificarse" de la enmienda 2;
+> cambia el Out, las Deferred Decisions y AC-30 (nuevo).
+>
+> 1. En Guided y Assessment se valida que el split use la **cantidad N del hallazgo**. Se
+>    califica al presionar **Split** (ya es un postback al servidor).
+>    - **Assessment:** una cantidad distinta de N es **intento fallido** del paso SFC Split
+>      (`WrongDecision`, mensaje genérico) y el split **no se aplica**: el POD no cambia y se
+>      reintenta. Al 4.º intento el paso avanza forzado con un split de N.
+>    - **Guided:** la guía no deja presionar Split con otra cantidad (como D-25).
+>    - El Split con N sigue sin ser intento, y Close sigue igual (exige un split).
+> 2. Después de un split correcto, otro Split es un **aviso de formato**, sin intento y sin
+>    aplicarse: "Ya se separó la cantidad del hallazgo". Así, en Log NC queda una sola fila
+>    del split.
+> 3. El hallazgo nunca pide el lote completo: N va de 1 a lote − 1, y el split ya rechaza
+>    dividir toda la fila (aviso `InvalidSplit`).
+
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
 QD001001524 rev. 27 (`docs/ui-reference/wi-produccion-disposables.md`, W13 y W19-W21);
@@ -95,7 +112,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   si T5 cambia las guías, no cambia el código.
 - **D-31 · Código exacto:** el hallazgo describe un defecto que corresponde a **un código del
   catálogo**; cualquier otro código, aunque sea del método correcto, es un intento fallido.
-- **D-32 · Lote:** en NonSerialized no se califica la cantidad del split. Se revisa con T5.
+- ~~D-32 · Lote: en NonSerialized no se califica la cantidad del split~~: **reemplazada por
+  la enmienda 3 (2026-10-16)**: la cantidad del split se califica contra la del hallazgo.
 
 **2026-10-15** (notas y capturas del usuario)
 - **D-33 · Desecho de una pieza:** el MES permite seleccionar varias filas, pero el hallazgo
@@ -373,7 +391,6 @@ Total                           1.00                       1.00          1.00
 
 ### Out
 
-- Calificar la cantidad del split en NonSerialized (D-32).
 - Reparación rápida y extendida en Moldeo (D-53).
 - Return y No a agregar como camino válido, y el re-ensamble posterior (D-34).
 - "Select next step for {SFC}" y la lista de operaciones de la ruta (D-37).
@@ -512,6 +529,10 @@ Ninguna.
 - **AC-23:** Given Moldeo, Then su guía solo tiene el desecho rápido, con hallazgo y código
   exacto; elegir `F_FR_GENERAL` o `F_FX_GENERAL` es intento fallido.
 - **AC-24:** Given Complete en Moldeo, Then pide la fila del lote, como hoy.
+- **AC-30** (enmienda 3): Given Moldeo, When presiona Split con una cantidad distinta de la
+  del hallazgo, Then en Assessment es intento fallido y el POD no cambia; en Guided la guía
+  no lo deja. When presiona Split otra vez después de un split correcto, Then es un aviso
+  de formato y no se aplica.
 
 ## Verificaciones pendientes (el usuario, en el sandbox de MES)
 
@@ -531,7 +552,6 @@ credenciales).
 
 | Decisión | Respaldo elegido | Se revisa cuando |
 |---|---|---|
-| Cantidad del split en NonSerialized (D-32) | No se califica | T5 |
 | Pesos de Log NC y de DC (D-29) | 0.05 × 3 y DC 0.25 | T6 (documento de Ernesto) |
 | Códigos simulados de reparación en LoFlo | `SIM_FR_…` y `SIM_FX_…` | Catálogo real de Sensores |
 | Operaciones del banner de la extendida (P-14) | Dos nombres simulados por área | V-2 o catálogo real de Operations |
