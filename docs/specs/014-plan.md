@@ -1,7 +1,7 @@
 # Plan — Spec 014: Tres tipos de scrap y pieza defectuosa indicada
 
-**Spec:** `014-tres-scraps.md` (aprobada 2026-10-16) · **Estado:** propuesto, espera la
-aprobación del usuario.
+**Spec:** `014-tres-scraps.md` (aprobada 2026-10-16) · **Estado:** **aprobado por el
+usuario (2026-10-16)**, con D-56 a D-60 y los textos de la guía.
 **Autoría:** sesión de Arquitectura y Planeación (verificado contra el código de
 `TrainingApp`, `285d96e`). Lo ejecuta "desarrollo" (`docs/process.md` → "Tres sesiones de
 trabajo").
