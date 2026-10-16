@@ -104,6 +104,17 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
       lote, código de otro método, código exacto) y `NcFindingGeneratorTests` (piezas
       distintas, código del método). `ScoreCalculatorTests` en verde.
 
+> **Decisiones de implementación de E1** (desarrollo, 2026-10-16; no cambian la spec ni el
+> plan):
+>
+> - Disposición en la nota: "desechar la pieza (scrap)" en Serialized y "desechar las
+>   unidades (scrap)" en Moldeo.
+> - Si el estado del POD tiene orden pero le faltan los hallazgos, se reconstruye (D-10).
+> - El subpaso Component del desecho sigue siendo una captura hasta E2, que trae el Browse.
+> - Códigos `SIM` nuevos. LoFlo: `SIM_FR_CONECTOR_FLOJO`, `SIM_FR_TUBO`, `SIM_FR_FILTRO`,
+>   `SIM_FX_GENERAL` (con Comments), `SIM_FX_SELLO` y `SIM_FX_SOLDADURA`. Redefinity:
+>   `SIM_FR_HUB`, `SIM_FR_LUER`, `SIM_FX_GENERAL` (con Comments) y `SIM_FX_PUNTA`.
+
 ## Entrega 2 — Reparación rápida (AC-5, AC-13 a AC-17)
 
 - [ ] **`StepType.LogNCFastRepair = 9`**; `02`: `StepType` de 0 a 10. **D-56** en
