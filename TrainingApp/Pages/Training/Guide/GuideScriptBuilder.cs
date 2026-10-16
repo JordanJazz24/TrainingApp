@@ -379,6 +379,7 @@ namespace TrainingApp.Pages.Training.Guide
             // Enmienda 2 de la spec 014: el hallazgo de Log NC se presenta aquí (no se repite en
             // su Log NC) y dicta la cantidad del split, que no se califica (D-32).
             var finding = ctx.SplitFinding;
+            if (finding != null) s.FreeOnAll.Add(Anchor("nc-finding"));
             if (finding != null)
                 s.Add("finding", GuideMode.Info, Anchor("nc-finding"),
                     html: H("Calidad reportó un hallazgo: revise el defecto, la cantidad y la disposición. ",
@@ -429,6 +430,7 @@ namespace TrainingApp.Pages.Training.Guide
 
             var order = ctx.State.Order;
             var finding = ctx.NcFindingFor(step);
+            if (finding != null) s.FreeOnAll.Add(Anchor("nc-finding"));
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
                 // Enmienda 2 de la spec 014: el primer subpaso presenta el hallazgo (en Moldeo se
@@ -681,6 +683,10 @@ namespace TrainingApp.Pages.Training.Guide
             // Primer subpaso dentro del control recién abierto.
             public string OpenedName { get; set; }
 
+            // Elementos libres de todos los subpasos del paso (spec 014: la nota de hallazgo
+            // queda resaltada mientras dura el paso). Se fija antes de agregar los subpasos.
+            public List<string> FreeOnAll { get; } = new List<string>();
+
             // Subpaso de la decisión que el servidor calificó como incorrecta.
             public string IncorrectName { get; set; }
 
@@ -756,6 +762,7 @@ namespace TrainingApp.Pages.Training.Guide
                 List<GuideField> fields = null, string[] done = null, string[] free = null,
                 string note = null, string alert = null, IList<string> reject = null)
             {
+                var freeAll = (free ?? new string[0]).Concat(FreeOnAll).ToList();
                 _items.Add(new GuideSubstep
                 {
                     Key            = Key(name),
@@ -768,7 +775,7 @@ namespace TrainingApp.Pages.Training.Guide
                     Reject         = reject?.ToList(),
                     Fields         = fields,
                     Done           = done?.ToList(),
-                    Free           = free?.ToList(),
+                    Free           = freeAll.Count > 0 ? freeAll : null,
                     HideOnContinue = hide,
                     RetryKey       = retry != null ? Key(retry) : null,
                     StepLabel      = _label,

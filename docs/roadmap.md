@@ -32,8 +32,8 @@ código:** spec 014, entrega 1 (`git log --oneline -10` para ver el estado real)
   de Log NC con nota en los dos modos, desecho rápido calificado por pieza y código exacto,
   4-5 piezas, `NCCodes.Method`/`RequiresComments`, y las enmiendas 2 y 3 (en Moldeo el
   hallazgo dicta la cantidad del split y se califica; subpaso Info de la nota en Guided).
-  **Siguiente:** ajuste de UX de la nota pedido al probar (aparece al llegar al paso y queda
-  resaltada en Guided) y después E2 (reparación rápida). Orden vigente: 014 → 016 → 012.
+  Ajuste de UX probado: en Guided la nota aparece al llegar la guía al paso y queda
+  resaltada mientras dura. **Siguiente:** E2 (reparación rápida). Orden vigente: 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).

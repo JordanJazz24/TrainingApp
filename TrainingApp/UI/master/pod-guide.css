@@ -92,3 +92,12 @@
     position: relative;
     z-index: 1060;
 }
+
+/* Nota de hallazgo (spec 014): aparece cuando la guía llega a su paso y, mientras dura el
+   paso, queda resaltada sobre el oscurecido (es un elemento libre de cada subpaso). */
+[data-guide-reveal]:not(.pg-revealed) { opacity: 0; pointer-events: none; }
+[data-guide-reveal] { transition: opacity 0.25s; }
+.pod-finding.pg-lift {
+    position: fixed;
+    outline: 3px solid #f0a800;
+}

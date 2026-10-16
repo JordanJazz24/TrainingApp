@@ -258,6 +258,20 @@
         lifted.forEach(function (el) { el.classList.remove('pg-lift'); });
         lifted = freeEls(s);
         lifted.forEach(function (el) { el.classList.add('pg-lift'); });
+        if (s) reveal(lifted.concat(target ? [target] : []));
+    }
+
+    // Elementos que aparecen recién cuando la guía llega a un subpaso que los usa (nota de
+    // hallazgo, spec 014): mientras tanto la guía sigue en el paso anterior. Ya mostrados, no
+    // se vuelven a ocultar.
+    function reveal(els) {
+        els.forEach(function (el) {
+            if (el.hasAttribute('data-guide-reveal')) el.classList.add('pg-revealed');
+        });
+    }
+
+    function revealAll() {
+        reveal(Array.prototype.slice.call(document.querySelectorAll('[data-guide-reveal]')));
     }
 
     function inLifted(node) {
@@ -293,6 +307,7 @@
     // Falla segura (R5): sin oscurecido ni bloqueo, la instrucción en un globo fijo.
     function failsafe() {
         target = null;
+        revealAll();
         setState('failsafe');
         render();
         frame.style.display = 'none';
@@ -550,7 +565,7 @@
 
     function init(config) {
         substeps = (config && config.substeps) || [];
-        if (substeps.length === 0) return;
+        if (substeps.length === 0) { revealAll(); return; }
         ensureDom();
         idx = Math.max(0, indexOfKey(config.entry));
         search();

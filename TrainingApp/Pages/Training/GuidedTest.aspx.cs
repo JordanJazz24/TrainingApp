@@ -216,6 +216,13 @@ namespace TrainingApp.Pages.Training
             PnlNcFinding.Visible = finding != null && !PnlCompleted.Visible;
             if (!PnlNcFinding.Visible) return;
 
+            // Guided: la guía la muestra al llegar al paso y la deja resaltada (pod-guide.js);
+            // Assessment no tiene guía y la ve de inmediato. Los atributos persisten en ViewState.
+            if (_ctx.Session.Mode == SessionMode.Guided)
+                PnlNcFinding.Attributes["data-guide-reveal"] = string.Empty;
+            else
+                PnlNcFinding.Attributes.Remove("data-guide-reveal");
+
             bool serialized = finding.RowId != null;
             LitFindingTitle.Text = string.Format("Hallazgo {0} de {1}", finding.Index, finding.Total);
             LitFindingPiece.Text = serialized
