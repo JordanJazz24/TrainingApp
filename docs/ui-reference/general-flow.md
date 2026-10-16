@@ -812,7 +812,7 @@ Hoy todas las guías lo incluyen: por regla de negocio el Cierre es igual en tod
 
 **Acceso:** seleccionar una fila del POD → Sidebar → [SFC Split]. Las guías Serialized omiten este paso.
 
-**Modal: SFC Split Plug-In (Auto ID)** (captura `Split-log nc/modal sfc split`; Fase 6.5,
+**Modal: SFC Split Plug-In (Auto ID)** (captura `Split - Log NC/modal sfc split`; Fase 6.5,
 entrega 9)
 ```
 [SFC Split Plug-In (Auto ID)]                                  [⤢][✕]

@@ -1,7 +1,7 @@
 # Spec 014: Tres tipos de scrap en Log NC y pieza defectuosa indicada
 
-**Status:** Draft (2026-10-15)
-**Date:** 2026-10-14 · revisada 2026-10-15 con las notas y capturas del usuario · **Approved:** —
+**Status:** Approved (2026-10-16)
+**Date:** 2026-10-14 · revisada 2026-10-15 con las notas y capturas del usuario · **Approved:** 2026-10-16 (usuario, con las propuestas P-1 a P-17 y D-27 a D-55)
 
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI

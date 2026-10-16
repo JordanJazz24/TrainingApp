@@ -29,10 +29,10 @@ contra las 25 capturas de la carpeta._
 
 | # | Pantalla | Paso | Capturas | Estado |
 |---|---|---|---|---|
-| 1 | POD (header, POD Search, acciones, POD Work List, panel derecho, pie) | todos | `pantall central de referencia`, `Search-Start order/pod cargado con la orden selcionada`, `Search-Start order/campo de search`, `Split-log nc/seleccion de la orden o sfc y click en LOG NC`, `Assemble/se seleciona el lote o todas las piezas del POD` | ✅ |
-| 2 | Banner de mensajes | — | `mensaje de banner correcto`, `Split-log nc/mensaje confirmacion scrap` | ✅ |
+| 1 | POD (header, POD Search, acciones, POD Work List, panel derecho, pie) | todos | `pantall central de referencia`, `Search - Start order/pod cargado con la orden selcionada`, `Search - Start order/campo de search`, `Split - Log NC/seleccion de la orden o sfc y click en LOG NC`, `Assemble/se seleciona el lote o todas las piezas del POD` | ✅ |
+| 2 | Banner de mensajes | — | `mensaje de banner correcto`, `Split - Log NC/mensaje confirmacion scrap` | ✅ |
 | 3 | Menú Activities | 2 y 6 (LC) | `Line Clearence/boton activies, dropdown de opciones` | ✅ |
-| 4 | Browse Work List | 3 | `Search-Start order/browse work list` | ✅ |
+| 4 | Browse Work List | 3 | `Search - Start order/browse work list` | ✅ |
 | 5 | Resource Setup | 1 | `Resource Setup/resource setu modal`, `Resource Setup/resource setup modal con datos`, `Resource Setup/record changed correcto` | ✅ |
 | 6 | Data Collection Standalone (Line Clearance) | 2 y 6 | `Line Clearence/modal data collection standalone`, `…modal line clearence`, `…mas nitido`, `…dc group save` | ✅ |
 | 7 | Data Collection Entry de Line Clearance (submodal) | 2 y 6 | `Line Clearence/modal line clearence- sub modal de la pregunta` | ✅ |
@@ -41,12 +41,21 @@ contra las 25 capturas de la carpeta._
 | 10 | Assemble Components | 4 | `Assemble/asemble components modal - estado anterior al escaneo`, `…posterior al escaneo` | ✅ |
 | 11 | Data Collection List | 5 | `DC COLLECT/tabla de data collection list` | ✅ |
 | 12 | Data Collection Entry (DC Collect) | 5 | `DC COLLECT/modal data collection entry 1`, `…2` | ✅ |
-| 13 | SFC Split Plug-In | 7 | `Split-log nc/modal sfc split`, `Split-log nc/split creado` | ✅ |
-| 14 | NC Selection | 8 | `Split-log nc/mensaje confirmacion scrap` (muestra la lista) | ✅ |
-| 15 | NC Data Entry | 8 | `Split-log nc/MODAL NC DATA ENTRY` | ✅ |
+| 13 | SFC Split Plug-In | 7 | `Split - Log NC/modal sfc split`, `Split - Log NC/split creado` | ✅ |
+| 14 | NC Selection | 8 | `Split - Log NC/mensaje confirmacion scrap` (muestra la lista) | ✅ |
+| 15 | NC Data Entry | 8 | `Split - Log NC/MODAL NC DATA ENTRY` | ✅ |
 | 16 | Resultado de Complete | 9 | — | No aplica: en el MES real Complete no tiene pantalla, solo termina la orden (usuario, 2026-10-07) |
+| 17 | Browse de componentes (⧉ de Component en NC Data Entry) | 8 | `Split - Log NC/browse component` | 🔜 spec 014 |
+| 18 | Confirm "Do you want to remove component from {SFC}?" | 8 (reparación rápida) | `Split - Log NC/mensaje eliminar componente` | 🔜 spec 014 |
+| 19 | Remove component (As-Built Configuration) | 8 (reparación rápida) | `Split - Log NC/remove compoenet modal ` | 🔜 spec 014 |
+| 20 | Confirm "Do you want to add component to {SFC}?" | 8 (reparación rápida) | `Split - Log NC/confirmacion agregar compoenente ` | 🔜 spec 014 |
+| 21 | Ventana del componente nuevo | 8 (reparación rápida) | `Split - Log NC/recorte de agregado del nuevo compoenente ` (solo un recorte; se basa en Assemble Components, spec 014 D-36) | 🔜 spec 014 |
+| 22 | NC Data Entry de la extendida (★ Comments, "NC logged") | 8 (extendida) | `Split - Log NC/modal nc entry extended` | 🔜 spec 014 |
+| 23 | Select Disposition Function | 8 (extendida) | `Split - Log NC/sub modal seleccion operaicon a ser devuelta ` | 🔜 spec 014 |
 
-**Resumen:** ✅ 14 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). **Criterio de cierre cumplido (2026-10-01, tras la entrega 9):** todas las pantallas con captura están fieles; la #8 queda pendiente y no bloquea.
+**Resumen:** ✅ 14 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07) · 🔜 7 (#17-#23, capturas
+del 2026-10-15 para la spec 014; 🔜 = con captura, por implementar). La captura `Split - Log
+NC/modal sfc split` que citan la #13 y `general-flow.md` no está en la carpeta. **Criterio de cierre cumplido (2026-10-01, tras la entrega 9):** todas las pantallas con captura están fieles; la #8 queda pendiente y no bloquea.
 
 ## Diferencias pendientes por pantalla
 
