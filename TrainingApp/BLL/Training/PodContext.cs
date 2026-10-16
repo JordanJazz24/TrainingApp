@@ -65,6 +65,39 @@ namespace TrainingApp.BLL.Training
             return step != null && Session.CurrentStepOrder > step.Order;
         }
 
+        // Hallazgo del paso de Log NC (spec 014); null si el paso no tiene o todavía no hay Start.
+        public NcFinding NcFindingFor(TrainingStep step)
+            => step == null ? null : State.NcFindings?.FirstOrDefault(f => f.StepOrder == step.Order);
+
+        // Hallazgo que muestran la nota y la guía en el paso actual: el del paso de Log NC o, en
+        // NonSerialized, durante el SFC Split, el del Log NC que le sigue (enmienda 2 de la spec
+        // 014: el hallazgo dicta la cantidad del split).
+        public NcFinding CurrentNcFinding
+        {
+            get
+            {
+                var step = CurrentStepOrDefault;
+                if (step == null || Session.Status != SessionStatus.InProgress) return null;
+                if (StepTypes.IsLogNC(step.StepType)) return NcFindingFor(step);
+                return step.StepType == StepType.SFC_Split ? SplitFinding : null;
+            }
+        }
+
+        // NonSerialized: el hallazgo del primer paso de Log NC después del SFC Split; su
+        // cantidad es la que se divide (enmienda 2 de la spec 014). null si no hay.
+        public NcFinding SplitFinding
+        {
+            get
+            {
+                if (Area.SerializationType != SerializationType.NonSerialized) return null;
+                var split = Guide.Steps.FirstOrDefault(s => s.StepType == StepType.SFC_Split);
+                if (split == null) return null;
+                var logNC = Guide.Steps.Where(s => s.Order > split.Order && StepTypes.IsLogNC(s.StepType))
+                    .OrderBy(s => s.Order).FirstOrDefault();
+                return NcFindingFor(logNC);
+            }
+        }
+
         // Resultado de una evaluación terminada: puntaje final contra el mínimo de aprobación.
         public bool IsPassed => ScoreCalculator.IsPassed(Session.FinalScore);
 

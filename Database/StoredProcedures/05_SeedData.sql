@@ -66,20 +66,26 @@ DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDE
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía Redefinity — Flujo Completo', @Steps = @Json;
 
 -- ------------------------------------------------------------
--- NCCodes de ejemplo
+-- NCCodes de ejemplo. Method (spec 014): 0 desecho rápido, 1 reparación
+-- rápida (SIM_FR), 2 extendida (SIM_FX); SIM_FX_GENERAL exige Comments.
 -- ------------------------------------------------------------
-DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200));
-INSERT INTO @Nc (Code, Description) VALUES
-    (N'SC-001', N'Daño físico en componente'),
-    (N'SC-002', N'Fallo de continuidad eléctrica'),
-    (N'SC-003', N'Contaminación de superficie');
+DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200),
+                   Method TINYINT, RequiresComments BIT);
+INSERT INTO @Nc (Code, Description, Method, RequiresComments) VALUES
+    (N'SC-001',          N'Daño físico en componente',      0, 0),
+    (N'SC-002',          N'Fallo de continuidad eléctrica', 0, 0),
+    (N'SC-003',          N'Contaminación de superficie',    0, 0),
+    (N'SIM_FR_HUB',      N'Hub dañado',                     1, 0),
+    (N'SIM_FR_LUER',     N'Conector luer flojo',            1, 0),
+    (N'SIM_FX_GENERAL',  N'Reparación extendida general',   2, 1),
+    (N'SIM_FX_PUNTA',    N'Punta deformada',                2, 0);
 
-UPDATE t SET Description = s.Description
+UPDATE t SET Description = s.Description, Method = s.Method, RequiresComments = s.RequiresComments
 FROM   dbo.NCCodes t JOIN @Nc s ON s.Code = t.Code
 WHERE  t.AreaId = @AreaId;
 
-INSERT INTO dbo.NCCodes (AreaId, Code, Description)
-SELECT @AreaId, s.Code, s.Description
+INSERT INTO dbo.NCCodes (AreaId, Code, Description, Method, RequiresComments)
+SELECT @AreaId, s.Code, s.Description, s.Method, s.RequiresComments
 FROM   @Nc s
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
 ORDER  BY s.Seq;

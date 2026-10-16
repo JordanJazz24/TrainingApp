@@ -90,7 +90,7 @@ CREATE OR ALTER PROCEDURE dbo.spNCCodeGetByArea
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, AreaId, Code, Description
+    SELECT Id, AreaId, Code, Description, Method, RequiresComments
     FROM   dbo.NCCodes
     WHERE  AreaId = @AreaId
     ORDER  BY Code;

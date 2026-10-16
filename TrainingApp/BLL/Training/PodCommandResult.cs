@@ -16,7 +16,8 @@ namespace TrainingApp.BLL.Training
         SplitRequired,          // Close del SFC Split sin ningún split
         SplitNotActive,         // split pedido fuera del paso SFC Split
         InvalidSplit,           // fila o cantidad del split inválida
-        NoPieceLeft             // Serialized: Log NC con todas las piezas (debe quedar una)
+        NoPieceLeft,            // Serialized: Log NC con todas las piezas (debe quedar una)
+        SplitAlreadyDone        // SFC Split con hallazgo: ya se separó su cantidad (spec 014)
     }
 
     // Por qué una acción del operador fue un intento fallido sin pasar por el validador (la

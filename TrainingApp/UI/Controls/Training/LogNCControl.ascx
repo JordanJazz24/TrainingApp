@@ -26,9 +26,11 @@
                             <div class="nc-code"><%#: Eval("Code") %></div>
                             <div class="nc-desc"><%#: Eval("Description") %></div>
                         </div>
+                        <%-- data-nc-code: ancla de la guía de Guided sobre el código del
+                             hallazgo (spec 014). --%>
                         <asp:Button ID="BtnLogNC" runat="server"
                             CssClass="mes-btn mes-ico mes-ico-lognc"
-                            Text="Log NC"
+                            Text="Log NC" data-guide="nc-code" data-nc-code='<%# Eval("Code") %>'
                             CommandArgument='<%# Eval("Id") + "|" + Eval("Code") %>'
                             OnClick="BtnLogNCCode_Click" CausesValidation="false" />
                     </div>
@@ -138,7 +140,7 @@
 
 <script>
 (function () {
-    var PAGE_SIZE = 8;
+    var PAGE_SIZE = <%= NCPageSize %>;
     var listId    = '<%= PnlNCSelection.ClientID %>';
     var hfPageId  = '<%= HfNCPage.ClientID %>';
 

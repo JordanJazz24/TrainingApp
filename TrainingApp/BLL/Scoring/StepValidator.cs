@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
 namespace TrainingApp.BLL.Scoring
@@ -34,8 +35,11 @@ namespace TrainingApp.BLL.Scoring
         //   DataCollection                  : no se valida por Answer: se califica por DC Group en
         //                                     ValidateDataCollectionGroup (spec 008)
         //   SFC_Split                       : "split-completed"
-        //   LogNC                           : NC code string  (e.g. "F_FS_MANCHAS"); a value outside the
-        //                                     catalog is incorrect (wrong button / invalid row — spec 007)
+        //   LogNC (desecho rápido)          : JSON {"code":"..."} de LogNCControl (spec 014, D-59).
+        //                                     Correcto solo con el código exacto del hallazgo (D-31) y
+        //                                     exactamente su pieza (Serialized, D-33) o una fila del split
+        //                                     (NonSerialized, P-9). Un botón equivocado
+        //                                     (StepAnswers.Invalid) no es JSON: incorrecto (spec 007)
         public bool Validate(TrainingStep step, string submittedAnswer)
         {
             switch (step.StepType)
@@ -65,11 +69,8 @@ namespace TrainingApp.BLL.Scoring
                 case StepType.SFC_Split:
                     return submittedAnswer == "split-completed";
 
-                case StepType.LogNC:
-                    return ValidateLogNC(submittedAnswer);
-
                 default:
-                    return false;
+                    return StepTypes.IsLogNC(step.StepType) && ValidateLogNC(submittedAnswer);
             }
         }
 
@@ -251,13 +252,31 @@ namespace TrainingApp.BLL.Scoring
             }
         }
 
+        // Spec 014: la pieza y el código se califican juntos al enviar (P-3), contra el hallazgo
+        // del paso. Sin hallazgo no hay respuesta correcta (la BLL lo genera al dar Start).
         private bool ValidateLogNC(string submittedAnswer)
         {
-            if (string.IsNullOrWhiteSpace(submittedAnswer))
-                return false;
+            var finding = _ctx.NcFinding;
+            var answer  = TryParseObject(submittedAnswer);
+            if (finding == null || answer == null) return false;
 
-            return _ctx.ValidNCCodes.Any(nc =>
-                string.Equals(nc.Code, submittedAnswer, StringComparison.OrdinalIgnoreCase));
+            // El código del hallazgo salió del catálogo del área al dar Start.
+            object codeValue;
+            string code = answer.TryGetValue("code", out codeValue) ? codeValue as string : null;
+            bool isFindingCode = !string.IsNullOrWhiteSpace(code)
+                && string.Equals(code.Trim(), finding.Code, StringComparison.OrdinalIgnoreCase);
+
+            return isFindingCode && IsFindingPiece(finding, _ctx.SelectedRows);
+        }
+
+        // Exactamente una fila: la pieza del hallazgo (Serialized) o una creada por el split
+        // (NonSerialized, P-9). Una pieza de más es incorrecta (D-33).
+        public static bool IsFindingPiece(NcFinding finding, IList<SimulatedOrderRow> selected)
+        {
+            if (finding == null || selected == null || selected.Count != 1) return false;
+            return finding.RowId != null
+                ? selected[0].RowId == finding.RowId
+                : selected[0].IsFromSplit;
         }
     }
 }

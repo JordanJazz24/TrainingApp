@@ -151,13 +151,18 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_StepAttempts_Session'
 
 -- -------------------------------------------------------
 -- NCCodes  (varían por Area)
+-- Method (spec 014): 0=FastScrap (F_FS), 1=FastRepair (F_FR),
+--   2=ExtendedRepair (F_FX).
+-- RequiresComments: NC Data Entry exige Comments con ese código.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.NCCodes', 'U') IS NULL
 CREATE TABLE dbo.NCCodes (
-    Id          INT IDENTITY(1,1) PRIMARY KEY,
-    AreaId      INT           NOT NULL REFERENCES dbo.Areas(Id),
-    Code        NVARCHAR(50)  NOT NULL,
-    Description NVARCHAR(200) NOT NULL
+    Id               INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId           INT           NOT NULL REFERENCES dbo.Areas(Id),
+    Code             NVARCHAR(50)  NOT NULL,
+    Description      NVARCHAR(200) NOT NULL,
+    Method           TINYINT       NOT NULL CONSTRAINT DF_NCCodes_Method DEFAULT 0,
+    RequiresComments BIT           NOT NULL CONSTRAINT DF_NCCodes_RequiresComments DEFAULT 0
 );
 
 -- -------------------------------------------------------

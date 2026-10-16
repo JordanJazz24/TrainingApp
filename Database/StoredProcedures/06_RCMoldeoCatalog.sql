@@ -50,46 +50,50 @@ DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE ProductId = @ProductId AND
 -- NCCodes — 30 códigos del legacy, con guion bajo en vez de espacios
 -- (se corrigieron DESECHO_QA, PUNTO_INYEC, RING_DEFORM y TIRO_CORTO).
 -- Pendiente: F_FS_THICKNESS tiene la descripción temporal "NCR".
+-- Method (spec 014): F_FS = 0 desecho rápido, F_FR = 1 reparación rápida,
+-- F_FX = 2 extendida (con Comments obligatorio). Moldeo solo entrena el
+-- desecho (D-53): F_FR y F_FX están en NC Selection pero nunca son correctos.
 -- ------------------------------------------------------------
-DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200));
-INSERT INTO @Nc (Code, Description) VALUES
-    (N'F_FR_GENERAL',     N'Fast Repair General'),
-    (N'F_FS_0000',        N'Pruebas de ingeniería'),
-    (N'F_FS_BRK_EMITTER', N'Wire Broken'),
-    (N'F_FS_BURBUJAS',    N'Burbujas'),
-    (N'F_FS_CONTAMINADA', N'Contaminadas'),
-    (N'F_FS_D_MONTAJE',   N'Daño de la pieza por montaje incorrecto'),
-    (N'F_FS_DEFORMES',    N'Deformes'),
-    (N'F_FS_DESECHO_QA',  N'Desecho de calidad'),
-    (N'F_FS_DISBONDING',  N'Disbonding'),
-    (N'F_FS_ELECT_FAIL',  N'Fallo Eléctrico'),
-    (N'F_FS_ESTAB',       N'Estabilización (ajuste de proceso)'),
-    (N'F_FS_FALT_MAT',    N'Falta de Material'),
-    (N'F_FS_FLASH',       N'Flash'),
-    (N'F_FS_GLUE_EXC',    N'Exceso de Goma o Adhesivo'),
-    (N'F_FS_MAL_CURADO',  N'Mal Curado'),
-    (N'F_FS_MANCHAS',     N'Manchas'),
-    (N'F_FS_NCR',         N'NCR'),
-    (N'F_FS_NOMATCH',     N'NOMATCH'),
-    (N'F_FS_P_IMPRES_IN', N'Pieza Impresa Incorrectamente'),
-    (N'F_FS_PARTICULAS',  N'Partículas'),
-    (N'F_FS_PIEL_NARANJ', N'Piel Naranja'),
-    (N'F_FS_PUNTO_INYEC', N'Punto Inyección'),
-    (N'F_FS_RAYAS',       N'Rayas'),
-    (N'F_FS_RING_DEFORM', N'Ring Deformado'),
-    (N'F_FS_ROTAS',       N'Rotas'),
-    (N'F_FS_THICKNESS',   N'NCR'),          -- descripción temporal; revisar contra el catálogo real
-    (N'F_FS_TIRO_CORTO',  N'Tiro Corto'),
-    (N'F_FS_TNT_CORRIDA', N'Tinta Corrida'),
-    (N'F_FS_TNT_NO_CURA', N'Tinta no Curada'),
-    (N'F_FX_GENERAL',     N'Fast Extended Repair General');
+DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200),
+                   Method TINYINT, RequiresComments BIT);
+INSERT INTO @Nc (Code, Description, Method, RequiresComments) VALUES
+    (N'F_FR_GENERAL',     N'Fast Repair General', 1, 0),
+    (N'F_FS_0000',        N'Pruebas de ingeniería', 0, 0),
+    (N'F_FS_BRK_EMITTER', N'Wire Broken', 0, 0),
+    (N'F_FS_BURBUJAS',    N'Burbujas', 0, 0),
+    (N'F_FS_CONTAMINADA', N'Contaminadas', 0, 0),
+    (N'F_FS_D_MONTAJE',   N'Daño de la pieza por montaje incorrecto', 0, 0),
+    (N'F_FS_DEFORMES',    N'Deformes', 0, 0),
+    (N'F_FS_DESECHO_QA',  N'Desecho de calidad', 0, 0),
+    (N'F_FS_DISBONDING',  N'Disbonding', 0, 0),
+    (N'F_FS_ELECT_FAIL',  N'Fallo Eléctrico', 0, 0),
+    (N'F_FS_ESTAB',       N'Estabilización (ajuste de proceso)', 0, 0),
+    (N'F_FS_FALT_MAT',    N'Falta de Material', 0, 0),
+    (N'F_FS_FLASH',       N'Flash', 0, 0),
+    (N'F_FS_GLUE_EXC',    N'Exceso de Goma o Adhesivo', 0, 0),
+    (N'F_FS_MAL_CURADO',  N'Mal Curado', 0, 0),
+    (N'F_FS_MANCHAS',     N'Manchas', 0, 0),
+    (N'F_FS_NCR',         N'NCR', 0, 0),
+    (N'F_FS_NOMATCH',     N'NOMATCH', 0, 0),
+    (N'F_FS_P_IMPRES_IN', N'Pieza Impresa Incorrectamente', 0, 0),
+    (N'F_FS_PARTICULAS',  N'Partículas', 0, 0),
+    (N'F_FS_PIEL_NARANJ', N'Piel Naranja', 0, 0),
+    (N'F_FS_PUNTO_INYEC', N'Punto Inyección', 0, 0),
+    (N'F_FS_RAYAS',       N'Rayas', 0, 0),
+    (N'F_FS_RING_DEFORM', N'Ring Deformado', 0, 0),
+    (N'F_FS_ROTAS',       N'Rotas', 0, 0),
+    (N'F_FS_THICKNESS',   N'NCR', 0, 0),          -- descripción temporal; revisar contra el catálogo real
+    (N'F_FS_TIRO_CORTO',  N'Tiro Corto', 0, 0),
+    (N'F_FS_TNT_CORRIDA', N'Tinta Corrida', 0, 0),
+    (N'F_FS_TNT_NO_CURA', N'Tinta no Curada', 0, 0),
+    (N'F_FX_GENERAL',     N'Fast Extended Repair General', 2, 1);
 
-UPDATE t SET Description = s.Description
+UPDATE t SET Description = s.Description, Method = s.Method, RequiresComments = s.RequiresComments
 FROM   dbo.NCCodes t JOIN @Nc s ON s.Code = t.Code
 WHERE  t.AreaId = @AreaId;
 
-INSERT INTO dbo.NCCodes (AreaId, Code, Description)
-SELECT @AreaId, s.Code, s.Description
+INSERT INTO dbo.NCCodes (AreaId, Code, Description, Method, RequiresComments)
+SELECT @AreaId, s.Code, s.Description, s.Method, s.RequiresComments
 FROM   @Nc s
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
 ORDER  BY s.Seq;

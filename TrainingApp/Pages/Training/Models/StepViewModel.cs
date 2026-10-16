@@ -49,5 +49,11 @@ namespace TrainingApp.Pages.Training.Models
 
         // SFC de la fila creada, para el mensaje "New SFC … created with quantity …".
         public string NewSfcCode { get; set; }
+
+        // La página ya mostró el resultado de un intento (cantidad distinta de la del hallazgo,
+        // spec 014): el control no muestra su aviso. StepResolved: el paso avanzó forzado y el
+        // control no se vuelve a abrir.
+        public bool Handled { get; set; }
+        public bool StepResolved { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace TrainingApp.BLL.Training
 {
@@ -20,6 +21,10 @@ namespace TrainingApp.BLL.Training
         // Equipos precargados de la apertura actual de Resource Setup (spec 015); null fuera de
         // ese paso o cuando ya se resolvió.
         public PreloadedEquipment PreloadedEquipment { get; set; }
+
+        // Hallazgos de los pasos de Log NC (spec 014): se generan al dar Start, uno por paso,
+        // y se descartan con la orden. null antes del Start.
+        public List<NcFinding> NcFindings { get; set; }
     }
 
     // Dónde guarda la BLL el estado del POD. La BLL no depende de System.Web: la página le

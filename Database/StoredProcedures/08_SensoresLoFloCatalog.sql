@@ -44,23 +44,32 @@ ELSE
 DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE ProductId = @ProductId AND Name = N'LoFlo');
 
 -- ------------------------------------------------------------
--- NCCodes — SIMULADOS (prefijo SIM_).
+-- NCCodes — SIMULADOS (prefijo SIM_). Method (spec 014): SIM_FS = 0
+-- desecho rápido, SIM_FR = 1 reparación rápida, SIM_FX = 2 extendida;
+-- SIM_FX_GENERAL exige Comments (como F_FX_GENERAL de Moldeo).
 -- ------------------------------------------------------------
-DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200));
-INSERT INTO @Nc (Code, Description) VALUES
-    (N'SIM_FS_FUGA',          N'Fuga en la línea de muestreo'),
-    (N'SIM_FS_FLUJO',         N'Flujo de muestreo fuera de especificación'),
-    (N'SIM_FS_LECTURA_CO2',   N'Lectura de CO2 fuera de especificación'),
-    (N'SIM_FS_CONECTOR',      N'Conector dañado'),
-    (N'SIM_FS_CONTAMINACION', N'Contaminación del módulo'),
-    (N'SIM_FS_ELECT_FAIL',    N'Fallo eléctrico');
+DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200),
+                   Method TINYINT, RequiresComments BIT);
+INSERT INTO @Nc (Code, Description, Method, RequiresComments) VALUES
+    (N'SIM_FS_FUGA',           N'Fuga en la línea de muestreo',              0, 0),
+    (N'SIM_FS_FLUJO',          N'Flujo de muestreo fuera de especificación', 0, 0),
+    (N'SIM_FS_LECTURA_CO2',    N'Lectura de CO2 fuera de especificación',    0, 0),
+    (N'SIM_FS_CONECTOR',       N'Conector dañado',                           0, 0),
+    (N'SIM_FS_CONTAMINACION',  N'Contaminación del módulo',                  0, 0),
+    (N'SIM_FS_ELECT_FAIL',     N'Fallo eléctrico',                           0, 0),
+    (N'SIM_FR_CONECTOR_FLOJO', N'Conector flojo',                            1, 0),
+    (N'SIM_FR_TUBO',           N'Tubo de muestreo doblado',                  1, 0),
+    (N'SIM_FR_FILTRO',         N'Filtro obstruido',                          1, 0),
+    (N'SIM_FX_GENERAL',        N'Reparación extendida general',              2, 1),
+    (N'SIM_FX_SELLO',          N'Sello incompleto',                          2, 0),
+    (N'SIM_FX_SOLDADURA',      N'Soldadura fría',                            2, 0);
 
-UPDATE t SET Description = s.Description
+UPDATE t SET Description = s.Description, Method = s.Method, RequiresComments = s.RequiresComments
 FROM   dbo.NCCodes t JOIN @Nc s ON s.Code = t.Code
 WHERE  t.AreaId = @AreaId;
 
-INSERT INTO dbo.NCCodes (AreaId, Code, Description)
-SELECT @AreaId, s.Code, s.Description
+INSERT INTO dbo.NCCodes (AreaId, Code, Description, Method, RequiresComments)
+SELECT @AreaId, s.Code, s.Description, s.Method, s.RequiresComments
 FROM   @Nc s
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
 ORDER  BY s.Seq;

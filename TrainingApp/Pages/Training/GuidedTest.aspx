@@ -79,6 +79,16 @@
         <span><asp:Literal ID="LitBanner" runat="server" /></span>
     </asp:Panel>
 
+    <%-- ══ NOTA DE HALLAZGO (spec 014, D-49) ════════════════════════════ --%>
+    <%-- Panel del simulador (no imita el MES), en Guided y Assessment, mientras el paso
+         actual es de Log NC: solo el hallazgo de ese paso, sin nombrar el código. --%>
+    <asp:Panel ID="PnlNcFinding" runat="server" CssClass="pod-finding" Visible="false" data-guide="nc-finding">
+        <div class="pod-finding-head"><asp:Literal ID="LitFindingTitle" runat="server" /></div>
+        <div><asp:Literal ID="LitFindingPiece" runat="server" /></div>
+        <div>Defecto: <strong><asp:Literal ID="LitFindingDefect" runat="server" /></strong></div>
+        <div>Disposición: <asp:Literal ID="LitFindingDisposition" runat="server" /></div>
+    </asp:Panel>
+
     <%-- ══ POD SEARCH (inicio de la sección gris) ═══════════════════════ --%>
     <div class="pod-search">
         <span class="pod-search-link"><span class="pod-star">*</span>

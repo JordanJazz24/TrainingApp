@@ -88,10 +88,9 @@ namespace TrainingApp.Pages.Training.Guide
                 case StepType.Assembly:       return Assembly(ctx, step, moment);
                 case StepType.DataCollection: return DataCollection(ctx, step, moment);
                 case StepType.SFC_Split:      return SfcSplit(ctx, step);
-                case StepType.LogNC:          return LogNC(ctx, step);
                 case StepType.Complete:       return Complete(ctx, step);
                 case StepType.Logout:         return Logout(step);
-                default:                      return null;
+                default:                      return StepTypes.IsLogNC(step.StepType) ? LogNC(ctx, step) : null;
             }
         }
 
@@ -374,16 +373,28 @@ namespace TrainingApp.Pages.Training.Guide
         // Close y el banner como cola.
         private static StepScript SfcSplit(PodContext ctx, TrainingStep step)
         {
-            var s = new StepScript(step, "SFC Split") { OpenedName = "qty", TailName = "banner" };
+            var s = new StepScript(step, "SFC Split") { OpenedName = "qty", IncorrectName = "qty", TailName = "banner" };
             s.ProgressByDetail["split"] = "created";
+
+            // Enmienda 2 de la spec 014: el hallazgo de Log NC se presenta aquí (no se repite en
+            // su Log NC) y dicta la cantidad del split, que no se califica (D-32).
+            var finding = ctx.SplitFinding;
+            if (finding != null)
+                s.Add("finding", GuideMode.Info, Anchor("nc-finding"),
+                    html: H("Calidad reportó un hallazgo: revise el defecto, la cantidad y la disposición. ",
+                        "Primero separe esas unidades con SFC Split; después las registra en Log NC."));
 
             var lot = ctx.State.Order?.ActiveRows().FirstOrDefault(r => !r.IsFromSplit);
             AddRowSelection(s, "select", lot, ctx.State.Order?.SFCCode, null);
             s.Add("open", GuideMode.Click, Anchor("pod-sfc-split"), postback: true,
                 html: H("Presione ", B("SFC Split"), " para dividir el lote."));
+            // Enmienda 3: la cantidad se califica; la guía no deja seguir con otra (como D-25).
             s.Add("qty", GuideMode.Capture, Anchor("split-qty"), format: GuideFormat.Digits,
-                html: H("Ingrese la cantidad a dividir, por ejemplo ",
-                    B(PodDefaults.DefaultSplitQty.ToString(CultureInfo.InvariantCulture)), "."));
+                expect: finding?.UnitCount.ToString(CultureInfo.InvariantCulture),
+                html: finding != null
+                    ? H("Ingrese la cantidad del hallazgo: ", B(finding.UnitCount.ToString(CultureInfo.InvariantCulture)), ".")
+                    : H("Ingrese la cantidad a dividir, por ejemplo ",
+                        B(PodDefaults.DefaultSplitQty.ToString(CultureInfo.InvariantCulture)), "."));
             s.Add("split", GuideMode.Click, Anchor("split-split"), postback: true,
                 html: H("Presione ", B("Split"), "."));
             s.Add("created", GuideMode.Info, Anchor("split-created"),
@@ -395,10 +406,16 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Log NC: la fila a scrapear (NonSerialized: la del split; Serialized: una pieza), toda
-        // la NC Selection (R6: cualquier código es válido), Component si el área lo pide y
-        // Add-Done. El POD ya llega sin selección (GuidedTest la limpia tras Start, Assembly y
-        // DC): un subpaso para quitarla se saltaba siempre y el contador empezaba en 2.
+        // Alerta del subpaso 1 de Log NC (spec 014, D-43, texto aprobado).
+        private static readonly string WrongUnitAlert = H(
+            "Revise el SFC de cada pieza seleccionada contra el hallazgo: solo deben estar las defectuosas. ",
+            "Scrapear la unidad equivocada es el error más grave de este paso: el MES no lo detecta, ",
+            "corregirlo requiere al supervisor y a Calidad, y puede llevar a una acción disciplinaria.");
+
+        // Log NC (spec 014): la pieza del hallazgo (NonSerialized: la fila del split), el código
+        // del hallazgo en NC Selection, Component si el área lo pide y Add-Done. La guía señala
+        // la pieza y el código, así que no deja enviar otros (como D-25). El POD ya llega sin
+        // selección (GuidedTest la limpia tras Start, Assembly y DC).
         private static StepScript LogNC(PodContext ctx, TrainingStep step)
         {
             bool needsComponent = ctx.Area.RequiresNCComponent;
@@ -411,22 +428,32 @@ namespace TrainingApp.Pages.Training.Guide
             s.OpenedByDetail["entry"] = needsComponent ? "component" : "addDone";
 
             var order = ctx.State.Order;
+            var finding = ctx.NcFindingFor(step);
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
-                var piece = order?.ActiveRows().FirstOrDefault();
-                AddRowSelection(s, "select", piece, null, "Seleccione una pieza para registrar el defecto, por ejemplo ");
+                // Enmienda 2 de la spec 014: el primer subpaso presenta el hallazgo (en Moldeo se
+                // presenta en el SFC Split).
+                s.Add("finding", GuideMode.Info, Anchor("nc-finding"),
+                    html: H("Calidad reportó un hallazgo: revise el SFC, el defecto y la disposición. ",
+                        "En este paso lo registra en el MES."));
+                var piece = finding?.RowId == null ? null
+                    : order?.ActiveRows().FirstOrDefault(r => r.RowId == finding.RowId);
+                AddRowSelection(s, "select", piece, null, "Seleccione la pieza del hallazgo: ", alert: WrongUnitAlert);
             }
             else
             {
                 var splitRow = order?.ActiveRows().FirstOrDefault(r => r.IsFromSplit);
-                AddRowSelection(s, "select", splitRow, null, "Seleccione el SFC creado por el split, ");
+                AddRowSelection(s, "select", splitRow, null, null, alert: WrongUnitAlert,
+                    html: H("Seleccione el SFC creado por el split."));
             }
 
             s.Add("open", GuideMode.Click, Anchor("pod-lognc"), postback: true,
-                html: H("Presione ", B("Log NC"), " para registrar un defecto."),
-                note: H("Verifique que las piezas seleccionadas sean las defectuosas."));
-            s.Add("list", GuideMode.Click, Anchor("nc-list"), postback: true,
-                html: H("Presione ", B("Log NC"), " en el código del defecto. En el simulador cualquier código es válido."));
+                html: H("Presione ", B("Log NC"), " para registrar el defecto."));
+            s.Add("list", GuideMode.Click,
+                finding == null ? Anchor("nc-list") : Anchor("nc-code") + Attr("data-nc-code", finding.Code),
+                postback: true,
+                html: H("Presione ", B("Log NC"), " en el código del defecto del hallazgo: ",
+                    B(finding?.Description ?? string.Empty), "."));
             if (needsComponent)
                 s.Add("component", GuideMode.Capture, Anchor("nc-component"), format: GuideFormat.Required,
                     html: H("Ingrese el componente, por ejemplo ", B(ExampleBarcode), "."));
@@ -475,16 +502,18 @@ namespace TrainingApp.Pages.Training.Guide
 
         // Seleccionar exactamente una fila del POD: avanza cuando esa fila (y ninguna otra)
         // queda seleccionada. prefix: texto antes del SFC; sin él, "Seleccione el SFC {sfc}."
+        // html: texto propio en lugar del armado con prefix; alert: alerta de la trainer (T7).
         private static void AddRowSelection(StepScript s, string name, SimulatedOrderRow row,
-            string fallbackSfc, string prefix)
+            string fallbackSfc, string prefix, string alert = null, string html = null)
         {
             string sfc = row?.SFCCode ?? fallbackSfc;
-            string html = prefix == null
-                ? SelectSfc(sfc)
-                : H(prefix, B(sfc ?? string.Empty), ".");
+            if (html == null)
+                html = prefix == null
+                    ? SelectSfc(sfc)
+                    : H(prefix, B(sfc ?? string.Empty), ".");
             if (row == null)
             {
-                s.Add(name, GuideMode.Click, Anchor("pod-row"), html: html);
+                s.Add(name, GuideMode.Click, Anchor("pod-row"), html: html, alert: alert);
                 return;
             }
             s.Add(name, GuideMode.Click, Anchor("pod-row") + Attr("data-row-id", row.RowId),
@@ -493,7 +522,7 @@ namespace TrainingApp.Pages.Training.Guide
                     SelectedRow(row.RowId),
                     "!" + Anchor("pod-row") + ".selected:not(" + Attr("data-row-id", row.RowId) + ")"
                 },
-                html: html);
+                html: html, alert: alert);
         }
 
         // Piezas de Data Collection: las que fijó la BLL al abrirlo o, antes de abrirlo, las

@@ -32,7 +32,7 @@ namespace TrainingApp.BLL.Training
 
         // shopOrderInput ya viene validado con IsValidShopOrder por quien llama.
         //   NonSerialized: una sola fila con la cantidad del lote, ya Active.
-        //   Serialized (spec 008): entre 3 y 5 piezas con SFC propio, en New hasta el Start.
+        //   Serialized (spec 008): entre 4 y 5 piezas con SFC propio (spec 014), en New hasta el Start.
         public static SimulatedOrder Create(string shopOrderInput, string materialDescription,
             SerializationType serializationType)
         {

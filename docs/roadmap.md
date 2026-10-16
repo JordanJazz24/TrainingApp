@@ -14,8 +14,8 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-14 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 015, entrega 3 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-16 · **Branch:** `TrainingApp` · **Último commit de
+código:** spec 014, entrega 1 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -27,8 +27,13 @@ código:** spec 015, entrega 3 (`git log --oneline -10` para ver el estado real)
   terminarla antes que T7. **T7 ✅** (2026-10-14, ver "Historial"): notas y alertas de la
   trainer en la guía de Guided y el producto R&C → **S&RC**. **Spec 015 ✅** (2026-10-14, ver
   "Historial"): equipos precargados en Resource Setup, grupo de DC Trainer y Logout como
-  último paso, probada por el usuario. **Siguiente:** spec 014 (tres tipos de scrap). Orden
-  vigente: 014 → 016 → 012.
+  último paso, probada por el usuario. **Spec 014 en curso** (tres tipos de scrap,
+  `docs/specs/014-plan.md`): **E1 ✅** (2026-10-16, probada por el usuario): hallazgo por paso
+  de Log NC con nota en los dos modos, desecho rápido calificado por pieza y código exacto,
+  4-5 piezas, `NCCodes.Method`/`RequiresComments`, y las enmiendas 2 y 3 (en Moldeo el
+  hallazgo dicta la cantidad del split y se califica; subpaso Info de la nota en Guided).
+  **Siguiente:** ajuste de UX de la nota pedido al probar (aparece al llegar al paso y queda
+  resaltada en Guided) y después E2 (reparación rápida). Orden vigente: 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
@@ -116,6 +121,7 @@ corrió el usuario:
 | 2026-10-14 | `06`, `07` | T7: el producto `R&C` → `S&RC` y el título de su guía, renombrados en sitio |
 | 2026-10-14 | `05`, `06`, `08` | Spec 015 E2: grupo `DCGTM_TRAINEE/A` (renombra en sitio el tercer grupo opcional de Redefinity y LoFlo; en Moldeo se agrega) |
 | 2026-10-14 | `02`, `05`, `07`, `09` | Spec 015 E3: paso Logout (`StepType` 8) al final de las 3 guías, Complete 0.05 y Logout 0.05 |
+| 2026-10-16 | ALTER de la spec 014 E1 + `02`, `05`, `06`, `08` | Spec 014 E1: `NCCodes.Method` y `RequiresComments`; códigos `SIM_FR`/`SIM_FX` en LoFlo y Redefinity |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.

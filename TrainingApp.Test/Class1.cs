@@ -71,13 +71,13 @@ namespace TrainingApp.Test
     public class SerialSfcGeneratorTests
     {
         [Test]
-        public void Generate_Returns3To5UniquePiecesWithNumericSuffixOf1To6Digits()
+        public void Generate_Returns4To5UniquePiecesWithNumericSuffixOf1To6Digits()
         {
             for (int seed = 0; seed < 200; seed++)
             {
                 var sfcs = TrainingApp.BLL.Training.SerialSfcGenerator.Generate("000123", new System.Random(seed));
 
-                Assert.That(sfcs.Count, Is.InRange(3, 5));
+                Assert.That(sfcs.Count, Is.InRange(4, 5));
                 Assert.That(sfcs, Is.Unique);
                 foreach (var sfc in sfcs)
                     Assert.That(sfc, Does.Match(@"^000123-\d{1,6}$"));

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Linq;
+using Newtonsoft.Json;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
@@ -61,12 +63,24 @@ namespace TrainingApp.UI.Controls.Training
 
         private void BindNCCodes()
         {
-            var codes = ViewModel.ExtraData.ContainsKey("NCCodes")
+            var codes = (ViewModel.ExtraData.ContainsKey("NCCodes")
                 ? ViewModel.ExtraData["NCCodes"] as IList<NCCode>
-                : new List<NCCode>();
-            RptNCCodes.DataSource = codes ?? new List<NCCode>();
+                : null) ?? new List<NCCode>();
+            RptNCCodes.DataSource = codes;
             RptNCCodes.DataBind();
+
+            // Guided (spec 014): la lista abre en la página del código que señala la guía. Solo
+            // llega en Guided: en Assessment la página inicial no revela nada.
+            string guideCode = ViewModel.ExtraData.ContainsKey("GuideNCCode")
+                ? ViewModel.ExtraData["GuideNCCode"] as string : null;
+            int index = guideCode == null ? -1
+                : codes.ToList().FindIndex(c => string.Equals(c.Code, guideCode, StringComparison.OrdinalIgnoreCase));
+            if (index >= 0)
+                HfNCPage.Value = (index / NCPageSize).ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
+
+        // Códigos por página de NC Selection: el script del .ascx lo lee de aquí.
+        protected const int NCPageSize = 8;
 
         protected void BtnLogNCCode_Click(object sender, EventArgs e)
         {
@@ -90,7 +104,11 @@ namespace TrainingApp.UI.Controls.Training
         protected void BtnAddDone_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
-            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs { Answer = TxtNCCode.Text.Trim() });
+            // Spec 014 (D-59): la respuesta es un JSON; las filas seleccionadas llegan aparte.
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs
+            {
+                Answer = JsonConvert.SerializeObject(new { code = TxtNCCode.Text.Trim() })
+            });
         }
 
         // Add y Done no son el camino correcto del paso: registran un intento fallido.

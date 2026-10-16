@@ -37,13 +37,12 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void BtnSplit_Click(object sender, EventArgs e)
         {
-            ReopenModal();
-
             // Formato (sin intento): sin validadores en el markup, el aviso es un SweetAlert.
             int availableQty = GetExtraData("AvailableQty", 0);
             if (!int.TryParse(TxtQtyToSplit.Text.Trim(), out int qtyToSplit) ||
                 qtyToSplit <= 0 || qtyToSplit >= availableQty)
             {
+                ReopenModal();
                 ShowWarning("Qty inválida",
                     "La cantidad a dividir debe ser mayor a 0 y menor que la Qty disponible.");
                 return;
@@ -55,6 +54,12 @@ namespace TrainingApp.UI.Controls.Training
                 Qty = qtyToSplit
             };
             OnSplitRequested?.Invoke(this, args);
+
+            // Spec 014: el paso avanzó forzado (la página ya lo cerró) o la página ya mostró el
+            // intento fallido.
+            if (args.StepResolved) return;
+            ReopenModal();
+            if (args.Handled) return;
 
             if (!args.IsApplied)
             {

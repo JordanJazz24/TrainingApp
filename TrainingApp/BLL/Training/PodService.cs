@@ -54,11 +54,18 @@ namespace TrainingApp.BLL.Training
             decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
             var ctx = new PodContext(userId, session, guide, area, attempts, state, score, _guideService);
 
-            // Después de Resource Setup siempre hay orden: si falta, se perdió la Session.
-            if (state.Order == null && ctx.IsResolved(StepType.ResourceSetup))
+            // Después de Resource Setup siempre hay orden: si falta, se perdió la Session. Después
+            // del Start, con Log NC en la guía, siempre hay hallazgos (spec 014): si faltan, el
+            // estado no es confiable y se reconstruye igual (D-10).
+            if ((state.Order == null && ctx.IsResolved(StepType.ResourceSetup)) ||
+                (state.Order != null && state.NcFindings == null && ctx.IsResolved(StepType.Search) &&
+                 HasLogNC(guide)))
                 RebuildState(ctx);
             return ctx;
         }
+
+        private static bool HasLogNC(TrainingGuide guide)
+            => guide.Steps.Any(s => StepTypes.IsLogNC(s.StepType));
 
         // Reconstrucción (D-10): la orden por defecto con los efectos de los pasos ya
         // resueltos, como si cada uno hubiera avanzado forzado. Sin aviso, sin intento y sin
@@ -80,18 +87,12 @@ namespace TrainingApp.BLL.Training
                 {
                     ApplyDefaultSplit(ctx);
                 }
-                else if (step.StepType == StepType.LogNC &&
-                         ctx.Area.SerializationType == SerializationType.NonSerialized)
+                else if (StepTypes.IsLogNC(step.StepType))
                 {
-                    // Log NC scrapea una sola fila, la del split (aquí, la del split por defecto);
-                    // queda el lote con su cantidad restante. En Serialized no se sabe qué piezas
-                    // se scrapearon: quedan todas para Complete.
-                    var splitRow = ctx.State.Order.Rows.FirstOrDefault(r => r.IsFromSplit);
-                    if (splitRow != null)
-                    {
-                        ctx.State.Order.Remove(new[] { splitRow });
-                        SaveState(ctx);
-                    }
+                    // Spec 014: los hallazgos se regeneraron con las piezas nuevas en el Start; se
+                    // aplica la disposición de cada paso de Log NC ya resuelto (NonSerialized: la
+                    // fila del split por defecto).
+                    ApplyFindingDisposition(ctx, ctx.NcFindingFor(step), null);
                 }
                 else if (step.StepType == StepType.Complete)
                 {
@@ -123,6 +124,11 @@ namespace TrainingApp.BLL.Training
         // define el servidor, no la página: un paso viejo haría retroceder la sesión al avanzar
         // (auditoría AUD-05).
         public StepSubmitResult SubmitStep(PodContext ctx, string submittedAnswer)
+            => SubmitStep(ctx, submittedAnswer, null);
+
+        // selected: filas del POD seleccionadas al enviar (Log NC las califica, spec 014).
+        private StepSubmitResult SubmitStep(PodContext ctx, string submittedAnswer,
+            IList<SimulatedOrderRow> selected)
         {
             EnsureInProgress(ctx);
             var step = ctx.CurrentStep;
@@ -133,7 +139,7 @@ namespace TrainingApp.BLL.Training
             if (step.StepType == StepType.Assembly || step.StepType == StepType.DataCollection)
                 throw new InvalidOperationException("El paso actual no se califica por respuesta.");
 
-            bool isCorrect = BuildValidator(ctx, step.StepType).Validate(step, submittedAnswer);
+            bool isCorrect = BuildValidator(ctx, step.StepType, selected).Validate(step, submittedAnswer);
             // Registro de actividad (spec 013): un botón equivocado dentro del paso es una acción
             // inválida; el resto, una decisión incorrecta.
             var reason = submittedAnswer == StepAnswers.Invalid
@@ -192,6 +198,7 @@ namespace TrainingApp.BLL.Training
                 PodDefaults.MaterialDescription(ctx.Product, ctx.Area), ctx.Area.SerializationType);
             ctx.State.Assembly       = null;
             ctx.State.DataCollection = null;
+            ctx.State.NcFindings     = null;
             SaveState(ctx);
         }
 
@@ -265,12 +272,27 @@ namespace TrainingApp.BLL.Training
 
         // Piezas iniciadas con el Start. Serialized: las elegidas en Browse Work List (todas si
         // el paso avanzó forzado, E9 de la spec 008). NonSerialized: el lote ya nace Active.
+        // Spec 014: con el Start se generan los hallazgos de los pasos de Log NC.
         private void StartPieces(PodContext ctx, ICollection<string> browseRowIds, bool startAll)
         {
             var order = ctx.State.Order;
-            if (order == null || ctx.Area.SerializationType != SerializationType.Serialized) return;
+            if (order == null) return;
 
-            order.Activate(startAll || browseRowIds == null ? order.Rows : order.FindRows(browseRowIds));
+            bool serialized = ctx.Area.SerializationType == SerializationType.Serialized;
+            bool logNC = HasLogNC(ctx.Guide);
+            if (!serialized && !logNC) return;
+
+            if (serialized)
+                order.Activate(startAll || browseRowIds == null ? order.Rows : order.FindRows(browseRowIds));
+
+            if (logNC)
+            {
+                ctx.State.NcFindings = NcFindingGenerator.Generate(ctx.Guide.Steps, order.ActiveRows(),
+                    ctx.Area.SerializationType, ctx.NCCodes, PodDefaults.NonSerializedLotQty, new Random());
+                if (!serialized)
+                    foreach (var finding in ctx.State.NcFindings)
+                        finding.SFCCode = order.SFCCode;
+            }
             SaveState(ctx);
         }
 
@@ -432,8 +454,10 @@ namespace TrainingApp.BLL.Training
         }
 
         // Divide una fila; la cantidad tiene que dejar algo en la original. Crea un SFC nuevo de
-        // la misma Shop Order (enmienda 2026-10-01 de la spec 005). No es un intento: el paso
-        // se califica al cerrar.
+        // la misma Shop Order (enmienda 2026-10-01 de la spec 005). El paso se resuelve al
+        // cerrar. Con hallazgo (enmienda 3 de la spec 014), la cantidad es una decisión: otra que
+        // no sea la del hallazgo es intento fallido y el split no se aplica (forzado: el split
+        // de N); un segundo split es un aviso.
         public PodCommandResult Split(PodContext ctx, string rowId, int qty)
         {
             if (ctx.CurrentStep.StepType != StepType.SFC_Split)
@@ -444,6 +468,25 @@ namespace TrainingApp.BLL.Training
             var row   = order?.FindActiveRows(new[] { rowId }).FirstOrDefault();
             if (row == null || qty <= 0 || qty >= row.Qty)
                 return PodCommandResult.WithNotice(PodNotice.InvalidSplit);
+
+            var finding = ctx.SplitFinding;
+            if (finding != null)
+            {
+                if (order.HasSplit)
+                    return PodCommandResult.WithNotice(PodNotice.SplitAlreadyDone);
+                if (qty != finding.UnitCount)
+                {
+                    EnsureInProgress(ctx);
+                    var result = new PodCommandResult
+                    {
+                        Step = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: false,
+                            AttemptReason.WrongDecision, AttemptActions.SFCSplitSplit)
+                    };
+                    if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
+                        result.PodChanged = ApplyDefaultSplit(ctx);
+                    return result;
+                }
+            }
 
             string newSfc = order.Split(row, qty);
             SaveState(ctx);
@@ -462,39 +505,83 @@ namespace TrainingApp.BLL.Training
 
         // ── Log NC ───────────────────────────────────────────────────────
 
-        // Abrir Log NC. Serialized: scrapear todas las piezas es un aviso (tiene que quedar una
-        // para Complete, spec 008). Sin una fila scrapeable es un intento fallido del paso (spec
-        // 007): no hay gate en el cliente, el click tiene que llegar acá para contar.
+        // Abrir Log NC (el botón vale en cualquier paso de Log NC, spec 014 P-7). Serialized:
+        // scrapear todas las piezas es un aviso (tiene que quedar una para Complete, spec 008).
+        // Sin una fila scrapeable es un intento fallido del paso (spec 007): no hay gate en el
+        // cliente, el click tiene que llegar acá para contar. La pieza no se califica al abrir
+        // (P-3): abrir con otra pieza y salir con Return to POD no cuenta.
         public PodCommandResult OpenLogNC(PodContext ctx, ICollection<string> selectedRowIds)
         {
             var sequence = CheckSequence(ctx, StepType.LogNC, AttemptActions.LogNC);
             if (sequence != null) return sequence;
 
+            var finding = EnsureFinding(ctx);
             var scrappable = ScrappableRows(ctx, selectedRowIds, out bool noPieceLeft);
             if (noPieceLeft)
                 return PodCommandResult.WithNotice(PodNotice.NoPieceLeft);
             if (scrappable.Count == 0)
-                return FailedAttempt(ctx, PodAttemptReason.NoScrappableRow, AttemptActions.LogNC);
+            {
+                var failed = FailedAttempt(ctx, PodAttemptReason.NoScrappableRow, AttemptActions.LogNC);
+                // P-5: el paso forzado aplica la disposición del hallazgo.
+                if (failed.Step.Outcome == StepSubmitOutcome.FailedForced)
+                    failed.Scrapped = ApplyFindingDisposition(ctx, finding, null);
+                return failed;
+            }
 
             return new PodCommandResult();
         }
 
-        // Add-Done de NC Data Entry (o un botón equivocado del modal): califica el código y,
-        // resuelto el paso (correcto o forzado), scrapea las filas seleccionadas (spec 007).
+        // Add-Done de NC Data Entry (o un botón equivocado del modal). Spec 014: califica la
+        // pieza y el código contra el hallazgo del paso (StepValidator). Resuelto (correcto o
+        // forzado, P-5) se aplica la disposición del hallazgo: el desecho saca su pieza.
         public PodCommandResult SubmitLogNC(PodContext ctx, string answer, ICollection<string> selectedRowIds)
         {
-            EnsureCurrentStep(ctx, StepType.LogNC);
-            var result = new PodCommandResult { Step = SubmitStep(ctx, answer) };
+            EnsureInProgress(ctx);
+            if (!StepTypes.IsLogNC(ctx.CurrentStep.StepType))
+                throw new InvalidOperationException("El comando no corresponde al paso actual.");
+            var finding = EnsureFinding(ctx);
+
+            var selected = SelectedRows(ctx, selectedRowIds);
+            var result = new PodCommandResult { Step = SubmitStep(ctx, answer, selected) };
             if (result.Step.Outcome == StepSubmitOutcome.Incorrect) return result;
 
-            var rows = ScrappableRows(ctx, selectedRowIds, out _);
-            if (rows.Count > 0)
-            {
-                ctx.State.Order.Remove(rows);
-                SaveState(ctx);
-                result.Scrapped = rows;
-            }
+            result.Scrapped = ApplyFindingDisposition(ctx, finding, selected);
             return result;
+        }
+
+        // El hallazgo del paso actual de Log NC, con su pieza en el POD. Faltar es un error de
+        // invariante (spec 014, Edge Cases): los hallazgos son de piezas distintas y Complete
+        // va después. No es un intento.
+        private static NcFinding EnsureFinding(PodContext ctx)
+        {
+            var finding = ctx.NcFindingFor(ctx.CurrentStep);
+            if (finding == null)
+                throw new InvalidOperationException("El paso de Log NC no tiene hallazgo.");
+            if (finding.RowId != null && ctx.State.Order?.FindActiveRows(new[] { finding.RowId }).Count != 1)
+                throw new InvalidOperationException("La pieza del hallazgo ya no está en el POD.");
+            return finding;
+        }
+
+        // Disposición del hallazgo (spec 014, P-4): el desecho rápido saca su pieza de la orden.
+        // La pieza es la enviada si es la del hallazgo (StepValidator.IsFindingPiece); si no
+        // (avance forzado y reconstrucción), la del hallazgo o, en NonSerialized, la primera fila
+        // del split. Devuelve las filas que salieron.
+        private IList<SimulatedOrderRow> ApplyFindingDisposition(PodContext ctx, NcFinding finding,
+            IList<SimulatedOrderRow> selected)
+        {
+            var order = ctx.State.Order;
+            if (finding == null || order == null || finding.Method != NCMethod.FastScrap)
+                return new List<SimulatedOrderRow>();
+
+            var piece = StepValidator.IsFindingPiece(finding, selected)
+                ? selected[0]
+                : finding.RowId != null
+                    ? order.FindActiveRows(new[] { finding.RowId }).FirstOrDefault()
+                    : order.ActiveRows().FirstOrDefault(r => r.IsFromSplit);
+
+            return piece == null
+                ? new List<SimulatedOrderRow>()
+                : RemoveRows(ctx, new List<SimulatedOrderRow> { piece });
         }
 
         // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
@@ -597,6 +684,10 @@ namespace TrainingApp.BLL.Training
         {
             var step = ctx.CurrentStep;
             if (step.StepType == clickedStepType) return null;
+            // Spec 014 (P-7): el botón [Log NC] abre cualquiera de los pasos de Log NC.
+            if (clickedStepType.HasValue && StepTypes.IsLogNC(clickedStepType.Value) &&
+                StepTypes.IsLogNC(step.StepType))
+                return null;
 
             var result = new PodCommandResult { OutOfSequence = true };
             if (ctx.Session.Mode != SessionMode.Assessment || ctx.Session.Status != SessionStatus.InProgress)
@@ -604,7 +695,7 @@ namespace TrainingApp.BLL.Training
 
             result.Step = RecordAttempt(ctx, step, isCorrect: false, AttemptReason.OutOfSequence, action);
             if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
-                result.PodChanged = RestoreAfterForcedAdvance(ctx, step.StepType);
+                result.PodChanged = RestoreAfterForcedAdvance(ctx, step);
             return result;
         }
 
@@ -613,9 +704,13 @@ namespace TrainingApp.BLL.Training
         // Assembly y DC no necesitan nada: RecordAttempt ya descartó su avance parcial.
         // Devuelve true si la página tiene que volver a pintar el POD (Resource Setup y Start
         // siempre; SFC Split solo si se aplicó el split por defecto; Complete si quitó filas).
-        private bool RestoreAfterForcedAdvance(PodContext ctx, StepType forcedStep)
+        private bool RestoreAfterForcedAdvance(PodContext ctx, TrainingStep forced)
         {
-            switch (forcedStep)
+            // Spec 014 (P-5): Log NC forzado aplica la disposición de su hallazgo.
+            if (StepTypes.IsLogNC(forced.StepType))
+                return ApplyFindingDisposition(ctx, ctx.NcFindingFor(forced), null).Count > 0;
+
+            switch (forced.StepType)
             {
                 case StepType.ResourceSetup:
                     // La orden sale de la Shop Order genérica (S2 / spec 008, E8).
@@ -642,15 +737,17 @@ namespace TrainingApp.BLL.Training
 
         // SFC Split forzado sin ningún split hecho (auditoría AUD-03, decisión D-1): queda una
         // fila de split por defecto, porque en NonSerialized Log NC exige scrapear una.
+        // Enmienda 2 de la spec 014: con hallazgo, la cantidad es la suya (también al reconstruir).
         private bool ApplyDefaultSplit(PodContext ctx)
         {
             var order = ctx.State.Order;
             if (order == null || order.HasSplit) return false;
 
-            var lot = order.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > PodDefaults.DefaultSplitQty);
+            int qty = ctx.SplitFinding?.UnitCount > 0 ? ctx.SplitFinding.UnitCount : PodDefaults.DefaultSplitQty;
+            var lot = order.Rows.FirstOrDefault(r => !r.IsFromSplit && r.Qty > qty);
             if (lot == null) return false;
 
-            order.Split(lot, PodDefaults.DefaultSplitQty);
+            order.Split(lot, qty);
             SaveState(ctx);
             return true;
         }
@@ -692,13 +789,17 @@ namespace TrainingApp.BLL.Training
         // parámetros en Data Collection, del contexto del request (AUD-39). Sin caché entre
         // requests: un script de catálogo se ve en el siguiente click (AUD-13). Assembly no
         // pasa por el validador: AssembleComponent lo resuelve contra el BOM (spec 008).
-        private static StepValidator BuildValidator(PodContext ctx, StepType stepType)
+        // Log NC recibe además el hallazgo del paso y las filas enviadas (spec 014).
+        private static StepValidator BuildValidator(PodContext ctx, StepType stepType,
+            IList<SimulatedOrderRow> selected = null)
         {
+            bool logNC = StepTypes.IsLogNC(stepType);
             return new StepValidator(new StepValidationContext
             {
                 Area                 = ctx.Area,
-                ValidNCCodes         = stepType == StepType.LogNC
-                    ? ctx.NCCodes : new List<NCCode>(),
+                ValidNCCodes         = logNC ? ctx.NCCodes : new List<NCCode>(),
+                NcFinding            = logNC ? ctx.NcFindingFor(ctx.CurrentStep) : null,
+                SelectedRows         = logNC ? selected : null,
                 DataCollectionParams = stepType == StepType.DataCollection
                     ? ctx.DataCollectionParameters : new List<DataCollectionParameter>(),
                 PreloadedValues      = stepType == StepType.ResourceSetup

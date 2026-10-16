@@ -26,7 +26,9 @@ namespace TrainingApp.DAL.Repositories
             Id          = Convert.ToInt32(r["Id"]),
             AreaId      = Convert.ToInt32(r["AreaId"]),
             Code        = r["Code"].ToString(),
-            Description = r["Description"].ToString()
+            Description      = r["Description"].ToString(),
+            Method           = (NCMethod)Convert.ToByte(r["Method"]),
+            RequiresComments = Convert.ToBoolean(r["RequiresComments"])
         };
     }
 }

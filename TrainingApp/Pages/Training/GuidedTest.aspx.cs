@@ -38,7 +38,8 @@ namespace TrainingApp.Pages.Training
         // (firmado con MAC) y ApplyStepControlVisibility es el único que toca Visible.
         private const string OpenStepTypeKey = "GDT_OpenStepType";
 
-        // Pasos con control propio: Logout es el ícono del header (spec 015).
+        // Pasos con control propio: Logout es el ícono del header (spec 015). Los pasos de Log
+        // NC comparten un control (spec 014, D-60).
         private static readonly StepType[] AllStepTypes =
             ((StepType[])Enum.GetValues(typeof(StepType))).Where(t => t != StepType.Logout).ToArray();
 
@@ -71,6 +72,7 @@ namespace TrainingApp.Pages.Training
 
         private IStepControl GetStepControl(StepType stepType)
         {
+            if (StepTypes.IsLogNC(stepType)) return CtrlLogNC;
             switch (stepType)
             {
                 case StepType.ResourceSetup:  return CtrlResourceSetup;
@@ -79,7 +81,6 @@ namespace TrainingApp.Pages.Training
                 case StepType.Assembly:       return CtrlAssembly;
                 case StepType.DataCollection: return CtrlDataCollection;
                 case StepType.SFC_Split:      return CtrlSFCSplit;
-                case StepType.LogNC:          return CtrlLogNC;
                 case StepType.Complete:       return CtrlComplete;
                 // Sin control: los guards de sender comparan contra null y no aceptan nada.
                 case StepType.Logout:         return null;
@@ -97,8 +98,12 @@ namespace TrainingApp.Pages.Training
         private void ApplyStepControlVisibility(StepType? open, StepType? renderOnce = null)
         {
             StepType? shown = open ?? renderOnce;
+            var shownControl = shown.HasValue ? GetStepControl(shown.Value) : null;
             foreach (var type in AllStepTypes)
-                ((Control)GetStepControl(type)).Visible = type == shown;
+            {
+                var control = GetStepControl(type);
+                ((Control)control).Visible = ReferenceEquals(control, shownControl);
+            }
 
             bool replacesWorkList = shown.HasValue && !IsModalOverlay(shown.Value);
             PnlModalHost.Visible     = shown.HasValue && IsModalOverlay(shown.Value);
@@ -198,7 +203,39 @@ namespace TrainingApp.Pages.Training
             base.OnPreRender(e);
             ApplySfcFieldMode();
             ApplyOrderLabel();
+            ApplyNcFindingNote();
             RegisterGuide();
+        }
+
+        // Nota de hallazgo (spec 014, D-49): solo el hallazgo del paso actual de Log NC, en los
+        // dos modos, sin nombrar el código. Se decide después de los handlers (el paso pudo
+        // cambiar en este request); Visible persiste en ViewState: se asigna siempre.
+        private void ApplyNcFindingNote()
+        {
+            var finding = _ctx?.CurrentNcFinding;
+            PnlNcFinding.Visible = finding != null && !PnlCompleted.Visible;
+            if (!PnlNcFinding.Visible) return;
+
+            bool serialized = finding.RowId != null;
+            LitFindingTitle.Text = string.Format("Hallazgo {0} de {1}", finding.Index, finding.Total);
+            LitFindingPiece.Text = serialized
+                ? "SFC <strong>" + HttpUtility.HtmlEncode(finding.SFCCode) + "</strong>"
+                : "Lote <strong>" + HttpUtility.HtmlEncode(finding.SFCCode) + "</strong>: " +
+                  finding.UnitCount.ToString(CultureInfo.InvariantCulture) + " unidades";
+            LitFindingDefect.Text      = HttpUtility.HtmlEncode(finding.Description);
+            LitFindingDisposition.Text = HttpUtility.HtmlEncode(FindingDisposition(finding));
+        }
+
+        // Disposición del hallazgo como la dictaría el MPI o el NCR (D-28).
+        private static string FindingDisposition(NcFinding finding)
+        {
+            switch (finding.Method)
+            {
+                case NCMethod.FastScrap:
+                    return finding.RowId != null ? "desechar la pieza (scrap)" : "desechar las unidades (scrap)";
+                default:
+                    return string.Empty;
+            }
         }
 
         // Etiqueta de la orden (spec 011, enmienda 2026-10-13): visible desde que hay orden
@@ -314,14 +351,16 @@ namespace TrainingApp.Pages.Training
                     result = close.Step;
                     break;
 
-                case StepType.LogNC:
-                    // Resuelto el paso, la BLL scrapea las filas seleccionadas (spec 007).
-                    var logNC = Pod.SubmitLogNC(_ctx, e.Answer, SelectedIds());
-                    result   = logNC.Step;
-                    scrapped = logNC.Scrapped;
-                    break;
-
                 default:
+                    if (StepTypes.IsLogNC(step.StepType))
+                    {
+                        // Spec 014: la BLL califica pieza y código contra el hallazgo y, resuelto
+                        // el paso, aplica su disposición.
+                        var logNC = Pod.SubmitLogNC(_ctx, e.Answer, SelectedIds());
+                        result   = logNC.Step;
+                        scrapped = logNC.Scrapped;
+                        break;
+                    }
                     result = Pod.SubmitStep(_ctx, e.Answer);
                     break;
             }
@@ -407,7 +446,7 @@ namespace TrainingApp.Pages.Training
             }
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("SFC Split completed successfully");
-            else if (step.StepType == StepType.LogNC)
+            else if (StepTypes.IsLogNC(step.StepType))
                 ShowScrapped(area, session, scrapped);
         }
 
@@ -484,6 +523,20 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
 
             var result = Pod.Split(_ctx, e.RowId, e.Qty);
+            // Spec 014 (enmienda 3): una cantidad distinta de la del hallazgo es un intento. El
+            // control queda abierto en el modal del split; forzado, el paso se resuelve con el
+            // split de N que dejó la BLL.
+            if (result.Step != null)
+            {
+                e.Handled = true;
+                ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+                if (result.Step.Outcome != StepSubmitOutcome.Incorrect)
+                {
+                    e.StepResolved = true;
+                    ContinueAfterStepResolved(session, guide, area, step, result.Step.Outcome);
+                }
+                return;
+            }
             if (result.Notice != PodNotice.None)
             {
                 // El modal del split muestra el texto en su propio mensaje de error.
@@ -591,6 +644,15 @@ namespace TrainingApp.Pages.Training
             {
                 RepaintCompletedPod(area, session);
                 return;
+            }
+
+            // Log NC forzado (spec 014, P-5): la BLL desechó la pieza del hallazgo.
+            if (podChanged && StepTypes.IsLogNC(forcedStep))
+            {
+                ClearRowSelection();
+                if (area.SerializationType == SerializationType.Serialized)
+                    TxtSFC.Text = string.Empty;
+                rebind = true;
             }
 
             // Como en el submit normal: tras Assembly y DC el POD vuelve sin selección.
@@ -914,10 +976,13 @@ namespace TrainingApp.Pages.Training
             {
                 ApplySubmitResult(result.Step, session, guide, area, step,
                     AttemptFeedback(result.FeedbackReason, area));
+                // Avance forzado (spec 014, P-5): la BLL desechó la pieza del hallazgo.
+                ShowScrapped(area, session, result.Scrapped);
                 return;
             }
 
-            OpenStepControl(StepType.LogNC, area, session, guide, modalId: null);
+            // El paso de Log NC actual (spec 014: el botón abre cualquiera de los tres).
+            OpenStepControl(step.StepType, area, session, guide, modalId: null);
         }
 
         // Acciones de MES que nunca son un paso de la guía (Work Instructions, Reports, Place
@@ -1081,6 +1146,23 @@ namespace TrainingApp.Pages.Training
             vm.ExtraData["OperationName"] = opName;
             vm.ExtraData["Site"]         = PodDefaults.Site;
 
+            if (StepTypes.IsLogNC(step.StepType))
+            {
+                vm.ExtraData["NCCodes"] = _ctx.NCCodes;
+                vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
+                // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
+                var ncPieces = FindSelectedOrderRows();
+                vm.ExtraData["SelectedPieceCount"] = ncPieces.Count;
+                vm.ExtraData["FirstSelectedSFC"]   = ncPieces.Count > 0
+                    ? ncPieces[0].SFCCode ?? Order?.SFCCode
+                    : null;
+                // Guided (spec 014): NC Selection abre en la página del código del hallazgo, que
+                // señala la guía. Assessment no lo recibe.
+                if (session.Mode == SessionMode.Guided)
+                    vm.ExtraData["GuideNCCode"] = _ctx.NcFindingFor(step)?.Code;
+                return vm;
+            }
+
             switch (step.StepType)
             {
                 case StepType.ResourceSetup:
@@ -1109,17 +1191,6 @@ namespace TrainingApp.Pages.Training
                     vm.ExtraData["AvailableQty"] = selectedRow?.Qty ?? 0;
                     vm.ExtraData["SelectedRowId"] = selectedRow?.RowId;
                     vm.ExtraData["HasSuccessfulSplit"] = Order != null && Order.HasSplit;
-                    break;
-
-                case StepType.LogNC:
-                    vm.ExtraData["NCCodes"] = _ctx.NCCodes;
-                    vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
-                    // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
-                    var ncPieces = FindSelectedOrderRows();
-                    vm.ExtraData["SelectedPieceCount"] = ncPieces.Count;
-                    vm.ExtraData["FirstSelectedSFC"]   = ncPieces.Count > 0
-                        ? ncPieces[0].SFCCode ?? Order?.SFCCode
-                        : null;
                     break;
 
                 case StepType.Assembly:
@@ -1325,6 +1396,13 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Spec 014 (P-7): los tres pasos de Log NC se abren con [Log NC].
+            if (StepTypes.IsLogNC(stepType))
+            {
+                BtnLogNC.Disabled = false;
+                return;
+            }
+
             switch (stepType)
             {
                 case StepType.ResourceSetup:
@@ -1346,9 +1424,6 @@ namespace TrainingApp.Pages.Training
                 case StepType.SFC_Split:
                     if (area.SerializationType == SerializationType.NonSerialized)
                         BtnSFCSplit.Disabled = false;
-                    break;
-                case StepType.LogNC:
-                    BtnLogNC.Disabled = false;
                     break;
                 case StepType.Complete:
                     BtnComplete.Disabled = false;
@@ -1438,6 +1513,8 @@ namespace TrainingApp.Pages.Training
                     return ("SFC Split", "La fila o cantidad seleccionada ya no es válida.");
                 case PodNotice.NoPieceLeft:
                     return ("Selección inválida", "Debe quedar al menos una pieza para Complete.");
+                case PodNotice.SplitAlreadyDone:
+                    return ("SFC Split", "Ya se separó la cantidad del hallazgo.");
                 default:
                     throw new ArgumentOutOfRangeException(nameof(notice), notice, null);
             }
@@ -1465,16 +1542,19 @@ namespace TrainingApp.Pages.Training
         // (spec 010, R7). Log NC solo nombra el Component si el área lo pide.
         private static string GetHint(StepType stepType, Area area)
         {
+            // Spec 014: la pieza y el código son los del hallazgo.
+            if (StepTypes.IsLogNC(stepType))
+                return area.RequiresNCComponent
+                    ? "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo, ingrese el Component y presione Add-Done."
+                    : "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo y presione Add-Done.";
+
             switch (stepType)
             {
-                case StepType.LogNC when !area.RequiresNCComponent:
-                    return "Seleccione un código NC y presione Add-Done.";
                 case StepType.ResourceSetup:  return "Presione Retrieve, quite los equipos anteriores (REMOVE ALL), agregue sus filas, verifique que Setup State esté en 'Set Up' y presione Save.";
                 case StepType.LineClearance:  return "Responda 'Si' para confirmar la limpieza de línea.";
                 case StepType.Search:         return "Responda 'Sí' a las verificaciones y presione Save.";
                 case StepType.DataCollection: return "Complete todos los parámetros dentro de su rango y presione Save (no Save Draft).";
-                case StepType.SFC_Split:      return "Seleccione una fila del POD, divida una cantidad válida y presione Close.";
-                case StepType.LogNC:          return "Seleccione un código NC, ingrese el Component y presione Add-Done.";
+                case StepType.SFC_Split:      return "Seleccione una fila del POD, divida la cantidad del hallazgo y presione Close.";
                 case StepType.Assembly:       return "Ensamble cada componente de la Component List: escanee su código y presione Add.";
                 case StepType.Complete:       return "Presione Complete para cerrar la orden.";
                 case StepType.Logout:         return "Presione el ícono Logout para cerrar su sesión en MES.";

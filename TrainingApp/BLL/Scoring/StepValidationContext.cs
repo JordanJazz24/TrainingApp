@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
 namespace TrainingApp.BLL.Scoring
@@ -11,5 +12,9 @@ namespace TrainingApp.BLL.Scoring
 
         // Equipos precargados de Resource Setup (spec 015): guardar con alguno es incorrecto.
         public IList<string> PreloadedValues { get; set; }
+
+        // Log NC (spec 014): el hallazgo del paso y las filas del POD seleccionadas al enviar.
+        public NcFinding NcFinding { get; set; }
+        public IList<SimulatedOrderRow> SelectedRows { get; set; }
     }
 }

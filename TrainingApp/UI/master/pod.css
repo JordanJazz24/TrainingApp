@@ -110,6 +110,29 @@ body {
     font-size: 0.85rem;
 }
 
+/* ── Nota de hallazgo (spec 014, D-49) ───────────────────────
+   Panel del simulador con el estilo del globo de la guía (pod-guide.css), fijo abajo a la
+   derecha para que se lea con NC Data Entry abierto (modales: 1055). */
+.pod-finding {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 1056;
+    width: 300px;
+    max-width: calc(100vw - 32px);
+    padding: 8px 12px 10px;
+    background: #fff;
+    color: #333;
+    border-top: 4px solid #f0a800;
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+.pod-finding-head { margin-bottom: 4px; font-size: 0.75rem; font-weight: 700; color: #057fc6; }
+.pod-finding strong { color: #000; }
+
 /* ── POD Search ─────────────────────────────────────────────
    Mismo fondo que el header: juntos forman una sola franja clara, como la captura
    "pantall central de referencia" (corrección del usuario). El gris empieza en las

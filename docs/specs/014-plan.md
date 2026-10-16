@@ -74,33 +74,33 @@ tiempo para noviembre; sin ella, la reparación rápida usa la Assembly Data de 
 
 Todas las áreas, sin cambiar la forma de ninguna guía.
 
-- [ ] **Catálogo:** `00` agrega `NCCodes.Method TINYINT NOT NULL` (0 `FastScrap`, 1
+- [x] **Catálogo:** `00` agrega `NCCodes.Method TINYINT NOT NULL` (0 `FastScrap`, 1
       `FastRepair`, 2 `ExtendedRepair`) y `NCCodes.RequiresComments BIT NOT NULL`
       (idempotente, con default para las filas existentes). `spNCCodeGetByArea` las devuelve.
       `Domain/NCCode` + enum `NCMethod`.
-- [ ] **Scripts:** `06` marca `F_FR_GENERAL` = `FastRepair` y `F_FX_GENERAL` =
+- [x] **Scripts:** `06` marca `F_FR_GENERAL` = `FastRepair` y `F_FX_GENERAL` =
       `ExtendedRepair` + `RequiresComments`; los `F_FS_…` = `FastScrap`. `08` y `05` agregan
       2-3 códigos `SIM_FR_…` y 2-3 `SIM_FX_…` (uno con `RequiresComments`); los existentes
       quedan como `FastScrap`.
-- [ ] **4-5 piezas:** `SerialSfcGenerator.MinPieces = 4`.
-- [ ] **`StepTypes.IsLogNC`** (y el método de cada tipo de Log NC) en la BLL; `GuidedTest`
+- [x] **4-5 piezas:** `SerialSfcGenerator.MinPieces = 4`.
+- [x] **`StepTypes.IsLogNC`** (y el método de cada tipo de Log NC) en la BLL; `GuidedTest`
       y `CheckSequence` pasan a usarlo (el botón [Log NC] vale en cualquier paso de Log NC).
-- [ ] **`NcFinding`** (`[Serializable]`) y **`NcFindingGenerator`**: un hallazgo por cada
+- [x] **`NcFinding`** (`[Serializable]`) y **`NcFindingGenerator`**: un hallazgo por cada
       paso de Log NC de la guía, al dar Start (`StartPieces`) y al reconstruir. Serialized:
       piezas distintas al azar. NonSerialized: "N unidades" (N al azar, menor que la cantidad
       del lote). Código al azar del método del paso. `PodState.NcFindings`.
-- [ ] **Calificación (P-3, D-31, D-33, P-9):** `StepValidationContext` recibe el hallazgo del
+- [x] **Calificación (P-3, D-31, D-33, P-9):** `StepValidationContext` recibe el hallazgo del
       paso y las filas seleccionadas. Desecho correcto solo con exactamente la pieza del
       hallazgo (Serialized) o el SFC del split (NonSerialized) y el código exacto. Motivo
       `WrongDecision`, mensaje genérico. `OpenLogNC` no cambia (sin fila = intento fallido).
-- [ ] **Avance forzado (P-5):** aplica la disposición del hallazgo (desecha su pieza).
+- [x] **Avance forzado (P-5):** aplica la disposición del hallazgo (desecha su pieza).
       **Reconstrucción:** aplica los pasos de Log NC ya resueltos sobre los hallazgos nuevos.
-- [ ] **Nota de hallazgo (D-49):** panel con el estilo de la guía, visible en Guided y
+- [x] **Nota de hallazgo (D-49):** panel con el estilo de la guía, visible en Guided y
       Assessment mientras el paso actual es de Log NC: "Hallazgo n de N", SFC (o "N unidades
       del lote"), defecto (descripción del código) y disposición. Ancla `data-guide`.
-- [ ] **Guía (D-43 y textos de abajo):** alerta en rojo en el subpaso 1; la guía señala la
+- [x] **Guía (D-43 y textos de abajo):** alerta en rojo en el subpaso 1; la guía señala la
       pieza del hallazgo y `Reject` en la selección y el código (como D-25).
-- [ ] **Tests:** `StepValidatorLogNCTests` (pieza correcta, otra pieza, pieza de más, SFC del
+- [x] **Tests:** `StepValidatorLogNCTests` (pieza correcta, otra pieza, pieza de más, SFC del
       lote, código de otro método, código exacto) y `NcFindingGeneratorTests` (piezas
       distintas, código del método). `ScoreCalculatorTests` en verde.
 

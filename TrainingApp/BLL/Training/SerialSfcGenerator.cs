@@ -4,12 +4,12 @@ using System.Text;
 
 namespace TrainingApp.BLL.Training
 {
-    // Piezas de una Shop Order serializada simulada (spec 008): entre 3 y 5 SFCs
+    // Piezas de una Shop Order serializada simulada (spec 008): entre 4 y 5 SFCs (spec 014)
     // "{ShopOrder}-{sufijo}", con un sufijo numérico aleatorio de 1 a 6 dígitos que no se
     // repite dentro de la orden (ej. 000123-7, 000123-430, 000123-048213).
     public static class SerialSfcGenerator
     {
-        public const int MinPieces       = 3;
+        public const int MinPieces       = 4;
         public const int MaxPieces       = 5;
         public const int MinSuffixDigits = 1;
         public const int MaxSuffixDigits = 6;

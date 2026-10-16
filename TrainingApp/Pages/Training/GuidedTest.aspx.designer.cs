@@ -96,6 +96,51 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.Literal LitBanner;
 
         /// <summary>
+        /// PnlNcFinding control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel PnlNcFinding;
+
+        /// <summary>
+        /// LitFindingTitle control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitFindingTitle;
+
+        /// <summary>
+        /// LitFindingPiece control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitFindingPiece;
+
+        /// <summary>
+        /// LitFindingDefect control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitFindingDefect;
+
+        /// <summary>
+        /// LitFindingDisposition control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitFindingDisposition;
+
+        /// <summary>
         /// LitOperationName control.
         /// </summary>
         /// <remarks>

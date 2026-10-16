@@ -42,19 +42,23 @@ namespace TrainingApp.BLL.Training
         public const string AssemblyAdd          = "Assembly.Add";
         public const string DataCollectionSave   = "DC.Save";
         public const string SFCSplitClose        = "SFCSplit.Close";
+        public const string SFCSplitSplit        = "SFCSplit.Split";
         public const string LogNCAddDone         = "LogNC.AddDone";
         public const string LogNCWrongButton     = "LogNC.WrongButton";
 
         // Acción de un envío por respuesta (StepValidator), según el paso y lo enviado.
         public static string ForSubmit(StepType stepType, string answer)
         {
+            // Los tres pasos de Log NC envían desde NC Data Entry (spec 014).
+            if (StepTypes.IsLogNC(stepType))
+                return answer == StepAnswers.Invalid ? LogNCWrongButton : LogNCAddDone;
+
             switch (stepType)
             {
                 case StepType.ResourceSetup: return ResourceSetupSave;
                 case StepType.LineClearance: return LineClearanceSave;
                 case StepType.Search:        return answer == StepAnswers.Start ? Start : StartChecklistSave;
                 case StepType.SFC_Split:     return SFCSplitClose;
-                case StepType.LogNC:         return answer == StepAnswers.Invalid ? LogNCWrongButton : LogNCAddDone;
                 case StepType.Complete:      return Complete;
                 case StepType.Logout:        return Logout;
                 // Assembly y DC no se califican por respuesta (SubmitStep los rechaza).
