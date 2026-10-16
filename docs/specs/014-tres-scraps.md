@@ -224,8 +224,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 
 **Confirmadas por el usuario (2026-10-15)**; P-12 la cambió D-46
 - **P-9 · Pieza correcta en NonSerialized** (ajustada por D-53): el SFC del split; el SFC
-  del lote es intento fallido. El hallazgo del lote dice "N unidades con {defecto}" (N es
-  informativo, D-32).
+  del lote es intento fallido. El hallazgo del lote dice "N unidades con {defecto}" (N se
+  califica en el SFC Split desde la enmienda 3; antes era informativo, D-32).
 - ~~P-10 · SFC Split con varios SFC~~: **sin efecto por D-53**; el split no cambia.
 - **P-11 · Datos de Remove component** (captura `remove compoenet modal .png`):
   - SFC, Material/Vers. y Description salen de la orden simulada; Status = `Active`.
