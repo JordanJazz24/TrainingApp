@@ -954,11 +954,31 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
 3. **Confirm** (`confirmacion agregar compoenente .png`): "Do you want to add component to
    {SFC}?" [Yes] [No]. Con **No**, o con Return en el paso anterior, la pieza queda sin el
    componente y hay que volver a ensamblarlo.
-4. Con **Yes**: ventana para agregar el componente nuevo, parecida a Assemble Components
-   (según la técnica, con diferencias; el manual no la muestra completa). Recorte
-   (`recorte de agregado del nuevo compoenente .png`): ★ Inventory SFC (`CR9AP1700000801`,
-   con ⧉) y ★ Batch Number (`0301366528`, en gris). Se completan los datos que pida el
-   material (W13 en `wi-produccion-disposables.md`) y se presiona [Add].
+4. Con **Yes**: modal **"Add Component"** (`modal add componenet .png`, 2026-10-16), sobre
+   NC Data Entry:
+   ```
+     Add Component                                                  [⤢][✕]
+     As-Built Configuration
+     ──────────────────────────────────────────────────────────────────────
+          SFC: 300014142061-42814                  Status: Active
+     Material/Vers.: 300014142061/A           Description: OmniWire, 185CM…
+     Routing/Vers.: PR_OMNIWIRE_STRAIGHT_SOS/A-7  BOM/Version: 303627317-…/A-1
+     Component Details                     │ Add Assembly Details
+     ★ Component: [300000257791    ⧉]      │ Assembly Operation: [O_OMNI_FIRST_DI… ⧉]
+     ★ Version:   [A              ]        │ Assembly Resource:  [R_OMNI_FIRST_DI… ⧉]
+     Description: Adhesive, Masterbond…    │ ★ Batch Number:     [               ]
+     Ref Des:     [               ]        │
+     Qty Required: 0.005                   │
+     Qty Assembled: 0                      │
+     ★ Qty to Assemble: [0.005    ]        │
+                                 [Add]  [Cancel]
+   ```
+   Add Assembly Details **cambia según el tipo de material** (W13 en
+   `wi-produccion-disposables.md`): en la captura, un adhesivo por batch con ★ Batch Number
+   vacío que escribe el operador; el recorte del manual (`recorte de agregado del nuevo
+   compoenente .png`) muestra un componente por inventario: ★ Inventory SFC
+   (`CR9AP1700000801`, con ⧉) y ★ Batch Number en gris (`0301366528`). No hay campo
+   Barcode.
 5. **Sin captura:** el mensaje con que termina. El simulador usa un banner provisional
    (spec 014, D-55).
 

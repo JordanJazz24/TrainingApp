@@ -1,7 +1,8 @@
 # Plan — Spec 014: Tres tipos de scrap y pieza defectuosa indicada
 
-**Spec:** `014-tres-scraps.md` (aprobada 2026-10-16) · **Estado:** **aprobado por el
-usuario (2026-10-16)**, con D-56 a D-60 y los textos de la guía.
+**Spec:** `014-tres-scraps.md` (aprobada 2026-10-16, enmendada el mismo día: modal Add
+Component) · **Estado:** **aprobado por el usuario (2026-10-16)**, con D-56 a D-60 y los
+textos de la guía.
 **Autoría:** sesión de Arquitectura y Planeación (verificado contra el código de
 `TrainingApp`, `285d96e`). Lo ejecuta "desarrollo" (`docs/process.md` → "Tres sesiones de
 trabajo").
@@ -116,13 +117,15 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
       Description, OK / Cancel) con lo ensamblado, en **todos** los códigos. En el desecho
       sigue obligatorio si `RequiresNCComponent` y no se califica.
 - [ ] **Flujo en el cliente (spec, punto 10):** Add-Done → Confirm remover → Remove component
-      (datos de P-11) → Confirm agregar → ventana del componente nuevo (Assemble Components
-      con la Assembly Data de hoy) → Add. Un solo postback (punto 12). No a remover, Cancel y
+      (datos de P-11) → Confirm agregar → **Add Component** (modal propio, enmienda
+      2026-10-16 de la spec; captura `modal add componenet .png`; sin E4, Add Assembly
+      Details con ★ Batch Number vacío) → Add. Un solo postback (punto 12). Cancel y ✕ de Add
+      Component tampoco envían. No a remover, Cancel y
       ✕ vuelven a NC Data Entry sin enviar; Return, No a agregar y Send to Routing envían la
       decisión equivocada.
 - [ ] **Calificación (D-34, D-35, D-48):** pieza, código, componente, `Scrap` y `Yes`.
-      Formato sin intento: Qty to Remove (numérico, obligatorio) y datos del componente
-      nuevo. La pieza sigue activa (D-47). Banner provisional "Component {componente}
+      Formato sin intento: Qty to Remove y Qty to Assemble (numéricos, obligatorios),
+      Component y Version vacíos y los datos de Add Assembly Details. La pieza sigue activa (D-47). Banner provisional "Component {componente}
       replaced on {SFC}" (D-55), anotado en `general-flow.md`.
 - [ ] **`AttemptActions`** para Scrap, Return, Send to Routing y "No" a agregar (registro de
       actividad, spec 013).
@@ -151,8 +154,8 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
       `InventorySfc`, 2 `MaterialDocument`); `spAssemblyComponentGetByArea` la devuelve;
       `Domain/AssemblyComponent` + enum.
 - [ ] `05` y `08`: al menos un componente de cada tipo, con batch simulado del componente.
-- [ ] `AssemblyControl` (Assemble Components) y la ventana del componente nuevo muestran los
-      campos de P-17. Formato en el cliente y en el servidor (letras y números, obligatorio);
+- [ ] `AssemblyControl` (Assemble Components) muestra los campos de P-17 y Add Component los
+      de la enmienda 2026-10-16 de la spec (Batch Number lo escribe el operador). Formato en el cliente y en el servidor (letras y números, obligatorio);
       nada se califica.
 - [ ] Remove component muestra la Assembly Data registrada.
 - [ ] Guía de Assembly: subpasos para Inventory SFC y Material Document Number (textos al
@@ -179,7 +182,7 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 | Confirm remover | "Presione **Yes** para quitar el componente de la pieza." |
 | Remove component | "Presione **Scrap**: el componente dañado se desecha." + nota D-44 (Return) |
 | Confirm agregar | "Presione **Yes** para agregar el componente nuevo." + nota D-44 (Yes/No) |
-| Componente nuevo | "Escanee el barcode del componente nuevo, complete los datos que pida y presione **Add**." |
+| Add Component | "Complete el **Batch Number** del componente nuevo (o los datos que pida su material) y presione **Add**." (enmienda 2026-10-16) |
 | Banner | "Verifique el mensaje: el componente se reemplazó y la pieza sigue en el POD." |
 
 **Reparación extendida**

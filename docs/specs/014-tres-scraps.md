@@ -3,6 +3,38 @@
 **Status:** Approved (2026-10-16)
 **Date:** 2026-10-14 · revisada 2026-10-15 con las notas y capturas del usuario · **Approved:** 2026-10-16 (usuario, con las propuestas P-1 a P-17 y D-27 a D-55)
 
+> **Enmienda 2026-10-16 (usuario, captura `Split - Log NC/modal add componenet .png`):**
+> afecta D-36, P-12, P-17, el punto 10 del Scope, AC-13, AC-26 y el texto de la guía del
+> subpaso "Componente nuevo" (D-50).
+>
+> - La ventana del componente nuevo **no** es Assemble Components: es un modal propio,
+>   **"Add Component"** (⤢ ✕), con la estructura de Remove component:
+>   - **As-Built Configuration:** SFC, Material/Vers., Routing/Vers. | Status, Description,
+>     BOM/Version.
+>   - **Component Details:** ★ Component (con ⧉) y ★ Version, precargados con el componente
+>     que se quitó; Description; Ref Des (opcional); Qty Required; Qty Assembled (`0`);
+>     ★ Qty to Assemble, precargado con la Qty del BOM.
+>   - **Add Assembly Details:** Assembly Operation y Assembly Resource (con ⧉, precargados) y
+>     la parte que **cambia según el tipo de material** (W13). En la captura, un componente
+>     por batch: ★ Batch Number **vacío, lo escribe el operador**.
+>   - Botones: [Add] [Cancel]. **No tiene campo Barcode.**
+> - **Cancel y ✕ no cuentan** (como D-35): vuelve a NC Data Entry y el flujo empieza de
+>   nuevo.
+> - **Component y Version** son editables pero no se califican: vacíos son formato, sin
+>   intento. El componente que cuenta es el del Browse.
+> - **Qty to Assemble:** obligatorio y numérico, como formato; no se califica.
+> - **Add Assembly Details por material** (reemplaza la fila de P-12 y precisa P-17 para
+>   este modal): `Batch` → ★ Batch Number que escribe el operador; `InventorySfc` →
+>   ★ Inventory SFC que escribe el operador y ★ Batch Number en gris que llena el simulador;
+>   `MaterialDocument` → ★ Material Document Number que escribe el operador. Todo es formato
+>   (obligatorio, letras y números) y no se califica. En Assemble Components (Assembly),
+>   P-17 no cambia: el batch del componente por batch lo llena el simulador al escanear.
+> - **Sin E4 (W13 recortada):** Add Assembly Details muestra solo ★ Batch Number vacío, que
+>   escribe el operador.
+> - **Texto de la guía** (aprobado; reemplaza "Escanee el barcode del componente nuevo…"):
+>   "Complete el **Batch Number** del componente nuevo (o los datos que pida su material) y
+>   presione **Add**."
+
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
 QD001001524 rev. 27 (`docs/ui-reference/wi-produccion-disposables.md`, W13 y W19-W21);
@@ -257,7 +289,7 @@ eliminar componente.png`, `remove compoenet modal .png`, `confirmacion agregar c
       → Remove component (As-Built Configuration + Remove assembly details)
             [Scrap]  [Return]  [Send to Routing]  [Cancel]             Scrap
       → Confirm "Do you want to add component to {SFC}?"               Yes
-      → ventana del componente nuevo (P-12) → datos → [Add]
+      → Add Component (enmienda 2026-10-16) → datos → [Add]
       → vuelve al POD → banner provisional (D-55)
     ```
 

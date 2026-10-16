@@ -49,7 +49,7 @@ contra las 25 capturas de la carpeta._
 | 18 | Confirm "Do you want to remove component from {SFC}?" | 8 (reparación rápida) | `Split - Log NC/mensaje eliminar componente` | 🔜 spec 014 |
 | 19 | Remove component (As-Built Configuration) | 8 (reparación rápida) | `Split - Log NC/remove compoenet modal ` | 🔜 spec 014 |
 | 20 | Confirm "Do you want to add component to {SFC}?" | 8 (reparación rápida) | `Split - Log NC/confirmacion agregar compoenente ` | 🔜 spec 014 |
-| 21 | Ventana del componente nuevo | 8 (reparación rápida) | `Split - Log NC/recorte de agregado del nuevo compoenente ` (solo un recorte; se basa en Assemble Components, spec 014 D-36) | 🔜 spec 014 |
+| 21 | Add Component | 8 (reparación rápida) | `Split - Log NC/modal add componenet `, `Split - Log NC/recorte de agregado del nuevo compoenente ` | 🔜 spec 014 |
 | 22 | NC Data Entry de la extendida (★ Comments, "NC logged") | 8 (extendida) | `Split - Log NC/modal nc entry extended` | 🔜 spec 014 |
 | 23 | Select Disposition Function | 8 (extendida) | `Split - Log NC/sub modal seleccion operaicon a ser devuelta ` | 🔜 spec 014 |
 
