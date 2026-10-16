@@ -115,6 +115,11 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 >   `SIM_FX_GENERAL` (con Comments), `SIM_FX_SELLO` y `SIM_FX_SOLDADURA`. Redefinity:
 >   `SIM_FR_HUB`, `SIM_FR_LUER`, `SIM_FX_GENERAL` (con Comments) y `SIM_FX_PUNTA`.
 
+> **Enmienda 2 de la spec (2026-10-16), dentro de la E1:** en Moldeo el hallazgo dicta la
+> cantidad del split (nota visible también en el SFC Split; el split forzado y la
+> reconstrucción usan N) y la guía de Guided abre con un subpaso Info que resalta la nota.
+> Textos en la spec y en la tabla de abajo.
+
 ## Entrega 2 — Reparación rápida (AC-5, AC-13 a AC-17)
 
 - [ ] **`StepType.LogNCFastRepair = 9`**; `02`: `StepType` de 0 a 10. **D-56** en
@@ -179,6 +184,8 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 **Los tres métodos, subpasos comunes**
 | Subpaso | Texto |
 |---|---|
+| Info (primero; enmienda 2) | Serialized, en cada paso de Log NC: "Calidad reportó un hallazgo: revise el SFC, el defecto y la disposición. En este paso lo registra en el MES." · Moldeo, en el SFC Split (no se repite en Log NC): "Calidad reportó un hallazgo: revise el defecto, la cantidad y la disposición. Primero separe esas unidades con SFC Split; después las registra en Log NC." |
+| Cantidad del split (Moldeo; enmienda 2) | "Ingrese la cantidad del hallazgo: **N**." |
 | Seleccionar | "Seleccione la pieza del hallazgo: **{SFC}**." + alerta D-43 en rojo (Moldeo: "Seleccione el SFC creado por el split.") |
 | Log NC | "Presione **Log NC** para registrar el defecto." |
 | Código | Desecho: "Presione **Log NC** en el código del defecto del hallazgo: **{defecto}**." · Reparación rápida: "…en el código de reparación rápida del hallazgo: **{defecto}**." · Extendida: "…en el código de reparación extendida del hallazgo: **{defecto}**." |

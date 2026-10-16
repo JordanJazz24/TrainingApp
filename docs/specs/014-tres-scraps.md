@@ -35,6 +35,28 @@
 >   "Complete el **Batch Number** del componente nuevo (o los datos que pida su material) y
 >   presione **Add**."
 
+> **Enmienda 2 · 2026-10-16 (usuario, al probar la E1):** afecta P-9, D-49, AC-3 y los
+> textos de la guía (D-50). D-32 no cambia.
+>
+> 1. **Moldeo: el hallazgo dicta la cantidad del split.** Era un bug: la nota decía N al azar
+>    y el split usaba otra cantidad.
+>    - N se sigue generando al dar Start, menor que el lote.
+>    - En NonSerialized la nota de hallazgo se ve también durante el **SFC Split**, no solo en
+>      Log NC (cambia D-49 y AC-3).
+>    - Guía del subpaso de cantidad del split: "Ingrese la cantidad del hallazgo: **N**."
+>      (reemplaza "por ejemplo 100").
+>    - El split forzado y la reconstrucción usan N en lugar de `PodDefaults.DefaultSplitQty`.
+>    - La cantidad sigue **sin calificarse** (D-32): si el operador divide otra cantidad, la
+>      nota sigue diciendo N.
+> 2. **Guided: un subpaso informativo que resalta la nota** (Info, con Continuar), el primero
+>    del paso donde aparece la nota:
+>    - **Serialized:** en cada paso de Log NC (cada uno tiene su hallazgo): "Calidad reportó
+>      un hallazgo: revise el SFC, el defecto y la disposición. En este paso lo registra en el
+>      MES."
+>    - **Moldeo:** en el SFC Split, y no se repite en su Log NC: "Calidad reportó un hallazgo:
+>      revise el defecto, la cantidad y la disposición. Primero separe esas unidades con SFC
+>      Split; después las registra en Log NC."
+
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
 QD001001524 rev. 27 (`docs/ui-reference/wi-produccion-disposables.md`, W13 y W19-W21);
@@ -428,7 +450,7 @@ Ninguna.
 - **AC-1:** Given una orden Serialized, Then tiene entre 4 y 5 piezas.
 - **AC-2:** Given Moldeo, LoFlo y Redefinity, Then cada código NC tiene su método y si exige
   Comments; LoFlo y Redefinity tienen códigos de los tres métodos.
-- **AC-3:** Given un paso de Log NC, Then la nota de hallazgo muestra solo el hallazgo de ese
+- **AC-3** (enmienda 2 del 2026-10-16: en NonSerialized, también en el SFC Split): Given un paso de Log NC, Then la nota de hallazgo muestra solo el hallazgo de ese
   paso ("Hallazgo n de 3"; en Moldeo, "1 de 1"): la pieza, el defecto y la disposición, en Guided y en
   Assessment, sin nombrar el código.
 - **AC-4:** Given Guided en el subpaso 1 de Log NC, Then se ve la alerta de D-43 en rojo.
