@@ -169,6 +169,8 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 - [ ] **Calificación (D-37b):** pieza, código y disposición. Return to any previous: banner
       con la operación anterior y la pieza sale del POD (D-54). Local Rework: banner
       provisional con la operación actual y la pieza sigue (V-5).
+- [ ] **Component (enmienda 4):** NC Data Entry lo muestra también con los códigos de
+      reparación extendida, **opcional** y sin calificarse (hoy solo aparece con la rápida).
 - [ ] **Guía:** textos de abajo y nota de P-13 en Comments.
 - [ ] **Tests:** casos de la extendida en `StepValidatorLogNCTests`.
 
@@ -226,11 +228,14 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
       catálogos (`Method`, `RequiresComments`, `MaterialControl`, `Operations` `SIM`).
 - [ ] `docs/architecture.md`: `NcFinding` y registro de lo ensamblado en `PodState`,
       versión automática de las guías (D-56), un control para los tres métodos (D-60).
-- [ ] `docs/ui-reference/general-flow.md` (Pasos 4 y 8: banners provisionales, Browse en todos
-      los códigos), `inventario-pantallas.md` (#17-#23 a ✅), y si entró E4: `glossary.md`
+- [ ] `docs/ui-reference/general-flow.md` (Pasos 4 y 8: banners provisionales, Browse en los
+      códigos de reparación, enmienda 4), `inventario-pantallas.md` (#17-#23 a ✅), y si entró E4: `glossary.md`
       (Batch Number), `general-flow.md` → Paso 4 y el ejemplo de `docs/process.md` §8, que
       dicen "Batch Number = Process Lot".
 - [ ] Roadmap: fila 6 de la Fase 8.5, "Estado actual", "Historial" y "BD de desarrollo".
+- [ ] Roadmap → "Deuda y riesgos conocidos": `RequiresNCComponent` sin uso desde la enmienda 4
+      (columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`, `spAreaGet*`,
+      `AreaRepository` y `Area.RequiresNCComponent`); quitarla no entra en esta spec.
 
 ## Review
 
