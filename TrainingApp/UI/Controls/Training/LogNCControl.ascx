@@ -87,14 +87,18 @@
                         <asp:TextBox ID="TxtNCCode" runat="server"
                             CssClass="mes-input nc-form-input" ReadOnly="true" />
                     </div>
-                    <%-- Solo en áreas con Area.RequiresNCComponent = 1 (spec 007). Sigue siendo
-                         obligatorio (RfvComponent), pero sin asterisco: así lo muestra el real. --%>
+                    <%-- Solo con un código de reparación rápida (enmienda 4 de la spec 014): el
+                         desecho no lo muestra en ningún área. Obligatorio (RfvComponent), pero sin
+                         asterisco: así lo muestra el real. ⧉ abre el Browse con lo ensamblado
+                         (D-39); también se puede escribir. --%>
                     <asp:Panel ID="PnlComponent" runat="server" CssClass="nc-form">
                         <span class="nc-form-label">Component:</span>
                         <span class="mes-field nc-form-input">
                             <asp:TextBox ID="TxtComponent" runat="server"
-                                ValidationGroup="ncGroup" data-guide="nc-component" />
-                            <span class="mes-field-icon">&#10697;</span>
+                                ValidationGroup="ncGroup" data-guide="nc-component"
+                                oninput="this.setAttribute('data-picked', '');" />
+                            <button type="button" class="mes-field-icon" title="Browse"
+                                data-guide="nc-component-browse" onclick="ncOpenBrowse();">&#10697;</button>
                         </span>
                         <span></span>
                         <asp:RequiredFieldValidator ID="RfvComponent" runat="server"
@@ -121,9 +125,11 @@
                     <asp:Button ID="BtnAdd" runat="server" Text="Add"
                         CssClass="mes-btn mes-ico mes-ico-check"
                         OnClick="BtnWrongButton_Click" CausesValidation="false" />
+                    <%-- Reparación rápida (spec 014): Add-Done abre en el cliente la secuencia
+                         de Remove component y Add Component (ncAddDone); el envío es uno solo. --%>
                     <asp:Button ID="BtnAddDone" runat="server" Text="Add-Done"
                         CssClass="mes-btn mes-ico mes-ico-check" data-guide="nc-add-done"
-                        ValidationGroup="ncGroup"
+                        ValidationGroup="ncGroup" OnClientClick="if (!ncAddDone()) return false;"
                         OnClick="BtnAddDone_Click" />
                     <asp:Button ID="BtnReturnPOD" runat="server" Text="Return to POD"
                         CssClass="mes-btn mes-ico mes-ico-cancel"
@@ -136,9 +142,376 @@
         </div>
     </div>
     <div class="modal-backdrop fade show"></div>
+
+    <%-- ══ Reparación rápida y Browse (spec 014, capturas de "Split - Log NC") ══════════
+         Ventanas del cliente sobre NC Data Entry: una a la vez (ncShowSub). Navegación y
+         formato en JS; el único postback es BtnRepairSubmit con la decisión (D-59). ✕,
+         Cancel y No a remover vuelven a NC Data Entry sin enviar (D-35). --%>
+    <asp:HiddenField ID="HfRepairFlow" runat="server" Value="0" />
+    <asp:HiddenField ID="HfRepairDecision" runat="server" />
+    <asp:Button ID="BtnRepairSubmit" runat="server" style="display:none" tabindex="-1"
+        OnClick="BtnRepairSubmit_Click" CausesValidation="false" UseSubmitBehavior="false" />
+    <div id="ncSubBackdrop" class="modal-backdrop show nc-sub-backdrop" style="display:none"></div>
+
+    <%-- Browse (browse component.png): los componentes ensamblados en Assembly. --%>
+    <div class="modal nc-sub" id="ncBrowse" tabindex="-1" style="display:none" data-guide="nc-browse">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Browse</h6>
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Maximize" onclick="mesToggleMaximize(this)">&#10530;</button>
+                        <button type="button" class="mes-titlebar-btn" title="Close" onclick="ncCloseSub();">&#10005;</button>
+                    </div>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="nc-browse-table">
+                        <thead><tr><th class="nc-browse-sel"></th><th>Component</th><th>Description</th></tr></thead>
+                        <tbody data-guide="nc-browse-list">
+                            <asp:Repeater ID="RptBrowse" runat="server">
+                                <ItemTemplate>
+                                    <tr class="nc-browse-row" data-guide="nc-browse-row" onclick="ncPickRow(this);"
+                                        data-component="<%#: Eval("PartNumber") %>"
+                                        data-version="<%#: Eval("Revision") %>"
+                                        data-desc="<%#: Eval("Description") %>"
+                                        data-qty="<%#: FormatQty(Eval("Qty")) %>"
+                                        data-batch="<%#: Eval("BatchNumber") %>"
+                                        data-invsfc="<%#: Eval("InventorySfc") %>">
+                                        <td class="nc-browse-sel"></td>
+                                        <td><%#: Eval("PartNumber") %></td>
+                                        <td><%#: Eval("Description") %></td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer mes-footer nc-sub-footer-right">
+                    <button type="button" class="mes-btn mes-ico mes-ico-check" data-guide="nc-browse-ok" onclick="ncBrowseOk();">OK</button>
+                    <button type="button" class="mes-btn mes-ico mes-ico-cancel" onclick="ncCloseSub();">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%-- Confirm (mensaje eliminar componente.png). No vuelve a NC Data Entry (D-35). --%>
+    <div class="modal nc-sub" id="ncConfirmRemove" tabindex="-1" style="display:none">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Confirm</h6>
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Close" onclick="ncCloseSub();">&#10005;</button>
+                    </div>
+                </div>
+                <div class="modal-body nc-confirm-body">
+                    Do you want to remove component from <span data-f="sfc"></span>?
+                </div>
+                <div class="modal-footer mes-footer nc-sub-footer-right">
+                    <button type="button" class="mes-btn mes-ico mes-ico-check" data-guide="nc-remove-yes" onclick="ncShowSub('ncRemove');">Yes</button>
+                    <button type="button" class="mes-btn mes-ico mes-ico-cancel" onclick="ncCloseSub();">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%-- Remove component (remove compoenet modal .png), datos de P-11. --%>
+    <div class="modal nc-sub" id="ncRemove" tabindex="-1" style="display:none">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Remove component</h6>
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Maximize" onclick="mesToggleMaximize(this)">&#10530;</button>
+                        <button type="button" class="mes-titlebar-btn" title="Close" onclick="ncCloseSub();">&#10005;</button>
+                    </div>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="mes-subheader mes-divider">
+                        <span>As-Built Configuration</span>
+                        <span class="mes-help" title="Help">?</span>
+                    </div>
+                    <div class="ncr-grid">
+                        <div class="ncr-col">
+                            <div class="ncr-row"><span class="ncr-label">SFC:</span><span data-f="sfc"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Material/Vers.:</span><span data-f="material"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Routing/Vers.:</span><span data-f="routing"></span></div>
+                            <div class="ncr-gap"></div>
+                            <div class="ncr-row"><span class="ncr-label">Actual Component/Vers.:</span><span data-f="componentVersion"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Description:</span><span data-f="componentDesc"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Ref Des:</span><span></span></div>
+                            <div class="ncr-gap"></div>
+                            <div class="ncr-row"><span class="ncr-label">Qty Required:</span><span data-f="qty"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Qty Assembled:</span><span data-f="qty"></span></div>
+                        </div>
+                        <div class="ncr-col">
+                            <div class="ncr-row"><span class="ncr-label">Status:</span><span data-f="status"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Description:</span><span data-f="description"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">BOM/Version:</span><span data-f="bom"></span></div>
+                            <div class="ncr-gap"></div>
+                            <div class="ncr-row"><span class="ncr-label">Assembly Operation:</span><span data-f="operation"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Assembly Resource:</span><span data-f="resource"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Inventory SFC:</span><input type="text" class="mes-input ncr-input" data-fv="invSfc" readonly /></div>
+                            <div class="ncr-row"><span class="ncr-label">Batch Number:</span><input type="text" class="mes-input ncr-input" data-fv="batch" readonly /></div>
+                        </div>
+                    </div>
+                    <div class="ncr-section">Remove assembly details</div>
+                    <div class="ncr-details">
+                        <div class="ncr-row"><span class="ncr-label"><span class="pod-star">*</span> Qty to Remove:</span>
+                            <input type="text" id="ncQtyRemove" class="mes-input ncr-input" autocomplete="off" /></div>
+                        <div class="ncr-row"><span class="ncr-label">Remove Operation:</span>
+                            <span class="mes-field ncr-input"><input type="text" data-fv="operation" readonly /><span class="mes-field-icon">&#10697;</span></span></div>
+                        <div class="ncr-row"><span class="ncr-label">Remove Resource:</span>
+                            <span class="mes-field ncr-input"><input type="text" data-fv="resource" readonly /><span class="mes-field-icon">&#10697;</span></span></div>
+                    </div>
+                </div>
+                <div class="modal-footer mes-footer">
+                    <button type="button" class="mes-btn" data-guide="nc-remove-scrap" onclick="ncRemove('scrap');">Scrap</button>
+                    <button type="button" class="mes-btn" onclick="ncRemove('return');">Return</button>
+                    <button type="button" class="mes-btn" onclick="ncRemove('sendToRouting');">Send to Routing</button>
+                    <button type="button" class="mes-btn" onclick="ncCloseSub();">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%-- Confirm (confirmacion agregar compoenente .png). No es la decisión equivocada (D-34). --%>
+    <div class="modal nc-sub" id="ncConfirmAdd" tabindex="-1" style="display:none">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Confirm</h6>
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Close" onclick="ncCloseSub();">&#10005;</button>
+                    </div>
+                </div>
+                <div class="modal-body nc-confirm-body">
+                    Do you want to add component to <span data-f="sfc"></span>?
+                </div>
+                <div class="modal-footer mes-footer nc-sub-footer-right">
+                    <button type="button" class="mes-btn mes-ico mes-ico-check" data-guide="nc-add-yes" onclick="ncShowSub('ncAddComponent');">Yes</button>
+                    <button type="button" class="mes-btn mes-ico mes-ico-cancel" onclick="ncSubmitRepair('scrap', false);">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%-- Add Component (modal add componenet .png; enmienda 2026-10-16 de la spec): sin
+         Barcode; sin W13 (E4), Add Assembly Details pide solo el Batch Number. --%>
+    <div class="modal nc-sub" id="ncAddComponent" tabindex="-1" style="display:none">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Add Component</h6>
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Maximize" onclick="mesToggleMaximize(this)">&#10530;</button>
+                        <button type="button" class="mes-titlebar-btn" title="Close" onclick="ncCloseSub();">&#10005;</button>
+                    </div>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="mes-subheader mes-divider"><span>As-Built Configuration</span></div>
+                    <div class="ncr-grid">
+                        <div class="ncr-col">
+                            <div class="ncr-row"><span class="ncr-label">SFC:</span><span data-f="sfc"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Material/Vers.:</span><span data-f="material"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Routing/Vers.:</span><span data-f="routing"></span></div>
+                        </div>
+                        <div class="ncr-col">
+                            <div class="ncr-row"><span class="ncr-label">Status:</span><span data-f="status"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Description:</span><span data-f="description"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">BOM/Version:</span><span data-f="bom"></span></div>
+                        </div>
+                    </div>
+                    <div class="ncr-grid ncr-grid-sections">
+                        <div class="ncr-col">
+                            <div class="ncr-section">Component Details</div>
+                            <div class="ncr-row"><span class="ncr-label"><span class="pod-star">*</span> Component:</span>
+                                <span class="mes-field ncr-input"><input type="text" id="ncAddComp" autocomplete="off" /><span class="mes-field-icon">&#10697;</span></span></div>
+                            <div class="ncr-row"><span class="ncr-label"><span class="pod-star">*</span> Version:</span>
+                                <input type="text" id="ncAddVersion" class="mes-input ncr-input" autocomplete="off" /></div>
+                            <div class="ncr-row"><span class="ncr-label">Description:</span><span data-f="componentDesc"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Ref Des:</span>
+                                <input type="text" class="mes-input ncr-input" autocomplete="off" /></div>
+                            <div class="ncr-row"><span class="ncr-label">Qty Required:</span><span data-f="qty"></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Qty Assembled:</span><span>0</span></div>
+                            <div class="ncr-row"><span class="ncr-label"><span class="pod-star">*</span> Qty to Assemble:</span>
+                                <input type="text" id="ncAddQty" class="mes-input ncr-input" autocomplete="off" /></div>
+                        </div>
+                        <div class="ncr-col">
+                            <div class="ncr-section">Add Assembly Details</div>
+                            <div class="ncr-row"><span class="ncr-label">Assembly Operation:</span>
+                                <span class="mes-field ncr-input"><input type="text" data-fv="operation" readonly /><span class="mes-field-icon">&#10697;</span></span></div>
+                            <div class="ncr-row"><span class="ncr-label">Assembly Resource:</span>
+                                <span class="mes-field ncr-input"><input type="text" data-fv="resource" readonly /><span class="mes-field-icon">&#10697;</span></span></div>
+                            <div class="ncr-row"><span class="ncr-label"><span class="required-star">*</span> Batch Number:</span>
+                                <input type="text" id="ncAddBatch" class="mes-input ncr-input" autocomplete="off" data-guide="nc-addcomp-batch" /></div>
+                        </div>
+                    </div>
+                    <div class="ncr-add-actions">
+                        <button type="button" class="mes-btn" data-guide="nc-addcomp-add" onclick="ncAddComponent();">Add</button>
+                        <button type="button" class="mes-btn" onclick="ncCloseSub();">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </asp:Panel>
 
 <script>
+// Reparación rápida y Browse (spec 014): ventanas del cliente sobre NC Data Entry.
+(function () {
+    var info     = <%= RepairInfoJson %>;
+    var flowId   = '<%= HfRepairFlow.ClientID %>';
+    var decId    = '<%= HfRepairDecision.ClientID %>';
+    var submitName = '<%= BtnRepairSubmit.UniqueID %>';
+    var compId   = '<%= TxtComponent.ClientID %>';
+    var picked   = null;
+
+    function byId(id) { return document.getElementById(id); }
+    function subs() { return document.querySelectorAll('.nc-sub'); }
+    function rows() { return document.querySelectorAll('#ncBrowse .nc-browse-row'); }
+
+    function warn(title, text) {
+        if (window.Swal) Swal.fire({ icon: 'warning', title: title, text: text });
+    }
+
+    function hideSubs() {
+        Array.prototype.forEach.call(subs(), function (m) { m.classList.remove('show'); m.style.display = 'none'; });
+        var b = byId('ncSubBackdrop');
+        if (b) b.style.display = 'none';
+    }
+
+    // Una ventana a la vez, sobre NC Data Entry (que sigue abierto detrás).
+    window.ncShowSub = function (id) {
+        hideSubs();
+        var m = byId(id);
+        if (!m) return;
+        m.style.display = 'block';
+        m.classList.add('show');
+        byId('ncSubBackdrop').style.display = 'block';
+    };
+
+    // ✕, Cancel y No a remover: vuelven a NC Data Entry sin enviar (D-35, P-15).
+    window.ncCloseSub = hideSubs;
+
+    window.ncOpenBrowse = function () {
+        var value = (byId(compId).value || '').trim();
+        Array.prototype.forEach.call(rows(), function (tr) {
+            tr.classList.toggle('selected', tr.getAttribute('data-component') === value);
+        });
+        ncShowSub('ncBrowse');
+    };
+
+    window.ncPickRow = function (tr) {
+        Array.prototype.forEach.call(rows(), function (r) { r.classList.toggle('selected', r === tr); });
+    };
+
+    window.ncBrowseOk = function () {
+        var tr = document.querySelector('#ncBrowse .nc-browse-row.selected');
+        if (!tr) return;
+        var input = byId(compId);
+        input.value = tr.getAttribute('data-component');
+        // Elegido en el Browse (la guía de Guided lo espera).
+        input.setAttribute('data-picked', input.value);
+        hideSubs();
+    };
+
+    // Datos del componente elegido: su fila del Browse (o solo el número si se escribió otro).
+    function componentData(value) {
+        var found = null;
+        Array.prototype.forEach.call(rows(), function (tr) {
+            if (tr.getAttribute('data-component') === value) found = tr;
+        });
+        return {
+            component: value,
+            version:   found ? found.getAttribute('data-version') : '',
+            desc:      found ? found.getAttribute('data-desc') : '',
+            qty:       found ? found.getAttribute('data-qty') : '',
+            batch:     found ? found.getAttribute('data-batch') : '',
+            invSfc:    found ? found.getAttribute('data-invsfc') : ''
+        };
+    }
+
+    function fill(c) {
+        var values = {
+            sfc: info.sfc, material: info.material, routing: info.routing, status: info.status,
+            description: info.description, bom: info.bom, operation: info.operation, resource: info.resource,
+            componentVersion: c.component + (c.version ? '/' + c.version : ''), componentDesc: c.desc,
+            qty: c.qty, batch: c.batch, invSfc: c.invSfc
+        };
+        Array.prototype.forEach.call(document.querySelectorAll('.nc-sub [data-f]'), function (el) {
+            el.textContent = values[el.getAttribute('data-f')] || '';
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('.nc-sub [data-fv]'), function (el) {
+            el.value = values[el.getAttribute('data-fv')] || '';
+        });
+        byId('ncQtyRemove').value  = '1';
+        byId('ncAddComp').value    = c.component;
+        byId('ncAddVersion').value = c.version;
+        byId('ncAddQty').value     = c.qty;
+        byId('ncAddBatch').value   = '';
+    }
+
+    // Add-Done: con un código de reparación rápida abre la secuencia en el cliente; si no,
+    // sigue el envío normal (con la validación de ncGroup).
+    window.ncAddDone = function () {
+        var flow = byId(flowId);
+        if (!flow || flow.value !== '1') return true;
+        if (typeof Page_ClientValidate === 'function' && !Page_ClientValidate('ncGroup')) return false;
+        var value = (byId(compId).value || '').trim();
+        if (!value) {
+            warn('Campo requerido', 'Ingrese el componente a reemplazar.');
+            return false;
+        }
+        picked = componentData(value);
+        fill(picked);
+        ncShowSub('ncConfirmRemove');
+        return false;
+    };
+
+    function positiveNumber(v) { return /^\d+(\.\d+)?$/.test(v) && parseFloat(v) > 0; }
+
+    // Remove component: Qty to Remove es formato (sin intento). Scrap sigue a "add?"; Return y
+    // Send to Routing envían la decisión equivocada (D-34, D-35).
+    window.ncRemove = function (action) {
+        if (!positiveNumber((byId('ncQtyRemove').value || '').trim())) {
+            warn('Qty inválida', 'Qty to Remove debe ser un número mayor que 0.');
+            return;
+        }
+        if (action === 'scrap') { ncShowSub('ncConfirmAdd'); return; }
+        ncSubmitRepair(action, false);
+    };
+
+    // Add Component: Component, Version, Qty to Assemble y Batch Number son formato; nada se
+    // califica (enmienda 2026-10-16 de la spec).
+    window.ncAddComponent = function () {
+        var comp = (byId('ncAddComp').value || '').trim();
+        var version = (byId('ncAddVersion').value || '').trim();
+        var batch = (byId('ncAddBatch').value || '').trim();
+        if (!comp || !version || /[<>]/.test(comp + version)) {
+            warn('Campo requerido', 'Component y Version son obligatorios.');
+            return;
+        }
+        if (!positiveNumber((byId('ncAddQty').value || '').trim())) {
+            warn('Qty inválida', 'Qty to Assemble debe ser un número mayor que 0.');
+            return;
+        }
+        if (!/^[A-Za-z0-9]+$/.test(batch)) {
+            warn('Campo requerido', 'Batch Number es obligatorio (letras y números).');
+            return;
+        }
+        ncSubmitRepair('scrap', true);
+    };
+
+    // Único postback del flujo: la decisión viaja en un campo oculto. Se envía sin un clic
+    // sobre el botón oculto: la guía de Guided ya espera el envío del clic en Add y bloquearía
+    // un segundo clic.
+    window.ncSubmitRepair = function (removeAction, addComponent) {
+        byId(decId).value = JSON.stringify({ removeAction: removeAction, addComponent: addComponent });
+        __doPostBack(submitName, '');
+    };
+})();
+
 (function () {
     var PAGE_SIZE = <%= NCPageSize %>;
     var listId    = '<%= PnlNCSelection.ClientID %>';

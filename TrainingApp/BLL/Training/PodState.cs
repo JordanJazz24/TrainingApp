@@ -25,6 +25,10 @@ namespace TrainingApp.BLL.Training
         // Hallazgos de los pasos de Log NC (spec 014): se generan al dar Start, uno por paso,
         // y se descartan con la orden. null antes del Start.
         public List<NcFinding> NcFindings { get; set; }
+
+        // Lo ensamblado en Assembly (spec 014): sobrevive al paso (lo leen el Browse y Remove
+        // component) y se descarta con la orden. null antes del primer componente.
+        public List<AssembledComponent> AssembledComponents { get; set; }
     }
 
     // Dónde guarda la BLL el estado del POD. La BLL no depende de System.Web: la página le

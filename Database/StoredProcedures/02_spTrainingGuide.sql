@@ -141,15 +141,16 @@ END;
 GO
 
 -- spTrainingGuideSync — SOLO para los scripts de guía (05, 07 y los de áreas
--- nuevas); la app no lo llama. Deja la guía (@AreaId, @Title) con los pasos de
--- @Steps, un JSON [{"Order":1,"StepType":0,"Weight":0.20}, …]:
---   · si la guía no existe, la crea publicada con sus pasos;
---   · si existe, actualiza el Weight de cada paso y agrega los que falten.
+-- nuevas); la app no lo llama. Deja la guía publicada (@AreaId, @Title) con los
+-- pasos de @Steps, un JSON [{"Order":1,"StepType":0,"Weight":0.20}, …]:
+--   · si no hay una guía publicada con ese título, la crea publicada con sus pasos;
+--   · si existe con la misma forma, actualiza el Weight de cada paso;
+--   · si cambió de forma (otro número de pasos, o un paso con otro StepType), la
+--     despublica y crea una guía nueva publicada con el mismo título (spec 014,
+--     D-56): las sesiones en curso y el historial siguen con la vieja, porque sus
+--     intentos apuntan a esos pasos.
 -- Aborta sin cambiar nada si los pesos no suman 1.00 (el puntaje no normaliza:
--- CLAUDE.md → "Ponderación de pasos"), si el orden no es 1..N, o si la guía
--- existente tiene un paso que el script ya no trae o con otro StepType: los
--- intentos guardados apuntan a esos pasos, así que cambiar la estructura de una
--- guía en uso se resuelve a mano.
+-- docs/domain.md → "Ponderación de pasos") o si el orden no es 1..N.
 CREATE OR ALTER PROCEDURE dbo.spTrainingGuideSync
     @AreaId INT,
     @Title  NVARCHAR(200),
@@ -171,8 +172,8 @@ BEGIN
         THROW 50010, N'spTrainingGuideSync: el área no existe (¿se corrió su script de catálogo?).', 1;
     IF @Count = 0 OR @Max <> @Count OR EXISTS (SELECT 1 FROM @S WHERE [Order] < 1)
         THROW 50011, N'spTrainingGuideSync: el orden de los pasos tiene que ser 1..N, sin huecos.', 1;
-    IF EXISTS (SELECT 1 FROM @S WHERE StepType > 8 OR Weight < 0 OR Weight > 1)
-        THROW 50012, N'spTrainingGuideSync: StepType fuera de 0-8 o Weight fuera de 0.00-1.00.', 1;
+    IF EXISTS (SELECT 1 FROM @S WHERE StepType > 10 OR Weight < 0 OR Weight > 1)
+        THROW 50012, N'spTrainingGuideSync: StepType fuera de 0-10 o Weight fuera de 0.00-1.00.', 1;
     IF @Sum <> 1.00
     BEGIN
         DECLARE @MsgSum NVARCHAR(200) = CONCAT(N'spTrainingGuideSync: los pesos de "', @Title, N'" suman ', @Sum, N'; tienen que sumar 1.00.');
@@ -181,22 +182,30 @@ BEGIN
 
     BEGIN TRANSACTION;
 
-    DECLARE @GuideId INT = (SELECT Id FROM dbo.TrainingGuides WITH (UPDLOCK, HOLDLOCK)
-                            WHERE AreaId = @AreaId AND Title = @Title);
+    -- La versión vigente: la publicada más nueva con ese título (las anteriores
+    -- quedan despublicadas por D-56).
+    DECLARE @GuideId INT = (SELECT TOP (1) Id FROM dbo.TrainingGuides WITH (UPDLOCK, HOLDLOCK)
+                            WHERE AreaId = @AreaId AND Title = @Title AND IsPublished = 1
+                            ORDER BY Id DESC);
+
+    IF @GuideId IS NOT NULL AND (
+           EXISTS (SELECT 1 FROM dbo.TrainingSteps t
+                   LEFT JOIN @S s ON s.[Order] = t.[Order]
+                   WHERE  t.TrainingGuideId = @GuideId
+                   AND    (s.[Order] IS NULL OR s.StepType <> t.StepType))
+        OR (SELECT COUNT(*) FROM dbo.TrainingSteps WHERE TrainingGuideId = @GuideId) <> @Count)
+    BEGIN
+        -- D-56: cambió la forma. La vieja se despublica y queda para su historial.
+        UPDATE dbo.TrainingGuides SET IsPublished = 0 WHERE Id = @GuideId;
+        PRINT CONCAT(N'Guía "', @Title, N'" (Id ', @GuideId, N'): cambió de forma; se despublica y se crea una versión nueva.');
+        SET @GuideId = NULL;
+    END;
+
     IF @GuideId IS NULL
     BEGIN
         INSERT INTO dbo.TrainingGuides (AreaId, OperationId, Title, IsPublished, CreatedAt)
         VALUES (@AreaId, NULL, @Title, 1, SYSUTCDATETIME());
         SET @GuideId = SCOPE_IDENTITY();
-    END;
-
-    IF EXISTS (SELECT 1 FROM dbo.TrainingSteps t
-               LEFT JOIN @S s ON s.[Order] = t.[Order]
-               WHERE  t.TrainingGuideId = @GuideId
-               AND    (s.[Order] IS NULL OR s.StepType <> t.StepType))
-    BEGIN
-        DECLARE @MsgShape NVARCHAR(300) = CONCAT(N'spTrainingGuideSync: "', @Title, N'" ya tiene pasos que el script no trae o con otro StepType. Cambiar la estructura de una guía existente se hace a mano.');
-        THROW 50014, @MsgShape, 1;
     END;
 
     UPDATE t

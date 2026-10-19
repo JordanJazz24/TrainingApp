@@ -40,6 +40,9 @@ namespace TrainingApp.BLL.Scoring
         //                                     exactamente su pieza (Serialized, D-33) o una fila del split
         //                                     (NonSerialized, P-9). Un botón equivocado
         //                                     (StepAnswers.Invalid) no es JSON: incorrecto (spec 007)
+        //   LogNCFastRepair                 : JSON {"code","component","removeAction","addComponent"}.
+        //                                     Además de pieza y código: el componente del hallazgo,
+        //                                     removeAction "scrap" y addComponent true (D-34, D-35)
         public bool Validate(TrainingStep step, string submittedAnswer)
         {
             switch (step.StepType)
@@ -257,17 +260,33 @@ namespace TrainingApp.BLL.Scoring
         private bool ValidateLogNC(string submittedAnswer)
         {
             var finding = _ctx.NcFinding;
-            var answer  = TryParseObject(submittedAnswer);
+            var answer  = LogNCAnswer.Parse(submittedAnswer);
             if (finding == null || answer == null) return false;
 
             // El código del hallazgo salió del catálogo del área al dar Start.
-            object codeValue;
-            string code = answer.TryGetValue("code", out codeValue) ? codeValue as string : null;
-            bool isFindingCode = !string.IsNullOrWhiteSpace(code)
-                && string.Equals(code.Trim(), finding.Code, StringComparison.OrdinalIgnoreCase);
+            bool isFindingCode = !string.IsNullOrEmpty(answer.Code)
+                && string.Equals(answer.Code, finding.Code, StringComparison.OrdinalIgnoreCase);
 
-            return isFindingCode && IsFindingPiece(finding, _ctx.SelectedRows);
+            if (!isFindingCode || !IsFindingPiece(finding, _ctx.SelectedRows)) return false;
+
+            switch (finding.Method)
+            {
+                case NCMethod.FastScrap:
+                    return true;
+                case NCMethod.FastRepair:
+                    return IsFastRepairDecision(finding, answer);
+                default:
+                    return false;
+            }
         }
+
+        // Reparación rápida (D-34): el componente del hallazgo (elegido en el Browse), Scrap del
+        // componente y Yes a agregar el nuevo. Return, Send to Routing o No son incorrectos.
+        private static bool IsFastRepairDecision(NcFinding finding, LogNCAnswer answer)
+            => !string.IsNullOrEmpty(answer.Component)
+               && string.Equals(answer.Component, finding.ComponentPartNumber, StringComparison.OrdinalIgnoreCase)
+               && answer.RemoveAction == LogNCAnswer.RemoveScrap
+               && answer.AddComponent;
 
         // Exactamente una fila: la pieza del hallazgo (Serialized) o una creada por el split
         // (NonSerialized, P-9). Una pieza de más es incorrecta (D-33).

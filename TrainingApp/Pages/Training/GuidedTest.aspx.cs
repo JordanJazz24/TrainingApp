@@ -240,6 +240,8 @@ namespace TrainingApp.Pages.Training
             {
                 case NCMethod.FastScrap:
                     return finding.RowId != null ? "desechar la pieza (scrap)" : "desechar las unidades (scrap)";
+                case NCMethod.FastRepair:
+                    return "reemplazar el componente " + finding.ComponentPartNumber + " (se desecha)";
                 default:
                     return string.Empty;
             }
@@ -335,6 +337,7 @@ namespace TrainingApp.Pages.Training
 
             StepSubmitResult result;
             IList<SimulatedOrderRow> scrapped = null;
+            NcFinding repaired = null;
             switch (step.StepType)
             {
                 case StepType.ResourceSetup:
@@ -366,6 +369,7 @@ namespace TrainingApp.Pages.Training
                         var logNC = Pod.SubmitLogNC(_ctx, e.Answer, SelectedIds());
                         result   = logNC.Step;
                         scrapped = logNC.Scrapped;
+                        repaired = logNC.Repaired;
                         break;
                     }
                     result = Pod.SubmitStep(_ctx, e.Answer);
@@ -391,16 +395,17 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            ContinueAfterStepResolved(session, guide, area, step, outcome, scrapped);
+            ContinueAfterStepResolved(session, guide, area, step, outcome, scrapped, repaired);
         }
 
         // Paso resuelto (Correct, FailedForced o sesión completada) desde un control: cierra el
         // control, habilita el botón del paso siguiente y aplica lo propio de cada paso. Lo
         // usan el submit de los controles y el ensamble del último componente (spec 008).
-        // scrapped: filas que la BLL sacó de la orden al resolver Log NC.
+        // scrapped: filas que la BLL sacó de la orden al resolver Log NC; repaired: el hallazgo
+        // de una reparación rápida resuelta (la pieza sigue en el POD).
         private void ContinueAfterStepResolved(TrainingSession session, TrainingGuide guide,
             Area area, TrainingStep step, StepSubmitOutcome outcome,
-            IList<SimulatedOrderRow> scrapped = null)
+            IList<SimulatedOrderRow> scrapped = null, NcFinding repaired = null)
         {
             // Sesión completada: ShowCompletionPanel ya cerró todos los controles. La sesión ya
             // refleja el intento registrado (PodService actualiza el contexto).
@@ -454,7 +459,24 @@ namespace TrainingApp.Pages.Training
             else if (step.StepType == StepType.SFC_Split)
                 ShowBanner("SFC Split completed successfully");
             else if (StepTypes.IsLogNC(step.StepType))
-                ShowScrapped(area, session, scrapped);
+            {
+                if (repaired != null)
+                    ShowRepaired(area, session, repaired);
+                else
+                    ShowScrapped(area, session, scrapped);
+            }
+        }
+
+        // Reparación rápida resuelta (spec 014): la pieza sigue en el POD (D-47). Banner
+        // PROVISIONAL hasta conocer el mensaje real (D-55, V-3; general-flow → Paso 8).
+        private void ShowRepaired(Area area, TrainingSession session, NcFinding repaired)
+        {
+            ClearRowSelection();
+            if (area.SerializationType == SerializationType.Serialized)
+                TxtSFC.Text = string.Empty;
+            BindWorkList(area, session);
+            ShowBanner(string.Format("Component {0} replaced on {1}", repaired.ComponentPartNumber, repaired.SFCCode),
+                hideAfterMs: 5000);
         }
 
         // Assembly (spec 008): el operador ensambló un componente del BOM. Mientras falten
@@ -591,7 +613,7 @@ namespace TrainingApp.Pages.Training
                 case StepSubmitOutcome.Incorrect:
                     _guideMoment = GuideMoment.Incorrect(step);
                     ShowSweetAlert("warning", "Incorrect",
-                        BuildIncorrectFeedback(session.Mode, step.StepType, area, result.RemainingScoredAttempts, incorrectFeedback));
+                        BuildIncorrectFeedback(session.Mode, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
@@ -709,7 +731,7 @@ namespace TrainingApp.Pages.Training
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
         // respuesta, solo cuántos intentos con puntaje le quedan antes del avance forzado.
-        private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType, Area area,
+        private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType,
             int remainingScoredAttempts, string incorrectFeedback)
         {
             if (mode == SessionMode.Assessment)
@@ -720,7 +742,7 @@ namespace TrainingApp.Pages.Training
             }
 
             if (!string.IsNullOrEmpty(incorrectFeedback)) return incorrectFeedback;
-            string hint = GetHint(stepType, area);
+            string hint = GetHint(stepType);
             return !string.IsNullOrEmpty(hint) ? hint : "Intente de nuevo.";
         }
 
@@ -1156,7 +1178,6 @@ namespace TrainingApp.Pages.Training
             if (StepTypes.IsLogNC(step.StepType))
             {
                 vm.ExtraData["NCCodes"] = _ctx.NCCodes;
-                vm.ExtraData["RequiresNCComponent"] = area.RequiresNCComponent;
                 // "SFC (1/N)" y "Apply to all SFCs" de NC Data Entry (Fase 6.5, entrega 8).
                 var ncPieces = FindSelectedOrderRows();
                 vm.ExtraData["SelectedPieceCount"] = ncPieces.Count;
@@ -1167,6 +1188,20 @@ namespace TrainingApp.Pages.Training
                 // señala la guía. Assessment no lo recibe.
                 if (session.Mode == SessionMode.Guided)
                     vm.ExtraData["GuideNCCode"] = _ctx.NcFindingFor(step)?.Code;
+                // Browse y reparación rápida (spec 014): lo ensamblado y As-Built Configuration
+                // (P-11: de la orden simulada; Routing, BOM y la operación son simulados).
+                vm.ExtraData["Assembled"] = _ctx.State.AssembledComponents ?? new List<AssembledComponent>();
+                vm.ExtraData["RepairInfo"] = new Dictionary<string, string>
+                {
+                    ["sfc"]         = vm.ExtraData["FirstSelectedSFC"] as string ?? sfcCode,
+                    ["material"]    = PodDefaults.MaterialVersion(Order),
+                    ["description"] = Order?.MaterialDescription ?? string.Empty,
+                    ["routing"]     = PodDefaults.SimRouting(area),
+                    ["bom"]         = PodDefaults.SimBom(Order),
+                    ["status"]      = SimulatedOrderRow.StatusActive,
+                    ["operation"]   = PodDefaults.SimOperation(area),
+                    ["resource"]    = resourceName
+                };
                 return vm;
             }
 
@@ -1546,13 +1581,13 @@ namespace TrainingApp.Pages.Training
             => (score * 100m).ToString("F1") + "%";
 
         // Hint de Guided tras un intento fallido: en español, con los nombres del MES en inglés
-        // (spec 010, R7). Log NC solo nombra el Component si el área lo pide.
-        private static string GetHint(StepType stepType, Area area)
+        // (spec 010, R7). Log NC solo nombra el Component en la reparación rápida.
+        private static string GetHint(StepType stepType)
         {
             // Spec 014: la pieza y el código son los del hallazgo.
             if (StepTypes.IsLogNC(stepType))
-                return area.RequiresNCComponent
-                    ? "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo, ingrese el Component y presione Add-Done."
+                return stepType == StepType.LogNCFastRepair
+                    ? "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo, elija en Component el componente del hallazgo, presione Add-Done y reemplácelo (Yes, Scrap, Yes y Add)."
                     : "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo y presione Add-Done.";
 
             switch (stepType)

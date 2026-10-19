@@ -20,5 +20,9 @@ namespace TrainingApp.UI.Controls.Training
         protected global::System.Web.UI.WebControls.Button BtnAddDone;
         protected global::System.Web.UI.WebControls.Button BtnReturnPOD;
         protected global::System.Web.UI.WebControls.Button BtnDone;
+        protected global::System.Web.UI.WebControls.HiddenField HfRepairFlow;
+        protected global::System.Web.UI.WebControls.HiddenField HfRepairDecision;
+        protected global::System.Web.UI.WebControls.Button BtnRepairSubmit;
+        protected global::System.Web.UI.WebControls.Repeater RptBrowse;
     }
 }

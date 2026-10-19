@@ -95,6 +95,74 @@ namespace TrainingApp.Test
             Assert.That(Validate(LotFinding(), Answer("F_FS_RAYAS"), Row("lot")), Is.False);
         }
 
+        // ── Reparación rápida (AC-13, AC-14, AC-16) ─────────────────────────
+
+        private static readonly TrainingStep RepairStep = new TrainingStep { StepType = StepType.LogNCFastRepair, Order = 9 };
+
+        private static NcFinding RepairFinding()
+            => new NcFinding
+            {
+                StepOrder = 9, RowId = "c", SFCCode = "SFC-c", Code = "F_FR_GENERAL", Method = NCMethod.FastRepair,
+                ComponentId = 7, ComponentPartNumber = "454000132321"
+            };
+
+        private static string Repair(string code, string component, string removeAction, bool add)
+            => "{\"code\":\"" + code + "\",\"component\":\"" + component + "\",\"removeAction\":\"" + removeAction +
+               "\",\"addComponent\":" + (add ? "true" : "false") + "}";
+
+        private static bool ValidateRepair(string answer, params SimulatedOrderRow[] selected)
+            => new StepValidator(new StepValidationContext
+            {
+                ValidNCCodes = Catalog,
+                NcFinding    = RepairFinding(),
+                SelectedRows = selected
+            }).Validate(RepairStep, answer);
+
+        [Test]
+        public void FastRepair_PieceCodeComponentScrapAndYes_IsCorrect()
+        {
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "454000132321", "scrap", true), Row("c")), Is.True);
+        }
+
+        [Test]
+        public void FastRepair_ReturnSendToRoutingOrNoToAdd_IsIncorrect()
+        {
+            // D-34, D-35: Return, Send to Routing y No a agregar son la decisión equivocada.
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "454000132321", "return", true), Row("c")), Is.False);
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "454000132321", "sendToRouting", false), Row("c")), Is.False);
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "454000132321", "scrap", false), Row("c")), Is.False);
+        }
+
+        [Test]
+        public void FastRepair_OtherComponent_IsIncorrect()
+        {
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "454000131551", "scrap", true), Row("c")), Is.False);
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "", "scrap", true), Row("c")), Is.False);
+        }
+
+        [Test]
+        public void FastRepair_OtherPieceOrCode_IsIncorrect()
+        {
+            Assert.That(ValidateRepair(Repair("F_FR_GENERAL", "454000132321", "scrap", true), Row("b")), Is.False);
+            // Un código de desecho en el paso de reparación (aunque Add-Done llegue sin decisiones).
+            Assert.That(ValidateRepair(Answer("F_FS_MANCHAS"), Row("c")), Is.False);
+        }
+
+        [Test]
+        public void FastRepair_ActionsForTheActivityLog()
+        {
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNCFastRepair, Repair("F_FR_GENERAL", "x", "scrap", true)),
+                Is.EqualTo(AttemptActions.LogNCRepairScrap));
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNCFastRepair, Repair("F_FR_GENERAL", "x", "scrap", false)),
+                Is.EqualTo(AttemptActions.LogNCRepairNoAdd));
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNCFastRepair, Repair("F_FR_GENERAL", "x", "return", false)),
+                Is.EqualTo(AttemptActions.LogNCRepairReturn));
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNCFastRepair, Repair("F_FR_GENERAL", "x", "sendToRouting", false)),
+                Is.EqualTo(AttemptActions.LogNCRepairSendToRouting));
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNC, Answer("F_FS_MANCHAS")), Is.EqualTo(AttemptActions.LogNCAddDone));
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNC, StepAnswers.Invalid), Is.EqualTo(AttemptActions.LogNCWrongButton));
+        }
+
         [Test]
         public void WrongButtonOrNoFinding_IsIncorrect()
         {
@@ -134,7 +202,7 @@ namespace TrainingApp.Test
             for (int seed = 0; seed < 200; seed++)
             {
                 var findings = NcFindingGenerator.Generate(guide, Pieces(4), SerializationType.Serialized,
-                    Catalog, 250, new Random(seed));
+                    Catalog, null, 250, new Random(seed));
 
                 Assert.That(findings.Select(f => f.StepOrder), Is.EqualTo(new[] { 2, 3, 4 }));
                 Assert.That(findings.Select(f => f.RowId), Is.Unique);
@@ -151,7 +219,7 @@ namespace TrainingApp.Test
             for (int seed = 0; seed < 200; seed++)
             {
                 var finding = NcFindingGenerator.Generate(guide, Pieces(4), SerializationType.Serialized,
-                    Catalog, 250, new Random(seed)).Single();
+                    Catalog, null, 250, new Random(seed)).Single();
 
                 Assert.That(finding.Method, Is.EqualTo(NCMethod.FastScrap));
                 Assert.That(finding.Code, Is.AnyOf("F_FS_A", "F_FS_B"));
@@ -166,7 +234,7 @@ namespace TrainingApp.Test
             for (int seed = 0; seed < 200; seed++)
             {
                 var finding = NcFindingGenerator.Generate(guide, null, SerializationType.NonSerialized,
-                    Catalog, 250, new Random(seed)).Single();
+                    Catalog, null, 250, new Random(seed)).Single();
 
                 Assert.That(finding.RowId, Is.Null);
                 Assert.That(finding.UnitCount, Is.InRange(1, 249));
@@ -182,19 +250,44 @@ namespace TrainingApp.Test
                 for (int seed = 0; seed < 200; seed++)
                 {
                     var finding = NcFindingGenerator.Generate(guide, null, SerializationType.NonSerialized,
-                        Catalog, lot, new Random(seed)).Single();
+                        Catalog, null, lot, new Random(seed)).Single();
                     Assert.That(finding.UnitCount, Is.InRange(1, lot - 1));
                 }
 
             Assert.Throws<ArgumentOutOfRangeException>(new Action(() => NcFindingGenerator.Generate(guide, null,
-                SerializationType.NonSerialized, Catalog, 1, new Random(1))));
+                SerializationType.NonSerialized, Catalog, null, 1, new Random(1))));
+        }
+
+        [Test]
+        public void FastRepair_PicksAnAssembledComponent()
+        {
+            var bom = new List<AssemblyComponent>
+            {
+                new AssemblyComponent { Id = 1, PartNumber = "P1", Description = "Uno" },
+                new AssemblyComponent { Id = 2, PartNumber = "P2", Description = "Dos" }
+            };
+            var guide = Guide(StepType.LogNC, StepType.LogNCFastRepair);
+            for (int seed = 0; seed < 100; seed++)
+            {
+                var findings = NcFindingGenerator.Generate(guide, Pieces(4), SerializationType.Serialized,
+                    Catalog, bom, 250, new Random(seed));
+
+                var repair = findings[1];
+                Assert.That(repair.Method, Is.EqualTo(NCMethod.FastRepair));
+                Assert.That(repair.Code, Is.EqualTo("F_FR_A"));
+                Assert.That(bom.Any(c => c.Id == repair.ComponentId && c.PartNumber == repair.ComponentPartNumber), Is.True);
+                Assert.That(findings[0].RowId, Is.Not.EqualTo(repair.RowId));
+            }
+
+            Assert.Throws<InvalidOperationException>(new Action(() => NcFindingGenerator.Generate(guide, Pieces(4),
+                SerializationType.Serialized, Catalog, null, 250, new Random(1))));
         }
 
         [Test]
         public void GuideWithoutLogNC_HasNoFindings()
         {
             var findings = NcFindingGenerator.Generate(Guide(StepType.Search, StepType.Complete), Pieces(4),
-                SerializationType.Serialized, Catalog, 250, new Random(1));
+                SerializationType.Serialized, Catalog, null, 250, new Random(1));
             Assert.That(findings, Is.Empty);
         }
 
@@ -203,7 +296,7 @@ namespace TrainingApp.Test
         {
             var onlyRepair = Catalog.Where(c => c.Method != NCMethod.FastScrap).ToList();
             Assert.Throws<InvalidOperationException>(new Action(() => NcFindingGenerator.Generate(Guide(StepType.LogNC),
-                Pieces(4), SerializationType.Serialized, onlyRepair, 250, new Random(1))));
+                Pieces(4), SerializationType.Serialized, onlyRepair, null, 250, new Random(1))));
         }
     }
 }

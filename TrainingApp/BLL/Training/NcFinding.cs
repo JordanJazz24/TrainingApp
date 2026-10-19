@@ -25,12 +25,18 @@ namespace TrainingApp.BLL.Training
         public string RowId   { get; set; }
         public string SFCCode { get; set; }
 
-        // NonSerialized: "N unidades" del lote, informativo (D-32). 0 en Serialized.
+        // NonSerialized: "N unidades" del lote, la cantidad del split (enmiendas 2 y 3).
+        // 0 en Serialized.
         public int UnitCount { get; set; }
 
         // El código exacto del hallazgo y su descripción (el defecto que muestra la nota).
         public string Code        { get; set; }
         public string Description { get; set; }
+
+        // Reparación rápida: el componente ensamblado que se reemplaza (D-39, AC-16).
+        public int    ComponentId          { get; set; }
+        public string ComponentPartNumber  { get; set; }
+        public string ComponentDescription { get; set; }
     }
 
     // Genera un hallazgo por cada paso de Log NC de la guía (spec 014, Scope punto 3).
@@ -38,8 +44,10 @@ namespace TrainingApp.BLL.Training
     {
         // steps: los pasos de Log NC de la guía, en orden. pieces: en Serialized, las piezas de
         // la orden (cada hallazgo, una distinta al azar); en NonSerialized se ignora.
+        // components: el BOM ensamblado; la reparación rápida reemplaza uno al azar.
         public static List<NcFinding> Generate(IList<TrainingStep> steps, IList<SimulatedOrderRow> pieces,
-            SerializationType serializationType, IList<NCCode> codes, int lotQty, Random random)
+            SerializationType serializationType, IList<NCCode> codes, IList<AssemblyComponent> components,
+            int lotQty, Random random)
         {
             if (steps == null) throw new ArgumentNullException(nameof(steps));
             if (random == null) throw new ArgumentNullException(nameof(random));
@@ -73,6 +81,16 @@ namespace TrainingApp.BLL.Training
                     Code        = code.Code,
                     Description = code.Description
                 };
+
+                if (method == NCMethod.FastRepair)
+                {
+                    if (components == null || components.Count == 0)
+                        throw new InvalidOperationException("La reparación rápida necesita componentes ensamblados (BOM del área).");
+                    var component = components[random.Next(components.Count)];
+                    finding.ComponentId          = component.Id;
+                    finding.ComponentPartNumber  = component.PartNumber;
+                    finding.ComponentDescription = component.Description;
+                }
 
                 if (serialized)
                 {

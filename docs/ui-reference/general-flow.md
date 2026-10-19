@@ -865,14 +865,14 @@ Mismo patrón que Data Collection Entry (Fase 6.5, entrega 8; captura `MODAL NC 
   SFC: {sfcCode}                                           ← fila gris
 ────────────────────────────────────────────────────────────────────────────
                     * NC Code: [{codePreFilled}          ]   (solo lectura)
-                    Component: [                       ⧉]   ← requerido si RequiresNCComponent
+                    Component: [                       ⧉]   ← solo con código de reparación
                      Comments: [                         ]   ← área de texto, opcional
 ────────────────────────────────────────────────────────────────────────────
         [✓ Add]  [✓ Add-Done]  [✖ Return to POD]  [✓ Done]   ← grises con ícono
 ```
 
 - Etiquetas a la derecha y campos a la izquierda, centrados. **Component sin asterisco**,
-  como el real; sigue siendo obligatorio en áreas con `RequiresNCComponent = 1`.
+  como el real. Solo aparece con un código de reparación: obligatorio en la rápida, opcional en la extendida; el desecho no lo muestra en ningún área (enmienda 4 de la spec 014).
 - **Indicador del SFC** (corrección del usuario, igual que Assemble Components):
   `{primer SFC seleccionado} (1/N)`, con N = piezas seleccionadas — ej. `1234-002 (1/1)`,
   `1234-002 (1/3)`. Con N > 1, **"Apply to all SFCs"** marcado y fijo a la izquierda de
@@ -897,7 +897,7 @@ El campo SFC en la search bar queda vacío tras el scrap.
 
 ### Reglas de negocio
 - SFC Split solo para NonSerialized — Serialized selecciona directamente del POD
-- NC Code y Component requeridos (Component solo si `RequiresNCComponent`); Comments opcional
+- NC Code requerido; Component solo con código de reparación (requerido en la rápida); Comments opcional
 - NC Codes desde catálogo BD por área — no hardcodeados
 - [Add-Done] = flujo normal del paso; [Add] y [Done] son botones equivocados (intento fallido, spec 007)
 - **NonSerialized:** una fila, creada por el SFC Split. **Serialized (spec 008):** ≥1 fila;
@@ -979,8 +979,9 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    compoenente .png`) muestra un componente por inventario: ★ Inventory SFC
    (`CR9AP1700000801`, con ⧉) y ★ Batch Number en gris (`0301366528`). No hay campo
    Barcode.
-5. **Sin captura:** el mensaje con que termina. El simulador usa un banner provisional
-   (spec 014, D-55).
+5. **Sin captura:** el mensaje con que termina. El simulador usa un banner verde
+   **PROVISIONAL** "Component {componente} replaced on {SFC}" (spec 014, D-55; marcado así
+   en `GuidedTest.ShowRepaired`) y la pieza sigue en el POD. Se cambia al conocer el real (V-3).
 
 **Reparación extendida (`F_FX…`).**
 1. NC Data Entry (`modal nc entry extended.png`): ★ NC Code, Component (opcional) y

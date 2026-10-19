@@ -30,7 +30,7 @@ CREATE TABLE dbo.Products (
 -- -------------------------------------------------------
 -- Areas
 -- SerializationType: 0=Serialized, 1=NonSerialized
--- RequiresNCComponent: NC Data Entry pide el campo Component
+-- RequiresNCComponent: sin uso desde la enmienda 4 de la spec 014 (Component lo decide el método del código NC)
 --   (la norma es pedirlo; Moldeo es la excepción).
 -- RequiresStartChecklist: Start abre la secuencia de 4 modales
 --   (ID de molde, LC, MSS, verificación); 0 = Start directo (spec 008).
@@ -95,7 +95,7 @@ CREATE TABLE dbo.TrainingGuides (
 -- TrainingSteps
 -- StepType: 0=ResourceSetup, 1=LineClearance, 2=Search,
 --           3=Assembly, 4=DataCollection, 5=SFC_Split, 6=LogNC, 7=Complete,
---           8=Logout (spec 015)
+--           8=Logout (spec 015), 9=LogNCFastRepair (spec 014)
 -- Weight: peso porcentual del paso (0.00-1.00), ej. 0.20
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSteps', 'U') IS NULL

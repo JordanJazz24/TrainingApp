@@ -23,7 +23,7 @@ BEGIN TRANSACTION;
 --   SerializationType      0 = Serialized (varios SFC por orden)
 --   RequiresAssembly       1
 --   RequiresDataCollection 1
---   RequiresNCComponent    1 — NC Data Entry pide Component
+--   RequiresNCComponent    1 — sin uso desde la enmienda 4 de la spec 014
 --   RequiresStartChecklist 0 — Start directo
 -- ------------------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = N'Sensores')

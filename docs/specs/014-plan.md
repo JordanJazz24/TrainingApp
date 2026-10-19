@@ -128,33 +128,46 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 
 ## Entrega 2 — Reparación rápida (AC-5, AC-13 a AC-17)
 
-- [ ] **`StepType.LogNCFastRepair = 9`**; `02`: `StepType` de 0 a 10. **D-56** en
+- [x] **`StepType.LogNCFastRepair = 9`**; `02`: `StepType` de 0 a 10. **D-56** en
       `spTrainingGuideSync` (despublicar + guía nueva con el mismo título si cambia la forma).
-- [ ] **Guías `05` y `09`** con el paso nuevo después del desecho y los **pesos de transición
+- [x] **Guías `05` y `09`** con el paso nuevo después del desecho y los **pesos de transición
       de D-57**. `07` sin cambios.
-- [ ] **Registro de lo ensamblado:** `PodState` guarda por componente su Assembly Data (hoy:
+- [x] **Registro de lo ensamblado:** `PodState` guarda por componente su Assembly Data (hoy:
       Batch = Process Lot) al ensamblarlo y lo conserva después del paso. La reconstrucción
       lo llena con valores por defecto.
-- [ ] **Browse de componentes (D-39):** el ⧉ de Component abre el Browse (Component |
+- [x] **Browse de componentes (D-39):** el ⧉ de Component abre el Browse (Component |
       Description, OK / Cancel) con lo ensamblado, en **todos** los códigos. En el desecho
       sigue obligatorio si `RequiresNCComponent` y no se califica.
       *Enmienda 4 de la spec (2026-10-19): solo en los códigos de reparación; el desecho no
       muestra Component en ningún área.*
-- [ ] **Flujo en el cliente (spec, punto 10):** Add-Done → Confirm remover → Remove component
+- [x] **Flujo en el cliente (spec, punto 10):** Add-Done → Confirm remover → Remove component
       (datos de P-11) → Confirm agregar → **Add Component** (modal propio, enmienda
       2026-10-16 de la spec; captura `modal add componenet .png`; sin E4, Add Assembly
       Details con ★ Batch Number vacío) → Add. Un solo postback (punto 12). Cancel y ✕ de Add
       Component tampoco envían. No a remover, Cancel y
       ✕ vuelven a NC Data Entry sin enviar; Return, No a agregar y Send to Routing envían la
       decisión equivocada.
-- [ ] **Calificación (D-34, D-35, D-48):** pieza, código, componente, `Scrap` y `Yes`.
+- [x] **Calificación (D-34, D-35, D-48):** pieza, código, componente, `Scrap` y `Yes`.
       Formato sin intento: Qty to Remove y Qty to Assemble (numéricos, obligatorios),
       Component y Version vacíos y los datos de Add Assembly Details. La pieza sigue activa (D-47). Banner provisional "Component {componente}
       replaced on {SFC}" (D-55), anotado en `general-flow.md`.
-- [ ] **`AttemptActions`** para Scrap, Return, Send to Routing y "No" a agregar (registro de
+- [x] **`AttemptActions`** para Scrap, Return, Send to Routing y "No" a agregar (registro de
       actividad, spec 013).
-- [ ] **Guía:** textos de abajo, notas D-44, anclas `data-guide` de cada modal nuevo.
-- [ ] **Tests:** casos de la reparación rápida en `StepValidatorLogNCTests`.
+- [x] **Guía:** textos de abajo, notas D-44, anclas `data-guide` de cada modal nuevo.
+- [x] **Tests:** casos de la reparación rápida en `StepValidatorLogNCTests`.
+
+> **Decisiones de implementación de E2** (desarrollo, 2026-10-19; no cambian la spec ni el
+> plan):
+>
+> - Lo ensamblado se registra una sola vez, al resolver Assembly, en el orden del BOM.
+> - D-56 también cuenta como cambio de forma agregar pasos.
+> - "Debe quedar una pieza para Complete" vale solo para el desecho.
+> - La respuesta JSON de Log NC se lee en un solo lugar (`LogNCAnswer`).
+> - Moldeo (sin BOM): un código de reparación rápida sigue el Add-Done normal (AC-23).
+> - Guía: el subpaso del Browse resalta las filas y, con la fila del hallazgo seleccionada,
+>   OK (texto de la enmienda 4). Add Component envía la página con `__doPostBack`: un
+>   segundo clic sobre un botón oculto lo bloqueaba la guía.
+> - `RequiresNCComponent` queda sin uso (deuda de la enmienda 4, anotada en este plan).
 
 ## Entrega 3 — Reparación extendida (AC-18 a AC-22)
 

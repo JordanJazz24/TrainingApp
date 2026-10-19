@@ -46,12 +46,18 @@ namespace TrainingApp.BLL.Training
         public const string LogNCAddDone         = "LogNC.AddDone";
         public const string LogNCWrongButton     = "LogNC.WrongButton";
 
+        // Reparación rápida (spec 014): el botón con que terminó el flujo de Remove component.
+        public const string LogNCRepairScrap         = "LogNC.Repair.Scrap";
+        public const string LogNCRepairReturn        = "LogNC.Repair.Return";
+        public const string LogNCRepairSendToRouting = "LogNC.Repair.SendToRouting";
+        public const string LogNCRepairNoAdd         = "LogNC.Repair.NoAdd";
+
         // Acción de un envío por respuesta (StepValidator), según el paso y lo enviado.
         public static string ForSubmit(StepType stepType, string answer)
         {
             // Los tres pasos de Log NC envían desde NC Data Entry (spec 014).
             if (StepTypes.IsLogNC(stepType))
-                return answer == StepAnswers.Invalid ? LogNCWrongButton : LogNCAddDone;
+                return ForLogNC(answer);
 
             switch (stepType)
             {
@@ -63,6 +69,21 @@ namespace TrainingApp.BLL.Training
                 case StepType.Logout:        return Logout;
                 // Assembly y DC no se califican por respuesta (SubmitStep los rechaza).
                 default: throw new InvalidOperationException("El paso no tiene acción de envío.");
+            }
+        }
+
+        // Log NC: Add-Done o, con el flujo de la reparación rápida, el botón con que terminó.
+        private static string ForLogNC(string answer)
+        {
+            if (answer == StepAnswers.Invalid) return LogNCWrongButton;
+
+            var parsed = LogNCAnswer.Parse(answer);
+            switch (parsed?.RemoveAction)
+            {
+                case LogNCAnswer.RemoveReturn:        return LogNCRepairReturn;
+                case LogNCAnswer.RemoveSendToRouting: return LogNCRepairSendToRouting;
+                case LogNCAnswer.RemoveScrap:         return parsed.AddComponent ? LogNCRepairScrap : LogNCRepairNoAdd;
+                default:                              return LogNCAddDone;
             }
         }
     }

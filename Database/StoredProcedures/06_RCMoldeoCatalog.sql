@@ -20,7 +20,7 @@ BEGIN TRANSACTION;
 --   SerializationType      1 = NonSerialized (lote)
 --   RequiresAssembly       0 — el ID del molde es un parámetro de DC
 --   RequiresDataCollection 1
---   RequiresNCComponent    0 — NC Data Entry no pide Component
+--   RequiresNCComponent    0 — sin uso desde la enmienda 4 de la spec 014
 --   RequiresStartChecklist 1 — Start abre la secuencia de 4 modales
 -- ------------------------------------------------------------
 -- El producto se llamaba 'R&C' hasta el 2026-10-14 (T7: su nombre es S&RC, confirmado

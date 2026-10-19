@@ -414,19 +414,20 @@ namespace TrainingApp.Pages.Training.Guide
             "corregirlo requiere al supervisor y a Calidad, y puede llevar a una acción disciplinaria.");
 
         // Log NC (spec 014): la pieza del hallazgo (NonSerialized: la fila del split), el código
-        // del hallazgo en NC Selection, Component si el área lo pide y Add-Done. La guía señala
-        // la pieza y el código, así que no deja enviar otros (como D-25). El POD ya llega sin
-        // selección (GuidedTest la limpia tras Start, Assembly y DC).
+        // del hallazgo en NC Selection, el componente en la reparación rápida y Add-Done. El
+        // desecho no pide Component en ningún área (corrección del usuario, 2026-10-19). La guía
+        // señala la pieza y el código, así que no deja enviar otros (como D-25). El POD ya llega
+        // sin selección (GuidedTest la limpia tras Start, Assembly y DC).
         private static StepScript LogNC(PodContext ctx, TrainingStep step)
         {
-            bool needsComponent = ctx.Area.RequiresNCComponent;
-            var s = new StepScript(step, "Log NC")
+            bool repair = step.StepType == StepType.LogNCFastRepair;
+            var s = new StepScript(step, repair ? "Log NC · reparación rápida" : "Log NC")
             {
                 OpenedName    = "list",
-                IncorrectName = needsComponent ? "component" : "addDone",
+                IncorrectName = repair ? "component" : "addDone",
                 TailName      = "banner"
             };
-            s.OpenedByDetail["entry"] = needsComponent ? "component" : "addDone";
+            s.OpenedByDetail["entry"] = repair ? "component" : "addDone";
 
             var order = ctx.State.Order;
             var finding = ctx.NcFindingFor(step);
@@ -454,11 +455,48 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("list", GuideMode.Click,
                 finding == null ? Anchor("nc-list") : Anchor("nc-code") + Attr("data-nc-code", finding.Code),
                 postback: true,
-                html: H("Presione ", B("Log NC"), " en el código del defecto del hallazgo: ",
+                html: H("Presione ", B("Log NC"),
+                    repair ? " en el código de reparación rápida del hallazgo: " : " en el código del defecto del hallazgo: ",
                     B(finding?.Description ?? string.Empty), "."));
-            if (needsComponent)
-                s.Add("component", GuideMode.Capture, Anchor("nc-component"), format: GuideFormat.Required,
-                    html: H("Ingrese el componente, por ejemplo ", B(ExampleBarcode), "."));
+
+            if (repair)
+            {
+                // Spec 014 (punto 10): Browse con el componente del hallazgo y la secuencia de
+                // Remove component y Add Component, que se envía con Add (un solo postback).
+                string component = finding?.ComponentPartNumber ?? string.Empty;
+                string picked = Anchor("nc-component") + Attr("data-picked", component);
+                s.Add("component", GuideMode.Click, Anchor("nc-component-browse"),
+                    html: H("Presione ", B("⧉"), " en Component para buscar el componente a reemplazar."));
+                // Un subpaso con el resaltado en dos tiempos: las filas hasta que la del hallazgo
+                // queda seleccionada, después OK (el motor vuelve a ubicar el ancla en cada tick).
+                string rowPicked = ":has(" + Anchor("nc-browse-row") + ".selected" + Attr("data-component", component) + ")";
+                string browse = Anchor("nc-browse");
+                s.Add("browse", GuideMode.Click,
+                    browse + ":not(" + rowPicked + ") " + Anchor("nc-browse-list") + ", " +
+                    browse + rowPicked + " " + Anchor("nc-browse-ok"),
+                    done: new[] { picked },
+                    html: H("Seleccione el componente a reemplazar y dele ", B("OK"), "."));
+                s.Add("addDone", GuideMode.Click, Anchor("nc-add-done"),
+                    html: H("Presione ", B("Add-Done"), " para registrar el NC."));
+                s.Add("removeYes", GuideMode.Click, Anchor("nc-remove-yes"),
+                    html: H("Presione ", B("Yes"), " para quitar el componente de la pieza."));
+                s.Add("removeScrap", GuideMode.Click, Anchor("nc-remove-scrap"),
+                    html: H("Presione ", B("Scrap"), ": el componente dañado se desecha."),
+                    note: H("Return aplica solo a ciertos componentes y según la operación (lo indica el MPI); ",
+                        "no es común. En la mayoría de los casos se usa Scrap."));
+                s.Add("addYes", GuideMode.Click, Anchor("nc-add-yes"),
+                    html: H("Presione ", B("Yes"), " para agregar el componente nuevo."),
+                    note: H("Yes: agrega ahora el componente nuevo. No: la pieza queda sin el componente y hay ",
+                        "que volver a ensamblarlo; lo mismo pasa con Return."));
+                s.Add("addComponent", GuideMode.Click, Anchor("nc-addcomp-add"), postback: true,
+                    free: new[] { Anchor("nc-addcomp-batch") }, retry: "addComponent",
+                    html: H("Complete el ", B("Batch Number"), " del componente nuevo (o los datos que pida su material) y presione ",
+                        B("Add"), "."));
+                s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                    html: H("Verifique el mensaje: el componente se reemplazó y la pieza sigue en el POD."));
+                return s;
+            }
+
             s.Add("addDone", GuideMode.Click, Anchor("nc-add-done"), postback: true,
                 html: H("Presione ", B("Add-Done"), " para registrar el NC."));
             s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,

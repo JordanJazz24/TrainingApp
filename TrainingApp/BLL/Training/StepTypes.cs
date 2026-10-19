@@ -13,8 +13,9 @@ namespace TrainingApp.BLL.Training
         {
             switch (stepType)
             {
-                case StepType.LogNC: return NCMethod.FastScrap;
-                default:             return null;
+                case StepType.LogNC:           return NCMethod.FastScrap;
+                case StepType.LogNCFastRepair: return NCMethod.FastRepair;
+                default:                       return null;
             }
         }
     }

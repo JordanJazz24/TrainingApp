@@ -87,6 +87,11 @@ namespace TrainingApp.BLL.Training
                 {
                     ApplyDefaultSplit(ctx);
                 }
+                else if (step.StepType == StepType.Assembly)
+                {
+                    // Spec 014: lo ensamblado, con la Assembly Data por defecto.
+                    CompleteAssembled(ctx);
+                }
                 else if (StepTypes.IsLogNC(step.StepType))
                 {
                     // Spec 014: los hallazgos se regeneraron con las piezas nuevas en el Start; se
@@ -199,6 +204,7 @@ namespace TrainingApp.BLL.Training
             ctx.State.Assembly       = null;
             ctx.State.DataCollection = null;
             ctx.State.NcFindings     = null;
+            ctx.State.AssembledComponents = null;
             SaveState(ctx);
         }
 
@@ -288,7 +294,9 @@ namespace TrainingApp.BLL.Training
             if (logNC)
             {
                 ctx.State.NcFindings = NcFindingGenerator.Generate(ctx.Guide.Steps, order.ActiveRows(),
-                    ctx.Area.SerializationType, ctx.NCCodes, PodDefaults.NonSerializedLotQty, new Random());
+                    ctx.Area.SerializationType, ctx.NCCodes,
+                    ctx.Guide.Steps.Any(s => s.StepType == StepType.LogNCFastRepair) ? ctx.AssemblyComponents : null,
+                    PodDefaults.NonSerializedLotQty, new Random());
                 if (!serialized)
                     foreach (var finding in ctx.State.NcFindings)
                         finding.SFCCode = order.SFCCode;
@@ -516,7 +524,7 @@ namespace TrainingApp.BLL.Training
             if (sequence != null) return sequence;
 
             var finding = EnsureFinding(ctx);
-            var scrappable = ScrappableRows(ctx, selectedRowIds, out bool noPieceLeft);
+            var scrappable = ScrappableRows(ctx, selectedRowIds, finding.Method, out bool noPieceLeft);
             if (noPieceLeft)
                 return PodCommandResult.WithNotice(PodNotice.NoPieceLeft);
             if (scrappable.Count == 0)
@@ -546,6 +554,9 @@ namespace TrainingApp.BLL.Training
             if (result.Step.Outcome == StepSubmitOutcome.Incorrect) return result;
 
             result.Scrapped = ApplyFindingDisposition(ctx, finding, selected);
+            // Reparación rápida (D-47): la pieza sigue en el POD; la página muestra el banner.
+            if (finding.Method == NCMethod.FastRepair)
+                result.Repaired = finding;
             return result;
         }
 
@@ -562,7 +573,8 @@ namespace TrainingApp.BLL.Training
             return finding;
         }
 
-        // Disposición del hallazgo (spec 014, P-4): el desecho rápido saca su pieza de la orden.
+        // Disposición del hallazgo (spec 014, P-4): el desecho rápido saca su pieza de la orden;
+        // la reparación rápida la deja en el POD (D-47), así que no saca nada.
         // La pieza es la enviada si es la del hallazgo (StepValidator.IsFindingPiece); si no
         // (avance forzado y reconstrucción), la del hallazgo o, en NonSerialized, la primera fila
         // del split. Devuelve las filas que salieron.
@@ -587,14 +599,18 @@ namespace TrainingApp.BLL.Training
         // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
         // lote no se scrapea (spec 007). Serialized: las filas seleccionadas, siempre que quede
         // al menos una pieza para Complete (spec 008); noPieceLeft avisa que no quedaría ninguna.
+        // Spec 014: la regla de dejar una pieza para Complete es del desecho; la reparación deja
+        // la pieza en el POD, así que basta con una fila seleccionada.
         private static IList<SimulatedOrderRow> ScrappableRows(PodContext ctx,
-            ICollection<string> selectedRowIds, out bool noPieceLeft)
+            ICollection<string> selectedRowIds, NCMethod method, out bool noPieceLeft)
         {
             var selected = SelectedRows(ctx, selectedRowIds);
             noPieceLeft  = false;
 
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
+                if (method != NCMethod.FastScrap)
+                    return selected;
                 var selection = PieceSelectionRule.Evaluate(StepType.LogNC, selected.Count, ActiveCount(ctx));
                 noPieceLeft = selection == PieceSelectionResult.NoPieceLeft;
                 return selection == PieceSelectionResult.Valid ? selected : new List<SimulatedOrderRow>();
@@ -832,12 +848,24 @@ namespace TrainingApp.BLL.Training
             _store.Save(ctx.Session.Id, ctx.State);
         }
 
+        // Assembly resuelto (el último Add, forzado o reconstruido): todo el BOM queda
+        // registrado, en su orden, con la Assembly Data de hoy (Batch Number = Process Lot de la
+        // orden; la de cada material llega con W13, E4).
+        private static void CompleteAssembled(PodContext ctx)
+        {
+            ctx.State.AssembledComponents = AssembledComponent.Complete(ctx.State.AssembledComponents,
+                ctx.AssemblyComponents, ctx.State.Order?.ProcessLot);
+        }
+
         private void DiscardProgress(PodContext ctx, StepType resolvedStep)
         {
             if (resolvedStep == StepType.ResourceSetup)
                 ctx.State.PreloadedEquipment = null;
             else if (resolvedStep == StepType.Assembly)
+            {
                 ctx.State.Assembly = null;
+                CompleteAssembled(ctx);
+            }
             else if (resolvedStep == StepType.DataCollection)
                 ctx.State.DataCollection = null;
             else

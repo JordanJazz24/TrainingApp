@@ -14,8 +14,8 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-16 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 014, entrega 1 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-19 · **Branch:** `TrainingApp` · **Último commit de
+código:** spec 014, entrega 2 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -33,7 +33,10 @@ código:** spec 014, entrega 1 (`git log --oneline -10` para ver el estado real)
   4-5 piezas, `NCCodes.Method`/`RequiresComments`, y las enmiendas 2 y 3 (en Moldeo el
   hallazgo dicta la cantidad del split y se califica; subpaso Info de la nota en Guided).
   Ajuste de UX probado: en Guided la nota aparece al llegar la guía al paso y queda
-  resaltada mientras dura. **Siguiente:** E2 (reparación rápida). Orden vigente: 014 → 016 → 012.
+  resaltada mientras dura. **E2 ✅** (2026-10-19, probada por el usuario): reparación rápida
+  en LoFlo y Redefinity (Browse, Remove component y Add Component con un postback, pesos de
+  transición D-57: no subir a `main` hasta la E3) y la enmienda 4 (el desecho no lleva
+  Component). **Siguiente:** E3 (reparación extendida). Orden vigente: 014 → 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
@@ -122,6 +125,7 @@ corrió el usuario:
 | 2026-10-14 | `05`, `06`, `08` | Spec 015 E2: grupo `DCGTM_TRAINEE/A` (renombra en sitio el tercer grupo opcional de Redefinity y LoFlo; en Moldeo se agrega) |
 | 2026-10-14 | `02`, `05`, `07`, `09` | Spec 015 E3: paso Logout (`StepType` 8) al final de las 3 guías, Complete 0.05 y Logout 0.05 |
 | 2026-10-16 | ALTER de la spec 014 E1 + `02`, `05`, `06`, `08` | Spec 014 E1: `NCCodes.Method` y `RequiresComments`; códigos `SIM_FR`/`SIM_FX` en LoFlo y Redefinity |
+| 2026-10-19 | `02`, `05`, `09` | Spec 014 E2: `StepType` 9 (reparación rápida) y D-56; guías de LoFlo y Redefinity en versión nueva con el paso y los pesos de D-57 |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.

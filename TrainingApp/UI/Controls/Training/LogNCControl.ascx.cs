@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Globalization;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Web.Script.Serialization;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
@@ -34,6 +35,8 @@ namespace TrainingApp.UI.Controls.Training
             TxtNCCode.Text         = string.Empty;
             TxtComponent.Text      = string.Empty;
             TxtComments.Text       = string.Empty;
+            HfRepairFlow.Value     = "0";
+            HfRepairDecision.Value = string.Empty;
 
             if (ViewModel == null) return;
 
@@ -50,16 +53,37 @@ namespace TrainingApp.UI.Controls.Training
             LitNCEntrySFC.Text   = Page.Server.HtmlEncode(string.Format("{0} (1/{1})", firstSfc, pieces));
             PnlNCApplyAll.Visible = pieces > 1;
 
-            // Spec 007: Component solo en áreas que lo usan (Area.RequiresNCComponent).
-            // Invisible + deshabilitado: el validador no se evalúa en Add-Done.
-            bool requiresComponent = !ViewModel.ExtraData.ContainsKey("RequiresNCComponent")
-                || Convert.ToBoolean(ViewModel.ExtraData["RequiresNCComponent"]);
-            PnlComponent.Visible = requiresComponent;
-            RfvComponent.Enabled = requiresComponent;
+            // Enmienda 4 de la spec 014: Component solo con un código de reparación (al elegirlo).
+            ShowComponent(false);
 
             PnlNCSelection.Visible = true;
             BindNCCodes();
+            // Browse (D-39): lo ensamblado en Assembly, para cualquier código.
+            RptBrowse.DataSource = Assembled;
+            RptBrowse.DataBind();
         }
+
+        private IList<AssembledComponent> Assembled
+            => (ViewModel != null && ViewModel.ExtraData.ContainsKey("Assembled")
+                ? ViewModel.ExtraData["Assembled"] as IList<AssembledComponent> : null)
+               ?? new List<AssembledComponent>();
+
+        // Invisible + deshabilitado: el validador no se evalúa en Add-Done.
+        private void ShowComponent(bool visible)
+        {
+            PnlComponent.Visible = visible;
+            RfvComponent.Enabled = visible;
+        }
+
+        // Datos de As-Built Configuration de Remove component y Add Component (P-11), para el
+        // script del .ascx. JavaScriptSerializer escapa < > &: no puede cerrar el <script>.
+        protected string RepairInfoJson
+            => new JavaScriptSerializer().Serialize(ViewModel != null && ViewModel.ExtraData.ContainsKey("RepairInfo")
+                ? ViewModel.ExtraData["RepairInfo"] : new Dictionary<string, string>());
+
+        // Qty del BOM con punto decimal, como la muestra el MES.
+        protected static string FormatQty(object qty)
+            => qty is decimal d ? d.ToString("0.######", CultureInfo.InvariantCulture) : Convert.ToString(qty, CultureInfo.InvariantCulture);
 
         private void BindNCCodes()
         {
@@ -91,6 +115,19 @@ namespace TrainingApp.UI.Controls.Training
             HfNCCodeId.Value = parts[0];
             TxtNCCode.Text = parts.Length > 1 ? parts[1] : parts[0];
 
+            // Spec 014: un código de reparación rápida sigue con Remove component y Add
+            // Component si hay algo ensamblado (Moldeo no tiene BOM: su Add-Done es el normal y
+            // el código se califica como cualquier otro, AC-23).
+            var codes = ViewModel?.ExtraData.ContainsKey("NCCodes") == true
+                ? ViewModel.ExtraData["NCCodes"] as IList<NCCode> : null;
+            var code = codes?.FirstOrDefault(c => c.Id.ToString(CultureInfo.InvariantCulture) == parts[0]);
+            bool repairFlow = code != null && code.Method == NCMethod.FastRepair && Assembled.Count > 0;
+            HfRepairFlow.Value     = repairFlow ? "1" : "0";
+            HfRepairDecision.Value = string.Empty;
+            // Obligatorio solo en la reparación rápida: el desecho no lo pide (2026-10-19).
+            // Enmienda 4: el desecho no muestra Component en ningún área; la rápida lo pide.
+            ShowComponent(repairFlow);
+
             // La NC Selection List queda visible detrás del modal (spec 007).
             PnlNCEntry.Visible = true;
             OnCodeSelected?.Invoke(this, EventArgs.Empty);
@@ -107,7 +144,23 @@ namespace TrainingApp.UI.Controls.Training
             // Spec 014 (D-59): la respuesta es un JSON; las filas seleccionadas llegan aparte.
             OnStepSubmit?.Invoke(this, new StepSubmitEventArgs
             {
-                Answer = JsonConvert.SerializeObject(new { code = TxtNCCode.Text.Trim() })
+                Answer = LogNCAnswer.Serialize(TxtNCCode.Text.Trim(), TxtComponent.Text.Trim())
+            });
+        }
+
+        // Fin del flujo de la reparación rápida (un solo postback, spec 014 punto 12): Add en
+        // Add Component, o la decisión equivocada (Return, Send to Routing, No a agregar).
+        protected void BtnRepairSubmit_Click(object sender, EventArgs e)
+        {
+            if (HfRepairFlow.Value != "1") return;
+
+            var decision = LogNCAnswer.Parse(HfRepairDecision.Value);
+            if (decision == null || !LogNCAnswer.IsRemoveAction(decision.RemoveAction)) return;
+
+            OnStepSubmit?.Invoke(this, new StepSubmitEventArgs
+            {
+                Answer = LogNCAnswer.Serialize(TxtNCCode.Text.Trim(), TxtComponent.Text.Trim(),
+                    decision.RemoveAction, decision.AddComponent)
             });
         }
 
