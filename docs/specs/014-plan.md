@@ -194,6 +194,10 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
         antes de correrlos.
   - [ ] `NcFindingGenerator`: en las reparaciones, `Description` sale al azar de un código de
         desecho del área. `Code` sigue siendo el del método (ahora único).
+        *Ajuste del usuario al probar la E3 (2026-10-19):* los defectos de una orden no se
+        repiten; cada hallazgo toma uno que no salió antes, salvo que el área tenga menos
+        defectos de desecho que pasos de Log NC. La nota de las reparaciones mantiene
+        "Defecto:".
   - [ ] Guía: subpaso del código de las reparaciones con el texto de abajo.
   - [ ] Tests: los que usan códigos `SIM_FR_…`/`SIM_FX_…` pasan a los generales; un caso por
         método con el defecto tomado de un código de desecho.
@@ -240,6 +244,7 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 **Reparación extendida**
 | Subpaso | Texto |
 |---|---|
+| Info de Comments (si el código lo exige; usuario, 2026-10-19, del manual del MES) | "El código **F_FX_GENERAL** exige **Comments** antes de Add-Done. Se usa en operaciones cuyo procedimiento permite el retrabajo: anote el número de **MPI** y la revisión a la que se refiere. Si el producto está afectado por un **NCR**, anote el número de NCR como referencia." Subpaso informativo, antes de la captura. |
 | Comments (si el código lo exige) | "Anote el MPI y su revisión, o el número de NCR: **{MPI del hallazgo}**." |
 | Disposición | "Presione **Select** en **{Local Rework / Return to any previous}**, la disposición del hallazgo." |
 | Banner | Return to any previous: "Verifique el mensaje: la pieza se procesará en **{operación anterior}** y salió del POD." · Local Rework: "Verifique el mensaje: la pieza se retrabaja en esta operación y sigue en el POD." |
