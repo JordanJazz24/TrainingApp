@@ -134,7 +134,7 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 - [ ] **UI:** "You have logged off" en Edge (Log On Again sin acción), escritorio y consola
       de `MesLoginControl`. Al cerrar la consola vuelve el POD con el resumen (P-12).
 - [ ] Aplica a toda sesión, sin importar la versión de su guía.
-- [ ] Se guarda la captura de "You have logged off" en `Pre-SAPMES/` (la entrega el usuario).
+- [x] Captura de "You have logged off": `Pre-SAPMES/logout sap mes.png` (`0d76e2b`).
 - [ ] **Tests:** casos de la limpieza en la BLL.
 
 ## Entrega 4 — Guía de Guided (P-8, P-10; AC-16)

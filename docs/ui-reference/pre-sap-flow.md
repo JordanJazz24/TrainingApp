@@ -58,8 +58,7 @@ Hora primero, pero el orden no importa (usuario; la trainer dijo "en cualquier o
 ## Al terminar
 
 1. **Logout** en el POD. MES muestra la pantalla de SAP NetWeaver **"You have logged off"**,
-   con el botón **Log On Again** (captura del usuario, 2026-10-19; falta guardarla en
-   `Pre-SAPMES/`).
+   con el botón **Log On Again** (captura: `logout sap mes.png`).
 2. El operador **cierra Edge** y vuelve al escritorio.
 3. Ejecuta `MES Limpiar historial y cache.bat` con su CODE1, igual que al entrar.
 
