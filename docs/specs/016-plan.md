@@ -1,7 +1,7 @@
 # Plan — Spec 016: Preparación antes de SAP (Ingreso a MES y limpieza al salir)
 
 **Spec:** `016-preparacion-antes-de-sap.md` (aprobada 2026-10-19, con P-1 a P-14) ·
-**Estado:** propuesto, espera la aprobación del usuario.
+**Estado:** **aprobado por el usuario (2026-10-19)**, con D-75 a D-81 y los textos de la guía.
 **Autoría:** sesión de Arquitectura y Planeación (verificado contra el código de
 `TrainingApp`, `5ebbf77`). Lo ejecuta "desarrollo" (`docs/process.md` → "Tres sesiones de
 trabajo").
