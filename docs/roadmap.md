@@ -238,11 +238,11 @@ ingeniero recomendó definir alcance y requisitos con Ernesto antes de agregar v
 | T2 | Escanear la Shop Order como camino principal de Search/Start (RF-17). Decidido en la reunión: escaneo principal + aviso de que Browse Work List también vale; sin agregar variabilidad | Fase 8.5, spec 011 |
 | T3 | **Modo práctica**, tercer modo: Assessment sin evaluación, sin la guía visual y con pistas ante la acción incorrecta | Fase 8.5, spec 012 |
 | T4 | Log NC: practicar los tres tipos de scrap (fast scrap, scrap/return component, extensión de la operación) | Fase 8.5, spec 014 (UI espera pantallas) |
-| T5 | Guías por **área** (lo que pidió el equipo de Paola) o **dos escenarios** generales, serializado y por lote (recomendación de Ernesto), con los pasos opcionales siempre incluidos | **Decisión de negocio pendiente.** No tocar flags, catálogos ni el diseño del dashboard hasta que decidan |
-| T6 | Mapear los criterios de la prueba en papel a pasos del simulador (puede mover pesos; deben sumar 1.00) | Espera el documento de Ernesto |
+| T5 | Guías por **área** (lo que pidió el equipo de Paola) o **dos escenarios** generales, serializado y por lote (recomendación de Ernesto), con los pasos opcionales siempre incluidos | ✅ **Decidido (usuario, 2026-10-19): guías por área**, como están hoy. Sin escenarios generales |
+| T6 | Mapear los criterios de la prueba en papel a pasos del simulador (puede mover pesos; deben sumar 1.00) | Documento recibido el 2026-10-19 (QD001043644); contraste en `docs/ui-reference/evaluacion-practica-mes.md` (EP-1…EP-9) |
 | T7 | Revisar los mensajes de la guía de Guided con los trainers (menos texto; burbuja de "lo que hay que recordar" o botón "?") | Contenido de `GuideScriptBuilder`, en paralelo |
 | T8 | Dashboard: historial por operador (intentos, fechas, duración por paso, registro de actividad) para ver dónde fallan antes de producción. Sin tiempo mínimo de práctica | Fase 10 |
-| T9 | Acceso al ambiente de **testing** de SAP MES (no el sandbox): mensajes reales, pantallas de los tres scraps y Start de Moldeo | Acción del usuario |
+| T9 | Acceso al ambiente de **testing** de SAP MES (no el sandbox): mensajes reales, pantallas de los tres scraps y Start de Moldeo | ✅ El usuario ya tiene acceso (2026-10-19). Los banners de la reparación rápida y de Local Rework se confirmaron correctos (V-3, V-5) |
 
 Backlog: RF-16 (piezas de otras órdenes en Browse Work List; Diego a favor, Ernesto en contra
 de agregar variabilidad). Data Collection "aplicar a todas las piezas" se descartó el
@@ -324,7 +324,8 @@ T10 desde la WI 6.4 y W9 cubierto por la spec 011. Quedan para Ernesto (T6) y el
 testing (T9):
 - **W3:** ¿hay operaciones sin herramientas en Resource Setup? El simulador exige al menos una.
 - **W7:** ¿de dónde sale el Line Clearance de cierre? La WI solo lo repite por condiciones
-  (cambio de usuario, tiempo, SFC activo, cambio de orden).
+  (cambio de usuario, tiempo, SFC activo, cambio de orden). La evaluación práctica (EP-8) repite las mismas
+  condiciones: no la resuelve.
 - **W13 (resuelto 2026-10-15):** Assembly Data depende del control del material (Batch,
   Inventory SFC + Batch o Material Document); el simulador siempre usa el Process Lot. Entró
   en la spec 014 (D-46, 2026-10-15) y se recortó el 2026-10-19 (enmienda 6): diferida hasta
@@ -359,7 +360,7 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 6 | ✅ **T4 · Tres métodos de Log NC** (2026-10-19, `b685f1d`…`0654e9d`; plan `014-plan.md`): desecho rápido, reparación rápida y extendida, obligatorios en las áreas con Assembly (LoFlo, Redefinity); Moldeo solo desecho rápido (D-53). Nota de hallazgo con la pieza defectuosa (en Assessment, otra pieza, otro código u otra decisión es intento fallido: error 1 de la trainer), 4-5 piezas por orden Serialized, cantidad del split calificada en Moldeo, reparaciones con los códigos reales `F_FR_GENERAL` y `F_FX_GENERAL` (enmienda 5) y pesos nuevos (Log NC 0.05 × 3, DC 0.25). La E4 (Assembly Data por tipo de material, W13) se recortó y quedó diferida (enmienda 6) | spec 014 | banners provisionales hasta conocer el de la reparación rápida y el de Local Rework (V-3, V-5) |
 | 7 | **T10 · Preparación antes de SAP:** limpieza de caché, Repositorio ("Recursos" y "Ahora Ahora") y login de MES. Se agrega sí o sí (usuario), pero entra en noviembre solo si llegan las capturas | spec 016 | capturas |
 | 8 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
-| 9 | **T6 · Prueba en papel → Assessment.** Si solo mueve pesos, script de catálogo; si pide algo que no se evalúa, va a la spec de ese paso. Revisar el peso de Log NC (la trainer lo considera crítico). Puede reordenar este plan | análisis | documento de Ernesto (15-16 oct) |
+| 9 | **T6 · Evaluación práctica → Assessment** (QD001043644, recibido el 2026-10-19). Contraste hecho: `docs/ui-reference/evaluacion-practica-mes.md`. No pide mover pesos (Log NC y SFC Split no se evalúan, EP-2). Abre decisiones: resultado Pasa/Falla (EP-1), brechas de Resource Setup (EP-4), errores del MES a simular (EP-5), W13 (EP-6), criterios de comprensión (EP-7) y limpiar caché después del Logout para la 016 (EP-3) | análisis | decisiones del usuario |
 
 Si el tiempo no alcanza, se recorta primero T3 (modo práctica), después T10 y T4 si las
 capturas o las pantallas no llegan; nunca la spec 013: sin ella solo el desarrollador administra las cuentas y no se
