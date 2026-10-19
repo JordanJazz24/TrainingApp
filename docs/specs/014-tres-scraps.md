@@ -74,6 +74,22 @@
 > 3. El hallazgo nunca pide el lote completo: N va de 1 a lote − 1, y el split ya rechaza
 >    dividir toda la fila (aviso `InvalidSplit`).
 
+> **Enmienda 4 · 2026-10-19 (usuario, al probar la E2):** **el desecho rápido no lleva
+> Component** en ningún área: "en serializado el fast scrap es el mismo que en no
+> serializado". Cambia D-39, el punto 5 del Scope, AC-5 y los textos de la guía (D-50).
+>
+> 1. En el **desecho**, NC Data Entry **no muestra Component** (ni el ⧉), en LoFlo y
+>    Redefinity igual que en Moldeo. La guía no tiene ese subpaso.
+> 2. Component con Browse queda **solo en los métodos de reparación**: obligatorio en la
+>    rápida (se califica, D-34) y opcional en la extendida. D-39 pasa de "todos los
+>    códigos" a "los códigos de reparación".
+> 3. `RequiresNCComponent` ya no decide si Component es obligatorio: lo decide el método del
+>    código. No cambia ningún dato; si la columna queda sin uso, se anota como deuda al
+>    cerrar la spec (quitarla no entra en esta spec).
+> 4. **Guía del Browse** (reparación rápida), texto nuevo: "Seleccione el componente a
+>    reemplazar y dele **OK**." El resaltado va primero en las filas y pasa a OK cuando se
+>    selecciona la fila del componente del hallazgo.
+
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
 QD001001524 rev. 27 (`docs/ui-reference/wi-produccion-disposables.md`, W13 y W19-W21);
@@ -139,7 +155,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   control, sin intento); el contenido no se califica.
 - **D-39 · Component con Browse en todos los códigos:** el ⧉ del campo Component abre un
   **Browse** (Component | Description, OK / Cancel) con los componentes **ensamblados en
-  Assembly**. Solo se califica en la reparación rápida.
+  Assembly**. Solo se califica en la reparación rápida. *(Enmienda 4, 2026-10-19: solo en
+  los códigos de reparación; el desecho no muestra Component.)*
 - ~~D-40 · Moldeo también con los tres~~: **revertida por D-53.**
 - ~~D-41 · Componentes de Moldeo~~: **resuelta por D-53** (V-1).
 - ~~D-42 · Split en Moldeo con tres SFC~~: **sin efecto por D-53.**
@@ -296,7 +313,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 4. **Nota de hallazgo** (P-2) en Guided y Assessment.
 5. **Component con Browse** (D-39) en NC Data Entry, para todos los códigos. Obligatorio
    donde el área lo pide (`RequiresNCComponent`) y en la reparación rápida; opcional en la
-   extendida.
+   extendida. *(Enmienda 4, 2026-10-19: solo en los códigos de reparación, obligatorio en
+   la rápida y opcional en la extendida; el desecho no lo muestra.)*
 6. **Guía de Guided:** alerta del subpaso 1 (D-43); la guía señala la pieza del hallazgo y no
    deja enviar otra pieza, otro código ni otra decisión (como D-25 de la spec 015); notas de
    D-44 y P-13.
@@ -471,7 +489,7 @@ Ninguna.
   paso ("Hallazgo n de 3"; en Moldeo, "1 de 1"): la pieza, el defecto y la disposición, en Guided y en
   Assessment, sin nombrar el código.
 - **AC-4:** Given Guided en el subpaso 1 de Log NC, Then se ve la alerta de D-43 en rojo.
-- **AC-5:** Given cualquier código, When presiona ⧉ en Component, Then el Browse lista los
+- **AC-5** (enmienda 4 del 2026-10-19: solo códigos de reparación; el desecho no muestra Component): Given un código de reparación, When presiona ⧉ en Component, Then el Browse lista los
   componentes ensamblados en Assembly.
 - **AC-6:** Given Assessment, When abre Log NC con otra pieza y sale con Return to POD, Then
   no cuenta como intento.

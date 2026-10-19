@@ -138,6 +138,8 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 - [ ] **Browse de componentes (D-39):** el ⧉ de Component abre el Browse (Component |
       Description, OK / Cancel) con lo ensamblado, en **todos** los códigos. En el desecho
       sigue obligatorio si `RequiresNCComponent` y no se califica.
+      *Enmienda 4 de la spec (2026-10-19): solo en los códigos de reparación; el desecho no
+      muestra Component en ningún área.*
 - [ ] **Flujo en el cliente (spec, punto 10):** Add-Done → Confirm remover → Remove component
       (datos de P-11) → Confirm agregar → **Add Component** (modal propio, enmienda
       2026-10-16 de la spec; captura `modal add componenet .png`; sin E4, Add Assembly
@@ -195,14 +197,14 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 | Seleccionar | "Seleccione la pieza del hallazgo: **{SFC}**." + alerta D-43 en rojo (Moldeo: "Seleccione el SFC creado por el split.") |
 | Log NC | "Presione **Log NC** para registrar el defecto." |
 | Código | Desecho: "Presione **Log NC** en el código del defecto del hallazgo: **{defecto}**." · Reparación rápida: "…en el código de reparación rápida del hallazgo: **{defecto}**." · Extendida: "…en el código de reparación extendida del hallazgo: **{defecto}**." |
-| Component (desecho, si el área lo pide) | "Presione **⧉** en Component y elija un componente de la lista." |
+| ~~Component (desecho, si el área lo pide)~~ | Sin subpaso: el desecho no muestra Component (enmienda 4, 2026-10-19). |
 | Add-Done | "Presione **Add-Done** para registrar el NC." |
 
 **Reparación rápida**
 | Subpaso | Texto |
 |---|---|
 | Component | "Presione **⧉** en Component para buscar el componente a reemplazar." |
-| Browse | "Seleccione **{componente}** y presione **OK**." |
+| Browse | "Seleccione el componente a reemplazar y dele **OK**." Resaltado en las filas y, al seleccionar la del hallazgo, en OK (enmienda 4, 2026-10-19; antes: "Seleccione **{componente}** y presione **OK**.") |
 | Confirm remover | "Presione **Yes** para quitar el componente de la pieza." |
 | Remove component | "Presione **Scrap**: el componente dañado se desecha." + nota D-44 (Return) |
 | Confirm agregar | "Presione **Yes** para agregar el componente nuevo." + nota D-44 (Yes/No) |
