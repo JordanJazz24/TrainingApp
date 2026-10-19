@@ -9,7 +9,7 @@
 -- y sin SFC Split: la misma forma (y los mismos pesos) que Redefinity.
 -- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
 --           4 DataCollection · 5 SFC_Split · 6 LogNC (desecho rápido) · 7 Complete
---           8 Logout · 9 LogNCFastRepair (spec 014)
+--           8 Logout · 9 LogNCFastRepair · 10 LogNCExtendedRepair (spec 014)
 -- ============================================================
 SET NOCOUNT ON;
 
@@ -23,13 +23,14 @@ INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     (2, 1, 0.05),   -- Line Clearance (apertura)
     (3, 2, 0.05),   -- Search / Start (directo, sin checklist)
     (4, 3, 0.15),   -- Assembly
-    (5, 4, 0.30),   -- Data Collection (obligatorios: EQUIPO y FUNCIONAL)
+    (5, 4, 0.25),   -- Data Collection (obligatorios: EQUIPO y FUNCIONAL; spec 014: 0.30 → 0.25)
     -- Cierre
     (6, 1, 0.05),   -- Line Clearance (cierre)
-    (7, 6, 0.05),   -- Log NC · desecho rápido (con Component)
-    (8, 9, 0.05),   -- Log NC · reparación rápida (spec 014; pesos de transición, D-57)
-    (9, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
-    (10, 8, 0.05);  -- Logout
+    (7, 6, 0.05),   -- Log NC · desecho rápido
+    (8, 9, 0.05),   -- Log NC · reparación rápida (spec 014)
+    (9, 10, 0.05),  -- Log NC · reparación extendida (spec 014)
+    (10, 7, 0.05),  -- Complete (spec 015: cede 0.05 a Logout)
+    (11, 8, 0.05);  -- Logout
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía Sensores LoFlo — Flujo Completo', @Steps = @Json;

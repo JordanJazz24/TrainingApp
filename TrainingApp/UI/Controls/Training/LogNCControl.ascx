@@ -77,6 +77,9 @@
                     <span>NC Data Entry</span>
                     <span class="mes-help" title="Help">?</span>
                 </div>
+                <%-- Reparación extendida (captura "sub modal seleccion operaicon a ser devuelta"):
+                     "NC logged" sobre la fila SFC al dar Add-Done; lo muestra el cliente. --%>
+                <div class="nc-logged" id="ncLogged" style="display:none">NC logged</div>
                 <%-- "{primer SFC} (1/N)" con N = piezas seleccionadas, como Assemble Components. --%>
                 <div class="mes-sfc-band">
                     SFC: <asp:Literal ID="LitNCEntrySFC" runat="server" />
@@ -87,10 +90,10 @@
                         <asp:TextBox ID="TxtNCCode" runat="server"
                             CssClass="mes-input nc-form-input" ReadOnly="true" />
                     </div>
-                    <%-- Solo con un código de reparación rápida (enmienda 4 de la spec 014): el
-                         desecho no lo muestra en ningún área. Obligatorio (RfvComponent), pero sin
-                         asterisco: así lo muestra el real. ⧉ abre el Browse con lo ensamblado
-                         (D-39); también se puede escribir. --%>
+                    <%-- Solo con un código de reparación (enmienda 4 de la spec 014): el desecho
+                         no lo muestra en ningún área. Obligatorio (RfvComponent) en la rápida y
+                         opcional en la extendida, sin asterisco: así lo muestra el real. ⧉ abre el
+                         Browse con lo ensamblado (D-39); también se puede escribir. --%>
                     <asp:Panel ID="PnlComponent" runat="server" CssClass="nc-form">
                         <span class="nc-form-label">Component:</span>
                         <span class="mes-field nc-form-input">
@@ -106,10 +109,19 @@
                             ErrorMessage="Component required." CssClass="text-danger small"
                             Display="Dynamic" ValidationGroup="ncGroup" />
                     </asp:Panel>
+                    <%-- ★ y obligatorio con un código que exige Comments (P-13, captura "modal nc
+                         entry extended"): formato, sin intento; el contenido no se califica (D-38). --%>
                     <div class="nc-form">
-                        <span class="nc-form-label">Comments:</span>
+                        <span class="nc-form-label"><asp:Label ID="LblCommentsStar" runat="server"
+                            CssClass="pod-star" Text="*" Visible="false" /> Comments:</span>
                         <asp:TextBox ID="TxtComments" runat="server" TextMode="MultiLine" Rows="2"
-                            CssClass="mes-input nc-form-input nc-form-comments" />
+                            CssClass="mes-input nc-form-input nc-form-comments"
+                            ValidationGroup="ncGroup" data-guide="nc-comments" />
+                        <span></span>
+                        <asp:RequiredFieldValidator ID="RfvComments" runat="server"
+                            ControlToValidate="TxtComments" Enabled="false"
+                            ErrorMessage="Comments required." CssClass="text-danger small"
+                            Display="Dynamic" ValidationGroup="ncGroup" />
                     </div>
                     <asp:HiddenField ID="HfNCCodeId" runat="server" />
                 </div>
@@ -143,10 +155,11 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 
-    <%-- ══ Reparación rápida y Browse (spec 014, capturas de "Split - Log NC") ══════════
+    <%-- ══ Reparaciones y Browse (spec 014, capturas de "Split - Log NC") ═══════════════
          Ventanas del cliente sobre NC Data Entry: una a la vez (ncShowSub). Navegación y
          formato en JS; el único postback es BtnRepairSubmit con la decisión (D-59). ✕,
-         Cancel y No a remover vuelven a NC Data Entry sin enviar (D-35). --%>
+         Cancel y No a remover vuelven a NC Data Entry sin enviar (D-35, P-15).
+         HfRepairFlow: 0 sin flujo propio, 1 reparación rápida, 2 reparación extendida. --%>
     <asp:HiddenField ID="HfRepairFlow" runat="server" Value="0" />
     <asp:HiddenField ID="HfRepairDecision" runat="server" />
     <asp:Button ID="BtnRepairSubmit" runat="server" style="display:none" tabindex="-1"
@@ -296,6 +309,48 @@
         </div>
     </div>
 
+    <%-- Select Disposition Function (sub modal seleccion operaicon a ser devuelta .png):
+         reparación extendida. Select envía la disposición (único postback); Cancel y ✕
+         vuelven a NC Data Entry sin enviar (P-15). --%>
+    <div class="modal nc-sub" id="ncDisposition" tabindex="-1" style="display:none">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header mes-titlebar-bare">
+                    <div class="mes-titlebar-actions">
+                        <button type="button" class="mes-titlebar-btn" title="Maximize" onclick="mesToggleMaximize(this)">&#10530;</button>
+                        <button type="button" class="mes-titlebar-btn" title="Close" onclick="ncCloseSub();">&#10005;</button>
+                    </div>
+                </div>
+                <div class="mes-subheader mes-divider">
+                    <span>Select Disposition Function for <span data-f="sfc"></span></span>
+                    <span class="mes-help" title="Help">?</span>
+                </div>
+                <div class="modal-body">
+                    <table class="nc-disp-table">
+                        <tbody>
+                            <tr><td class="nc-disp-name">Local Rework</td>
+                                <td class="nc-disp-action"><button type="button" class="mes-btn mes-ico mes-ico-check"
+                                    data-guide="nc-disposition" data-disposition="localRework"
+                                    onclick="ncSelectDisposition('localRework');">Select</button></td></tr>
+                            <tr><td class="nc-disp-name">Return to any previous</td>
+                                <td class="nc-disp-action"><button type="button" class="mes-btn mes-ico mes-ico-check"
+                                    data-guide="nc-disposition" data-disposition="returnToPrevious"
+                                    onclick="ncSelectDisposition('returnToPrevious');">Select</button></td></tr>
+                            <tr><td colspan="2"></td></tr>
+                            <tr><td colspan="2"></td></tr>
+                            <tr><td colspan="2"></td></tr>
+                            <tr><td colspan="2"></td></tr>
+                            <tr><td colspan="2"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer mes-footer nc-sub-footer-right">
+                    <button type="button" class="mes-btn mes-ico mes-ico-cancel" onclick="ncCloseSub();">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <%-- Add Component (modal add componenet .png; enmienda 2026-10-16 de la spec): sin
          Barcode; sin W13 (E4), Add Assembly Details pide solo el Batch Number. --%>
     <div class="modal nc-sub" id="ncAddComponent" tabindex="-1" style="display:none">
@@ -365,6 +420,7 @@
     var decId    = '<%= HfRepairDecision.ClientID %>';
     var submitName = '<%= BtnRepairSubmit.UniqueID %>';
     var compId   = '<%= TxtComponent.ClientID %>';
+    var commId   = '<%= TxtComments.ClientID %>';
     var picked   = null;
 
     function byId(id) { return document.getElementById(id); }
@@ -379,6 +435,9 @@
         Array.prototype.forEach.call(subs(), function (m) { m.classList.remove('show'); m.style.display = 'none'; });
         var b = byId('ncSubBackdrop');
         if (b) b.style.display = 'none';
+        // "NC logged" acompaña a Select Disposition Function: al salir sin elegir no queda.
+        var logged = byId('ncLogged');
+        if (logged) logged.style.display = 'none';
     }
 
     // Una ventana a la vez, sobre NC Data Entry (que sigue abierto detrás).
@@ -452,13 +511,27 @@
         byId('ncAddBatch').value   = '';
     }
 
-    // Add-Done: con un código de reparación rápida abre la secuencia en el cliente; si no,
-    // sigue el envío normal (con la validación de ncGroup).
+    // Add-Done: con un código de reparación abre su secuencia en el cliente; si no, sigue el
+    // envío normal (con la validación de ncGroup: Component y Comments son formato).
     window.ncAddDone = function () {
+        // ASP.NET rechaza un postback con marcado: se bloquea como formato (CLAUDE.md).
+        var typed = [byId(compId), byId(commId)].map(function (el) { return el ? el.value || '' : ''; }).join('');
+        if (/[<>]/.test(typed)) {
+            warn('Formato inválido', 'Component y Comments no aceptan los caracteres < ni >.');
+            return false;
+        }
         var flow = byId(flowId);
-        if (!flow || flow.value !== '1') return true;
+        if (!flow || (flow.value !== '1' && flow.value !== '2')) return true;
         if (typeof Page_ClientValidate === 'function' && !Page_ClientValidate('ncGroup')) return false;
-        var value = (byId(compId).value || '').trim();
+        var input = byId(compId);
+        var value = input ? (input.value || '').trim() : '';
+        if (flow.value === '2') {
+            // Extendida (D-37): "NC logged" y Select Disposition Function. Component es opcional.
+            fill(componentData(value));
+            ncShowSub('ncDisposition');
+            byId('ncLogged').style.display = '';
+            return false;
+        }
         if (!value) {
             warn('Campo requerido', 'Ingrese el componente a reemplazar.');
             return false;
@@ -501,6 +574,12 @@
             return;
         }
         ncSubmitRepair('scrap', true);
+    };
+
+    // Select de la extendida: la disposición es la decisión del paso (D-37b).
+    window.ncSelectDisposition = function (disposition) {
+        byId(decId).value = JSON.stringify({ disposition: disposition });
+        __doPostBack(submitName, '');
     };
 
     // Único postback del flujo: la decisión viaja en un campo oculto. Se envía sin un clic

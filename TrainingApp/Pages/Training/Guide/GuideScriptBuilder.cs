@@ -409,28 +409,33 @@ namespace TrainingApp.Pages.Training.Guide
 
         // Alerta del subpaso 1 de Log NC (spec 014, D-43, texto aprobado).
         private static readonly string WrongUnitAlert = H(
-            "Revise el SFC de cada pieza seleccionada contra el hallazgo: solo deben estar las defectuosas. ",
-            "Scrapear la unidad equivocada es el error más grave de este paso: el MES no lo detecta, ",
-            "corregirlo requiere al supervisor y a Calidad, y puede llevar a una acción disciplinaria.");
+            "Revise que solo esté seleccionada la pieza/SFC defectuosa. ",
+            "Scrapear la unidad equivocada es CRÍTICO: MES no lo detecta y puede haber acciones disciplinarias.");
 
         // Log NC (spec 014): la pieza del hallazgo (NonSerialized: la fila del split), el código
-        // del hallazgo en NC Selection, el componente en la reparación rápida y Add-Done. El
-        // desecho no pide Component en ningún área (corrección del usuario, 2026-10-19). La guía
-        // señala la pieza y el código, así que no deja enviar otros (como D-25). El POD ya llega
-        // sin selección (GuidedTest la limpia tras Start, Assembly y DC).
+        // del hallazgo en NC Selection, el componente en la reparación rápida, Comments en la
+        // extendida si el código lo exige, y Add-Done. El desecho no pide Component en ningún
+        // área (enmienda 4). La guía señala la pieza, el código y la disposición, así que no deja
+        // enviar otros (como D-25). El POD ya llega sin selección (GuidedTest la limpia tras
+        // Start, Assembly y DC).
         private static StepScript LogNC(PodContext ctx, TrainingStep step)
         {
-            bool repair = step.StepType == StepType.LogNCFastRepair;
-            var s = new StepScript(step, repair ? "Log NC · reparación rápida" : "Log NC")
-            {
-                OpenedName    = "list",
-                IncorrectName = repair ? "component" : "addDone",
-                TailName      = "banner"
-            };
-            s.OpenedByDetail["entry"] = repair ? "component" : "addDone";
-
+            bool repair   = step.StepType == StepType.LogNCFastRepair;
+            bool extended = step.StepType == StepType.LogNCExtendedRepair;
             var order = ctx.State.Order;
             var finding = ctx.NcFindingFor(step);
+            bool comments = extended && finding != null &&
+                ctx.NCCodes.Any(c => c.RequiresComments && string.Equals(c.Code, finding.Code, StringComparison.OrdinalIgnoreCase));
+            string entry = repair ? "component" : comments ? "commentsInfo" : "addDone";
+
+            var s = new StepScript(step, repair ? "Log NC · reparación rápida" : extended ? "Log NC · reparación extendida" : "Log NC")
+            {
+                OpenedName    = "list",
+                IncorrectName = entry,
+                TailName      = "banner"
+            };
+            s.OpenedByDetail["entry"] = entry;
+
             if (finding != null) s.FreeOnAll.Add(Anchor("nc-finding"));
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
@@ -455,9 +460,14 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("list", GuideMode.Click,
                 finding == null ? Anchor("nc-list") : Anchor("nc-code") + Attr("data-nc-code", finding.Code),
                 postback: true,
-                html: H("Presione ", B("Log NC"),
-                    repair ? " en el código de reparación rápida del hallazgo: " : " en el código del defecto del hallazgo: ",
-                    B(finding?.Description ?? string.Empty), "."));
+                // Enmienda 5: las reparaciones usan el código general de su método; el desecho, el
+                // del defecto.
+                html: repair || extended
+                    ? H("Presione ", B("Log NC"),
+                        repair ? " en el código general de reparación rápida: " : " en el código general de reparación extendida: ",
+                        B(finding?.Code ?? string.Empty), ".")
+                    : H("Presione ", B("Log NC"), " en el código del defecto del hallazgo: ",
+                        B(finding?.Description ?? string.Empty), "."));
 
             if (repair)
             {
@@ -486,14 +496,49 @@ namespace TrainingApp.Pages.Training.Guide
                         "no es común. En la mayoría de los casos se usa Scrap."));
                 s.Add("addYes", GuideMode.Click, Anchor("nc-add-yes"),
                     html: H("Presione ", B("Yes"), " para agregar el componente nuevo."),
-                    note: H("Yes: agrega ahora el componente nuevo. No: la pieza queda sin el componente y hay ",
-                        "que volver a ensamblarlo; lo mismo pasa con Return."));
+                    note: string.Join("<br>",
+                        H(B("Yes"), ": agrega ahora el componente nuevo."),
+                        H(B("No"), ": la pieza queda sin el componente y hay que volver a ensamblarlo; lo mismo pasa con Return.")));
                 s.Add("addComponent", GuideMode.Click, Anchor("nc-addcomp-add"), postback: true,
                     free: new[] { Anchor("nc-addcomp-batch") }, retry: "addComponent",
                     html: H("Complete el ", B("Batch Number"), " del componente nuevo (o los datos que pida su material) y presione ",
                         B("Add"), "."));
                 s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
                     html: H("Verifique el mensaje: el componente se reemplazó y la pieza sigue en el POD."));
+                return s;
+            }
+
+            if (extended)
+            {
+                // Spec 014 (punto 14): Comments si el código lo exige (P-13; formato), Add-Done
+                // abre en el cliente Select Disposition Function y Select envía la disposición.
+                if (comments)
+                {
+                    // Por qué el código exige Comments antes de Add-Done (manual del MES; usuario,
+                    // 2026-10-19).
+                    s.Add("commentsInfo", GuideMode.Info, Anchor("nc-comments"),
+                        html: H("El código ", B(finding.Code), " exige ", B("Comments"), " antes de Add-Done. ",
+                            "Se usa en operaciones cuyo procedimiento permite el retrabajo: anote el número de ",
+                            B("MPI"), " y la revisión a la que se refiere. Si el producto está afectado por un ",
+                            B("NCR"), ", anote el número de NCR como referencia."));
+                    s.Add("comments", GuideMode.Capture, Anchor("nc-comments"), format: GuideFormat.Required,
+                        html: string.IsNullOrEmpty(finding.Mpi)
+                            ? H("Anote el MPI y su revisión, o el número de NCR.")
+                            : H("Anote el MPI y su revisión, o el número de NCR: ", B(finding.Mpi), "."));
+                }
+                s.Add("addDone", GuideMode.Click, Anchor("nc-add-done"),
+                    html: H("Presione ", B("Add-Done"), " para registrar el NC."));
+                bool returnToPrevious = finding?.Disposition == NcDisposition.ReturnToPrevious;
+                string disposition = returnToPrevious ? "Return to any previous" : "Local Rework";
+                s.Add("disposition", GuideMode.Click,
+                    Anchor("nc-disposition") + Attr("data-disposition", returnToPrevious
+                        ? LogNCAnswer.DispositionReturnToPrevious : LogNCAnswer.DispositionLocalRework),
+                    postback: true,
+                    html: H("Presione ", B("Select"), " en ", B(disposition), ", la disposición del hallazgo."));
+                s.Add("banner", GuideMode.Info, Anchor("pod-banner"), hide: true,
+                    html: returnToPrevious
+                        ? H("Verifique el mensaje: la pieza se procesará en ", B(ctx.PreviousOperationName), " y salió del POD.")
+                        : H("Verifique el mensaje: la pieza se retrabaja en esta operación y sigue en el POD."));
                 return s;
             }
 

@@ -1,16 +1,18 @@
 -- ============================================================
 -- 08_SensoresLoFloCatalog.sql — catálogo de Sensores / LoFlo:
--- Product, Area (flags), NCCodes, DataCollectionGroups,
+-- Product, Area (flags), NCCodes, Operations, DataCollectionGroups,
 -- DataCollectionParameters y AssemblyComponents. La guía está en
 -- 09_SensoresLoFloGuide.sql.
 -- Requiere: 00_Schema.sql.
 -- Re-ejecutable: sí. Este script es la fuente de verdad del catálogo
 -- de LoFlo: agrega lo que falta y actualiza lo que existe (no borra
--- filas: los intentos y las sesiones pueden apuntar a ellas).
+-- filas: los intentos y las sesiones pueden apuntar a ellas; las
+-- excepciones, donde nada las referencia, están comentadas).
 --
 -- Fuente: flags confirmados con negocio el 2026-10-07 para todas las
--- áreas de Sensores. Los códigos NC, los DC Groups con sus parámetros
--- y el BOM son SIMULADOS (marcados con SIM): cuando llegue el catálogo
+-- áreas de Sensores. Los códigos NC de desecho, los DC Groups con sus
+-- parámetros y el BOM son SIMULADOS (marcados con SIM); los de
+-- reparación son los generales reales (enmienda 5). Cuando llegue el catálogo
 -- real, las filas simuladas no se borran solas (el script no borra);
 -- se retiran a mano si ninguna sesión las usa.
 -- ============================================================
@@ -44,9 +46,11 @@ ELSE
 DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE ProductId = @ProductId AND Name = N'LoFlo');
 
 -- ------------------------------------------------------------
--- NCCodes — SIMULADOS (prefijo SIM_). Method (spec 014): SIM_FS = 0
--- desecho rápido, SIM_FR = 1 reparación rápida, SIM_FX = 2 extendida;
--- SIM_FX_GENERAL exige Comments (como F_FX_GENERAL de Moldeo).
+-- NCCodes. Method (spec 014): 0 desecho rápido, 1 reparación rápida,
+-- 2 extendida. Desecho: SIMULADOS (prefijo SIM_FS_), uno por defecto.
+-- Reparaciones: los códigos generales REALES de todas las áreas
+-- serializadas, como en 06 (enmienda 5): F_FR_GENERAL y F_FX_GENERAL,
+-- que exige Comments (MPI y revisión, o NCR).
 -- ------------------------------------------------------------
 DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200),
                    Method TINYINT, RequiresComments BIT);
@@ -57,12 +61,8 @@ INSERT INTO @Nc (Code, Description, Method, RequiresComments) VALUES
     (N'SIM_FS_CONECTOR',       N'Conector dañado',                           0, 0),
     (N'SIM_FS_CONTAMINACION',  N'Contaminación del módulo',                  0, 0),
     (N'SIM_FS_ELECT_FAIL',     N'Fallo eléctrico',                           0, 0),
-    (N'SIM_FR_CONECTOR_FLOJO', N'Conector flojo',                            1, 0),
-    (N'SIM_FR_TUBO',           N'Tubo de muestreo doblado',                  1, 0),
-    (N'SIM_FR_FILTRO',         N'Filtro obstruido',                          1, 0),
-    (N'SIM_FX_GENERAL',        N'Reparación extendida general',              2, 1),
-    (N'SIM_FX_SELLO',          N'Sello incompleto',                          2, 0),
-    (N'SIM_FX_SOLDADURA',      N'Soldadura fría',                            2, 0);
+    (N'F_FR_GENERAL',          N'Fast Repair General',                       1, 0),
+    (N'F_FX_GENERAL',          N'Fast Extended Repair General',              2, 1);
 
 UPDATE t SET Description = s.Description, Method = s.Method, RequiresComments = s.RequiresComments
 FROM   dbo.NCCodes t JOIN @Nc s ON s.Code = t.Code
@@ -72,6 +72,34 @@ INSERT INTO dbo.NCCodes (AreaId, Code, Description, Method, RequiresComments)
 SELECT @AreaId, s.Code, s.Description, s.Method, s.RequiresComments
 FROM   @Nc s
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
+ORDER  BY s.Seq;
+
+-- Enmienda 5 de la spec 014: las reparaciones usan los códigos generales, así que se
+-- borran los SIM_FR_ y SIM_FX_ por defecto de una BD anterior. Excepción a "nunca borra
+-- filas" (como D-23): nada referencia NCCodes. Las sesiones en curso cuyo hallazgo guarda
+-- uno de esos códigos se abandonan antes de correr el script.
+DELETE FROM dbo.NCCodes
+WHERE  AreaId = @AreaId AND (Code LIKE N'SIM[_]FR[_]%' OR Code LIKE N'SIM[_]FX[_]%');
+
+-- ------------------------------------------------------------
+-- Operations — SIMULADAS (spec 014, D-58): el banner de la reparación
+-- extendida nombra la actual (mayor Sequence, Local Rework) o la anterior
+-- (Return to any previous). Formato real: número + código + descripción
+-- (D-52).
+-- ------------------------------------------------------------
+DECLARE @Op TABLE (Seq INT IDENTITY, Name NVARCHAR(100), Sequence INT, Description NVARCHAR(200));
+INSERT INTO @Op (Name, Sequence, Description) VALUES
+    (N'O_LOFLO_SIM_PREP',     10, N'Preparación (SIM)'),
+    (N'O_LOFLO_SIM_ENSAMBLE', 20, N'Ensamble (SIM)');
+
+UPDATE t SET Sequence = s.Sequence, Description = s.Description
+FROM   dbo.Operations t JOIN @Op s ON s.Name = t.Name
+WHERE  t.AreaId = @AreaId;
+
+INSERT INTO dbo.Operations (AreaId, Name, Sequence, Description)
+SELECT @AreaId, s.Name, s.Sequence, s.Description
+FROM   @Op s
+WHERE  NOT EXISTS (SELECT 1 FROM dbo.Operations t WHERE t.AreaId = @AreaId AND t.Name = s.Name)
 ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------

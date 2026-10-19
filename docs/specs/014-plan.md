@@ -171,36 +171,53 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 
 ## Entrega 3 — Reparación extendida (AC-18 a AC-22)
 
-- [ ] **`StepType.LogNCExtendedRepair = 10`**.
-- [ ] **Operaciones (D-58):** `00` (columnas), `08` y `05` cargan sus 2 operaciones `SIM`.
+- [x] **`StepType.LogNCExtendedRepair = 10`**.
+- [x] **Operaciones (D-58):** `00` (columnas), `08` y `05` cargan sus 2 operaciones `SIM`.
       `PodContext` las expone.
-- [ ] **Guías `05` y `09`** con la extendida y los **pesos finales** (DC 0.25); D-56 crea la
+- [x] **Guías `05` y `09`** con la extendida y los **pesos finales** (DC 0.25); D-56 crea la
       versión nueva.
-- [ ] **Flujo en el cliente (punto 14):** Comments obligatorio si `RequiresComments`
+- [x] **Flujo en el cliente (punto 14):** Comments obligatorio si `RequiresComments`
       (formato); Add-Done → "NC logged" en NC Data Entry → "Select Disposition Function for
       {SFC}" → Select → banner. Cancel no envía (P-15).
-- [ ] **Calificación (D-37b):** pieza, código y disposición. Return to any previous: banner
+- [x] **Calificación (D-37b):** pieza, código y disposición. Return to any previous: banner
       con la operación anterior y la pieza sale del POD (D-54). Local Rework: banner
       provisional con la operación actual y la pieza sigue (V-5).
-- [ ] **Component (enmienda 4):** NC Data Entry lo muestra también con los códigos de
+- [x] **Component (enmienda 4):** NC Data Entry lo muestra también con los códigos de
       reparación extendida, **opcional** y sin calificarse (hoy solo aparece con la rápida).
-- [ ] **Guía:** textos de abajo y nota de P-13 en Comments.
-- [ ] **Tests:** casos de la extendida en `StepValidatorLogNCTests`.
-- [ ] **Enmienda 5 de la spec (2026-10-19), sobre esta misma entrega y antes de su commit:**
-  - [ ] `05` y `08`: códigos de reparación `F_FR_GENERAL` (rápida, sin Comments) y
+- [x] **Guía:** textos de abajo y nota de P-13 en Comments.
+- [x] **Tests:** casos de la extendida en `StepValidatorLogNCTests`.
+- [x] **Enmienda 5 de la spec (2026-10-19), sobre esta misma entrega y antes de su commit:**
+  - [x] `05` y `08`: códigos de reparación `F_FR_GENERAL` (rápida, sin Comments) y
         `F_FX_GENERAL` (extendida, Comments obligatorio), con el código y la descripción de
         `06`; se borran los `SIM_FR_…` y `SIM_FX_…` (excepción como D-23, comentada en el
         script). Avisar al usuario que abandone las sesiones en curso de LoFlo y Redefinity
         antes de correrlos.
-  - [ ] `NcFindingGenerator`: en las reparaciones, `Description` sale al azar de un código de
+  - [x] `NcFindingGenerator`: en las reparaciones, `Description` sale al azar de un código de
         desecho del área. `Code` sigue siendo el del método (ahora único).
         *Ajuste del usuario al probar la E3 (2026-10-19):* los defectos de una orden no se
         repiten; cada hallazgo toma uno que no salió antes, salvo que el área tenga menos
         defectos de desecho que pasos de Log NC. La nota de las reparaciones mantiene
         "Defecto:".
-  - [ ] Guía: subpaso del código de las reparaciones con el texto de abajo.
-  - [ ] Tests: los que usan códigos `SIM_FR_…`/`SIM_FX_…` pasan a los generales; un caso por
+  - [x] Guía: subpaso del código de las reparaciones con el texto de abajo.
+  - [x] Tests: los que usan códigos `SIM_FR_…`/`SIM_FX_…` pasan a los generales; un caso por
         método con el defecto tomado de un código de desecho.
+
+> **Decisiones de implementación de E3** (desarrollo, 2026-10-19; no cambian la spec ni el
+> plan):
+>
+> - Operaciones: `O_LOFLO_SIM_PREP` (10, "Preparación (SIM)") y `O_LOFLO_SIM_ENSAMBLE`
+>   (20, "Ensamble (SIM)"); Redefinity, lo mismo con `O_REDEFINITY_SIM_…`. La actual es
+>   también la Assembly Operation de Remove component; `PodDefaults.SimOperation` queda de
+>   respaldo para un área sin operaciones.
+> - MPI simulado: `MPI-SIM-nnnn Rev X` (X de A a D), solo con un código que exige Comments.
+>   La nota lo muestra en la disposición ("…, según {MPI}").
+> - Cancel y ✕ de Select Disposition Function vuelven a NC Data Entry y ocultan "NC logged".
+> - Un código de la extendida abre su flujo en cualquier paso (se califica como código
+>   equivocado donde no toca); sin nada ensamblado (Moldeo) no se muestra Component.
+> - `<` o `>` en Component o Comments se bloquean como formato en Add-Done, en los tres
+>   métodos.
+> - Guía: el recuadro iluminado cubre también los elementos libres del mismo modal (Batch
+>   Number de Add Component quedaba bajo el oscurecido).
 
 ## Entrega 4 — Assembly Data por tipo de material (W13; AC-25 a AC-29) · recortable
 

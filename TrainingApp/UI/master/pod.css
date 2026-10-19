@@ -905,7 +905,7 @@ button.mes-field-icon.copied  { color: var(--pod-blue); }
 .nc-form-input    { width: 100%; max-width: 490px; }
 .nc-form-comments { height: auto; min-height: 50px; resize: vertical; }
 
-/* ── Browse, Remove component y Add Component (spec 014) ──
+/* ── Browse, Remove component, Add Component y Select Disposition Function (spec 014) ──
    Ventanas del cliente sobre NC Data Entry (1055), una a la vez, con su velo. */
 .nc-sub          { z-index: 1057; }
 .nc-sub-backdrop { z-index: 1056; opacity: .2; }
@@ -932,6 +932,18 @@ button.mes-field-icon.copied  { color: var(--pod-blue); }
 .ncr-section { margin: 4px 0 8px; padding: 6px 8px; background: #f2f2f2; font-size: 0.85rem; font-weight: 700; }
 .ncr-details { padding: 0 14px 14px; font-size: 0.8rem; max-width: 520px; }
 .ncr-add-actions { display: flex; justify-content: center; gap: 6px; padding: 4px 0 16px; }
+
+/* Reparación extendida (sub modal seleccion operaicon a ser devuelta.png): "NC logged" con
+   el check verde sobre la fila SFC, y la lista de disposiciones con Select a la derecha. */
+.nc-logged {
+    padding: 8px 16px 0 50px; min-height: 30px; font-size: 0.85rem;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='%234caf50'/%3E%3Cpath d='M4.3 8.4l2.4 2.4 5-5' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat 22px 4px / 22px 22px;
+    line-height: 30px;
+}
+.nc-disp-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; border: 1px solid #ddd; }
+.nc-disp-table td { height: 41px; padding: 4px 22px; border-bottom: 1px solid #e3e3e3; }
+.nc-disp-name { font-weight: 700; }
+.nc-disp-action { text-align: right; width: 1%; white-space: nowrap; }
 
 /* Modales apilados (Training.Master): el velo del hijo oscurece suave al padre, como el
    real (~20 %), en vez de sumar otro 50 %. */

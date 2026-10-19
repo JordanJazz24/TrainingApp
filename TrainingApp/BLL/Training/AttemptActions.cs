@@ -52,6 +52,10 @@ namespace TrainingApp.BLL.Training
         public const string LogNCRepairSendToRouting = "LogNC.Repair.SendToRouting";
         public const string LogNCRepairNoAdd         = "LogNC.Repair.NoAdd";
 
+        // Reparación extendida (spec 014): el Select de Select Disposition Function.
+        public const string LogNCExtendedLocalRework      = "LogNC.Extended.LocalRework";
+        public const string LogNCExtendedReturnToPrevious = "LogNC.Extended.ReturnToPrevious";
+
         // Acción de un envío por respuesta (StepValidator), según el paso y lo enviado.
         public static string ForSubmit(StepType stepType, string answer)
         {
@@ -72,12 +76,14 @@ namespace TrainingApp.BLL.Training
             }
         }
 
-        // Log NC: Add-Done o, con el flujo de la reparación rápida, el botón con que terminó.
+        // Log NC: Add-Done o, con el flujo de una reparación, el botón con que terminó.
         private static string ForLogNC(string answer)
         {
             if (answer == StepAnswers.Invalid) return LogNCWrongButton;
 
             var parsed = LogNCAnswer.Parse(answer);
+            if (parsed?.Disposition == LogNCAnswer.DispositionLocalRework)      return LogNCExtendedLocalRework;
+            if (parsed?.Disposition == LogNCAnswer.DispositionReturnToPrevious) return LogNCExtendedReturnToPrevious;
             switch (parsed?.RemoveAction)
             {
                 case LogNCAnswer.RemoveReturn:        return LogNCRepairReturn;

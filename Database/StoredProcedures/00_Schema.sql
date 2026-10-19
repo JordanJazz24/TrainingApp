@@ -49,12 +49,18 @@ CREATE TABLE dbo.Areas (
 
 -- -------------------------------------------------------
 -- Operations  (futuro — FK nullable en TrainingGuides)
+-- Spec 014 (D-58): hoy solo las operaciones simuladas (SIM) que nombra el
+-- banner de la reparación extendida. Sequence: número de la operación en la
+-- ruta (010, 020…); la actual es la de mayor Sequence y la anterior, la que
+-- le sigue. Description: texto del MES, ej. "Ensamble (SIM)".
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.Operations', 'U') IS NULL
 CREATE TABLE dbo.Operations (
-    Id     INT IDENTITY(1,1) PRIMARY KEY,
-    AreaId INT NOT NULL REFERENCES dbo.Areas(Id),
-    Name   NVARCHAR(100) NOT NULL
+    Id          INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId      INT NOT NULL REFERENCES dbo.Areas(Id),
+    Name        NVARCHAR(100) NOT NULL,
+    Sequence    INT           NULL,
+    Description NVARCHAR(200) NULL
 );
 
 -- -------------------------------------------------------

@@ -194,6 +194,7 @@
     <Compile Include="DAL\Repositories\TrainingGuideRepository.cs" />
     <Compile Include="DAL\Repositories\AreaRepository.cs" />
     <Compile Include="DAL\Repositories\NCCodeRepository.cs" />
+    <Compile Include="DAL\Repositories\OperationRepository.cs" />
     <Compile Include="DAL\Repositories\DataCollectionParameterRepository.cs" />
     <Compile Include="DAL\Repositories\DataCollectionGroupRepository.cs" />
     <Compile Include="DAL\Repositories\AssemblyComponentRepository.cs" />

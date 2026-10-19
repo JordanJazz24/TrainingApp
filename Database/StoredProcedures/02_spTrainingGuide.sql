@@ -1,6 +1,6 @@
 -- ============================================================
 -- 02_spTrainingGuide.sql — SPs de lectura de guías y catálogos
--- (TrainingGuides, TrainingSteps, Products, Areas, NCCodes,
+-- (TrainingGuides, TrainingSteps, Products, Areas, NCCodes, Operations,
 -- DataCollectionGroups, DataCollectionParameters, AssemblyComponents)
 -- y spTrainingGuideSync, que usan solo los scripts de guía.
 -- Requiere: 00_Schema.sql · Re-ejecutable: sí (CREATE OR ALTER).
@@ -94,6 +94,21 @@ BEGIN
     FROM   dbo.NCCodes
     WHERE  AreaId = @AreaId
     ORDER  BY Code;
+END;
+GO
+
+-- spOperationGetByArea
+-- Operaciones del área (spec 014, D-58), de la actual (mayor Sequence) a las
+-- anteriores.
+CREATE OR ALTER PROCEDURE dbo.spOperationGetByArea
+    @AreaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, AreaId, Name, Sequence, Description
+    FROM   dbo.Operations
+    WHERE  AreaId = @AreaId
+    ORDER  BY Sequence DESC, Id DESC;
 END;
 GO
 

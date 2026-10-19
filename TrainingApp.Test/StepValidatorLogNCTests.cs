@@ -163,6 +163,63 @@ namespace TrainingApp.Test
             Assert.That(AttemptActions.ForSubmit(StepType.LogNC, StepAnswers.Invalid), Is.EqualTo(AttemptActions.LogNCWrongButton));
         }
 
+        // ── Reparación extendida (AC-20, AC-21) ─────────────────────────────
+
+        private static readonly TrainingStep ExtendedStep = new TrainingStep { StepType = StepType.LogNCExtendedRepair, Order = 10 };
+
+        private static NcFinding ExtendedFinding(NcDisposition disposition)
+            => new NcFinding
+            {
+                StepOrder = 10, RowId = "d", SFCCode = "SFC-d", Code = "F_FX_GENERAL", Method = NCMethod.ExtendedRepair,
+                Disposition = disposition, Mpi = "MPI-SIM-1234 Rev A"
+            };
+
+        private static string Extended(string code, string disposition, string component = "")
+            => "{\"code\":\"" + code + "\",\"component\":\"" + component + "\",\"disposition\":\"" + disposition + "\"}";
+
+        private static bool ValidateExtended(NcDisposition disposition, string answer, params SimulatedOrderRow[] selected)
+            => new StepValidator(new StepValidationContext
+            {
+                ValidNCCodes = Catalog,
+                NcFinding    = ExtendedFinding(disposition),
+                SelectedRows = selected
+            }).Validate(ExtendedStep, answer);
+
+        [Test]
+        public void ExtendedRepair_PieceCodeAndFindingDisposition_IsCorrect()
+        {
+            Assert.That(ValidateExtended(NcDisposition.LocalRework, Extended("F_FX_GENERAL", "localRework"), Row("d")), Is.True);
+            Assert.That(ValidateExtended(NcDisposition.ReturnToPrevious, Extended("F_FX_GENERAL", "returnToPrevious"), Row("d")), Is.True);
+            // El componente es opcional y no se califica.
+            Assert.That(ValidateExtended(NcDisposition.LocalRework, Extended("F_FX_GENERAL", "localRework", "cualquiera"), Row("d")), Is.True);
+        }
+
+        [Test]
+        public void ExtendedRepair_OtherDisposition_IsIncorrect()
+        {
+            // AC-21: la otra disposición es intento fallido.
+            Assert.That(ValidateExtended(NcDisposition.LocalRework, Extended("F_FX_GENERAL", "returnToPrevious"), Row("d")), Is.False);
+            Assert.That(ValidateExtended(NcDisposition.ReturnToPrevious, Extended("F_FX_GENERAL", "localRework"), Row("d")), Is.False);
+            // Add-Done sin disposición (no pasó por Select Disposition Function).
+            Assert.That(ValidateExtended(NcDisposition.LocalRework, Answer("F_FX_GENERAL"), Row("d")), Is.False);
+        }
+
+        [Test]
+        public void ExtendedRepair_OtherPieceOrCode_IsIncorrect()
+        {
+            Assert.That(ValidateExtended(NcDisposition.LocalRework, Extended("F_FX_GENERAL", "localRework"), Row("a")), Is.False);
+            Assert.That(ValidateExtended(NcDisposition.LocalRework, Extended("F_FR_GENERAL", "localRework"), Row("d")), Is.False);
+        }
+
+        [Test]
+        public void ExtendedRepair_ActionsForTheActivityLog()
+        {
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNCExtendedRepair, Extended("F_FX_GENERAL", "localRework")),
+                Is.EqualTo(AttemptActions.LogNCExtendedLocalRework));
+            Assert.That(AttemptActions.ForSubmit(StepType.LogNCExtendedRepair, Extended("F_FX_GENERAL", "returnToPrevious")),
+                Is.EqualTo(AttemptActions.LogNCExtendedReturnToPrevious));
+        }
+
         [Test]
         public void WrongButtonOrNoFinding_IsIncorrect()
         {
@@ -181,8 +238,9 @@ namespace TrainingApp.Test
         {
             new NCCode { Code = "F_FS_A", Description = "A", Method = NCMethod.FastScrap },
             new NCCode { Code = "F_FS_B", Description = "B", Method = NCMethod.FastScrap },
-            new NCCode { Code = "F_FR_A", Description = "C", Method = NCMethod.FastRepair },
-            new NCCode { Code = "F_FX_A", Description = "D", Method = NCMethod.ExtendedRepair }
+            // Enmienda 5: un código general por método de reparación.
+            new NCCode { Code = "F_FR_GENERAL", Description = "Fast Repair General", Method = NCMethod.FastRepair },
+            new NCCode { Code = "F_FX_GENERAL", Description = "Fast Extended Repair General", Method = NCMethod.ExtendedRepair, RequiresComments = true }
         };
 
         private static IList<TrainingStep> Guide(params StepType[] types)
@@ -274,13 +332,63 @@ namespace TrainingApp.Test
 
                 var repair = findings[1];
                 Assert.That(repair.Method, Is.EqualTo(NCMethod.FastRepair));
-                Assert.That(repair.Code, Is.EqualTo("F_FR_A"));
+                Assert.That(repair.Code, Is.EqualTo("F_FR_GENERAL"));
+                // Enmienda 5: el defecto de la nota es el de un código de desecho del área.
+                Assert.That(repair.Description, Is.AnyOf("A", "B"));
                 Assert.That(bom.Any(c => c.Id == repair.ComponentId && c.PartNumber == repair.ComponentPartNumber), Is.True);
                 Assert.That(findings[0].RowId, Is.Not.EqualTo(repair.RowId));
             }
 
             Assert.Throws<InvalidOperationException>(new Action(() => NcFindingGenerator.Generate(guide, Pieces(4),
                 SerializationType.Serialized, Catalog, null, 250, new Random(1))));
+        }
+
+        [Test]
+        public void ExtendedRepair_HasDispositionMpiAndScrapDefect()
+        {
+            var guide = Guide(StepType.LogNC, StepType.LogNCFastRepair, StepType.LogNCExtendedRepair);
+            var bom = new List<AssemblyComponent> { new AssemblyComponent { Id = 1, PartNumber = "P1", Description = "Uno" } };
+            var dispositions = new HashSet<NcDisposition>();
+            for (int seed = 0; seed < 200; seed++)
+            {
+                var findings = NcFindingGenerator.Generate(guide, Pieces(4), SerializationType.Serialized,
+                    Catalog, bom, 250, new Random(seed));
+
+                var extended = findings[2];
+                Assert.That(extended.Method, Is.EqualTo(NCMethod.ExtendedRepair));
+                Assert.That(extended.Code, Is.EqualTo("F_FX_GENERAL"));
+                // Enmienda 5: el defecto sale de un código de desecho; el código es el general.
+                Assert.That(extended.Description, Is.AnyOf("A", "B"));
+                Assert.That(extended.Disposition, Is.Not.Null);
+                dispositions.Add(extended.Disposition.Value);
+                // P-13: F_FX_GENERAL exige Comments, así que trae el MPI simulado.
+                Assert.That(extended.Mpi, Does.Match(@"^MPI-SIM-\d{4} Rev [A-D]$"));
+                Assert.That(findings[1].Mpi, Is.Null);
+                // Tres hallazgos en piezas distintas y siempre una pieza para Complete.
+                Assert.That(findings.Select(f => f.RowId), Is.Unique);
+                Assert.That(findings[0].Disposition, Is.Null);
+                Assert.That(findings[1].Disposition, Is.Null);
+            }
+            Assert.That(dispositions, Is.EquivalentTo(new[] { NcDisposition.LocalRework, NcDisposition.ReturnToPrevious }));
+        }
+
+        [Test]
+        public void ThreeMethods_ShowDistinctDefects_WhileTheCatalogAllows()
+        {
+            // Usuario, 2026-10-19: cada hallazgo de la orden muestra otro defecto.
+            var catalog = new List<NCCode>(Catalog)
+            {
+                new NCCode { Code = "F_FS_C", Description = "C", Method = NCMethod.FastScrap }
+            };
+            var guide = Guide(StepType.LogNC, StepType.LogNCFastRepair, StepType.LogNCExtendedRepair);
+            var bom = new List<AssemblyComponent> { new AssemblyComponent { Id = 1, PartNumber = "P1", Description = "Uno" } };
+            for (int seed = 0; seed < 200; seed++)
+            {
+                var findings = NcFindingGenerator.Generate(guide, Pieces(4), SerializationType.Serialized,
+                    catalog, bom, 250, new Random(seed));
+                Assert.That(findings.Select(f => f.Description), Is.Unique);
+                Assert.That(findings.All(f => new[] { "A", "B", "C" }.Contains(f.Description)), Is.True);
+            }
         }
 
         [Test]
@@ -295,6 +403,10 @@ namespace TrainingApp.Test
         public void MissingCodesOfTheMethod_Throws()
         {
             var onlyRepair = Catalog.Where(c => c.Method != NCMethod.FastScrap).ToList();
+            // Sin códigos de desecho, el defecto de una reparación es la descripción de su código.
+            var repairOnly = NcFindingGenerator.Generate(Guide(StepType.LogNCExtendedRepair), Pieces(4),
+                SerializationType.Serialized, onlyRepair, null, 250, new Random(1)).Single();
+            Assert.That(repairOnly.Description, Is.EqualTo("Fast Extended Repair General"));
             Assert.Throws<InvalidOperationException>(new Action(() => NcFindingGenerator.Generate(Guide(StepType.LogNC),
                 Pieces(4), SerializationType.Serialized, onlyRepair, null, 250, new Random(1))));
         }

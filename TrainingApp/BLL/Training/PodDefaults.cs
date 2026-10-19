@@ -32,9 +32,9 @@ namespace TrainingApp.BLL.Training
             => (product?.Name ?? "") + " / " + area.Name;
 
         // As-Built Configuration de Remove component y Add Component (spec 014, P-11). El
-        // material es la Shop Order (prefijo de los SFC, como en el MES real); Routing, BOM y la
-        // operación son simulados (SIM). La operación pasa a las Operations del área en la E3
-        // (D-58).
+        // material es la Shop Order (prefijo de los SFC, como en el MES real); Routing y BOM son
+        // simulados (SIM). La operación es la actual de las Operations del área (D-58);
+        // SimOperation es el respaldo de un área sin Operations.
         public static string MaterialVersion(SimulatedOrder order)
             => order == null ? string.Empty : order.ShopOrderInput + "/A";
 

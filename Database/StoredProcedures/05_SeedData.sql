@@ -49,7 +49,7 @@ DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE Name = 'Redefinity');
 -- Guía de Redefinity (sin SFC Split: el área es Serialized)
 -- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
 --           4 DataCollection · 5 SFC_Split · 6 LogNC (desecho rápido) · 7 Complete
---           8 Logout · 9 LogNCFastRepair (spec 014)
+--           8 Logout · 9 LogNCFastRepair · 10 LogNCExtendedRepair (spec 014)
 -- ------------------------------------------------------------
 DECLARE @Steps TABLE ([Order] INT, StepType TINYINT, Weight DECIMAL(5,2));
 INSERT INTO @Steps ([Order], StepType, Weight) VALUES
@@ -57,19 +57,22 @@ INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     (2, 1, 0.05),   -- Line Clearance (apertura)
     (3, 2, 0.05),   -- Search / Start (directo, sin checklist)
     (4, 3, 0.15),   -- Assembly
-    (5, 4, 0.30),   -- Data Collection
+    (5, 4, 0.25),   -- Data Collection (spec 014: cede 0.05 a la reparación extendida)
     (6, 1, 0.05),   -- Line Clearance (cierre)
     (7, 6, 0.05),   -- Log NC · desecho rápido
-    (8, 9, 0.05),   -- Log NC · reparación rápida (spec 014; pesos de transición, D-57)
-    (9, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
-    (10, 8, 0.05);  -- Logout
+    (8, 9, 0.05),   -- Log NC · reparación rápida (spec 014)
+    (9, 10, 0.05),  -- Log NC · reparación extendida (spec 014)
+    (10, 7, 0.05),  -- Complete (spec 015: cede 0.05 a Logout)
+    (11, 8, 0.05);  -- Logout
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía Redefinity — Flujo Completo', @Steps = @Json;
 
 -- ------------------------------------------------------------
 -- NCCodes de ejemplo. Method (spec 014): 0 desecho rápido, 1 reparación
--- rápida (SIM_FR), 2 extendida (SIM_FX); SIM_FX_GENERAL exige Comments.
+-- rápida, 2 extendida. Las reparaciones usan los códigos generales REALES
+-- de todas las áreas serializadas, como en 06 (enmienda 5); F_FX_GENERAL
+-- exige Comments.
 -- ------------------------------------------------------------
 DECLARE @Nc TABLE (Seq INT IDENTITY, Code NVARCHAR(50), Description NVARCHAR(200),
                    Method TINYINT, RequiresComments BIT);
@@ -77,10 +80,8 @@ INSERT INTO @Nc (Code, Description, Method, RequiresComments) VALUES
     (N'SC-001',          N'Daño físico en componente',      0, 0),
     (N'SC-002',          N'Fallo de continuidad eléctrica', 0, 0),
     (N'SC-003',          N'Contaminación de superficie',    0, 0),
-    (N'SIM_FR_HUB',      N'Hub dañado',                     1, 0),
-    (N'SIM_FR_LUER',     N'Conector luer flojo',            1, 0),
-    (N'SIM_FX_GENERAL',  N'Reparación extendida general',   2, 1),
-    (N'SIM_FX_PUNTA',    N'Punta deformada',                2, 0);
+    (N'F_FR_GENERAL',    N'Fast Repair General',            1, 0),
+    (N'F_FX_GENERAL',    N'Fast Extended Repair General',   2, 1);
 
 UPDATE t SET Description = s.Description, Method = s.Method, RequiresComments = s.RequiresComments
 FROM   dbo.NCCodes t JOIN @Nc s ON s.Code = t.Code
@@ -90,6 +91,31 @@ INSERT INTO dbo.NCCodes (AreaId, Code, Description, Method, RequiresComments)
 SELECT @AreaId, s.Code, s.Description, s.Method, s.RequiresComments
 FROM   @Nc s
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.NCCodes t WHERE t.AreaId = @AreaId AND t.Code = s.Code)
+ORDER  BY s.Seq;
+
+-- Enmienda 5 de la spec 014: se borran los SIM_FR_ y SIM_FX_ de una BD anterior.
+-- Excepción a "nunca borra filas" (como D-23): nada referencia NCCodes. Las sesiones en
+-- curso cuyo hallazgo guarda uno de esos códigos se abandonan antes de correr el script.
+DELETE FROM dbo.NCCodes
+WHERE  AreaId = @AreaId AND (Code LIKE N'SIM[_]FR[_]%' OR Code LIKE N'SIM[_]FX[_]%');
+
+-- ------------------------------------------------------------
+-- Operations simuladas (spec 014, D-58): la actual (mayor Sequence) y la
+-- anterior, que nombra el banner de la reparación extendida (D-52).
+-- ------------------------------------------------------------
+DECLARE @Op TABLE (Seq INT IDENTITY, Name NVARCHAR(100), Sequence INT, Description NVARCHAR(200));
+INSERT INTO @Op (Name, Sequence, Description) VALUES
+    (N'O_REDEFINITY_SIM_PREP',     10, N'Preparación (SIM)'),
+    (N'O_REDEFINITY_SIM_ENSAMBLE', 20, N'Ensamble (SIM)');
+
+UPDATE t SET Sequence = s.Sequence, Description = s.Description
+FROM   dbo.Operations t JOIN @Op s ON s.Name = t.Name
+WHERE  t.AreaId = @AreaId;
+
+INSERT INTO dbo.Operations (AreaId, Name, Sequence, Description)
+SELECT @AreaId, s.Name, s.Sequence, s.Description
+FROM   @Op s
+WHERE  NOT EXISTS (SELECT 1 FROM dbo.Operations t WHERE t.AreaId = @AreaId AND t.Name = s.Name)
 ORDER  BY s.Seq;
 
 -- ------------------------------------------------------------

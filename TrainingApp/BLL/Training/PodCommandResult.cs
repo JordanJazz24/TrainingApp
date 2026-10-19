@@ -62,6 +62,12 @@ namespace TrainingApp.BLL.Training
         // pieza sigue en el POD.
         public NcFinding Repaired { get; set; }
 
+        // Reparación extendida resuelta (spec 014, D-54): el hallazgo y la operación que nombra
+        // el banner (la anterior con Return to any previous, que saca la pieza del POD; la
+        // actual con Local Rework, que la deja).
+        public NcFinding Reworked { get; set; }
+        public string ReworkOperation { get; set; }
+
         // Complete resuelto (spec 015, D-22): filas que salieron del POD (pasan a la siguiente
         // operación).
         public IList<SimulatedOrderRow> Completed { get; set; }

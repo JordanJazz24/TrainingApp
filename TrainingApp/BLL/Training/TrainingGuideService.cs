@@ -10,6 +10,7 @@ namespace TrainingApp.BLL.Training
         private readonly TrainingGuideRepository _guideRepo;
         private readonly AreaRepository _areaRepo;
         private readonly NCCodeRepository _ncCodeRepo;
+        private readonly OperationRepository _operationRepo;
         private readonly DataCollectionParameterRepository _dcParamRepo;
         private readonly DataCollectionGroupRepository _dcGroupRepo;
         private readonly AssemblyComponentRepository _componentRepo;
@@ -20,6 +21,7 @@ namespace TrainingApp.BLL.Training
             _guideRepo     = new TrainingGuideRepository();
             _areaRepo      = new AreaRepository();
             _ncCodeRepo    = new NCCodeRepository();
+            _operationRepo = new OperationRepository();
             _dcParamRepo   = new DataCollectionParameterRepository();
             _dcGroupRepo   = new DataCollectionGroupRepository();
             _componentRepo = new AssemblyComponentRepository();
@@ -58,6 +60,12 @@ namespace TrainingApp.BLL.Training
         public IList<NCCode> GetNCCodes(int areaId)
         {
             return _ncCodeRepo.GetByArea(areaId);
+        }
+
+        // Operaciones simuladas del área, de la actual a las anteriores (spec 014, D-58).
+        public IList<Operation> GetOperations(int areaId)
+        {
+            return _operationRepo.GetByArea(areaId);
         }
 
         public IList<DataCollectionParameter> GetDataCollectionParameters(int areaId)

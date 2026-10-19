@@ -19,6 +19,7 @@ namespace TrainingApp.BLL.Training
         private IList<DataCollectionParameter> _dcParameters;
         private IList<NCCode>                  _ncCodes;
         private IList<AssemblyComponent>       _assemblyComponents;
+        private IList<Operation>               _operations;
         private Product                        _product;
         private bool                           _productLoaded;
 
@@ -112,6 +113,19 @@ namespace TrainingApp.BLL.Training
 
         public IList<AssemblyComponent> AssemblyComponents
             => _assemblyComponents ?? (_assemblyComponents = _catalog.GetAssemblyComponents(Area.Id));
+
+        // Operaciones simuladas del área (spec 014, D-58), de la actual a las anteriores.
+        public IList<Operation> Operations
+            => _operations ?? (_operations = _catalog.GetOperations(Area.Id));
+
+        // La operación actual (mayor Sequence) y la anterior (P-14); null si el área no las tiene.
+        public Operation CurrentOperation  => Operations.FirstOrDefault();
+        public Operation PreviousOperation => Operations.Skip(1).FirstOrDefault();
+
+        // Nombres que muestran Remove component y el banner de la extendida. Sin operaciones
+        // en el catálogo del área, la simulada de PodDefaults.
+        public string CurrentOperationName  => CurrentOperation?.Name ?? PodDefaults.SimOperation(Area);
+        public string PreviousOperationName => PreviousOperation?.Name ?? CurrentOperationName;
 
         // Product del área (texto del material y panel final); null si no existe.
         public Product Product

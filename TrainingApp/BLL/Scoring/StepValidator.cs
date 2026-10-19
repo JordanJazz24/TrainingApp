@@ -43,6 +43,9 @@ namespace TrainingApp.BLL.Scoring
         //   LogNCFastRepair                 : JSON {"code","component","removeAction","addComponent"}.
         //                                     Además de pieza y código: el componente del hallazgo,
         //                                     removeAction "scrap" y addComponent true (D-34, D-35)
+        //   LogNCExtendedRepair             : JSON {"code","component","disposition"}. Además de pieza
+        //                                     y código: la disposición del hallazgo (D-37b). Ni el
+        //                                     componente ni Comments se califican (D-38)
         public bool Validate(TrainingStep step, string submittedAnswer)
         {
             switch (step.StepType)
@@ -275,6 +278,9 @@ namespace TrainingApp.BLL.Scoring
                     return true;
                 case NCMethod.FastRepair:
                     return IsFastRepairDecision(finding, answer);
+                case NCMethod.ExtendedRepair:
+                    return finding.Disposition.HasValue
+                        && answer.Disposition == LogNCAnswer.ToAnswer(finding.Disposition.Value);
                 default:
                     return false;
             }

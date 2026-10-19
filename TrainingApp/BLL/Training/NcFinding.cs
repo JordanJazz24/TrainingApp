@@ -1,10 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TrainingApp.Domain;
 
 namespace TrainingApp.BLL.Training
 {
+    // Disposición de la reparación extendida (spec 014, D-37b): la dicta el hallazgo.
+    public enum NcDisposition
+    {
+        LocalRework,       // se retrabaja en la operación actual; la pieza sigue en el POD
+        ReturnToPrevious   // vuelve a una operación anterior; la pieza sale del POD (D-54)
+    }
+
     // Hallazgo de un paso de Log NC (spec 014, D-28): qué pieza está defectuosa, con qué
     // defecto (un código exacto del catálogo, D-31) y qué hacer con ella. Es dato de escenario:
     // vive en PodState y lo genera NcFindingGenerator al dar Start.
@@ -29,7 +37,9 @@ namespace TrainingApp.BLL.Training
         // 0 en Serialized.
         public int UnitCount { get; set; }
 
-        // El código exacto del hallazgo y su descripción (el defecto que muestra la nota).
+        // El código exacto del hallazgo y el defecto que muestra la nota. Desecho: la descripción
+        // del código. Reparaciones (enmienda 5): el código es el general del método y el defecto,
+        // el de un código de desecho del área.
         public string Code        { get; set; }
         public string Description { get; set; }
 
@@ -37,6 +47,11 @@ namespace TrainingApp.BLL.Training
         public int    ComponentId          { get; set; }
         public string ComponentPartNumber  { get; set; }
         public string ComponentDescription { get; set; }
+
+        // Reparación extendida: la disposición (D-37b) y, si el código exige Comments, el MPI
+        // simulado que se anota (P-13; no se califica, D-38). null en los otros métodos.
+        public NcDisposition? Disposition { get; set; }
+        public string Mpi { get; set; }
     }
 
     // Genera un hallazgo por cada paso de Log NC de la guía (spec 014, Scope punto 3).
@@ -60,9 +75,15 @@ namespace TrainingApp.BLL.Training
             if (!serialized && lotQty < 2)
                 throw new ArgumentOutOfRangeException(nameof(lotQty), "El lote necesita al menos 2 unidades para un split.");
             var available = serialized ? new List<SimulatedOrderRow>(pieces ?? new List<SimulatedOrderRow>()) : null;
-            // Siempre queda una pieza para Complete: con 4-5 piezas y hasta 3 hallazgos alcanza.
+            // Siempre queda una pieza para Complete: con 4-5 piezas y hasta 3 hallazgos alcanza
+            // (el desecho y Return to any previous sacan cada uno su pieza del POD).
             if (serialized && available.Count <= logNcSteps.Count)
                 throw new InvalidOperationException("La orden no tiene piezas suficientes para los hallazgos de Log NC.");
+
+            // Defectos ya usados en la orden: cada hallazgo muestra otro mientras el catálogo alcance
+            // (usuario, 2026-10-19: con elecciones independientes se repetían seguido).
+            var usedDefects = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var scrapCodes  = (codes ?? new List<NCCode>()).Where(c => c.Method == NCMethod.FastScrap).ToList();
 
             for (int i = 0; i < logNcSteps.Count; i++)
             {
@@ -70,7 +91,15 @@ namespace TrainingApp.BLL.Training
                 var candidates = (codes ?? new List<NCCode>()).Where(c => c.Method == method).ToList();
                 if (candidates.Count == 0)
                     throw new InvalidOperationException("El catálogo del área no tiene códigos NC del método " + method + ".");
-                var code = candidates[random.Next(candidates.Count)];
+
+                // Desecho: el código es el defecto. Reparaciones: el código es el general y el
+                // defecto, el de un código de desecho del área (o el propio, si no hay ninguno).
+                bool scrap = method == NCMethod.FastScrap;
+                var code = scrap ? PickUnused(candidates, usedDefects, random) : candidates[random.Next(candidates.Count)];
+                string defect = scrap || scrapCodes.Count == 0
+                    ? code.Description
+                    : PickUnused(scrapCodes, usedDefects, random).Description;
+                usedDefects.Add(defect);
 
                 var finding = new NcFinding
                 {
@@ -79,7 +108,7 @@ namespace TrainingApp.BLL.Training
                     Total       = logNcSteps.Count,
                     Method      = method,
                     Code        = code.Code,
-                    Description = code.Description
+                    Description = defect
                 };
 
                 if (method == NCMethod.FastRepair)
@@ -90,6 +119,12 @@ namespace TrainingApp.BLL.Training
                     finding.ComponentId          = component.Id;
                     finding.ComponentPartNumber  = component.PartNumber;
                     finding.ComponentDescription = component.Description;
+                }
+                else if (method == NCMethod.ExtendedRepair)
+                {
+                    finding.Disposition = random.Next(2) == 0 ? NcDisposition.LocalRework : NcDisposition.ReturnToPrevious;
+                    if (code.RequiresComments)
+                        finding.Mpi = SimulatedMpi(random);
                 }
 
                 if (serialized)
@@ -109,5 +144,19 @@ namespace TrainingApp.BLL.Training
             }
             return result;
         }
+
+        // Un código al azar cuya descripción todavía no salió en la orden; si ya salieron todas,
+        // cualquiera.
+        private static NCCode PickUnused(IList<NCCode> codes, ISet<string> usedDefects, Random random)
+        {
+            var pool = codes.Where(c => !usedDefects.Contains(c.Description ?? string.Empty)).ToList();
+            if (pool.Count == 0) pool = codes.ToList();
+            return pool[random.Next(pool.Count)];
+        }
+
+        // MPI y revisión simulados (P-13), con el prefijo SIM como el resto del catálogo simulado.
+        private static string SimulatedMpi(Random random)
+            => string.Format(CultureInfo.InvariantCulture, "MPI-SIM-{0:D4} Rev {1}",
+                random.Next(1000, 10000), (char)('A' + random.Next(4)));
     }
 }

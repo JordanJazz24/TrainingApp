@@ -1001,6 +1001,12 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    2026-10-15): banner "All of {SFC} will be processed at {operación anterior}" y la pieza
    sale del POD. Con **Local Rework**: otro banner con la operación actual; su texto exacto
    no se conoce (provisional en el simulador, spec 014, D-54).
+   **En el simulador (spec 014, E3):** las operaciones son las `SIM` de `Operations` (D-58),
+   p. ej. `O_LOFLO_SIM_ENSAMBLE` (actual) y `O_LOFLO_SIM_PREP` (anterior). Local Rework usa
+   un banner verde **PROVISIONAL** con el mismo formato y la operación actual
+   (`GuidedTest.ShowReworked`), y la pieza sigue en el POD; se cambia al conocer el real
+   (V-5). Cancel y ✕ del sub-modal vuelven a NC Data Entry sin "NC logged" y sin contar
+   (P-15).
 4. **Sin verificar:** qué muestra cada disposición. La WI no tiene Disposition Function: tras
    "NC logged" muestra **"Select next step for {SFC}"** con las operaciones de la ruta
    (`010 O_VERR_W_ASSEMBLY_PREP` "Wire Assembly Preparation", `020 O_VERR_FIRST_DISTAL`

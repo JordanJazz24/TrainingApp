@@ -11,7 +11,8 @@ namespace TrainingApp.Domain
         LogNC = 6,
         Complete = 7,
         Logout = 8,
-        LogNCFastRepair = 9    // Log NC · reparación rápida (spec 014, P-7); LogNC = desecho rápido
+        LogNCFastRepair = 9,   // Log NC · reparación rápida (spec 014, P-7); LogNC = desecho rápido
+        LogNCExtendedRepair = 10  // Log NC · reparación extendida (spec 014, P-7)
     }
 
     public class TrainingStep

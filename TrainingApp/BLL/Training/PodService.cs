@@ -532,7 +532,7 @@ namespace TrainingApp.BLL.Training
                 var failed = FailedAttempt(ctx, PodAttemptReason.NoScrappableRow, AttemptActions.LogNC);
                 // P-5: el paso forzado aplica la disposición del hallazgo.
                 if (failed.Step.Outcome == StepSubmitOutcome.FailedForced)
-                    failed.Scrapped = ApplyFindingDisposition(ctx, finding, null);
+                    ResolveFinding(ctx, finding, null, failed);
                 return failed;
             }
 
@@ -541,7 +541,7 @@ namespace TrainingApp.BLL.Training
 
         // Add-Done de NC Data Entry (o un botón equivocado del modal). Spec 014: califica la
         // pieza y el código contra el hallazgo del paso (StepValidator). Resuelto (correcto o
-        // forzado, P-5) se aplica la disposición del hallazgo: el desecho saca su pieza.
+        // forzado, P-5) se aplica la disposición del hallazgo.
         public PodCommandResult SubmitLogNC(PodContext ctx, string answer, ICollection<string> selectedRowIds)
         {
             EnsureInProgress(ctx);
@@ -553,11 +553,32 @@ namespace TrainingApp.BLL.Training
             var result = new PodCommandResult { Step = SubmitStep(ctx, answer, selected) };
             if (result.Step.Outcome == StepSubmitOutcome.Incorrect) return result;
 
-            result.Scrapped = ApplyFindingDisposition(ctx, finding, selected);
-            // Reparación rápida (D-47): la pieza sigue en el POD; la página muestra el banner.
-            if (finding.Method == NCMethod.FastRepair)
-                result.Repaired = finding;
+            ResolveFinding(ctx, finding, selected, result);
             return result;
+        }
+
+        // Paso de Log NC resuelto: aplica la disposición del hallazgo y deja en el resultado lo
+        // que la página muestra. Desecho: las filas que salieron. Reparación rápida (D-47): la
+        // pieza sigue. Extendida (D-54): la operación del banner; Return to any previous ya sacó
+        // la pieza del POD.
+        private void ResolveFinding(PodContext ctx, NcFinding finding, IList<SimulatedOrderRow> selected,
+            PodCommandResult result)
+        {
+            var removed = ApplyFindingDisposition(ctx, finding, selected);
+            switch (finding.Method)
+            {
+                case NCMethod.FastScrap:
+                    result.Scrapped = removed;
+                    break;
+                case NCMethod.FastRepair:
+                    result.Repaired = finding;
+                    break;
+                case NCMethod.ExtendedRepair:
+                    result.Reworked        = finding;
+                    result.ReworkOperation = finding.Disposition == NcDisposition.ReturnToPrevious
+                        ? ctx.PreviousOperationName : ctx.CurrentOperationName;
+                    break;
+            }
         }
 
         // El hallazgo del paso actual de Log NC, con su pieza en el POD. Faltar es un error de
@@ -573,8 +594,8 @@ namespace TrainingApp.BLL.Training
             return finding;
         }
 
-        // Disposición del hallazgo (spec 014, P-4): el desecho rápido saca su pieza de la orden;
-        // la reparación rápida la deja en el POD (D-47), así que no saca nada.
+        // Disposición del hallazgo (spec 014, P-4): el desecho rápido y Return to any previous
+        // sacan su pieza del POD (D-54); la reparación rápida y el Local Rework la dejan (D-47).
         // La pieza es la enviada si es la del hallazgo (StepValidator.IsFindingPiece); si no
         // (avance forzado y reconstrucción), la del hallazgo o, en NonSerialized, la primera fila
         // del split. Devuelve las filas que salieron.
@@ -582,7 +603,7 @@ namespace TrainingApp.BLL.Training
             IList<SimulatedOrderRow> selected)
         {
             var order = ctx.State.Order;
-            if (finding == null || order == null || finding.Method != NCMethod.FastScrap)
+            if (finding == null || order == null || !RemovesPiece(finding))
                 return new List<SimulatedOrderRow>();
 
             var piece = StepValidator.IsFindingPiece(finding, selected)
@@ -596,11 +617,16 @@ namespace TrainingApp.BLL.Training
                 : RemoveRows(ctx, new List<SimulatedOrderRow> { piece });
         }
 
+        private static bool RemovesPiece(NcFinding finding)
+            => finding.Method == NCMethod.FastScrap ||
+               (finding.Method == NCMethod.ExtendedRepair && finding.Disposition == NcDisposition.ReturnToPrevious);
+
         // NonSerialized: exactamente una fila, creada por el SFC Split; la fila original del
         // lote no se scrapea (spec 007). Serialized: las filas seleccionadas, siempre que quede
         // al menos una pieza para Complete (spec 008); noPieceLeft avisa que no quedaría ninguna.
-        // Spec 014: la regla de dejar una pieza para Complete es del desecho; la reparación deja
-        // la pieza en el POD, así que basta con una fila seleccionada.
+        // Spec 014: la regla de dejar una pieza para Complete es del desecho. Las reparaciones
+        // califican exactamente la pieza del hallazgo, y aunque Return to any previous la saque
+        // del POD, NcFindingGenerator deja siempre una pieza para Complete.
         private static IList<SimulatedOrderRow> ScrappableRows(PodContext ctx,
             ICollection<string> selectedRowIds, NCMethod method, out bool noPieceLeft)
         {

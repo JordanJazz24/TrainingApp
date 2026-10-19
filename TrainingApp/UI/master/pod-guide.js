@@ -205,8 +205,28 @@
 
     function clamp(v, min, max) { return Math.max(min, Math.min(v, max)); }
 
+    // Recuadro iluminado: el resaltado y, si está en un modal, los elementos libres del mismo
+    // modal. pg-lift no los saca del oscurecido: el modal tiene su propio z-index, menor que el
+    // del marco (ej. Batch Number junto a Add en Add Component, spec 014).
+    function frameRect() {
+        var t = target.getBoundingClientRect();
+        var box = { left: t.left, top: t.top, right: t.right, bottom: t.bottom };
+        var modal = target.closest('.modal');
+        if (modal) lifted.forEach(function (el) {
+            if (!modal.contains(el)) return;
+            var q = el.getBoundingClientRect();
+            box.left   = Math.min(box.left, q.left);
+            box.top    = Math.min(box.top, q.top);
+            box.right  = Math.max(box.right, q.right);
+            box.bottom = Math.max(box.bottom, q.bottom);
+        });
+        box.width  = box.right - box.left;
+        box.height = box.bottom - box.top;
+        return box;
+    }
+
     function place() {
-        var r = target.getBoundingClientRect(), pad = 4, gap = 12, margin = 8;
+        var r = frameRect(), pad = 4, gap = 12, margin = 8;
         frame.style.left   = (r.left - pad) + 'px';
         frame.style.top    = (r.top - pad) + 'px';
         frame.style.width  = (r.width + pad * 2) + 'px';
