@@ -3,6 +3,14 @@
 **Status:** Approved (2026-10-13)
 **Date:** 2026-10-13 · **Approved:** 2026-10-13 (usuario, con las propuestas de diseño incluidas)
 
+> **Enmienda 2 · 2026-10-19 (usuario, spec 016, D-62):** **un solo login de la app, neutro**,
+> para Operator y Administrator, y **una sola pantalla de cambio de contraseña**, también
+> neutra. El rol decide a dónde va cada uno (`SessionHelper.RedirectHome`). Desaparecen el
+> login administrativo aparte, la regla "el rol equivocado con la contraseña correcta recibe
+> el camino correcto" (`WrongPortal`) y el diseño de SAP NetWeaver del login, que pasa al
+> login de MES simulado dentro de la sesión (spec 016, D-63). No cambian el autorregistro de
+> operadores, el bloqueo, el último acceso anterior ni el cambio de contraseña obligatorio.
+
 > **Enmienda 2026-10-13 (usuario, en la sesión de desarrollo, al probar E3):** afecta Scope
 > (puntos 4 y 7, Out), Edge Cases, AC-12 y AC-13, y Deferred Decisions.
 >

@@ -1,7 +1,7 @@
 # Spec 016: Preparación antes de SAP (Ingreso a MES y limpieza al salir)
 
-**Status:** In Review
-**Date:** 2026-10-19
+**Status:** Approved (2026-10-19)
+**Date:** 2026-10-19 · **Approved:** 2026-10-19 (usuario, con P-1 a P-14)
 
 Fuentes: el flujo Pre-SAP del usuario y sus capturas (`docs/ui-reference/pre-sap-flow.md`,
 `Screens SAP MES REAL/Pre-SAPMES/`, 2026-10-19); WI QD001001524 → 6.4 y 6.5
