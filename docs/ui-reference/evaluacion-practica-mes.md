@@ -153,3 +153,18 @@ distinto) · ❌ no existe · 🧠 comprensión (no se ejecuta en el POD).
   Set Up, LC con Yes obligatorio por Data Collection Standalone, Start después de Resource
   Setup y LC, todos los DC obligatorios, Complete sin Buyoff, Logout en el POD y N/A según
   el BOM y la operación.
+
+## Decisiones del usuario (2026-10-19)
+
+**Criterio general:** la evaluación en papel **no se replica**. Es un insumo para ver qué
+cubre el simulador, que debe cumplir **como mínimo** lo que ella pide.
+
+| Hallazgo | Decisión | Dónde queda |
+|---|---|---|
+| EP-1 · Pasa/Falla | Assessment se queda como está: puntaje ponderado, aprueba con 0.70 | — |
+| EP-2 · Pesos | Sin cambios; Log NC se queda en 0.05 × 3 (0.10 en Moldeo). T6 no mueve pesos | — |
+| EP-3 · Caché después del Logout | Entra en la **spec 016**: entrada (limpiar caché → Repositorio → Recursos MES → login) y salida (Logout → limpiar caché) | Fase 8.5, fila 7 |
+| EP-4 / EP-5 · Resource Setup y errores del MES | **Spec 017 · fidelidad con la evaluación práctica**, después de la 012. Primero se capturan los mensajes reales en el ambiente de testing (T9); sin capturas no se inventa UI (`docs/process.md` §8) | Fase 8.5, fila 10 |
+| EP-6 · W13 | Sigue diferida: verificar el dato lo evalúa el instructor | Deferred Decisions de la spec 014 |
+| EP-7 · Comprensión | **Notas en la guía de Guided**, cada una en su paso, como las de la trainer (T7). Plan directo; Assessment no las evalúa | Fase 8.5, fila 11 |
+
