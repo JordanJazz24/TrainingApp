@@ -110,6 +110,8 @@ realidad es el login de la cuenta de la app.
   sesión en descansos, al terminar el turno, al cambiar de estación o actividad y al
   entregar la estación; una sesión abierta registra transacciones con el usuario
   equivocado. Los textos se aprueban con el plan (como D-50).
+  **En Guided la guía impone ese orden** (solo deja la tarjeta que toca); Assessment acepta
+  cualquiera (usuario).
 - **P-9 · Login neutro de la app (D-62):**
   - Usa el diseño de `Admin.Master`, con el título "Simulador de entrenamiento MES".
   - Conserva todo lo de la spec 013: autorregistro de operadores, bloqueo, último acceso
@@ -199,7 +201,10 @@ o avance forzado.
 - **Cerrar Edge antes del Log On:** escritorio, sin intento, con los registros conservados
   (P-13).
 - **Abandon a mitad del Ingreso o de la limpieza:** desde la barra del simulador (P-11).
-- **Sesiones en curso al cargar las guías nuevas:** siguen con su versión (D-56).
+- **Sesiones en curso al cargar las guías nuevas:** siguen con su versión (D-56), pero la
+  limpieza de Logout aplica a todas: es del código, no de la versión (usuario). Como la BD
+  es de pruebas, el usuario puede recrearla con `00`–`09` en vez de convivir con versiones
+  viejas (`docs/process.md` → "Base de datos").
 
 ## Non-Functional Requirements
 

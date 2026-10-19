@@ -142,6 +142,11 @@ pida: él decidió dejarlos para fases propias.
 - **Esquema:** no hay scripts de migración. Un cambio se escribe directo en `00_Schema.sql`
   y el `ALTER` para la BD existente se entrega aparte, indicando qué otros scripts volver a
   correr.
+- **BD de pruebas (usuario, 2026-10-19):** mientras la BD del usuario sea de pruebas, se
+  puede borrar y volver a crear con `00`–`09`. Un cambio de esquema o de guía no necesita
+  `ALTER` aparte ni cuidar las sesiones en curso: basta indicar que se recrea la BD. Cuando
+  haya una BD con historial que conservar (el servidor real, D-19), vuelve la regla del
+  `ALTER`.
 - **SPs:** `CREATE OR ALTER`. Un SP que se elimina se borra de su script y se entrega un
   `DROP` aparte (los scripts no arrastran borrados viejos).
 - **Datos:** cada script corre en una transacción (`SET XACT_ABORT ON`): si falla, no deja
