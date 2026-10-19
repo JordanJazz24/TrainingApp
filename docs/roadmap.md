@@ -47,6 +47,10 @@ código:** spec 014, entrega 2 (`git log --oneline -10` para ver el estado real)
   QD001001524, integrado en `TrainingApp` (`docs/ui-reference/wi-produccion-disposables.md`,
   W1-W22). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
   tipo de material (W13). Preguntas abiertas en "Fase 8" → "Contraste con la WI".
+- **Fidelidad de UI/UX contra el MES de testing (2026-10-19):** medidas y mensajes reales en
+  `docs/ui-reference/estilos-y-mensajes-mes.md`; diferencias AUD-45 a AUD-70 en
+  `docs/audits/2026-10-19-fidelidad-ui.md`. **Solo se corrige lo que el usuario apruebe**
+  (casillas de la auditoría); nada aprobado todavía.
 - **Lo último cerrado (2026-10-14):** **T7** (mensajes y alertas de la guía). Antes, la
   **spec 013** (cuentas, roles y registro de actividad). Antes (2026-10-12), **T1 · preparación de la versión de prueba**
   (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
