@@ -29,16 +29,18 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   "Historial"): equipos precargados en Resource Setup, grupo de DC Trainer y Logout como
   último paso, probada por el usuario. **Spec 014 ✅** (2026-10-19, tres métodos de Log NC,
   ver "Historial"): E1-E3 probadas por el usuario; la E4 (Assembly Data por tipo de
-  material, W13) se recortó (enmienda 6). Ya se puede subir a `main` (terminó la transición
-  de pesos de D-57); lo sube el usuario (D-5). **Siguiente:** la **spec 016** (T10,
-  preparación antes de SAP), que depende de que lleguen las capturas; después la **012**
-  (modo práctica). Orden vigente: 016 → 012.
+  material, W13) se recortó (enmienda 6); el usuario la subió a `main`. **T6 ✅**
+  (2026-10-19): llegó el documento de la evaluación práctica QD001043644; contraste en
+  `docs/ui-reference/evaluacion-practica-mes.md` y decisiones en las filas 9-11 de la
+  Fase 8.5. No cambia pesos. **En curso:** la **spec 016** (T10, preparación antes de SAP;
+  plan `docs/specs/016-plan.md` aprobado, cuatro entregas; no se sube a `main` hasta cerrar
+  la E4, D-81). Orden vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
-  una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
-- **Esperando a negocio:** T5 (guías por área o dos escenarios, con el equipo de Paola), el
-  documento de la prueba práctica de Ernesto (T6, reunión del 15-16 oct) y el acceso al
-  ambiente de testing de SAP MES (T9: el usuario le envía su Code1 y su correo a Ernesto).
+  una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
+  cuando el usuario lo pida.
+- **Decidido por negocio (2026-10-19):** **T5**: guías por área, como están. **T9**: el
+  usuario ya tiene acceso al ambiente de testing de SAP MES.
 - **Documentación (2026-10-12 a 2026-10-15):** contraste con la WI oficial de MES
   QD001001524, integrado en `TrainingApp` (`docs/ui-reference/wi-produccion-disposables.md`,
   W1-W22). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
@@ -54,8 +56,6 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   NetWeaver real (ver "Historial"). Las capturas del MES real pasaron al repo:
   `docs/ui-reference/Screens SAP MES REAL/`. Y el **ultrareview** de lo no auditado (ver
   "Historial"): `main` = último estado revisado.
-- **Por probar en el navegador:** la guía de Log NC en una área Serialized en Guided (arranca
-  en "Subpaso 1": hallazgo del ultrareview, commit sin probar).
 - **Antes (2026-10-07):** la **Fase 7 · catálogo de LoFlo** (`08`/`09`; NC, DC y
   BOM simulados con marca `SIM`), probada por el usuario en el navegador. Antes, la
   **Fase 5 · tests de `ScoreCalculator`**; después,
@@ -63,18 +63,11 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   `CLAUDE.md`, nuevos `docs/process.md` y `docs/architecture.md`; la memoria solo guarda lo
   que no va al repo) y la **limpieza de los scripts SQL** (corridos y probados por el
   usuario). Antes, la 6.6 (overlays guiados) y un arreglo de rendimiento (ver "Historial").
-- **Pendientes del usuario (diferidos):** los códigos NC más comunes, para que la guía los
-  sugiera (spec 010), y las capturas de los 4 modales del Start de Moldeo (inventario #8).
-  El detalle por paso en el resumen final se verá en su momento.
-- **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` y actualizar
-  `connectionStrings.config`.
-- **Acción del usuario (2026-10-14):**
-  - Abrir en el navegador la **hoja de requerimientos** (enlace de "Ahora"): desde el
-    2026-10-13 ninguna sesión puede leerla. Si ya no existe, "Reuniones y Dudas" crea una
-    nueva y se cambia el enlace.
-  - **Limpieza de git:** la rama local `docs/hallazgos-sap-mes` ya está integrada por
-    cherry-pick (`b830e1e`): se borra con `git branch -D`. La rama remota `origin/spec-013`
-    quedó con E1 y E2 de antes del rebase: se borra si el usuario lo decide.
+- **Pendientes del usuario (diferidos):** las capturas de los 4 modales del Start de Moldeo
+  (inventario #8), rotar la contraseña de `sa` y actualizar `connectionStrings.config`
+  (D-8) y probar T1 en el servidor IIS real (D-19). Se descartó que la guía sugiera los
+  códigos NC más comunes (spec 010). El detalle por paso en el resumen final se verá en su
+  momento.
 
 ### Deuda y riesgos conocidos
 
@@ -106,8 +99,6 @@ final (D-16) repasó esta lista.
   el método del código): columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`,
   `spAreaGet*`, `AreaRepository` y `Area.RequiresNCComponent`. Quitarla no entró en la
   spec 014; va con su propio plan.
-- **Banners provisionales de la spec 014:** el de la reparación rápida (V-3, D-55) y el de
-  Local Rework (V-5, D-54), hasta tener su captura del MES real.
 
 ### BD de desarrollo del usuario
 

@@ -923,7 +923,7 @@ El campo SFC en la search bar queda vacío tras el scrap.
   sin intento). Sin fila = intento fallido.
 - Banner del desecho: "✓ All of {SFC} scrapped" (una) o "✓ N SFCs scrapped" (varias). En
   Serialized el SFC field queda vacío; en NonSerialized conserva el SFC del lote. Los de la
-  reparación rápida y la extendida, abajo (dos son **provisionales**).
+  reparación rápida y la extendida, abajo.
 
 ### Métodos de NC en el MES real (revisión con SAP MES, 2026-10-09)
 Hoy se usan tres. Cuáles tiene cada operación depende de su configuración, que sigue los
@@ -1002,9 +1002,9 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    Barcode. **En el simulador** Add Assembly Details muestra solo ★ Batch Number vacío, que
    escribe el operador (formato, no se califica): la variante por material quedó diferida
    (spec 014, enmienda 6).
-5. **Sin captura:** el mensaje con que termina. El simulador usa un banner verde
-   **PROVISIONAL** "Component {componente} replaced on {SFC}" (spec 014, D-55; marcado así
-   en `GuidedTest.ShowRepaired`) y la pieza sigue en el POD. Se cambia al conocer el real (V-3).
+5. Termina con el banner verde "Component {componente} replaced on {SFC}" (spec 014, D-55;
+   `GuidedTest.ShowRepaired`) y la pieza sigue en el POD. El usuario lo confirmó como
+   correcto el 2026-10-19 (V-3).
 
 **Reparación extendida (`F_FX…`).**
 1. NC Data Entry (`modal nc entry extended.png`): ★ NC Code, Component (opcional) y
@@ -1022,13 +1022,11 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    ```
 3. Con Select se cierra todo y vuelve al POD. Con **Return to any previous** (usuario,
    2026-10-15): banner "All of {SFC} will be processed at {operación anterior}" y la pieza
-   sale del POD. Con **Local Rework**: otro banner con la operación actual; su texto exacto
-   no se conoce (provisional en el simulador, spec 014, D-54).
+   sale del POD. Con **Local Rework**: el mismo banner con la operación actual y la pieza
+   sigue en el POD (spec 014, D-54; confirmado por el usuario el 2026-10-19, V-5).
    **En el simulador (spec 014, E3):** las operaciones son las `SIM` de `Operations` (D-58),
-   p. ej. `O_LOFLO_SIM_ENSAMBLE` (actual) y `O_LOFLO_SIM_PREP` (anterior). Local Rework usa
-   un banner verde **PROVISIONAL** con el mismo formato y la operación actual
-   (`GuidedTest.ShowReworked`), y la pieza sigue en el POD; se cambia al conocer el real
-   (V-5). Cancel y ✕ del sub-modal vuelven a NC Data Entry sin "NC logged" y sin contar
+   p. ej. `O_LOFLO_SIM_ENSAMBLE` (actual) y `O_LOFLO_SIM_PREP` (anterior); los dos banners
+   los muestra `GuidedTest.ShowReworked`. Cancel y ✕ del sub-modal vuelven a NC Data Entry sin "NC logged" y sin contar
    (P-15).
 4. **Sin verificar:** qué muestra cada disposición. La WI no tiene Disposition Function: tras
    "NC logged" muestra **"Select next step for {SFC}"** con las operaciones de la ruta

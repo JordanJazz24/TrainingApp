@@ -260,8 +260,8 @@ como intento".
   rápida y Local Rework la dejan activa. Las operaciones del banner de la extendida salen de
   `PodContext.Operations` (`SIM`, D-58); `PodDefaults.SimOperation` es el respaldo de un
   área sin operaciones.
-- **Banners provisionales:** reparación rápida (`GuidedTest.ShowRepaired`, D-55) y Local
-  Rework (`GuidedTest.ShowReworked`, D-54), marcados en el código y en `general-flow.md`.
+- **Banners:** reparación rápida (`GuidedTest.ShowRepaired`, D-55) y la extendida
+  (`GuidedTest.ShowReworked`, D-54); textos en `general-flow.md` → Paso 8.
 
 ## Versión de las guías (D-56, spec 014)
 

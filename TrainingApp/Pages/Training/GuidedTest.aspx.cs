@@ -475,8 +475,8 @@ namespace TrainingApp.Pages.Training
         }
 
         // Reparación extendida resuelta (D-54): Return to any previous ya sacó la pieza del POD;
-        // Local Rework la deja y su banner es PROVISIONAL hasta conocer el real (V-5;
-        // general-flow → Paso 8).
+        // Local Rework la deja, con la operación actual en el banner (V-5, confirmado por el
+        // usuario el 2026-10-19).
         private void ShowReworked(Area area, TrainingSession session, NcFinding reworked, string operation)
             => ShowLogNCBanner(area, session,
                 string.Format("All of {0} will be processed at {1}", reworked.SFCCode, operation));
@@ -492,8 +492,8 @@ namespace TrainingApp.Pages.Training
             ShowBanner(message, hideAfterMs: 5000);
         }
 
-        // Reparación rápida resuelta (spec 014): la pieza sigue en el POD (D-47). Banner
-        // PROVISIONAL hasta conocer el mensaje real (D-55, V-3; general-flow → Paso 8).
+        // Reparación rápida resuelta (spec 014): la pieza sigue en el POD (D-47). Banner de
+        // D-55, confirmado por el usuario el 2026-10-19 (V-3).
         private void ShowRepaired(Area area, TrainingSession session, NcFinding repaired)
             => ShowLogNCBanner(area, session,
                 string.Format("Component {0} replaced on {1}", repaired.ComponentPartNumber, repaired.SFCCode));
