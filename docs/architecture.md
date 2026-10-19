@@ -44,7 +44,7 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 de contraseña
 │   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers) y
 │   │   │   │                                 qué login acepta cada rol (spec 013)
-│   │   │   ├── RoleCache.cs               ← rol por Code1, 2 min (Global.asax)
+│   │   │   ├── RoleCache.cs               ← rol e Id de la cuenta por Code1, 2 min (Global.asax)
 │   │   │   ├── LoginLockPolicy.cs         ← 5 fallos → 15 min de bloqueo
 │   │   │   └── LoginResult.cs, ChangePasswordStatus.cs
 │   │   ├── Admin/
@@ -130,6 +130,21 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
 - `EnsureUserSession()`: si la Session está vacía y el usuario autenticado, la
   re-hidrata con `AuthService.GetUserByCode1(User.Identity.Name)`. Se re-hidrata desde
   BD (una consulta) y no con `FormsAuthenticationTicket.UserData` (4 KB, no extensible).
+- **Fijación de sesión (2026-10-19, plan directo):** nunca se usa la Session de otra cuenta.
+  - `EnsureUserSession` exige que `Session[Code1]` coincida con `User.Identity.Name`
+    (`Trim`, sin distinguir mayúsculas) y `Session[UserId]` con el `UserPrincipal.UserId`
+    (`RoleCache` guarda el Id con el rol, de la misma consulta). Si no, `Session.Clear()`
+    (también el `PodState`) y sigue como una Session perdida. Cubre también una cuenta
+    borrada y vuelta a registrar con el mismo Code1: el borrado invalida `RoleCache` en
+    este proceso; en otro, se ve al vencer el caché (a lo sumo 2 min).
+  - En un login, `SetUserSession` descarta la Session si tenía los datos de otra cuenta. El
+    mismo usuario que vuelve a entrar (el ticket de Forms puede vencer antes que la Session)
+    conserva su `PodState`.
+  - `Logout()` expira la cookie `ASP.NET_SessionId` (`Abandon` conserva el id): el próximo
+    login en ese navegador recibe uno nuevo. En el login no se renueva el id: en Web Forms
+    exige un redirect extra y los dos puntos de arriba ya lo cubren.
+  - Una sesión de entrenamiento en curso cuya Session se descartó se recupera con la
+    reconstrucción del POD (D-10).
 - `SetUserSession(User, LoginResult)`: **única** escritura de `UserId`, `Code1`, `Name`,
   `IsFirstLogin` y `LastAccess`; la usan el login y la re-hidratación. Una sola escritura
   evita que una clave nueva quede solo en el login (como pasó con `IsFirstLogin`).

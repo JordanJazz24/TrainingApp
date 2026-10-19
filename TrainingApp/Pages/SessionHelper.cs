@@ -23,6 +23,9 @@ namespace TrainingApp.Pages
         public const string TrainingHomeUrl   = "~/Pages/Training/StartSession.aspx";
         public const string AdminHomeUrl      = "~/Pages/Admin/Users.aspx";
 
+        // Cookie de la Session de ASP.NET (Web.config no cambia el nombre por defecto).
+        private const string SessionCookieName = "ASP.NET_SessionId";
+
         /// <summary>
         /// Rol del usuario autenticado en este request (lo arma Global.asax con la BLL); null
         /// sin login o sin cuenta local.
@@ -72,12 +75,22 @@ namespace TrainingApp.Pages
             if (context.Session == null || !context.User.Identity.IsAuthenticated)
                 return false;
 
-            // Session ya está poblada
+            string code1 = context.User.Identity.Name?.Trim();
+
+            // Session ya está poblada, y con la cuenta de la cookie: mismo Code1 y mismo Id que
+            // el principal. Si es de otro (la Session de otro navegador o de un login anterior)
+            // o de una cuenta borrada y vuelta a crear con el mismo Code1, se descarta entera,
+            // PodState incluido, y se sigue como una Session perdida (fijación de sesión,
+            // 2026-10-19).
             if (context.Session[Constants.SessionKeys.UserId] != null)
-                return true;
+            {
+                var principal = context.User as UserPrincipal;
+                if (principal != null && SessionBelongsTo(code1, principal.UserId))
+                    return true;
+                context.Session.Clear();
+            }
 
             // Session perdida pero FormsAuth sigue válido — re-hidratar desde BD
-            string code1 = context.User.Identity.Name;
             var user = new AuthService().GetUserByCode1(code1);
 
             if (user == null)
@@ -93,13 +106,28 @@ namespace TrainingApp.Pages
             return true;
         }
 
+        // ¿La Session tiene los datos de esta cuenta (Code1 sin distinguir mayúsculas y Id)?
+        private static bool SessionBelongsTo(string code1, int userId)
+        {
+            var session = HttpContext.Current.Session;
+            var sessionCode1 = (session[Constants.SessionKeys.Code1] as string)?.Trim();
+            return session[Constants.SessionKeys.UserId] as int? == userId &&
+                   string.Equals(sessionCode1, code1?.Trim(), StringComparison.OrdinalIgnoreCase);
+        }
+
         /// <summary>
         /// Escribe en la Session los datos del operador autenticado. La usan el login y la
-        /// re-hidratación, así una clave nueva no puede quedar en un solo lado.
+        /// re-hidratación, así una clave nueva no puede quedar en un solo lado. En un login, si
+        /// la Session tenía los datos de otra cuenta, se descarta antes (fijación de sesión): el
+        /// mismo usuario que vuelve a entrar conserva su PodState.
         /// </summary>
         public static void SetUserSession(User user, LoginResult login = null)
         {
             var session = HttpContext.Current.Session;
+            if (login != null && session[Constants.SessionKeys.UserId] != null &&
+                !SessionBelongsTo(user.Code1, user.Id))
+                session.Clear();
+
             session[Constants.SessionKeys.UserId]       = user.Id;
             session[Constants.SessionKeys.Code1]        = user.Code1;
             session[Constants.SessionKeys.Name]         = user.Name;
@@ -154,6 +182,12 @@ namespace TrainingApp.Pages
             {
                 context.Session?.Abandon();
                 FormsAuthentication.SignOut();
+                // Abandon conserva el id de la Session: se expira su cookie para que el próximo
+                // login en este navegador reciba uno nuevo (fijación de sesión, 2026-10-19).
+                context.Response.Cookies.Add(new HttpCookie(SessionCookieName, string.Empty)
+                {
+                    Expires = DateTime.UtcNow.AddYears(-1)
+                });
             }
             context.Response.Redirect(LoginUrl);
         }

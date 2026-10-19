@@ -51,17 +51,22 @@ namespace TrainingApp.Pages.Auth
                 // FirstLogin y Success solo difieren en User.IsFirstLogin, que
                 // SetUserSession guarda en la Session (auditoría AUD-08).
                 case LoginStatus.FirstLogin:
-                    FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-                    SessionHelper.SetUserSession(result.User, result);
+                    SignIn(result);
                     Response.Redirect(SessionHelper.ChangePasswordUrl);
                     break;
 
                 case LoginStatus.Success:
-                    FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-                    SessionHelper.SetUserSession(result.User, result);
+                    SignIn(result);
                     Response.Redirect(SessionHelper.HomeUrl(result.User.Role));
                     break;
             }
+        }
+
+        // SetUserSession descarta una Session de otra cuenta (fijación de sesión, 2026-10-19).
+        private static void SignIn(LoginResult result)
+        {
+            FormsAuthentication.SetAuthCookie(result.User.Code1, false);
+            SessionHelper.SetUserSession(result.User, result);
         }
 
         private void ShowError(string message) => ((AdminMaster)Master).ShowMessage("error", "Error", message);

@@ -29,10 +29,10 @@ namespace TrainingApp
             var user = Context.User;
             if (user?.Identity == null || !user.Identity.IsAuthenticated) return;
 
-            var role = RoleCache.GetRole(user.Identity.Name);
-            if (!role.HasValue) return;
+            var account = RoleCache.GetAccount(user.Identity.Name);
+            if (account == null) return;
 
-            var principal = new UserPrincipal(user.Identity, role.Value);
+            var principal = new UserPrincipal(user.Identity, account.UserId, account.Role);
             Context.User = principal;
             Thread.CurrentPrincipal = principal;
         }
