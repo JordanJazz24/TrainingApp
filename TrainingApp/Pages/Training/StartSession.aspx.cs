@@ -17,7 +17,7 @@ namespace TrainingApp.Pages.Training
             // Re-hidratar sesión si se perdió pero FormsAuth sigue válido
             if (!SessionHelper.EnsureUserSession())
             {
-                Response.Redirect("~/Pages/Auth/Login.aspx");
+                Response.Redirect(SessionHelper.LoginUrl);
                 return;
             }
 
@@ -31,7 +31,7 @@ namespace TrainingApp.Pages.Training
             // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
             if (SessionHelper.MustChangePassword())
             {
-                Response.Redirect("~/Pages/Auth/ChangePassword.aspx");
+                Response.Redirect(SessionHelper.ChangePasswordUrl);
                 return;
             }
 

@@ -34,7 +34,10 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   `docs/ui-reference/evaluacion-practica-mes.md` y decisiones en las filas 9-11 de la
   Fase 8.5. No cambia pesos. **En curso:** la **spec 016** (T10, preparación antes de SAP;
   plan `docs/specs/016-plan.md` aprobado, cuatro entregas; no se sube a `main` hasta cerrar
-  la E4, D-81). Orden vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
+  la E4, D-81). **E1 ✅** (2026-10-19, probada por el usuario): login y cambio de contraseña
+  únicos y neutros para los dos roles (enmienda 2 de la 013); se borraron el login y el
+  cambio de contraseña de admin y `Auth.Master`. **Siguiente:** E2 (Ingreso a MES). Orden
+  vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
@@ -95,6 +98,10 @@ final (D-16) repasó esta lista.
 - **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
   reconstruir en Serialized): diferidos (D-16). Con la spec 014, al reconstruir también
   cambian los hallazgos (se regeneran sobre las piezas nuevas).
+- **Fijación de sesión** (review de la E1 de la spec 016, anterior a ella): el login no
+  renueva el id de la Session de ASP.NET; `EnsureUserSession` confía en `Session[UserId]`
+  sin compararlo con el usuario autenticado. Corregirlo requiere regenerar el id de sesión;
+  pendiente de decidir con planeación.
 - **`RequiresNCComponent` sin uso** desde la enmienda 4 de la spec 014 (Component lo decide
   el método del código): columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`,
   `spAreaGet*`, `AreaRepository` y `Area.RequiresNCComponent`. Quitarla no entró en la

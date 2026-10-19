@@ -1,32 +1,33 @@
-<%@ Page Title="Login" Language="C#" MasterPageFile="~/UI/master/Auth.Master"
+<%@ Page Title="Iniciar sesión" Language="C#" MasterPageFile="~/UI/master/Admin.Master"
     AutoEventWireup="true" CodeBehind="Login.aspx.cs"
     Inherits="TrainingApp.Pages.Auth.Login" %>
 
-<%-- Formulario del login SAP NetWeaver real (captura "Login SAP NETWEAVER.png"). Los
-     errores del servidor salen en un SweetAlert (AuthMaster.ShowError). --%>
+<%-- Login único de la app, neutro, para operadores y administradores (spec 016, D-62). El
+     diseño de SAP NetWeaver pasa al login de MES simulado dentro de la sesión (D-63). Los
+     errores del servidor salen en un SweetAlert (AdminMaster.ShowMessage). --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <asp:Panel ID="PnlLogin" runat="server" CssClass="nw-form" DefaultButton="BtnLogin">
-        <asp:Label runat="server" AssociatedControlID="TxtCode1" CssClass="nw-label">
-            User <span class="nw-star">*</span>
-        </asp:Label>
-        <asp:TextBox ID="TxtCode1" runat="server" CssClass="nw-input" MaxLength="50" />
-        <asp:RequiredFieldValidator ID="RfvCode1" runat="server"
-            ControlToValidate="TxtCode1"
-            ErrorMessage="Ingrese su código de empleado."
-            CssClass="nw-validation" Display="Dynamic" />
+    <asp:Panel ID="PnlLogin" runat="server" CssClass="admin-card" DefaultButton="BtnLogin">
+        <h1>Iniciar sesión</h1>
 
-        <asp:Label runat="server" AssociatedControlID="TxtPassword" CssClass="nw-label">
-            Password <span class="nw-star">*</span>
-        </asp:Label>
-        <asp:TextBox ID="TxtPassword" runat="server" TextMode="Password" CssClass="nw-input" />
-        <asp:RequiredFieldValidator ID="RfvPassword" runat="server"
-            ControlToValidate="TxtPassword"
-            ErrorMessage="Ingrese su contraseña."
-            CssClass="nw-validation" Display="Dynamic" />
-
-        <div class="nw-actions">
-            <asp:Button ID="BtnLogin" runat="server" Text="Log On"
-                CssClass="nw-button" OnClick="BtnLogin_Click" />
+        <div class="mb-3">
+            <asp:Label runat="server" AssociatedControlID="TxtCode1" CssClass="form-label">Código de empleado</asp:Label>
+            <asp:TextBox ID="TxtCode1" runat="server" CssClass="form-control" MaxLength="50" />
+            <asp:RequiredFieldValidator ID="RfvCode1" runat="server"
+                ControlToValidate="TxtCode1"
+                ErrorMessage="Ingrese su código de empleado."
+                CssClass="admin-validation" Display="Dynamic" />
         </div>
+
+        <div class="mb-4">
+            <asp:Label runat="server" AssociatedControlID="TxtPassword" CssClass="form-label">Contraseña</asp:Label>
+            <asp:TextBox ID="TxtPassword" runat="server" TextMode="Password" CssClass="form-control" />
+            <asp:RequiredFieldValidator ID="RfvPassword" runat="server"
+                ControlToValidate="TxtPassword"
+                ErrorMessage="Ingrese su contraseña."
+                CssClass="admin-validation" Display="Dynamic" />
+        </div>
+
+        <asp:Button ID="BtnLogin" runat="server" Text="Entrar"
+            CssClass="btn btn-primary w-100" OnClick="BtnLogin_Click" />
     </asp:Panel>
 </asp:Content>

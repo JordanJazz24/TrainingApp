@@ -16,12 +16,11 @@ namespace TrainingApp.BLL.Auth
             _userRepo = new UserRepository();
         }
 
-        // Login por uno de los dos portales (spec 013). Cada uno acepta solo el rol con su
-        // capacidad (AccessPolicy.CanUsePortal); el otro rol recibe WrongPortal, que no cuenta
-        // como fallo porque la contraseña era correcta. Con cuenta: el bloqueo se revisa antes
-        // que la contraseña (LoginLockPolicy) y cada fallo suma; el login correcto reinicia el
-        // contador y devuelve el último acceso anterior.
-        public LoginResult Login(string code1, string password, LoginPortal portal)
+        // Login único de la app para los dos roles (spec 016, D-62): la página manda a cada uno
+        // a su inicio. Con cuenta: el bloqueo se revisa antes que la contraseña
+        // (LoginLockPolicy) y cada fallo suma; el login correcto reinicia el contador y
+        // devuelve el último acceso anterior.
+        public LoginResult Login(string code1, string password)
         {
             // Step 1: verify code1 exists in external company API
             var employee = _employeeRepo.GetByCode1(code1);
@@ -40,13 +39,8 @@ namespace TrainingApp.BLL.Auth
                 if (password != Constants.DEFAULT_PASSWORD)
                     return LoginResult.Invalid();
 
-                // El autorregistro es solo para entrenar: sin cuenta no hay acceso
-                // administrativo (spec 013, P-3) y no se crea nada. Va después de la
-                // contraseña, como con una cuenta: el login de admin no revela qué Code1
-                // tienen cuenta.
-                if (portal != LoginPortal.Training)
-                    return LoginResult.WrongPortal();
-
+                // El autorregistro crea siempre un Operator (spec 013, P-3): los admins los
+                // crea otro admin o Database/Ops/CreateAdmin.sql.
                 user = new User
                 {
                     Code1        = employee.Code1,
@@ -75,9 +69,6 @@ namespace TrainingApp.BLL.Auth
                     : LoginResult.Invalid();
             }
 
-            if (!AccessPolicy.CanUsePortal(user.Role, portal))
-                return LoginResult.WrongPortal();
-
             // El último acceso que ve el usuario es el anterior a este login (AC-17).
             var previousLoginAt = user.LastLoginAt;
             // Otro request pudo bloquearla mientras se revisaba la contraseña: el bloqueo gana.
@@ -89,6 +80,11 @@ namespace TrainingApp.BLL.Auth
             user.LastLoginAt      = now;
             user.FailedLoginCount = 0;
             user.LockedUntil      = null;
+
+            // La página manda al inicio del rol de la BD: los requests siguientes lo leen de
+            // RoleCache, que no debe quedar con un rol viejo (ej. un Operator recién promovido
+            // por CreateAdmin.sql).
+            RoleCache.Invalidate(user.Code1);
 
             return user.IsFirstLogin
                 ? LoginResult.AsFirstLogin(user, previousLoginAt)

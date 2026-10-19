@@ -42,7 +42,7 @@ namespace TrainingApp.Pages.Admin
             {
                 Server.ClearError();
                 RoleCache.Invalidate(User.Identity.Name);
-                Response.Redirect(SessionHelper.TrainingLoginUrl);
+                Response.Redirect(SessionHelper.LoginUrl);
                 return;
             }
             base.OnError(e);
@@ -52,7 +52,7 @@ namespace TrainingApp.Pages.Admin
         {
             if (!SessionHelper.EnsureUserSession())
             {
-                Response.Redirect(SessionHelper.AdminLoginUrl);
+                Response.Redirect(SessionHelper.LoginUrl);
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace TrainingApp.Pages.Admin
             // Primer acceso o reset: la contraseña se cambia antes de usar el módulo (AC-6).
             if (SessionHelper.MustChangePassword())
             {
-                Response.Redirect(SessionHelper.AdminChangePasswordUrl);
+                Response.Redirect(SessionHelper.ChangePasswordUrl);
                 return;
             }
 

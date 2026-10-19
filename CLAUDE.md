@@ -75,7 +75,7 @@ confirmar.
 
 ```
 TrainingApp/                  Web Forms (.NET FW 4.7.2)
-  Pages/                      code-behind: Auth/ (login de SAP), Admin/ (módulo administrativo),
+  Pages/                      code-behind: Auth/ (login único), Admin/ (módulo administrativo),
                               Training/ (POD, guía de Guided, modelos de UI)
   UI/Controls/Training/       un UserControl por tipo de paso
   UI/master/                  MasterPages (heredan AntiXsrfMasterPage), pod.css, pod-guide.js
@@ -115,14 +115,14 @@ capacidad, nunca por el nombre del rol. El rol de cada request lo arma `Global.a
 las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va a su inicio
 (`SessionHelper.RedirectHome`), nunca al login.
 
-1. **Dos logins, mismo `AuthService.Login`:** el de SAP NetWeaver (`Pages/Auth/Login.aspx`,
-   parte de la simulación) acepta solo operadores; el administrativo
-   (`Pages/Admin/Login.aspx`), solo admins. El rol equivocado con la contraseña correcta
-   recibe el camino correcto y no suma un fallo. Forms tiene un solo `loginUrl` (el de SAP):
-   un request sin sesión a `Pages/Admin/` sigue al login de admin.
+1. **Un solo login, neutro** (spec 016, D-62): `Pages/Auth/Login.aspx` (el `loginUrl` de
+   Forms) y una sola pantalla de cambio de contraseña (`Pages/Auth/ChangePassword.aspx`),
+   con `Admin.Master`, para los dos roles. Cada rol va a su inicio
+   (`SessionHelper.HomeUrl`). El diseño de SAP NetWeaver es del login de MES simulado,
+   dentro de la sesión de entrenamiento.
 2. `AuthService` busca el `code1` en la lista de empleados de la API (`EmployeeRepository`,
    en memoria; caché y fallos: `docs/architecture.md`). Si no existe → "Código de empleado
-   no registrado". **Autorregistro** (solo por el login de SAP, como Operator): cualquier
+   no registrado". **Autorregistro** (siempre como Operator): cualquier
    empleado de la lista activa su cuenta. **Alta por un admin**: Gestión de usuarios crea la
    cuenta con su rol y la contraseña por defecto. El primer admin, por
    `Database/Ops/CreateAdmin.sql`.
@@ -134,8 +134,7 @@ las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va 
    bloquear o con un login correcto. El primer acceso sin `User` no cuenta fallos.
 5. `AuthService.ChangePassword` pide **siempre** la contraseña actual (en el primer acceso o
    tras un reset, la por defecto) y la nueva no puede ser la por defecto → se guarda hasheada
-   e `IsFirstLogin = false`. El operador lo hace en la pantalla de SAP; el admin, en la
-   administrativa.
+   e `IsFirstLogin = false`, en la pantalla única de los dos roles.
 6. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
    `SessionHelper.SetUserSession`. Mientras `IsFirstLogin`, las páginas del rol redirigen al
    cambio de contraseña (AUD-08). El usuario ve su **último acceso anterior** ("Primer
@@ -179,9 +178,8 @@ las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va 
   claves nuevas del usuario se agregan solo en `SessionHelper.SetUserSession`.
 - `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
   no en `Web.config` ni hardcodeadas en páginas.
-- Toda página usa `Site.Master`, `Training.Master`, `Auth.Master` (Login y Cambio de
-  contraseña de SAP) o `Admin.Master` (módulo administrativo, diseño neutro); las cuatro
-  heredan `AntiXsrfMasterPage` (anti-CSRF). Texto del servidor hacia un
+- Toda página usa `Site.Master`, `Training.Master` o `Admin.Master` (diseño neutro: login,
+  cambio de contraseña y módulo administrativo); las tres heredan `AntiXsrfMasterPage` (anti-CSRF). Texto del servidor hacia un
   `<script>`: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; texto al HTML
   con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean
   como formato.

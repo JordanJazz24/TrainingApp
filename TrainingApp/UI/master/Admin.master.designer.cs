@@ -15,6 +15,11 @@ namespace TrainingApp.UI.Master
     {
 
         /// <summary>
+        /// LitBrand control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitBrand;
+
+        /// <summary>
         /// PhUser control.
         /// </summary>
         protected global::System.Web.UI.WebControls.PlaceHolder PhUser;

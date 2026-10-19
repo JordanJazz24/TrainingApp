@@ -1,4 +1,8 @@
-/* Login y Cambio de contraseña (Auth.Master): login SAP NetWeaver real.
+/* SIN USO desde la E1 de la spec 016: el login de la app es neutro (D-62) y Auth.Master se
+   borró (su markup está en el historial de git, commit anterior a la E1). Se conserva para
+   el login de MES simulado de MesLoginControl (E2, D-63/D-76), que lo mueve y lo borra.
+
+   Login SAP NetWeaver real.
    Medidas y colores tomados de docs/ui-reference/Screens SAP MES REAL/Login SAP NETWEAVER.png
    (marco de 1085 × 586 px). Sin Bootstrap: la página se ve como el portal, no como la app. */
 

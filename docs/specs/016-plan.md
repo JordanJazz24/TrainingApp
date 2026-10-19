@@ -88,17 +88,32 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 
 ## Entrega 1 — Login único y neutro (D-62, D-80; AC-12 a AC-14)
 
-- [ ] `AuthService.Login` sin portal ni `WrongPortal`; `LoginResult` sin ese estado. Los
+- [x] `AuthService.Login` sin portal ni `WrongPortal`; `LoginResult` sin ese estado. Los
       tests de la BLL que lo usen se ajustan.
-- [ ] `Pages/Auth/Login.aspx` y `ChangePassword.aspx` con el diseño neutro (master neutro,
+- [x] `Pages/Auth/Login.aspx` y `ChangePassword.aspx` con el diseño neutro (master neutro,
       `admin.css`), título "Simulador de entrenamiento MES". Conservan el bloqueo, el último
       acceso anterior y el cambio obligatorio.
-- [ ] Se borran `Pages/Admin/Login.aspx` y `Pages/Admin/ChangePassword.aspx`, sus
+- [x] Se borran `Pages/Admin/Login.aspx` y `Pages/Admin/ChangePassword.aspx`, sus
       `<location>` en `Web.config` y las URLs de `SessionHelper`. `MustChangePassword` y el
       logout de admin apuntan a las páginas únicas.
-- [ ] `Auth.Master` queda solo hasta la E2 si alguna página aún lo usa; si no, se borra ya.
-- [ ] Checklist: Operator y Administrator entran por el mismo login y llegan a su inicio;
+- [x] `Auth.Master` queda solo hasta la E2 si alguna página aún lo usa; si no, se borra ya.
+- [x] Checklist: Operator y Administrator entran por el mismo login y llegan a su inicio;
       primer acceso y reset de los dos roles; bloqueo a los 5 fallos; último acceso.
+
+> **Decisiones de implementación de E1** (desarrollo, 2026-10-19; no cambian la spec ni el
+> plan):
+>
+> - El login redirige con `SessionHelper.HomeUrl(rol de la cuenta)`, no con `RedirectHome`:
+>   en ese request el principal todavía es anónimo. Después del cambio de contraseña sí se
+>   usa `RedirectHome`.
+> - Un login correcto invalida `RoleCache` del usuario (review `high`): un Operator recién
+>   promovido con `CreateAdmin.sql` ya no queda hasta 2 min con el rol viejo.
+> - `Admin.Master` muestra "MES Training · Administración" con un admin conectado y
+>   "Simulador de entrenamiento MES" en el resto.
+> - `Auth.Master` se borró (ninguna página lo usaba); `auth.css` y sus imágenes quedan, sin
+>   uso, para `MesLoginControl` (E2). El markup de `Auth.Master` está en el historial de git.
+> - Las URLs de login y cambio de contraseña viven solo en `SessionHelper` (`LoginUrl`,
+>   `ChangePasswordUrl`).
 
 ## Entrega 2 — Ingreso a MES (D-61, D-64, D-66 a D-75; AC-1 a AC-9, AC-15)
 

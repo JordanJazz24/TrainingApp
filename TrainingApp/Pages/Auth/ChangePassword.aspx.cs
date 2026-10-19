@@ -1,5 +1,4 @@
 using System;
-using System.Web.Security;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
 using TrainingApp.Shared;
@@ -7,6 +6,9 @@ using TrainingApp.UI.Master;
 
 namespace TrainingApp.Pages.Auth
 {
+    // Cambio de contraseña único para los dos roles (spec 016, D-62): primer acceso y tras un
+    // reset (spec 013). Las reglas (contraseña actual correcta, nueva distinta de la por
+    // defecto) viven en AuthService (auditoría AUD-09); aquí solo se muestra el resultado.
     public partial class ChangePassword : Page
     {
         private readonly AuthService _authService = new AuthService();
@@ -16,14 +18,7 @@ namespace TrainingApp.Pages.Auth
             // Re-hidrata la Session si se perdió con el login vigente (auditoría AUD-10).
             if (!SessionHelper.EnsureUserSession())
             {
-                Response.Redirect("~/Pages/Auth/Login.aspx");
-                return;
-            }
-
-            // El admin cambia su contraseña con el diseño administrativo (spec 013, AC-2d).
-            if (SessionHelper.CanManageUsers())
-            {
-                Response.Redirect(SessionHelper.AdminChangePasswordUrl);
+                Response.Redirect(SessionHelper.LoginUrl);
                 return;
             }
 
@@ -31,8 +26,6 @@ namespace TrainingApp.Pages.Auth
                 PhFirstLogin.Visible = SessionHelper.MustChangePassword();
         }
 
-        // Las reglas (contraseña actual correcta, nueva distinta de la por defecto) viven en
-        // AuthService (auditoría AUD-09); aquí solo se muestra el resultado.
         protected void BtnSave_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -51,23 +44,21 @@ namespace TrainingApp.Pages.Auth
                     return;
 
                 case ChangePasswordStatus.UserNotFound:
-                    // Operador eliminado con el login vigente: se cierra la sesión.
-                    FormsAuthentication.SignOut();
-                    Session.Abandon();
-                    Response.Redirect("~/Pages/Auth/Login.aspx");
+                    // Cuenta eliminada con el login vigente: se cierra la sesión.
+                    SessionHelper.Logout();
                     return;
             }
 
             Session[Constants.SessionKeys.IsFirstLogin] = false;
-            Response.Redirect("~/Pages/Training/StartSession.aspx");
+            SessionHelper.RedirectHome();
         }
 
-        // Salir sin cambiar la contraseña: cierra la sesión y vuelve al Login.
+        // Salir sin cambiar la contraseña: cierra la sesión y vuelve al login.
         protected void BtnCancel_Click(object sender, EventArgs e)
         {
             SessionHelper.Logout();
         }
 
-        private void ShowError(string message) => ((AuthMaster)Master).ShowError(message);
+        private void ShowError(string message) => ((AdminMaster)Master).ShowMessage("error", "Error", message);
     }
 }

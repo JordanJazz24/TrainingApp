@@ -14,12 +14,13 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │                                     cambio de contraseña, capacidades del request,
 │   │   │                                     inicio y login por rol, último acceso y logout
 │   │   ├── UserPrincipal.cs               ← principal con el rol (spec 013), lo arma Global.asax
-│   │   ├── Auth/                          ← login y cambio de contraseña de SAP (operadores)
+│   │   ├── Auth/                          ← login y cambio de contraseña únicos, neutros, de
+│   │   │   │                                 los dos roles (spec 016, D-62; Admin.Master)
 │   │   │   ├── Login.aspx + .cs
 │   │   │   └── ChangePassword.aspx + .cs
 │   │   ├── Admin/                         ← módulo administrativo (spec 013, Admin.Master):
-│   │   │                                     Login, ChangePassword, Users (gestión de
-│   │   │                                     usuarios) y UserListRow (fila de la lista)
+│   │   │                                     Users (gestión de usuarios) y UserListRow
+│   │   │                                     (fila de la lista)
 │   │   └── Training/
 │   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
@@ -136,23 +137,24 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   re-hidratar no se muestra.
 - Capacidades del request (spec 013): `CurrentRole()` sale del `UserPrincipal`;
   `CanTrain()` / `CanManageUsers()` preguntan a `AccessPolicy`; `RedirectHome()` manda a
-  quien no tiene la capacidad de una página a su inicio (sin rol: logout). `Logout()` vuelve
-  al login de admin o al de SAP según el rol.
+  quien no tiene la capacidad de una página a su inicio (sin rol: logout). `HomeUrl(role)`
+  lo usa el login, porque en ese request el principal todavía es anónimo. `Logout()` vuelve
+  al login único.
 - `MustChangePassword()`: true mientras `IsFirstLogin` (AUD-08).
 - `Logout()`: abandona las sesiones `InProgress` del usuario (D-9) y cierra la sesión.
 
-## Roles, logins y gestión de usuarios (spec 013)
+## Roles, login y gestión de usuarios (spec 013; login único, spec 016)
 
 - **Rol en cada request:** `Global.Application_PostAuthenticateRequest` arma un
   `UserPrincipal` con el rol de `RoleCache` (2 min; un borrado o `CreateAdmin.sql` se ve al
   vencer, o al instante si lo hizo este proceso). No usa la Session: la autorización por
   `<location>` corre antes de que exista. `Web.config`: `Pages/Admin` solo Administrator,
-  `Pages/Training` solo Operator, el login y el cambio de contraseña de admin abiertos **con
-  y sin `.aspx`** (FriendlyUrls redirige a la URL sin extensión y la autorización se evalúa
-  sobre esa ruta; sin las dos, el login de admin entraba en un bucle con el de SAP).
-- **Un solo `loginUrl`** (el de SAP): un request sin sesión a `Pages/Admin/` cae ahí con su
-  `ReturnUrl` y el login de SAP lo reenvía al de admin. Con sesión, cualquier login manda a
-  su inicio (`RedirectHome`): un operador en `Pages/Admin` vuelve a entrenar sin bucle.
+  `Pages/Training` solo Operator y `Pages/Auth` (login y cambio de contraseña) abierta.
+- **Un solo login** (spec 016, D-62; antes había uno de SAP para operadores y otro de admin,
+  con `WrongPortal`): es el `loginUrl`. Un request sin sesión a cualquier carpeta cae ahí;
+  el login no sigue el `ReturnUrl`, manda a cada rol a su inicio. Con sesión, el login
+  manda a su inicio (`RedirectHome`): un operador en `Pages/Admin` vuelve a entrenar sin
+  bucle.
 - **Bloqueo y logins simultáneos:** `spUserLoginFailed` no suma con la cuenta ya bloqueada y
   `spUserLoginSucceeded` no quita un bloqueo vigente (devuelve 0 y la BLL responde
   `Locked`). Las fechas se guardan en UTC y se muestran en la hora de planta

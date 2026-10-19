@@ -10,10 +10,6 @@ namespace TrainingApp.BLL.Auth
         InvalidCredentials,
         EmployeeNotFound,
 
-        // Contraseña correcta, pero el rol no entra por este login (spec 013): no cuenta como
-        // fallo. La página muestra el camino correcto.
-        WrongPortal,
-
         // Cuenta bloqueada por logins fallidos (spec 013), hasta LockedUntil. No dice si la
         // contraseña era correcta.
         Locked
@@ -36,9 +32,6 @@ namespace TrainingApp.BLL.Auth
 
         public static LoginResult Invalid() =>
             new LoginResult { Status = LoginStatus.InvalidCredentials };
-
-        public static LoginResult WrongPortal() =>
-            new LoginResult { Status = LoginStatus.WrongPortal };
 
         public static LoginResult Locked(DateTime lockedUntil) =>
             new LoginResult { Status = LoginStatus.Locked, LockedUntil = lockedUntil };

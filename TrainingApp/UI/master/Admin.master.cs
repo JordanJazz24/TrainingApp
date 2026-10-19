@@ -9,9 +9,11 @@ namespace TrainingApp.UI.Master
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Barra del usuario solo con un admin autenticado (no en el login).
+            // Barra del usuario solo con un admin autenticado. En el login y en el cambio de
+            // contraseña de un operador, el nombre neutro de la app (spec 016, D-80).
             bool signedIn = Context.User.Identity.IsAuthenticated && SessionHelper.CanManageUsers()
                 && Session[Constants.SessionKeys.Code1] != null;
+            LitBrand.Text  = signedIn ? "MES Training · Administración" : "Simulador de entrenamiento MES";
             PhUser.Visible = signedIn;
             if (signedIn)
             {

@@ -1279,7 +1279,7 @@ namespace TrainingApp.Pages.Training
 
             // Re-hidrata sesión si se perdió pero el usuario sigue autenticado
             if (!SessionHelper.EnsureUserSession())
-                return Leave(logoutClick, () => Response.Redirect("~/Pages/Auth/Login.aspx"));
+                return Leave(logoutClick, () => Response.Redirect(SessionHelper.LoginUrl));
 
             // Spec 013: solo entrena quien tiene la capacidad; un admin vuelve a su módulo.
             if (!SessionHelper.CanTrain())
@@ -1287,7 +1287,7 @@ namespace TrainingApp.Pages.Training
 
             // Primer acceso sin contraseña personal: no puede entrenar (auditoría AUD-08).
             if (SessionHelper.MustChangePassword())
-                return Leave(logoutClick, () => Response.Redirect("~/Pages/Auth/ChangePassword.aspx"));
+                return Leave(logoutClick, () => Response.Redirect(SessionHelper.ChangePasswordUrl));
 
             // null: la sesión no existe, es de otro operador o ya no está en curso.
             var ctx = int.TryParse(Request.QueryString["sessionId"], out int sessionId)

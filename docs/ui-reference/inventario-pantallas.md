@@ -161,4 +161,6 @@ intento.
 contraseña replican el login SAP NetWeaver real (captura `Login SAP NETWEAVER.png`) en
 `Auth.Master`; la foto y el logo de SAP están recortados de esa captura. Cambio de contraseña
 no tiene captura: usa el mismo marco con los textos del cambio de contraseña de NetWeaver
-(Old/New/Confirm Password, Change) más Cancel, que cierra la sesión.
+(Old/New/Confirm Password, Change) más Cancel, que cierra la sesión. *2026-10-19 (spec 016,
+E1):* el login y el cambio de contraseña de la app son únicos y neutros (`Admin.Master`) y
+`Auth.Master` se borró; el diseño de NetWeaver pasa al login de MES simulado (E2).

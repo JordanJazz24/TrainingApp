@@ -5,8 +5,8 @@
 -- Uso: poner el Code1 y el nombre completo del empleado y ejecutar.
 --   · Sin cuenta: la crea como Administrator con la contraseña por
 --     defecto (Constants.DEFAULT_PASSWORD) y el cambio obligatorio.
---     Entra por /Pages/Admin/Login.aspx y cambia la contraseña antes
---     de usar el módulo (AC-6).
+--     Entra por el login único (/Pages/Auth/Login.aspx, spec 016) y
+--     cambia la contraseña antes de usar el módulo (AC-6).
 --   · Con cuenta: solo le da el rol (conserva su contraseña). Los
 --     roles son excluyentes: ya no entrena; su entrenamiento en curso
 --     se abandona (D-9). La app ve el rol nuevo en hasta 2 minutos

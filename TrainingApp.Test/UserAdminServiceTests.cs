@@ -28,15 +28,6 @@ namespace TrainingApp.Test
             Assert.That(AccessPolicy.CanManageUsers(UserRole.Administrator), Is.True);
             Assert.That(AccessPolicy.CanTrain(UserRole.Administrator), Is.False);
         }
-
-        [TestCase(UserRole.Operator,      LoginPortal.Training, true)]
-        [TestCase(UserRole.Operator,      LoginPortal.Admin,    false)]
-        [TestCase(UserRole.Administrator, LoginPortal.Admin,    true)]
-        [TestCase(UserRole.Administrator, LoginPortal.Training, false)]
-        public void EachPortal_AcceptsOnlyItsRole(UserRole role, LoginPortal portal, bool expected)
-        {
-            Assert.That(AccessPolicy.CanUsePortal(role, portal), Is.EqualTo(expected));
-        }
     }
 
     [TestFixture]
