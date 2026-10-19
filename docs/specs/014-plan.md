@@ -186,6 +186,17 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
       reparación extendida, **opcional** y sin calificarse (hoy solo aparece con la rápida).
 - [ ] **Guía:** textos de abajo y nota de P-13 en Comments.
 - [ ] **Tests:** casos de la extendida en `StepValidatorLogNCTests`.
+- [ ] **Enmienda 5 de la spec (2026-10-19), sobre esta misma entrega y antes de su commit:**
+  - [ ] `05` y `08`: códigos de reparación `F_FR_GENERAL` (rápida, sin Comments) y
+        `F_FX_GENERAL` (extendida, Comments obligatorio), con el código y la descripción de
+        `06`; se borran los `SIM_FR_…` y `SIM_FX_…` (excepción como D-23, comentada en el
+        script). Avisar al usuario que abandone las sesiones en curso de LoFlo y Redefinity
+        antes de correrlos.
+  - [ ] `NcFindingGenerator`: en las reparaciones, `Description` sale al azar de un código de
+        desecho del área. `Code` sigue siendo el del método (ahora único).
+  - [ ] Guía: subpaso del código de las reparaciones con el texto de abajo.
+  - [ ] Tests: los que usan códigos `SIM_FR_…`/`SIM_FX_…` pasan a los generales; un caso por
+        método con el defecto tomado de un código de desecho.
 
 ## Entrega 4 — Assembly Data por tipo de material (W13; AC-25 a AC-29) · recortable
 
@@ -211,7 +222,7 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 | Cantidad del split (Moldeo; enmienda 2) | "Ingrese la cantidad del hallazgo: **N**." |
 | Seleccionar | "Seleccione la pieza del hallazgo: **{SFC}**." + alerta D-43 en rojo (Moldeo: "Seleccione el SFC creado por el split.") |
 | Log NC | "Presione **Log NC** para registrar el defecto." |
-| Código | Desecho: "Presione **Log NC** en el código del defecto del hallazgo: **{defecto}**." · Reparación rápida: "…en el código de reparación rápida del hallazgo: **{defecto}**." · Extendida: "…en el código de reparación extendida del hallazgo: **{defecto}**." |
+| Código | Desecho: "Presione **Log NC** en el código del defecto del hallazgo: **{defecto}**." · Reparación rápida (enmienda 5): "Presione **Log NC** en el código general de reparación rápida: **F_FR_GENERAL**." · Extendida (enmienda 5): "…en el código general de reparación extendida: **F_FX_GENERAL**." (antes: "…en el código de reparación {rápida/extendida} del hallazgo: **{defecto}**.") |
 | ~~Component (desecho, si el área lo pide)~~ | Sin subpaso: el desecho no muestra Component (enmienda 4, 2026-10-19). |
 | Add-Done | "Presione **Add-Done** para registrar el NC." |
 
@@ -235,7 +246,9 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 
 ## Al cerrar la spec
 
-- [ ] `docs/domain.md`: flujo estándar (paso 8 con los tres métodos, 4-5 piezas), "Qué
+- [ ] `docs/domain.md`: hablar de "tres métodos de Log NC", no de "tres scraps" (enmienda 5);
+      códigos: `F_FS_{DEFECTO}` uno por defecto, `F_FR_GENERAL` y `F_FX_GENERAL` genéricos;
+      la familia `F` (fallas de DC) fuera de Log NC. Flujo estándar (paso 8 con los tres métodos, 4-5 piezas), "Qué
       cuenta como intento" (pieza + código en Add-Done; Return, No a agregar y Send to
       Routing fallan; No a remover, Cancel y Return to POD no cuentan), tabla de pesos y
       catálogos (`Method`, `RequiresComments`, `MaterialControl`, `Operations` `SIM`).

@@ -90,6 +90,37 @@
 >    reemplazar y dele **OK**." El resaltado va primero en las filas y pasa a OK cuando se
 >    selecciona la fila del componente del hallazgo.
 
+> **Enmienda 5 · 2026-10-19 (usuario, con la aclaración de la sesión de contraste con las
+> WI, W20/W21):** **las reparaciones usan los códigos generales reales**. En el MES real,
+> `F_FS_{DEFECTO}` tiene un código por cada defecto posible y todos son desecho rápido;
+> `F_FR_GENERAL` y `F_FX_GENERAL` son genéricos y existen en todas las áreas serializadas.
+> El método no depende del defecto: lo decide el código que elige el operador. Cambia P-1,
+> D-31, P-13, AC-2, los textos de la guía (D-50) y las Deferred Decisions.
+>
+> 1. **Catálogo:** LoFlo (`08`) y Redefinity (`05`) tienen como códigos de reparación
+>    `F_FR_GENERAL` (`FastRepair`, sin Comments) y `F_FX_GENERAL` (`ExtendedRepair`, con
+>    Comments obligatorio), con el código y la descripción reales de Moldeo (`06`), sin
+>    prefijo `SIM`. Los de desecho siguen siendo simulados (`SIM_FS_…`).
+> 2. **Se borran** los códigos de reparación simulados (`SIM_FR_…` y `SIM_FX_…`, incluido
+>    `SIM_FX_GENERAL`) de `05` y `08`. Es una excepción a "el script nunca borra filas", como
+>    D-23: nada referencia `NCCodes`. Antes de correr los scripts, el usuario abandona las
+>    sesiones en curso de LoFlo y Redefinity (su hallazgo guarda el código borrado).
+> 3. **Defecto de la nota:** en las reparaciones, el hallazgo toma al azar la descripción de
+>    un código **de desecho** del área. Calidad encuentra un defecto y dispone qué hacer con
+>    él. En el desecho no cambia nada: el defecto es el del código.
+> 4. **Calificación (D-31):** en las reparaciones, el código correcto es el general del
+>    método del paso. Cualquier otro (un `F_FS`/`SIM_FS` o el general del otro método) es
+>    intento fallido, como hoy.
+> 5. **Comments:** sin cambios. Solo `F_FX_GENERAL` lo exige (con el MPI simulado del
+>    hallazgo, P-13); `F_FR_GENERAL` no.
+> 6. **Guía del subpaso del código** (nombra el código real): reparación rápida: "Presione
+>    **Log NC** en el código general de reparación rápida: **F_FR_GENERAL**."; extendida:
+>    "…en el código general de reparación extendida: **F_FX_GENERAL**." El desecho no cambia.
+> 7. **Términos:** solo el desecho es "scrap". La rápida y la extendida son reparaciones, así
+>    que en la documentación nueva se habla de "**tres métodos de Log NC**". El título de esta
+>    spec queda como registro histórico. La familia `F` a secas (fallas de DC, DC-DC ESign
+>    Exceptions) no es un método de Log NC y queda fuera de esta spec.
+
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
 QD001001524 rev. 27 (`docs/ui-reference/wi-produccion-disposables.md`, W13 y W19-W21);
@@ -128,6 +159,8 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   si T5 cambia las guías, no cambia el código.
 - **D-31 · Código exacto:** el hallazgo describe un defecto que corresponde a **un código del
   catálogo**; cualquier otro código, aunque sea del método correcto, es un intento fallido.
+  *(Enmienda 5, 2026-10-19: en las reparaciones el código correcto es el general del método,
+  y el defecto de la nota sale de un código de desecho del área.)*
 - ~~D-32 · Lote: en NonSerialized no se califica la cantidad del split~~: **reemplazada por
   la enmienda 3 (2026-10-16)**: la cantidad del split se califica contra la del hallazgo.
 
@@ -221,7 +254,9 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 - **P-1 · Método en el catálogo:** `NCCodes` gana la columna `Method` (`FastScrap`,
   `FastRepair`, `ExtendedRepair`). LoFlo (`08`) y Redefinity (`05`) agregan 2-3 códigos
   simulados (`SIM`) de reparación rápida y 2-3 de extendida; en Moldeo (`06`),
-  `F_FR_GENERAL` = `FastRepair` y `F_FX_GENERAL` = `ExtendedRepair`.
+  `F_FR_GENERAL` = `FastRepair` y `F_FX_GENERAL` = `ExtendedRepair`. *(Enmienda 5,
+  2026-10-19: LoFlo y Redefinity usan también `F_FR_GENERAL` y `F_FX_GENERAL`; sin códigos
+  `SIM` de reparación.)*
 - **P-2 · Nota de hallazgo:** panel del simulador con el estilo de la guía (no imita una
   pantalla del MES), visible mientras el paso actual es de Log NC, con el SFC, el defecto
   (la descripción del código) y la disposición, sin nombrar el código. Uno a la vez: D-49.
@@ -263,7 +298,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
   Assembly).
 - **P-13 · `NCCodes.RequiresComments`:** qué códigos exigen Comments es dato del catálogo:
   un código `SIM_FX_…` en LoFlo y en Redefinity (y `F_FX_GENERAL` en Moldeo, aunque Moldeo
-  no entrena la extendida). El hallazgo de
+  no entrena la extendida). *(Enmienda 5: `F_FX_GENERAL` en las tres áreas.)* El hallazgo de
   esos códigos trae un MPI y revisión simulados para escribir, sin calificarse (D-38). Nota
   de la guía: "Anote el MPI y su revisión, o el número de NCR."
 - **P-14 · Operaciones del banner de la extendida:** no hay `Operations` en uso. Cada área
@@ -484,7 +519,8 @@ Ninguna.
 **Común**
 - **AC-1:** Given una orden Serialized, Then tiene entre 4 y 5 piezas.
 - **AC-2:** Given Moldeo, LoFlo y Redefinity, Then cada código NC tiene su método y si exige
-  Comments; LoFlo y Redefinity tienen códigos de los tres métodos.
+  Comments; LoFlo y Redefinity tienen códigos de los tres métodos (enmienda 5: los de
+  reparación son `F_FR_GENERAL` y `F_FX_GENERAL`).
 - **AC-3** (enmienda 2 del 2026-10-16: en NonSerialized, también en el SFC Split): Given un paso de Log NC, Then la nota de hallazgo muestra solo el hallazgo de ese
   paso ("Hallazgo n de 3"; en Moldeo, "1 de 1"): la pieza, el defecto y la disposición, en Guided y en
   Assessment, sin nombrar el código.
@@ -571,7 +607,7 @@ credenciales).
 | Decisión | Respaldo elegido | Se revisa cuando |
 |---|---|---|
 | Pesos de Log NC y de DC (D-29) | 0.05 × 3 y DC 0.25 | T6 (documento de Ernesto) |
-| Códigos simulados de reparación en LoFlo | `SIM_FR_…` y `SIM_FX_…` | Catálogo real de Sensores |
+| ~~Códigos simulados de reparación en LoFlo~~ | Resuelta por la enmienda 5: `F_FR_GENERAL` y `F_FX_GENERAL` reales | — |
 | Operaciones del banner de la extendida (P-14) | Dos nombres simulados por área | V-2 o catálogo real de Operations |
 
 ## Open Questions
