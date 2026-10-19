@@ -1,6 +1,6 @@
 # Spec 014: Tres tipos de scrap en Log NC y pieza defectuosa indicada
 
-**Status:** Approved (2026-10-16)
+**Status:** Approved (2026-10-16) · **Cerrada:** 2026-10-19 (E1-E3; E4 recortada, enmienda 6)
 **Date:** 2026-10-14 · revisada 2026-10-15 con las notas y capturas del usuario · **Approved:** 2026-10-16 (usuario, con las propuestas P-1 a P-17 y D-27 a D-55)
 
 > **Enmienda 2026-10-16 (usuario, captura `Split - Log NC/modal add componenet .png`):**
@@ -120,6 +120,21 @@
 >    que en la documentación nueva se habla de "**tres métodos de Log NC**". El título de esta
 >    spec queda como registro histórico. La familia `F` a secas (fallas de DC, DC-DC ESign
 >    Exceptions) no es un método de Log NC y queda fuera de esta spec.
+
+> **Enmienda 6 · 2026-10-19 (usuario, al cerrar la E3): se recorta la E4** (Assembly Data
+> por tipo de material, W13). Deja en suspenso D-46, P-17, el punto 8a del Scope y AC-25 a
+> AC-29; cambia el Out y las Deferred Decisions.
+>
+> - **Por qué:** tal como estaba diseñada, nada se califica (los campos son formato), así que
+>   no entrena el error real: saber qué dato de la etiqueta del componente escanear según
+>   su control. Ningún reporte de la trainer ni de técnicos la pidió, y compite con la 016
+>   y la 012.
+> - **Queda como está:** Assemble Components llena el Batch Number con el Process Lot de la
+>   orden. Add Component muestra solo ★ Batch Number vacío, que escribe el operador (la regla
+>   "Sin E4" de la enmienda 1 queda definitiva). Remove component no cambia.
+> - **Se retoma** si el documento de la prueba práctica (T6), la trainer o el sandbox de SAP
+>   MES (T9) muestran errores con el Inventory SFC o el Material Document. En ese caso, con
+>   otra spec: etiquetas simuladas del componente y el dato calificado.
 
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
@@ -452,6 +467,8 @@ Total                           1.00                       1.00          1.00
 - Calificar el contenido de Comments (D-38), los datos del componente nuevo (P-12) y la
   Assembly Data (P-17).
 - Que la pieza regresada a una operación anterior reaparezca en otra operación.
+- Assembly Data por tipo de material (W13, D-46, P-17, AC-25 a AC-29): recortada por la
+  enmienda 6 (2026-10-19).
 
 ## Domain Model
 
@@ -609,6 +626,7 @@ credenciales).
 | Pesos de Log NC y de DC (D-29) | 0.05 × 3 y DC 0.25 | T6 (documento de Ernesto) |
 | ~~Códigos simulados de reparación en LoFlo~~ | Resuelta por la enmienda 5: `F_FR_GENERAL` y `F_FX_GENERAL` reales | — |
 | Operaciones del banner de la extendida (P-14) | Dos nombres simulados por área | V-2 o catálogo real de Operations |
+| Assembly Data por tipo de material (W13, D-46; enmienda 6) | Batch Number = Process Lot en Assemble Components; Add Component solo con ★ Batch Number | T6, la trainer o T9 muestran errores con Inventory SFC o Material Document (otra spec, con etiquetas simuladas y el dato calificado) |
 
 ## Open Questions
 

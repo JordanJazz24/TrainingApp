@@ -219,7 +219,10 @@ Todas las áreas, sin cambiar la forma de ninguna guía.
 > - Guía: el recuadro iluminado cubre también los elementos libres del mismo modal (Batch
 >   Number de Add Component quedaba bajo el oscurecido).
 
-## Entrega 4 — Assembly Data por tipo de material (W13; AC-25 a AC-29) · recortable
+## Entrega 4 — Assembly Data por tipo de material (W13; AC-25 a AC-29) · ✂️ recortada
+
+> **Recortada el 2026-10-19** (usuario; enmienda 6 de la spec). No se implementa; las
+> casillas quedan como registro. W13 pasa a las Deferred Decisions de la spec.
 
 - [ ] `00`: `AssemblyComponents.MaterialControl TINYINT NOT NULL` (0 `Batch`, 1
       `InventorySfc`, 2 `MaterialDocument`); `spAssemblyComponentGetByArea` la devuelve;
@@ -277,9 +280,9 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 - [ ] `docs/architecture.md`: `NcFinding` y registro de lo ensamblado en `PodState`,
       versión automática de las guías (D-56), un control para los tres métodos (D-60).
 - [ ] `docs/ui-reference/general-flow.md` (Pasos 4 y 8: banners provisionales, Browse en los
-      códigos de reparación, enmienda 4), `inventario-pantallas.md` (#17-#23 a ✅), y si entró E4: `glossary.md`
-      (Batch Number), `general-flow.md` → Paso 4 y el ejemplo de `docs/process.md` §8, que
-      dicen "Batch Number = Process Lot".
+      códigos de reparación, enmienda 4), `inventario-pantallas.md` (#17-#23 a ✅). La E4 no entró (enmienda 6): `glossary.md`,
+      `general-flow.md` → Paso 4 y `docs/process.md` §8 siguen con "Batch Number = Process
+      Lot", que es el comportamiento vigente.
 - [ ] Roadmap: fila 6 de la Fase 8.5, "Estado actual", "Historial" y "BD de desarrollo".
 - [ ] Roadmap → "Deuda y riesgos conocidos": `RequiresNCComponent` sin uso desde la enmienda 4
       (columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`, `spAreaGet*`,
