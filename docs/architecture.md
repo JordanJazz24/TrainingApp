@@ -33,7 +33,7 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Controls/Training/             ← un UserControl por tipo de paso (spec 006):
 │   │   │                                     ResourceSetup, LineClearance, Search (4 modales
 │   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
-│   │   │                                     LogNC, Complete
+│   │   │                                     LogNC (los tres métodos, D-60), Complete
 │   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
 │   │                                         + íconos + pod-guide.js/.css (motor de la guía,
 │   │                                         solo en Guided)
@@ -60,13 +60,19 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 catálogos del área (perezosos, una vez por request)
 │   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
 │   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
-│   │   │   ├── PodState.cs                ← estado del POD (orden + avance + precargados) e IPodStateStore
+│   │   │   ├── PodState.cs                ← estado del POD (orden + avance + precargados +
+│   │   │   │                                 hallazgos + lo ensamblado) e IPodStateStore
 │   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
 │   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
 │   │   │   ├── StepAnswers.cs             ← answers fijos (complete, logout, start, acción inválida)
 │   │   │   ├── AttemptActions.cs          ← catálogo de acciones del registro de actividad
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
-│   │   │   ├── SerialSfcGenerator.cs      ← 3-5 piezas por orden Serialized
+│   │   │   ├── StepTypes.cs               ← familia Log NC: IsLogNC y el método de cada tipo (spec 014)
+│   │   │   ├── NcFinding.cs               ← hallazgo de un paso de Log NC, NcDisposition y
+│   │   │   │                                 NcFindingGenerator (spec 014)
+│   │   │   ├── LogNCAnswer.cs             ← contrato JSON de la respuesta de Log NC (D-59)
+│   │   │   ├── AssembledComponent.cs      ← lo ensamblado por componente, con su Assembly Data
+│   │   │   ├── SerialSfcGenerator.cs      ← 4-5 piezas por orden Serialized
 │   │   │   ├── PreloadedEquipment.cs      ← equipos precargados de Resource Setup y su generador (spec 015)
 │   │   │   ├── SplitSfcGenerator.cs       ← SFC nuevo de cada SFC Split (Fase 6.5)
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
@@ -74,7 +80,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   └── Scoring/
 │   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
 │   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
-│   │       ├── StepValidationContext.cs   ← área y catálogos que usa el validador
+│   │       ├── StepValidationContext.cs   ← área, catálogos, hallazgo del paso y filas
+│   │       │                                 seleccionadas que usa el validador
 │   │       ├── DataCollectionCompletionRule.cs ← grupos DC obligatorios
 │   │       ├── PreloadedEquipmentRule.cs  ← ¿un valor es un equipo precargado? (spec 015)
 │   │       └── PersonNameRule.cs          ← nombre del grupo Trainer (spec 015)
@@ -87,7 +94,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │                                         para los tests de la gestión), Product, Area,
 │   │                                         TrainingGuide, TrainingSession, StepAttempt,
 │   │                                         NCCode, DataCollectionGroup,
-│   │                                         DataCollectionParameter, AssemblyComponent
+│   │                                         DataCollectionParameter, AssemblyComponent,
+│   │                                         Operation
 │   ├── Domain/                            ← POCOs puros, sin dependencias
 │   │   ├── Employee.cs, Product.cs
 │   │   ├── User.cs (UserRole), UserSummary.cs ← cuenta local; UserSummary suma sus sesiones
@@ -95,14 +103,17 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── TrainingGuide.cs, TrainingStep.cs (StepWeight)
 │   │   ├── TrainingSession.cs (SessionMode)
 │   │   ├── TrainingSessionStepAttempt.cs  ← intento + AttemptReason y acción (spec 013)
-│   │   ├── Operation.cs                   ← POCO mínimo, entidad FUTURA inactiva
-│   │   ├── NCCode.cs, DataCollectionGroup.cs, DataCollectionParameter.cs
+│   │   ├── Operation.cs                   ← hoy solo las operaciones SIM del banner de la
+│   │   │                                     extendida (D-58); nivel de las guías a futuro
+│   │   ├── NCCode.cs (NCMethod), DataCollectionGroup.cs, DataCollectionParameter.cs
 │   │   └── AssemblyComponent.cs           ← BOM (Qty decimal)
 │   ├── Shared/
 │   │   ├── Constants.cs                   ← DEFAULT_PASSWORD, SessionKeys, API de empleados
 │   │   └── PasswordHelper.cs              ← hashing y comparación (PBKDF2)
 │   └── Web.config
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
+│                                             (ScoreCalculator, StepValidator, Log NC y
+│                                             hallazgos, gestión de usuarios)
 ├── Database/
 │   ├── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
 │   └── Ops/                               ← scripts manuales: CreateAdmin, ResetUserPassword
@@ -193,9 +204,14 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   `PodCommandResult` (`PodNotice`, intento) a UI y elige los textos de los avisos.
 - **Estado (`PodState`)**: orden simulada + avance de Assembly y DC + equipos precargados
   de Resource Setup (spec 015: los genera `OpenResourceSetup` en cada apertura, viajan con el
-  control en un campo oculto sin otro postback y se descartan al resolver el paso), en Session bajo una
+  control en un campo oculto sin otro postback y se descartan al resolver el paso) +
+  hallazgos de Log NC (`NcFindings`) + lo ensamblado (`AssembledComponents`), en Session bajo una
   clave por sesión (`SessionPodStateStore`). Si falta (Session reciclada), `LoadContext` lo
-  reconstruye con la orden por defecto (D-10). Diferidos: AUD-40 (`PodState` mutable desde
+  reconstruye con la orden por defecto (D-10); también si hay orden pero, ya pasado el
+  Start de una guía con Log NC, faltan los hallazgos. La reconstrucción aplica cada paso
+  resuelto como si hubiera avanzado forzado: Start regenera los hallazgos sobre las piezas
+  nuevas, Assembly llena lo ensamblado con la Assembly Data por defecto y cada paso de Log NC
+  resuelto aplica la disposición de su hallazgo. Diferidos: AUD-40 (`PodState` mutable desde
   fuera de `PodService`, solo por convención) y AUD-42 (tras reconstruir en Serialized pueden
   cambiar las piezas).
 - **Una sesión activa por operador (D-9):** `PodService.StartSession` y
@@ -209,6 +225,54 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
   también al forzarse y al reconstruir el estado.
 
+## Log NC: tres métodos (spec 014)
+
+Reglas de negocio y calificación: `docs/domain.md` → "Flujo estándar" (paso 8) y "Qué cuenta
+como intento".
+
+- **Familia de tipos de paso:** `StepType.LogNC` (desecho rápido), `LogNCFastRepair` (9) y
+  `LogNCExtendedRepair` (10). `StepTypes.IsLogNC` y `StepTypes.MethodOf` son el único lugar
+  que los agrupa: `GuidedTest`, `CheckSequence` (el botón [Log NC] vale en cualquiera de los
+  tres) y la reconstrucción preguntan por la familia, nunca por un tipo suelto.
+- **Hallazgos (`NcFinding`, `[Serializable]`):** `NcFindingGenerator` genera uno por paso de
+  Log NC de la guía al dar Start (`StartPieces`) y al reconstruir. Serialized: piezas
+  distintas al azar; NonSerialized: N unidades del lote (la cantidad del split). El código
+  sale del método del paso; en las reparaciones el defecto de la nota sale de un código de
+  desecho del área, sin repetirse en la orden mientras alcancen. Viven en
+  `PodState.NcFindings`; `PodContext` expone el del paso actual (nota, guía y validador).
+- **Lo ensamblado (`AssembledComponent`):** se registra una vez, al resolver Assembly, en el
+  orden del BOM, con su Assembly Data (hoy Batch Number = Process Lot). Sobrevive al paso
+  (`PodState.Assembly` sí pasa a `null`): lo leen el Browse de Component y Remove component.
+  Un Assembly forzado o reconstruido lo completa con los valores por defecto.
+- **Un solo control (D-60):** `LogNCControl` sirve a los tres métodos: NC Selection y NC Data
+  Entry son las mismas pantallas, y los modales de la reparación rápida (Browse, Confirm,
+  Remove component, Add Component) y de la extendida (NC logged, Select Disposition
+  Function) son paneles del mismo control, manejados en el cliente. Todo el flujo termina en
+  **un solo postback** (Add, la disposición o la decisión equivocada que lo cierra).
+- **Respuesta JSON (D-59):** el control arma `{"code","component","removeAction",
+  "addComponent","disposition"}` (cada campo según el método) y lo envía en
+  `StepSubmitEventArgs.Answer`; las filas seleccionadas llegan aparte. `LogNCAnswer` es el
+  único lugar que lee el contrato (validador, registro de actividad y control).
+  `StepValidator` lo compara con el hallazgo del paso (`StepValidationContext.NcFinding` y
+  `SelectedRows`).
+- **Disposición:** al acertar o al forzar, `PodService` aplica la del hallazgo en la misma
+  transacción del intento: desecho y Return to any previous sacan la pieza; la reparación
+  rápida y Local Rework la dejan activa. Las operaciones del banner de la extendida salen de
+  `PodContext.Operations` (`SIM`, D-58); `PodDefaults.SimOperation` es el respaldo de un
+  área sin operaciones.
+- **Banners provisionales:** reparación rápida (`GuidedTest.ShowRepaired`, D-55) y Local
+  Rework (`GuidedTest.ShowReworked`, D-54), marcados en el código y en `general-flow.md`.
+
+## Versión de las guías (D-56, spec 014)
+
+`spTrainingGuideSync` identifica una guía por `AreaId` + `Title` (la publicada más nueva).
+Si la guía cambia de forma (otro número de pasos o un paso con otro `StepType`),
+**despublica** la vieja y crea una nueva,
+publicada, con el mismo título. Las sesiones guardan `TrainingGuideId` y los intentos
+`StepId`, así que las sesiones en curso y el historial siguen con la vieja:
+`spTrainingGuideGetByArea` lista solo las publicadas y `spTrainingGuideGetById` no filtra.
+Reemplaza el `THROW 50014` de antes. Cambiar solo los pesos actualiza la guía en sitio.
+
 ## `GuidedTest` y controles de paso (Fase 6, specs 004-007)
 
 Decisiones cerradas: no reabrir sin spec.
@@ -217,7 +281,8 @@ Decisiones cerradas: no reabrir sin spec.
   y se alterna `Visible`. Prohibido volver a `LoadControl` dinámico: generó cuatro bugs de
   ViewState en una sola sesión. Confirmado con negocio: los admins no crean tipos de paso
   desde la UI y un `StepType` no tiene UIs distintas por Area. Un `StepType` nuevo = `.ascx`
-  + una línea de markup + un `case` en `GetStepControl`.
+  + una línea de markup + un `case` en `GetStepControl`. Excepción: los tres tipos de Log
+  NC comparten `LogNCControl` (D-60).
 - El paso abierto vive en el ViewState de la página (`OpenStepType`).
   `ApplyStepControlVisibility` es el único punto que toca `Visible`.
 - `IStepControl.Initialize()` es el **único punto de reinicio** del control. Todo control

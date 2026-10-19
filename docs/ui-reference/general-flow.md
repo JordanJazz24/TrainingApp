@@ -509,7 +509,8 @@ en planta. Hallazgos y propuestas: roadmap → "Fase 8".
   secuencia de 4 modales de `moldeo-flow.md`.
 - **Sin checklist** (el resto): Start es directo, sin modales; se califica solo por
   secuencia.
-- **Serialized:** la orden tiene 3-5 piezas `{ShopOrder}-{sufijo}` (en `New`). Browse Work
+- **Serialized:** la orden tiene 4-5 piezas `{ShopOrder}-{sufijo}` (en `New`; 3-5 hasta la
+  spec 014). Browse Work
   List permite multi-selección (click alterna la fila, sin columna Status) y `TxtSFC`
   muestra el SFC o `[N SELECTED]`. Start exige **todas** las piezas (si no, aviso sin
   intento), las pasa a `Active` y las carga en el POD **sin seleccionar**: el operador las
@@ -610,8 +611,14 @@ Assemble Components                                                        (?)
 - **Barcode**: numérico; el escaneo se procesa con Enter (como el lector) o al salir del
   campo. Enter no envía el formulario.
 - **Component Details**: inputs de solo lectura con los datos del catálogo.
-- **★ Batch Number** = **Process Lot** de la orden (columna del POD), no el barcode.
+- **★ Batch Number** = **Process Lot** de la orden (columna del POD), no el barcode. En el
+  MES real la Assembly Data cambia según el control del material (W13 en
+  `wi-produccion-disposables.md`); el simulador no lo modela (spec 014, enmienda 6: E4
+  recortada y diferida).
 - **[✔ Add]** aparece recién tras un escaneo válido.
+- **Lo ensamblado se conserva** (spec 014): al terminar el paso, el simulador guarda cada
+  componente con su Batch Number. Lo usan el Browse de Component y Remove component en la
+  reparación rápida (Paso 8).
 
 ### Flujo del operador
 1. Con todas las filas seleccionadas → [Assemble] → Component List
@@ -833,7 +840,10 @@ entrega 9)
   de la fila elegida (una fila de un split anterior tiene el suyo).
 Operador verifica la nueva fila en el POD antes de continuar.
 
-- [Split] muta el POD sin registrar intento ni avanzar el TrainingStep.
+- [Split] muta el POD sin registrar intento ni avanzar el TrainingStep. Desde la spec 014
+  (enmiendas 2 y 3) la **nota de hallazgo** se ve durante el SFC Split con las N unidades
+  que hay que separar, y la cantidad se califica: otra cantidad es intento fallido y no se
+  aplica (regla en `docs/domain.md` → "Qué cuenta como intento").
 - La X superior cierra el modal para seleccionar otra fila original o derivada.
 - [Close] se habilita después del primer split exitoso y completa el paso.
 
@@ -841,9 +851,16 @@ Operador verifica la nueva fila en el POD antes de continuar.
 
 ## Paso 8 — Log NC
 
-**StepType:** `LogNC` | **Validación:** NC Code existe en catálogo del área
+**StepType:** `LogNC` (desecho rápido), `LogNCFastRepair` y `LogNCExtendedRepair` (spec 014)
+| **Validación:** pieza, código exacto y decisiones del método contra el hallazgo del paso
+(`docs/domain.md` → "Qué cuenta como intento")
 
-**Acceso:** Sidebar → [Log NC].
+**Acceso:** Sidebar → [Log NC], el mismo botón para los tres métodos.
+
+**Nota de hallazgo** (spec 014, simulador; no imita una pantalla del MES): panel con el
+estilo de la guía, en Guided y Assessment, mientras el paso actual es de Log NC (en Moldeo,
+también en el SFC Split). Muestra solo el hallazgo del paso: "Hallazgo n de N", el SFC (o
+"N unidades del lote"), el defecto y la disposición, sin nombrar el código.
 
 ### Vista: NC Selection (reemplaza POD Work List)
 
@@ -897,14 +914,16 @@ El campo SFC en la search bar queda vacío tras el scrap.
 
 ### Reglas de negocio
 - SFC Split solo para NonSerialized — Serialized selecciona directamente del POD
-- NC Code requerido; Component solo con código de reparación (requerido en la rápida); Comments opcional
+- NC Code requerido; Component solo con código de reparación (requerido en la rápida); Comments opcional, salvo con un código que lo exige (`F_FX_GENERAL`)
 - NC Codes desde catálogo BD por área — no hardcodeados
 - [Add-Done] = flujo normal del paso; [Add] y [Done] son botones equivocados (intento fallido, spec 007)
-- **NonSerialized:** una fila, creada por el SFC Split. **Serialized (spec 008):** ≥1 fila;
-  todas las seleccionadas se scrapean con el mismo código; tiene que quedar al menos una
-  pieza para Complete (seleccionar todas = aviso sin intento). Sin fila = intento fallido.
-- Banner: "✓ All of {SFC} scrapped" (una) o "✓ N SFCs scrapped" (varias). En Serialized
-  el SFC field queda vacío; en NonSerialized conserva el SFC del lote.
+- **NonSerialized:** una fila, creada por el SFC Split. **Serialized:** el MES permite
+  seleccionar varias filas (spec 008), pero el hallazgo marca una sola (spec 014, D-33); en
+  el desecho tiene que quedar al menos una pieza para Complete (seleccionar todas = aviso
+  sin intento). Sin fila = intento fallido.
+- Banner del desecho: "✓ All of {SFC} scrapped" (una) o "✓ N SFCs scrapped" (varias). En
+  Serialized el SFC field queda vacío; en NonSerialized conserva el SFC del lote. Los de la
+  reparación rápida y la extendida, abajo (dos son **provisionales**).
 
 ### Métodos de NC en el MES real (revisión con SAP MES, 2026-10-09)
 Hoy se usan tres. Cuáles tiene cada operación depende de su configuración, que sigue los
@@ -914,9 +933,9 @@ documentos de manufactura (auditados) de esa operación:
   adicionales; según el ingeniero, se olvidan o se hacen mal con frecuencia.
 - **Extensión de la operación:** regresar unidades a ciertas operaciones para retrabajo.
 
-Hoy el simulador modela un solo camino: registrar el código NC (y el componente si el área
-lo pide) y scrapear la pieza. Los tres métodos los trae la spec 014 (en borrador); sus
-reglas y su calificación viven en la spec, no aquí.
+El simulador entrena los tres desde la spec 014 (2026-10-19): desecho rápido, reparación
+rápida y reparación extendida, un paso de la guía cada uno (Moldeo, solo el desecho). Sus
+reglas y su calificación viven en `docs/domain.md`, no aquí.
 
 ### Pantallas de la reparación rápida y la extendida (usuario, 2026-10-15)
 
@@ -924,8 +943,10 @@ Capturas en `Screens SAP MES REAL/Split - Log NC/`. Las anotó el usuario, que v
 flujos con una técnica de planta. En el MES real, la **disposición** la dictan el MPI o el
 NCR.
 
-**Component ⧉ → Browse** (`browse component.png`). Es el mismo campo de NC Data Entry para
-cualquier código.
+**Component ⧉ → Browse** (`browse component.png`). Es el campo Component de NC Data Entry.
+En el simulador aparece solo con los códigos de reparación (spec 014, enmienda 4):
+obligatorio en la rápida y opcional en la extendida; el desecho no lo muestra en ningún
+área.
 ```
   Browse                                                     [⤢][✕]
   ┌──┬────────────────┬──────────────────────────────────┐
@@ -978,7 +999,9 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    vacío que escribe el operador; el recorte del manual (`recorte de agregado del nuevo
    compoenente .png`) muestra un componente por inventario: ★ Inventory SFC
    (`CR9AP1700000801`, con ⧉) y ★ Batch Number en gris (`0301366528`). No hay campo
-   Barcode.
+   Barcode. **En el simulador** Add Assembly Details muestra solo ★ Batch Number vacío, que
+   escribe el operador (formato, no se califica): la variante por material quedó diferida
+   (spec 014, enmienda 6).
 5. **Sin captura:** el mensaje con que termina. El simulador usa un banner verde
    **PROVISIONAL** "Component {componente} replaced on {SFC}" (spec 014, D-55; marcado así
    en `GuidedTest.ShowRepaired`) y la pieza sigue en el POD. Se cambia al conocer el real (V-3).
@@ -1099,7 +1122,7 @@ estación: hubo CAPAs por Code1 compartidos y sesiones abiertas.
 | 5 — DC Collect | `DataCollection` | RequiresDataCollection |
 | 6 — Closing Line Clearance | `LineClearance` | No (ver Paso 6) |
 | 7 — SFC Split | `SFC_Split` | Solo NonSerialized |
-| 8 — Log NC | `LogNC` | No |
+| 8 — Log NC | `LogNC`, `LogNCFastRepair`, `LogNCExtendedRepair` | Las reparaciones, solo en áreas con Assembly (spec 014) |
 | 9 — Complete | `Complete` | No |
 | 10 — Logout | `Logout` | No (spec 015) |
 

@@ -271,22 +271,27 @@ Tratamiento de usted, como el resto de la guía. `{…}` lo llena el hallazgo.
 
 ## Al cerrar la spec
 
-- [ ] `docs/domain.md`: hablar de "tres métodos de Log NC", no de "tres scraps" (enmienda 5);
+- [x] `docs/domain.md`: hablar de "tres métodos de Log NC", no de "tres scraps" (enmienda 5);
       códigos: `F_FS_{DEFECTO}` uno por defecto, `F_FR_GENERAL` y `F_FX_GENERAL` genéricos;
       la familia `F` (fallas de DC) fuera de Log NC. Flujo estándar (paso 8 con los tres métodos, 4-5 piezas), "Qué
       cuenta como intento" (pieza + código en Add-Done; Return, No a agregar y Send to
       Routing fallan; No a remover, Cancel y Return to POD no cuentan), tabla de pesos y
       catálogos (`Method`, `RequiresComments`, `MaterialControl`, `Operations` `SIM`).
-- [ ] `docs/architecture.md`: `NcFinding` y registro de lo ensamblado en `PodState`,
+- [x] `docs/architecture.md`: `NcFinding` y registro de lo ensamblado en `PodState`,
       versión automática de las guías (D-56), un control para los tres métodos (D-60).
-- [ ] `docs/ui-reference/general-flow.md` (Pasos 4 y 8: banners provisionales, Browse en los
+- [x] `docs/ui-reference/general-flow.md` (Pasos 4 y 8: banners provisionales, Browse en los
       códigos de reparación, enmienda 4), `inventario-pantallas.md` (#17-#23 a ✅). La E4 no entró (enmienda 6): `glossary.md`,
       `general-flow.md` → Paso 4 y `docs/process.md` §8 siguen con "Batch Number = Process
       Lot", que es el comportamiento vigente.
-- [ ] Roadmap: fila 6 de la Fase 8.5, "Estado actual", "Historial" y "BD de desarrollo".
-- [ ] Roadmap → "Deuda y riesgos conocidos": `RequiresNCComponent` sin uso desde la enmienda 4
+- [x] Roadmap: fila 6 de la Fase 8.5, "Estado actual", "Historial" y "BD de desarrollo".
+- [x] Roadmap → "Deuda y riesgos conocidos": `RequiresNCComponent` sin uso desde la enmienda 4
       (columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`, `spAreaGet*`,
       `AreaRepository` y `Area.RequiresNCComponent`); quitarla no entra en esta spec.
+
+> **Cierre** (desarrollo, 2026-10-19): `MaterialControl` no se documenta en los catálogos
+> porque la E4 no entró. "BD de desarrollo" no cambia: el cierre no tiene scripts y la fila
+> de la E3 ya está. También se actualizaron `general-flow.md` → Paso 3 (4-5 piezas) y Paso 7
+> (nota y cantidad calificada del split).
 
 ## Review
 

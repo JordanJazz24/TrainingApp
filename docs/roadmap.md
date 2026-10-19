@@ -27,21 +27,12 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   terminarla antes que T7. **T7 ✅** (2026-10-14, ver "Historial"): notas y alertas de la
   trainer en la guía de Guided y el producto R&C → **S&RC**. **Spec 015 ✅** (2026-10-14, ver
   "Historial"): equipos precargados en Resource Setup, grupo de DC Trainer y Logout como
-  último paso, probada por el usuario. **Spec 014 en curso** (tres tipos de scrap,
-  `docs/specs/014-plan.md`): **E1 ✅** (2026-10-16, probada por el usuario): hallazgo por paso
-  de Log NC con nota en los dos modos, desecho rápido calificado por pieza y código exacto,
-  4-5 piezas, `NCCodes.Method`/`RequiresComments`, y las enmiendas 2 y 3 (en Moldeo el
-  hallazgo dicta la cantidad del split y se califica; subpaso Info de la nota en Guided).
-  Ajuste de UX probado: en Guided la nota aparece al llegar la guía al paso y queda
-  resaltada mientras dura. **E2 ✅** (2026-10-19, probada por el usuario): reparación rápida
-  en LoFlo y Redefinity (Browse, Remove component y Add Component con un postback) y la
-  enmienda 4 (el desecho no lleva Component). **E3 ✅** (2026-10-19, probada por el
-  usuario): reparación extendida (NC logged, Select Disposition Function, Comments con el
-  MPI, banner de D-54 con las operaciones `SIM`, Local Rework provisional), pesos finales (DC
-  0.25; termina la transición de D-57) y la enmienda 5 (reparaciones con `F_FR_GENERAL` y
-  `F_FX_GENERAL`; el defecto de la nota sale de un código de desecho, sin repetirse en la
-  orden). **Siguiente:** E4 (Assembly Data por tipo de material, recortable) o el cierre de
-  la spec 014. Orden vigente: 014 → 016 → 012.
+  último paso, probada por el usuario. **Spec 014 ✅** (2026-10-19, tres métodos de Log NC,
+  ver "Historial"): E1-E3 probadas por el usuario; la E4 (Assembly Data por tipo de
+  material, W13) se recortó (enmienda 6). Ya se puede subir a `main` (terminó la transición
+  de pesos de D-57); lo sube el usuario (D-5). **Siguiente:** la **spec 016** (T10,
+  preparación antes de SAP), que depende de que lleguen las capturas; después la **012**
+  (modo práctica). Orden vigente: 016 → 012.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo).
@@ -52,7 +43,8 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   QD001001524, integrado en `TrainingApp` (`docs/ui-reference/wi-produccion-disposables.md`,
   W1-W22). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
   tipo de material (W13). Preguntas abiertas en "Fase 8" → "Contraste con la WI".
-- **Lo último cerrado (2026-10-14):** **T7** (mensajes y alertas de la guía). Antes, la
+- **Lo último cerrado (2026-10-19):** la **spec 014** (tres métodos de Log NC). Antes
+  (2026-10-14), la **spec 015**, **T7** (mensajes y alertas de la guía) y la
   **spec 013** (cuentas, roles y registro de actividad). Antes (2026-10-12), **T1 · preparación de la versión de prueba**
   (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
   refactor **`Operator` → `User`** en todas las capas (D-17, ver "Historial"): paso previo
@@ -108,7 +100,14 @@ final (D-16) repasó esta lista.
   producción (D-20): solo detección, con trainer presente y último acceso visible. Se revisa
   si Assessment pasa a usarse como evidencia de la CAPA.
 - **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
-  reconstruir en Serialized): diferidos (D-16).
+  reconstruir en Serialized): diferidos (D-16). Con la spec 014, al reconstruir también
+  cambian los hallazgos (se regeneran sobre las piezas nuevas).
+- **`RequiresNCComponent` sin uso** desde la enmienda 4 de la spec 014 (Component lo decide
+  el método del código): columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`,
+  `spAreaGet*`, `AreaRepository` y `Area.RequiresNCComponent`. Quitarla no entró en la
+  spec 014; va con su propio plan.
+- **Banners provisionales de la spec 014:** el de la reparación rápida (V-3, D-55) y el de
+  Local Rework (V-5, D-54), hasta tener su captura del MES real.
 
 ### BD de desarrollo del usuario
 
@@ -659,3 +658,27 @@ Simulado: cierra la sesión de entrenamiento con el resumen sin salir de la app;
 último paso es un intento fallido en Assessment y está deshabilitado en Guided; con la sesión
 cerrada sale de la app (D-21). Complete deja el POD vacío con un banner **provisional** (D-22).
 Reglas en `docs/domain.md`.
+
+### Spec 014 · Tres métodos de Log NC ✅ (2026-10-19, Fase 8.5, T4)
+Plan `docs/specs/014-plan.md`, tres entregas probadas por el usuario; la cuarta se recortó.
+Pedido del ingeniero de SAP MES, de Ernesto y de los técnicos, y el error más grave según la
+trainer (scrapear la pieza equivocada). **E1** (`b685f1d`, `40c1433`): un **hallazgo** por
+paso de Log NC (la pieza defectuosa, el defecto y la disposición) con su nota en Guided y
+Assessment; desecho rápido calificado por pieza y código exacto en las tres áreas; 4-5 piezas
+por orden Serialized; `NCCodes.Method` y `RequiresComments`; enmiendas 2 y 3 (en Moldeo el
+hallazgo dicta la cantidad del split y se califica; subpaso Info de la nota). **E2**
+(`a41d138`): reparación rápida en LoFlo y Redefinity (Browse de lo ensamblado, Remove
+component con Scrap, Add Component con ★ Batch Number, banner provisional de D-55) en un solo
+postback; `StepType` 9 y la versión automática de las guías (D-56); enmienda 4 (el desecho no
+lleva Component, `RequiresNCComponent` queda sin uso). **E3** (`0654e9d`): reparación
+extendida (Comments con el MPI simulado, "NC logged", Select Disposition Function, banner con
+las operaciones `SIM` de D-58; Local Rework provisional); `StepType` 10 y pesos finales
+(Log NC 0.05 × 3, DC 0.25); enmienda 5 (las reparaciones usan los códigos reales
+`F_FR_GENERAL` y `F_FX_GENERAL` y el defecto de la nota sale de un código de desecho, sin
+repetirse en la orden). **E4 recortada** (enmienda 6, `a436c73`): la Assembly Data por tipo
+de material (W13) no se califica, así que no entrenaba el error real; queda diferida y se
+retoma con otra spec si T6, la trainer o T9 muestran errores con Inventory SFC o Material
+Document. Moldeo solo entrena el desecho (D-53). Un solo control para los tres métodos (D-60)
+con la respuesta en JSON (D-59). Tests nuevos: `StepValidatorLogNCTests` y
+`NcFindingGeneratorTests`. Reglas en
+`docs/domain.md`; mecanismos en `docs/architecture.md`.

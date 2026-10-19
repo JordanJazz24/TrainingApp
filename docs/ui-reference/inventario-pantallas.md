@@ -23,7 +23,8 @@ una regla del simulador; se anota en la columna de notas.
 las pantallas tocadas. Si aparece una captura nueva, agregarla y revisar su pantalla.
 
 _Última revisión: 2026-09-29, después de la entrega 4 (`b832e77`). Comparación hecha
-contra las 25 capturas de la carpeta._
+contra las 25 capturas de la carpeta. Estados actualizados el 2026-10-19 (cierre de la
+spec 014, #17-#23)._
 
 ## Pantallas del MES
 
@@ -45,16 +46,16 @@ contra las 25 capturas de la carpeta._
 | 14 | NC Selection | 8 | `Split - Log NC/mensaje confirmacion scrap` (muestra la lista) | ✅ |
 | 15 | NC Data Entry | 8 | `Split - Log NC/MODAL NC DATA ENTRY` | ✅ |
 | 16 | Resultado de Complete | 9 | — | No aplica: en el MES real Complete no tiene pantalla, solo termina la orden (usuario, 2026-10-07) |
-| 17 | Browse de componentes (⧉ de Component en NC Data Entry) | 8 | `Split - Log NC/browse component` | 🔜 spec 014 |
-| 18 | Confirm "Do you want to remove component from {SFC}?" | 8 (reparación rápida) | `Split - Log NC/mensaje eliminar componente` | 🔜 spec 014 |
-| 19 | Remove component (As-Built Configuration) | 8 (reparación rápida) | `Split - Log NC/remove compoenet modal ` | 🔜 spec 014 |
-| 20 | Confirm "Do you want to add component to {SFC}?" | 8 (reparación rápida) | `Split - Log NC/confirmacion agregar compoenente ` | 🔜 spec 014 |
-| 21 | Add Component | 8 (reparación rápida) | `Split - Log NC/modal add componenet `, `Split - Log NC/recorte de agregado del nuevo compoenente ` | 🔜 spec 014 |
-| 22 | NC Data Entry de la extendida (★ Comments, "NC logged") | 8 (extendida) | `Split - Log NC/modal nc entry extended` | 🔜 spec 014 |
-| 23 | Select Disposition Function | 8 (extendida) | `Split - Log NC/sub modal seleccion operaicon a ser devuelta ` | 🔜 spec 014 |
+| 17 | Browse de componentes (⧉ de Component en NC Data Entry) | 8 | `Split - Log NC/browse component` | ✅ spec 014 |
+| 18 | Confirm "Do you want to remove component from {SFC}?" | 8 (reparación rápida) | `Split - Log NC/mensaje eliminar componente` | ✅ spec 014 |
+| 19 | Remove component (As-Built Configuration) | 8 (reparación rápida) | `Split - Log NC/remove compoenet modal ` | ✅ spec 014 |
+| 20 | Confirm "Do you want to add component to {SFC}?" | 8 (reparación rápida) | `Split - Log NC/confirmacion agregar compoenente ` | ✅ spec 014 |
+| 21 | Add Component | 8 (reparación rápida) | `Split - Log NC/modal add componenet `, `Split - Log NC/recorte de agregado del nuevo compoenente ` | ✅ spec 014 (*aceptada:* Add Assembly Details solo con ★ Batch Number; la variante por material del recorte quedó diferida, enmienda 6) |
+| 22 | NC Data Entry de la extendida (★ Comments, "NC logged") | 8 (extendida) | `Split - Log NC/modal nc entry extended` | ✅ spec 014 |
+| 23 | Select Disposition Function | 8 (extendida) | `Split - Log NC/sub modal seleccion operaicon a ser devuelta ` | ✅ spec 014 |
 
-**Resumen:** ✅ 14 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07) · 🔜 7 (#17-#23, capturas
-del 2026-10-15 para la spec 014; 🔜 = con captura, por implementar). La captura `Split - Log
+**Resumen:** ✅ 21 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). Las #17-#23 (capturas
+del 2026-10-15) pasaron a ✅ con la spec 014 (2026-10-19), probadas por el usuario. La captura `Split - Log
 NC/modal sfc split` que citan la #13 y `general-flow.md` no está en la carpeta. **Criterio de cierre cumplido (2026-10-01, tras la entrega 9):** todas las pantallas con captura están fieles; la #8 queda pendiente y no bloquea.
 
 ## Diferencias pendientes por pantalla
