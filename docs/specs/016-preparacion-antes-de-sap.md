@@ -53,7 +53,7 @@ realidad es el login de la cuenta de la app.
 - **D-74 · En todas las áreas y en los dos modos.** Las tres guías ganan el paso (versión
   nueva por D-56).
 
-## Propuestas de diseño (de Claude, para confirmar antes de aprobar)
+## Propuestas de diseño (de Claude; P-1 a P-10 confirmadas por el usuario el 2026-10-19)
 
 - **P-1 · Pantallas de pantalla completa.** Mientras el paso actual es Ingreso a MES, o
   Logout después del clic, la página del POD muestra el escritorio simulado y no el POD. Un
@@ -61,7 +61,7 @@ realidad es el login de la cuenta de la app.
 - **P-2 · Qué hay en cada pantalla.**
   - **Escritorio:** fondo de Windows 10 y barra de tareas decorativa, con dos íconos que se
     abren con doble clic: el script y Repositorio.
-  - **Consola:** reproduce la captura y pide el Code1. Al enviarlo se califica. Si está
+  - **Consola:** reproduce la captura y pide el Code1 (siempre tiene 9 dígitos, usuario). Al enviarlo se califica. Si está
     bien, muestra la salida del script y "Press any key to continue . . ."; cualquier tecla
     la cierra.
   - **Edge:** pestañas y barra de dirección con la URL real del Repositorio (las de Hora a
@@ -91,10 +91,15 @@ realidad es el login de la cuenta de la app.
   deja enviar un Code1 ajeno ni hacer algo fuera de secuencia (como D-25), así que no hay
   avance forzado.
 - **P-6 · Logout (spec 015) con la limpieza:** el clic en Logout (en el último paso) ya no
-  muestra el resumen. Pasa al escritorio (el navegador "se cierra"), donde el operador
-  ejecuta el script con su Code1. El paso se completa al cerrar la consola, y entonces sale
-  el resumen. En el escritorio, abrir el Repositorio es intento fallido de Logout. Un Code1
-  ajeno en el script también lo es, y se queda en la consola.
+  muestra el resumen.
+  - Muestra la pantalla de SAP NetWeaver **"You have logged off"** dentro de Edge, como el
+    real (captura del usuario, 2026-10-19). **Log On Again no hace nada** (usuario).
+  - El operador cierra Edge (✕) y vuelve al escritorio, donde ejecuta el script con su
+    Code1. El paso se completa al cerrar la consola, y entonces sale el resumen.
+  - En el escritorio, abrir el Repositorio es intento fallido de Logout. Un Code1 ajeno en
+    el script también lo es, y se queda en la consola.
+  - El operador no cierra sesión en Hora a Hora ni en Recursos MES: el script cierra los
+    navegadores (usuario).
 - **P-7 · El avance del Ingreso vive en el servidor** (`PodState`, como el resto del POD):
   qué pantallas ya se hicieron y qué pestañas están abiertas. F5 y volver a entrar a la
   sesión lo conservan. Abandon funciona como hoy.
@@ -112,8 +117,9 @@ realidad es el login de la cuenta de la app.
   - Desaparece la regla de "rol equivocado → camino correcto": ahora hay un solo camino.
   - `Pages/Admin/Login.aspx` y la segunda página de cambio de contraseña se quitan o
     redirigen a las únicas que quedan (lo define el plan).
-- **P-10 · El header del POD** sigue mostrando el usuario. Con eso se cumple "verifica que
-  su Code1 aparezca", sin calificarlo.
+- **P-10 · "Verifica que su Code1 aparezca"** (evaluación práctica, bloque 1): en Guided,
+  después de Log On, un subpaso Info resalta el usuario en el header del POD: "Verifique que
+  su usuario aparezca correctamente." No se califica y Assessment no lo muestra (usuario).
 
 ## Scope
 
@@ -124,8 +130,8 @@ realidad es el login de la cuenta de la app.
    nuevas.
 2. **Pantallas simuladas** con sus capturas (P-2): escritorio, consola del script, marco de
    Edge con pestañas, Repositorio, Hora a Hora 3.0 (con el aviso provisional después de
-   Iniciar), Recursos MES con la etiqueta simulada de la estación y login de MES con el
-   diseño SAP NetWeaver.
+   Iniciar), Recursos MES con la etiqueta simulada de la estación, login de MES con el
+   diseño SAP NetWeaver y "You have logged off" después de Logout.
 3. **Calificación en el servidor** por pantalla (D-67, D-68, P-3, P-4) y avance forzado
    (P-5).
 4. **Logout con la limpieza final** (D-65, P-6).
@@ -219,8 +225,9 @@ empleados.
 - **AC-9:** Given F5 a mitad del Ingreso, Then sigue en la misma pantalla con lo ya hecho.
 
 **Logout**
-- **AC-10:** Given el último paso, When clic en Logout, Then se ve el escritorio (sin el
-  resumen todavía).
+- **AC-10:** Given el último paso, When clic en Logout, Then se ve "You have logged off"
+  en Edge (sin el resumen todavía); Log On Again no hace nada; cerrar Edge lleva al
+  escritorio.
 - **AC-11:** Given el escritorio después de Logout, When ejecuta el script con su Code1 y
   cierra la consola, Then el paso se completa y sale el resumen; abrir el Repositorio o un
   Code1 ajeno es intento fallido de Logout.
@@ -238,8 +245,8 @@ empleados.
   0.25 en Moldeo, y todo suma 1.00; `ScoreCalculatorTests` y los tests de `StepValidator`
   siguen en verde.
 - **AC-16:** Given Guided, Then la guía recorre cada pantalla del Ingreso y de la limpieza,
-  con Hora a Hora antes que Recursos MES, el Code1 del operador en el texto y las notas de
-  P-8.
+  con Hora a Hora antes que Recursos MES, el Code1 del operador en el texto, las notas de
+  P-8 y el subpaso Info del usuario en el header (P-10).
 
 ## Deferred Decisions
 

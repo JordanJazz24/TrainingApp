@@ -54,3 +54,13 @@ de limpieza.
 Hora primero, pero el orden no importa (usuario; la trainer dijo "en cualquier orden").
 
 **Navegador:** en producción se usa Edge común.
+
+## Al terminar
+
+1. **Logout** en el POD. MES muestra la pantalla de SAP NetWeaver **"You have logged off"**,
+   con el botón **Log On Again** (captura del usuario, 2026-10-19; falta guardarla en
+   `Pre-SAPMES/`).
+2. El operador **cierra Edge** y vuelve al escritorio.
+3. Ejecuta `MES Limpiar historial y cache.bat` con su CODE1, igual que al entrar.
+
+No cierra sesión en Hora a Hora ni en Recursos MES: el script cierra los navegadores.
