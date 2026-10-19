@@ -53,7 +53,7 @@ realidad es el login de la cuenta de la app.
 - **D-74 · En todas las áreas y en los dos modos.** Las tres guías ganan el paso (versión
   nueva por D-56).
 
-## Propuestas de diseño (de Claude; P-1 a P-10 confirmadas por el usuario el 2026-10-19)
+## Propuestas de diseño (de Claude; P-1 a P-10 confirmadas y P-11 a P-14 decididas por el usuario el 2026-10-19)
 
 - **P-1 · Pantallas de pantalla completa.** Mientras el paso actual es Ingreso a MES, o
   Logout después del clic, la página del POD muestra el escritorio simulado y no el POD. Un
@@ -120,6 +120,16 @@ realidad es el login de la cuenta de la app.
 - **P-10 · "Verifica que su Code1 aparezca"** (evaluación práctica, bloque 1): en Guided,
   después de Log On, un subpaso Info resalta el usuario en el header del POD: "Verifique que
   su usuario aparezca correctamente." No se califica y Assessment no lo muestra (usuario).
+- **P-11 · Barra del simulador** (usuario): mientras se ve el escritorio, una franja fina
+  arriba, con el estilo de la guía (no imita Windows), muestra el área, el modo y
+  **Abandon**. Es la única forma de salir a mitad del Ingreso o de la limpieza.
+- **P-12 · Resumen al final** (usuario): al cerrar la consola de la limpieza vuelve el POD
+  con el resumen, como hoy. El ícono Logout sigue cerrando la sesión de la app (D-21).
+- **P-13 · Cerrar Edge a mitad del Ingreso** (usuario): vuelve al escritorio, sin intento.
+  Los registros hechos (Hora a Hora, Recursos MES) se conservan, como en el real, donde
+  quedan en el servidor. Abre el Repositorio de nuevo y sigue.
+- **P-14 · El script una segunda vez** (usuario): después de ejecutarlo en el Ingreso, su
+  ícono no hace nada hasta la limpieza final.
 
 ## Scope
 
@@ -186,6 +196,9 @@ o avance forzado.
 - **Recursos MES antes que Hora a Hora:** válido (D-67). Buscar lleva al login de MES, y
   desde ahí el operador puede volver a la pestaña del Repositorio para hacer Hora a Hora.
 - **Marcado `<x`** en un campo: formato (regla general de `CLAUDE.md`).
+- **Cerrar Edge antes del Log On:** escritorio, sin intento, con los registros conservados
+  (P-13).
+- **Abandon a mitad del Ingreso o de la limpieza:** desde la barra del simulador (P-11).
 - **Sesiones en curso al cargar las guías nuevas:** siguen con su versión (D-56).
 
 ## Non-Functional Requirements
