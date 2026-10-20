@@ -271,7 +271,7 @@ empleados.
 | Decisión | Respaldo elegido | Se revisa cuando |
 |---|---|---|
 | Tablero de Hora a Hora después de Iniciar | Aviso provisional (D-72) | Haya captura del tablero |
-| URLs de Hora a Hora y de Recursos MES | Solo el host en la barra de dirección | Haya captura de Edge con esas pestañas |
+| ~~URLs de Hora a Hora y de Recursos MES~~ | Resuelta (usuario, 2026-10-19): el host es `crapps.philips.com`, el mismo del Repositorio | — |
 | Marco de Edge | Genérico (D-71) | Haya captura de la estación |
 
 ## Open Questions

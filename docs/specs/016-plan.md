@@ -236,6 +236,11 @@ Tratamiento de usted. `{code1}` es el Code1 del operador.
 >    momentos de cerrar sesión. En "You have logged off" la guía va directo a cerrar Edge.
 > 3. **Estación:** la guía la trata como la etiqueta de la orden de la spec 011. Resalta la
 >    etiqueta con Ingresar recurso libre y avanza al escanear (las barras o Enter).
+>
+> **Ajuste para el cierre (usuario, 2026-10-19):** la última línea de la nota del ícono Logout
+> pasa a "Nunca deje su sesión abierta: lo que otra persona haga en ella queda registrado con
+> su usuario." Recupera el criterio del bloque 2 de la evaluación práctica que llevaba el
+> subpaso quitado en el punto 2.
 
 **Ingreso a MES**
 | Subpaso | Texto |
