@@ -417,11 +417,21 @@
             submit('LogOn', { code1: code1, password: true });
         }
 
-        // Tocar las barras de la etiqueta equivale a escanear la estación (D-70).
+        // Tocar las barras de la etiqueta equivale a escanear la estación (D-70): escribe el
+        // recurso y lo marca escaneado (la guía de Guided avanza con esa marca).
         function scanStation() {
             var input = el('mesRecResource');
             if (!input || state.RecursosDone) return;
             input.value = el('mesStationBarcode').getAttribute('data-value') || '';
+            stationScanned();
+        }
+
+        // El lector termina con Enter; tocar las barras, igual. Con un recurso escrito, el foco
+        // pasa a Ingresar code1.
+        function stationScanned() {
+            var input = el('mesRecResource');
+            if (!value('mesRecResource')) { input.removeAttribute('data-scanned'); return; }
+            input.setAttribute('data-scanned', '1');
             el('mesRecCode1').focus();
         }
 
@@ -470,7 +480,7 @@
                 if (consoleDone) closeConsole();
             });
             // Enter en los formularios de Edge envía su pantalla, como en el navegador.
-            [['mesHhCode1', submitHoraHora], ['mesRecResource', submitRecursos],
+            [['mesHhCode1', submitHoraHora], ['mesRecResource', stationScanned],
              ['mesRecCode1', submitRecursos], ['mesLoginUser', submitLogOn],
              ['mesLoginPassword', submitLogOn]].forEach(function (pair) {
                 el(pair[0]).addEventListener('keydown', function (e) {

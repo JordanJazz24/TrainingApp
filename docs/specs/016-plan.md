@@ -195,11 +195,31 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 
 ## Entrega 4 — Guía de Guided (P-8, P-10; AC-16)
 
-- [ ] `GuideScriptBuilder`: subpasos del Ingreso y de la limpieza con los textos de abajo.
+- [x] `GuideScriptBuilder`: subpasos del Ingreso y de la limpieza con los textos de abajo.
       La guía impone Hora a Hora antes que Recursos MES y no deja enviar un Code1 ajeno ni
       salir de secuencia (como D-25).
-- [ ] Subpaso Info del usuario en el header después de Log On (P-10).
-- [ ] Checklist completo de la spec en los dos modos y en las tres áreas.
+- [x] Subpaso Info del usuario en el header después de Log On (P-10).
+- [x] Checklist completo de la spec en los dos modos y en las tres áreas.
+
+> **Decisiones de implementación de E4** (desarrollo, 2026-10-19; las dos últimas son
+> correcciones del usuario al probar):
+>
+> - Las pantallas con Code1 y botón (Hora a Hora, Recursos MES, login de MES) van en dos
+>   subpasos: la captura ("Escriba su Code1: {code1}.", solo sigue con el del operador) y el
+>   clic ("Presione Iniciar."). El motor no revisa una captura y hace clic en el mismo
+>   subpaso. El login de MES: usuario, contraseña y Log On.
+> - `pod-guide.js`: en un subpaso de escaneo con respuesta esperada, Enter solo pasa con ese
+>   valor (el Code1 en la consola). En la pantalla completa, el recuadro iluminado incluye los
+>   elementos libres, como en los modales.
+> - Los íconos del escritorio (doble clic) avanzan cuando aparece la consola o Edge; "Press any
+>   key" avanza cuando la consola se cierra. La guía retoma según el avance guardado y, tras un
+>   fallo, en la pantalla que falló. Si el script cierra la sesión, primero "Presione cualquier
+>   tecla para terminar" y después el globo final.
+> - **Estación (usuario):** la guía resalta la etiqueta (como la de la orden, spec 011) con
+>   Ingresar recurso libre, y avanza cuando la estación queda escaneada (barras o Enter).
+> - **Logout (usuario):** sin el subpaso "Logout" de la tabla de abajo en "You have logged
+>   off": repetía la nota del subpaso del ícono Logout (spec 015). Después del Logout sigue
+>   "Cierre el navegador con la ✕".
 
 ## Textos de la guía de Guided (para aprobar con el plan)
 

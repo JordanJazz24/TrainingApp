@@ -45,9 +45,17 @@ namespace TrainingApp.Pages.Training.Guide
                 }
             }
 
-            // Sesión completada (R6): un último globo sobre "Session Complete".
+            // Sesión completada (R6): un último globo sobre "Session Complete". Si la cerró el
+            // script de la limpieza (spec 016, P-12), antes se cierra la consola: el resumen
+            // aparece recién entonces.
             if (moment.Kind == GuideMomentKind.SessionCompleted)
             {
+                if (moment.Detail == GuideMoment.CleanupDetail && moment.Step != null)
+                {
+                    var cleanup = new StepScript(moment.Step, "Logout");
+                    AddCloseConsole(cleanup, last: true);
+                    script.Substeps.AddRange(cleanup.Substeps);
+                }
                 script.Substeps.Add(new GuideSubstep
                 {
                     Key       = "final",
@@ -58,7 +66,7 @@ namespace TrainingApp.Pages.Training.Guide
                     Total     = 1,
                     Html      = H("Completó la guía. Cuando se sienta listo, intente el ", B("Assessment"), ".")
                 });
-                script.EntryKey = "final";
+                script.EntryKey = script.Substeps[0].Key;
                 return script;
             }
 
@@ -89,7 +97,8 @@ namespace TrainingApp.Pages.Training.Guide
                 case StepType.DataCollection: return DataCollection(ctx, step, moment);
                 case StepType.SFC_Split:      return SfcSplit(ctx, step);
                 case StepType.Complete:       return Complete(ctx, step);
-                case StepType.Logout:         return Logout(step);
+                case StepType.Logout:         return Logout(ctx, step);
+                case StepType.MesLogin:       return MesLogin(ctx, step);
                 default:                      return StepTypes.IsLogNC(step.StepType) ? LogNC(ctx, step) : null;
             }
         }
@@ -571,9 +580,16 @@ namespace TrainingApp.Pages.Training.Guide
 
         // Logout (spec 015): el ícono del header, con la nota de la trainer (resumen del punto 9
         // de la spec). Al cerrar la sesión sigue el globo final.
-        private static StepScript Logout(TrainingStep step)
+        // Logout (spec 015) con la limpieza al salir (spec 016, P-6): "You have logged off",
+        // cerrar Edge y el script con el Code1. Retoma donde va la limpieza.
+        private static StepScript Logout(PodContext ctx, TrainingStep step)
         {
-            var s = new StepScript(step, "Logout");
+            var cleanup = ctx.State.Logout;
+            var s = new StepScript(step, "Logout")
+            {
+                ResumeName = cleanup == null ? "logout" : cleanup.EdgeClosed ? "script" : "closeEdge"
+            };
+            s.IncorrectByDetail[MesScreen.Console.ToString()] = "scriptCode1";
             s.Add("logout", GuideMode.Click, Anchor("pod-logout"), postback: true,
                 html: H("Presione el ícono ", B("Logout"), " para cerrar su sesión en MES."),
                 note: string.Join("<br>",
@@ -582,7 +598,101 @@ namespace TrainingApp.Pages.Training.Guide
                     H("• Al cambiar de estación, actividad, producto, orden o línea."),
                     H("• Al entregar la estación a otro operador."),
                     H("Nunca deje su sesión abierta donde otra persona pueda usarla.")));
+            // Sin Info en "You have logged off": la nota del subpaso anterior ya dice cuándo se
+            // cierra sesión (usuario, 2026-10-19, al probar la E4).
+            s.Add("closeEdge", GuideMode.Click, Anchor("mes-edge-close"), postback: true,
+                html: H("Cierre el navegador con la ", B("✕"), "."));
+            AddScript(s, ctx.Code1, last: true);
             return s;
+        }
+
+        // Ingreso a MES (spec 016, P-8): el script, el Repositorio, Hora a Hora antes que
+        // Recursos MES (la guía impone ese orden) y el login de MES; al final, el usuario en el
+        // header (P-10). Retoma según el avance guardado; tras un intento fallido, en la pantalla
+        // que falló. Las capturas de Code1 solo dejan seguir con el del operador (como D-25).
+        private static StepScript MesLogin(PodContext ctx, TrainingStep step)
+        {
+            var progress = ctx.MesLogin;
+            string code1 = ctx.Code1;
+            var s = new StepScript(step, "Ingreso a MES")
+            {
+                TailName   = "userInfo",
+                ResumeName = !progress.ScriptDone ? "info"
+                    : !progress.EdgeOpen ? "closeConsole"
+                    : !progress.HoraHoraDone ? "horahora"
+                    : !progress.RecursosDone ? "backToRepo"
+                    : "loginUser"
+            };
+            s.IncorrectByDetail[MesScreen.Console.ToString()]    = "scriptCode1";
+            s.IncorrectByDetail[MesScreen.HoraHora.ToString()]   = "hhCode1";
+            s.IncorrectByDetail[MesScreen.Recursos.ToString()]   = "recResource";
+            s.IncorrectByDetail[MesScreen.MesLogin.ToString()]   = "loginUser";
+            s.IncorrectByDetail[MesScreen.Repository.ToString()] = "backToRepo";
+
+            s.Add("info", GuideMode.Info, Anchor("mes-desktop"),
+                html: H("Antes de entrar a SAP MES se prepara la estación. Esto se hace al inicio del turno ",
+                    "y cada vez que cambia de estación, antes de procesar unidades."));
+            AddScript(s, code1, last: false);
+            // Doble clic: avanza cuando se ve Edge (la página se envía).
+            s.Add("repositorio", GuideMode.Click, Anchor("mes-icon-repositorio"),
+                done: new[] { Anchor("mes-edge") },
+                html: H("Haga doble clic en ", B("Repositorio"), "."));
+            s.Add("horahora", GuideMode.Click, Anchor("mes-card-hh3"),
+                html: H("Seleccione ", B("Hora-Hora (3.0)"), "."));
+            s.Add("hhCode1", GuideMode.Capture, Anchor("mes-hh-code1"), format: GuideFormat.Required, expect: code1,
+                html: H("Escriba su Code1: ", B(code1), "."));
+            s.Add("hhStart", GuideMode.Click, Anchor("mes-hh-start"), postback: true,
+                html: H("Presione ", B("Iniciar"), "."));
+            s.Add("backToRepo", GuideMode.Click, Anchor("mes-tab-repositorio"),
+                html: H("Deje abierta esta pestaña y vuelva a la del ", B("Repositorio"), "."));
+            s.Add("recursos", GuideMode.Click, Anchor("mes-card-recursos"),
+                html: H("Seleccione ", B("Recursos MES"), "."));
+            // Como la etiqueta de la orden (spec 011): se resalta la etiqueta y el campo queda
+            // libre; avanza cuando la estación quedó escaneada (barras o lector + Enter).
+            s.Add("recResource", GuideMode.Scan, Anchor("mes-station-label"),
+                free: new[] { Anchor("mes-rec-resource") },
+                done: new[] { Anchor("mes-rec-resource") + Attr("data-scanned", "1") },
+                html: H("Escanee la etiqueta de su estación en ", B("Ingresar recurso"), "."));
+            s.Add("recCode1", GuideMode.Capture, Anchor("mes-rec-code1"), format: GuideFormat.Required, expect: code1,
+                html: H("Escriba su Code1: ", B(code1), "."));
+            s.Add("recSearch", GuideMode.Click, Anchor("mes-rec-search"), postback: true,
+                html: H("Presione ", B("Buscar"), "."));
+            s.Add("loginUser", GuideMode.Capture, Anchor("mes-login-user"), format: GuideFormat.Required, expect: code1,
+                html: H("Ingrese su usuario (", B(code1), ")."));
+            s.Add("loginPassword", GuideMode.Capture, Anchor("mes-login-password"), format: GuideFormat.Required,
+                html: H("Ingrese su contraseña."));
+            s.Add("logon", GuideMode.Click, Anchor("mes-login-logon"), postback: true,
+                html: H("Presione ", B("Log On"), "."));
+            s.Add("userInfo", GuideMode.Info, Anchor("pod-user"),
+                html: H("Verifique que su usuario aparezca correctamente."));
+            return s;
+        }
+
+        // Script de limpieza (spec 016): doble clic en el ícono, el Code1 del operador + Enter y
+        // cualquier tecla para cerrar la consola. last: la limpieza al salir ("para terminar").
+        private static void AddScript(StepScript s, string code1, bool last)
+        {
+            // Doble clic: avanza cuando se ve la consola.
+            s.Add("script", GuideMode.Click, Anchor("mes-icon-script"),
+                done: new[] { Anchor("mes-console") },
+                html: last
+                    ? H("Haga doble clic en ", B("MES Limpiar historial y cache"), ".")
+                    : H("Haga doble clic en ", B("MES Limpiar historial y cache"), " para limpiar el navegador."));
+            // Enter lo procesa la consola (envía la página); la guía solo lo deja pasar con el
+            // Code1 del operador.
+            s.Add("scriptCode1", GuideMode.Scan, Anchor("mes-console-input"), expect: code1,
+                html: H("Escriba su Code1: ", B(code1), " y presione Enter."));
+            AddCloseConsole(s, last);
+        }
+
+        // "Press any key to continue": avanza cuando la consola se cierra.
+        private static void AddCloseConsole(StepScript s, bool last)
+        {
+            s.Add("closeConsole", GuideMode.Scan, Anchor("mes-console"),
+                done: new[] { "!" + Anchor("mes-console") },
+                html: last
+                    ? H("Presione cualquier tecla para terminar.")
+                    : H("Presione cualquier tecla para cerrar la ventana."));
         }
 
         // Seleccionar exactamente una fila del POD: avanza cuando esa fila (y ninguna otra)
@@ -766,6 +876,10 @@ namespace TrainingApp.Pages.Training.Guide
             // Primer subpaso dentro del control recién abierto.
             public string OpenedName { get; set; }
 
+            // Entrada sin un momento que la decida (Load): la que corresponde al avance del paso
+            // (spec 016: el Ingreso y la limpieza retoman donde iban). null: el primer subpaso.
+            public string ResumeName { get; set; }
+
             // Elementos libres de todos los subpasos del paso (spec 014: la nota de hallazgo
             // queda resaltada mientras dura el paso). Se fija antes de agregar los subpasos.
             public List<string> FreeOnAll { get; } = new List<string>();
@@ -834,6 +948,7 @@ namespace TrainingApp.Pages.Training.Guide
                     }
                 }
 
+                if (name == null) name = ResumeName;
                 if (name != null && !_hidden.Contains(Key(name))) return Key(name);
                 var first = _items.FirstOrDefault(item => !_hidden.Contains(item.Key));
                 return first?.Key;

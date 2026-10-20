@@ -37,7 +37,7 @@
         <span class="pod-header-title">
             Production Operator Dashboard: Site -
             <asp:Literal ID="LitSite"     runat="server" Text="CR9A" />,
-            User - <asp:Literal ID="LitUserName" runat="server" />
+            User - <span data-guide="pod-user"><asp:Literal ID="LitUserName" runat="server" /></span>
         </span>
         <div class="pod-header-controls">
             <%-- Score del simulador (no existe en el MES real): compacto, antes de los íconos. --%>

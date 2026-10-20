@@ -292,9 +292,14 @@ namespace TrainingApp.Pages.Training
             if (result.Step != null)
             {
                 ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+                // La guía retoma en la pantalla que falló (spec 016, P-4).
+                if (result.Step.Outcome == StepSubmitOutcome.Incorrect)
+                    _guideMoment = GuideMoment.Incorrect(step, result.MesScreen?.ToString());
                 // Limpieza terminada con el script (no forzada): primero la salida de la consola.
                 _cleanupCompleted = cleanup && result.Step.Outcome == StepSubmitOutcome.SessionCompleted &&
                                     result.MesScreen == MesScreen.ScriptOutput;
+                if (_cleanupCompleted)
+                    _guideMoment = GuideMoment.SessionCompleted(step, GuideMoment.CleanupDetail);
                 return;
             }
 
@@ -393,10 +398,6 @@ namespace TrainingApp.Pages.Training
             // Visible persiste en ViewState: se decide en cada request.
             PhGuideAssets.Visible = false;
             if (_ctx == null || _ctx.Session.Mode != SessionMode.Guided) return;
-
-            // Ingreso a MES y limpieza al salir (spec 016): su guía llega en la E4. Hasta
-            // entonces no se muestra (la de Logout señalaría el ícono, que está oculto).
-            if (MesScreenActive) return;
 
             var script = new GuideScriptBuilder().Build(_ctx, _guideMoment);
             if (script.IsEmpty) return;

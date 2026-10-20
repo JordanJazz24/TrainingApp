@@ -43,7 +43,10 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   Hora, Recursos MES y el login de NetWeaver, calificado por pantalla. **E3 ✅** (2026-10-19,
   probada por el usuario): Logout en el último paso abre "You have logged off"; cerrar Edge
   lleva al escritorio y el script con el Code1 propio cierra la sesión (el resumen sale al
-  cerrar la consola). **Siguiente:** E4 (guía de Guided del Ingreso y de la limpieza). Orden
+  cerrar la consola). **E4 ✅** (2026-10-19, probada por el usuario): guía de Guided del
+  Ingreso y de la limpieza, con el usuario en el header después de Log On. Terminaron las
+  entregas de la 016. **Siguiente:** el cierre de la spec 016 (documentación) y, con eso, ya
+  se puede subir a `main` (D-81; lo sube el usuario). Orden
   vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),

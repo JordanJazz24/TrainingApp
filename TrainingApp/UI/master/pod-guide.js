@@ -207,11 +207,13 @@
 
     // Recuadro iluminado: el resaltado y, si está en un modal, los elementos libres del mismo
     // modal. pg-lift no los saca del oscurecido: el modal tiene su propio z-index, menor que el
-    // del marco (ej. Batch Number junto a Add en Add Component, spec 014).
+    // del marco (ej. Batch Number junto a Add en Add Component, spec 014). Lo mismo en la
+    // pantalla completa del Ingreso a MES (spec 016: la etiqueta de la estación junto a
+    // Ingresar recurso), que también tiene su propio z-index.
     function frameRect() {
         var t = target.getBoundingClientRect();
         var box = { left: t.left, top: t.top, right: t.right, bottom: t.bottom };
-        var modal = target.closest('.modal');
+        var modal = target.closest('.modal') || target.closest('.mes-screen');
         if (modal) lifted.forEach(function (el) {
             if (!modal.contains(el)) return;
             var q = el.getBoundingClientRect();
@@ -574,8 +576,13 @@
         }
         // Fuera del elemento resaltado (y del globo) no se escribe ni se activa nada.
         if (!allowed(active)) { stop(); return; }
-        // Escaneo: el Enter del lector lo procesa el propio control (muestra Add).
-        if (s.mode === 'scan') return;
+        // Escaneo: el Enter del lector lo procesa el propio control (muestra Add). Con una
+        // respuesta esperada (spec 016: el Code1 en la consola del script), Enter solo pasa con
+        // ese valor; si no, no hace nada (R10: sin aviso propio).
+        if (s.mode === 'scan') {
+            if (key === 'Enter' && s.expect != null && target && !answerOk(s, target)) stop();
+            return;
+        }
         if (key === 'Enter' && isTextField(active)) stop();
     }, true);
 

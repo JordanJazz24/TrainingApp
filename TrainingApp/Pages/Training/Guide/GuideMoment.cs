@@ -47,7 +47,11 @@ namespace TrainingApp.Pages.Training.Guide
         public static GuideMoment StepResolved(TrainingStep step)
             => new GuideMoment(GuideMomentKind.StepResolved, step);
 
-        public static GuideMoment SessionCompleted(TrainingStep step)
-            => new GuideMoment(GuideMomentKind.SessionCompleted, step);
+        // detail: "cleanup" si la cerró el script de la limpieza (spec 016): la consola con su
+        // salida sigue en pantalla antes del resumen.
+        public static GuideMoment SessionCompleted(TrainingStep step, string detail = null)
+            => new GuideMoment(GuideMomentKind.SessionCompleted, step, detail);
+
+        public const string CleanupDetail = "cleanup";
     }
 }
