@@ -1,6 +1,6 @@
 # Spec 016: Preparación antes de SAP (Ingreso a MES y limpieza al salir)
 
-**Status:** Approved (2026-10-19)
+**Status:** Approved (2026-10-19) · **Cerrada:** 2026-10-19 (E1-E4, `50aca9d`…`e1227dd`; cierre `96addd8`)
 **Date:** 2026-10-19 · **Approved:** 2026-10-19 (usuario, con P-1 a P-14)
 
 Fuentes: el flujo Pre-SAP del usuario y sus capturas (`docs/ui-reference/pre-sap-flow.md`,
