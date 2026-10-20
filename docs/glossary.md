@@ -27,9 +27,9 @@
 | **Product / Area / Operation** | Línea de manufactura / sublínea de ensamblaje / [futuro] subdivisión del Area. Jerarquía y lista oficial: `docs/domain.md` → "Jerarquía". |
 | **TrainingGuide** | Plantilla de pasos que define el flujo del operador (qué pasos, en qué orden, con qué pesos). Inmutable una vez publicada. No llamarla WorkflowDefinition. |
 | **TrainingSession** | Ejecución de una TrainingGuide por un operador: paso actual, intentos y, al terminar, el puntaje final. |
-| **Guided Test** | Nombre de la pantalla de entrenamiento (`GuidedTest.aspx`), en cualquiera de los dos modos. |
+| **Guided Test** | Nombre de la pantalla de entrenamiento (`GuidedTest.aspx`), en cualquiera de los tres modos. |
 | **SerializationType** | `Serialized` (varios SFC individuales) o `NonSerialized` (un SFC con cantidad). Reglas: `docs/domain.md` → "Ejes de variación". |
-| **SessionMode** | `Guided` (práctica) o `Assessment` (evaluación). Reglas: `docs/domain.md` → "Modos de sesión". |
+| **SessionMode** | `Guided` (tutorial con guía), `Assessment` (evaluación) o `FreePractice` ("Práctica libre": sin guía ni puntaje, con pistas y saltos, spec 012). Lo que hace cada uno lo decide `ModePolicy`. Reglas: `docs/domain.md` → "Modos de sesión". |
 | **StepWeight** | Peso de un paso sobre el puntaje final (`TrainingSteps.Weight`). Pesos y reglas: `docs/domain.md` → "Ponderación de pasos". |
 | **Intento** | Cada envío que califica el servidor. Qué cuenta y qué no (formato vs. decisión, acción incorrecta, secuencia S2, avance forzado): `docs/domain.md` → "Qué cuenta como intento". |
 | **Avance forzado (force-advance)** | En Assessment, al 4.º intento (`ScoreCalculator.ShouldForceAdvance`) el paso queda fallido con 0 puntos y el sistema avanza solo al siguiente. |

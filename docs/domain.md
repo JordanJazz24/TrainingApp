@@ -162,6 +162,24 @@ Cierre
 
   Aplica igual a pasos con contenido (Data Collection, NC) y a pasos de secuencia (Resource
   Setup, Search): en estos, cada intento fuera de secuencia es un intento fallido.
+- **Práctica libre** (`FreePractice`, `Mode` = 2, spec 012) — practicar solo y explorar: sin
+  guía visual y sin mostrar en qué paso va, con todos los botones del POD habilitados.
+  Califica dentro del paso sin penalizar: cada decisión o botón equivocado es un intento
+  fallido con "Respuesta incorrecta.", sin intentos restantes ni avance forzado (el paso se
+  resuelve al acertar o al saltarlo). Herramientas del simulador:
+  - **Ver pista**, siempre disponible: el paso actual, el texto del último fallo si el
+    control lo trajo y la pista del paso (la de Guided; por tramo en el Ingreso a MES y en
+    Logout). Sin postback ni registro.
+  - **Saltar paso** e **Ir a…** (solo hacia adelante, con confirmación): cada paso adelantado
+    queda registrado como saltado y el POD como tras el avance forzado (ver "Qué cuenta como
+    intento" → "Avance forzado").
+  - El `FinalScore` se calcula sin penalización (un paso saltado vale 0) y no se muestra: ni
+    en el header ni en el resumen, que muestra los intentos por paso (1 = acertó a la
+    primera; "Saltado" o "Saltado (N fallos)"). Los intentos quedan separados por el modo de
+    la sesión.
+
+Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUDE.md` →
+"Capas".
 
 ## Qué cuenta como intento
 
@@ -188,6 +206,11 @@ Cierre
   mensaje genérico (no revela que fue de secuencia), y no abre su control. La secuencia se
   evalúa antes que los avisos de formato. Activities → LC entra en la regla, y también el
   ícono Logout antes del último paso (spec 015; en Guided se ignora).
+- **Secuencia en Práctica libre (spec 012, P-4 y P-5):** el botón de otro paso, el ícono
+  Logout antes del último paso y el Repositorio fuera de su turno (en el Ingreso y en la
+  limpieza) muestran "Ese no es el paso actual." **sin intento** y no abren nada. Log On sin
+  el registro de Hora a Hora es un error dentro del paso, no "otro paso": intento fallido. Los
+  botones del MES sin lógica no hacen nada, sin aviso ni intento.
 - **Ingreso a MES y limpieza al salir (spec 016):** cada pantalla se califica al enviarla.
   - **Decisión:** el Code1 en el script, en Hora a Hora, en Recursos MES y en el login de MES
     (el propio está bien; uno ajeno es intento fallido, `WrongDecision`, y se queda en esa
@@ -238,6 +261,12 @@ Cierre
   rápida: queda con el componente reemplazado; extendida: según la disposición); Complete
   forzado quita las filas del POD; Logout forzado (4.º fallo en la limpieza) cierra la sesión
   con su resumen.
+- **Paso saltado (Práctica libre, spec 012, P-9):** Saltar paso e Ir a… reusan el avance
+  forzado: cada paso adelantado es un intento no correcto con `Reason = Skipped` (6) y
+  `Action = Practice.Skip`, que resuelve el paso y deja el POD igual que el avance forzado
+  (lo parcial de Assembly o DC se descarta). Saltar Logout cierra la sesión con su resumen.
+  Un destino que ya no está adelante (doble clic, F5) se ignora; uno fuera de la guía, o un
+  salto en Guided o Assessment, es un invariante violado (excepción), no un intento.
 
 ## Ponderación de pasos (`StepWeight`) — la fuente de verdad es la BD
 

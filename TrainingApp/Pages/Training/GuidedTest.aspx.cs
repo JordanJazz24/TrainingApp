@@ -259,7 +259,7 @@ namespace TrainingApp.Pages.Training
 
             var data = new
             {
-                hint     = StepHints.For(current.StepType),
+                hint     = StepHints.For(_ctx, current.StepType),
                 failure  = _lastFailureFeedback,
                 current  = new { order = current.Order, name = StepNames.Display(steps, current) },
                 next,
@@ -802,7 +802,7 @@ namespace TrainingApp.Pages.Training
                     _guideMoment = GuideMoment.Incorrect(step);
                     _lastFailureFeedback = incorrectFeedback;
                     ShowSweetAlert("warning", "Incorrect",
-                        BuildIncorrectFeedback(_ctx.Policy, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
+                        BuildIncorrectFeedback(_ctx, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
@@ -929,9 +929,10 @@ namespace TrainingApp.Pages.Training
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
         // respuesta, solo cuántos intentos con puntaje le quedan antes del avance forzado.
-        private static string BuildIncorrectFeedback(ModePolicy policy, StepType stepType,
+        private static string BuildIncorrectFeedback(PodContext ctx, StepType stepType,
             int remainingScoredAttempts, string incorrectFeedback)
         {
+            var policy = ctx.Policy;
             if (policy.FailureFeedback == FailureFeedbackKind.RemainingAttempts)
             {
                 return remainingScoredAttempts > 0
@@ -944,7 +945,7 @@ namespace TrainingApp.Pages.Training
                 return "Respuesta incorrecta.";
 
             if (!string.IsNullOrEmpty(incorrectFeedback)) return incorrectFeedback;
-            string hint = StepHints.For(stepType);
+            string hint = StepHints.For(ctx, stepType);
             return !string.IsNullOrEmpty(hint) ? hint : "Intente de nuevo.";
         }
 
@@ -1355,6 +1356,34 @@ namespace TrainingApp.Pages.Training
             {
                 PnlFinalResult.Visible = false;
             }
+
+            // Práctica libre (P-10): los pasos con sus intentos, de la sesión que se cerró en este
+            // request (el resumen no se vuelve a ver después de cerrarlo).
+            PnlAttemptSummary.Visible = _ctx.Policy.Summary == SummaryKind.AttemptsPerStep;
+            if (PnlAttemptSummary.Visible)
+            {
+                RptAttemptSummary.DataSource = Pod.AttemptSummary(_ctx);
+                RptAttemptSummary.DataBind();
+            }
+        }
+
+        // Fila del resumen: resaltada si tuvo fallos (más de un intento, o fallos antes de
+        // saltarse); atenuada si se saltó.
+        protected static string SummaryRowCss(StepAttemptSummaryRow row)
+        {
+            bool retried = row.Skipped ? row.Failures > 0 : row.Attempts > 1;
+            return string.Join(" ", new[] { retried ? "summary-retried" : null, row.Skipped ? "summary-skipped" : null }
+                .Where(c => c != null));
+        }
+
+        // "Saltado" o "Saltado (N fallos)" (punto confirmado 4); si no, cuántos intentos.
+        protected static string SummaryAttemptsText(StepAttemptSummaryRow row)
+        {
+            if (!row.Skipped) return row.Attempts.ToString(CultureInfo.InvariantCulture);
+            if (row.Failures == 0) return "Saltado";
+            return row.Failures == 1
+                ? "Saltado (1 fallo)"
+                : string.Format(CultureInfo.InvariantCulture, "Saltado ({0} fallos)", row.Failures);
         }
 
         // ── StepViewModel builder ────────────────────────────────────────

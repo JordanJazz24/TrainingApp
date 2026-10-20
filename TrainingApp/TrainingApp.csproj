@@ -233,6 +233,7 @@
     <Compile Include="BLL\Scoring\StepValidator.cs" />
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
     <Compile Include="BLL\Training\StepNames.cs" />
+    <Compile Include="BLL\Training\StepAttemptSummary.cs" />
     <Compile Include="BLL\Training\PreloadedEquipment.cs" />
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\StepTypes.cs" />

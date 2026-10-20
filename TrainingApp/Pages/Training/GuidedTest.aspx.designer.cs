@@ -483,6 +483,24 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.Panel PnlFinalResult;
 
         /// <summary>
+        /// PnlAttemptSummary control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel PnlAttemptSummary;
+
+        /// <summary>
+        /// RptAttemptSummary control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptAttemptSummary;
+
+        /// <summary>
         /// LitFinalResult control.
         /// </summary>
         /// <remarks>

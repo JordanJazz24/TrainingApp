@@ -25,6 +25,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
 │   │       ├── SessionPodStateStore.cs    ← IPodStateStore sobre la Session (spec 009)
+│   │       ├── StepHints.cs               ← pista de cada paso (Guided tras un fallo y Ver
+│   │       │                                 pista); por tramo en el Ingreso y en Logout (spec 012)
 │   │       ├── Guide/                     ← guía visual de Guided (spec 010): GuideScriptBuilder
 │   │       │                                 (guion por tipo de paso y textos), GuideSubstep,
 │   │       │                                 GuideMoment (qué dejó la página en pantalla)
@@ -75,6 +77,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── AttemptActions.cs          ← catálogo de acciones del registro de actividad
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── StepTypes.cs               ← familia Log NC: IsLogNC y el método de cada tipo (spec 014)
+│   │   │   ├── StepNames.cs               ← nombre de un paso con su variante (spec 012)
+│   │   │   ├── StepAttemptSummary.cs      ← resumen de Práctica libre: intentos por paso (spec 012)
 │   │   │   ├── NcFinding.cs               ← hallazgo de un paso de Log NC, NcDisposition y
 │   │   │   │                                 NcFindingGenerator (spec 014)
 │   │   │   ├── LogNCAnswer.cs             ← contrato JSON de la respuesta de Log NC (D-59)
@@ -85,6 +89,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
 │   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
 │   │   └── Scoring/
+│   │       ├── ModePolicy.cs              ← modo → capacidades (guía, botones, secuencia,
+│   │       │                                 penalización, avance forzado, pistas, salto,
+│   │       │                                 resumen) (spec 012)
 │   │       ├── ScoreCalculator.cs         ← puntaje, penalización, umbral de aprobación
 │   │       ├── StepValidator.cs           ← reglas de validación por tipo de paso
 │   │       ├── StepValidationContext.cs   ← área, catálogos, hallazgo del paso y filas
@@ -249,6 +256,49 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   `SessionHelper.Logout()` (D-21, AUD-33). Logout no tiene control de paso
   (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
   también al forzarse y al reconstruir el estado.
+
+## Modos de sesión y Práctica libre (spec 012)
+
+Reglas: `docs/domain.md` → "Modos de sesión" y "Qué cuenta como intento".
+
+- **`ModePolicy`** (`BLL/Scoring/`): una instancia inmutable por modo, `ModePolicy.For(mode)`
+  (un modo desconocido es excepción), expuesta como `PodContext.Policy`. Capacidades:
+  `ShowsGuide`, `EnablesAllButtons`, `OutOfSequence` (`Ignore`/`RecordAttempt`/`Notice`),
+  `NoLogicButtons` (`Disabled`/`RecordAttempt`/`Inert`), `PenalizesRetries`, `ForcesAdvance`,
+  `FailureFeedback`, `HintOnDemand`, `AllowsSkip`, `ShowsScore` y `Summary`, más
+  `PenaltyFactor` y `ForcesAdvanceAt`. `ScoreCalculator` conserva sus firmas con
+  `SessionMode` y delega en ella; `ModeLabel` (nombre y badge) es lo único de la página que
+  mira el `SessionMode`.
+- **Aviso de otro paso (D-88):** con `Notice`, `PodService.OutOfSequence` y `MesFailure`
+  devuelven `PodCommandResult.NotCurrentStepNotice` sin intento y la página muestra "Ese no
+  es el paso actual.". En el Ingreso y la limpieza solo el Repositorio fuera de turno es
+  "otro paso" (`MesAction.OpenRepository`); Log On sin Hora a Hora llega también como
+  `OutOfSequence` pero es intento fallido.
+- **Saltar e Ir a… (D-83, D-84 enmendada):** `PodService.Skip(ctx, targetOrder)` recorre
+  desde el paso actual hasta el anterior al destino: `RecordAttempt(..., Skipped, resolve:
+  true)` (sigue el camino del avance forzado, cada paso en su transacción de
+  `spStepAttemptRecord`) y `RestoreAfterForcedAdvance`. El destino viaja en `HfSkipTarget`.
+  La página (`BtnSkip_ServerClick`) muestra el resumen si el salto cerró la sesión; si no,
+  también cuando la BLL lo ignoró (doble clic), hace `Response.Redirect` a la misma URL: el
+  POD se vuelve a armar desde `PodState` como en un F5 (sin selección ni control abierto),
+  en lugar de repintar paso por paso con `RepaintAfterForcedAdvance`.
+- **Barra de práctica (D-89, D-91):** Ver pista, Saltar paso e Ir a… a la derecha de Abandon,
+  en el pie del POD y en `mes-simbar`, dentro de una cápsula (`.practice-group`) con el
+  estilo "Fiori Industrial" del simulador (enmienda 2; Abandon lo lleva en los tres modos).
+  `ApplyPracticeBar` (en `OnPreRender`) decide la visibilidad por la política y deja en
+  `window.podPractice` (con `JavaScriptSerializer`) el paso actual, su pista, el texto del
+  último fallo de ese request y los pasos siguientes; los diálogos son SweetAlert con
+  `titleText`/`textContent`. Para que la pista esté siempre disponible, la cápsula tiene
+  `z-index` 1059, por encima de los modales del POD (1055, apilados hasta 1058) y por
+  debajo de SweetAlert (1060); un `focusin` en captura en `document` evita que el focus
+  trap de Bootstrap le quite el foco a SweetAlert (solo con `window.podPractice`).
+- **Pistas (D-87, enmienda 2):** `StepHints.For(ctx, stepType)` en `Pages/Training`; en el
+  Ingreso a MES y en Logout elige el texto por tramo con el mismo avance que usan los
+  `ResumeName` de `GuideScriptBuilder` (`MesLoginProgress` y `State.Logout`). Lo usan Ver pista
+  y la pista de Guided tras un fallo.
+- **Resumen (D-86):** `PodService.AttemptSummary(ctx)` → `StepAttemptSummary.Build`, con los
+  intentos que ya trae el contexto del cierre (sin consulta nueva); `ShowCompletionPanel` lo
+  muestra cuando `Summary = AttemptsPerStep`, sin puntaje ni resultado.
 
 ## Log NC: tres métodos (spec 014)
 

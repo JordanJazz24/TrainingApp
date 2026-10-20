@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-20 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 012, entrega 3 (`git log --oneline -10` para ver el estado real)
+código:** spec 012, entrega 4 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -38,14 +38,9 @@ código:** spec 012, entrega 3 (`git log --oneline -10` para ver el estado real)
   spec, la fijación de sesión. Ya se puede subir a `main` (D-81); lo sube el usuario.
   **Notas EP-7 ✅** (2026-10-20, plan directo, ver "Historial"): cuándo repetir Resource Setup
   y Line Clearance y consumir antes del MPI, probadas por el usuario.
-  **En curso: spec 012 · Práctica libre** (T3, plan `docs/specs/012-plan.md`, aprobado el
-  2026-10-20). **E1 ✅** (2026-10-20): refactor `ModePolicy` sin cambio de comportamiento,
-  regresión de Guided y Assessment probada por el usuario. **E2 ✅** (2026-10-20): el modo
-  Práctica libre (sin guía ni puntaje, aviso "Ese no es el paso actual." sin intento, sin
-  penalización ni avance forzado), probado por el usuario. **E3 ✅** (2026-10-20): Ver pista
-  (con el paso actual), Saltar paso e Ir a… en una barra "Fiori Industrial", probados por el
-  usuario. **Siguiente:** E4 (resumen por paso y documentación); después la **017** (espera
-  las capturas de T9).
+  **Spec 012 ✅** (2026-10-20, T3, ver "Historial"): `ModePolicy` y el modo **Práctica
+  libre** (sin guía ni puntaje, Ver pista, Saltar paso e Ir a…, resumen por paso), probada
+  por el usuario. **Siguiente:** la **017** (espera las capturas de T9).
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
@@ -56,7 +51,8 @@ código:** spec 012, entrega 3 (`git log --oneline -10` para ver el estado real)
   QD001001524, integrado en `TrainingApp` (`docs/ui-reference/wi-produccion-disposables.md`,
   W1-W22). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
   tipo de material (W13). Preguntas abiertas en "Fase 8" → "Contraste con la WI".
-- **Lo último cerrado (2026-10-20):** las **notas EP-7**. Antes (2026-10-19), la **spec 016**
+- **Lo último cerrado (2026-10-20):** la **spec 012** (Práctica libre) y, antes, las
+  **notas EP-7**. Antes (2026-10-19), la **spec 016**
   (preparación antes de SAP) y, antes, la
   **spec 014** (tres métodos de Log NC). Antes
   (2026-10-14), la **spec 015**, **T7** (mensajes y alertas de la guía) y la
@@ -356,7 +352,7 @@ testing (T9):
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
 Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
 la validación con técnicos y tras la trainer; el usuario terminó la 013 antes que T7
-(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 ✅ → 012 → 017** (T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
+(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 ✅ → 012 ✅ → 017** (T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
@@ -367,7 +363,7 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 5 | ✅ **Ajustes de la trainer** (2026-10-14) (spec aprobada el 2026-10-14): Resource Setup con equipos precargados (generados al abrir el control; guardar con alguno es intento fallido); **Logout** como último paso después de Complete (0.05, sale de Complete; clic simulado → resumen; antes del último paso, intento fallido en Assessment e ignorado en Guided); grupo de DC **`DCGTM_TRAINEE/A`** opcional en todas las áreas con DC (nombre: letras y espacios, formato) | spec 015 | — |
 | 6 | ✅ **T4 · Tres métodos de Log NC** (2026-10-19, `b685f1d`…`0654e9d`; plan `014-plan.md`): desecho rápido, reparación rápida y extendida, obligatorios en las áreas con Assembly (LoFlo, Redefinity); Moldeo solo desecho rápido (D-53). Nota de hallazgo con la pieza defectuosa (en Assessment, otra pieza, otro código u otra decisión es intento fallido: error 1 de la trainer), 4-5 piezas por orden Serialized, cantidad del split calificada en Moldeo, reparaciones con los códigos reales `F_FR_GENERAL` y `F_FX_GENERAL` (enmienda 5) y pesos nuevos (Log NC 0.05 × 3, DC 0.25). La E4 (Assembly Data por tipo de material, W13) se recortó y quedó diferida (enmienda 6) | spec 014 | banners provisionales hasta conocer el de la reparación rápida y el de Local Rework (V-3, V-5) |
 | 7 | ✅ **T10 · Preparación antes de SAP** (2026-10-19, `50aca9d`…`e1227dd`; spec aprobada el 2026-10-19, `docs/specs/016-preparacion-antes-de-sap.md`; plan `016-plan.md` aprobado el 2026-10-19): paso nuevo "Ingreso a MES" al principio de las guías (script de limpieza → Repositorio → Hora a Hora 3.0 → Recursos MES → login de MES con el diseño SAP NetWeaver), Logout con la limpieza final (EP-3), login de la app único y neutro (enmienda 2 de la spec 013); Ingreso 0.05 y DC −0.05. Flujo en `docs/ui-reference/pre-sap-flow.md` | spec 016 | — |
-| 8 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. **Spec aprobada el 2026-10-20** (`docs/specs/012-modo-practica.md`): **Práctica libre**, sin guía ni penalización, con Ver pista siempre disponible, botones de otro paso con aviso y sin intento, reintentos ilimitados, Saltar paso / Ir a… (en vez de guías por tramo) y resumen con intentos por paso. Plan `012-plan.md` aprobado el 2026-10-20 (4 entregas: `ModePolicy`, modo, pista y saltos, resumen) | spec 012 | — |
+| 8 | ✅ **T3 · Modo práctica** (2026-10-20, `1b45779`…E4; spec `docs/specs/012-modo-practica.md` y plan `012-plan.md`, aprobados el 2026-10-20, con las enmiendas 1 y 2). Lo que se pidió: La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. **Spec aprobada el 2026-10-20** (`docs/specs/012-modo-practica.md`): **Práctica libre**, sin guía ni penalización, con Ver pista siempre disponible, botones de otro paso con aviso y sin intento, reintentos ilimitados, Saltar paso / Ir a… (en vez de guías por tramo) y resumen con intentos por paso. Plan `012-plan.md` aprobado el 2026-10-20 (4 entregas: `ModePolicy`, modo, pista y saltos, resumen) | spec 012 | — |
 | 9 | ✅ **T6 · Evaluación práctica → Assessment** (QD001043644, 2026-10-19): contraste y decisiones en `docs/ui-reference/evaluacion-practica-mes.md`. La evaluación es insumo, no se replica: el simulador cubre como mínimo lo que pide. Sin cambios de pesos ni del criterio de aprobación (EP-1, EP-2); W13 sigue diferida (EP-6). Salieron: EP-3 → 016, EP-7 → fila 11, EP-4/EP-5 → fila 10 | análisis | — |
 | 10 | **Spec 017 · Fidelidad con la evaluación práctica** (EP-4, EP-5): Resource Setup con REMOVE ALL + Save → Insert New y el Setup Type calificado (con `Material`); errores del MES que el operador debe reconocer: SFC iniciado en otro recurso, componente no requerido, material sensible al tiempo expirado, batch inválido, cantidad insuficiente y DC fuera de límites | spec 017 | capturas de los mensajes reales en el ambiente de testing (T9) |
 | 11 | ✅ **Notas de comprensión en la guía de Guided** (EP-7, 2026-10-20, `9a5433c`): cuándo iniciar y cerrar sesión, riesgo de una sesión abierta, cuándo repetir Resource Setup y Line Clearance, consumir antes del MPI; cada una en su paso, como las de T7. Assessment no las evalúa. Las de login y limpieza de caché, con los pasos de la 016. Plan y textos aprobados el 2026-10-20: ver "Plan de la fila 11" | plan directo | — |
@@ -734,3 +730,20 @@ sustituir un equipo), Line Clearance de apertura `activities` (reemplaza la nota
 después de Resource Setup y cuándo se registra de nuevo) y Assembly `open` (consumir antes de
 la instrucción del MPI). El LC de cierre conserva su alerta. Sin cambios de BD, puntaje ni
 Assessment. Probado por el usuario en el navegador.
+
+### Spec 012 · Práctica libre ✅ (2026-10-20, Fase 8.5, T3)
+Plan `docs/specs/012-plan.md`, cuatro entregas probadas por el usuario, con las enmiendas 1
+y 2 de la spec y la enmienda 1 del plan. Pedido de Ernesto (revisión del 2026-10-09).
+**E1** (`1b45779`): `ModePolicy` en `BLL/Scoring/` concentra lo que decidía cada modo
+(guía, botones, secuencia, penalización, avance forzado, mensaje de fallo, resumen), sin
+cambio de comportamiento. **E2** (`f2653a6`): modo **Práctica libre** (`Mode` = 2): sin guía
+ni puntaje, todos los botones habilitados, "Ese no es el paso actual." sin intento para el
+botón de otro paso (Log On sin Hora a Hora es intento fallido, hallazgo del review), sin
+penalización ni avance forzado. **E3** (`af0bd2a`): Ver pista (con el paso actual), Saltar
+paso e Ir a… (`Reason = Skipped`, reusa el avance forzado; tras el salto, `Response.Redirect`
+como un F5, D-84 enmendada), barra sobre los modales (D-91) con el estilo "Fiori Industrial"
+(decisión del usuario al probar, también en Abandon). **E4**: resumen con los intentos por
+paso ("Saltado (N fallos)") y pistas por tramo en el Ingreso a MES y en Logout (enmienda 2).
+Sin scripts de BD (solo comentarios en `00`). Reviews: `high` en E1 y E3, `medium` en E2 y
+E4. Tests: 184 (`ModePolicyTests`, `StepNamesTests`, `StepHintsTests`). Reglas en
+`docs/domain.md`; mecanismos en `docs/architecture.md`.

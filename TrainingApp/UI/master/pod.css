@@ -697,6 +697,17 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,.1);
 }
 
+/* Resumen de Práctica libre (spec 012, P-10): intentos por paso. Más de un intento se
+   resalta; un paso saltado se atenúa. */
+.pod-attempt-summary {
+    max-height: 50vh;
+    overflow-y: auto;
+    text-align: left;
+    font-size: 0.85rem;
+}
+.pod-attempt-summary .summary-retried td { background: #fff7e6; font-weight: 600; }
+.pod-attempt-summary .summary-skipped td { color: #6c757d; font-style: italic; }
+
 /* ── Modales del MES (Fase 6.5, entrega 4) ──────────
    Barra de título estándar de todas las ventanas: [Título] [↗] [X] sobre gris claro.
    Debajo, el encabezado interno que muestra cada captura real:

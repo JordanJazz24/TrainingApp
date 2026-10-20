@@ -165,6 +165,10 @@ las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va 
   `TrainingSessionService.Abandon` valida el dueño. Violar un invariante es una excepción, no
   un intento. Intento y avance/cierre se guardan juntos en una transacción
   (`spStepAttemptRecord`) (AUD-05/06, spec 009).
+- **Qué hace cada modo de sesión vive en un solo lugar, `ModePolicy`** (`BLL/Scoring/`,
+  spec 012), como `AccessPolicy` con los roles: la página, `PodService` y `ScoreCalculator`
+  preguntan por la capacidad (`ctx.Policy.ShowsGuide`, `OutOfSequence`, `PenaltyFactor`…),
+  nunca `mode == …`. Un modo nuevo es una instancia más de `ModePolicy`, no ramas nuevas.
 - **Estado del POD solo en la BLL**: la orden simulada y el avance de Assembly/DC (`PodState`)
   solo los modifica `PodService`; la página y los controles leen el `PodContext` del request.
   Una sola sesión activa por operador (D-9). Mecanismo: `docs/architecture.md`.

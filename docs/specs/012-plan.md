@@ -236,22 +236,31 @@ en el navegador, "funciona" y commit con el roadmap.
   - Serialized reconstruido (Session perdida) después de saltar.
 - **Review:** `high` (registra intentos y avanza la sesión fuera del flujo normal).
 
-## Entrega 4 — Resumen por paso y documentación (P-10, P-11; AC-12)
+## Entrega 4 — Resumen por paso y documentación (P-10, P-11; AC-12) ✅
 
-- [ ] `PodService.AttemptSummary(ctx)` (D-86): por paso, nombre (`StepNames`), cantidad de
+> **Cerrada el 2026-10-20**, probada por el usuario. El resumen sale de `StepAttemptSummary.Build`
+> (función pura en `BLL/Training`) con los intentos del contexto, vía `PodService.AttemptSummary`.
+> Las pistas por tramo usan los 8 textos de la enmienda 2 sin los `**` (las pistas son texto
+> plano). Review `medium`: 2 de 9 hallazgos aplicados (un saltado con fallos también se resalta;
+> el Repeater del resumen sin ViewState). Quedó anotado, sin cambio: tras un fallo dentro de un
+> tramo (ej. Code1 ajeno en la consola) la pista es la del tramo, y cerrar Edge a mitad del
+> Ingreso vuelve al tramo "script hecho, sin Edge", igual que la guía. La spec queda **cerrada**.
+> Tests: 184.
+
+- [x] `PodService.AttemptSummary(ctx)` (D-86): por paso, nombre (`StepNames`), cantidad de
       intentos y si fue saltado (punto 4).
-- [ ] `ShowCompletionPanel`: con `Summary = AttemptsPerStep`, tabla de pasos (resalta más de
+- [x] `ShowCompletionPanel`: con `Summary = AttemptsPerStep`, tabla de pasos (resalta más de
       1 intento y marca "Saltado"), sin puntaje ni Aprobado/Reprobado. Solo "volver al
       inicio".
-- [ ] **Pistas por tramo** (enmienda 2 de la spec): `StepHints` recibe el `PodContext`; en
+- [x] **Pistas por tramo** (enmienda 2 de la spec): `StepHints` recibe el `PodContext`; en
       el Ingreso a MES y en Logout elige el texto aprobado según el avance de `PodState`
       (los mismos datos que usan los `ResumeName` de `GuideScriptBuilder`). Los demás pasos,
       sin cambios. Lo usan Ver pista y la pista de Guided tras un fallo. Test de `StepHints`
       por tramo si queda sin `System.Web`.
-- [ ] Verificación: rebuild, `aspnet_compiler` y checklist con una práctica completa con
+- [x] Verificación: rebuild, `aspnet_compiler` y checklist con una práctica completa con
       fallos y saltos, otra cerrada saltando Logout y Ver pista en cada tramo del Ingreso y
       de la limpieza.
-- [ ] **Al cerrar la spec:**
+- [x] **Al cerrar la spec:**
   - `docs/domain.md`: "Modos de sesión" (Práctica libre), "Qué cuenta como intento" (aviso
     sin intento, `Skipped`) y "Avance forzado" (Saltar lo reusa);
   - `CLAUDE.md`: `ModePolicy` en "Capas", como `AccessPolicy`;

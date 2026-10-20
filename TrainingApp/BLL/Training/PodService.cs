@@ -867,6 +867,15 @@ namespace TrainingApp.BLL.Training
             return result;
         }
 
+        // Resumen de Práctica libre (spec 012, P-10, D-86): un paso por fila con los intentos del
+        // contexto. Solo de una sesión ya cerrada en este request.
+        public IList<StepAttemptSummaryRow> AttemptSummary(PodContext ctx)
+        {
+            if (ctx.Session.Status != SessionStatus.Completed)
+                throw new InvalidOperationException("La sesión no está completada.");
+            return StepAttemptSummary.Build(ctx.Guide.Steps, ctx.Attempts);
+        }
+
         // ── Secuencia y avance forzado ───────────────────────────────────
 
         // null si el botón es el del paso actual. Si no: según ModePolicy, intento fallido del

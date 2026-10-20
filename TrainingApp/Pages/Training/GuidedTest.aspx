@@ -381,6 +381,25 @@
             <asp:Panel ID="PnlFinalResult" runat="server" CssClass="mb-4">
                 Result: <strong><asp:Literal ID="LitFinalResult" runat="server" /></strong>
             </asp:Panel>
+            <%-- Práctica libre (spec 012, P-10): intentos por paso, sin puntaje ni resultado. --%>
+            <asp:Panel ID="PnlAttemptSummary" runat="server" Visible="false" CssClass="pod-attempt-summary mb-4">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr><th>Paso</th><th class="text-end">Intentos</th></tr>
+                    </thead>
+                    <tbody>
+                        <asp:Repeater ID="RptAttemptSummary" runat="server" EnableViewState="false"
+                            ItemType="TrainingApp.BLL.Training.StepAttemptSummaryRow">
+                            <ItemTemplate>
+                                <tr class="<%#: SummaryRowCss(Item) %>">
+                                    <td><%#: Item.StepName %></td>
+                                    <td class="text-end"><%#: SummaryAttemptsText(Item) %></td>
+                                </tr>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </tbody>
+                </table>
+            </asp:Panel>
             <asp:HyperLink ID="LnkNewSession" runat="server"
                 NavigateUrl="~/Pages/Training/StartSession.aspx"
                 CssClass="btn btn-primary">
