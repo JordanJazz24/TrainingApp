@@ -116,7 +116,9 @@ namespace TrainingApp.Pages.Training.Guide
                 TailName      = "recordChanged"
             };
             s.Add("open", GuideMode.Click, Anchor("pod-resource-setup"), postback: true,
-                html: H("Presione ", B("Resource Setup"), " para asociar la estación (recurso) a la orden de trabajo."));
+                html: H("Presione ", B("Resource Setup"), " para asociar la estación (recurso) a la orden de trabajo."),
+                note: H("Resource Setup ", B("se repite cada vez que se sustituye un equipo"),
+                    ": mantenimiento preventivo, correctivo o calibración."));
             s.Add("retrieve", GuideMode.Click, Anchor("rs-retrieve"),
                 html: H("Presione ", B("Retrieve"), " para cargar la configuración del recurso."));
             s.Add("removeAll", GuideMode.Click, Anchor("rs-remove-all"),
@@ -164,8 +166,12 @@ namespace TrainingApp.Pages.Training.Guide
             };
             s.Add("activities", GuideMode.Click, Anchor("pod-activities"),
                 html: H("Presione ", B("Activities..."), " para abrir el menú de actividades."),
-                note: closing ? null : H("Siempre después de ", B("Resource Setup"),
-                    " y en cada cambio de orden: la limpieza física y la del sistema."),
+                note: closing ? null : string.Join("<br>",
+                    H("Siempre después de ", B("Resource Setup"), ": la limpieza física y la del sistema."),
+                    H("Se registra de nuevo cuando:"),
+                    H("• cambia el usuario o la Shop Order,"),
+                    H("• queda un SFC activo,"),
+                    H("• vence el tiempo configurado.")),
                 alert: closing ? H("En algunas operaciones no aplica (depende de la operación).") : null);
             s.Add("standalone", GuideMode.Click, Anchor("pod-dc-standalone"), postback: true,
                 html: H("Seleccione ", B("Data Collection Standalone"), " para registrar la limpieza de línea."));
@@ -247,7 +253,8 @@ namespace TrainingApp.Pages.Training.Guide
             var s = new StepScript(step, "Assembly") { TailName = "banner" };
             AddPodSelection(s, ctx, AllPiecesNote);
             s.Add("open", GuideMode.Click, Anchor("pod-assemble"), postback: true,
-                html: H("Presione ", B("Assemble"), " para abrir la Component List."));
+                html: H("Presione ", B("Assemble"), " para abrir la Component List."),
+                note: H(B("Consuma los componentes antes"), " de empezar la instrucción del MPI."));
 
             var bom = ctx.AssemblyComponents;
             var assembled = ctx.State.Assembly?.AssembledComponentIds ?? new HashSet<int>();
