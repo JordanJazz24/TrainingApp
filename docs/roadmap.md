@@ -361,7 +361,20 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 8 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
 | 9 | ✅ **T6 · Evaluación práctica → Assessment** (QD001043644, 2026-10-19): contraste y decisiones en `docs/ui-reference/evaluacion-practica-mes.md`. La evaluación es insumo, no se replica: el simulador cubre como mínimo lo que pide. Sin cambios de pesos ni del criterio de aprobación (EP-1, EP-2); W13 sigue diferida (EP-6). Salieron: EP-3 → 016, EP-7 → fila 11, EP-4/EP-5 → fila 10 | análisis | — |
 | 10 | **Spec 017 · Fidelidad con la evaluación práctica** (EP-4, EP-5): Resource Setup con REMOVE ALL + Save → Insert New y el Setup Type calificado (con `Material`); errores del MES que el operador debe reconocer: SFC iniciado en otro recurso, componente no requerido, material sensible al tiempo expirado, batch inválido, cantidad insuficiente y DC fuera de límites | spec 017 | capturas de los mensajes reales en el ambiente de testing (T9) |
-| 11 | **Notas de comprensión en la guía de Guided** (EP-7): cuándo iniciar y cerrar sesión, riesgo de una sesión abierta, cuándo repetir Resource Setup y Line Clearance, consumir antes del MPI; cada una en su paso, como las de T7. Assessment no las evalúa. Las de login y limpieza de caché, con los pasos de la 016 | plan directo | textos aprobados por el usuario |
+| 11 | **Notas de comprensión en la guía de Guided** (EP-7): cuándo iniciar y cerrar sesión, riesgo de una sesión abierta, cuándo repetir Resource Setup y Line Clearance, consumir antes del MPI; cada una en su paso, como las de T7. Assessment no las evalúa. Las de login y limpieza de caché, con los pasos de la 016. Plan y textos aprobados el 2026-10-20: ver "Plan de la fila 11" | plan directo | — |
+
+**Plan de la fila 11 · notas EP-7** (aprobado por el usuario el 2026-10-20, con la
+verificación de que no repiten lo de otros pasos). La spec 016 ya cubrió el inicio de
+sesión (subpaso `info` del Ingreso a MES), cuándo cerrarla y el riesgo de dejarla abierta
+(nota del subpaso `logout`). Quedan tres notas normales (no alertas), solo texto en
+`GuideScriptBuilder`, en una entrega. No cambian BD, puntaje ni Assessment (no recibe la
+guía), y ninguna prueba compara estos textos.
+
+| Paso · subpaso | Texto aprobado | Cambio |
+|---|---|---|
+| Resource Setup · `open` | "Resource Setup **se repite cada vez que se sustituye un equipo**: mantenimiento preventivo, correctivo o calibración." | Nota nueva; la alerta de `removeAll` no cambia |
+| Line Clearance de apertura · `activities` | "Siempre después de **Resource Setup**: la limpieza física y la del sistema.<br>Se registra de nuevo cuando:<br>• cambia el usuario o la Shop Order,<br>• queda un SFC activo,<br>• vence el tiempo configurado." | Reemplaza la nota de T7 (el cambio de orden queda dentro). El LC de cierre conserva su alerta y no lleva estas condiciones: W7 sigue abierta |
+| Assembly · `open` | "**Consuma los componentes antes** de empezar la instrucción del MPI." | Nota nueva; solo en las áreas con Assembly |
 
 Si el tiempo no alcanza, se recorta primero T3 (modo práctica), después T10 y T4 si las
 capturas o las pantallas no llegan; nunca la spec 013: sin ella solo el desarrollador administra las cuentas y no se
