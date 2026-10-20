@@ -5,6 +5,20 @@ decisiones D-82 a D-90 y los "Puntos confirmados" del final.
 **Autoría:** sesión de Arquitectura y Planeación, verificado contra el código. Lo ejecuta
 Desarrollo (`docs/process.md` → "Tres sesiones de trabajo").
 
+> **Enmienda 1 del plan (2026-10-20, usuario, a pedido de Desarrollo durante la E3):**
+>
+> - **D-84, repintado tras un salto:** reemplaza "reusa `RepaintAfterForcedAdvance`". Ese
+>   repintado sirve para un solo paso forzado, e Ir a… adelanta varios de tipos distintos.
+>   Si el salto cierra la sesión, el resumen sale en el mismo request, como en el plan. Si
+>   no, `Response.Redirect` a la misma URL (el GET de un F5, que ya arma el POD desde
+>   `PodState`), sin la alerta "Paso fallido". Además, un F5 posterior no reenvía el salto.
+> - **D-91 · Ver pista con un modal abierto** (P-8 "siempre" no cambia): en Resource Setup,
+>   Line Clearance, el checklist de Start y el Split, el backdrop de Bootstrap tapa la barra.
+>   La barra de práctica queda **por encima del backdrop** (`z-index` en `pod.css`), y se
+>   verifica que el foco del modal no bloquee el SweetAlert de la pista ni el `select` de
+>   Ir a…. Si no se puede, respaldo: un botón de pista dentro de esos 4 controles, con el
+>   estilo del simulador. Assembly, DC y Log NC ya funcionan.
+
 Cuatro entregas: primero el refactor sin cambio de comportamiento y después el modo, sus
 herramientas y su resumen. Cada una con el ciclo de `docs/process.md` §2: rebuild,
 `aspnet_compiler` si toca markup, tests si toca la BLL, `/code-review` calibrado, checklist
