@@ -63,3 +63,30 @@ Hora primero, pero el orden no importa (usuario; la trainer dijo "en cualquier o
 3. Ejecuta `MES Limpiar historial y cache.bat` con su CODE1, igual que al entrar.
 
 No cierra sesión en Hora a Hora ni en Recursos MES: el script cierra los navegadores.
+
+## En el simulador (spec 016, cerrada 2026-10-19)
+
+Paso **Ingreso a MES** (primero de la guía) y la limpieza dentro del paso **Logout**, en
+pantalla completa sobre el POD (`MesLoginControl`). Reglas y calificación:
+`docs/domain.md` → "Flujo estándar" y "Qué cuenta como intento"; mecanismo:
+`docs/architecture.md` → "Ingreso a MES y limpieza al salir".
+
+- **Escritorio:** solo el script y el Repositorio (D-69), con la barra de tareas decorativa y
+  el fondo recortado de la captura. Arriba, una barra del simulador (no imita Windows) con el
+  área, el modo y Abandon (P-11).
+- **Consola:** el prompt y la salida de la captura, con el Code1 del operador; "Press any
+  key to continue" se cierra con cualquier tecla.
+- **Repositorio, Hora a Hora y Recursos MES:** recortes de las capturas (tarjetas, foto, logos).
+  Hora-Hora (1.0) no hace nada; el idioma, el interruptor de Windows, "Inicio" e "Ingresar"
+  son decorativos. La estación se escanea de una etiqueta simulada del recurso del área, como
+  la de la Shop Order (spec 011).
+- **Login de MES** y **"You have logged off":** el marco de SAP NetWeaver de la captura
+  (estilos que antes eran del login de la app). Log On Again no hace nada.
+
+**Diferencias aceptadas** (Deferred Decisions de la spec 016):
+- **Edge genérico** (D-71): pestañas y barra de dirección propias, sin captura de la
+  estación. La barra muestra la URL real del Repositorio; en Hora a Hora y Recursos MES, solo
+  el host `crapps.philips.com` (confirmado por el usuario); en "You have logged off", vacía.
+  Las pestañas no se cierran sueltas: solo la ventana.
+- **Hora a Hora después de Iniciar** (D-72): un aviso simple, "Sesión de Hora a Hora
+  iniciada", **provisional** hasta tener la captura del tablero.

@@ -60,7 +60,9 @@ conocen al validarla con negocio). Áreas en BD y sus flags:
 - **RequiresAssembly** y **RequiresDataCollection** (`bool`, hoy por Area; se moverán a
   Operation cuando exista): independientes de SerializationType. Una operación serializada
   puede no requerir DC (confirmado con negocio). Nunca asumir "serializado ⇒ Assembly".
-- El login a SAP NetWeaver **no** se evalúa: es solo carga de escenario.
+- El login de la app (neutro, spec 016, D-62) **no** se evalúa: es solo la cuenta. El login
+  de MES simulado (diseño SAP NetWeaver) es la última pantalla del paso Ingreso a MES y sí se
+  califica.
 
 ## Flujo estándar de una TrainingGuide
 
@@ -68,6 +70,17 @@ Los 3 primeros pasos de Apertura y los de Cierre son iguales en todas las Areas;
 el catálogo (códigos NC, parámetros de DC), nunca la secuencia de tipos de paso.
 
 ```
+Antes de SAP (spec 016)
+  0. Ingreso a MES    Primer paso de todas las guías (`MesLogin`), en pantalla completa: el
+                      escritorio de Windows (solo el script y el Repositorio), el script de
+                      limpieza con el Code1 (9 dígitos), el Repositorio en Edge, Hora a Hora
+                      3.0 (Code1, Iniciar) y Recursos MES (estación con etiqueta simulada,
+                      Code1, Buscar), y el login de MES (Code1 y contraseña, Log On). Se
+                      califican la SECUENCIA y el CODE1 PROPIO; no la estación, la contraseña
+                      (solo formato) ni el orden entre Hora a Hora y Recursos MES (en Guided
+                      la guía enseña Hora a Hora primero). Cada pantalla se califica al
+                      enviarla y un fallo vuelve a esa pantalla (D-68). Se hace al inicio del
+                      turno y al cambiar de estación.
 Apertura
   1. Resource Setup   Asocia el recurso (estación) a la Shop Order y las herramientas
                       (ej. R_SCN_MASK_1, Shop Order 303406950, Tools 10033058 y 10087734).
@@ -120,9 +133,11 @@ Cierre
                       lo muestra en Guided y Assessment, de a uno ("Hallazgo n de N").
   9. Complete         Cierra el proceso de manufactura: las filas completadas salen del
                       POD. Ya no cierra la sesión de entrenamiento (spec 015).
- 10. Logout           Clic en el ícono Logout del header (spec 015). Simulado: registra el
-                      paso, cierra la sesión de entrenamiento y muestra el resumen final;
-                      no cierra la sesión de la app.
+ 10. Logout           Clic en el ícono Logout del header (spec 015) y la limpieza al salir
+                      (spec 016, D-65): "You have logged off" en Edge → cerrar Edge → el
+                      script con el Code1 en el escritorio. El script cierra el paso y la
+                      sesión de entrenamiento; el resumen final sale al cerrar la consola.
+                      No cierra la sesión de la app.
 ```
 
 ## Modos de sesión (`TrainingSession.Mode`)
@@ -165,7 +180,7 @@ Cierre
   propia, el intento cuenta pero la orden no se crea.
 - **Acción incorrecta** (spec 007): botón equivocado dentro de un paso (ej. Add o Done en
   vez de Add-Done) o gate de fila sin cumplir → `StepAnswers.Invalid` a la BLL, intento
-  fallido. Complete acepta solo `"complete"`; Logout, solo `"logout"`.
+  fallido. Complete acepta solo `"complete"`.
 - **Secuencia en Assessment (S2):** todos los botones del POD están habilitados, incluidos
   los que no aplican al área y las acciones del MES sin lógica (Work Instructions, Reports,
   Place Back in Queue, Tool List, las opciones de relleno de Activities). Un click en un
@@ -173,6 +188,16 @@ Cierre
   mensaje genérico (no revela que fue de secuencia), y no abre su control. La secuencia se
   evalúa antes que los avisos de formato. Activities → LC entra en la regla, y también el
   ícono Logout antes del último paso (spec 015; en Guided se ignora).
+- **Ingreso a MES y limpieza al salir (spec 016):** cada pantalla se califica al enviarla.
+  - **Decisión:** el Code1 en el script, en Hora a Hora, en Recursos MES y en el login de MES
+    (el propio está bien; uno ajeno es intento fallido, `WrongDecision`, y se queda en esa
+    pantalla); abrir el Repositorio antes del script (en el Ingreso) o en el escritorio de la
+    limpieza (intento fallido de Logout, `OutOfSequence`; en Guided se ignora, como un botón
+    fuera de secuencia); Log On sin el registro de Hora a Hora (vuelve al Repositorio).
+  - **Formato, sin intento:** Code1 vacío; en el script, un Code1 que no tiene exactamente 9
+    dígitos; estación o contraseña vacías; `<`, `>` o `&#`.
+  - **No cuentan:** cerrar Edge (lo hecho se conserva), cerrar la consola sin responder,
+    cambiar de pestaña, abrir una tarjeta (Hora-Hora 1.0 no hace nada) y Log On Again.
 - **Log NC (spec 014):** el operador ejecuta el método del paso sobre la pieza del hallazgo.
   Todo se califica junto en **un solo envío** (Add-Done, o la decisión equivocada que lo
   termina), contra el hallazgo; cualquier fallo es `WrongDecision` con el mensaje genérico
@@ -201,14 +226,18 @@ Cierre
   del correcto es un aviso de formato y no se aplica.
 - **Nunca cuentan:** navegación (Browse Work List, selección de filas, Abandon) y salir de
   un control sin responder (✗ / Return to POD). Logout dejó de ser navegación (spec 015):
-  es el último paso. Con la sesión de entrenamiento ya cerrada (resumen final), el ícono
-  cierra la sesión de la app (D-21). Para salir a mitad de una sesión queda Abandon.
-- **Avance forzado:** Resource Setup forzado carga la orden por defecto (Shop Order
+  es el último paso; en ese paso el clic en el ícono no cuenta, empieza la limpieza (spec
+  016). Con la sesión de entrenamiento ya cerrada (resumen final), el ícono cierra la sesión
+  de la app (D-21). Para salir a mitad de una sesión queda Abandon (en el escritorio, desde la
+  barra del simulador).
+- **Avance forzado:** Ingreso a MES forzado deja ver el POD como si se hubiera entrado (spec
+  016, P-5); Resource Setup forzado carga la orden por defecto (Shop Order
   `303406950`), ignorando lo capturado; Start forzado deja el POD como si Start se hubiera
   ejecutado; SFC Split forzado separa las N unidades del hallazgo; un paso de Log NC forzado
   aplica la disposición del hallazgo a su pieza (desecho: sale de la orden; reparación
   rápida: queda con el componente reemplazado; extendida: según la disposición); Complete
-  forzado quita las filas del POD; Logout forzado cierra la sesión con su resumen.
+  forzado quita las filas del POD; Logout forzado (4.º fallo en la limpieza) cierra la sesión
+  con su resumen.
 
 ## Ponderación de pasos (`StepWeight`) — la fuente de verdad es la BD
 
@@ -218,11 +247,12 @@ suma 0.90 nunca llega a 100%). Pesos actuales (verificados contra `05`, `07` y `
 
 ```
 Paso                            Moldeo (07)   LoFlo (09)   Redefinity (05, ejemplo)
+Ingreso a MES                      0.05         0.05          0.05
 Resource Setup                     0.20         0.20          0.20
 Line Clearance (apertura)          0.05         0.05          0.05
 Search / Start                     0.15         0.05          0.05
 Assembly                            —           0.15          0.15
-Data Collection                    0.30         0.25          0.25
+Data Collection                    0.25         0.20          0.20
 Line Clearance (cierre)            0.05         0.05          0.05
 SFC Split (NonSerialized)          0.05          —             —
 Log NC · desecho rápido            0.10         0.05          0.05
@@ -236,7 +266,8 @@ Total                              1.00         1.00          1.00
 En Moldeo, Search absorbe el peso de Assembly (que no tiene) menos el de SFC Split (que sí
 tiene); Moldeo no cambió con la spec 014 (D-53). LoFlo tiene la forma de Redefinity y sus
 mismos pesos: los tres métodos de Log NC valen 0.05 cada uno y DC bajó de 0.30 a 0.25
-(spec 014, D-29). Una guía nueva define sus pesos en su script SQL y debe sumar 1.00
+(spec 014, D-29). El Ingreso a MES (0.05) salió de DC en las tres guías (spec 016, D-66).
+`ScoreCalculatorTests` compara sus copias de las guías con estos scripts. Una guía nueva define sus pesos en su script SQL y debe sumar 1.00
 (`spTrainingGuideSync` lo valida al cargarla). Logout (0.05) salió de Complete (spec 015);
 los pesos de Logout, Log NC y DC se revisan con T6. Cambiar la forma de una guía ya
 cargada crea una versión nueva (D-56, `docs/architecture.md` → "Versión de las guías").

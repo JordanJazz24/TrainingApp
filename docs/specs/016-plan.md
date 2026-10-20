@@ -153,7 +153,7 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 > - Las pestañas de Edge abiertas en el cliente viajan con cada postback (campo oculto) y se
 >   pierden con F5 (D-78). Cerrar Edge las cierra. Las pestañas no se cierran sueltas.
 > - Barra de direcciones: la URL real del Repositorio; en Hora a Hora y Recursos MES, el host
->   `crapps.philips.com` (supuesto: el mismo del Repositorio; sin captura).
+>   `crapps.philips.com`, el mismo del Repositorio (confirmado por el usuario, 2026-10-19).
 > - La contraseña del login de MES nunca viaja: solo una marca de que tenía algo (D-73).
 >   `<`, `>` y `&#` se avisan como formato.
 > - La etiqueta de la estación se ve solo con la pestaña de Recursos MES activa.
@@ -270,15 +270,15 @@ Tratamiento de usted. `{code1}` es el Code1 del operador.
 
 ## Al cerrar la spec
 
-- [ ] `CLAUDE.md` → "Auth Flow": un solo login neutro y una sola pantalla de cambio de
+- [x] `CLAUDE.md` → "Auth Flow": un solo login neutro y una sola pantalla de cambio de
       contraseña (enmienda 2 de la spec 013); el diseño de SAP NetWeaver está en el login de
       MES simulado. "POD y controles": la excepción de D-68 a "un postback por paso" (como el
       Split).
-- [ ] `docs/domain.md`: paso "Ingreso a MES" en el flujo estándar, Logout con la limpieza,
+- [x] `docs/domain.md`: paso "Ingreso a MES" en el flujo estándar, Logout con la limpieza,
       "Qué cuenta como intento" (Code1 propio, secuencia, formatos) y la tabla de pesos.
-- [ ] `docs/architecture.md`: `MesLoginControl`, `MesLoginProgress` y `LogoutProgress`, y el
+- [x] `docs/architecture.md`: `MesLoginControl`, `MesLoginProgress` y `LogoutProgress`, y el
       Code1 en `PodContext`.
-- [ ] `docs/ui-reference/pre-sap-flow.md` (diferencias aceptadas: Edge genérico, aviso de
+- [x] `docs/ui-reference/pre-sap-flow.md` (diferencias aceptadas: Edge genérico, aviso de
       Hora a Hora) e `inventario-pantallas.md` (pantallas Pre-SAP).
-- [ ] Roadmap: fila 7 de la Fase 8.5, "Estado actual", "Historial" y la deuda (aviso
+- [x] Roadmap: fila 7 de la Fase 8.5, "Estado actual", "Historial" y la deuda (aviso
       provisional de Hora a Hora, Edge genérico).

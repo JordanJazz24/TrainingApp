@@ -188,7 +188,9 @@ las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va 
 - Controles de paso **estáticos** declarados en `GuidedTest.aspx`, alternando `Visible`;
   nunca `LoadControl` dinámico (spec 006).
 - **Un postback por paso**: los estados intermedios (wizard de modales, paginación, Save
-  Draft) se resuelven en el cliente.
+  Draft) se resuelven en el cliente. Excepción: una pantalla que se califica al enviarla va
+  en su propio postback (el Split de Moldeo, spec 014; cada pantalla del Ingreso a MES y de
+  la limpieza al salir, spec 016, D-68).
 - **Guía visual de Guided** (spec 010): solo presentación, no decide el flujo ni guarda
   estado; Assessment no recibe ni el motor ni el guion. Toda pantalla o control nuevo del POD
   necesita sus anclas `data-guide` (nunca ids) y su guion en `GuideScriptBuilder`.

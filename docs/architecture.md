@@ -34,16 +34,17 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Controls/Training/             ← un UserControl por tipo de paso (spec 006):
 │   │   │                                     ResourceSetup, LineClearance, Search (4 modales
 │   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
-│   │   │                                     LogNC (los tres métodos, D-60), Complete
+│   │   │                                     LogNC (los tres métodos, D-60), Complete y
+│   │   │                                     MesLogin (Ingreso a MES y limpieza, spec 016)
 │   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
 │   │                                         + íconos + pod-guide.js/.css (motor de la guía,
-│   │                                         solo en Guided)
+│   │                                         solo en Guided) + presap.css e imgs/presap
+│   │                                         (pantallas del Ingreso a MES, spec 016)
 │   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
 │   │   ├── Auth/
-│   │   │   ├── AuthService.cs             ← login por portal, bloqueo, último acceso, cambio
-│   │   │   │                                 de contraseña
-│   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers) y
-│   │   │   │                                 qué login acepta cada rol (spec 013)
+│   │   │   ├── AuthService.cs             ← login único, bloqueo, último acceso, cambio de
+│   │   │   │                                 contraseña
+│   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers) (spec 013)
 │   │   │   ├── RoleCache.cs               ← rol e Id de la cuenta por Code1, 2 min (Global.asax)
 │   │   │   ├── LoginLockPolicy.cs         ← 5 fallos → 15 min de bloqueo
 │   │   │   └── LoginResult.cs, ChangePasswordStatus.cs
@@ -57,15 +58,20 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 por request) y comandos que registran intentos
 │   │   │   │                                 (intento + avance atómico con spStepAttemptRecord);
 │   │   │   │                                 arma el StepValidator con los catálogos del contexto
-│   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje, estado y
-│   │   │   │                                 catálogos del área (perezosos, una vez por request)
+│   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje, estado,
+│   │   │   │                                 Code1 del usuario y catálogos del área (perezosos,
+│   │   │   │                                 una vez por request)
 │   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
 │   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
 │   │   │   ├── PodState.cs                ← estado del POD (orden + avance + precargados +
-│   │   │   │                                 hallazgos + lo ensamblado) e IPodStateStore
+│   │   │   │                                 hallazgos + lo ensamblado + Ingreso a MES y
+│   │   │   │                                 limpieza) e IPodStateStore
+│   │   │   ├── MesLogin.cs                ← Ingreso a MES y limpieza (spec 016): pantallas,
+│   │   │   │                                 acciones, MesLoginProgress, LogoutProgress y sus
+│   │   │   │                                 reglas (MesLoginRule, LogoutCleanupRule)
 │   │   │   ├── PodDefaults.cs             ← datos de simulación (Shop Order por defecto, etc.)
 │   │   │   ├── SimulatedOrder.cs (+Row)   ← orden simulada y sus operaciones (split, scrap…)
-│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, logout, start, acción inválida)
+│   │   │   ├── StepAnswers.cs             ← answers fijos (complete, start, acción inválida)
 │   │   │   ├── AttemptActions.cs          ← catálogo de acciones del registro de actividad
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── StepTypes.cs               ← familia Log NC: IsLogNC y el método de cada tipo (spec 014)
@@ -114,7 +120,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   └── Web.config
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
 │                                             (ScoreCalculator, StepValidator, Log NC y
-│                                             hallazgos, gestión de usuarios)
+│                                             hallazgos, Ingreso a MES y limpieza, guías
+│                                             contra sus scripts, gestión de usuarios)
 ├── Database/
 │   ├── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
 │   └── Ops/                               ← scripts manuales: CreateAdmin, ResetUserPassword
@@ -236,7 +243,8 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   estado del POD de las sesiones anteriores (AUD-41).
 - **Logout simulado (spec 015):** el ícono del header es el último paso
   (`PodService.ClickLogout`): con la sesión en curso pasa por `CheckSequence` y, en su paso,
-  cierra la sesión de entrenamiento con el resumen, sin tocar la sesión de la app. Sin
+  empieza la limpieza al salir (spec 016, ver "Ingreso a MES y limpieza"), que cierra la
+  sesión de entrenamiento con el resumen, sin tocar la sesión de la app. Sin
   sesión en curso (resumen final, pestaña vieja), `GuidedTest.LoadContext` llama
   `SessionHelper.Logout()` (D-21, AUD-33). Logout no tiene control de paso
   (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
@@ -280,6 +288,40 @@ como intento".
 - **Banners:** reparación rápida (`GuidedTest.ShowRepaired`, D-55) y la extendida
   (`GuidedTest.ShowReworked`, D-54); textos en `general-flow.md` → Paso 8.
 
+## Ingreso a MES y limpieza al salir (spec 016)
+
+Reglas de negocio y calificación: `docs/domain.md` → "Flujo estándar" (pasos 0 y 10) y "Qué
+cuenta como intento".
+
+- **Pantalla completa (P-1):** mientras el paso actual es `MesLogin`, o Logout después del
+  clic en el ícono (`PodContext.IsLogoutCleanup`), `GuidedTest` renderiza el POD oculto
+  (`d-none`) y muestra `PnlMesScreen`: la barra del simulador (área, modo y Abandon, P-11) y
+  `MesLoginControl`. No es un `IStepControl` ni pasa por `OpenStepType`: lo decide
+  `ApplyMesLoginScreen` en `OnPreRender`, después de los handlers.
+- **Un control para las dos (D-76):** `MesLoginControl` tiene el escritorio, la consola del
+  script, Edge con pestañas, el Repositorio, Hora a Hora, Recursos MES con la etiqueta de la
+  estación, el login de NetWeaver y "You have logged off" (`MesLoginView.Mode`: login o
+  logout). Pantallas y pestañas se manejan en el cliente; la página le pasa en `View` la
+  pantalla de arranque y el avance. Las pestañas abiertas viajan con cada postback en un
+  campo oculto (F5 las pierde, D-78).
+- **Un postback por pantalla calificable (D-68, D-77):** excepción a "un postback por paso",
+  como el Split. Cada acción (`MesAction`) va a `PodService.SubmitMesAction`, que delega en
+  `MesLoginRule` o `LogoutCleanupRule`: reglas puras de la BLL, con tests, que devuelven
+  aceptado, ignorado (doble envío, script ya hecho), fallido (con la pantalla a la que se
+  vuelve) o inválido. Un envío inválido (Session perdida, otra pestaña, manipulación) no
+  registra nada y vuelve a la pantalla del avance guardado (`ResumeScreen`). Los fallos de
+  secuencia en Guided se ignoran sin intento (`MesFailure`).
+- **Avance en `PodState` (D-78):** `MesLoginProgress` (script, Edge abierto, Hora a Hora,
+  Recursos MES) y `LogoutProgress` (Edge cerrado). F5 retoma desde ahí. Se descartan al
+  resolver el paso. Si la Session se pierde, el Ingreso vuelve a empezar desde el escritorio
+  y la limpieza desde el ícono Logout.
+- **Code1 (D-79):** `PodContext.Code1` sale de la BD por el `UserId` (perezoso), nunca del
+  cliente; se compara sin distinguir mayúsculas ni espacios alrededor. La contraseña del
+  login de MES no viaja: solo una marca de que tenía algo (D-73).
+- **Fin de la limpieza:** si el script cierra la sesión, la respuesta trae la consola con su
+  salida y el resumen oculto; al cerrar la consola, el script del control muestra el POD y el
+  resumen, sin otro postback (P-12).
+
 ## Versión de las guías (D-56, spec 014)
 
 `spTrainingGuideSync` identifica una guía por `AreaId` + `Title` (la publicada más nueva).
@@ -298,8 +340,9 @@ Decisiones cerradas: no reabrir sin spec.
   y se alterna `Visible`. Prohibido volver a `LoadControl` dinámico: generó cuatro bugs de
   ViewState en una sola sesión. Confirmado con negocio: los admins no crean tipos de paso
   desde la UI y un `StepType` no tiene UIs distintas por Area. Un `StepType` nuevo = `.ascx`
-  + una línea de markup + un `case` en `GetStepControl`. Excepción: los tres tipos de Log
-  NC comparten `LogNCControl` (D-60).
+  + una línea de markup + un `case` en `GetStepControl`. Excepciones: los tres tipos de Log
+  NC comparten `LogNCControl` (D-60); `MesLogin` y la limpieza de Logout usan
+  `MesLoginControl`, en pantalla completa y fuera de `GetStepControl` (spec 016).
 - El paso abierto vive en el ViewState de la página (`OpenStepType`).
   `ApplyStepControlVisibility` es el único punto que toca `Visible`.
 - `IStepControl.Initialize()` es el **único punto de reinicio** del control. Todo control
@@ -342,6 +385,13 @@ Decisiones cerradas: no reabrir sin spec.
   rojo. Nunca una burbuja aparte (decisión del usuario, 2026-10-14: ruido visual). Son texto
   del guion, como las instrucciones.
 - La guía no deja avanzar con una decisión incorrecta (R10): el control y `StepValidator` no
-  cambian; el servidor le manda las respuestas esperadas solo en Guided.
+  cambian; el servidor le manda las respuestas esperadas solo en Guided. En un subpaso de
+  escaneo con respuesta esperada, Enter solo pasa con ese valor (spec 016: el Code1 en la
+  consola del script).
+- **Pantalla completa del Ingreso (spec 016):** tiene su propio z-index, como un modal: el
+  recuadro iluminado incluye los elementos libres que están dentro (la etiqueta de la
+  estación). La guía retoma según el avance guardado (`StepScript.ResumeName`) y, tras un
+  fallo, en la pantalla que falló (`GuideMoment.Incorrect` con la `MesScreen`). Los íconos
+  del escritorio (doble clic) avanzan cuando aparece la consola o Edge.
 - Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (`Training.Master`) y
   esperan a la guía solo si ella los muestra (R9).

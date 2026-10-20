@@ -231,7 +231,8 @@
     var mesLogin = (function () {
         var state = <%= StateJson %>;
         var REPO_URL = 'http://crapps.philips.com/Repositorio/index.aspx';
-        // URLs de Hora a Hora y de Recursos MES sin captura: solo el host (spec 016).
+        // Hora a Hora y Recursos MES: solo el host, el mismo del Repositorio (spec 016,
+        // confirmado por el usuario); sus rutas no se conocen.
         var HOST = 'crapps.philips.com';
         var tabs = { repo: true, hh: false, rec: false };
         var active = 'repo';

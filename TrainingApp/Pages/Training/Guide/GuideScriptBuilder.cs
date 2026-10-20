@@ -597,7 +597,7 @@ namespace TrainingApp.Pages.Training.Guide
                     H("• En descansos o al terminar el turno."),
                     H("• Al cambiar de estación, actividad, producto, orden o línea."),
                     H("• Al entregar la estación a otro operador."),
-                    H("Nunca deje su sesión abierta donde otra persona pueda usarla.")));
+                    H("Nunca deje su sesión abierta: lo que otra persona haga en ella queda registrado con su usuario.")));
             // Sin Info en "You have logged off": la nota del subpaso anterior ya dice cuándo se
             // cierra sesión (usuario, 2026-10-19, al probar la E4).
             s.Add("closeEdge", GuideMode.Click, Anchor("mes-edge-close"), postback: true,

@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-19 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
+código:** spec 016, entrega 4 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -32,22 +32,12 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   material, W13) se recortó (enmienda 6); el usuario la subió a `main`. **T6 ✅**
   (2026-10-19): llegó el documento de la evaluación práctica QD001043644; contraste en
   `docs/ui-reference/evaluacion-practica-mes.md` y decisiones en las filas 9-11 de la
-  Fase 8.5. No cambia pesos. **En curso:** la **spec 016** (T10, preparación antes de SAP;
-  plan `docs/specs/016-plan.md` aprobado, cuatro entregas; no se sube a `main` hasta cerrar
-  la E4, D-81). **E1 ✅** (2026-10-19, probada por el usuario): login y cambio de contraseña
-  únicos y neutros para los dos roles (enmienda 2 de la 013); se borraron el login y el
-  cambio de contraseña de admin y `Auth.Master`. Después, sin spec, se cerró la fijación de
-  sesión que encontró su review (`docs/architecture.md` → "Sesión del usuario"). **E2 ✅**
-  (2026-10-19, probada por el usuario): paso nuevo Ingreso a MES (`StepType` 11, primero en
-  las tres guías, 0.05; DC −0.05) con el escritorio, el script, Edge, el Repositorio, Hora a
-  Hora, Recursos MES y el login de NetWeaver, calificado por pantalla. **E3 ✅** (2026-10-19,
-  probada por el usuario): Logout en el último paso abre "You have logged off"; cerrar Edge
-  lleva al escritorio y el script con el Code1 propio cierra la sesión (el resumen sale al
-  cerrar la consola). **E4 ✅** (2026-10-19, probada por el usuario): guía de Guided del
-  Ingreso y de la limpieza, con el usuario en el header después de Log On. Terminaron las
-  entregas de la 016. **Siguiente:** el cierre de la spec 016 (documentación) y, con eso, ya
-  se puede subir a `main` (D-81; lo sube el usuario). Orden
-  vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
+  Fase 8.5. No cambia pesos. **Spec 016 ✅** (2026-10-19, T10, ver
+  "Historial"): login único y neutro, paso Ingreso a MES (script, Repositorio, Hora a Hora,
+  Recursos MES y login de MES) y Logout con la limpieza, con su guía de Guided; además, sin
+  spec, la fijación de sesión. Ya se puede subir a `main` (D-81); lo sube el usuario.
+  **Siguiente:** las **notas EP-7** (plan directo), después la **012** y la **017**. Orden
+  vigente: **notas EP-7 (plan directo) → 012 → 017**.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
@@ -58,7 +48,8 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   QD001001524, integrado en `TrainingApp` (`docs/ui-reference/wi-produccion-disposables.md`,
   W1-W22). Insumo de la spec 014: pasos de los tres scraps (W20, W21) y Assembly Data por
   tipo de material (W13). Preguntas abiertas en "Fase 8" → "Contraste con la WI".
-- **Lo último cerrado (2026-10-19):** la **spec 014** (tres métodos de Log NC). Antes
+- **Lo último cerrado (2026-10-19):** la **spec 016** (preparación antes de SAP) y, antes, la
+  **spec 014** (tres métodos de Log NC). Antes
   (2026-10-14), la **spec 015**, **T7** (mensajes y alertas de la guía) y la
   **spec 013** (cuentas, roles y registro de actividad). Antes (2026-10-12), **T1 · preparación de la versión de prueba**
   (`Web.Release.config` con `customErrors`, `Database/Ops/ResetUserPassword.sql`). Antes, el
@@ -108,6 +99,9 @@ final (D-16) repasó esta lista.
 - **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
   reconstruir en Serialized): diferidos (D-16). Con la spec 014, al reconstruir también
   cambian los hallazgos (se regeneran sobre las piezas nuevas).
+- **Spec 016, provisional o genérico hasta tener capturas:** el aviso de Hora a Hora después
+  de Iniciar (D-72) y el marco de Edge (D-71; sin la URL de las pestañas de Hora a Hora y
+  Recursos MES, solo el host, ni la del logout de MES).
 - **`RequiresNCComponent` sin uso** desde la enmienda 4 de la spec 014 (Component lo decide
   el método del código): columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`,
   `spAreaGet*`, `AreaRepository` y `Area.RequiresNCComponent`. Quitarla no entró en la
@@ -353,7 +347,7 @@ testing (T9):
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
 Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
 la validación con técnicos y tras la trainer; el usuario terminó la 013 antes que T7
-(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 → notas EP-7 → 012 → 017** (T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
+(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 → 012 → 017** (T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
@@ -363,7 +357,7 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 4 | ✅ **Cuentas, roles y registro de actividad** (2026-10-14, `e4ef6ae`…`5b9091a`; plan `013-plan.md`): roles excluyentes Operator / Administrator (los admins no entrenan), login de admin aparte con diseño propio, gestión de usuarios (crear, resetear a la contraseña por defecto, desbloquear, borrar con su historial; el rol no se cambia desde la UI, enmienda del 2026-10-13), bloqueo de 15 min tras 5 fallos, último acceso visible y motivo + acción de cada intento. El reclamo de cuenta ajena no se cierra (D-20) | spec 013 | — |
 | 5 | ✅ **Ajustes de la trainer** (2026-10-14) (spec aprobada el 2026-10-14): Resource Setup con equipos precargados (generados al abrir el control; guardar con alguno es intento fallido); **Logout** como último paso después de Complete (0.05, sale de Complete; clic simulado → resumen; antes del último paso, intento fallido en Assessment e ignorado en Guided); grupo de DC **`DCGTM_TRAINEE/A`** opcional en todas las áreas con DC (nombre: letras y espacios, formato) | spec 015 | — |
 | 6 | ✅ **T4 · Tres métodos de Log NC** (2026-10-19, `b685f1d`…`0654e9d`; plan `014-plan.md`): desecho rápido, reparación rápida y extendida, obligatorios en las áreas con Assembly (LoFlo, Redefinity); Moldeo solo desecho rápido (D-53). Nota de hallazgo con la pieza defectuosa (en Assessment, otra pieza, otro código u otra decisión es intento fallido: error 1 de la trainer), 4-5 piezas por orden Serialized, cantidad del split calificada en Moldeo, reparaciones con los códigos reales `F_FR_GENERAL` y `F_FX_GENERAL` (enmienda 5) y pesos nuevos (Log NC 0.05 × 3, DC 0.25). La E4 (Assembly Data por tipo de material, W13) se recortó y quedó diferida (enmienda 6) | spec 014 | banners provisionales hasta conocer el de la reparación rápida y el de Local Rework (V-3, V-5) |
-| 7 | **T10 · Preparación antes de SAP** (spec aprobada el 2026-10-19, `docs/specs/016-preparacion-antes-de-sap.md`; plan `016-plan.md` aprobado el 2026-10-19): paso nuevo "Ingreso a MES" al principio de las guías (script de limpieza → Repositorio → Hora a Hora 3.0 → Recursos MES → login de MES con el diseño SAP NetWeaver), Logout con la limpieza final (EP-3), login de la app único y neutro (enmienda 2 de la spec 013); Ingreso 0.05 y DC −0.05. Flujo en `docs/ui-reference/pre-sap-flow.md` | spec 016 | — |
+| 7 | ✅ **T10 · Preparación antes de SAP** (2026-10-19, `50aca9d`…`e1227dd`; spec aprobada el 2026-10-19, `docs/specs/016-preparacion-antes-de-sap.md`; plan `016-plan.md` aprobado el 2026-10-19): paso nuevo "Ingreso a MES" al principio de las guías (script de limpieza → Repositorio → Hora a Hora 3.0 → Recursos MES → login de MES con el diseño SAP NetWeaver), Logout con la limpieza final (EP-3), login de la app único y neutro (enmienda 2 de la spec 013); Ingreso 0.05 y DC −0.05. Flujo en `docs/ui-reference/pre-sap-flow.md` | spec 016 | — |
 | 8 | **T3 · Modo práctica.** La Entrega 1 de su plan es el refactor **`ModePolicy`** (concentrar en un objeto lo que hoy decide cada modo: penaliza, fuerza avance, guía visual, pistas; sin cambio de comportamiento, con tests), que se implementa después de aprobar la spec porque ella define qué capacidades expresa. Propuesta para la spec: registra intentos marcados con el modo (se miden sin mezclarse con Assessment), pista por paso con texto de catálogo, sin avance forzado | spec 012 | — |
 | 9 | ✅ **T6 · Evaluación práctica → Assessment** (QD001043644, 2026-10-19): contraste y decisiones en `docs/ui-reference/evaluacion-practica-mes.md`. La evaluación es insumo, no se replica: el simulador cubre como mínimo lo que pide. Sin cambios de pesos ni del criterio de aprobación (EP-1, EP-2); W13 sigue diferida (EP-6). Salieron: EP-3 → 016, EP-7 → fila 11, EP-4/EP-5 → fila 10 | análisis | — |
 | 10 | **Spec 017 · Fidelidad con la evaluación práctica** (EP-4, EP-5): Resource Setup con REMOVE ALL + Save → Insert New y el Setup Type calificado (con `Material`); errores del MES que el operador debe reconocer: SFC iniciado en otro recurso, componente no requerido, material sensible al tiempo expirado, batch inválido, cantidad insuficiente y DC fuera de límites | spec 017 | capturas de los mensajes reales en el ambiente de testing (T9) |
@@ -690,3 +684,23 @@ Document. Moldeo solo entrena el desecho (D-53). Un solo control para los tres m
 con la respuesta en JSON (D-59). Tests nuevos: `StepValidatorLogNCTests` y
 `NcFindingGeneratorTests`. Reglas en
 `docs/domain.md`; mecanismos en `docs/architecture.md`.
+
+### Spec 016 · Preparación antes de SAP ✅ (2026-10-19, Fase 8.5, T10)
+Plan `docs/specs/016-plan.md`, cuatro entregas probadas por el usuario. **E1** (`50aca9d`):
+un solo login y un solo cambio de contraseña, neutros, para Operator y Administrator
+(enmienda 2 de la 013); se borraron el login y el cambio de contraseña de admin y
+`Auth.Master`. Su review encontró la fijación de sesión, que se cerró sin spec (`32fee6e`:
+la Session se descarta si no es de la cuenta de la cookie; Logout renueva la cookie de
+sesión). **E2** (`4be4c3f`): paso Ingreso a MES (`StepType` 11, primero en las tres guías,
+0.05; DC −0.05) en pantalla completa: escritorio, script con el Code1, Edge con el
+Repositorio, Hora a Hora (aviso provisional), Recursos MES con la etiqueta de la estación y el
+login de NetWeaver; se califican la secuencia y el Code1 propio, por pantalla (D-68), con
+`MesLoginRule`. **E3** (`7a19f5a`): Logout en el último paso abre "You have logged off";
+cerrar Edge lleva al escritorio y el script con el Code1 cierra la sesión (el resumen sale
+al cerrar la consola), con `LogoutCleanupRule`. **E4** (`e1227dd`): guía de Guided del
+Ingreso y de la limpieza (Hora a Hora antes que Recursos MES, el Code1 del operador en el
+texto, el usuario en el header después de Log On); dos correcciones del usuario al probar.
+Reviews: `high` en E1 y en la fijación de sesión, `medium` en E2 y E3, `low` en E4. Tests:
+151 (reglas del Ingreso y de la limpieza, y las copias de las guías comparadas con sus
+scripts). Reglas en `docs/domain.md`; mecanismos en `docs/architecture.md`; flujo en
+`docs/ui-reference/pre-sap-flow.md`.

@@ -53,8 +53,15 @@ spec 014, #17-#23)._
 | 21 | Add Component | 8 (reparación rápida) | `Split - Log NC/modal add componenet `, `Split - Log NC/recorte de agregado del nuevo compoenente ` | ✅ spec 014 (*aceptada:* Add Assembly Details solo con ★ Batch Number; la variante por material del recorte quedó diferida, enmienda 6) |
 | 22 | NC Data Entry de la extendida (★ Comments, "NC logged") | 8 (extendida) | `Split - Log NC/modal nc entry extended` | ✅ spec 014 |
 | 23 | Select Disposition Function | 8 (extendida) | `Split - Log NC/sub modal seleccion operaicon a ser devuelta ` | ✅ spec 014 |
+| 24 | Escritorio de Windows (solo el script y el Repositorio) | 0 (Ingreso) y 10 (Logout) | `Pre-SAPMES/ESCRITORIO DE WINDWOS ` | ✅ spec 016 (*aceptada:* solo dos íconos, D-69; barra del simulador arriba, P-11) |
+| 25 | Consola del script de limpieza | 0 y 10 | `Pre-SAPMES/iNGRESO CODE1 Y EJECUYCION SCRIPT` | ✅ spec 016 |
+| 26 | Repositorio de Aplicaciones (en Edge) | 0 | `Pre-SAPMES/Repositorio APLICACIONES` | ✅ spec 016 (*aceptada:* Edge genérico, D-71) |
+| 27 | Hora a Hora 3.0 | 0 | `Pre-SAPMES/login hora-hora 3.0 ` | ✅ spec 016 (*aceptada:* después de Iniciar, aviso provisional, D-72) |
+| 28 | Recursos MES | 0 | `Pre-SAPMES/login recursos mes ` | ✅ spec 016 (la estación, con etiqueta simulada, D-70) |
+| 29 | Login de MES (SAP NetWeaver) | 0 | `Login SAP NETWEAVER` | ✅ spec 016 |
+| 30 | You have logged off | 10 | `Pre-SAPMES/logout sap mes` | ✅ spec 016 |
 
-**Resumen:** ✅ 21 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). Las #17-#23 (capturas
+**Resumen:** ✅ 28 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). Las #24-#30 (Pre-SAP) entraron con la spec 016 (2026-10-19). Las #17-#23 (capturas
 del 2026-10-15) pasaron a ✅ con la spec 014 (2026-10-19), probadas por el usuario. La captura `Split - Log
 NC/modal sfc split` que citan la #13 y `general-flow.md` no está en la carpeta. **Criterio de cierre cumplido (2026-10-01, tras la entrega 9):** todas las pantallas con captura están fieles; la #8 queda pendiente y no bloquea.
 
