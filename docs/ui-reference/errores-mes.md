@@ -6,9 +6,9 @@
 > se inventa UI (`docs/process.md` §8): lo que falta está en "Pendiente de capturar".
 > **Es registro de consulta:** no cambia nada por sí solo; lo que se decida implementar va a
 > la spec o al plan.
-> **Hecho el 2026-10-20** en dos pasadas: contraste con las WI (sesión de contraste) y
-> capturas en el ambiente de testing el mismo día (otra sesión de Claude con Chrome, con
-> permiso del usuario; ver "Escrituras hechas en testing").
+> **Hecho el 2026-10-20** en tres pasadas: contraste con las WI (sesión de contraste) y dos
+> tandas de capturas en el ambiente de testing el mismo día (otra sesión de Claude con
+> Chrome, con permiso del usuario; ver "Escrituras hechas en testing").
 
 ## Fuentes y cómo leer la evidencia
 
@@ -30,14 +30,14 @@ con "!" en el POD o franja roja dentro de la ventana (medidas y comportamiento:
 |---|---|---|
 | Batch inválido | ✅ `Batch Number is Invalid or the batch doesn't exist in Storage location AL01 (Message 22801)` | 📷 |
 | Cantidad insuficiente | ✅ `Not enough Quantity Available in Unrestricted Stock (Message 22801)` | 📷 |
-| Componente no requerido | 🟡 Probable `Component <c>/A is an invalid alternate for the component. (Message 13252)`; se probó con el material del propio SFC, no con uno de otro BOM | 🧪📸 |
-| SFC iniciado en otro recurso | ❔ El MES responde antes con los avisos de Line Clearance (`22501`); el mensaje propio no se alcanzó | 🧪📸 |
+| Componente no requerido | ✅ `Component 600000005112/A is an invalid alternate for the component. (Message 13252)`, con un componente de **otro BOM** | 🧪📸 |
+| DC fuera de límites | ✅ **Es error, no alerta:** `Value 99999 is above the upper limit (Message 15233)` y `Value -99999 is below the lower limit (Message 15232)`; bloquea el Save. Resuelve la diferencia entre CR ("alerta") y CO ("error") | 🧪📸 |
+| SFC iniciado en otro recurso | ❔ El MES responde antes con los avisos de Line Clearance (`22501`); el mensaje propio no se alcanzó y el usuario de testing no puede liberar el SFC activo (`16034`) | 🧪📸 |
 | Material sensible al tiempo expirado | ❔ La operación probada no tiene componentes sensibles al tiempo; solo salió `15357` al abrir TSM Check In/Out | 🧪📸 |
-| DC fuera de límites | ❔ DC Collect pide firma electrónica (contraseña) antes de los parámetros; no se pudo. Los sitios no coinciden (alerta o error) | 🧪📸 · 📝 |
 
 Más los 4 de Resource Setup (EP-4): ninguno tiene texto; la ventana es una emergente que la
-extensión del navegador no controla. En cambio, el testing dio **más mensajes que los
-pedidos** (Line Clearance, Start, Assemble, DC y Split): están en cada paso.
+extensión del navegador no controla. En cambio, el testing dio **muchos mensajes que nadie
+pidió** (Line Clearance, Start, Assemble, DC, Complete, Log NC y Split): están en cada paso.
 
 ---
 
@@ -51,8 +51,9 @@ Inválida") son de la herramienta de Shelf Life, no de este paso.
 ## 1. Resource Setup
 
 La WI de Costa Rica y la de Colorado solo dicen "el sistema mostrará un error". Es una app de
-SAP MII en una **ventana emergente aparte**: ni la auditoría del 19 ni la sesión con Chrome
-del 20 pudieron medirla o controlarla.
+SAP MII (Custom Resource Setup) en una **ventana emergente aparte**: ni la auditoría del 19 ni
+la sesión con Chrome del 20 pudieron medirla o controlarla. Según el usuario (2026-10-20), el
+simulador **no usa por ahora** esa app, aunque los mensajes de error deberían ser los mismos.
 
 | Situación | Mensaje | Evidencia | Hoy en el simulador |
 |---|---|---|---|
@@ -91,10 +92,22 @@ Collect; responder No es intento fallido en el propio paso del LC.
 
 ## 3. Search / Start
 
+**"SFC is missing" tiene dos números según el botón,** con el mismo texto (banner del POD):
+
+| Botón | Número | Evidencia |
+|---|---|---|
+| Start, Complete | `22506` | 🧪 (Start, 19/10) · 📸 `complete - sin sfc 22506.png` |
+| Assemble, DC Collect, Log NC, SFC Split | `12906` | 📸 `assembly - sin sfc 12906.png`, `dc collect - sin sfc 12906.png`, `log nc - sin sfc 12906.png` · 🧪 (Split, 19/10) |
+
+**Con un SFC que sigue en cola (no iniciado)** en el campo, Assemble y Complete lo **vacían**
+y dan el mismo "SFC is missing" (`12906` y `22506`). 📸 `assembly - sfc en cola sin iniciar
+12906.png`, `complete - sfc en cola sin iniciar 22506.png`.
+
 | Situación | Mensaje | Evidencia | Hoy en el simulador |
 |---|---|---|---|
 | Start con el campo SFC **vacío** | ✅ `22506` · `SFC is missing` (banner) | 🧪 (19/10) | NonSerialized: `SfcRequired`, SweetAlert "Campo requerido / Debes ingresar o escanear un SFC antes de iniciar.", sin intento. Serialized: `StartWholeOrder` ("Inicia la orden completa") |
-| Start con un SFC que **no existe** | ✅ `22507` · `Invalid SFC` (banner) y, en el panel Component List, `13005` · `SFC <sfc> does not exist`. La medición del 19 vio además `15049` · `No valid SFCs meet the specified criteria`. Con Enter en el campo SFC el banner dice `13006` · `SFC <sfc> does not exist` (sin captura limpia) | 🧪📸 `start - sfc inexistente 22507 13005.png` | NonSerialized: `SfcNotInOrder`, "SFC no encontrado / El número no corresponde a la orden de este recurso." (el código lo marca **provisional hasta tener el mensaje real**, spec 011). Serialized: `StartWholeOrder` |
+| Start con un SFC que **no existe** | ✅ `22507` · `Invalid SFC` (banner). Con un panel abierto (NC Selection), el panel muestra `Messages (2):` con `15049` · `No valid SFCs meet the specified criteria` y `13005` · `SFC <sfc> does not exist`; con el panel de Component List, solo `13005` | 🧪📸 `start - sfc inexistente 22507 13005.png`, `start - sfc inexistente panel messages 22507 15049 13005.png` | NonSerialized: `SfcNotInOrder`, "SFC no encontrado / El número no corresponde a la orden de este recurso." (el código lo marca **provisional hasta tener el mensaje real**, spec 011). Serialized: `StartWholeOrder` |
+| **Enter** en el campo SFC con un SFC inexistente | ✅ `13005` · `SFC <sfc> does not exist` en el panel, sin banner. Una medición anterior mostró un banner `13006`; no se repitió, tratarlo como no confirmado | 📸 `sfc - enter con sfc inexistente 13005.png` | Igual que arriba |
 | SFC de una Shop Order **distinta** (existe, pero es de otra orden) | ✅ **`22501`**, no 22507: `The SFC(s) you are trying to process are not from shop order <so>, please perform Line Clearance` | 🧪📸 | Mismo `SfcNotInOrder` (en Serialized, `StartWholeOrder`) |
 | SFC **ya activo en esta misma operación** | ✅ `13961` · `SFC <sfc> is not in queue at operation <op>. It is in work at <op>. (Message 13961)` | 🧪📸 `start - sfc ya activo en la operacion 13961.png` | No se simula |
 | SFC **ya iniciado en otro recurso** | ❔ Se intentó (42812 activo en un recurso, Start en otro): los chequeos de LC salen antes y el mensaje propio no se alcanzó | 📝 CR y CO · 🧪 | No se simula |
@@ -105,13 +118,15 @@ Collect; responder No es intento fallido en el propio paso del LC.
 | Situación | Mensaje | Evidencia | Hoy en el simulador |
 |---|---|---|---|
 | Barcode con formato inválido | ✅ `17150` · `2D barcode is not compliant with ISO 15434 format` (franja de la ventana; se despliegan Component Details y Assembly Data vacíos con [Add]) | 🧪 (19/10) | SweetAlert "Barcode inválido" cuando no es numérico, sin intento (AUD-69) |
-| Componente **fuera de la Component List** | 🟡 `13252` · `Component 300014142061/A is an invalid alternate for the component. (Message 13252)` (franja de la ventana, sin Component Details). **Cuidado:** se escribió en Find component el material del propio SFC, no un componente de otro BOM; es el candidato más cercano a "componente no requerido", sin confirmar | 🧪📸 `assembly - componente fuera de la lista 13252.png` | No se simula; el barcode no se valida (solo secuencia) |
+| Componente **fuera de la Component List** (**componente no requerido**) | ✅ `13252` · `Component 600000005112/A is an invalid alternate for the component. (Message 13252)` (franja de la ventana, sin Component Details). 600000005112 es un material de otro BOM (el de la WI). Con el material del propio SFC dio el mismo `13252` | 🧪📸 `assembly - componente de otro bom 13252.png`, `assembly - componente fuera de la lista 13252.png` | No se simula; el barcode no se valida (solo secuencia) |
 | Material **inexistente** | ✅ `12001` · `data is missing (Message 12001)` (misma franja; se probó `999999999999`) | 🧪📸 `assembly - material inexistente 12001.png` | No se simula |
 | **Batch inválido** o inexistente en el almacén | ✅ `22801` · `Batch Number is Invalid or the batch doesn't exist in Storage location AL01 (Message 22801)`. CO dice `CS01`: el almacén cambia por sitio. Quién resuelve: Materiales/Almacén; el operador **avisa al encargado de materiales** del área para revisar el estado en SAP | 📷 `assembly - batch invalido 22801.png` | No se simula |
 | **Cantidad insuficiente** en ERP | ✅ `22801` · `Not enough Quantity Available in Unrestricted Stock (Message 22801)`. Mismo número que el anterior, otro texto. Mismo responsable | 📷 `assembly - cantidad insuficiente 22801.png` | No se simula |
 | Dato de ensamble que no corresponde al componente (WI) | ✅ `13251` · `Assembly data 0000018790 is invalid for data field INVENTORY_ID and component 600000005112,A (Message 13251)`. La WI pone esta figura bajo la nota de "componente no requerido", pero el componente sí se encontró y lo inválido es el Inventory ID | 📷 `assembly - inventory id invalido 13251.png` | No se simula |
 | Material **sensible al tiempo expirado** | ❔ La operación probada (`O_OMNI_FIRST_DISTAL`) no tiene componentes sensibles al tiempo. Al abrir TSM Check In/Out (Activities) sobre un SFC sin ellos sale `15357` · `SFC <sfc> does not contain any time-sensitive components (Message 15357)` | 📝 CR y CO ("Error 3") · 🧪📸 `tsm - sfc sin componentes sensibles al tiempo 15357.png` | No se simula |
+| Assemble sin SFC o con un SFC en cola | `12906`, ver Search / Start | 🧪📸 | No existe |
 | Assemble sin LC (cualquier causa) | `22501`, ver Line Clearance | 🧪 | No existe |
+| Return to POD con datos escritos | No es error: ventana del MES `Unsaved Data` · `Do you want to return to POD without saving record?` [OK] [Cancel] | 🧪 (19/10) | — |
 | Time-Based Assembly (ranuras): `SAP MII transaction failed with message: Slot Configuration not found for Component -ItemBO:CR9A,300000257791, A (Message 10059)` y `…Not Enough QTY on the Slots for ITEM: … Available Slot Qty: 0 Required Slot Qty: 15 (Message 10059)` | ✅ solo texto de ejemplo | 📝 CR | Fuera de alcance: ningún área simulada usa Time-Based (W4); la WI manda a "Cargar/Reponer" |
 
 Otros datos útiles de la WI: el MES **no permite sobreconsumir ni desechar componentes**
@@ -122,14 +137,26 @@ added" (`assembly - componente agregado exito.png`).
 
 ## 5. Data Collection
 
+Todos los errores de DC salen como **error rojo en la franja dentro de la ventana Data
+Collection Entry**, no como alerta. Probado en DC Collect por SFC (grupos
+`DCGTM_FIRST_SHOT_QA_INSPECTION*` y `DCGTM_WELDING_MACHINE`) y en el DC Standalone del LC.
+
 | Situación | Mensaje | Evidencia | Hoy en el simulador |
 |---|---|---|---|
-| Save sin responder un parámetro **obligatorio** | ✅ `10015` · `Required value "<param>" missing; enter a value in the <param> field` (franja de Data Collection Entry, probado con `DC_LC_DONE` en el DC Standalone) | 🧪📸 `dc standalone - valor obligatorio vacio 10015.png` | Un campo vacío es intento fallido (excepción del formato) con mensaje genérico |
-| **Firma electrónica** al abrir un grupo de DC Collect | No es error: `Data Collection Authentication` (Site, User ID prellenado, Password, [OK] [Cancel]) **antes** de mostrar los parámetros. Es de esta workstation (`_ESIG`) | 🧪📸 `dc collect - firma electronica al abrir el grupo.png` | Verificar si el simulador modela esta ventana |
-| DC **no completada con los valores esperados** | ❔ No se pudo: la firma pide contraseña | 📝 CR y CO | Valor fuera de rango = intento fallido, mensaje genérico |
-| Valor **fuera de los límites** del MPI | ❔ No se pudo. **Los sitios no coinciden:** CR dice que el sistema "activará una **alerta**"; CO dice que "an **error** will occur" | 📝 CR y CO | Intento fallido, mensaje genérico; no hay alerta de límites |
-| DC obligatoria **pendiente** al Complete | ❔ No se pudo (la WI no dice si sale al guardar o al Complete) | 📝 CR y CO | El paso de DC no termina hasta guardar todos los grupos obligatorios |
+| Save con un parámetro **obligatorio vacío** | ✅ `10015` · `Required value "<param>" missing; enter a value in the <param> field`. En un grupo con varios vacíos **reporta solo uno**: el primer Data Field List obligatorio (`DC_RESULTADO_DE_INSP_FUNCIONAL`), no los Text vacíos que están antes | 🧪📸 `dc collect - grupo vacio obligatorio 10015.png`, `dc standalone - valor obligatorio vacio 10015.png` | Un campo vacío es intento fallido (excepción del formato) con mensaje genérico |
+| Valor **que no está en la lista** (Data Field List) | ✅ `19973` · `Value "XYZ" does not exist for DC_RESULTADO_DE_INSP_FUNCIONAL; select a value from the list (Message 19973)` | 🧪📸 `dc collect - valor fuera de la lista 19973.png` | Intento fallido, mensaje genérico |
+| Numérico con **texto** | ✅ `12205` · `Field DC_WELDING_MACHINE must contain a number (Message 12205)` | 🧪📸 `dc collect - numerico con texto 12205.png` | Intento fallido con mensaje genérico (el caso de texto en un campo numérico no se verificó) |
+| Valor **sobre el límite superior** | ✅ `15233` · `Value 99999 is above the upper limit (Message 15233)` | 🧪📸 `dc collect - valor sobre el limite superior 15233.png` | Intento fallido, mensaje genérico; no hay mensaje de límites |
+| Valor **bajo el límite inferior** | ✅ `15232` · `Value -99999 is below the lower limit (Message 15232)` | 🧪📸 `dc collect - valor bajo el limite inferior 15232.png` | Ídem |
+| **Save Draft** con un valor fuera de rango | No es error: se acepta **sin validar**, con un check verde `Collected data was saved as a draft.` | 🧪📸 `dc collect - save draft acepta fuera de rango.png` | Save Draft existe pero no guarda nada (W16) |
+| Return to POD con datos sin guardar | No es error: ventana del MES `Unsaved Data` · `Do you want to return to POD without saving record?` [OK] [Cancel] | 🧪📸 `dc collect - return to pod con datos sin guardar.png` | — |
+| DC Collect sin SFC | `12906`, ver Search / Start | 🧪📸 | No existe |
 | DC Collect sin LC (cualquier causa) | `22501`, ver Line Clearance | 🧪 | No existe |
+| Grupos obligatorios pendientes | Sale al **Complete**: `15246`, ver Complete | 🧪📸 | El paso de DC no termina hasta guardar todos los grupos obligatorios |
+
+La pantalla de captura **no muestra los límites**, solo `Data Type: Numeric`: el operador
+los conoce por el MPI. En el DC Standalone, el valor "inesperado" de un Boolean (NO) se guarda
+sin alerta y el bloqueo sale después, en Start (ver Line Clearance).
 
 ## 6. SFC Split (solo guías NonSerialized)
 
@@ -149,33 +176,43 @@ genérico.
 
 ## 7. Log NC
 
-Sin mensajes de error del MES en las WI ni en testing: solo confirmaciones ("All of SFC Number
-scrapped", la de remover componente, la de agregar, la de la operación devuelta). Los fallos
-de este paso son de **decisión** (otra pieza, otro código, otro método): el MES los deja
-pasar y el simulador los califica contra el hallazgo. La WI de Colorado agrega un requisito
-del scrap rápido: el SFC debe estar completamente ensamblado en MES (no dice qué mensaje
-sale si no lo está).
+Los errores salen en la **franja de la ventana NC Data Entry** y no registran ningún NC. 📸:
+
+| Situación | Mensaje | Evidencia | Hoy en el simulador |
+|---|---|---|---|
+| **Done** con el NC Code vacío | ✅ `18117` · `No NC codes logged (Message 18117)` | 🧪📸 `log nc - done sin nc code 18117.png` | Done es botón equivocado: intento fallido sin este mensaje (spec 007) |
+| **Add** con un NC Code inexistente | ✅ `12901` · `Input value "NC_CODE" is invalid ("XYZ") (Message 12901)` | 🧪📸 `log nc - nc code inexistente 12901.png` | No verificado cómo trata el control un NC Code escrito a mano |
+| Botón Log NC **sin SFC** | ✅ `12906` · `SFC is missing` (banner del POD) | 🧪📸 `log nc - sin sfc 12906.png` | Sin fila seleccionada es intento fallido |
+
+Los fallos de **decisión** (otra pieza, otro código válido, otro método) no tienen mensaje:
+el MES los deja pasar y el simulador los califica contra el hallazgo. Éxitos conocidos: "All
+of SFC Number scrapped", y las confirmaciones de remover o agregar componente y de la
+operación devuelta. La WI de Colorado agrega un requisito del scrap rápido: el SFC debe estar
+completamente ensamblado en MES (no dice qué mensaje sale si no lo está).
 
 ## 8. Complete y Logout
 
-Complete: ningún mensaje de error propio en las WI. Colorado menciona uno que no es de la
-guía: ajustar la cantidad de la orden antes de completar las unidades construidas da error
-al completar. Logout: sin errores (página "You have logged off").
+| Situación | Mensaje | Evidencia | Hoy en el simulador |
+|---|---|---|---|
+| Complete con **grupos de DC obligatorios sin recolectar** | ✅ `15246` · `There are missing required values for data collection parameter(s) <PARAM> (<DC_GROUP>) , <PARAM> (<DC_GROUP>) , … for SFC "<sfc>" (Message 15246)`. Banner **larguísimo**: lista todos los parámetros faltantes de todos los grupos (la sesión midió 7.729 caracteres con 19 grupos; la captura solo muestra el inicio). Patrón: `<PARAM> (<DC_GROUP>)` separados por ` , ` | 🧪📸 `complete - dc obligatorio sin recolectar 15246.png` | Complete antes del paso de DC es un botón fuera de secuencia: intento fallido en Assessment, ignorado en Guided |
+| Complete sin SFC o con un SFC en cola | `22506` · `SFC is missing`; con uno en cola, el POD **vacía el campo** | 🧪📸 `complete - sin sfc 22506.png`, `complete - sfc en cola sin iniciar 22506.png` | `NoRowToComplete`: "Seleccione todas las filas para completar" |
+
+Colorado menciona un error que no es de la guía: ajustar la cantidad de la orden antes de
+completar las unidades construidas da error al completar. Logout: sin errores (página "You
+have logged off").
 
 ---
 
 ## Pendiente de capturar
 
-Lo que sigue ❔, con lo que cada caso necesita. Guardar la captura en
-`Screens SAP MES REAL/Errores/<paso> - <caso> <número>.png`.
+Lo que sigue ❔. Guardar la captura en `Screens SAP MES REAL/Errores/<paso> - <caso> <número>.png`.
 
 | Caso | Qué falta |
 |---|---|
-| Resource Setup: herramienta en dos recursos, de menos, de otro grupo, expirada o caída; Start sin setup | La ventana es una emergente fuera del grupo de pestañas de la extensión: captura **manual** del usuario o control de escritorio. Además, un recurso sin setup |
-| SFC ya iniciado en **otro** recurso (mensaje propio) | Pasar antes los chequeos de LC: dejar el LC del recurso destino en SI para la misma Shop Order y sin SFCs activos de otras órdenes (`Place back in queue` del 43000, ver abajo) |
+| Resource Setup: herramienta en dos recursos, de menos, de otro grupo, expirada o caída; Start sin setup | La ventana es una emergente fuera de la extensión: captura **manual** del usuario o control de escritorio. Además, un recurso sin setup. Prioridad menor: el simulador no usa esa app por ahora |
+| SFC ya iniciado en **otro** recurso (mensaje propio) | Pasar antes los chequeos de LC. El usuario de testing **no puede** hacer `Place back in queue` (`Permissions or settings are required to run activity PR520 (Message 16034)`, 📸 `place back in queue - sin permiso PR520 16034.png`): hace falta otro usuario con ese permiso, o dos recursos con LC compatibles |
 | Material sensible al tiempo **expirado** | Una operación con componentes TSM y una etiqueta vencida; `O_OMNI_FIRST_DISTAL` no las tiene |
-| DC: valor fuera de límites, valor inesperado, grupo obligatorio pendiente al Complete | La **contraseña** de la firma electrónica, que la escribe el usuario (o captura manual) |
-| Textos sin captura limpia | `13006` (Enter en el campo SFC con un SFC inexistente) y `Too much time has passed since last Line Clearance` (22501) |
+| `Too much time has passed since last Line Clearance` | Solo hay texto, falta la captura |
 | LC por **cambio de usuario** | No probado |
 
 ## Escrituras hechas en testing (2026-10-20)
@@ -185,39 +222,47 @@ Reportadas por la sesión que hizo las capturas, con el permiso del usuario:
 - `R_OMNI_FIRST_DISTAL_2`: Line Clearance `DC_LC_DONE = SI` (11:38).
 - `R_OMNI_FIRST_DISTAL_1`: `DC_LC_DONE = NO` (11:46) y después `SI`. Su LC quedó asociado a la
   Shop Order `303627317`, y en ese recurso **sigue activo el SFC `300014142061-43000`** (Shop
-  Order `303627318`).
+  Order `303627318`). El intento de `Place back in queue` falló por permisos (`16034`).
+- Segunda tanda: un **Save Draft** en `DCGTM_WELDING_MACHINE` con `-99999` para el SFC
+  `42812` (`R_OMNI_FIRST_DISTAL_2`). Nada más se guardó: todos los Save fallaron por
+  validación y no se registró ningún NC.
 
-Es estado que quedó en un ambiente compartido: conviene que el usuario decida si se hace
-`Place back in queue` del 43000 y se restablece el LC.
+Es estado que quedó en un ambiente compartido: conviene que el usuario decida cómo
+restablecer el LC y el SFC 43000 (con un usuario que tenga el permiso PR520).
 
 ## Observaciones para la spec 017
 
-1. **Dos clases de fallo.** Los hay con mensaje del MES (formato de SFC, batch, cantidad, DC
-   obligatoria, Line Clearance) y los hay de **procedimiento, sin mensaje** (código NC o
+1. **Dos clases de fallo.** Los hay con mensaje del MES (formato de SFC, batch, cantidad, DC,
+   Line Clearance, NC Code) y los hay de **procedimiento, sin mensaje** (código NC o
    cantidad de split equivocados, herramienta que existe pero no es la de la estación). El
    simulador califica ambos. La 017 solo debería sumar la primera clase; la segunda conserva
    el mensaje genérico de Assessment, que no revela la respuesta.
-2. **Line Clearance: el MES lo revisa en otro lugar y de otra forma.** Lo revisan **Start,
+2. **El clic fuera de secuencia sí tiene mensaje real.** Assemble o Complete con un SFC que
+   no se inició dan `SFC is missing`; Start sin Line Clearance da `22501`; Complete con DC
+   pendiente da `15246`. Hoy el simulador responde a todo eso con el aviso genérico (o lo
+   ignora en Guided). La 017 puede mostrar el mensaje real en cada caso sin cambiar la
+   calificación.
+3. **Line Clearance: el MES lo revisa en otro lugar y de otra forma.** Lo revisan **Start,
    Assemble y DC Collect**, no el propio paso del LC: responder No se guarda sin error y el
    bloqueo sale en Start. Y el chequeo del LC va **antes** que los del SFC, así que el
    operador ve primero los `22501`. El simulador hoy exige el LC por secuencia y marca el No
    como intento fallido en su paso: decidir si la 017 lo mueve a Start.
-3. **Un `22501` no es un solo mensaje:** tiene al menos 5 textos según la causa (ver Line
-   Clearance). Usar el **texto** como clave, no el número. Pasa igual con `22801` (batch y
-   cantidad).
-4. **El SFC de otra orden da `22501`, no `22507`.** El `22507` (con `13005`) es solo de un SFC
+4. **Un `22501` no es un solo mensaje:** tiene al menos 5 textos según la causa. Usar el
+   **texto** como clave, no el número. Pasa igual con `22801` (batch y cantidad) y con `SFC
+   is missing` (`22506` o `12906` según el botón).
+5. **El SFC de otra orden da `22501`, no `22507`.** El `22507` (con `13005`) es solo de un SFC
    que **no existe**. La fila AUD-63 de la auditoría de fidelidad propone `SfcNotInOrder →
    22507/13005`: según estas capturas, eso corresponde al SFC inexistente, y el de otra orden
    necesita el `22501`. Avisar a quien lleve esa auditoría.
-5. **"Componente no requerido" es `13252` solo de forma probable.** Probarlo con un
-   componente de otro BOM lo confirmaría; mientras, no conviene darlo por cerrado.
-6. **El almacén del batch cambia por sitio** (`AL01` en Costa Rica, `CS01` en Colorado); el
+6. **El DC fuera de límites es error que bloquea el Save** (`15232`/`15233`), no alerta;
+   Save Draft no valida nada. La pantalla no muestra los límites. El MES reporta **un solo**
+   parámetro vacío por Save (`10015`), mientras el Complete lista **todos** los que faltan
+   (`15246`).
+7. **El almacén del batch cambia por sitio** (`AL01` en Costa Rica, `CS01` en Colorado); el
    testing es CR9A, así que corresponde `AL01`.
-7. **El responsable.** En los dos errores 22801 la WI manda **avisar al encargado de
+8. **El responsable.** En los dos errores 22801 la WI manda **avisar al encargado de
    materiales**: es contenido de comprensión (EP-7) que el mensaje podría reforzar.
-8. **El mecanismo de mostrar errores** (banner y franja rojos en inglés, el OK que cierra
+9. **El mecanismo de mostrar errores** (banner y franja rojos en inglés, el OK que cierra
    Split) es la AUD-63/64/69 de la auditoría de fidelidad, pendiente de aprobación. La 017
    depende de esa variante visual: definir si la construye ella o la auditoría.
-9. **Firma electrónica de DC.** En esta workstation DC Collect pide contraseña antes de los
-   parámetros. Verificar si el simulador la modela; si no, es una pantalla que falta.
 10. **Time-Based Assembly** (10059) queda fuera mientras ningún área lo use.
