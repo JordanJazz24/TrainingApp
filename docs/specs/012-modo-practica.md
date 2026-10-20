@@ -3,6 +3,17 @@
 **Status:** Approved
 **Date:** 2026-10-20 · **Approved:** 2026-10-20 (usuario)
 
+> **Enmienda 1 (2026-10-20, usuario, al revisar el plan):**
+>
+> - **Destino de Saltar / Ir a…** (aclara "API Contract" frente a "Edge Cases"): un destino
+>   igual o anterior al paso actual se **ignora** (doble clic, F5); un destino que no existe
+>   en la guía, o un salto en un modo que no lo permite, es **excepción**.
+> - **Resumen:** se arma con los intentos que ya trae el `PodContext` del cierre, sin método
+>   ni consulta nueva (reemplaza el método de `TrainingSessionService` de "API Contract" y la
+>   mención de `spStepAttemptGetBySession` del punto 6 de Scope).
+> - **Puntaje del header:** en Práctica libre no se muestra "Score: x%" (P-10).
+> - **Paso saltado en el resumen:** "Saltado" y, si hubo fallos antes, "Saltado (N fallos)".
+
 Origen: revisión con Ernesto (2026-10-09, roadmap → Fase 8 → "Revisión con Ernesto", T3) y
 Fase 8.5, fila 8. Decisiones del usuario del 2026-10-20, en dos rondas de preguntas y la
 consulta sobre guías por tramo (P-1 a P-11).
