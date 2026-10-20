@@ -14,6 +14,30 @@
 > - **Puntaje del header:** en Práctica libre no se muestra "Score: x%" (P-10).
 > - **Paso saltado en el resumen:** "Saltado" y, si hubo fallos antes, "Saltado (N fallos)".
 
+> **Enmienda 2 (2026-10-20, usuario, al probar la Entrega 3):**
+>
+> - **Ver pista nombra el paso actual** ("Paso actual: {nombre con variante}"). Ajusta P-2
+>   solo dentro de la pista: la pantalla sigue sin mostrar el paso.
+> - **Estilo de la barra del simulador:** "Fiori Industrial", con íconos Lucide. Lo llevan
+>   Abandon (en los tres modos), la cápsula Ver pista / Saltar / Ir a… y los botones de la
+>   barra del escritorio, que conserva su fondo amarillo.
+> - **Pistas por tramo en el Ingreso a MES y en Logout** (reemplaza "Pistas nuevas o
+>   reescritas" de Out solo para estos dos pasos): la pista sale del avance que ya guarda
+>   `PodState`, el mismo que usa la guía para retomar. No hay controles ni estado nuevos. Vale
+>   también para la pista de Guided tras un fallo. Los demás pasos no cambian. Textos
+>   aprobados:
+>
+>   | Paso | Tramo | Pista |
+>   |---|---|---|
+>   | Ingreso | antes del script | Haga doble clic en **MES Limpiar historial y cache**, escriba su Code1, presione Enter y luego cualquier tecla para cerrar la ventana. |
+>   | Ingreso | script hecho, sin Edge | Cierre la consola con cualquier tecla y abra el **Repositorio** con doble clic. |
+>   | Ingreso | en el Repositorio | Seleccione **Hora-Hora (3.0)**, escriba su Code1 y presione **Iniciar**. |
+>   | Ingreso | Hora a Hora hecha | Vuelva a la pestaña del Repositorio, seleccione **Recursos MES**, escanee la etiqueta de su estación, escriba su Code1 y presione **Buscar**. |
+>   | Ingreso | Recursos hecho | En el login de MES ingrese su usuario (Code1) y su contraseña y presione **Log On**. |
+>   | Logout | antes del clic | Presione el ícono **Logout** para cerrar su sesión en MES. |
+>   | Logout | después del clic | Cierre el navegador con la **✕**. |
+>   | Logout | Edge cerrado | Haga doble clic en **MES Limpiar historial y cache**, escriba su Code1, presione Enter y luego cualquier tecla para terminar. |
+
 Origen: revisión con Ernesto (2026-10-09, roadmap → Fase 8 → "Revisión con Ernesto", T3) y
 Fase 8.5, fila 8. Decisiones del usuario del 2026-10-20, en dos rondas de preguntas y la
 consulta sobre guías por tramo (P-1 a P-11).

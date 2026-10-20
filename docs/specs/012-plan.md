@@ -243,13 +243,20 @@ en el navegador, "funciona" y commit con el roadmap.
 - [ ] `ShowCompletionPanel`: con `Summary = AttemptsPerStep`, tabla de pasos (resalta más de
       1 intento y marca "Saltado"), sin puntaje ni Aprobado/Reprobado. Solo "volver al
       inicio".
+- [ ] **Pistas por tramo** (enmienda 2 de la spec): `StepHints` recibe el `PodContext`; en
+      el Ingreso a MES y en Logout elige el texto aprobado según el avance de `PodState`
+      (los mismos datos que usan los `ResumeName` de `GuideScriptBuilder`). Los demás pasos,
+      sin cambios. Lo usan Ver pista y la pista de Guided tras un fallo. Test de `StepHints`
+      por tramo si queda sin `System.Web`.
 - [ ] Verificación: rebuild, `aspnet_compiler` y checklist con una práctica completa con
-      fallos y saltos, y otra cerrada saltando Logout.
+      fallos y saltos, otra cerrada saltando Logout y Ver pista en cada tramo del Ingreso y
+      de la limpieza.
 - [ ] **Al cerrar la spec:**
   - `docs/domain.md`: "Modos de sesión" (Práctica libre), "Qué cuenta como intento" (aviso
     sin intento, `Skipped`) y "Avance forzado" (Saltar lo reusa);
   - `CLAUDE.md`: `ModePolicy` en "Capas", como `AccessPolicy`;
-  - `docs/architecture.md`: `ModePolicy`, salto y barra de práctica;
+  - `docs/architecture.md`: `ModePolicy`, salto (D-84), barra de práctica sobre el backdrop
+    (D-91) y pistas por tramo;
   - `docs/glossary.md`: fila `SessionMode`;
   - roadmap: fila 8 de la Fase 8.5, "Estado actual" e "Historial".
 - **Review:** `medium`.
