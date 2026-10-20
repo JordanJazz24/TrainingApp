@@ -1,7 +1,7 @@
 # Spec 012: Práctica libre (T3)
 
-**Status:** Draft
-**Date:** 2026-10-20 · **Approved:** —
+**Status:** Approved
+**Date:** 2026-10-20 · **Approved:** 2026-10-20 (usuario)
 
 Origen: revisión con Ernesto (2026-10-09, roadmap → Fase 8 → "Revisión con Ernesto", T3) y
 Fase 8.5, fila 8. Decisiones del usuario del 2026-10-20, en dos rondas de preguntas y la
