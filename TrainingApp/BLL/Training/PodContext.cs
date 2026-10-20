@@ -59,6 +59,7 @@ namespace TrainingApp.BLL.Training
         // Recurso del área: el del POD y el de la etiqueta de la estación en Recursos MES (D-70).
         public string ResourceName => PodDefaults.ResourceName(Area);
         public TrainingSession Session { get; }
+        public ModePolicy Policy => ModePolicy.For(Session.Mode);
         public TrainingGuide Guide { get; }
         public Area Area { get; }
         public PodState State { get; }

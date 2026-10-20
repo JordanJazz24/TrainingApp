@@ -225,6 +225,7 @@
     <Compile Include="BLL\Auth\LoginResult.cs" />
     <Compile Include="BLL\Auth\AuthService.cs" />
     <Compile Include="BLL\Auth\ChangePasswordStatus.cs" />
+    <Compile Include="BLL\Scoring\ModePolicy.cs" />
     <Compile Include="BLL\Scoring\ScoreCalculator.cs" />
     <Compile Include="BLL\Scoring\StepValidationContext.cs" />
     <Compile Include="BLL\Scoring\PersonNameRule.cs" />

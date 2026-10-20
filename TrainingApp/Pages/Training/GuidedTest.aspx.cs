@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.UI;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Guide;
@@ -209,7 +210,7 @@ namespace TrainingApp.Pages.Training
                 GetStepControl(open.Value).ViewModel = BuildStepViewModel(step, area, session, guide);
 
             UpdateScoreWidget(session);
-            SetActiveButton(step.StepType, area, session.Mode);
+            SetActiveButton(step.StepType, area, _ctx.Policy);
             BindSearchHeader();
         }
 
@@ -274,7 +275,7 @@ namespace TrainingApp.Pages.Training
                 };
             }
             LitMesArea.Text = HttpUtility.HtmlEncode(_ctx.Area.Name);
-            LitMesMode.Text = _ctx.Session.Mode == SessionMode.Assessment ? "Assessment" : "Guided";
+            LitMesMode.Text = ModeLabel(_ctx.Policy).Label;
             BtnMesAbandon.Attributes["onclick"] = "return confirmAbandon('" + BtnMesAbandon.UniqueID + "');";
         }
 
@@ -324,7 +325,7 @@ namespace TrainingApp.Pages.Training
 
             // Guided: la guía la muestra al llegar al paso y la deja resaltada (pod-guide.js);
             // Assessment no tiene guía y la ve de inmediato. Los atributos persisten en ViewState.
-            if (_ctx.Session.Mode == SessionMode.Guided)
+            if (_ctx.Policy.ShowsGuide)
                 PnlNcFinding.Attributes["data-guide-reveal"] = string.Empty;
             else
                 PnlNcFinding.Attributes.Remove("data-guide-reveal");
@@ -397,7 +398,7 @@ namespace TrainingApp.Pages.Training
         {
             // Visible persiste en ViewState: se decide en cada request.
             PhGuideAssets.Visible = false;
-            if (_ctx == null || _ctx.Session.Mode != SessionMode.Guided) return;
+            if (_ctx == null || !_ctx.Policy.ShowsGuide) return;
 
             var script = new GuideScriptBuilder().Build(_ctx, _guideMoment);
             if (script.IsEmpty) return;
@@ -527,7 +528,7 @@ namespace TrainingApp.Pages.Training
 
             var nextStep = _ctx.CurrentStepOrDefault;
             if (nextStep != null)
-                SetActiveButton(nextStep.StepType, area, session.Mode);
+                SetActiveButton(nextStep.StepType, area, _ctx.Policy);
 
             // El banner de guardado confirma una respuesta correcta; no se muestra en FailedForced.
             bool accepted = outcome == StepSubmitOutcome.Correct;
@@ -733,7 +734,7 @@ namespace TrainingApp.Pages.Training
                 case StepSubmitOutcome.Incorrect:
                     _guideMoment = GuideMoment.Incorrect(step);
                     ShowSweetAlert("warning", "Incorrect",
-                        BuildIncorrectFeedback(session.Mode, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
+                        BuildIncorrectFeedback(_ctx.Policy, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
                     break;
 
                 case StepSubmitOutcome.FailedForced:
@@ -851,10 +852,10 @@ namespace TrainingApp.Pages.Training
 
         // Guided: hint del paso para que el operador aprenda. Assessment: no se revela la
         // respuesta, solo cuántos intentos con puntaje le quedan antes del avance forzado.
-        private static string BuildIncorrectFeedback(SessionMode mode, StepType stepType,
+        private static string BuildIncorrectFeedback(ModePolicy policy, StepType stepType,
             int remainingScoredAttempts, string incorrectFeedback)
         {
-            if (mode == SessionMode.Assessment)
+            if (policy.FailureFeedback == FailureFeedbackKind.RemainingAttempts)
             {
                 return remainingScoredAttempts > 0
                     ? string.Format("Respuesta incorrecta. Te quedan {0} intento(s) con puntaje.", remainingScoredAttempts)
@@ -878,7 +879,7 @@ namespace TrainingApp.Pages.Training
             var nextStep = _ctx.CurrentStepOrDefault;
             if (nextStep == null) return;
 
-            SetActiveButton(nextStep.StepType, area, session.Mode);
+            SetActiveButton(nextStep.StepType, area, _ctx.Policy);
         }
 
         // ── Button ServerClick handlers ───────────────────────────────────
@@ -1255,12 +1256,12 @@ namespace TrainingApp.Pages.Training
 
             decimal finalScore = session.FinalScore * 100m;
             LitFinalScore.Text   = finalScore.ToString("F1") + "%";
-            LitFinalMode.Text    = session.Mode.ToString();
+            LitFinalMode.Text    = ModeLabel(_ctx.Policy).Label;
 
             LitFinalArea.Text    = Page.Server.HtmlEncode(area.Name);
             LitFinalProduct.Text = Page.Server.HtmlEncode(_ctx.Product?.Name ?? "—");
 
-            if (session.Mode == SessionMode.Assessment)
+            if (_ctx.Policy.Summary == SummaryKind.ScoreAndResult)
             {
                 PnlFinalResult.Visible = true;
                 LitFinalResult.Text    = _ctx.IsPassed
@@ -1308,7 +1309,7 @@ namespace TrainingApp.Pages.Training
                     : null;
                 // Guided (spec 014): NC Selection abre en la página del código del hallazgo, que
                 // señala la guía. Assessment no lo recibe.
-                if (session.Mode == SessionMode.Guided)
+                if (_ctx.Policy.ShowsGuide)
                     vm.ExtraData["GuideNCCode"] = _ctx.NcFindingFor(step)?.Code;
                 // Browse y reparaciones (spec 014): lo ensamblado y As-Built Configuration (P-11:
                 // de la orden simulada; Routing y BOM son simulados; la operación, la actual del
@@ -1523,17 +1524,26 @@ namespace TrainingApp.Pages.Training
             // Puntaje del contexto: el de la carga o el del último intento registrado (AUD-25).
             LitScore.Text = FormatScore(_ctx.Score);
 
-            string modeLabel  = session.Mode == SessionMode.Assessment ? "Assessment" : "Guided";
-            string badgeClass = session.Mode == SessionMode.Assessment
-                ? "badge badge-assessment" : "badge badge-guided";
+            var (label, badgeClass) = ModeLabel(_ctx.Policy);
             LitModeBadge.Text = string.Format(
-                "<span class=\"{0}\">{1}</span>", badgeClass, modeLabel);
+                "<span class=\"{0}\">{1}</span>", badgeClass, label);
         }
 
-        private void SetActiveButton(StepType stepType, Area area, SessionMode mode)
+        // Nombre del modo en el header, la barra del simulador y el resumen, con su badge.
+        private static (string Label, string BadgeClass) ModeLabel(ModePolicy policy)
+        {
+            switch (policy.Mode)
+            {
+                case SessionMode.Guided:     return ("Guided", "badge badge-guided");
+                case SessionMode.Assessment: return ("Assessment", "badge badge-assessment");
+                default: throw new ArgumentOutOfRangeException(nameof(policy), policy.Mode, "Modo sin etiqueta.");
+            }
+        }
+
+        private void SetActiveButton(StepType stepType, Area area, ModePolicy policy)
         {
             // Assessment (S2): todo habilitado — elegir el botón correcto es parte de la evaluación.
-            bool enableAll = mode == SessionMode.Assessment;
+            bool enableAll = policy.EnablesAllButtons;
 
             BtnResourceSetup.Disabled = !enableAll;
             BtnStart.Disabled         = !enableAll;

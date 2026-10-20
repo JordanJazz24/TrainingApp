@@ -103,25 +103,30 @@ en el navegador, "funciona" y commit con el roadmap.
 - **D-90 · Puntaje oculto en Práctica libre:** el header no muestra "Score: x%" (`PnlScore`
   oculto), por coherencia con P-10 y P-11 (confirmado por el usuario).
 
-## Entrega 1 — `ModePolicy` sin cambio de comportamiento (AC-1, AC-2)
+## Entrega 1 — `ModePolicy` sin cambio de comportamiento (AC-1, AC-2) ✅
 
-- [ ] `BLL/Scoring/ModePolicy.cs` (D-82): instancias de Guided y Assessment con las
+> **Cerrada el 2026-10-20**, probada por el usuario. Review `high`: equivalencia confirmada;
+> se aplicaron 2 de 8 hallazgos (`MaxScoredAttempts` vive en `ModePolicy` y `ScoreCalculator`
+> lo reexpone; `ModeLabel` sin "Guided" por defecto). Fuera de `ModePolicy` solo quedan la
+> elección del modo en `StartSession` y la etiqueta de `ModeLabel`. Tests: 169 (18 nuevos).
+
+- [x] `BLL/Scoring/ModePolicy.cs` (D-82): instancias de Guided y Assessment con las
       capacidades de la spec (`ShowsGuide`, `EnablesAllButtons`, `OutOfSequence`,
       `NoLogicButtons`, `PenalizesRetries`, `ForcesAdvance`, `FailureFeedback`,
       `HintOnDemand`, `AllowsSkip`, `Summary`) y `PenaltyFactor(attempt)` /
       `ForcesAdvanceAt(attempt)`. Un `SessionMode` desconocido es una excepción.
-- [ ] `ScoreCalculator.GetPenaltyFactor` / `ShouldForceAdvance` delegan en
+- [x] `ScoreCalculator.GetPenaltyFactor` / `ShouldForceAdvance` delegan en
       `ModePolicy.For(mode)`, con las mismas firmas.
-- [ ] `PodService.CheckSequence` y `MesFailure` preguntan `OutOfSequence`. `ClickNonStepAction`
+- [x] `PodService.CheckSequence` y `MesFailure` preguntan `OutOfSequence`. `ClickNonStepAction`
       pregunta `NoLogicButtons`.
-- [ ] `GuidedTest.aspx.cs`: los 8 puntos de "Lo que se verificó" pasan a la política
+- [x] `GuidedTest.aspx.cs`: los 8 puntos de "Lo que se verificó" pasan a la política
       (`ShowsGuide` para la guía, el reveal y `GuideNCCode`; `EnablesAllButtons`;
       `FailureFeedback`; `Summary`). La etiqueta y el badge del modo salen de un solo método,
       `ModeLabel`.
-- [ ] `TrainingApp.Test/ModePolicyTests.cs` (+ `<Compile Include>`): la tabla de capacidades
+- [x] `TrainingApp.Test/ModePolicyTests.cs` (+ `<Compile Include>`): la tabla de capacidades
       de Guided y Assessment, y las penalizaciones y el avance forzado iguales a los de hoy.
       `ScoreCalculatorTests` y `MesLoginRuleTests` en verde sin tocarlos.
-- [ ] Verificación: rebuild, `aspnet_compiler` (no debería cambiar el markup), tests y
+- [x] Verificación: rebuild, `aspnet_compiler` (no debería cambiar el markup), tests y
       regresión en el navegador de Guided y Assessment de una área Serialized y de Moldeo:
       - botones;
       - guía;

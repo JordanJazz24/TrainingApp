@@ -10,7 +10,7 @@ namespace TrainingApp.BLL.Scoring
         public const decimal PassingScore = 0.70m;
 
         // Assessment: último intento con puntaje; el siguiente fallo fuerza el avance.
-        public const int MaxScoredAttempts = 3;
+        public const int MaxScoredAttempts = ModePolicy.MaxScoredAttempts;
 
         public static bool IsPassed(decimal finalScore)
         {
@@ -37,25 +37,12 @@ namespace TrainingApp.BLL.Scoring
             return total;
         }
 
-        // Guided es práctica: acertar en cualquier intento vale el peso completo del paso. La
-        // penalización por reintento es solo de Assessment (CLAUDE.md → Modos de sesión;
-        // auditoría AUD-07, decisión D-2).
+        // Qué modo penaliza y cuándo fuerza el avance lo decide ModePolicy (spec 012, P-12;
+        // AUD-07, D-2).
         public static decimal GetPenaltyFactor(int attemptNumber, SessionMode mode)
-        {
-            if (mode == SessionMode.Guided) return 1.00m;
-
-            switch (attemptNumber)
-            {
-                case 1: return 1.00m;
-                case 2: return 0.80m;
-                case 3: return 0.60m;
-                default: return 0.00m;
-            }
-        }
+            => ModePolicy.For(mode).PenaltyFactor(attemptNumber);
 
         public static bool ShouldForceAdvance(int attemptNumber, SessionMode mode)
-        {
-            return mode == SessionMode.Assessment && attemptNumber > MaxScoredAttempts;
-        }
+            => ModePolicy.For(mode).ForcesAdvanceAt(attemptNumber);
     }
 }

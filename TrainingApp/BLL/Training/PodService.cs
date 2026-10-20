@@ -208,7 +208,7 @@ namespace TrainingApp.BLL.Training
         private PodCommandResult MesFailure(PodContext ctx, MesOutcome outcome, string action)
         {
             bool outOfSequence = outcome.Reason == AttemptReason.OutOfSequence;
-            if (outOfSequence && ctx.Session.Mode != SessionMode.Assessment)
+            if (outOfSequence && ctx.Policy.OutOfSequence != OutOfSequenceHandling.RecordAttempt)
                 return new PodCommandResult { OutOfSequence = true, MesScreen = outcome.Screen };
 
             return new PodCommandResult
@@ -825,25 +825,32 @@ namespace TrainingApp.BLL.Training
         // actual (S2); en Guided esos botones están deshabilitados. action: el botón (catálogo
         // de AttemptActions), para el registro de actividad.
         public PodCommandResult ClickNonStepAction(PodContext ctx, string action)
-            => CheckSequence(ctx, null, action) ?? new PodCommandResult();
+            => OutOfSequence(ctx, action, ctx.Policy.NoLogicButtons == NoLogicButtonHandling.RecordAttempt);
 
         // ── Secuencia y avance forzado ───────────────────────────────────
 
-        // null si el botón es el del paso actual. Si no: en Assessment, intento fallido del paso
-        // actual y, si avanzó forzado, el POD queda como si el paso se hubiera hecho; en
-        // Guided (o con la sesión ya cerrada) el click se ignora.
+        // null si el botón es el del paso actual. Si no: según ModePolicy, intento fallido del
+        // paso actual (Assessment) o se ignora (Guided).
         // action: el botón presionado, para el registro de actividad (spec 013, AC-20).
-        private PodCommandResult CheckSequence(PodContext ctx, StepType? clickedStepType, string action)
+        private PodCommandResult CheckSequence(PodContext ctx, StepType clickedStepType, string action)
         {
             var step = ctx.CurrentStep;
             if (step.StepType == clickedStepType) return null;
             // Spec 014 (P-7): el botón [Log NC] abre cualquiera de los pasos de Log NC.
-            if (clickedStepType.HasValue && StepTypes.IsLogNC(clickedStepType.Value) &&
-                StepTypes.IsLogNC(step.StepType))
+            if (StepTypes.IsLogNC(clickedStepType) && StepTypes.IsLogNC(step.StepType))
                 return null;
 
+            return OutOfSequence(ctx, action, ctx.Policy.OutOfSequence == OutOfSequenceHandling.RecordAttempt);
+        }
+
+        // Click que no es el del paso actual. Con recordAttempt, intento fallido del paso actual
+        // y, si avanzó forzado, el POD queda como si el paso se hubiera hecho; si no (o con la
+        // sesión ya cerrada) el click se ignora.
+        private PodCommandResult OutOfSequence(PodContext ctx, string action, bool recordAttempt)
+        {
+            var step   = ctx.CurrentStep;
             var result = new PodCommandResult { OutOfSequence = true };
-            if (ctx.Session.Mode != SessionMode.Assessment || ctx.Session.Status != SessionStatus.InProgress)
+            if (!recordAttempt || ctx.Session.Status != SessionStatus.InProgress)
                 return result;
 
             result.Step = RecordAttempt(ctx, step, isCorrect: false, AttemptReason.OutOfSequence, action);
@@ -1044,7 +1051,7 @@ namespace TrainingApp.BLL.Training
             var attempts = new List<TrainingSessionStepAttempt>(ctx.Attempts) { attempt };
             decimal score = _scoreCalc.CalculateSessionScore(ctx.Guide.Steps, attempts, session.Mode);
 
-            bool forceAdvance = ScoreCalculator.ShouldForceAdvance(attemptNumber, session.Mode);
+            bool forceAdvance = ctx.Policy.ForcesAdvanceAt(attemptNumber);
 
             StepSubmitResult result;
             if (!isCorrect && !forceAdvance)
