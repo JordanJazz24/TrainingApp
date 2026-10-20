@@ -35,12 +35,17 @@
                 <label class="form-label">Modo</label>
                 <div>
                     <asp:RadioButton ID="RbGuided" runat="server" GroupName="Mode"
-                        Text=" Guided (práctica, reintentos ilimitados)" Checked="true"
+                        Text=" Guided (Tutorial paso a paso)" Checked="true"
                         CssClass="form-check-input me-1" />
                 </div>
                 <div class="mt-1">
                     <asp:RadioButton ID="RbAssessment" runat="server" GroupName="Mode"
                         Text=" Assessment (evaluación con puntaje)"
+                        CssClass="form-check-input me-1" />
+                </div>
+                <div class="mt-1">
+                    <asp:RadioButton ID="RbFreePractice" runat="server" GroupName="Mode"
+                        Text=" Práctica libre (sin guía ni puntaje, con pistas)"
                         CssClass="form-check-input me-1" />
                 </div>
             </div>

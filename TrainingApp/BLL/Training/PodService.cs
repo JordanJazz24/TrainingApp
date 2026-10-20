@@ -186,7 +186,7 @@ namespace TrainingApp.BLL.Training
                     return new PodCommandResult { MesScreen = progress.ResumeScreen() };
 
                 case MesOutcomeKind.Failed:
-                    return MesFailure(ctx, outcome, AttemptActions.ForMesAction(action));
+                    return MesFailure(ctx, outcome, action, AttemptActions.ForMesAction(action));
             }
 
             if (action == MesAction.LogOn)
@@ -202,14 +202,23 @@ namespace TrainingApp.BLL.Training
             return new PodCommandResult { MesScreen = outcome.Screen };
         }
 
-        // Fallo de una pantalla del Ingreso o de la limpieza: uno de secuencia (el Repositorio
-        // fuera de su turno) en Guided se ignora sin intento, como un botón fuera de secuencia
-        // (S2); el resto registra el intento y dice a qué pantalla volver (P-4).
-        private PodCommandResult MesFailure(PodContext ctx, MesOutcome outcome, string action)
+        // Fallo de una pantalla del Ingreso o de la limpieza: uno de secuencia en Guided se
+        // ignora sin intento, como un botón fuera de secuencia (S2). En Práctica libre solo el
+        // Repositorio fuera de su turno es "otro paso" (aviso sin intento, P-4); Log On sin Hora
+        // a Hora es un error dentro del paso. El resto registra el intento y dice a qué pantalla
+        // volver (P-4).
+        private PodCommandResult MesFailure(PodContext ctx, MesOutcome outcome, MesAction mesAction, string action)
         {
             bool outOfSequence = outcome.Reason == AttemptReason.OutOfSequence;
-            if (outOfSequence && ctx.Policy.OutOfSequence != OutOfSequenceHandling.RecordAttempt)
-                return new PodCommandResult { OutOfSequence = true, MesScreen = outcome.Screen };
+            var  handling      = ctx.Policy.OutOfSequence;
+            if (outOfSequence && (handling == OutOfSequenceHandling.Ignore ||
+                                  handling == OutOfSequenceHandling.Notice && mesAction == MesAction.OpenRepository))
+                return new PodCommandResult
+                {
+                    OutOfSequence        = true,
+                    NotCurrentStepNotice = handling == OutOfSequenceHandling.Notice,
+                    MesScreen            = outcome.Screen
+                };
 
             return new PodCommandResult
             {
@@ -237,7 +246,7 @@ namespace TrainingApp.BLL.Training
                     return new PodCommandResult { MesScreen = progress.ResumeScreen() };
 
                 case MesOutcomeKind.Failed:
-                    return MesFailure(ctx, outcome, AttemptActions.ForLogoutCleanup(action));
+                    return MesFailure(ctx, outcome, action, AttemptActions.ForLogoutCleanup(action));
             }
 
             if (action == MesAction.RunScript)
@@ -824,13 +833,16 @@ namespace TrainingApp.BLL.Training
         // de Activities no tienen lógica: en Assessment el click es un intento fallido del paso
         // actual (S2); en Guided esos botones están deshabilitados. action: el botón (catálogo
         // de AttemptActions), para el registro de actividad.
+        // En Práctica libre no hacen nada, sin aviso (spec 012, P-5).
         public PodCommandResult ClickNonStepAction(PodContext ctx, string action)
-            => OutOfSequence(ctx, action, ctx.Policy.NoLogicButtons == NoLogicButtonHandling.RecordAttempt);
+            => OutOfSequence(ctx, action, ctx.Policy.NoLogicButtons == NoLogicButtonHandling.RecordAttempt
+                ? OutOfSequenceHandling.RecordAttempt
+                : OutOfSequenceHandling.Ignore);
 
         // ── Secuencia y avance forzado ───────────────────────────────────
 
         // null si el botón es el del paso actual. Si no: según ModePolicy, intento fallido del
-        // paso actual (Assessment) o se ignora (Guided).
+        // paso actual (Assessment), aviso sin intento (Práctica libre) o se ignora (Guided).
         // action: el botón presionado, para el registro de actividad (spec 013, AC-20).
         private PodCommandResult CheckSequence(PodContext ctx, StepType clickedStepType, string action)
         {
@@ -840,18 +852,23 @@ namespace TrainingApp.BLL.Training
             if (StepTypes.IsLogNC(clickedStepType) && StepTypes.IsLogNC(step.StepType))
                 return null;
 
-            return OutOfSequence(ctx, action, ctx.Policy.OutOfSequence == OutOfSequenceHandling.RecordAttempt);
+            return OutOfSequence(ctx, action, ctx.Policy.OutOfSequence);
         }
 
-        // Click que no es el del paso actual. Con recordAttempt, intento fallido del paso actual
-        // y, si avanzó forzado, el POD queda como si el paso se hubiera hecho; si no (o con la
-        // sesión ya cerrada) el click se ignora.
-        private PodCommandResult OutOfSequence(PodContext ctx, string action, bool recordAttempt)
+        // Click que no es el del paso actual. RecordAttempt: intento fallido del paso actual y,
+        // si avanzó forzado, el POD queda como si el paso se hubiera hecho. Notice: el aviso sin
+        // intento. Ignore (o con la sesión ya cerrada): el click se ignora.
+        private PodCommandResult OutOfSequence(PodContext ctx, string action, OutOfSequenceHandling handling)
         {
             var step   = ctx.CurrentStep;
             var result = new PodCommandResult { OutOfSequence = true };
-            if (!recordAttempt || ctx.Session.Status != SessionStatus.InProgress)
+            if (ctx.Session.Status != SessionStatus.InProgress)
                 return result;
+            if (handling != OutOfSequenceHandling.RecordAttempt)
+            {
+                result.NotCurrentStepNotice = handling == OutOfSequenceHandling.Notice;
+                return result;
+            }
 
             result.Step = RecordAttempt(ctx, step, isCorrect: false, AttemptReason.OutOfSequence, action);
             if (result.Step.Outcome == StepSubmitOutcome.FailedForced)

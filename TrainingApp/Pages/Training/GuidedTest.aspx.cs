@@ -307,7 +307,9 @@ namespace TrainingApp.Pages.Training
             // Guided: abrir el Repositorio fuera de su turno (antes del script del Ingreso o en
             // la limpieza) se ignora, sin intento, como un botón fuera de secuencia; la guía (E4)
             // no lo deja. Mientras tanto, un aviso que no parece un error calificado.
-            if (result.OutOfSequence)
+            if (result.NotCurrentStepNotice)
+                ShowNotCurrentStepNotice();
+            else if (result.OutOfSequence)
                 ShowSweetAlert("info", cleanup ? "Limpieza al salir" : "Antes del Repositorio",
                     cleanup
                         ? "Después del Logout no se abre el Repositorio: ejecute el script de limpieza (MES Limpiar historial y cache) con su Code1."
@@ -752,15 +754,24 @@ namespace TrainingApp.Pages.Training
             }
         }
 
+        // Botón de otro paso sin intento (D-88).
+        private void ShowNotCurrentStepNotice()
+            => ShowSweetAlert("info", "Otro paso", "Ese no es el paso actual.");
+
         // Assessment (S2): todos los botones del POD están habilitados y un click en uno que
         // no es el del paso actual es un intento fallido de ese paso (lo decide la BLL antes que
         // cualquier aviso de formato). Devuelve true si el click fue fuera de secuencia; en
-        // Guided esos botones están deshabilitados y el click se ignora.
+        // Guided esos botones están deshabilitados y el click se ignora; en Práctica libre, el
+        // aviso sin intento (D-88).
         private bool HandleOutOfSequence(PodCommandResult result, TrainingSession session,
             TrainingGuide guide, Area area, TrainingStep step)
         {
             if (!result.OutOfSequence) return false;
-            if (result.Step == null) return true;
+            if (result.Step == null)
+            {
+                if (result.NotCurrentStepNotice) ShowNotCurrentStepNotice();
+                return true;
+            }
 
             ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
             if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
@@ -861,6 +872,10 @@ namespace TrainingApp.Pages.Training
                     ? string.Format("Respuesta incorrecta. Te quedan {0} intento(s) con puntaje.", remainingScoredAttempts)
                     : "Respuesta incorrecta. Si vuelves a fallar, el paso se marca fallido y avanza.";
             }
+
+            // Práctica libre (P-6): sin intentos restantes; la pista se pide con Ver pista.
+            if (policy.FailureFeedback == FailureFeedbackKind.Incorrect)
+                return "Respuesta incorrecta.";
 
             if (!string.IsNullOrEmpty(incorrectFeedback)) return incorrectFeedback;
             string hint = GetHint(stepType);
@@ -1254,6 +1269,8 @@ namespace TrainingApp.Pages.Training
             BtnLogout.Disabled   = false;
             BtnLogout.Attributes["data-guide-free"] = string.Empty;
 
+            // P-11: Práctica libre calcula el puntaje pero no lo muestra.
+            PnlFinalScore.Visible = _ctx.Policy.ShowsScore;
             decimal finalScore = session.FinalScore * 100m;
             LitFinalScore.Text   = finalScore.ToString("F1") + "%";
             LitFinalMode.Text    = ModeLabel(_ctx.Policy).Label;
@@ -1523,6 +1540,7 @@ namespace TrainingApp.Pages.Training
         {
             // Puntaje del contexto: el de la carga o el del último intento registrado (AUD-25).
             LitScore.Text = FormatScore(_ctx.Score);
+            PnlScore.Visible = _ctx.Policy.ShowsScore;
 
             var (label, badgeClass) = ModeLabel(_ctx.Policy);
             LitModeBadge.Text = string.Format(
@@ -1536,6 +1554,7 @@ namespace TrainingApp.Pages.Training
             {
                 case SessionMode.Guided:     return ("Guided", "badge badge-guided");
                 case SessionMode.Assessment: return ("Assessment", "badge badge-assessment");
+                case SessionMode.FreePractice: return ("Práctica libre", "badge badge-practice");
                 default: throw new ArgumentOutOfRangeException(nameof(policy), policy.Mode, "Modo sin etiqueta.");
             }
         }

@@ -2,7 +2,7 @@ using System;
 
 namespace TrainingApp.Domain
 {
-    public enum SessionMode { Guided, Assessment }
+    public enum SessionMode { Guided, Assessment, FreePractice }
     public enum SessionStatus { InProgress, Completed, Abandoned }
 
     public class TrainingSession

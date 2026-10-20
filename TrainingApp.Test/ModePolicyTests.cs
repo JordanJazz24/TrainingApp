@@ -15,8 +15,57 @@ namespace TrainingApp.Test
         {
             Assert.That(ModePolicy.For(SessionMode.Guided), Is.SameAs(ModePolicy.Guided));
             Assert.That(ModePolicy.For(SessionMode.Assessment), Is.SameAs(ModePolicy.Assessment));
+            Assert.That(ModePolicy.For(SessionMode.FreePractice), Is.SameAs(ModePolicy.FreePractice));
             Assert.That(ModePolicy.Guided.Mode, Is.EqualTo(SessionMode.Guided));
             Assert.That(ModePolicy.Assessment.Mode, Is.EqualTo(SessionMode.Assessment));
+            Assert.That(ModePolicy.FreePractice.Mode, Is.EqualTo(SessionMode.FreePractice));
+        }
+
+        // P-1: el valor que se guarda en TrainingSessions.Mode.
+        [Test]
+        public void FreePractice_IsStoredAsTwo()
+        {
+            Assert.That((int)SessionMode.FreePractice, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void FreePractice_Capabilities()
+        {
+            var p = ModePolicy.FreePractice;
+            Assert.Multiple(new Action(() =>
+            {
+                Assert.That(p.ShowsGuide, Is.False);
+                Assert.That(p.EnablesAllButtons, Is.True);
+                Assert.That(p.OutOfSequence, Is.EqualTo(OutOfSequenceHandling.Notice));
+                Assert.That(p.NoLogicButtons, Is.EqualTo(NoLogicButtonHandling.Inert));
+                Assert.That(p.PenalizesRetries, Is.False);
+                Assert.That(p.ForcesAdvance, Is.False);
+                Assert.That(p.FailureFeedback, Is.EqualTo(FailureFeedbackKind.Incorrect));
+                Assert.That(p.HintOnDemand, Is.True);
+                Assert.That(p.AllowsSkip, Is.True);
+                Assert.That(p.Summary, Is.EqualTo(SummaryKind.AttemptsPerStep));
+                Assert.That(p.ShowsScore, Is.False);
+            }));
+        }
+
+        [Test]
+        public void GuidedAndAssessment_ShowScore()
+        {
+            Assert.That(ModePolicy.Guided.ShowsScore, Is.True);
+            Assert.That(ModePolicy.Assessment.ShowsScore, Is.True);
+        }
+
+        // P-7: sin penalización y sin avance forzado, en cualquier intento.
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(4)]
+        [TestCase(10)]
+        public void FreePractice_NeverPenalizesNorForcesAdvance(int attemptNumber)
+        {
+            Assert.That(ModePolicy.FreePractice.PenaltyFactor(attemptNumber), Is.EqualTo(1.00m));
+            Assert.That(ModePolicy.FreePractice.ForcesAdvanceAt(attemptNumber), Is.False);
+            Assert.That(ScoreCalculator.GetPenaltyFactor(attemptNumber, SessionMode.FreePractice), Is.EqualTo(1.00m));
+            Assert.That(ScoreCalculator.ShouldForceAdvance(attemptNumber, SessionMode.FreePractice), Is.False);
         }
 
         [Test]

@@ -345,9 +345,9 @@
     <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
         <div class="pod-completion-card" data-guide="pod-final">
             <h3 class="mb-4">Session Complete</h3>
-            <div class="mb-3 fs-4">
+            <asp:Panel ID="PnlFinalScore" runat="server" CssClass="mb-3 fs-4">
                 Score: <strong><asp:Literal ID="LitFinalScore" runat="server" /></strong>
-            </div>
+            </asp:Panel>
             <div class="mb-2">
                 Mode: <asp:Literal ID="LitFinalMode" runat="server" />
             </div>

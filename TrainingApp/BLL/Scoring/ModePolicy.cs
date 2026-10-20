@@ -27,20 +27,27 @@ namespace TrainingApp.BLL.Scoring
             showsGuide: true, enablesAllButtons: false,
             outOfSequence: OutOfSequenceHandling.Ignore, noLogicButtons: NoLogicButtonHandling.Disabled,
             penalizesRetries: false, forcesAdvance: false, failureFeedback: FailureFeedbackKind.Hint,
-            hintOnDemand: false, allowsSkip: false, summary: SummaryKind.Score);
+            hintOnDemand: false, allowsSkip: false, showsScore: true, summary: SummaryKind.Score);
 
         public static readonly ModePolicy Assessment = new ModePolicy(SessionMode.Assessment,
             showsGuide: false, enablesAllButtons: true,
             outOfSequence: OutOfSequenceHandling.RecordAttempt, noLogicButtons: NoLogicButtonHandling.RecordAttempt,
             penalizesRetries: true, forcesAdvance: true, failureFeedback: FailureFeedbackKind.RemainingAttempts,
-            hintOnDemand: false, allowsSkip: false, summary: SummaryKind.ScoreAndResult);
+            hintOnDemand: false, allowsSkip: false, showsScore: true, summary: SummaryKind.ScoreAndResult);
+
+        public static readonly ModePolicy FreePractice = new ModePolicy(SessionMode.FreePractice,
+            showsGuide: false, enablesAllButtons: true,
+            outOfSequence: OutOfSequenceHandling.Notice, noLogicButtons: NoLogicButtonHandling.Inert,
+            penalizesRetries: false, forcesAdvance: false, failureFeedback: FailureFeedbackKind.Incorrect,
+            hintOnDemand: true, allowsSkip: true, showsScore: false, summary: SummaryKind.AttemptsPerStep);
 
         public static ModePolicy For(SessionMode mode)
         {
             switch (mode)
             {
-                case SessionMode.Guided:     return Guided;
-                case SessionMode.Assessment: return Assessment;
+                case SessionMode.Guided:       return Guided;
+                case SessionMode.Assessment:   return Assessment;
+                case SessionMode.FreePractice: return FreePractice;
                 default: throw new ArgumentOutOfRangeException(nameof(mode), mode, "Modo de sesión desconocido.");
             }
         }
@@ -48,8 +55,9 @@ namespace TrainingApp.BLL.Scoring
         private ModePolicy(SessionMode mode, bool showsGuide, bool enablesAllButtons,
             OutOfSequenceHandling outOfSequence, NoLogicButtonHandling noLogicButtons,
             bool penalizesRetries, bool forcesAdvance, FailureFeedbackKind failureFeedback,
-            bool hintOnDemand, bool allowsSkip, SummaryKind summary)
+            bool hintOnDemand, bool allowsSkip, bool showsScore, SummaryKind summary)
         {
+            ShowsScore        = showsScore;
             Mode              = mode;
             ShowsGuide        = showsGuide;
             EnablesAllButtons = enablesAllButtons;
@@ -77,6 +85,9 @@ namespace TrainingApp.BLL.Scoring
         public bool HintOnDemand { get; }
         public bool AllowsSkip { get; }
         public SummaryKind Summary { get; }
+
+        // Puntaje en el header y en el resumen (D-90): no en Práctica libre.
+        public bool ShowsScore { get; }
 
         // Factor del peso del paso según el intento en que acertó.
         public decimal PenaltyFactor(int attemptNumber)

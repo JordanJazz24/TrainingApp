@@ -116,7 +116,7 @@ CREATE TABLE dbo.TrainingSteps (
 
 -- -------------------------------------------------------
 -- TrainingSessions
--- Mode:   0=Guided, 1=Assessment
+-- Mode:   0=Guided, 1=Assessment, 2=FreePractice
 -- Status: 0=InProgress, 1=Completed, 2=Abandoned
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSessions', 'U') IS NULL

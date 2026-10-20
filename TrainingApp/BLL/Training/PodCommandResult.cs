@@ -37,6 +37,10 @@ namespace TrainingApp.BLL.Training
         // null (Guided: el click se ignora).
         public bool OutOfSequence { get; set; }
 
+        // Fuera de secuencia sin intento, con el aviso "Ese no es el paso actual." (Práctica
+        // libre, spec 012, D-88).
+        public bool NotCurrentStepNotice { get; set; }
+
         // Avance forzado por secuencia: la BLL dejó el POD como si el paso se hubiera hecho y
         // la página lo tiene que volver a pintar.
         public bool PodChanged { get; set; }

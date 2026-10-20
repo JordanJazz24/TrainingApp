@@ -97,6 +97,7 @@ body {
 
 .badge-guided    { background-color: #0d6efd; color: #fff; }
 .badge-assessment{ background-color: #dc3545; color: #fff; }
+.badge-practice  { background-color: #198754; color: #fff; }
 
 /* ── Banner (entre el header y el POD Search) ───────────── */
 .pod-banner {

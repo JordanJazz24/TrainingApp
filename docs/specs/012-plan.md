@@ -138,16 +138,23 @@ en el navegador, "funciona" y commit con el roadmap.
 - **Review:** `high` (toca el puntaje, la secuencia y todo el POD), foco en la equivalencia
   de comportamiento.
 
-## Entrega 2 — El modo Práctica libre (P-1 a P-7; AC-3 a AC-8, AC-14)
+## Entrega 2 — El modo Práctica libre (P-1 a P-7; AC-3 a AC-8, AC-14) ✅
 
-- [ ] `Domain/TrainingSession.cs`: `SessionMode.FreePractice = 2`. Columna de Práctica libre
+> **Cerrada el 2026-10-20**, probada por el usuario. Review `medium`: 1 error corregido (en el
+> Ingreso, Log On sin Hora a Hora también llega como `OutOfSequence`: en Práctica libre es
+> intento fallido del paso y solo el Repositorio fuera de turno da el aviso de D-88); además,
+> `ShowsScore` como capacidad propia, `OutOfSequence` recibe el `OutOfSequenceHandling` y el
+> título del aviso es "Otro paso". El aviso viaja en `PodCommandResult.NotCurrentStepNotice`.
+> El resumen de esta entrega oculta el puntaje; la tabla por paso es de la E4. Tests: 176.
+
+- [x] `Domain/TrainingSession.cs`: `SessionMode.FreePractice = 2`. Columna de Práctica libre
       en `ModePolicy`. `00_Schema.sql`: comentario `Mode: … 2=FreePractice` (solo comentario,
       el usuario no necesita correr nada).
-- [ ] `StartSession.aspx(.cs)`: tercer radio `RbFreePractice`, " Práctica libre (sin guía ni
+- [x] `StartSession.aspx(.cs)`: tercer radio `RbFreePractice`, " Práctica libre (sin guía ni
       puntaje, con pistas)". Guided sigue preseleccionado.
-- [ ] Etiqueta "Práctica libre" en el header (badge `badge-practice` en `pod.css`), en
+- [x] Etiqueta "Práctica libre" en el header (badge `badge-practice` en `pod.css`), en
       `LitMesMode` y en el resumen (`LitFinalMode` deja de usar `Mode.ToString()`).
-- [ ] Comportamiento por política, sin ramas nuevas:
+- [x] Comportamiento por política, sin ramas nuevas:
   - sin guía;
   - todos los botones habilitados;
   - panel del hallazgo visible de inmediato;
@@ -157,10 +164,10 @@ en el navegador, "funciona" y commit con el roadmap.
   - botones sin lógica inertes;
   - fallo con "Respuesta incorrecta.", sin intentos restantes;
   - sin penalización ni avance forzado.
-- [ ] D-90 (si se confirma): `PnlScore` oculto.
-- [ ] Tests: `ModePolicyTests` con la columna de Práctica libre (penalización 1.00 en todo
+- [x] D-90 (si se confirma): `PnlScore` oculto.
+- [x] Tests: `ModePolicyTests` con la columna de Práctica libre (penalización 1.00 en todo
       intento y nunca fuerza el avance).
-- [ ] Verificación: rebuild, `aspnet_compiler` y tests. Checklist en el navegador con una
+- [x] Verificación: rebuild, `aspnet_compiler` y tests. Checklist en el navegador con una
       sesión de LoFlo y una de Moldeo de punta a punta:
   - botón de otro paso (también en el Ingreso y la limpieza);
   - Logout antes de tiempo;

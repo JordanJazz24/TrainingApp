@@ -60,7 +60,9 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
-            var mode = RbAssessment.Checked ? SessionMode.Assessment : SessionMode.Guided;
+            var mode = RbAssessment.Checked   ? SessionMode.Assessment
+                     : RbFreePractice.Checked ? SessionMode.FreePractice
+                     : SessionMode.Guided;
             int userId = (int)Session[Constants.SessionKeys.UserId];
 
             // D-9 y AUD-41: deja una sola sesión en curso, también en el estado del POD.
