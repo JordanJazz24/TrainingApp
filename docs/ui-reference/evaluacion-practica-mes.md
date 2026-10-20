@@ -138,7 +138,9 @@ distinto) · ❌ no existe · 🧠 comprensión (no se ejecuta en el POD).
   expirado, batch inválido y cantidad insuficiente (Assembly); alertas de parámetros fuera
   de límites (DC). Ninguno tiene captura. Con el acceso al sandbox (T9) se pueden capturar.
   *(Enmienda 2026-10-20: la WI de Costa Rica sí trae la captura y el texto del batch
-  inválido y de la cantidad insuficiente (22801); el resto sigue sin texto. Catálogo por
+  inválido y de la cantidad insuficiente (22801), y el testing aportó `13252` (probable
+  componente no requerido) y los `22501` de Line Clearance. Siguen sin texto: SFC iniciado
+  en otro recurso, material expirado, DC fuera de límites y Resource Setup. Catálogo por
   paso en `errores-mes.md`.)*
 - **EP-6 · W13 vuelve a tener respaldo.** La evaluación pide verificar Inventory SFC, Batch
   Number o Material Document Number según el material. Es una de las condiciones para
