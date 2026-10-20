@@ -1,6 +1,6 @@
 # Plan — Spec 012: Práctica libre
 
-**Spec:** `012-modo-practica.md` (aprobada 2026-10-20) · **Estado:** **propuesto**, con las
+**Spec:** `012-modo-practica.md` (aprobada 2026-10-20) · **Estado:** **aprobado por el usuario el 2026-10-20**, con las
 decisiones D-82 a D-90 y los "Puntos confirmados" del final.
 **Autoría:** sesión de Arquitectura y Planeación, verificado contra el código. Lo ejecuta
 Desarrollo (`docs/process.md` → "Tres sesiones de trabajo").
