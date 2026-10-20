@@ -35,9 +35,11 @@ con "!" en el POD o franja roja dentro de la ventana (medidas y comportamiento:
 | SFC iniciado en otro recurso | ❔ El MES responde antes con los avisos de Line Clearance (`22501`); el mensaje propio no se alcanzó y el usuario de testing no puede liberar el SFC activo (`16034`) | 🧪📸 |
 | Material sensible al tiempo expirado | ❔ La operación probada no tiene componentes sensibles al tiempo; solo salió `15357` al abrir TSM Check In/Out | 🧪📸 |
 
-Más los 4 de Resource Setup (EP-4): ninguno tiene texto; la ventana es una emergente que la
-extensión del navegador no controla. En cambio, el testing dio **muchos mensajes que nadie
-pidió** (Line Clearance, Start, Assemble, DC, Complete, Log NC y Split): están en cada paso.
+Más los de Resource Setup (EP-4): se capturaron los del **Custom** Resource Setup (faltan
+herramientas, otro grupo, inexistente); siguen sin texto "otro recurso" y "expirada", y no se
+sabe qué dice el Standard, que es el que modela el simulador. Además, el testing dio **muchos
+mensajes que nadie pidió** (Line Clearance, Start, Assemble, DC, Complete, Log NC, Split y Tool
+List): están en cada paso.
 
 ---
 
@@ -50,21 +52,60 @@ Inválida") son de la herramienta de Shelf Life, no de este paso.
 
 ## 1. Resource Setup
 
-La WI de Costa Rica y la de Colorado solo dicen "el sistema mostrará un error". Es una app de
-SAP MII (Custom Resource Setup) en una **ventana emergente aparte**: ni la auditoría del 19 ni
-la sesión con Chrome del 20 pudieron medirla o controlarla. Según el usuario (2026-10-20), el
-simulador **no usa por ahora** esa app, aunque los mensajes de error deberían ser los mismos.
+**Hay dos pantallas** (CO 6.5; cuál se usa lo fija la configuración del POD): el **Standard**,
+con filas `Setup Type` / `Setup Type Value` (Insert New, Shop Order y Tool Number a mano, sin
+saber qué grupos pide la operación), y el **Custom**, que precarga los grupos de herramientas
+de la operación y se llena así: Setup State → Shop Order → *Associate New ShopOrder* → un Tool
+Number por grupo → Save → Yes. **El simulador modela el Standard** (y, según el usuario,
+2026-10-20, no usa por ahora el Custom, aunque los mensajes de error deberían ser los mismos).
+**El recurso de testing (`R_OMNI_FIRST_DISTAL_1`) usa el Custom**, así que todo lo capturado
+abajo es del Custom: son **ventanas modales dentro de la app** (título "Error" o
+"Information"), **sin número de mensaje**, en una emergente fuera del POD.
+
+Mensajes del Custom Resource Setup (🧪📸):
+
+| Situación | Mensaje | Captura |
+|---|---|---|
+| Retrieve sin herramientas asociadas | Information · `No tool number association exists in resource set up. Please click: Associate New Shoporder button to verify once.` | `resource setup - retrieve sin herramientas asociadas.png` |
+| Associate New ShopOrder | Information · `Shoporder is associated in resource setup. Please associate tool numbers as well`; carga los 8 grupos de la operación (`TG_FLUID_DISPENSER`, `TG_HEATER_BLOCK`, `TG_HOLE_GAUGE`, `TG_RULER`, `TG_SOLDERING_STATION`, `TG_TIMER`, `TG_UV_LIGHT`, `TG_WELLER_HOT_AIR`) | `resource setup - shop order asociada pide herramientas.png` |
+| Save con **menos herramientas** que los grupos | Error · `Please enter all configured tool numbers for tool groups.` Sale igual con Setup State "Not Set Up" | `resource setup - faltan herramientas.png` |
+| Herramienta de **otro grupo** | Error · `Tool number: 10080229 does not belong to tool group: TG_HOLE_GAUGE`. Sale **al salir del campo**, antes del Save | `resource setup - herramienta de otro grupo.png` |
+| Herramienta **inexistente** | Error · `Tool number: 99999999 is invalid.` (al salir del campo) | `resource setup - herramienta inexistente.png` |
+| Grupo **sin herramientas habilitadas** (buscador de `TG_HEATER_BLOCK`) | `No Configured Tools found with Enabled Status . Please configure tool in Tool Maintenance`. Es lo más cercano a "herramienta no disponible" | `resource setup - grupo sin herramientas habilitadas.png` |
+
+Setup State ofrece: Set Up, Breaking Down, Open, Not Set Up y Setting Up. En esa operación
+`TG_HEATER_BLOCK` no tiene herramientas habilitadas: **no se puede guardar un setup completo**,
+así que los chequeos propios del Save (p. ej. herramienta en otro recurso) no se alcanzaron.
+
+Lo que las WI dicen y siguen sin dar texto (❔), para los dos tipos de pantalla:
 
 | Situación | Mensaje | Evidencia | Hoy en el simulador |
 |---|---|---|---|
 | Start antes de completar Resource Setup | ❔ No se probó: no hubo un recurso sin setup. Sin Line Clearance desde el último setup sale `22501` (ver Line Clearance) | 📝 CR y CO | Aviso `ResourceSetupRequired` ("Debes completar Resource Setup antes de iniciar."), sin intento; en Assessment el click fuera de secuencia es intento fallido |
-| Herramienta ya configurada en **otro recurso** | ❔ | 📝 CR y CO | No se simula: acepta valores libres (decisión vigente) |
-| **Menos** herramientas que las requeridas (CO: también más) | ❔ | 📝 CR y CO | No se simula; solo se exige ≥ 1 Tool Number (W3) |
-| Herramienta de **otro grupo** (un micrómetro en vez de una regla) o equivocada | ❔ | 📝 CR y CO | No se simula; haría falta un catálogo de herramientas por área (W5) |
-| Herramienta **expirada** o no disponible (estado Unscheduled Down o Scheduled Down, según CO) | ❔ | 📝 CR y CO | No se simula |
+| Herramienta ya configurada en **otro recurso** | ❔ Las WI solo dicen que sale un error (una herramienta se configura en un recurso a la vez) | 📝 CR y CO | No se simula: acepta valores libres (decisión vigente) |
+| **Menos** herramientas que las requeridas (CO: también más) | ✅ en el Custom (arriba); en el Standard ❔ | 🧪📸 · 📝 | No se simula; solo se exige ≥ 1 Tool Number (W3) |
+| Herramienta de **otro grupo** (un micrómetro en vez de una regla) | ✅ en el Custom (arriba); el Standard no conoce los grupos, ❔ | 🧪📸 · 📝 | No se simula; haría falta un catálogo de herramientas por área (W5) |
+| Herramienta **expirada** o no disponible | ❔ Las WI dicen que sale un error y que una herramienta Scheduled o Unscheduled Down no sirve para producción. No existe un estado "Expired" (Apéndice B de CO: Enabled, Productive, Standby, Engineering, Disabled, Scheduled Down, Unscheduled Down, Non-scheduled, Holds). El Custom solo ofrece herramientas en estado Enabled | 📝 CR y CO | No se simula |
 
 Éxito (no es error): "Se mostrará un mensaje que indica que se aplicó el cambio"; la
 captura `record changed correcto.png` ya está en el repo.
+
+### Tool List (botón del POD)
+
+Es el Log Tool estándar de SAP ME por SFC (una herramienta por grupo, Qty Logged 1). Solo
+muestra herramientas en estado Enabled (CO 6.7.2), así que **no sirve para encontrar una
+expirada o caída**. Errores en la franja de la ventana `Log Tool Entry`, 🧪📸:
+
+| Situación | Mensaje | Captura |
+|---|---|---|
+| Herramienta de otro grupo | `Tool "10080229" does not belong to tool group "TG_HOLE_GAUGE" (Message 16625)` | `tool list - herramienta de otro grupo 16625.png` |
+| Herramienta inexistente | `Tool Number "99999999" does not exist. (Message 12103)` | `tool list - herramienta inexistente 12103.png` |
+
+El mismo error tiene **texto y número distintos** en Resource Setup (sin número) y en Tool
+List (`16625` / `12103`). El estado de una herramienta se ve y se cambia en *Activity Manager →
+Tool Number Maintenance* (Retrieve; el menú Status; Save escribe) o en *Activities → Change
+Equipment Status Tool*, que según la WI de Costa Rica exige ser técnico de ingeniería,
+ingeniero de manufactura o supervisor.
 
 ## 2. Line Clearance (apertura y cierre)
 
@@ -209,7 +250,8 @@ Lo que sigue ❔. Guardar la captura en `Screens SAP MES REAL/Errores/<paso> - <
 
 | Caso | Qué falta |
 |---|---|
-| Resource Setup: herramienta en dos recursos, de menos, de otro grupo, expirada o caída; Start sin setup | La ventana es una emergente fuera de la extensión: captura **manual** del usuario o control de escritorio. Además, un recurso sin setup. Prioridad menor: el simulador no usa esa app por ahora |
+| Resource Setup: herramienta en **otro recurso**, **expirada** o caída; Start sin setup | Guardar un setup completo: `TG_HEATER_BLOCK` no tiene herramientas habilitadas en `O_OMNI_FIRST_DISTAL`, así que hace falta otra operación/recurso o habilitar una herramienta (*Tool Number Maintenance*, que escribe y puede exigir permiso). Un recurso sin setup para el Start |
+| Resource Setup **Standard** (el que modela el simulador) | Un recurso del testing configurado con el Standard, o confirmar con el usuario que los textos del Custom valen |
 | SFC ya iniciado en **otro** recurso (mensaje propio) | Pasar antes los chequeos de LC. El usuario de testing **no puede** hacer `Place back in queue` (`Permissions or settings are required to run activity PR520 (Message 16034)`, 📸 `place back in queue - sin permiso PR520 16034.png`): hace falta otro usuario con ese permiso, o dos recursos con LC compatibles |
 | Material sensible al tiempo **expirado** | Una operación con componentes TSM y una etiqueta vencida; `O_OMNI_FIRST_DISTAL` no las tiene |
 | `Too much time has passed since last Line Clearance` | Solo hay texto, falta la captura |
@@ -226,6 +268,10 @@ Reportadas por la sesión que hizo las capturas, con el permiso del usuario:
 - Segunda tanda: un **Save Draft** en `DCGTM_WELDING_MACHINE` con `-99999` para el SFC
   `42812` (`R_OMNI_FIRST_DISTAL_2`). Nada más se guardó: todos los Save fallaron por
   validación y no se registró ningún NC.
+
+- Resource Setup (Custom, `R_OMNI_FIRST_DISTAL_1`): *Associate New ShopOrder* asoció la Shop
+  Order `303627317` (ya era la misma). Todos los Save fallaron por validación: no se guardó
+  ninguna herramienta. En Tool List no se registró ninguna herramienta.
 
 Es estado que quedó en un ambiente compartido: conviene que el usuario decida cómo
 restablecer el LC y el SFC 43000 (con un usuario que tenga el permiso PR520).
@@ -266,3 +312,9 @@ restablecer el LC y el SFC 43000 (con un usuario que tenga el permiso PR520).
    Split) es la AUD-63/64/69 de la auditoría de fidelidad, pendiente de aprobación. La 017
    depende de esa variante visual: definir si la construye ella o la auditoría.
 10. **Time-Based Assembly** (10059) queda fuera mientras ningún área lo use.
+11. **Resource Setup: los textos capturados son del Custom, el simulador modela el Standard.**
+    El Custom precarga los grupos de herramientas de la operación y valida "otro grupo" e
+    "inexistente" al salir del campo; el Standard recibe filas libres y no conoce los grupos.
+    Si la 017 usa estos mensajes, hay que decidir si el simulador gana grupos de herramientas
+    por área (la idea de W5) o si basta con el aviso "faltan herramientas". Los mensajes del
+    Custom no llevan número; los de Tool List sí (`16625`, `12103`).
