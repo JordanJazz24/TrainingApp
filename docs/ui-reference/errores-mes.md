@@ -71,11 +71,22 @@ Mensajes del Custom Resource Setup (🧪📸):
 | Save con **menos herramientas** que los grupos | Error · `Please enter all configured tool numbers for tool groups.` Sale igual con Setup State "Not Set Up" | `resource setup - faltan herramientas.png` |
 | Herramienta de **otro grupo** | Error · `Tool number: 10080229 does not belong to tool group: TG_HOLE_GAUGE`. Sale **al salir del campo**, antes del Save | `resource setup - herramienta de otro grupo.png` |
 | Herramienta **inexistente** | Error · `Tool number: 99999999 is invalid.` (al salir del campo) | `resource setup - herramienta inexistente.png` |
+| Herramienta en un estado que **no es Enabled** | Error · `Can not log tool number. Tool number: 10/27/22 is in Productive status.` Sale **al presionar Save**, no al salir del campo (el campo acepta cualquier herramienta existente del grupo). Los números de herramienta del catálogo de testing parecen fechas. Inferencia de la otra sesión, sin ver: con Down el texto sería `…is in Unscheduled Down status.` | `resource setup - herramienta en estado no enabled.png` |
 | Grupo **sin herramientas habilitadas** (buscador de `TG_HEATER_BLOCK`) | `No Configured Tools found with Enabled Status . Please configure tool in Tool Maintenance`. Es lo más cercano a "herramienta no disponible" | `resource setup - grupo sin herramientas habilitadas.png` |
 
 Setup State ofrece: Set Up, Breaking Down, Open, Not Set Up y Setting Up. En esa operación
 `TG_HEATER_BLOCK` no tiene herramientas habilitadas: **no se puede guardar un setup completo**,
 así que los chequeos propios del Save (p. ej. herramienta en otro recurso) no se alcanzaron.
+
+**Estado y vencimiento de las herramientas.** El buscador de *Activities → Change Equipment
+Status Tool* lista cada herramienta con su **Status** y su **Expiration Date**, y hay
+vencidas (la sesión reporta, p. ej., una regla Enabled vencida y un bloque de calentamiento
+Productive vencido). La regla Enabled vencida **se aceptó al salir del campo**; no se vio si
+el Save rechaza la expiración, porque el bloque Productive falló antes. Estados de *New
+Status* en el MES: Unknown, Productive, Standby, Engineering, Enabled, Disabled, Hold, Hold
+Yield Rate, Hold Consec NC, Hold SPC Viol, Hold SPC Warn, Scheduled Down, Unscheduled Down y
+Non-Scheduled. El cambio de estado (Change Status) quedó bloqueado por permisos: no se
+cambió ningún estado.
 
 Lo que las WI dicen y siguen sin dar texto (❔), para los dos tipos de pantalla:
 
@@ -85,7 +96,8 @@ Lo que las WI dicen y siguen sin dar texto (❔), para los dos tipos de pantalla
 | Herramienta ya configurada en **otro recurso** | ❔ Las WI solo dicen que sale un error (una herramienta se configura en un recurso a la vez) | 📝 CR y CO | No se simula: acepta valores libres (decisión vigente) |
 | **Menos** herramientas que las requeridas (CO: también más) | ✅ en el Custom (arriba); en el Standard ❔ | 🧪📸 · 📝 | No se simula; solo se exige ≥ 1 Tool Number (W3) |
 | Herramienta de **otro grupo** (un micrómetro en vez de una regla) | ✅ en el Custom (arriba); el Standard no conoce los grupos, ❔ | 🧪📸 · 📝 | No se simula; haría falta un catálogo de herramientas por área (W5) |
-| Herramienta **expirada** o no disponible | ❔ Las WI dicen que sale un error y que una herramienta Scheduled o Unscheduled Down no sirve para producción. No existe un estado "Expired" (Apéndice B de CO: Enabled, Productive, Standby, Engineering, Disabled, Scheduled Down, Unscheduled Down, Non-scheduled, Holds). El Custom solo ofrece herramientas en estado Enabled | 📝 CR y CO | No se simula |
+| Herramienta **no disponible** (estado que no es Enabled) | ✅ en el Custom, al Save: `Can not log tool number. Tool number: <n> is in <status> status.` (visto con Productive). Las WI dicen que una Scheduled o Unscheduled Down no sirve para producción | 🧪📸 · 📝 | No se simula |
+| Herramienta **expirada** (solo por fecha de vencimiento) | ❔ No existe un estado "Expired": el vencimiento es un dato aparte (Expiration Date). Sin texto: la regla vencida en Enabled pasó el campo y no se llegó a ver el Save | 📝 CR | No se simula |
 
 Éxito (no es error): "Se mostrará un mensaje que indica que se aplicó el cambio"; la
 captura `record changed correcto.png` ya está en el repo.
@@ -250,7 +262,7 @@ Lo que sigue ❔. Guardar la captura en `Screens SAP MES REAL/Errores/<paso> - <
 
 | Caso | Qué falta |
 |---|---|
-| Resource Setup: herramienta en **otro recurso**, **expirada** o caída; Start sin setup | Guardar un setup completo: `TG_HEATER_BLOCK` no tiene herramientas habilitadas en `O_OMNI_FIRST_DISTAL`, así que hace falta otra operación/recurso o habilitar una herramienta (*Tool Number Maintenance*, que escribe y puede exigir permiso). Un recurso sin setup para el Start |
+| Resource Setup: herramienta en **otro recurso**, **expirada** por fecha o en estado Down; Start sin setup | Guardar un setup completo: `TG_HEATER_BLOCK` no tiene herramientas habilitadas en `O_OMNI_FIRST_DISTAL`, así que hace falta otra operación/recurso o habilitar una herramienta (*Tool Number Maintenance*, que escribe y puede exigir permiso). Un recurso sin setup para el Start |
 | Resource Setup **Standard** (el que modela el simulador) | Un recurso del testing configurado con el Standard, o confirmar con el usuario que los textos del Custom valen |
 | SFC ya iniciado en **otro** recurso (mensaje propio) | Pasar antes los chequeos de LC. El usuario de testing **no puede** hacer `Place back in queue` (`Permissions or settings are required to run activity PR520 (Message 16034)`, 📸 `place back in queue - sin permiso PR520 16034.png`): hace falta otro usuario con ese permiso, o dos recursos con LC compatibles |
 | Material sensible al tiempo **expirado** | Una operación con componentes TSM y una etiqueta vencida; `O_OMNI_FIRST_DISTAL` no las tiene |
