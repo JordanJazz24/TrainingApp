@@ -225,6 +225,18 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 
 Tratamiento de usted. `{code1}` es el Code1 del operador.
 
+> **Enmienda 2026-10-19 (al implementar la E4, `e1227dd`; usuario y desarrollo):**
+>
+> 1. En Hora a Hora, Recursos MES y el login de MES, la captura y el clic van en **dos
+>    subpasos**: "Escriba su Code1: **{code1}**." y "Presione **Iniciar** / **Buscar**". El
+>    login queda en usuario, contraseña y **Log On**. El motor de la guía no revisa una
+>    captura y un clic en el mismo subpaso.
+> 2. **Sale el subpaso "Logout" de la limpieza** ("Cierre sesión siempre que deje la
+>    estación…"): repetía la nota del subpaso del ícono Logout (spec 015), que ya lista los
+>    momentos de cerrar sesión. En "You have logged off" la guía va directo a cerrar Edge.
+> 3. **Estación:** la guía la trata como la etiqueta de la orden de la spec 011. Resalta la
+>    etiqueta con Ingresar recurso libre y avanza al escanear (las barras o Enter).
+
 **Ingreso a MES**
 | Subpaso | Texto |
 |---|---|
