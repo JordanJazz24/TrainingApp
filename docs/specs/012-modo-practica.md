@@ -61,9 +61,16 @@ solo objeto (`ModePolicy`).
     queda como lo deja hoy el avance forzado de Assessment (`docs/domain.md` → "Avance
     forzado"): orden por defecto, Start ejecutado, hallazgo aplicado, etc. Saltar Logout
     cierra la sesión con su resumen.
+  - **Piden confirmación** (usuario), con un diálogo corto en el cliente: "¿Saltar Resource
+    Setup? No se puede volver." / "¿Ir a Log NC · desecho rápido? Se saltarán 6 pasos."
+  - **Nombres de los pasos** en Ir a… y en el resumen (usuario): con su variante cuando el
+    tipo se repite, como en `docs/domain.md` → "Ponderación de pasos": "Line Clearance
+    (apertura)" y "(cierre)", "Log NC · desecho rápido", "· reparación rápida" y
+    "· reparación extendida".
 - **P-10 · Resumen con los intentos por paso** (usuario): sin puntaje ni Aprobado/Reprobado.
   Muestra el área, el producto, el modo y los pasos de la guía con sus intentos (1 = acertó
-  a la primera), resaltando los que tuvieron más de uno y marcando los saltados.
+  a la primera), resaltando los que tuvieron más de uno y marcando los saltados. Al terminar
+  solo se vuelve al inicio, como en los otros modos: no sugiere un Assessment (usuario).
 - **P-11 · Medición:** los intentos se registran como en los otros modos y quedan separados
   por el modo de la sesión, sin columna nueva. El dashboard (Fase 10) puede contar los de
   Práctica libre aparte. `FinalScore` se calcula sin penalización (un paso saltado vale 0)
@@ -232,6 +239,8 @@ Ninguna.
   el POD queda como tras el avance forzado y sigue el paso siguiente.
 - **AC-11:** Given Ir a… con un paso posterior, Then todos los pasos intermedios y el actual
   quedan saltados y el paso elegido es el actual. Ir a… no ofrece pasos anteriores.
+- **AC-11b:** Given Saltar paso o Ir a…, When lo presiona, Then aparece un diálogo de
+  confirmación con el nombre del paso (y en Ir a…, cuántos se saltan). Cancelar no hace nada.
 - **AC-12:** Given Práctica libre completada, Then el resumen muestra cada paso con sus
   intentos, marca los saltados y no muestra puntaje ni Aprobado/Reprobado.
 - **AC-13:** Given un postback de salto en Guided o Assessment, Then la BLL lo rechaza.
