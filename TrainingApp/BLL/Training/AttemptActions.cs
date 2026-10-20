@@ -56,6 +56,27 @@ namespace TrainingApp.BLL.Training
         public const string LogNCExtendedLocalRework      = "LogNC.Extended.LocalRework";
         public const string LogNCExtendedReturnToPrevious = "LogNC.Extended.ReturnToPrevious";
 
+        // Ingreso a MES (spec 016): la pantalla y el botón que se calificaron.
+        public const string MesScript         = "MES.Script.Enter";
+        public const string MesRepository     = "MES.Desktop.Repositorio";
+        public const string MesHoraHoraStart  = "MES.HoraHora.Iniciar";
+        public const string MesRecursosSearch = "MES.Recursos.Buscar";
+        public const string MesLogOn          = "MES.Login.LogOn";
+
+        public static string ForMesAction(MesAction action)
+        {
+            switch (action)
+            {
+                case MesAction.RunScript:      return MesScript;
+                case MesAction.OpenRepository: return MesRepository;
+                case MesAction.HoraHoraStart:  return MesHoraHoraStart;
+                case MesAction.RecursosSearch: return MesRecursosSearch;
+                case MesAction.LogOn:          return MesLogOn;
+                // Cerrar Edge no se califica (P-13).
+                default: throw new InvalidOperationException("La acción del Ingreso no se califica.");
+            }
+        }
+
         // Acción de un envío por respuesta (StepValidator), según el paso y lo enviado.
         public static string ForSubmit(StepType stepType, string answer)
         {

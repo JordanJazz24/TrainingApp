@@ -117,27 +117,51 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 
 ## Entrega 2 — Ingreso a MES (D-61, D-64, D-66 a D-75; AC-1 a AC-9, AC-15)
 
-- [ ] **Domain y BD:** `StepType.MesLogin = 11`. `02`: `spTrainingGuideSync` acepta 0–11.
+- [x] **Domain y BD:** `StepType.MesLogin = 11`. `02`: `spTrainingGuideSync` acepta 0–11.
       Guías `05`, `07` y `09`: Ingreso primero (0.05) y DC −0.05 (LoFlo y Redefinity 0.20,
       Moldeo 0.25). Se prueba recreando la BD.
-- [ ] **BLL:** `MesLoginProgress` en `PodState` y el Code1 en `PodContext` (D-78, D-79).
+- [x] **BLL:** `MesLoginProgress` en `PodState` y el Code1 en `PodContext` (D-78, D-79).
       Métodos de `PodService`, uno por acción de D-77, con `RecordAttempt` en el fallo y la
       pantalla a la que se vuelve (P-4). Log On con los dos registros cierra el paso. Avance
       forzado: el paso queda fallido y aparece el POD (P-5). `AttemptActions` para cada
       acción (registro de actividad, spec 013).
-- [ ] **UI:** `MesLoginControl` (D-76) con escritorio (solo script y Repositorio, P-2),
+- [x] **UI:** `MesLoginControl` (D-76) con escritorio (solo script y Repositorio, P-2),
       consola, Edge genérico con pestañas (D-71), Repositorio con las tres tarjetas (1.0 sin
       acción), Hora a Hora con el aviso provisional después de Iniciar (D-72), Recursos MES
       con la **etiqueta de la estación** (panel de la spec 011 con
       `PodDefaults.ResourceName`) y login de MES con el diseño SAP NetWeaver. Cerrar Edge
       vuelve al escritorio y conserva (P-13); el script ya ejecutado no hace nada (P-14).
-- [ ] **Barra del simulador** (P-11) con área, modo y Abandon mientras se ve el escritorio.
-- [ ] `GuidedTest`: el paso `MesLogin` oculta el POD y muestra el control; al cerrarse,
+- [x] **Barra del simulador** (P-11) con área, modo y Abandon mientras se ve el escritorio.
+- [x] `GuidedTest`: el paso `MesLogin` oculta el POD y muestra el control; al cerrarse,
       aparece el POD. Anclas `data-guide` en todos los elementos de las pantallas (la guía
       llega en la E4).
-- [ ] **Tests:** calificación del Ingreso en la BLL (Code1 propio y ajeno, secuencia, Log On
+- [x] **Tests:** calificación del Ingreso en la BLL (Code1 propio y ajeno, secuencia, Log On
       sin un registro, forzado al 4.º) y pesos de las guías (AC-15). `ScoreCalculatorTests`
       en verde.
+
+> **Decisiones de implementación de E2** (desarrollo, 2026-10-19; no cambian la spec ni el
+> plan):
+>
+> - La calificación vive en `MesLoginRule` (BLL, sin dependencias, con tests) y dice también
+>   la pantalla que sigue; `PodService.SubmitMesAction` la aplica y registra el intento. Un
+>   envío que no corresponde al avance guardado (Session perdida, otra pestaña) no registra
+>   nada y vuelve a la pantalla del avance, sin error (review `medium`).
+> - `MesScreen.ScriptOutput`: la consola con la salida y "Press any key" es una pantalla más.
+> - En Guided, abrir el Repositorio antes del script no cuenta y muestra un aviso
+>   informativo hasta que llegue la guía (E4). Un Code1 ajeno en Guided cuenta como intento
+>   (sin penalización) hasta la E4.
+> - Las pestañas de Edge abiertas en el cliente viajan con cada postback (campo oculto) y se
+>   pierden con F5 (D-78). Cerrar Edge las cierra. Las pestañas no se cierran sueltas.
+> - Barra de direcciones: la URL real del Repositorio; en Hora a Hora y Recursos MES, el host
+>   `crapps.philips.com` (supuesto: el mismo del Repositorio; sin captura).
+> - La contraseña del login de MES nunca viaja: solo una marca de que tenía algo (D-73).
+>   `<`, `>` y `&#` se avisan como formato.
+> - La etiqueta de la estación se ve solo con la pestaña de Recursos MES activa.
+> - Los estilos de NetWeaver pasaron de `auth.css` (borrado) a `presap.css`, bajo `.mes-nw`.
+>   Las imágenes se recortaron de las capturas (`UI/master/imgs/presap/`).
+> - `ScoreCalculatorTests`: las copias de las guías (desactualizadas desde la 014) se
+>   pusieron al día; un test nuevo las compara con los scripts (`GuideScriptReader`). El
+>   barrido de combinaciones queda solo para Moldeo (en Redefinity serían 4^12).
 
 ## Entrega 3 — Logout con la limpieza (D-65, P-6, P-12; AC-10, AC-11)
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TrainingApp.BLL.Scoring;
@@ -22,10 +23,12 @@ namespace TrainingApp.BLL.Training
         private IList<Operation>               _operations;
         private Product                        _product;
         private bool                           _productLoaded;
+        private readonly Func<string>          _code1Loader;
+        private string                         _code1;
 
         internal PodContext(int userId, TrainingSession session, TrainingGuide guide, Area area,
             IList<TrainingSessionStepAttempt> attempts, PodState state, decimal score,
-            TrainingGuideService catalog)
+            TrainingGuideService catalog, Func<string> code1Loader)
         {
             UserId = userId;
             Session    = session;
@@ -35,9 +38,20 @@ namespace TrainingApp.BLL.Training
             State      = state;
             Score      = score;
             _catalog   = catalog;
+            _code1Loader = code1Loader;
         }
 
         public int UserId { get; }
+
+        // Code1 del usuario autenticado (spec 016, D-79): el Ingreso a MES lo compara con lo que
+        // escribe el operador. Sale de la BD por el UserId, nunca del cliente; se lee al primer uso.
+        public string Code1 => _code1 ?? (_code1 = _code1Loader() ?? string.Empty);
+
+        // Avance del Ingreso a MES (spec 016); vacío antes de la primera acción.
+        public MesLoginProgress MesLogin => State.MesLogin ?? new MesLoginProgress();
+
+        // Recurso del área: el del POD y el de la etiqueta de la estación en Recursos MES (D-70).
+        public string ResourceName => PodDefaults.ResourceName(Area);
         public TrainingSession Session { get; }
         public TrainingGuide Guide { get; }
         public Area Area { get; }

@@ -10,6 +10,7 @@ using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Guide;
 using TrainingApp.Pages.Training.Models;
 using TrainingApp.Shared;
+using TrainingApp.UI.Controls.Training;
 
 namespace TrainingApp.Pages.Training
 {
@@ -39,9 +40,18 @@ namespace TrainingApp.Pages.Training
         private const string OpenStepTypeKey = "GDT_OpenStepType";
 
         // Pasos con control propio: Logout es el ícono del header (spec 015). Los pasos de Log
-        // NC comparten un control (spec 014, D-60).
+        // NC comparten un control (spec 014, D-60). Ingreso a MES no se abre como un control
+        // de paso: es una pantalla completa mientras es el paso actual (spec 016, P-1).
         private static readonly StepType[] AllStepTypes =
-            ((StepType[])Enum.GetValues(typeof(StepType))).Where(t => t != StepType.Logout).ToArray();
+            ((StepType[])Enum.GetValues(typeof(StepType)))
+                .Where(t => t != StepType.Logout && t != StepType.MesLogin).ToArray();
+
+        // Ingreso a MES (spec 016): la pantalla completa reemplaza al POD en esta respuesta.
+        protected bool MesScreenActive { get; private set; }
+
+        // Pantalla que decidió la BLL en el handler del Ingreso (la que falló o la que sigue);
+        // null: la del avance guardado (F5, D-78).
+        private MesScreen? _mesScreen;
 
         private StepType? OpenStepType
         {
@@ -83,7 +93,9 @@ namespace TrainingApp.Pages.Training
                 case StepType.SFC_Split:      return CtrlSFCSplit;
                 case StepType.Complete:       return CtrlComplete;
                 // Sin control: los guards de sender comparan contra null y no aceptan nada.
+                // MesLoginControl tiene su propio evento (HandleMesAction).
                 case StepType.Logout:         return null;
+                case StepType.MesLogin:       return null;
                 default: throw new ArgumentOutOfRangeException(nameof(stepType), stepType, null);
             }
         }
@@ -153,7 +165,7 @@ namespace TrainingApp.Pages.Training
             // página ni los controles), para no contar como intento algo que el operador no
             // hizo. Se recarga la página como un F5 y el operador repite el click. Abandon no
             // usa filas de la orden y sí se ejecuta (auditoría AUD-34).
-            if (IsPostBack && _ctx.Rebuilt && !IsPostBackFrom(BtnAbandon))
+            if (IsPostBack && _ctx.Rebuilt && !IsPostBackFrom(BtnAbandon) && !IsPostBackFrom(BtnMesAbandon))
             {
                 Response.Redirect(Request.RawUrl);
                 return;
@@ -201,10 +213,63 @@ namespace TrainingApp.Pages.Training
         protected override void OnPreRender(EventArgs e)
         {
             base.OnPreRender(e);
+            ApplyMesLoginScreen();
             ApplySfcFieldMode();
             ApplyOrderLabel();
             ApplyNcFindingNote();
             RegisterGuide();
+        }
+
+        // Ingreso a MES (spec 016, P-1): mientras es el paso actual, el escritorio simulado en
+        // pantalla completa en lugar del POD. Se decide después de los handlers (Log On o el
+        // avance forzado de este request lo cierran); Visible persiste en ViewState: se asigna
+        // siempre.
+        private void ApplyMesLoginScreen()
+        {
+            MesScreenActive = _ctx != null && _ctx.Session.Status == SessionStatus.InProgress &&
+                              _ctx.CurrentStepOrDefault?.StepType == StepType.MesLogin;
+            PnlMesScreen.Visible = MesScreenActive;
+            if (!MesScreenActive) return;
+
+            var progress = _ctx.MesLogin;
+            var screen   = _mesScreen ?? progress.ResumeScreen();
+            CtrlMesLogin.View = new MesLoginView
+            {
+                ScriptDone   = progress.ScriptDone,
+                EdgeOpen     = progress.EdgeOpen,
+                HoraHoraDone = progress.HoraHoraDone,
+                RecursosDone = progress.RecursosDone,
+                Screen       = MesLoginControl.ScreenFor(screen),
+                ResourceName = _ctx.ResourceName,
+                ScriptCode1  = screen == MesScreen.ScriptOutput ? _ctx.Code1 : null
+            };
+            LitMesArea.Text = HttpUtility.HtmlEncode(_ctx.Area.Name);
+            LitMesMode.Text = _ctx.Session.Mode == SessionMode.Assessment ? "Assessment" : "Guided";
+            BtnMesAbandon.Attributes["onclick"] = "return confirmAbandon('" + BtnMesAbandon.UniqueID + "');";
+        }
+
+        // Una pantalla del Ingreso enviada por MesLoginControl (D-77): la califica la BLL y dice
+        // qué pantalla sigue o a cuál vuelve un fallo (P-4). Log On correcto o el avance forzado
+        // cierran el paso y aparece el POD (P-5).
+        protected void HandleMesAction(object sender, MesActionEventArgs e)
+        {
+            var (session, guide, area, step) = GetContext();
+            if (session == null) return;
+
+            var result = Pod.SubmitMesAction(_ctx, e.Action, e.Code1, e.Resource, e.Password);
+            _mesScreen = result.MesScreen;
+            if (result.Step != null)
+            {
+                ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+                return;
+            }
+
+            // Guided: abrir el Repositorio antes del script se ignora, sin intento, como un
+            // botón fuera de secuencia; la guía (E4) no lo deja. Mientras tanto, un aviso que no
+            // parece un error calificado.
+            if (result.OutOfSequence)
+                ShowSweetAlert("info", "Antes del Repositorio",
+                    "Primero ejecute el script de limpieza (MES Limpiar historial y cache) con su Code1.");
         }
 
         // Nota de hallazgo (spec 014, D-49): solo el hallazgo del paso actual de Log NC, en los
@@ -1618,6 +1683,7 @@ namespace TrainingApp.Pages.Training
                 case StepType.Assembly:       return "Ensamble cada componente de la Component List: escanee su código y presione Add.";
                 case StepType.Complete:       return "Presione Complete para cerrar la orden.";
                 case StepType.Logout:         return "Presione el ícono Logout para cerrar su sesión en MES.";
+                case StepType.MesLogin:       return "Ejecute el script de limpieza con su Code1, abra el Repositorio, inicie Hora a Hora 3.0 y Recursos MES con su Code1 y entre a MES con Log On.";
                 default:                      return string.Empty;
             }
         }

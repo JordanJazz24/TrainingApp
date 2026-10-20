@@ -8,6 +8,7 @@
 -- de Assembly (Moldeo no tiene) menos el de SFC Split (sí tiene).
 -- StepType: 0 ResourceSetup · 1 LineClearance · 2 Search · 3 Assembly
 --           4 DataCollection · 5 SFC_Split · 6 LogNC · 7 Complete · 8 Logout
+--           11 MesLogin (Ingreso a MES, spec 016)
 -- ============================================================
 SET NOCOUNT ON;
 
@@ -23,16 +24,17 @@ WHERE AreaId = @AreaId AND Title = N'Guía R&C Moldeo — Flujo Completo'
 DECLARE @Steps TABLE ([Order] INT, StepType TINYINT, Weight DECIMAL(5,2));
 INSERT INTO @Steps ([Order], StepType, Weight) VALUES
     -- Apertura
-    (1, 0, 0.20),   -- Resource Setup
-    (2, 1, 0.05),   -- Line Clearance (apertura)
-    (3, 2, 0.15),   -- Search / Start (con checklist de 4 modales)
-    (4, 4, 0.30),   -- Data Collection (obligatorio: DCGTM_FECHA_EXPIRACION_NIR/A)
+    (1, 11, 0.05),  -- Ingreso a MES (spec 016: script, Repositorio, Hora a Hora, Recursos MES y login)
+    (2, 0, 0.20),   -- Resource Setup
+    (3, 1, 0.05),   -- Line Clearance (apertura)
+    (4, 2, 0.15),   -- Search / Start (con checklist de 4 modales)
+    (5, 4, 0.25),   -- Data Collection (obligatorio: DCGTM_FECHA_EXPIRACION_NIR/A; spec 016: 0.30 → 0.25)
     -- Cierre
-    (5, 1, 0.05),   -- Line Clearance (cierre)
-    (6, 5, 0.05),   -- SFC Split (NonSerialized)
-    (7, 6, 0.10),   -- Log NC
-    (8, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
-    (9, 8, 0.05);   -- Logout
+    (6, 1, 0.05),   -- Line Clearance (cierre)
+    (7, 5, 0.05),   -- SFC Split (NonSerialized)
+    (8, 6, 0.10),   -- Log NC
+    (9, 7, 0.05),   -- Complete (spec 015: cede 0.05 a Logout)
+    (10, 8, 0.05);  -- Logout
 
 DECLARE @Json NVARCHAR(MAX) = (SELECT [Order], StepType, Weight FROM @Steps ORDER BY [Order] FOR JSON PATH);
 EXEC dbo.spTrainingGuideSync @AreaId = @AreaId, @Title = N'Guía S&RC Moldeo — Flujo Completo', @Steps = @Json;

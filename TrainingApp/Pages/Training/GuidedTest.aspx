@@ -10,10 +10,13 @@
 <%@ Register Src="~/UI/Controls/Training/DataCollectionControl.ascx" TagPrefix="uc" TagName="DataCollectionControl" %>
 <%@ Register Src="~/UI/Controls/Training/LogNCControl.ascx"          TagPrefix="uc" TagName="LogNCControl" %>
 <%@ Register Src="~/UI/Controls/Training/CompleteControl.ascx"       TagPrefix="uc" TagName="CompleteControl" %>
+<%@ Register Src="~/UI/Controls/Training/MesLoginControl.ascx"       TagPrefix="uc" TagName="MesLoginControl" %>
 
 <%-- Guía visual de Guided (spec 010): el motor solo se incluye en Guided (AC-2). Va en el
      <head> porque PodGuide.start se llama desde un script de arranque del form. --%>
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
+    <%-- Pantallas del Ingreso a MES (spec 016). --%>
+    <link href="<%=ResolveUrl("~/UI/master/presap.css")%>" rel="stylesheet" />
     <asp:PlaceHolder ID="PhGuideAssets" runat="server" Visible="false">
         <link href="<%=ResolveUrl("~/UI/master/pod-guide.css")%>" rel="stylesheet" />
         <script src="<%=ResolveUrl("~/UI/master/pod-guide.js")%>"></script>
@@ -24,8 +27,10 @@
 
     <%-- Layout del POD real (Fase 6.5, entrega 3): bloques en el flujo del documento
          — header, banner, sección gris (búsqueda + acciones + panel derecho), POD Work List
-         y pie —, sin posiciones fijas apiladas. Así nada se solapa ni tapa los modales. --%>
-    <div class="pod-shell">
+         y pie —, sin posiciones fijas apiladas. Así nada se solapa ni tapa los modales.
+         Mientras el paso actual es Ingreso a MES (spec 016, P-1) se renderiza oculto: la
+         pantalla completa del escritorio lo reemplaza. --%>
+    <div class="pod-shell<%= MesScreenActive ? " d-none" : "" %>">
 
     <%-- ══ HEADER ═══════════════════════════════════════════════════════ --%>
     <div class="pod-header">
@@ -304,6 +309,22 @@
     </div>
 
     </div><%-- /pod-shell --%>
+
+    <%-- ══ INGRESO A MES (spec 016) ═══════════════════════════════════════ --%>
+    <%-- Pantalla completa mientras el paso actual es Ingreso a MES (P-1). La barra es del
+         simulador (P-11): área, modo y Abandon, la única salida a mitad del Ingreso. --%>
+    <asp:Panel ID="PnlMesScreen" runat="server" Visible="false" CssClass="mes-screen">
+        <div class="mes-simbar" data-guide="mes-simbar">
+            <span class="mes-simbar-tag">Simulador de entrenamiento MES</span>
+            <span>Área: <strong><asp:Literal ID="LitMesArea" runat="server" /></strong></span>
+            <span>Modo: <strong><asp:Literal ID="LitMesMode" runat="server" /></strong></span>
+            <button id="BtnMesAbandon" runat="server" class="btn btn-sm btn-outline-danger pod-abandon-btn"
+                onserverclick="BtnAbandon_Click" data-guide-free="">
+                Abandon Session
+            </button>
+        </div>
+        <uc:MesLoginControl ID="CtrlMesLogin" runat="server" OnOnMesAction="HandleMesAction" />
+    </asp:Panel>
 
     <%-- ══ ETIQUETA DE LA ORDEN (spec 011) ════════════════════════════════ --%>
     <%-- No es parte del MES: simula la etiqueta impresa de la orden, pegada junto a la
@@ -718,7 +739,9 @@
     });
 
     // ── Abandon confirmation ─────────────────────────────────────────
-    function confirmAbandon() {
+    // target: el botón que postea (el del pie del POD o el de la barra del Ingreso a MES).
+    function confirmAbandon(target) {
+        target = target || '<%= BtnAbandon.UniqueID %>';
         Swal.fire({
             title: 'Abandon Session?',
             text:  'Progress will be lost.',
@@ -729,7 +752,7 @@
             confirmButtonColor:  '#dc3545'
         }).then(function(r) {
             if (r.isConfirmed) {
-                __doPostBack('<%= BtnAbandon.UniqueID %>', '');
+                __doPostBack(target, '');
             }
         });
         return false;

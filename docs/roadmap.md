@@ -37,8 +37,11 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   la E4, D-81). **E1 ✅** (2026-10-19, probada por el usuario): login y cambio de contraseña
   únicos y neutros para los dos roles (enmienda 2 de la 013); se borraron el login y el
   cambio de contraseña de admin y `Auth.Master`. Después, sin spec, se cerró la fijación de
-  sesión que encontró su review (`docs/architecture.md` → "Sesión del usuario").
-  **Siguiente:** E2 (Ingreso a MES). Orden
+  sesión que encontró su review (`docs/architecture.md` → "Sesión del usuario"). **E2 ✅**
+  (2026-10-19, probada por el usuario): paso nuevo Ingreso a MES (`StepType` 11, primero en
+  las tres guías, 0.05; DC −0.05) con el escritorio, el script, Edge, el Repositorio, Hora a
+  Hora, Recursos MES y el login de NetWeaver, calificado por pantalla. **Siguiente:** E3
+  (Logout con la limpieza). Orden
   vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
@@ -127,6 +130,7 @@ corrió el usuario:
 | 2026-10-16 | ALTER de la spec 014 E1 + `02`, `05`, `06`, `08` | Spec 014 E1: `NCCodes.Method` y `RequiresComments`; códigos `SIM_FR`/`SIM_FX` en LoFlo y Redefinity |
 | 2026-10-19 | `02`, `05`, `09` | Spec 014 E2: `StepType` 9 (reparación rápida) y D-56; guías de LoFlo y Redefinity en versión nueva con el paso y los pesos de D-57 |
 | 2026-10-19 | ALTER de la spec 014 E3 + `02`, `05`, `08`, `09` | Spec 014 E3: `Operations.Sequence` y `Description` con 2 operaciones `SIM` por área, `spOperationGetByArea`, `StepType` 10 (versión nueva de las guías, DC 0.25); enmienda 5: `F_FR_GENERAL`/`F_FX_GENERAL` en LoFlo y Redefinity y se borran los `SIM_FR`/`SIM_FX` |
+| 2026-10-19 | `00`–`09` (BD recreada) | Spec 016 E2: `StepType` 11 (Ingreso a MES) primero en las tres guías, DC −0.05 |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.

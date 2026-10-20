@@ -29,6 +29,10 @@ namespace TrainingApp.BLL.Training
         // Lo ensamblado en Assembly (spec 014): sobrevive al paso (lo leen el Browse y Remove
         // component) y se descarta con la orden. null antes del primer componente.
         public List<AssembledComponent> AssembledComponents { get; set; }
+
+        // Avance del Ingreso a MES (spec 016, D-78): null hasta la primera acción y después de
+        // resolver el paso.
+        public MesLoginProgress MesLogin { get; set; }
     }
 
     // Dónde guarda la BLL el estado del POD. La BLL no depende de System.Web: la página le

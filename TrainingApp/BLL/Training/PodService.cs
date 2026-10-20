@@ -21,6 +21,7 @@ namespace TrainingApp.BLL.Training
         private readonly IPodStateStore             _store;
         private readonly TrainingSessionRepository  _sessionRepo    = new TrainingSessionRepository();
         private readonly StepAttemptRepository      _attemptRepo    = new StepAttemptRepository();
+        private readonly UserRepository             _userRepo       = new UserRepository();
         private readonly TrainingGuideService       _guideService   = new TrainingGuideService();
         private readonly TrainingSessionService     _sessionService = new TrainingSessionService();
         private readonly ScoreCalculator            _scoreCalc      = new ScoreCalculator();
@@ -52,7 +53,8 @@ namespace TrainingApp.BLL.Training
             }
 
             decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
-            var ctx = new PodContext(userId, session, guide, area, attempts, state, score, _guideService);
+            var ctx = new PodContext(userId, session, guide, area, attempts, state, score, _guideService,
+                () => _userRepo.GetById(userId)?.Code1);
 
             // Después de Resource Setup siempre hay orden: si falta, se perdió la Session. Después
             // del Start, con Log NC en la guía, siempre hay hallazgos (spec 014): si faltan, el
@@ -140,8 +142,10 @@ namespace TrainingApp.BLL.Training
 
             // Assembly y Data Collection se califican en AssembleComponent y
             // SubmitDataCollectionGroup: un envío por respuesta en esos pasos es un error de
-            // programación, no un intento fallido (auditoría AUD-21).
-            if (step.StepType == StepType.Assembly || step.StepType == StepType.DataCollection)
+            // programación, no un intento fallido (auditoría AUD-21). El Ingreso a MES se
+            // califica por pantalla en SubmitMesAction (spec 016).
+            if (step.StepType == StepType.Assembly || step.StepType == StepType.DataCollection ||
+                step.StepType == StepType.MesLogin)
                 throw new InvalidOperationException("El paso actual no se califica por respuesta.");
 
             bool isCorrect = BuildValidator(ctx, step.StepType, selected).Validate(step, submittedAnswer);
@@ -150,6 +154,57 @@ namespace TrainingApp.BLL.Training
             var reason = submittedAnswer == StepAnswers.Invalid
                 ? AttemptReason.InvalidAction : AttemptReason.WrongDecision;
             return RecordAttempt(ctx, step, isCorrect, reason, AttemptActions.ForSubmit(step.StepType, submittedAnswer));
+        }
+
+        // ── Ingreso a MES (spec 016) ─────────────────────────────────────
+
+        // Cada pantalla del Ingreso se califica al enviarla (D-68, como el Split de Moldeo):
+        // MesLoginRule decide y aquí se aplica. Un fallo registra el intento y dice a qué
+        // pantalla volver (P-4); el 4.º en Assessment fuerza el avance y aparece el POD (P-5).
+        // Abrir el Repositorio antes del script es de secuencia: en Guided se ignora, como un
+        // botón fuera de secuencia (S2). Un envío fuera del paso (doble envío tras Log On) se
+        // ignora. Uno que no corresponde al avance guardado (la Session se perdió, otra pestaña
+        // o un envío manipulado) no registra nada y vuelve a la pantalla del avance. El Code1
+        // contra el que se califica es el del usuario (D-79).
+        public PodCommandResult SubmitMesAction(PodContext ctx, MesAction action,
+            string code1 = null, string resource = null, string password = null)
+        {
+            if (ctx.Session.Status != SessionStatus.InProgress ||
+                ctx.CurrentStepOrDefault?.StepType != StepType.MesLogin)
+                return new PodCommandResult();
+
+            var progress = ctx.MesLogin;
+            var outcome  = MesLoginRule.Evaluate(progress, action, ctx.Code1, code1, resource, password);
+
+            switch (outcome.Kind)
+            {
+                case MesOutcomeKind.Ignored:
+                case MesOutcomeKind.Invalid:
+                    return new PodCommandResult { MesScreen = progress.ResumeScreen() };
+
+                case MesOutcomeKind.Failed:
+                    if (outcome.Reason == AttemptReason.OutOfSequence && ctx.Session.Mode != SessionMode.Assessment)
+                        return new PodCommandResult { OutOfSequence = true, MesScreen = outcome.Screen };
+                    return new PodCommandResult
+                    {
+                        OutOfSequence = outcome.Reason == AttemptReason.OutOfSequence,
+                        Step          = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: false,
+                            outcome.Reason, AttemptActions.ForMesAction(action)),
+                        MesScreen     = outcome.Screen
+                    };
+            }
+
+            if (action == MesAction.LogOn)
+                return new PodCommandResult
+                {
+                    Step = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: true, AttemptReason.None,
+                        AttemptActions.ForMesAction(action))
+                };
+
+            progress.Apply(action);
+            ctx.State.MesLogin = progress;
+            SaveState(ctx);
+            return new PodCommandResult { MesScreen = outcome.Screen };
         }
 
         // ── Resource Setup y Line Clearance ──────────────────────────────
@@ -887,6 +942,8 @@ namespace TrainingApp.BLL.Training
         {
             if (resolvedStep == StepType.ResourceSetup)
                 ctx.State.PreloadedEquipment = null;
+            else if (resolvedStep == StepType.MesLogin)
+                ctx.State.MesLogin = null;
             else if (resolvedStep == StepType.Assembly)
             {
                 ctx.State.Assembly = null;

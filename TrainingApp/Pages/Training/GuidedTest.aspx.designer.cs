@@ -510,6 +510,51 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.HtmlControls.HtmlButton BtnAbandon;
 
         /// <summary>
+        /// PnlMesScreen control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel PnlMesScreen;
+
+        /// <summary>
+        /// LitMesArea control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitMesArea;
+
+        /// <summary>
+        /// LitMesMode control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitMesMode;
+
+        /// <summary>
+        /// BtnMesAbandon control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnMesAbandon;
+
+        /// <summary>
+        /// CtrlMesLogin control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.MesLoginControl CtrlMesLogin;
+
+        /// <summary>
         /// LitBrowseContext control.
         /// </summary>
         /// <remarks>

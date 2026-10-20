@@ -39,6 +39,36 @@ namespace TrainingApp.Pages.Training.Models
         public int ComponentId { get; set; }
     }
 
+    // Ingreso a MES (spec 016): lo que MesLoginControl pinta en este request. Screen es la
+    // pantalla de arranque (MesLoginControl.Screen*): la que falló (P-4), la que sigue a lo
+    // aceptado o la que reconstruye el avance tras F5 (D-78).
+    public class MesLoginView
+    {
+        public bool ScriptDone   { get; set; }
+        public bool EdgeOpen     { get; set; }
+        public bool HoraHoraDone { get; set; }
+        public bool RecursosDone { get; set; }
+        public string Screen     { get; set; }
+
+        // Recurso del área para la etiqueta de la estación (D-70).
+        public string ResourceName { get; set; }
+
+        // Code1 del operador para la salida del script ("Script ejecutado por …"); solo con
+        // la consola terminada.
+        public string ScriptCode1 { get; set; }
+    }
+
+    // Ingreso a MES (spec 016, D-77): una pantalla enviada al servidor. Password solo dice si
+    // el campo tenía algo (D-73: no se compara con nada), así la contraseña que escriba el
+    // operador nunca viaja ni vuelve en el HTML.
+    public class MesActionEventArgs : System.EventArgs
+    {
+        public TrainingApp.BLL.Training.MesAction Action { get; set; }
+        public string Code1 { get; set; }
+        public string Resource { get; set; }
+        public string Password { get; set; }
+    }
+
     public class SFCSplitRequestedEventArgs : System.EventArgs
     {
         public string RowId { get; set; }

@@ -143,8 +143,18 @@
     <Content Include="UI\master\Admin.Master" />
     <Content Include="UI\master\admin.css" />
     <Content Include="Pages\Admin\Users.aspx" />
-    <Content Include="UI\master\auth.css" />
     <Content Include="UI\master\imgs\login.jpg" />
+    <Content Include="UI\master\presap.css" />
+    <Content Include="UI\master\imgs\presap\desktop.jpg" />
+    <Content Include="UI\master\imgs\presap\icon-script.png" />
+    <Content Include="UI\master\imgs\presap\icon-repositorio.png" />
+    <Content Include="UI\master\imgs\presap\card-hh1.jpg" />
+    <Content Include="UI\master\imgs\presap\card-hh3.jpg" />
+    <Content Include="UI\master\imgs\presap\card-recursos.jpg" />
+    <Content Include="UI\master\imgs\presap\philips-shield.png" />
+    <Content Include="UI\master\imgs\presap\horahora-photo.jpg" />
+    <Content Include="UI\master\imgs\presap\philips-wordmark.png" />
+    <Content Include="UI\master\imgs\presap\sap-mes.png" />
     <Content Include="UI\master\imgs\sap-logo.png" />
     <Content Include="UI\master\Training.Master" />
     <Content Include="UI\Controls\Training\LineClearanceControl.ascx" />
@@ -154,6 +164,7 @@
     <Content Include="UI\Controls\Training\AssemblyControl.ascx" />
     <Content Include="UI\Controls\Training\DataCollectionControl.ascx" />
     <Content Include="UI\Controls\Training\SFCSplitControl.ascx" />
+    <Content Include="UI\Controls\Training\MesLoginControl.ascx" />
     <Content Include="UI\Controls\Training\LogNCControl.ascx" />
     <Content Include="UI\master\pod.css" />
     <Content Include="UI\master\pod-guide.css" />
@@ -224,6 +235,7 @@
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\StepTypes.cs" />
     <Compile Include="BLL\Training\NcFinding.cs" />
+    <Compile Include="BLL\Training\MesLogin.cs" />
     <Compile Include="BLL\Training\AssembledComponent.cs" />
     <Compile Include="BLL\Training\LogNCAnswer.cs" />
     <Compile Include="BLL\Training\SplitSfcGenerator.cs" />
@@ -370,6 +382,13 @@
     </Compile>
     <Compile Include="UI\Controls\Training\SFCSplitControl.ascx.designer.cs">
       <DependentUpon>SFCSplitControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\MesLoginControl.ascx.cs">
+      <DependentUpon>MesLoginControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\MesLoginControl.ascx.designer.cs">
+      <DependentUpon>MesLoginControl.ascx</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\Training\LogNCControl.ascx.cs">
       <DependentUpon>LogNCControl.ascx</DependentUpon>

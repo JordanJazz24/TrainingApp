@@ -72,6 +72,10 @@ namespace TrainingApp.BLL.Training
         // operación).
         public IList<SimulatedOrderRow> Completed { get; set; }
 
+        // Ingreso a MES (spec 016): la pantalla que muestra la página, la que sigue o a la que
+        // vuelve un intento fallido (P-4). null si el paso se cerró.
+        public MesScreen? MesScreen { get; set; }
+
         public static PodCommandResult WithNotice(PodNotice notice)
             => new PodCommandResult { Notice = notice };
     }

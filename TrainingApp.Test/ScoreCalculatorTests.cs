@@ -249,13 +249,14 @@ namespace TrainingApp.Test
         private readonly ScoreCalculator _calc = new ScoreCalculator();
 
         // Database/StoredProcedures/07_RCMoldeoGuide.sql — NonSerialized, sin Assembly, con SFC Split.
-        private static List<TrainingStep> MoldeoGuide()
+        internal static List<TrainingStep> MoldeoGuide()
         {
             return Guide(
+                (StepType.MesLogin,       0.05m),
                 (StepType.ResourceSetup,  0.20m),
                 (StepType.LineClearance,  0.05m),
                 (StepType.Search,         0.15m),
-                (StepType.DataCollection, 0.30m),
+                (StepType.DataCollection, 0.25m),
                 (StepType.LineClearance,  0.05m),
                 (StepType.SFC_Split,      0.05m),
                 (StepType.LogNC,          0.10m),
@@ -264,19 +265,22 @@ namespace TrainingApp.Test
         }
 
         // Database/StoredProcedures/05_SeedData.sql (datos de ejemplo) — Serialized, con
-        // Assembly, sin SFC Split. Misma forma que tendrá LoFlo (Fase 7).
-        private static List<TrainingStep> RedefinityGuide()
+        // Assembly, sin SFC Split. LoFlo (09) tiene la misma forma y los mismos pesos.
+        internal static List<TrainingStep> RedefinityGuide()
         {
             return Guide(
-                (StepType.ResourceSetup,  0.20m),
-                (StepType.LineClearance,  0.05m),
-                (StepType.Search,         0.05m),
-                (StepType.Assembly,       0.15m),
-                (StepType.DataCollection, 0.30m),
-                (StepType.LineClearance,  0.05m),
-                (StepType.LogNC,          0.10m),
-                (StepType.Complete,       0.05m),
-                (StepType.Logout,         0.05m));
+                (StepType.MesLogin,            0.05m),
+                (StepType.ResourceSetup,       0.20m),
+                (StepType.LineClearance,       0.05m),
+                (StepType.Search,              0.05m),
+                (StepType.Assembly,            0.15m),
+                (StepType.DataCollection,      0.20m),
+                (StepType.LineClearance,       0.05m),
+                (StepType.LogNC,               0.05m),
+                (StepType.LogNCFastRepair,     0.05m),
+                (StepType.LogNCExtendedRepair, 0.05m),
+                (StepType.Complete,            0.05m),
+                (StepType.Logout,              0.05m));
         }
 
         // Pasos en el orden de la guía; Id = Order = posición.
@@ -313,13 +317,39 @@ namespace TrainingApp.Test
             return Enumerable.Repeat(outcome, count).ToArray();
         }
 
-        // Revisa las copias de este archivo, no el SQL: si cambian los scripts, este test no
-        // lo detecta (por eso el comentario de origen en cada guía).
         [Test]
         public void GuideCopies_WeightsSumOne()
         {
             Assert.That(MoldeoGuide().Sum(s => s.Weight), Is.EqualTo(1.00m));
             Assert.That(RedefinityGuide().Sum(s => s.Weight), Is.EqualTo(1.00m));
+        }
+
+        // Spec 016 (AC-15): las copias son las de los scripts. Si un script cambia sus pasos o
+        // sus pesos sin actualizar la copia, este test falla.
+        private static IEnumerable<TestCaseData> GuideScripts()
+        {
+            yield return new TestCaseData("07_RCMoldeoGuide.sql", MoldeoGuide()).SetArgDisplayNames("07 Moldeo");
+            yield return new TestCaseData("05_SeedData.sql", RedefinityGuide()).SetArgDisplayNames("05 Redefinity");
+            yield return new TestCaseData("09_SensoresLoFloGuide.sql", RedefinityGuide()).SetArgDisplayNames("09 LoFlo");
+        }
+
+        [TestCaseSource(nameof(GuideScripts))]
+        public void GuideScript_MatchesCopy(string script, List<TrainingStep> copy)
+        {
+            var steps = GuideScriptReader.Read(script);
+
+            Assert.That(steps.Select(s => (s.Order, s.StepType, s.Weight)),
+                Is.EqualTo(copy.Select(s => (s.Order, s.StepType, s.Weight))));
+        }
+
+        // Spec 016 (D-64, D-66): Ingreso a MES es el primer paso, con 0.05, en las tres guías.
+        [TestCaseSource(nameof(GuideScripts))]
+        public void GuideScript_StartsWithMesLogin(string script, List<TrainingStep> copy)
+        {
+            var first = GuideScriptReader.Read(script).First();
+
+            Assert.That(first.StepType, Is.EqualTo(StepType.MesLogin));
+            Assert.That(first.Weight, Is.EqualTo(0.05m));
         }
 
         private static IEnumerable<TestCaseData> GuidesWithAbsentStep()
@@ -357,13 +387,14 @@ namespace TrainingApp.Test
             Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment), Is.EqualTo(0.60m));
         }
 
-        // Moldeo sin Data Collection (forzado, −0.30) queda justo en el mínimo y aprueba.
+        // Moldeo sin Ingreso a MES ni Data Collection (forzados, −0.05 − 0.25) queda justo en
+        // el mínimo y aprueba.
         [Test]
-        public void Moldeo_LosingDataCollection_PassesAtSeventy()
+        public void Moldeo_LosingMesLoginAndDataCollection_PassesAtSeventy()
         {
             var guide = MoldeoGuide();
-            //                     RS LC Se DC      LC SS NC Co Lo
-            var attempts = Run(guide, 1, 1, 1, Forced, 1, 1, 1, 1, 1);
+            //                     In      RS LC Se DC      LC SS NC Co Lo
+            var attempts = Run(guide, Forced, 1, 1, 1, Forced, 1, 1, 1, 1, 1);
             decimal score = _calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment);
 
             Assert.That(score, Is.EqualTo(0.70m));
@@ -372,11 +403,11 @@ namespace TrainingApp.Test
 
         // Además, un reintento en Line Clearance (0.05 × 0.20 = −0.01) deja 0.69: no aprueba.
         [Test]
-        public void Moldeo_LosingDataCollectionAndOneRetry_FailsAtSixtyNine()
+        public void Moldeo_LosingMesLoginDataCollectionAndOneRetry_FailsAtSixtyNine()
         {
             var guide = MoldeoGuide();
-            //                     RS LC Se DC      LC SS NC Co Lo
-            var attempts = Run(guide, 1, 2, 1, Forced, 1, 1, 1, 1, 1);
+            //                     In      RS LC Se DC      LC SS NC Co Lo
+            var attempts = Run(guide, Forced, 1, 2, 1, Forced, 1, 1, 1, 1, 1);
             decimal score = _calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment);
 
             Assert.That(score, Is.EqualTo(0.69m));
@@ -390,24 +421,28 @@ namespace TrainingApp.Test
         public void AbandonedMidway_ScoresResolvedStepsOnly()
         {
             var guide = MoldeoGuide();
-            // RS al 1.º, LC al 1.º, Search al 2.º, DC forzado; el resto sin intentos.
+            // Ingreso al 1.º, RS al 1.º, LC al 1.º, Search al 2.º, DC forzado; el resto sin intentos.
             var attempts = ScoreData.CorrectOn(1, 1)
                 .Concat(ScoreData.CorrectOn(2, 1))
-                .Concat(ScoreData.CorrectOn(3, 2))
-                .Concat(ScoreData.FailedTimes(4, ScoreCalculator.MaxScoredAttempts + 1))
+                .Concat(ScoreData.CorrectOn(3, 1))
+                .Concat(ScoreData.CorrectOn(4, 2))
+                .Concat(ScoreData.FailedTimes(5, ScoreCalculator.MaxScoredAttempts + 1))
                 .ToList();
 
             Assert.That(_calc.CalculateSessionScore(guide, attempts, SessionMode.Assessment),
-                        Is.EqualTo(0.37m));   // 0.20 + 0.05 + 0.15 × 0.80 + 0
+                        Is.EqualTo(0.42m));   // 0.05 + 0.20 + 0.05 + 0.15 × 0.80 + 0
         }
 
-        // Barrido: cada paso resuelto en el intento 1, 2, 3 o forzado (4^9 combinaciones por
-        // guía). El puntaje está entre 0 y 1, tiene a lo sumo 2 decimales (FinalScore es
-        // DECIMAL(5,2): el redondeo de la BD no lo cambia) y es Σ peso × factor, con los
-        // factores de CLAUDE.md escritos aquí, no tomados de GetPenaltyFactor.
-        [TestCaseSource(nameof(RealGuides))]
-        public void Assessment_EveryOutcomeCombination_IsExactAndInRange(List<TrainingStep> guide)
+        // Barrido: cada paso resuelto en el intento 1, 2, 3 o forzado (4^10 combinaciones). El
+        // puntaje está entre 0 y 1, tiene a lo sumo 2 decimales (FinalScore es DECIMAL(5,2): el
+        // redondeo de la BD no lo cambia) y es Σ peso × factor, con los factores de CLAUDE.md
+        // escritos aquí, no tomados de GetPenaltyFactor. Solo Moldeo: con los 12 pasos de
+        // Redefinity serían 4^12 (16,7 millones); los pesos de Redefinity no agregan casos
+        // (todos son múltiplos de 0.05, como los de Moldeo).
+        [Test]
+        public void Assessment_EveryOutcomeCombination_IsExactAndInRange()
         {
+            var guide = MoldeoGuide();
             int[] outcomes = { 1, 2, 3, Forced };
             decimal[] factors = { 1.00m, 0.80m, 0.60m, 0.00m };
             int combinations = (int)System.Math.Pow(outcomes.Length, guide.Count);
