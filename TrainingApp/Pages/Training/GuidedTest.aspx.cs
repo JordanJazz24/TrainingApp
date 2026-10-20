@@ -33,6 +33,10 @@ namespace TrainingApp.Pages.Training
         // Lo anotan los handlers; OnPreRender arma el guion con la entrada que corresponde.
         private GuideMoment _guideMoment = GuideMoment.Load;
 
+        // Texto propio del control en el fallo de este request (ej. el botón equivocado de Log
+        // NC): Ver pista lo muestra antes de la pista del paso. No se guarda entre requests (D-87).
+        private string _lastFailureFeedback;
+
 
         // ── Controles de paso estáticos (spec 006) ───────────────────────
         // Los 8 controles están declarados en el .aspx, así que el árbol es idéntico en
@@ -222,7 +226,68 @@ namespace TrainingApp.Pages.Training
             ApplySfcFieldMode();
             ApplyOrderLabel();
             ApplyNcFindingNote();
+            ApplyPracticeBar();
             RegisterGuide();
+        }
+
+        // Barra de práctica (spec 012, D-87 a D-89): Ver pista, Saltar paso e Ir a… según la
+        // política, en el pie del POD y en la barra del escritorio. Se decide después de los
+        // handlers (el paso pudo cambiar en este request); Visible persiste en ViewState: se
+        // asigna siempre. La pista y los pasos llegan con la página (JavaScriptSerializer
+        // escapa < > & ').
+        private void ApplyPracticeBar()
+        {
+            var current = _ctx != null && _ctx.Session.Status == SessionStatus.InProgress && !PnlCompleted.Visible
+                ? _ctx.CurrentStepOrDefault
+                : null;
+            bool hint = current != null && _ctx.Policy.HintOnDemand;
+            bool skip = current != null && _ctx.Policy.AllowsSkip;
+            BtnHint.Visible = BtnMesHint.Visible = hint;
+            BtnSkip.Visible = BtnMesSkip.Visible = BtnGoTo.Visible = BtnMesGoTo.Visible = skip;
+            PnlPractice.Visible = PnlMesPractice.Visible = hint || skip;
+            if (!hint && !skip) return;
+
+            var steps = _ctx.Guide.Steps;
+            var next  = steps.Where(s => s.Order > current.Order).OrderBy(s => s.Order)
+                .Select(s => new { order = s.Order, name = StepNames.Display(steps, s) })
+                .ToList();
+            BtnGoTo.Disabled = BtnMesGoTo.Disabled = next.Count == 0;
+            BtnSkip.Attributes["onclick"]    = "return practiceSkip('" + BtnSkip.UniqueID + "');";
+            BtnMesSkip.Attributes["onclick"] = "return practiceSkip('" + BtnMesSkip.UniqueID + "');";
+            BtnGoTo.Attributes["onclick"]    = "return practiceGoTo('" + BtnSkip.UniqueID + "');";
+            BtnMesGoTo.Attributes["onclick"] = "return practiceGoTo('" + BtnMesSkip.UniqueID + "');";
+
+            var data = new
+            {
+                hint     = StepHints.For(current.StepType),
+                failure  = _lastFailureFeedback,
+                current  = new { order = current.Order, name = StepNames.Display(steps, current) },
+                next,
+                hiddenId = HfSkipTarget.ClientID
+            };
+            ClientScript.RegisterStartupScript(GetType(), "podPractice",
+                "window.podPractice = " + new JavaScriptSerializer().Serialize(data) + ";", true);
+        }
+
+        // Saltar paso / Ir a… (spec 012, D-83, D-84 enmendada): el destino viaja en
+        // HfSkipTarget. La BLL ignora uno que ya no está adelante (doble clic, F5). Si el salto
+        // cierra la sesión, el resumen; si no (también si se ignoró), el POD se vuelve a armar
+        // desde su estado como en un F5 (sin selección ni control abierto): los pasos saltados
+        // pueden ser varios y de tipos distintos, y el Ingreso a MES saltado muestra el POD.
+        protected void BtnSkip_ServerClick(object sender, EventArgs e)
+        {
+            var (session, guide, area, _) = GetContext();
+            if (session == null) return;
+
+            string raw = HfSkipTarget.Value;
+            HfSkipTarget.Value = string.Empty;
+            if (int.TryParse(raw, NumberStyles.None, CultureInfo.InvariantCulture, out int target) &&
+                Pod.Skip(_ctx, target).Step?.Outcome == StepSubmitOutcome.SessionCompleted)
+            {
+                ShowCompletionPanel(session, area, guide);
+                return;
+            }
+            Response.Redirect(Request.RawUrl);
         }
 
         // Ingreso a MES (spec 016, P-1): mientras es el paso actual, el escritorio simulado en
@@ -735,6 +800,7 @@ namespace TrainingApp.Pages.Training
 
                 case StepSubmitOutcome.Incorrect:
                     _guideMoment = GuideMoment.Incorrect(step);
+                    _lastFailureFeedback = incorrectFeedback;
                     ShowSweetAlert("warning", "Incorrect",
                         BuildIncorrectFeedback(_ctx.Policy, step.StepType, result.RemainingScoredAttempts, incorrectFeedback));
                     break;
@@ -878,7 +944,7 @@ namespace TrainingApp.Pages.Training
                 return "Respuesta incorrecta.";
 
             if (!string.IsNullOrEmpty(incorrectFeedback)) return incorrectFeedback;
-            string hint = GetHint(stepType);
+            string hint = StepHints.For(stepType);
             return !string.IsNullOrEmpty(hint) ? hint : "Intente de nuevo.";
         }
 
@@ -1731,32 +1797,5 @@ namespace TrainingApp.Pages.Training
 
         private static string FormatScore(decimal score)
             => (score * 100m).ToString("F1") + "%";
-
-        // Hint de Guided tras un intento fallido: en español, con los nombres del MES en inglés
-        // (spec 010, R7). Log NC solo nombra el Component en la reparación rápida.
-        private static string GetHint(StepType stepType)
-        {
-            // Spec 014: la pieza y el código son los del hallazgo.
-            if (stepType == StepType.LogNCFastRepair)
-                return "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo, elija en Component el componente del hallazgo, presione Add-Done y reemplácelo (Yes, Scrap, Yes y Add).";
-            if (stepType == StepType.LogNCExtendedRepair)
-                return "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo, presione Add-Done y presione Select en la disposición del hallazgo.";
-            if (StepTypes.IsLogNC(stepType))
-                return "Seleccione la pieza del hallazgo, presione Log NC en el código del hallazgo y presione Add-Done.";
-
-            switch (stepType)
-            {
-                case StepType.ResourceSetup:  return "Presione Retrieve, quite los equipos anteriores (REMOVE ALL), agregue sus filas, verifique que Setup State esté en 'Set Up' y presione Save.";
-                case StepType.LineClearance:  return "Responda 'Si' para confirmar la limpieza de línea.";
-                case StepType.Search:         return "Responda 'Sí' a las verificaciones y presione Save.";
-                case StepType.DataCollection: return "Complete todos los parámetros dentro de su rango y presione Save (no Save Draft).";
-                case StepType.SFC_Split:      return "Seleccione una fila del POD, divida la cantidad del hallazgo y presione Close.";
-                case StepType.Assembly:       return "Ensamble cada componente de la Component List: escanee su código y presione Add.";
-                case StepType.Complete:       return "Presione Complete para cerrar la orden.";
-                case StepType.Logout:         return "Presione el ícono Logout para cerrar su sesión en MES.";
-                case StepType.MesLogin:       return "Ejecute el script de limpieza con su Code1, abra el Repositorio, inicie Hora a Hora 3.0 y Recursos MES con su Code1 y entre a MES con Log On.";
-                default:                      return string.Empty;
-            }
-        }
     }
 }

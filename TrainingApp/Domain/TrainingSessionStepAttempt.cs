@@ -12,7 +12,8 @@ namespace TrainingApp.Domain
         WrongDecision      = 2,   // decisión incorrecta (Setup State, Sí/No, código NC, valores de DC…)
         InvalidAction      = 3,   // botón equivocado dentro de un paso (ej. Add o Done en vez de Add-Done)
         MissingSelection   = 4,   // Log NC o Complete sin la fila que exige el paso
-        EmptyRequiredField = 5    // Data Collection con un valor vacío
+        EmptyRequiredField = 5,   // Data Collection con un valor vacío
+        Skipped            = 6    // paso saltado en Práctica libre: resuelve el paso, como el avance forzado (spec 012)
     }
 
     public class TrainingSessionStepAttempt

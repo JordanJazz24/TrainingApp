@@ -519,6 +519,51 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.HtmlControls.HtmlButton BtnAbandon;
 
         /// <summary>
+        /// PnlPractice control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl PnlPractice;
+
+        /// <summary>
+        /// BtnHint control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnHint;
+
+        /// <summary>
+        /// BtnSkip control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnSkip;
+
+        /// <summary>
+        /// BtnGoTo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnGoTo;
+
+        /// <summary>
+        /// HfSkipTarget control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField HfSkipTarget;
+
+        /// <summary>
         /// PnlMesScreen control.
         /// </summary>
         /// <remarks>
@@ -553,6 +598,42 @@ namespace TrainingApp.Pages.Training
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlButton BtnMesAbandon;
+
+        /// <summary>
+        /// PnlMesPractice control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl PnlMesPractice;
+
+        /// <summary>
+        /// BtnMesHint control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnMesHint;
+
+        /// <summary>
+        /// BtnMesSkip control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnMesSkip;
+
+        /// <summary>
+        /// BtnMesGoTo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlButton BtnMesGoTo;
 
         /// <summary>
         /// CtrlMesLogin control.

@@ -135,7 +135,7 @@ CREATE TABLE dbo.TrainingSessions (
 -- -------------------------------------------------------
 -- TrainingSessionStepAttempts
 -- Reason: AttemptReason de la BLL (0=None, 1=OutOfSequence, 2=WrongDecision,
---         3=InvalidAction, 4=MissingSelection, 5=EmptyRequiredField); Action: código de
+--         3=InvalidAction, 4=MissingSelection, 5=EmptyRequiredField, 6=Skipped); Action: código de
 --         la acción del operador (AttemptActions). Null en los intentos anteriores a la
 --         spec 013.
 -- -------------------------------------------------------

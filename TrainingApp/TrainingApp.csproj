@@ -232,6 +232,7 @@
     <Compile Include="BLL\Scoring\PreloadedEquipmentRule.cs" />
     <Compile Include="BLL\Scoring\StepValidator.cs" />
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
+    <Compile Include="BLL\Training\StepNames.cs" />
     <Compile Include="BLL\Training\PreloadedEquipment.cs" />
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\StepTypes.cs" />
@@ -276,6 +277,7 @@
     <Compile Include="Pages\Training\StartSession.aspx.designer.cs">
       <DependentUpon>StartSession.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Training\StepHints.cs" />
     <Compile Include="Pages\Training\GuidedTest.aspx.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

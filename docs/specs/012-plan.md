@@ -193,28 +193,39 @@ en el navegador, "funciona" y commit con el roadmap.
 - **Review:** `medium`, foco en que la BLL no registra intento en `Notice` y en que Práctica
   libre nunca fuerza el avance.
 
-## Entrega 3 — Ver pista, Saltar paso e Ir a… (P-8, P-9; AC-9 a AC-11b, AC-13)
+## Entrega 3 — Ver pista, Saltar paso e Ir a… (P-8, P-9; AC-9 a AC-11b, AC-13) ✅
 
-- [ ] `Domain/TrainingSessionStepAttempt.cs`: `AttemptReason.Skipped = 6`. `00_Schema.sql`:
+> **Cerrada el 2026-10-20**, probada por el usuario. D-84 y D-91 según la enmienda 1: tras un
+> salto que no cierra la sesión, `Response.Redirect` a la misma URL (también si el salto se
+> ignoró: corrección del review); D-91 quedó con la opción 1 (`z-index` 1059 en la cápsula de
+> la barra y un `focusin` en captura que evita que el focus trap de Bootstrap le quite el foco
+> a SweetAlert, solo en Práctica libre). **Decisiones del usuario al probar:** Ver pista nombra
+> el paso actual ("Paso actual: …", ajusta P-2 solo dentro de la pista) y la barra del
+> simulador (Abandon y la cápsula de práctica) usa el estilo "Fiori Industrial" (propuesta 1),
+> con un `<span class="practice-group">` alrededor de los tres botones. Review `high`: 2 de 7
+> hallazgos aplicados. **Pendiente para Planeación:** en la limpieza al salir Ver pista muestra
+> la pista de Logout, ya hecha (la spec deja fuera pistas nuevas). Tests: 179 (3 de `StepNames`).
+
+- [x] `Domain/TrainingSessionStepAttempt.cs`: `AttemptReason.Skipped = 6`. `00_Schema.sql`:
       comentario de `Reason`. `AttemptActions.Skip = "Practice.Skip"`.
-- [ ] `PodService.Skip(ctx, targetOrder)` (D-83):
+- [x] `PodService.Skip(ctx, targetOrder)` (D-83):
   - `EnsureInProgress` y `AllowsSkip`; si no, excepción (AC-13);
   - `targetOrder` dentro de la guía (si no, excepción);
   - un destino que ya no está adelante se ignora (punto 2);
   - por cada paso desde el actual hasta el anterior al destino: `RecordAttempt` resuelto con
     `Skipped` + `RestoreAfterForcedAdvance`;
   - Saltar paso = `targetOrder` actual + 1 (en el último paso, cierra la sesión).
-- [ ] `RecordAttempt`: parámetro de resolución explícito (D-83) sin cambiar el camino del
+- [x] `RecordAttempt`: parámetro de resolución explícito (D-83) sin cambiar el camino del
       avance forzado.
-- [ ] `BLL/Training/StepNames.cs` (D-85) y `Pages/Training/StepHints.cs` (D-87).
-- [ ] `GuidedTest.aspx(.cs)`: barra de práctica (D-89) en el pie y en `mes-simbar`, con la
+- [x] `BLL/Training/StepNames.cs` (D-85) y `Pages/Training/StepHints.cs` (D-87).
+- [x] `GuidedTest.aspx(.cs)`: barra de práctica (D-89) en el pie y en `mes-simbar`, con la
       pista del paso actual, la lista de Ir a… y los diálogos de confirmación ("¿Saltar
       {paso}? No se puede volver." / "¿Ir a {paso}? Se saltarán N pasos."). Handler del salto
       con D-84, incluido el Ingreso a MES (muestra el POD) y la limpieza (resumen).
-- [ ] Tests: `StepNames` (las 3 guías: LC apertura/cierre, los 3 Log NC). Tests de `Skip`
+- [x] Tests: `StepNames` (las 3 guías: LC apertura/cierre, los 3 Log NC). Tests de `Skip`
       solo si el usuario los pide: `PodService` crea sus repositorios y no se prueba sin BD
       (roadmap → "Deuda").
-- [ ] Verificación: rebuild, `aspnet_compiler` y tests. Checklist:
+- [x] Verificación: rebuild, `aspnet_compiler` y tests. Checklist:
   - Ver pista antes y después de un fallo de Log NC (botón equivocado);
   - Saltar cada tipo de paso al menos una vez (Ingreso, Resource Setup, Start, Assembly a
     medias, DC a medias, Split, los 3 Log NC, Complete, Logout);

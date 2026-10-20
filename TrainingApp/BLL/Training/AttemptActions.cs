@@ -67,6 +67,9 @@ namespace TrainingApp.BLL.Training
         public const string LogoutScript     = "Logout.Script.Enter";
         public const string LogoutRepository = "Logout.Desktop.Repositorio";
 
+        // Práctica libre (spec 012, D-83): Saltar paso o Ir a… adelantó el paso.
+        public const string Skip = "Practice.Skip";
+
         public static string ForLogoutCleanup(MesAction action)
         {
             switch (action)

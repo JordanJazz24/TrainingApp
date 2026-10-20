@@ -839,6 +839,34 @@ namespace TrainingApp.BLL.Training
                 ? OutOfSequenceHandling.RecordAttempt
                 : OutOfSequenceHandling.Ignore);
 
+        // ── Saltar paso e Ir a… (Práctica libre) ─────────────────────────
+
+        // Spec 012 (P-9, D-83): adelanta cada paso desde el actual hasta el anterior a
+        // targetOrder, uno por uno y cada uno en su transacción, como un avance forzado:
+        // intento no correcto con Reason = Skipped y el POD como si el paso se hubiera hecho.
+        // targetOrder = el último + 1 cierra la sesión (saltar Logout). Un destino que ya no
+        // está adelante (doble clic, F5) se ignora; uno fuera de la guía o un modo sin salto
+        // es un invariante violado, no un intento (enmienda 1).
+        public PodCommandResult Skip(PodContext ctx, int targetOrder)
+        {
+            EnsureInProgress(ctx);
+            if (!ctx.Policy.AllowsSkip)
+                throw new InvalidOperationException("El modo de la sesión no permite saltar pasos.");
+            if (targetOrder < 1 || targetOrder > ctx.Guide.Steps.Count + 1)
+                throw new ArgumentOutOfRangeException(nameof(targetOrder), targetOrder, "El destino no es un paso de la guía.");
+
+            var result = new PodCommandResult();
+            while (ctx.Session.Status == SessionStatus.InProgress && ctx.Session.CurrentStepOrder < targetOrder)
+            {
+                var step = ctx.CurrentStep;
+                result.Step    = RecordAttempt(ctx, step, isCorrect: false, AttemptReason.Skipped,
+                    AttemptActions.Skip, resolve: true);
+                RestoreAfterForcedAdvance(ctx, step);
+                result.Skipped = true;
+            }
+            return result;
+        }
+
         // ── Secuencia y avance forzado ───────────────────────────────────
 
         // null si el botón es el del paso actual. Si no: según ModePolicy, intento fallido del
@@ -1044,8 +1072,10 @@ namespace TrainingApp.BLL.Training
         // intento nuevo incluido. El contexto se actualiza solo después de guardar.
         // Registro de actividad (spec 013): cada intento guarda su motivo (None si es correcto)
         // y la acción del operador, en la misma transacción.
+        // resolve: un intento no correcto que igual resuelve el paso (el salto de Práctica libre,
+        // D-83); sigue el camino del avance forzado.
         private StepSubmitResult RecordAttempt(PodContext ctx, TrainingStep step, bool isCorrect,
-            AttemptReason failureReason, string action)
+            AttemptReason failureReason, string action, bool resolve = false)
         {
             // Un error de programación, no un intento: sin acción el intento se confundiría con
             // los anteriores a la spec 013, y una de más de 50 haría fallar el SP.
@@ -1068,7 +1098,7 @@ namespace TrainingApp.BLL.Training
             var attempts = new List<TrainingSessionStepAttempt>(ctx.Attempts) { attempt };
             decimal score = _scoreCalc.CalculateSessionScore(ctx.Guide.Steps, attempts, session.Mode);
 
-            bool forceAdvance = ctx.Policy.ForcesAdvanceAt(attemptNumber);
+            bool forceAdvance = resolve || ctx.Policy.ForcesAdvanceAt(attemptNumber);
 
             StepSubmitResult result;
             if (!isCorrect && !forceAdvance)

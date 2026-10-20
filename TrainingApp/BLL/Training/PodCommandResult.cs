@@ -41,6 +41,11 @@ namespace TrainingApp.BLL.Training
         // libre, spec 012, D-88).
         public bool NotCurrentStepNotice { get; set; }
 
+        // Saltar paso o Ir a… adelantó al menos un paso (spec 012, D-84). Step es el intento del
+        // último paso saltado (FailedForced o SessionCompleted); la página vuelve a armar el POD
+        // desde su estado, así que PodChanged no se usa.
+        public bool Skipped { get; set; }
+
         // Avance forzado por secuencia: la BLL dejó el POD como si el paso se hubiera hecho y
         // la página lo tiene que volver a pintar.
         public bool PodChanged { get; set; }

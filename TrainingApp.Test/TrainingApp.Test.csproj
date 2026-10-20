@@ -127,6 +127,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScoreCalculatorTests.cs" />
     <Compile Include="ModePolicyTests.cs" />
+    <Compile Include="StepNamesTests.cs" />
     <Compile Include="StepValidatorLogNCTests.cs" />
     <Compile Include="MesLoginRuleTests.cs" />
     <Compile Include="GuideScriptReader.cs" />

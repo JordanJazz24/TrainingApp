@@ -15,7 +15,7 @@
 > auditoría.
 
 **Última actualización:** 2026-10-20 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 012, entrega 2 (`git log --oneline -10` para ver el estado real)
+código:** spec 012, entrega 3 (`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -42,8 +42,10 @@ código:** spec 012, entrega 2 (`git log --oneline -10` para ver el estado real)
   2026-10-20). **E1 ✅** (2026-10-20): refactor `ModePolicy` sin cambio de comportamiento,
   regresión de Guided y Assessment probada por el usuario. **E2 ✅** (2026-10-20): el modo
   Práctica libre (sin guía ni puntaje, aviso "Ese no es el paso actual." sin intento, sin
-  penalización ni avance forzado), probado por el usuario. **Siguiente:** E3 (Ver pista,
-  Saltar paso, Ir a…) y E4 (resumen por paso); después la **017** (espera las capturas de T9).
+  penalización ni avance forzado), probado por el usuario. **E3 ✅** (2026-10-20): Ver pista
+  (con el paso actual), Saltar paso e Ir a… en una barra "Fiori Industrial", probados por el
+  usuario. **Siguiente:** E4 (resumen por paso y documentación); después la **017** (espera
+  las capturas de T9).
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo

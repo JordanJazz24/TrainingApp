@@ -285,13 +285,23 @@
     </div>
 
     <%-- ══ FOOTER ════════════════════════════════════════════════════════ --%>
-    <%-- Abandon es del simulador (no existe en el MES real): a la izquierda del pie. --%>
+    <%-- Abandon es del simulador (no existe en el MES real): a la izquierda del pie. A su
+         derecha, en Práctica libre, la barra de práctica (spec 012, D-89), también del
+         simulador. --%>
     <div class="pod-footer">
         <div class="pod-footer-side">
             <button id="BtnAbandon" runat="server" class="btn btn-sm btn-outline-danger pod-abandon-btn"
                 onserverclick="BtnAbandon_Click" onclick="return confirmAbandon();" data-guide-free="">
                 Abandon Session
             </button>
+            <span id="PnlPractice" runat="server" class="practice-group" Visible="false">
+                <button id="BtnHint" runat="server" type="button" class="btn btn-sm practice-btn"
+                    Visible="false" onclick="practiceHint();">Ver pista</button>
+                <button id="BtnSkip" runat="server" class="btn btn-sm practice-btn"
+                    Visible="false" onserverclick="BtnSkip_ServerClick">Saltar paso</button>
+                <button id="BtnGoTo" runat="server" type="button" class="btn btn-sm practice-btn"
+                    Visible="false">Ir a…</button>
+            </span>
         </div>
         <div class="pod-footer-buttons">
             <button id="BtnResourceSetup" runat="server" class="pod-footer-btn" disabled="disabled"
@@ -310,6 +320,10 @@
 
     </div><%-- /pod-shell --%>
 
+    <%-- Destino de Saltar paso / Ir a… (spec 012, D-89): fuera de los paneles, se envía con
+         cualquiera de las dos barras. --%>
+    <asp:HiddenField ID="HfSkipTarget" runat="server" />
+
     <%-- ══ INGRESO A MES (spec 016) ═══════════════════════════════════════ --%>
     <%-- Pantalla completa mientras el paso actual es Ingreso a MES (P-1). La barra es del
          simulador (P-11): área, modo y Abandon, la única salida a mitad del Ingreso. --%>
@@ -322,6 +336,14 @@
                 onserverclick="BtnAbandon_Click" data-guide-free="">
                 Abandon Session
             </button>
+            <span id="PnlMesPractice" runat="server" class="practice-group" Visible="false">
+                <button id="BtnMesHint" runat="server" type="button" class="btn btn-sm practice-btn"
+                    Visible="false" onclick="practiceHint();">Ver pista</button>
+                <button id="BtnMesSkip" runat="server" class="btn btn-sm practice-btn"
+                    Visible="false" onserverclick="BtnSkip_ServerClick">Saltar paso</button>
+                <button id="BtnMesGoTo" runat="server" type="button" class="btn btn-sm practice-btn"
+                    Visible="false">Ir a…</button>
+            </span>
         </div>
         <uc:MesLoginControl ID="CtrlMesLogin" runat="server" OnOnMesAction="HandleMesAction" />
     </asp:Panel>
@@ -754,6 +776,94 @@
             if (r.isConfirmed) {
                 __doPostBack(target, '');
             }
+        });
+        return false;
+    }
+
+    // ── Barra de práctica (spec 012, D-87 a D-89) ────────────────────
+    // window.podPractice lo deja el servidor en cada render de Práctica libre: la pista del
+    // paso actual, el texto del último fallo (solo de este request), el paso actual y los
+    // siguientes. Solo presentación: el salto lo valida la BLL.
+    // D-91: con un modal de Bootstrap abierto, su focus trap devuelve el foco al modal y
+    // cerraría el select de Ir a… o dejaría el SweetAlert sin teclado. El foco que entra al
+    // SweetAlert no llega al trap (captura en document, antes que el listener de Bootstrap).
+    // Solo en Práctica libre (window.podPractice).
+    document.addEventListener('focusin', function (e) {
+        if (window.podPractice && e.target.closest && e.target.closest('.swal2-container'))
+            e.stopImmediatePropagation();
+    }, true);
+
+    function practiceHint() {
+        var p = window.podPractice;
+        if (!p) return;
+        var box = document.createElement('div');
+        // El paso actual solo se nombra al pedir la pista (decisión del usuario, 2026-10-20).
+        var stepLine = document.createElement('p');
+        var stepName = document.createElement('strong');
+        stepName.textContent = p.current.name;
+        stepLine.appendChild(document.createTextNode('Paso actual: '));
+        stepLine.appendChild(stepName);
+        box.appendChild(stepLine);
+        [p.failure, p.hint].forEach(function (t) {
+            if (!t) return;
+            var para = document.createElement('p');
+            para.textContent = t;
+            box.appendChild(para);
+        });
+        Swal.fire({ titleText: 'Pista', html: box, icon: 'info', confirmButtonText: 'OK' });
+    }
+
+    function practicePost(target, order) {
+        document.getElementById(window.podPractice.hiddenId).value = order;
+        __doPostBack(target, '');
+    }
+
+    function practiceSkip(target) {
+        var p = window.podPractice;
+        if (!p) return false;
+        Swal.fire({
+            titleText: '¿Saltar ' + p.current.name + '?',
+            text: 'No se puede volver.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Saltar',
+            cancelButtonText: 'Cancelar'
+        }).then(function (r) {
+            if (r.isConfirmed) practicePost(target, p.current.order + 1);
+        });
+        return false;
+    }
+
+    function practiceGoTo(target) {
+        var p = window.podPractice;
+        if (!p || !p.next.length) return false;
+        var options = {};
+        p.next.forEach(function (s) { options[s.order] = s.name; });
+        Swal.fire({
+            titleText: 'Ir a…',
+            input: 'select',
+            inputOptions: options,
+            inputPlaceholder: 'Elija un paso',
+            showCancelButton: true,
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar',
+            inputValidator: function (v) { return v ? null : 'Elija un paso.'; }
+        }).then(function (r) {
+            if (!r.isConfirmed) return;
+            var order = parseInt(r.value, 10);
+            var step = p.next.filter(function (s) { return s.order === order; })[0];
+            if (!step) return;
+            var n = order - p.current.order;
+            Swal.fire({
+                titleText: '¿Ir a ' + step.name + '?',
+                text: n === 1 ? 'Se saltará 1 paso.' : 'Se saltarán ' + n + ' pasos.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ir',
+                cancelButtonText: 'Cancelar'
+            }).then(function (r2) {
+                if (r2.isConfirmed) practicePost(target, order);
+            });
         });
         return false;
     }
