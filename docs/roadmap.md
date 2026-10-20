@@ -40,8 +40,10 @@ código:** spec 014, entrega 3 (`git log --oneline -10` para ver el estado real)
   sesión que encontró su review (`docs/architecture.md` → "Sesión del usuario"). **E2 ✅**
   (2026-10-19, probada por el usuario): paso nuevo Ingreso a MES (`StepType` 11, primero en
   las tres guías, 0.05; DC −0.05) con el escritorio, el script, Edge, el Repositorio, Hora a
-  Hora, Recursos MES y el login de NetWeaver, calificado por pantalla. **Siguiente:** E3
-  (Logout con la limpieza). Orden
+  Hora, Recursos MES y el login de NetWeaver, calificado por pantalla. **E3 ✅** (2026-10-19,
+  probada por el usuario): Logout en el último paso abre "You have logged off"; cerrar Edge
+  lleva al escritorio y el script con el Code1 propio cierra la sesión (el resumen sale al
+  cerrar la consola). **Siguiente:** E4 (guía de Guided del Ingreso y de la limpieza). Orden
   vigente: **016 → notas EP-7 (plan directo) → 012 → 017**.
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),

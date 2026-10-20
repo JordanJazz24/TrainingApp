@@ -50,6 +50,12 @@ namespace TrainingApp.BLL.Training
         // Avance del Ingreso a MES (spec 016); vacío antes de la primera acción.
         public MesLoginProgress MesLogin => State.MesLogin ?? new MesLoginProgress();
 
+        // Limpieza al salir en curso (spec 016, P-6): el paso actual es Logout y el operador ya
+        // hizo clic en el ícono. Mientras dura, la página muestra Edge o el escritorio.
+        public bool IsLogoutCleanup
+            => Session.Status == SessionStatus.InProgress && State.Logout != null &&
+               CurrentStepOrDefault?.StepType == StepType.Logout;
+
         // Recurso del área: el del POD y el de la etiqueta de la estación en Recursos MES (D-70).
         public string ResourceName => PodDefaults.ResourceName(Area);
         public TrainingSession Session { get; }

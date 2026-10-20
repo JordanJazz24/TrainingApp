@@ -53,6 +53,10 @@ namespace TrainingApp.Pages.Training
         // null: la del avance guardado (F5, D-78).
         private MesScreen? _mesScreen;
 
+        // La limpieza al salir cerró la sesión en este request con el script (spec 016, P-12):
+        // la consola muestra su salida y el resumen se ve al cerrarla.
+        private bool _cleanupCompleted;
+
         private StepType? OpenStepType
         {
             get { return ViewState[OpenStepTypeKey] as StepType?; }
@@ -226,23 +230,49 @@ namespace TrainingApp.Pages.Training
         // siempre.
         private void ApplyMesLoginScreen()
         {
-            MesScreenActive = _ctx != null && _ctx.Session.Status == SessionStatus.InProgress &&
-                              _ctx.CurrentStepOrDefault?.StepType == StepType.MesLogin;
+            bool login   = _ctx != null && _ctx.Session.Status == SessionStatus.InProgress &&
+                           _ctx.CurrentStepOrDefault?.StepType == StepType.MesLogin;
+            bool cleanup = _ctx != null && (_ctx.IsLogoutCleanup || _cleanupCompleted);
+            MesScreenActive = login || cleanup;
             PnlMesScreen.Visible = MesScreenActive;
+            // El resumen (fijo, por encima del escritorio) espera a que se cierre la consola de
+            // la limpieza (P-12). CssClass persiste en ViewState: se asigna siempre.
+            PnlCompleted.CssClass = _cleanupCompleted ? "pod-completion d-none" : "pod-completion";
             if (!MesScreenActive) return;
 
-            var progress = _ctx.MesLogin;
-            var screen   = _mesScreen ?? progress.ResumeScreen();
-            CtrlMesLogin.View = new MesLoginView
+            if (login)
             {
-                ScriptDone   = progress.ScriptDone,
-                EdgeOpen     = progress.EdgeOpen,
-                HoraHoraDone = progress.HoraHoraDone,
-                RecursosDone = progress.RecursosDone,
-                Screen       = MesLoginControl.ScreenFor(screen),
-                ResourceName = _ctx.ResourceName,
-                ScriptCode1  = screen == MesScreen.ScriptOutput ? _ctx.Code1 : null
-            };
+                var progress = _ctx.MesLogin;
+                var screen   = _mesScreen ?? progress.ResumeScreen();
+                CtrlMesLogin.View = new MesLoginView
+                {
+                    Mode         = MesLoginControl.ModeLogin,
+                    ScriptDone   = progress.ScriptDone,
+                    EdgeOpen     = progress.EdgeOpen,
+                    HoraHoraDone = progress.HoraHoraDone,
+                    RecursosDone = progress.RecursosDone,
+                    Screen       = MesLoginControl.ScreenFor(screen),
+                    ResourceName = _ctx.ResourceName,
+                    ScriptCode1  = screen == MesScreen.ScriptOutput ? _ctx.Code1 : null
+                };
+            }
+            else
+            {
+                // Limpieza al salir (P-6): "You have logged off" hasta cerrar Edge; después el
+                // escritorio y el script. Si el script cerró la sesión en este request, la
+                // consola muestra su salida y al cerrarla se ve el resumen (P-12).
+                var screen = _cleanupCompleted ? MesScreen.ScriptOutput
+                    : _mesScreen ?? _ctx.State.Logout.ResumeScreen();
+                CtrlMesLogin.View = new MesLoginView
+                {
+                    Mode           = MesLoginControl.ModeLogout,
+                    EdgeOpen       = !_cleanupCompleted && !_ctx.State.Logout.EdgeClosed,
+                    Screen         = MesLoginControl.ScreenFor(screen),
+                    ResourceName   = _ctx.ResourceName,
+                    ScriptCode1    = screen == MesScreen.ScriptOutput ? _ctx.Code1 : null,
+                    CloseToSummary = _cleanupCompleted
+                };
+            }
             LitMesArea.Text = HttpUtility.HtmlEncode(_ctx.Area.Name);
             LitMesMode.Text = _ctx.Session.Mode == SessionMode.Assessment ? "Assessment" : "Guided";
             BtnMesAbandon.Attributes["onclick"] = "return confirmAbandon('" + BtnMesAbandon.UniqueID + "');";
@@ -256,20 +286,26 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
 
+            bool cleanup = _ctx.IsLogoutCleanup;
             var result = Pod.SubmitMesAction(_ctx, e.Action, e.Code1, e.Resource, e.Password);
             _mesScreen = result.MesScreen;
             if (result.Step != null)
             {
                 ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+                // Limpieza terminada con el script (no forzada): primero la salida de la consola.
+                _cleanupCompleted = cleanup && result.Step.Outcome == StepSubmitOutcome.SessionCompleted &&
+                                    result.MesScreen == MesScreen.ScriptOutput;
                 return;
             }
 
-            // Guided: abrir el Repositorio antes del script se ignora, sin intento, como un
-            // botón fuera de secuencia; la guía (E4) no lo deja. Mientras tanto, un aviso que no
-            // parece un error calificado.
+            // Guided: abrir el Repositorio fuera de su turno (antes del script del Ingreso o en
+            // la limpieza) se ignora, sin intento, como un botón fuera de secuencia; la guía (E4)
+            // no lo deja. Mientras tanto, un aviso que no parece un error calificado.
             if (result.OutOfSequence)
-                ShowSweetAlert("info", "Antes del Repositorio",
-                    "Primero ejecute el script de limpieza (MES Limpiar historial y cache) con su Code1.");
+                ShowSweetAlert("info", cleanup ? "Limpieza al salir" : "Antes del Repositorio",
+                    cleanup
+                        ? "Después del Logout no se abre el Repositorio: ejecute el script de limpieza (MES Limpiar historial y cache) con su Code1."
+                        : "Primero ejecute el script de limpieza (MES Limpiar historial y cache) con su Code1.");
         }
 
         // Nota de hallazgo (spec 014, D-49): solo el hallazgo del paso actual de Log NC, en los
@@ -357,6 +393,10 @@ namespace TrainingApp.Pages.Training
             // Visible persiste en ViewState: se decide en cada request.
             PhGuideAssets.Visible = false;
             if (_ctx == null || _ctx.Session.Mode != SessionMode.Guided) return;
+
+            // Ingreso a MES y limpieza al salir (spec 016): su guía llega en la E4. Hasta
+            // entonces no se muestra (la de Logout señalaría el ícono, que está oculto).
+            if (MesScreenActive) return;
 
             var script = new GuideScriptBuilder().Build(_ctx, _guideMoment);
             if (script.IsEmpty) return;
@@ -1182,16 +1222,17 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Training/StartSession.aspx");
         }
 
-        // Logout con la sesión de entrenamiento en curso (spec 015): en el último paso registra
-        // el paso y muestra el resumen final, sin cerrar la sesión de la app; antes, es un
-        // botón más del POD (S2). Sin sesión en curso no llega acá: LoadContext ya salió (D-21).
+        // Logout con la sesión de entrenamiento en curso (spec 015): antes del último paso es un
+        // botón más del POD (S2). En el último paso empieza la limpieza (spec 016, P-6): "You
+        // have logged off" en Edge, sin intento; el script la termina (HandleMesAction). Sin
+        // sesión en curso no llega acá: LoadContext ya salió (D-21).
         protected void BtnLogout_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
             var result = Pod.ClickLogout(_ctx);
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
-            ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
+            _mesScreen = result.MesScreen;
         }
 
         // Los botones HTML del POD (Logout, Abandon) postean con __doPostBack.

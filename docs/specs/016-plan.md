@@ -165,16 +165,33 @@ sin `ALTER` aparte (`docs/process.md` → "Base de datos", 2026-10-19).
 
 ## Entrega 3 — Logout con la limpieza (D-65, P-6, P-12; AC-10, AC-11)
 
-- [ ] **BLL:** `LogoutProgress` (D-78). El clic en Logout del último paso ya no cierra el
+- [x] **BLL:** `LogoutProgress` (D-78). El clic en Logout del último paso ya no cierra el
       paso: pasa a "You have logged off". Cerrar Edge lleva al escritorio. El script con el
       Code1 propio cierra el paso (`StepAnswers.Logout`) y la sesión. Abrir el Repositorio o
       un Code1 ajeno es intento fallido de Logout. Avance forzado: cierra la sesión con su
       resumen, como hoy.
-- [ ] **UI:** "You have logged off" en Edge (Log On Again sin acción), escritorio y consola
+- [x] **UI:** "You have logged off" en Edge (Log On Again sin acción), escritorio y consola
       de `MesLoginControl`. Al cerrar la consola vuelve el POD con el resumen (P-12).
-- [ ] Aplica a toda sesión, sin importar la versión de su guía.
+- [x] Aplica a toda sesión, sin importar la versión de su guía.
 - [x] Captura de "You have logged off": `Pre-SAPMES/logout sap mes.png` (`0d76e2b`).
-- [ ] **Tests:** casos de la limpieza en la BLL.
+- [x] **Tests:** casos de la limpieza en la BLL.
+
+> **Decisiones de implementación de E3** (desarrollo, 2026-10-19; no cambian la spec ni el
+> plan):
+>
+> - La limpieza se califica con `LogoutCleanupRule` (BLL, con tests), como el Ingreso, y el
+>   script correcto registra el intento con `RecordAttempt` en lugar de
+>   `SubmitStep(StepAnswers.Logout)`. Logout ya no se califica por respuesta: salieron
+>   `StepAnswers.Logout` y su caso del validador (review `medium`).
+> - El clic en Logout del último paso solo crea `LogoutProgress` (sin intento); un segundo
+>   clic no cambia nada. Si la Session se pierde a mitad, la limpieza vuelve a empezar con el
+>   ícono Logout.
+> - Al cerrar la sesión con el script, la respuesta trae la consola con la salida y el
+>   resumen oculto; al cerrar la consola se ven el POD y el resumen, sin otro postback.
+> - En Guided, el Repositorio en la limpieza no cuenta y muestra un aviso, como en el
+>   Ingreso. La guía no se muestra en el escritorio hasta la E4 (tampoco el globo final
+>   cuando la limpieza cierra la sesión).
+> - La barra de direcciones de "You have logged off" queda vacía (URL de MES sin captura).
 
 ## Entrega 4 — Guía de Guided (P-8, P-10; AC-16)
 

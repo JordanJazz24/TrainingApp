@@ -33,6 +33,9 @@ namespace TrainingApp.BLL.Training
         // Avance del Ingreso a MES (spec 016, D-78): null hasta la primera acción y después de
         // resolver el paso.
         public MesLoginProgress MesLogin { get; set; }
+
+        // Limpieza al salir (spec 016, D-65): null hasta el clic en Logout del último paso.
+        public LogoutProgress Logout { get; set; }
     }
 
     // Dónde guarda la BLL el estado del POD. La BLL no depende de System.Web: la página le

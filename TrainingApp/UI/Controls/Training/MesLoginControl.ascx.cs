@@ -21,6 +21,11 @@ namespace TrainingApp.UI.Controls.Training
         public const string ScreenHoraHora    = "horahora";
         public const string ScreenRecursos    = "recursos";
         public const string ScreenMesLogin    = "meslogin";
+        public const string ScreenLoggedOff   = "loggedoff";
+
+        // MesLoginView.Mode: el Ingreso a MES o la limpieza al salir (P-6).
+        public const string ModeLogin  = "login";
+        public const string ModeLogout = "logout";
 
         public event EventHandler<MesActionEventArgs> OnMesAction;
 
@@ -69,6 +74,7 @@ namespace TrainingApp.UI.Controls.Training
                 case MesScreen.HoraHora:   return ScreenHoraHora;
                 case MesScreen.Recursos:   return ScreenRecursos;
                 case MesScreen.MesLogin:   return ScreenMesLogin;
+                case MesScreen.LoggedOff:  return ScreenLoggedOff;
                 default:                   return ScreenDesktop;
             }
         }

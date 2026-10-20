@@ -677,6 +677,27 @@
     background: #dcecfb;
 }
 
+/* "You have logged off" (captura logout sap mes.png): texto y Log On Again a la derecha. */
+.mes-nw .mes-nw-loggedoff {
+    max-width: 520px;
+    font-size: 16px;
+    color: #222;
+}
+
+.mes-nw .mes-nw-loggedoff .nw-actions {
+    margin-top: 18px;
+}
+
+.mes-nw .mes-nw-again {
+    padding: 2px 10px;
+    border: 1px solid #8a8a8a;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, #fafafa, #e2e2e2);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    color: #000;
+}
+
 /* ── Pantallas angostas ──────────────────────────────────────────────────── */
 @media (max-width: 1199px) {
     .mes-nw .nw-image,

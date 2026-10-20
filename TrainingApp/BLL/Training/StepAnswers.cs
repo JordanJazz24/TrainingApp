@@ -5,9 +5,6 @@ namespace TrainingApp.BLL.Training
     {
         public const string Complete = "complete";
 
-        // Clic en el ícono Logout del POD en el último paso (spec 015).
-        public const string Logout = "logout";
-
         // Start directo (área sin checklist, spec 008): el paso se califica solo por secuencia.
         public const string Start = "start";
 

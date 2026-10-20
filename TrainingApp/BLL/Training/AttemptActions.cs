@@ -63,6 +63,20 @@ namespace TrainingApp.BLL.Training
         public const string MesRecursosSearch = "MES.Recursos.Buscar";
         public const string MesLogOn          = "MES.Login.LogOn";
 
+        // Limpieza al salir (spec 016, P-6): intentos del paso Logout desde el escritorio.
+        public const string LogoutScript     = "Logout.Script.Enter";
+        public const string LogoutRepository = "Logout.Desktop.Repositorio";
+
+        public static string ForLogoutCleanup(MesAction action)
+        {
+            switch (action)
+            {
+                case MesAction.RunScript:      return LogoutScript;
+                case MesAction.OpenRepository: return LogoutRepository;
+                default: throw new InvalidOperationException("La acción de la limpieza no se califica.");
+            }
+        }
+
         public static string ForMesAction(MesAction action)
         {
             switch (action)
@@ -91,8 +105,8 @@ namespace TrainingApp.BLL.Training
                 case StepType.Search:        return answer == StepAnswers.Start ? Start : StartChecklistSave;
                 case StepType.SFC_Split:     return SFCSplitClose;
                 case StepType.Complete:      return Complete;
-                case StepType.Logout:        return Logout;
-                // Assembly y DC no se califican por respuesta (SubmitStep los rechaza).
+                // Assembly, DC, Ingreso a MES y Logout no se califican por respuesta (SubmitStep
+                // los rechaza; los dos últimos, spec 016).
                 default: throw new InvalidOperationException("El paso no tiene acción de envío.");
             }
         }

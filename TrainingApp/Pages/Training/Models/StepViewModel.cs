@@ -56,6 +56,13 @@ namespace TrainingApp.Pages.Training.Models
         // Code1 del operador para la salida del script ("Script ejecutado por …"); solo con
         // la consola terminada.
         public string ScriptCode1 { get; set; }
+
+        // El Ingreso a MES o la limpieza al salir (MesLoginControl.Mode*, spec 016, P-6).
+        public string Mode { get; set; }
+
+        // La limpieza terminó en este request: al cerrar la consola se ve el POD con el resumen
+        // (P-12).
+        public bool CloseToSummary { get; set; }
     }
 
     // Ingreso a MES (spec 016, D-77): una pantalla enviada al servidor. Password solo dice si

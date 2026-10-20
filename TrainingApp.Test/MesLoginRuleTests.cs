@@ -174,6 +174,50 @@ namespace TrainingApp.Test
             Assert.That(progress.ScriptDone, Is.True);
         }
 
+        // ── Limpieza al salir (AC-10, AC-11, P-6) ────────────────────────
+
+        private static MesOutcome Cleanup(bool edgeClosed, MesAction action, string code1 = null)
+            => LogoutCleanupRule.Evaluate(new LogoutProgress { EdgeClosed = edgeClosed }, action, Own, code1);
+
+        [Test]
+        public void Cleanup_StartsInLoggedOffAndCloseEdgeGoesToDesktop()
+        {
+            var progress = new LogoutProgress();
+            Assert.That(progress.ResumeScreen(), Is.EqualTo(MesScreen.LoggedOff));
+
+            AssertAccepted(Cleanup(false, MesAction.CloseEdge), MesScreen.Desktop);
+            progress.Apply(MesAction.CloseEdge);
+
+            Assert.That(progress.ResumeScreen(), Is.EqualTo(MesScreen.Desktop));
+        }
+
+        [Test]
+        public void Cleanup_ScriptWithOwnCode1_ClosesTheStep()
+            => AssertAccepted(Cleanup(true, MesAction.RunScript, Own), MesScreen.ScriptOutput);
+
+        [Test]
+        public void Cleanup_ScriptWithOtherCode1_FailsAndStaysInConsole()
+            => AssertFailed(Cleanup(true, MesAction.RunScript, Other), AttemptReason.WrongDecision, MesScreen.Console);
+
+        // P-6: en el escritorio, abrir el Repositorio es intento fallido de Logout.
+        [Test]
+        public void Cleanup_Repository_FailsOutOfSequence()
+            => AssertFailed(Cleanup(true, MesAction.OpenRepository), AttemptReason.OutOfSequence, MesScreen.Desktop);
+
+        // Con Edge todavía abierto el escritorio no se ve; Hora a Hora, Recursos y Log On no
+        // existen en la limpieza.
+        [TestCase(false, MesAction.RunScript)]
+        [TestCase(false, MesAction.OpenRepository)]
+        [TestCase(true, MesAction.HoraHoraStart)]
+        [TestCase(true, MesAction.RecursosSearch)]
+        [TestCase(true, MesAction.LogOn)]
+        public void Cleanup_UnreachableActions_AreInvalid(bool edgeClosed, MesAction action)
+            => Assert.That(Cleanup(edgeClosed, action, Own).Kind, Is.EqualTo(MesOutcomeKind.Invalid));
+
+        [Test]
+        public void Cleanup_CloseEdgeTwice_IsIgnored()
+            => Assert.That(Cleanup(true, MesAction.CloseEdge).Kind, Is.EqualTo(MesOutcomeKind.Ignored));
+
         // ── Avance forzado (AC-8, P-5) ───────────────────────────────────
 
         // El 4.º intento fallido en Assessment fuerza el avance; en Guided nunca.

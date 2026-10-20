@@ -14,7 +14,8 @@ namespace TrainingApp.BLL.Training
         Repository,
         HoraHora,
         Recursos,
-        MesLogin
+        MesLogin,
+        LoggedOff        // Logout con la limpieza (spec 016, P-6): "You have logged off" en Edge
     }
 
     // Acciones del Ingreso que viajan al servidor (D-77): calificables o que cambian el avance.
@@ -61,6 +62,23 @@ namespace TrainingApp.BLL.Training
             if (!EdgeOpen) return MesScreen.Desktop;
             return RecursosDone ? MesScreen.MesLogin : MesScreen.Repository;
         }
+    }
+
+    // Avance de la limpieza al salir (spec 016, D-65, D-78), en PodState: existe desde el clic
+    // en Logout del último paso ("You have logged off") y se descarta al cerrar la sesión.
+    [Serializable]
+    public class LogoutProgress
+    {
+        // El operador cerró Edge y está en el escritorio, donde ejecuta el script.
+        public bool EdgeClosed { get; set; }
+
+        public void Apply(MesAction action)
+        {
+            if (action == MesAction.CloseEdge) EdgeClosed = true;
+        }
+
+        // F5 o un envío ignorado: "You have logged off" hasta cerrar Edge; después, el escritorio.
+        public MesScreen ResumeScreen() => EdgeClosed ? MesScreen.Desktop : MesScreen.LoggedOff;
     }
 
     public enum MesOutcomeKind
@@ -168,5 +186,39 @@ namespace TrainingApp.BLL.Training
                 : MesOutcome.Failed(AttemptReason.WrongDecision, failedScreen);
 
         private static bool IsBlank(string value) => string.IsNullOrWhiteSpace(value);
+    }
+
+    // Calificación de la limpieza al salir (spec 016, P-6): después de "You have logged off" el
+    // operador cierra Edge y, en el escritorio, ejecuta el script con su Code1. Abrir el
+    // Repositorio o un Code1 ajeno es intento fallido de Logout. Log On Again no hace nada (no
+    // viaja). El script con el Code1 propio cierra el paso.
+    public static class LogoutCleanupRule
+    {
+        public static MesOutcome Evaluate(LogoutProgress progress, MesAction action,
+            string ownCode1, string code1 = null)
+        {
+            if (progress == null) throw new ArgumentNullException(nameof(progress));
+
+            switch (action)
+            {
+                case MesAction.CloseEdge:
+                    return progress.EdgeClosed ? MesOutcome.Ignored : MesOutcome.Accepted(MesScreen.Desktop);
+
+                case MesAction.OpenRepository:
+                    // Con Edge abierto en "You have logged off" el escritorio no se ve.
+                    if (!progress.EdgeClosed) return MesOutcome.Invalid;
+                    return MesOutcome.Failed(AttemptReason.OutOfSequence, MesScreen.Desktop);
+
+                case MesAction.RunScript:
+                    if (!progress.EdgeClosed || !MesLoginRule.IsScriptCode1(code1)) return MesOutcome.Invalid;
+                    return MesLoginRule.IsOwnCode1(ownCode1, code1)
+                        ? MesOutcome.Accepted(MesScreen.ScriptOutput)
+                        : MesOutcome.Failed(AttemptReason.WrongDecision, MesScreen.Console);
+
+                default:
+                    // Hora a Hora, Recursos MES y Log On no existen en la limpieza.
+                    return MesOutcome.Invalid;
+            }
+        }
     }
 }

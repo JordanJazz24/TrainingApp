@@ -145,7 +145,7 @@ namespace TrainingApp.BLL.Training
             // programación, no un intento fallido (auditoría AUD-21). El Ingreso a MES se
             // califica por pantalla en SubmitMesAction (spec 016).
             if (step.StepType == StepType.Assembly || step.StepType == StepType.DataCollection ||
-                step.StepType == StepType.MesLogin)
+                step.StepType == StepType.MesLogin || step.StepType == StepType.Logout)
                 throw new InvalidOperationException("El paso actual no se califica por respuesta.");
 
             bool isCorrect = BuildValidator(ctx, step.StepType, selected).Validate(step, submittedAnswer);
@@ -169,6 +169,9 @@ namespace TrainingApp.BLL.Training
         public PodCommandResult SubmitMesAction(PodContext ctx, MesAction action,
             string code1 = null, string resource = null, string password = null)
         {
+            if (ctx.IsLogoutCleanup)
+                return SubmitLogoutCleanup(ctx, action, code1);
+
             if (ctx.Session.Status != SessionStatus.InProgress ||
                 ctx.CurrentStepOrDefault?.StepType != StepType.MesLogin)
                 return new PodCommandResult();
@@ -183,15 +186,7 @@ namespace TrainingApp.BLL.Training
                     return new PodCommandResult { MesScreen = progress.ResumeScreen() };
 
                 case MesOutcomeKind.Failed:
-                    if (outcome.Reason == AttemptReason.OutOfSequence && ctx.Session.Mode != SessionMode.Assessment)
-                        return new PodCommandResult { OutOfSequence = true, MesScreen = outcome.Screen };
-                    return new PodCommandResult
-                    {
-                        OutOfSequence = outcome.Reason == AttemptReason.OutOfSequence,
-                        Step          = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: false,
-                            outcome.Reason, AttemptActions.ForMesAction(action)),
-                        MesScreen     = outcome.Screen
-                    };
+                    return MesFailure(ctx, outcome, AttemptActions.ForMesAction(action));
             }
 
             if (action == MesAction.LogOn)
@@ -203,6 +198,57 @@ namespace TrainingApp.BLL.Training
 
             progress.Apply(action);
             ctx.State.MesLogin = progress;
+            SaveState(ctx);
+            return new PodCommandResult { MesScreen = outcome.Screen };
+        }
+
+        // Fallo de una pantalla del Ingreso o de la limpieza: uno de secuencia (el Repositorio
+        // fuera de su turno) en Guided se ignora sin intento, como un botón fuera de secuencia
+        // (S2); el resto registra el intento y dice a qué pantalla volver (P-4).
+        private PodCommandResult MesFailure(PodContext ctx, MesOutcome outcome, string action)
+        {
+            bool outOfSequence = outcome.Reason == AttemptReason.OutOfSequence;
+            if (outOfSequence && ctx.Session.Mode != SessionMode.Assessment)
+                return new PodCommandResult { OutOfSequence = true, MesScreen = outcome.Screen };
+
+            return new PodCommandResult
+            {
+                OutOfSequence = outOfSequence,
+                Step          = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: false, outcome.Reason, action),
+                MesScreen     = outcome.Screen
+            };
+        }
+
+        // Limpieza al salir (spec 016, P-6), dentro del paso Logout: cerrar Edge lleva al
+        // escritorio; el script con el Code1 propio cierra el paso y la sesión (el resumen sale
+        // al cerrar la consola, P-12). Abrir el Repositorio (en Guided se ignora, como en el
+        // Ingreso) o un Code1 ajeno es intento fallido de Logout; el 4.º en Assessment cierra la
+        // sesión con su resumen, como antes. Aplica a toda sesión, sea cual sea la versión de
+        // su guía: es del código.
+        private PodCommandResult SubmitLogoutCleanup(PodContext ctx, MesAction action, string code1)
+        {
+            var progress = ctx.State.Logout;
+            var outcome  = LogoutCleanupRule.Evaluate(progress, action, ctx.Code1, code1);
+
+            switch (outcome.Kind)
+            {
+                case MesOutcomeKind.Ignored:
+                case MesOutcomeKind.Invalid:
+                    return new PodCommandResult { MesScreen = progress.ResumeScreen() };
+
+                case MesOutcomeKind.Failed:
+                    return MesFailure(ctx, outcome, AttemptActions.ForLogoutCleanup(action));
+            }
+
+            if (action == MesAction.RunScript)
+                return new PodCommandResult
+                {
+                    Step      = RecordAttempt(ctx, ctx.CurrentStep, isCorrect: true, AttemptReason.None,
+                        AttemptActions.ForLogoutCleanup(action)),
+                    MesScreen = outcome.Screen
+                };
+
+            progress.Apply(action);
             SaveState(ctx);
             return new PodCommandResult { MesScreen = outcome.Screen };
         }
@@ -754,13 +800,23 @@ namespace TrainingApp.BLL.Training
 
         // ── Logout ───────────────────────────────────────────────────────
 
-        // Ícono Logout del header (spec 015): en el último paso es su respuesta correcta y cierra
-        // la sesión de entrenamiento con su resumen (simulado: la sesión de la app sigue).
-        // Antes, es un botón más del POD (S2): intento fallido del paso actual en Assessment,
-        // ignorado en Guided.
+        // Ícono Logout del header (spec 015): antes del último paso es un botón más del POD (S2):
+        // intento fallido del paso actual en Assessment, ignorado en Guided. En el último paso
+        // ya no cierra la sesión (spec 016, D-65): empieza la limpieza ("You have logged off"),
+        // sin intento; el paso lo cierra el script (SubmitMesAction). Un segundo clic no cambia
+        // nada.
         public PodCommandResult ClickLogout(PodContext ctx)
-            => CheckSequence(ctx, StepType.Logout, AttemptActions.Logout)
-               ?? new PodCommandResult { Step = SubmitStep(ctx, StepAnswers.Logout) };
+        {
+            var sequence = CheckSequence(ctx, StepType.Logout, AttemptActions.Logout);
+            if (sequence != null) return sequence;
+
+            if (ctx.State.Logout == null)
+            {
+                ctx.State.Logout = new LogoutProgress();
+                SaveState(ctx);
+            }
+            return new PodCommandResult { MesScreen = ctx.State.Logout.ResumeScreen() };
+        }
 
         // ── Acciones del MES que no son un paso ──────────────────────────
 
@@ -944,6 +1000,8 @@ namespace TrainingApp.BLL.Training
                 ctx.State.PreloadedEquipment = null;
             else if (resolvedStep == StepType.MesLogin)
                 ctx.State.MesLogin = null;
+            else if (resolvedStep == StepType.Logout)
+                ctx.State.Logout = null;
             else if (resolvedStep == StepType.Assembly)
             {
                 ctx.State.Assembly = null;

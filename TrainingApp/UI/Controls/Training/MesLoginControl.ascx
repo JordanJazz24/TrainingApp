@@ -47,6 +47,9 @@
                 onclick="mesLogin.activateTab('hh')" data-guide="mes-tab-horahora">Hora a Hora</button>
             <button type="button" class="mes-edge-tab" id="mesTabRec" data-tab="rec"
                 onclick="mesLogin.activateTab('rec')" data-guide="mes-tab-recursos">Recursos MES</button>
+            <%-- Limpieza al salir (P-6): la pestaña de MES después del Logout. --%>
+            <button type="button" class="mes-edge-tab" id="mesTabOff" data-tab="off"
+                data-guide="mes-tab-loggedoff">SAP NetWeaver</button>
             <div class="mes-edge-winbtns">
                 <button type="button" tabindex="-1">&#8212;</button>
                 <button type="button" tabindex="-1">&#9633;</button>
@@ -163,6 +166,33 @@
                 </div>
             </div>
         </div>
+
+        <%-- "You have logged off" (P-6, captura logout sap mes.png): Log On Again no hace nada. --%>
+        <div class="mes-edge-page" id="mesPageLoggedOff" style="display:none">
+            <div class="mes-nw" data-guide="mes-loggedoff">
+                <div class="nw-frame">
+                    <div class="nw-panel">
+                        <div class="nw-image">
+                            <img src="<%=ResolveUrl("~/UI/master/imgs/login.jpg")%>" alt="" />
+                        </div>
+                        <div class="nw-main">
+                            <h1 class="nw-title">SAP NetWeaver</h1>
+                            <div class="nw-content mes-nw-loggedoff">
+                                <p>You have logged off</p>
+                                <div class="nw-actions">
+                                    <button type="button" class="mes-nw-again" data-guide="mes-logon-again">Log On Again</button>
+                                </div>
+                            </div>
+                            <div class="nw-footer">
+                                <span class="nw-copyright">Copyright &copy; SAP AG. All Rights Reserved.</span>
+                                <img class="nw-logo" src="<%=ResolveUrl("~/UI/master/imgs/sap-logo.png")%>" alt="SAP" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nw-tab"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <%-- Barra de tareas decorativa (P-2). --%>
@@ -258,10 +288,20 @@
             if (!consoleDone && input) input.focus();
         }
 
-        // Cerrar la consola sin responder no cuenta; con la salida del script, la cierra.
+        // Cerrar la consola sin responder no cuenta; con la salida del script, la cierra. Al
+        // terminar la limpieza la sesión ya se cerró: se ve el POD con el resumen (P-12).
         function closeConsole() {
+            var wasDone = consoleDone;
             consoleDone = false;
             show('mesConsole', false);
+            if (wasDone && state.CloseToSummary) {
+                var screen = el('mesDesktop').closest('.mes-screen');
+                if (screen) screen.style.display = 'none';
+                var pod = document.querySelector('.pod-shell');
+                if (pod) pod.classList.remove('d-none');
+                var summary = document.querySelector('.pod-completion');
+                if (summary) summary.classList.remove('d-none');
+            }
         }
 
         function consoleOutput(code1) {
@@ -322,6 +362,19 @@
 
         function renderEdge() {
             show('mesEdge', true);
+            // Limpieza al salir (P-6): una sola pestaña, la de MES con "You have logged off".
+            var off = state.Mode === 'logout';
+            show('mesTabOff', off);
+            show('mesPageLoggedOff', off);
+            show('mesTabRepo', !off);
+            if (off) {
+                ['mesTabHh', 'mesTabRec', 'mesPageRepo', 'mesPageHh', 'mesPageRec', 'mesPageLogin', 'mesStationLabel']
+                    .forEach(function (id) { show(id, false); });
+                el('mesTabOff').classList.add('active');
+                // La URL del logout de MES no se conoce (sin captura de Edge).
+                el('mesEdgeUrl').textContent = '';
+                return;
+            }
             show('mesTabHh', tabs.hh);
             show('mesTabRec', tabs.rec);
             el('mesTabRec').textContent = state.RecursosDone ? 'SAP NetWeaver' : 'Recursos MES';
@@ -397,7 +450,8 @@
             active = screen === 'horahora' ? 'hh'
                 : (screen === 'recursos' || screen === 'meslogin') ? 'rec' : 'repo';
 
-            if (state.EdgeOpen && screen !== 'desktop' && screen !== 'console' && screen !== 'consoleDone')
+            if (screen === 'loggedoff' ||
+                (state.EdgeOpen && screen !== 'desktop' && screen !== 'console' && screen !== 'consoleDone'))
                 renderEdge();
             if (screen === 'console') openScript();
             if (screen === 'consoleDone') showConsoleDone(state.ScriptCode1 || '');
