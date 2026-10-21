@@ -79,6 +79,13 @@
                     <span class="mes-help" title="Help">?</span>
                 </div>
 
+                <%-- Error del MES en la franja de la ventana (spec 017, M-8): la llena asmShowError
+                     (escaneo en el cliente o respuesta de la BLL al Add). --%>
+                <div id="asmMesError" class="mes-window-error" data-guide="asm-mes-error" role="alert" style="display:none">
+                    <span class="mes-error-icon" aria-hidden="true"></span>
+                    <span class="mes-window-error-text"></span>
+                </div>
+
                 <%-- Confirmación del Add (Fase 6.5): arriba a la izquierda, bajo la línea azul;
                      el modal queda abierto. La arma ShowAddConfirmation en el servidor. --%>
                 <asp:Panel ID="PnlAddConfirm" runat="server" ClientIDMode="Static" Visible="false"
@@ -196,6 +203,7 @@ function openAssembleModal(btn) {
     var msg = document.getElementById('PnlAddConfirm');
     if (msg) msg.style.display = 'none';
     document.getElementById('TxtBarcode').value = '';
+    asmShowError(null);
     asmShowScanned(false);
     showModalSafe('modalAssemble');
     setTimeout(function () { document.getElementById('TxtBarcode').focus(); }, 300);
@@ -207,6 +215,32 @@ function asmReopenAfterAdd(componentId) {
     var btn = document.querySelector('[data-component-id="' + componentId + '"]');
     if (btn) asmLoadComponent(btn);
     showModalSafe('modalAssemble');
+}
+
+// El Add que la BLL rechazó por formato (spec 017, M-8): el modal vuelve con la franja.
+function asmReopenWithError(componentId, text) {
+    asmReopenAfterAdd(componentId);
+    asmShowRejected(text);
+}
+
+// Franja de error del MES (spec 017); null la oculta. Texto plano.
+function asmShowError(text) {
+    var strip = document.getElementById('asmMesError');
+    strip.querySelector('.mes-window-error-text').textContent = text || '';
+    strip.style.display = text ? '' : 'none';
+}
+
+// Barcode que el MES rechaza (17150): igual se despliegan Component Details y Assembly Data,
+// vacíos, con [Add] (AUD-69).
+function asmShowRejected(text) {
+    var confirm = document.getElementById('PnlAddConfirm');
+    if (confirm) confirm.style.display = 'none';
+    ['asmCompCode', 'asmCompVersion', 'asmCompQty', 'asmBatch'].forEach(function (id) {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('asmCompDesc').textContent = '';
+    asmShowScanned(true);
+    asmShowError(text);
 }
 
 // El lector termina el escaneo con Enter: en un form de Web Forms Enter enviaría el
@@ -221,7 +255,7 @@ function asmBarcodeKeyDown(e) {
 }
 
 // Formato (sin intento): el barcode es obligatorio y numérico. No se valida contra el
-// número de parte (spec 008).
+// número de parte (spec 008). Es la misma regla de la BLL (PodService.IsCompliantBarcode).
 function asmBarcodeIsValid() {
     var v = document.getElementById('TxtBarcode').value.trim();
     return v !== '' && /^\d+$/.test(v);
@@ -229,13 +263,12 @@ function asmBarcodeIsValid() {
 
 function asmScan() {
     var v = document.getElementById('TxtBarcode').value.trim();
-    if (!v) { asmShowScanned(false); return; }
+    if (!v) { asmShowError(null); asmShowScanned(false); return; }
     if (!asmBarcodeIsValid()) {
-        asmShowScanned(false);
-        Swal.fire({ icon: 'warning', title: 'Barcode inválido',
-            text: 'Escanea un barcode numérico.' });
+        asmShowRejected('<%= BarcodeMesErrorJs %>');
         return;
     }
+    asmShowError(null);
     // Los datos del componente salen del catálogo (BOM); el Batch Number es el lote al
     // que pertenecen las piezas (Process Lot de la orden), no el barcode escaneado.
     document.getElementById('asmCompCode').value     = _asmComponent ? _asmComponent.part : '';
@@ -257,8 +290,7 @@ function asmShowScanned(scanned) {
 
 function assembleValidate() {
     if (!asmBarcodeIsValid()) {
-        Swal.fire({ icon: 'warning', title: 'Barcode inválido',
-            text: 'Escanea un barcode numérico antes de presionar Add.' });
+        asmShowRejected('<%= BarcodeMesErrorJs %>');
         return false;
     }
     return true;

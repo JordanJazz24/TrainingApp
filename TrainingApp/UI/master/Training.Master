@@ -44,6 +44,30 @@
         }, ms);
     }
 
+    // Banner de error del MES del POD (spec 017, superficie B): una fila por texto, como texto
+    // plano; [] lo oculta. Va en el head para que RegisterStartupScript lo pueda llamar. Con un
+    // error a la vista, el banner de éxito (.pod-banner) se oculta: nunca se apilan.
+    function podShowMesErrors(texts) {
+        var zone = document.getElementById('podMesError');
+        if (!zone) return;
+        zone.textContent = '';
+        texts.forEach(function (t) {
+            var row  = document.createElement('div');
+            var icon = document.createElement('span');
+            var text = document.createElement('span');
+            row.className  = 'mes-error-row';
+            icon.className = 'mes-error-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            text.textContent = t;
+            row.appendChild(icon);
+            row.appendChild(text);
+            zone.appendChild(row);
+        });
+        zone.style.display = texts.length ? '' : 'none';
+        var success = document.querySelector('.pod-banner');
+        if (success && texts.length) success.style.display = 'none';
+    }
+
     // [↗] de la barra de título estándar de los modales del MES: maximiza o restaura
     // el modal. Es estado de cliente; un postback lo devuelve a su tamaño normal.
     function mesToggleMaximize(btn) {

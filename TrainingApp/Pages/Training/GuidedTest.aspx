@@ -84,6 +84,13 @@
         <span><asp:Literal ID="LitBanner" runat="server" /></span>
     </asp:Panel>
 
+    <%-- Mensajes de error del MES (spec 017, superficie B): mismo lugar, ícono rojo y una fila
+         por mensaje. Lo llena podShowMesErrors (Training.Master), desde el servidor o desde un
+         chequeo del cliente. No se oculta solo: lo quita la acción siguiente (un postback o
+         elegir una fila, D-112). Ancla propia: las notas de la guía del banner de éxito no
+         se le pegan. --%>
+    <div id="podMesError" class="pod-error-banner" data-guide="pod-mes-error" role="alert" style="display:none"></div>
+
     <%-- ══ NOTA DE HALLAZGO (spec 014, D-49) ════════════════════════════ --%>
     <%-- Panel del simulador (no imita el MES), en Guided y Assessment, mientras el paso
          actual es de Log NC: solo el hallazgo de ese paso, sin nombrar el código. --%>
@@ -533,6 +540,8 @@
             row.classList.add('selected');
         }
         syncWorkListSelection();
+        // Elegir la fila es la acción siguiente: el error del MES ya no aplica (D-112).
+        podShowMesErrors([]);
     }
 
     // Ícono Select All del header (POD y Browse Work List): selecciona todas las filas y,
@@ -549,6 +558,7 @@
     function toggleSelectAllWorkList() {
         toggleSelectAll('.pod-work-list tbody tr', 'selected');
         syncWorkListSelection();
+        podShowMesErrors([]);
     }
 
     // El HTML del POD que vuelve de un postback no sabe qué filas estaban seleccionadas:
@@ -579,12 +589,11 @@
     document.addEventListener('DOMContentLoaded', restoreWorkListSelection);
 
     // Spec 005: DC Collect no puede iniciar sin una fila del POD seleccionada
-    // (gating 100% cliente — sin postback si no hay selección).
+    // (gating 100% cliente — sin postback si no hay selección). Spec 017: el 12906 del MES.
     function podValidateDCCollect() {
         var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) {
-            Swal.fire({ icon: 'warning', title: 'Selecciona una fila',
-                text: 'Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.' });
+            podShowMesErrors(['<%= SfcMissingMesErrorJs %>']);
             return false;
         }
         return true;
@@ -594,8 +603,7 @@
     function podValidateSFCSplit() {
         var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) {
-            Swal.fire({ icon: 'warning', title: 'Selecciona una fila para dividir',
-                text: 'Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.' });
+            podShowMesErrors(['<%= SfcMissingMesErrorJs %>']);
             return false;
         }
         return true;
@@ -684,7 +692,8 @@
 
     // Enter, el lector (manda el número y Enter) o las barras de la etiqueta. Cargar es
     // navegación: un número que no es de la orden solo avisa, sin intento, y lo cargado no
-    // cambia (el campo vuelve a mostrarlo). Devuelve si cargó.
+    // cambia (el campo vuelve a mostrarlo). Devuelve si cargó. El aviso es el 22507 del MES
+    // (spec 017, D-106).
     function podLoadScan(text) {
         var rows = resolveScan(text);
         var txt  = document.getElementById('<%= TxtSFC.ClientID %>');
@@ -693,9 +702,11 @@
                 txt.value = txt.getAttribute('data-loaded-text') || '';
                 selectForNextScan(txt);
             }
-            Swal.fire({ icon: 'warning', title: '<%= ScanNoticeTitleJs %>', text: '<%= ScanNoticeTextJs %>' });
+            podShowMesErrors(['<%= InvalidSfcMesErrorJs %>']);
             return false;
         }
+        // Un escaneo válido es la acción siguiente: el error anterior ya no aplica.
+        podShowMesErrors([]);
         loadOrderRows(rows);
         if (txt) selectForNextScan(txt);
         return true;

@@ -111,6 +111,50 @@ body {
     font-size: 0.85rem;
 }
 
+/* ── Mensajes de error del MES (spec 017; AUD-63, AUD-64, AUD-69) ──
+   En inglés, con número, nunca como popup. Medidas de testing: fila de 25 px sobre blanco,
+   ícono rojo "!" de 24×24 y texto de 12 px negro.
+   - .pod-error-banner  B: banner del POD (empuja el contenido); una fila por mensaje
+   - .mes-window-error  F: franja dentro de la ventana, arriba de su contenido
+   - .split-mes-error   S: reemplaza el formulario de SFC Split, con [OK] */
+.mes-error-icon {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 2px;
+    background: linear-gradient(#e8473f, #c9241c);
+    color: #fff;
+    font: 700 17px/24px Arial, sans-serif;
+    text-align: center;
+}
+.mes-error-icon::before { content: "!"; }
+
+.pod-error-banner {
+    flex: none;
+    background: #fff;
+    border-bottom: 1px solid #d6d6d6;
+}
+.mes-error-row,
+.mes-window-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 25px;
+    font-size: 12px;
+    color: #000;
+}
+.mes-error-row { padding: 0 12px; }
+.mes-window-error { margin: 10px 14px 2px; padding: 3px 6px; background: #fff; }
+
+.split-mes-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 6px 4px;
+}
+.split-mes-error .mes-window-error { margin: 0; align-self: stretch; }
+
 /* ── Nota de hallazgo (spec 014, D-49) ───────────────────────
    Panel del simulador con el estilo del globo de la guía (pod-guide.css), fijo abajo a la
    derecha para que se lea con NC Data Entry abierto (modales: 1055). */

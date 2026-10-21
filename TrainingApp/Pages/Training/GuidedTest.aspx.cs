@@ -454,10 +454,14 @@ namespace TrainingApp.Pages.Training
                 TxtSFC.Attributes.Remove("readonly");
         }
 
-        // Aviso del cliente para un número que no es de la orden (spec 011, punto 5): el mismo
-        // texto que SfcNotInOrder del servidor, ya codificado para un string de JS.
-        protected string ScanNoticeTitleJs => HttpUtility.JavaScriptStringEncode(NoticeText(PodNotice.SfcNotInOrder).Title);
-        protected string ScanNoticeTextJs  => HttpUtility.JavaScriptStringEncode(NoticeText(PodNotice.SfcNotInOrder).Text);
+        // Mensajes del MES de los chequeos de formato del cliente (spec 017), los mismos del
+        // catálogo de la BLL, ya codificados para un string de JS: un número que no es de la
+        // orden (22507, spec 011 punto 5) y DC Collect o SFC Split sin fila (12906).
+        protected string InvalidSfcMesErrorJs => MesErrorJs(MesMessageId.InvalidSfc);
+        protected string SfcMissingMesErrorJs => MesErrorJs(MesMessageId.SfcMissing);
+
+        private static string MesErrorJs(MesMessageId id)
+            => HttpUtility.JavaScriptStringEncode(MesMessage.Get(id).Format());
 
         // Guía visual (spec 010): solo en Guided. Assessment no recibe el motor, el guion, los
         // textos ni el estado (AC-2). Pasos sin guion todavía: la guía no se muestra.
@@ -683,7 +687,13 @@ namespace TrainingApp.Pages.Training
             // Mismo guard de sender que HandleControlSubmit (spec 006, E12).
             if (!ReferenceEquals(sender, GetStepControl(step.StepType))) return;
 
-            var result = Pod.AssembleComponent(_ctx, e.ComponentId);
+            var result = Pod.AssembleComponent(_ctx, e.ComponentId, e.Barcode);
+            // Spec 017 (M-8): el 17150 en la franja de la ventana, que queda abierta.
+            if (result.MesError != null)
+            {
+                CtrlAssembly.ShowMesError(e.ComponentId, result.MesError);
+                return;
+            }
             if (result.StepResult == null)
             {
                 CtrlAssembly.ViewModel = BuildStepViewModel(step, area, session, guide);
@@ -754,9 +764,15 @@ namespace TrainingApp.Pages.Training
                 }
                 return;
             }
+            // El modal del split muestra el mensaje del MES en lugar del formulario (spec 017) o
+            // el aviso del simulador en su propio mensaje de error.
+            if (result.MesError != null)
+            {
+                e.MesError = result.MesError;
+                return;
+            }
             if (result.Notice != PodNotice.None)
             {
-                // El modal del split muestra el texto en su propio mensaje de error.
                 e.ErrorMessage = NoticeText(result.Notice).Text;
                 return;
             }
@@ -989,6 +1005,11 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             var result = Pod.ClickStart(_ctx, BrowseSelectedIds(), ScannedSfc());
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
+            if (result.MesError != null)
+            {
+                ShowMesError(result.MesError);
+                return;
+            }
             if (result.Notice != PodNotice.None)
             {
                 ShowNotice(result.Notice);
@@ -1052,32 +1073,30 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             var result = Pod.OpenAssembly(_ctx, SelectedIds());
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
-            if (result.Notice != PodNotice.None)
-            {
-                ShowSelectionNotice(result.Notice, area, session);
-                return;
-            }
+            if (ShowSelectionError(result, area, session)) return;
 
             // Abre la Component List; el modal Assemble se abre desde cada componente.
             OpenStepControl(StepType.Assembly, area, session, guide, modalId: null);
         }
 
-        // Aviso de selección al abrir Assembly, DC o SFC Split (lo decide la BLL, sin intento).
-        // Si el paso pedía una fila, se limpia la selección del POD. oneRowMessage: texto propio
-        // del paso en lugar del genérico.
-        private void ShowSelectionNotice(PodNotice notice, Area area, TrainingSession session,
-            string oneRowMessage = null)
+        // Selección inválida al abrir Assembly, DC o SFC Split (lo decide la BLL, sin intento):
+        // sin la fila del lote, el 12906 del MES y la selección del POD se limpia; en Serialized,
+        // el aviso del simulador. Devuelve si hubo alguno.
+        private bool ShowSelectionError(PodCommandResult result, Area area, TrainingSession session)
         {
-            if (notice == PodNotice.SelectOneRow || notice == PodNotice.SelectRowToSplit)
+            if (result.MesError != null)
             {
                 ClearRowSelection();
                 BindWorkList(area, session);
+                ShowMesError(result.MesError);
+                return true;
             }
-
-            var (title, text) = NoticeText(notice);
-            if (notice == PodNotice.SelectOneRow && oneRowMessage != null)
-                text = oneRowMessage;
-            ShowSweetAlert("warning", title, text);
+            if (result.Notice != PodNotice.None)
+            {
+                ShowNotice(result.Notice);
+                return true;
+            }
+            return false;
         }
 
         protected void BtnDCCollection_ServerClick(object sender, EventArgs e)
@@ -1089,12 +1108,7 @@ namespace TrainingApp.Pages.Training
             // selección y, en la primera apertura, fija las piezas a recorrer (spec 008).
             var result = Pod.OpenDataCollection(_ctx, SelectedIds());
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
-            if (result.Notice != PodNotice.None)
-            {
-                ShowSelectionNotice(result.Notice, area, session,
-                    "Debes seleccionar una fila de la orden en la tabla antes de iniciar Data Collection.");
-                return;
-            }
+            if (ShowSelectionError(result, area, session)) return;
 
             OpenStepControl(StepType.DataCollection, area, session, guide, modalId: null);
         }
@@ -1182,11 +1196,7 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             var result = Pod.OpenSplit(_ctx, SelectedIds());
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
-            if (result.Notice != PodNotice.None)
-            {
-                ShowSelectionNotice(result.Notice, area, session);
-                return;
-            }
+            if (ShowSelectionError(result, area, session)) return;
 
             OpenStepControl(StepType.SFC_Split, area, session, guide, "modalSFCSplit");
         }
@@ -1762,7 +1772,15 @@ namespace TrainingApp.Pages.Training
 
         // ── Modal re-open & SweetAlert helpers ───────────────────────────
 
-        // Avisos de formato que decide la BLL (no cuentan como intento).
+        // Mensaje del MES del banner del POD (spec 017, superficie B), elegido por la BLL. Lo
+        // pinta podShowMesErrors como texto plano; queda hasta el siguiente postback (D-112).
+        private void ShowMesError(MesError error)
+        {
+            ClientScript.RegisterStartupScript(GetType(), "podMesError",
+                "podShowMesErrors(" + new JavaScriptSerializer().Serialize(new[] { error.Text }) + ");", true);
+        }
+
+        // Avisos de formato propios del simulador que decide la BLL (no cuentan como intento).
         private void ShowNotice(PodNotice notice)
         {
             var (title, text) = NoticeText(notice);
@@ -1782,24 +1800,14 @@ namespace TrainingApp.Pages.Training
                 case PodNotice.StartWholeOrder:
                     return ("Inicia la orden completa",
                         "En esta guía se trabaja la orden completa: escanea la Shop Order o selecciona todas las piezas en Browse Work List.");
-                case PodNotice.SfcRequired:
-                    return ("Campo requerido", "Debes ingresar o escanear un SFC antes de iniciar.");
-                // Texto provisional hasta tener el mensaje real del MES (spec 011, T9). Neutro:
-                // en Assessment no dice qué número sirve (AC-16).
-                case PodNotice.SfcNotInOrder:
-                    return ("SFC no encontrado",
-                        "El número no corresponde a la orden de este recurso.");
-                case PodNotice.SelectOneRow:
-                    return ("Selecciona una fila", "Debes seleccionar una fila de la orden en la tabla antes de continuar.");
-                case PodNotice.SelectRowToSplit:
-                    return ("Selecciona una fila para dividir",
-                        "Debes seleccionar una fila válida de la orden antes de iniciar SFC Split.");
                 case PodNotice.SplitRequired:
                     return ("Split requerido", "Debes completar al menos un split antes de cerrar el paso.");
                 case PodNotice.SplitNotActive:
                     return ("SFC Split", "SFC Split no es el paso activo.");
                 case PodNotice.InvalidSplit:
-                    return ("SFC Split", "La fila o cantidad seleccionada ya no es válida.");
+                    return ("SFC Split", "La fila seleccionada ya no es válida.");
+                case PodNotice.InvalidSplitQty:
+                    return ("SFC Split", "La cantidad a dividir debe ser un número entero menor que la Qty disponible.");
                 case PodNotice.NoPieceLeft:
                     return ("Selección inválida", "Debe quedar al menos una pieza para Complete.");
                 case PodNotice.SplitAlreadyDone:

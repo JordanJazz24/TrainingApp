@@ -38,5 +38,9 @@ namespace TrainingApp.BLL.Training
 
         // Resultado del paso al ensamblar el último componente; null mientras falten.
         public StepSubmitResult StepResult { get; set; }
+
+        // Barcode rechazado por formato (spec 017, M-8): sin intento, el componente no se
+        // ensambló.
+        public MesError MesError { get; set; }
     }
 }

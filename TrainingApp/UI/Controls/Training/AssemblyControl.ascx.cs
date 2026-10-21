@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.UI;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
 
@@ -95,22 +96,26 @@ namespace TrainingApp.UI.Controls.Training
             int componentId;
             if (!int.TryParse(HfComponentId.Value, out componentId)) return;
 
-            // Formato (sin intento): el cliente ya lo valida en assembleValidate().
-            string barcode = TxtBarcode.Text.Trim();
-            if (!Regex.IsMatch(barcode, @"^\d+$"))
-            {
-                TxtBarcode.Text = string.Empty;
-                Page.ClientScript.RegisterStartupScript(GetType(), "swalAsm",
-                    "Swal.fire({icon:'warning',title:'Barcode inválido'," +
-                    "text:'Escanea un barcode numérico antes de presionar Add.'});" +
-                    "showModalSafe('modalAssemble');", true);
-                return;
-            }
-
+            // El formato lo decide la BLL (spec 017, M-8); el cliente ya lo valida en
+            // assembleValidate().
+            string barcode = TxtBarcode.Text;
             TxtBarcode.Text = string.Empty;
             OnComponentAssembled?.Invoke(this,
-                new ComponentAssembledEventArgs { ComponentId = componentId });
+                new ComponentAssembledEventArgs { ComponentId = componentId, Barcode = barcode });
         }
+
+        // Barcode rechazado por la BLL (spec 017, M-8): el modal vuelve a abrirse con la franja
+        // del MES y Component Details y Assembly Data vacíos con [Add] (AUD-69).
+        public void ShowMesError(int componentId, MesError error)
+        {
+            Page.ClientScript.RegisterStartupScript(GetType(), "asmMesError",
+                "asmReopenWithError('" + componentId + "', '" +
+                HttpUtility.JavaScriptStringEncode(error.Text) + "');", true);
+        }
+
+        // Texto del 17150 para el chequeo de formato del cliente, del catálogo de la BLL.
+        protected string BarcodeMesErrorJs => HttpUtility.JavaScriptStringEncode(
+            MesMessage.Get(MesMessageId.BarcodeNotCompliant).Format());
 
         protected void BtnReturnPOD_Click(object sender, EventArgs e)
         {

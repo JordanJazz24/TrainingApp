@@ -34,6 +34,18 @@
                         <asp:Literal ID="LitNewQty" runat="server" /></span>
                 </asp:Panel>
 
+                <%-- Error del MES (spec 017, superficie S; AUD-64): reemplaza el formulario y el OK
+                     cierra la ventana entera; hay que reabrir SFC Split. --%>
+                <asp:Panel ID="PnlSplitMesError" runat="server" Visible="false" CssClass="split-mes-error">
+                    <div class="mes-window-error" data-guide="split-mes-error" role="alert">
+                        <span class="mes-error-icon" aria-hidden="true"></span>
+                        <span><asp:Literal ID="LitSplitMesError" runat="server" /></span>
+                    </div>
+                    <button type="button" class="mes-btn-outline" data-guide="split-mes-ok"
+                        data-bs-dismiss="modal">OK</button>
+                </asp:Panel>
+
+                <asp:Panel ID="PnlSplitForm" runat="server">
                 <div class="split-form">
                     <span class="split-label">SFC to Split:</span>
                     <span><asp:Literal ID="LitSFCToSplit" runat="server" /></span>
@@ -45,7 +57,8 @@
                     <span>
                         <%-- La × limpia el campo en el cliente (sin postback) y solo se ve con valor.
                              Sin mensajes de validación bajo el campo (corrección del usuario): una
-                             cantidad vacía o fuera de rango la avisa BtnSplit_Click con SweetAlert. --%>
+                             cantidad vacía o fuera de rango da el mensaje del MES de la BLL, que
+                             reemplaza el formulario (spec 017). --%>
                         <span class="split-input-box">
                             <asp:TextBox ID="TxtQtyToSplit" runat="server"
                                 CssClass="split-input" TextMode="Number" data-guide="split-qty"
@@ -64,6 +77,7 @@
                         CssClass="mes-btn-outline" data-guide="split-close"
                         OnClick="BtnCloseSplit_Click" CausesValidation="false" />
                 </div>
+                </asp:Panel>
             </div>
         </div>
     </div>

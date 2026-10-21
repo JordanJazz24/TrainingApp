@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TrainingApp.BLL.Training;
 
 namespace TrainingApp.Pages.Training.Models
 {
@@ -37,6 +38,9 @@ namespace TrainingApp.Pages.Training.Models
     public class ComponentAssembledEventArgs : System.EventArgs
     {
         public int ComponentId { get; set; }
+
+        // Lo escaneado tal cual: el formato lo decide la BLL (spec 017, M-8).
+        public string Barcode { get; set; }
     }
 
     // Ingreso a MES (spec 016): lo que MesLoginControl pinta en este request. Screen es la
@@ -79,10 +83,16 @@ namespace TrainingApp.Pages.Training.Models
     public class SFCSplitRequestedEventArgs : System.EventArgs
     {
         public string RowId { get; set; }
-        public int Qty { get; set; }
+
+        // null: el campo vacío o sin un número (la BLL decide el mensaje, spec 017).
+        public decimal? Qty { get; set; }
         public bool IsApplied { get; set; }
         public int RemainingQty { get; set; }
+
+        // Aviso del simulador (SweetAlert) o mensaje del MES, que reemplaza el formulario con
+        // [OK] (spec 017, superficie S).
         public string ErrorMessage { get; set; }
+        public MesError MesError { get; set; }
 
         // SFC de la fila creada, para el mensaje "New SFC … created with quantity …".
         public string NewSfcCode { get; set; }

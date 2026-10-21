@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TrainingApp.BLL.Scoring;
 using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
@@ -340,13 +342,14 @@ namespace TrainingApp.BLL.Training
             }
             else if (string.IsNullOrWhiteSpace(scannedSfc))
             {
-                return PodCommandResult.WithNotice(PodNotice.SfcRequired);
+                return PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.SfcMissingStart));
             }
             else if (!order.IsLotReference(scannedSfc))
             {
                 // Spec 011 (enmienda E-2): TxtSFC es editable; el cliente ya lo avisa, esto
-                // cubre una manipulación. Ningún lote ajeno se inicia.
-                return PodCommandResult.WithNotice(PodNotice.SfcNotInOrder);
+                // cubre una manipulación. Ningún lote ajeno se inicia. Sin otras órdenes en el
+                // simulador, todo SFC ajeno es inexistente para el MES (spec 017, D-106).
+                return PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.InvalidSfc));
             }
 
             if (ctx.Area.RequiresStartChecklist)
@@ -420,19 +423,28 @@ namespace TrainingApp.BLL.Training
         public PodCommandResult OpenAssembly(PodContext ctx, ICollection<string> selectedRowIds)
         {
             return CheckSequence(ctx, StepType.Assembly, AttemptActions.Assemble)
-                ?? PodCommandResult.WithNotice(CheckPodSelection(ctx, StepType.Assembly, selectedRowIds));
+                ?? CheckPodSelection(ctx, StepType.Assembly, selectedRowIds)
+                ?? new PodCommandResult();
         }
 
         // Assembly (spec 008): ensambla un componente del BOM para todas las piezas
         // seleccionadas. El paso se completa (intento correcto) cuando todo el BOM quedó
-        // ensamblado. No tiene camino incorrecto: se califica solo por secuencia (S2).
-        public AssemblySubmitResult AssembleComponent(PodContext ctx, int componentId)
+        // ensamblado. No tiene camino incorrecto: se califica solo por secuencia (S2). Un barcode
+        // que no es numérico es formato, sin intento: el 17150 del MES (spec 017, M-8). No se
+        // valida contra el número de parte (D-97).
+        public AssemblySubmitResult AssembleComponent(PodContext ctx, int componentId, string barcode)
         {
             var result = new AssemblySubmitResult();
             if (ctx.Session.Status != SessionStatus.InProgress) return result;
 
             var step = ctx.CurrentStep;
             if (step.StepType != StepType.Assembly) return result;
+
+            if (!IsCompliantBarcode(barcode))
+            {
+                result.MesError = MesMessage.Error(MesMessageId.BarcodeNotCompliant);
+                return result;
+            }
 
             var bom = ctx.AssemblyComponents;
             if (!bom.Any(c => c.Id == componentId)) return result;
@@ -467,10 +479,12 @@ namespace TrainingApp.BLL.Training
             var sequence = CheckSequence(ctx, StepType.DataCollection, AttemptActions.DCCollect);
             if (sequence != null) return sequence;
 
-            var notice = CheckPodSelection(ctx, StepType.DataCollection, selectedRowIds);
-            if (notice == PodNotice.None && ctx.State.DataCollection == null)
+            var selection = CheckPodSelection(ctx, StepType.DataCollection, selectedRowIds);
+            if (selection != null) return selection;
+
+            if (ctx.State.DataCollection == null)
                 StartDataCollection(ctx, selectedRowIds);
-            return PodCommandResult.WithNotice(notice);
+            return new PodCommandResult();
         }
 
         // Data Collection (spec 008): guarda un DC Group para la pieza actual del avance.
@@ -562,21 +576,23 @@ namespace TrainingApp.BLL.Training
 
         // ── SFC Split ────────────────────────────────────────────────────
 
-        // Abrir SFC Split exige una fila seleccionada del POD (aviso de formato, sin intento).
+        // Abrir SFC Split exige una fila seleccionada del POD (formato, sin intento): sin ella,
+        // el 12906 del MES (spec 017).
         public PodCommandResult OpenSplit(PodContext ctx, ICollection<string> selectedRowIds)
         {
             return CheckSequence(ctx, StepType.SFC_Split, AttemptActions.SFCSplit)
-                ?? PodCommandResult.WithNotice(IsSingleRow(SelectedRows(ctx, selectedRowIds))
-                    ? PodNotice.None
-                    : PodNotice.SelectRowToSplit);
+                ?? (IsSingleRow(SelectedRows(ctx, selectedRowIds))
+                    ? new PodCommandResult()
+                    : PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.SfcMissing)));
         }
 
         // Divide una fila; la cantidad tiene que dejar algo en la original. Crea un SFC nuevo de
         // la misma Shop Order (enmienda 2026-10-01 de la spec 005). El paso se resuelve al
         // cerrar. Con hallazgo (enmienda 3 de la spec 014), la cantidad es una decisión: otra que
         // no sea la del hallazgo es intento fallido y el split no se aplica (forzado: el split
-        // de N); un segundo split es un aviso.
-        public PodCommandResult Split(PodContext ctx, string rowId, int qty)
+        // de N); un segundo split es un aviso. qty null: el campo vacío o sin un número; llega
+        // como decimal para que el MES juzgue también una cantidad enorme o con decimales.
+        public PodCommandResult Split(PodContext ctx, string rowId, decimal? qty)
         {
             if (ctx.CurrentStep.StepType != StepType.SFC_Split)
                 return PodCommandResult.WithNotice(PodNotice.SplitNotActive);
@@ -584,15 +600,26 @@ namespace TrainingApp.BLL.Training
             // Solo una fila del POD (Active): el id llega del cliente.
             var order = ctx.State.Order;
             var row   = order?.FindActiveRows(new[] { rowId }).FirstOrDefault();
-            if (row == null || qty <= 0 || qty >= row.Qty)
+            if (row == null)
                 return PodCommandResult.WithNotice(PodNotice.InvalidSplit);
+
+            // Formato con el mensaje del MES (spec 017, M-14 a M-16), sin intento.
+            var qtyError = SplitQtyError(qty, row.Qty);
+            if (qtyError != null)
+                return PodCommandResult.WithMesError(qtyError);
+
+            // La fila entera no deja nada en la original y las piezas no se parten: aviso del
+            // simulador, sin intento.
+            if (qty.Value == row.Qty || qty.Value != decimal.Truncate(qty.Value))
+                return PodCommandResult.WithNotice(PodNotice.InvalidSplitQty);
+            int splitQty = (int)qty.Value;
 
             var finding = ctx.SplitFinding;
             if (finding != null)
             {
                 if (order.HasSplit)
                     return PodCommandResult.WithNotice(PodNotice.SplitAlreadyDone);
-                if (qty != finding.UnitCount)
+                if (splitQty != finding.UnitCount)
                 {
                     EnsureInProgress(ctx);
                     var result = new PodCommandResult
@@ -606,9 +633,24 @@ namespace TrainingApp.BLL.Training
                 }
             }
 
-            string newSfc = order.Split(row, qty);
+            string newSfc = order.Split(row, splitQty);
             SaveState(ctx);
             return new PodCommandResult { NewSfcCode = newSfc, RemainingQty = row.Qty };
+        }
+
+        // Cantidad del split que el MES rechaza, en su orden: vacía, no positiva, mayor a la
+        // disponible. null si el MES la acepta.
+        private static MesError SplitQtyError(decimal? qty, int availableQty)
+        {
+            if (!qty.HasValue)
+                return MesMessage.Error(MesMessageId.SplitQtyMissing);
+            if (qty.Value <= 0)
+                return MesMessage.Error(MesMessageId.SplitQtyNotPositive);
+            if (qty.Value > availableQty)
+                return MesMessage.Error(MesMessageId.SplitQtyAboveAvailable,
+                    ("n", qty.Value.ToString("0.######", CultureInfo.InvariantCulture)),
+                    ("m", availableQty.ToString(CultureInfo.InvariantCulture)));
+            return null;
         }
 
         // Close del SFC Split: hace falta al menos un split; sin él es un aviso, sin intento.
@@ -977,18 +1019,23 @@ namespace TrainingApp.BLL.Training
         // Pasos de una sola fila (NonSerialized): exactamente una fila seleccionada.
         private static bool IsSingleRow(IList<SimulatedOrderRow> selected) => selected.Count == 1;
 
+        // Barcode de Assembly: numérico, como lo que imprime la etiqueta del componente.
+        private static bool IsCompliantBarcode(string barcode)
+            => !string.IsNullOrWhiteSpace(barcode) && Regex.IsMatch(barcode.Trim(), @"^[0-9]+$");
+
         // Assembly y DC trabajan la selección del POD (spec 008, punto 6): en Serialized todas
-        // las piezas juntas; en NonSerialized, la fila del lote.
-        private static PodNotice CheckPodSelection(PodContext ctx, StepType stepType,
+        // las piezas juntas (aviso del simulador); en NonSerialized, la fila del lote (sin ella,
+        // el 12906 del MES, spec 017). null si la selección es válida.
+        private static PodCommandResult CheckPodSelection(PodContext ctx, StepType stepType,
             ICollection<string> selectedRowIds)
         {
             var selected = SelectedRows(ctx, selectedRowIds);
             if (ctx.Area.SerializationType == SerializationType.Serialized)
                 return PieceSelectionRule.Evaluate(stepType, selected.Count, ActiveCount(ctx)) == PieceSelectionResult.Valid
-                    ? PodNotice.None
-                    : PodNotice.SelectAllPieces;
+                    ? null
+                    : PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
 
-            return IsSingleRow(selected) ? PodNotice.None : PodNotice.SelectOneRow;
+            return IsSingleRow(selected) ? null : PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.SfcMissing));
         }
 
         // ── Registro de intentos y estado ────────────────────────────────

@@ -2,20 +2,19 @@ using System.Collections.Generic;
 
 namespace TrainingApp.BLL.Training
 {
-    // Aviso de formato que decide la BLL: no cuenta como intento. La página muestra su texto.
+    // Aviso de formato propio del simulador que decide la BLL: no cuenta como intento. La
+    // página muestra su texto como SweetAlert. Los que el MES también tiene son un MesError
+    // (spec 017, D-103).
     public enum PodNotice
     {
         None,
         ResourceSetupRequired,  // Start sin orden: Resource Setup pendiente
         SelectAllPieces,        // Serialized: el paso trabaja todas las piezas juntas (spec 008)
         StartWholeOrder,        // Serialized: Start sin la orden completa cargada (spec 008 y 011)
-        SfcRequired,            // NonSerialized: Start sin SFC escaneado o elegido
-        SfcNotInOrder,          // NonSerialized: Start con un SFC que no es el del lote ni la Shop Order (spec 011)
-        SelectOneRow,           // NonSerialized: Assembly o DC sin la fila del lote seleccionada
-        SelectRowToSplit,       // SFC Split sin una fila seleccionada
         SplitRequired,          // Close del SFC Split sin ningún split
         SplitNotActive,         // split pedido fuera del paso SFC Split
-        InvalidSplit,           // fila o cantidad del split inválida
+        InvalidSplit,           // fila del split que ya no es del POD
+        InvalidSplitQty,        // split de la Qty entera (no deja nada en el SFC original) o con decimales
         NoPieceLeft,            // Serialized: Log NC con todas las piezas (debe quedar una)
         SplitAlreadyDone        // SFC Split con hallazgo: ya se separó su cantidad (spec 014)
     }
@@ -52,6 +51,10 @@ namespace TrainingApp.BLL.Training
 
         public PodNotice Notice { get; set; }
 
+        // Mensaje del MES para la situación (spec 017): formato sin intento, o el que acompaña a
+        // un intento. La página lo pinta en su superficie; null si el MES no tiene uno.
+        public MesError MesError { get; set; }
+
         // Intento registrado; null si el comando no calificó el paso.
         public StepSubmitResult Step { get; set; }
 
@@ -87,5 +90,8 @@ namespace TrainingApp.BLL.Training
 
         public static PodCommandResult WithNotice(PodNotice notice)
             => new PodCommandResult { Notice = notice };
+
+        public static PodCommandResult WithMesError(MesError error)
+            => new PodCommandResult { MesError = error };
     }
 }

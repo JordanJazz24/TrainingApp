@@ -8,6 +8,9 @@ namespace TrainingApp.UI.Controls.Training
         protected global::System.Web.UI.WebControls.Panel PnlSplitConfirm;
         protected global::System.Web.UI.WebControls.Literal LitNewSfc;
         protected global::System.Web.UI.WebControls.Literal LitNewQty;
+        protected global::System.Web.UI.WebControls.Panel PnlSplitMesError;
+        protected global::System.Web.UI.WebControls.Literal LitSplitMesError;
+        protected global::System.Web.UI.WebControls.Panel PnlSplitForm;
         protected global::System.Web.UI.WebControls.Button BtnSplit;
         protected global::System.Web.UI.WebControls.Button BtnCloseSplit;
     }
