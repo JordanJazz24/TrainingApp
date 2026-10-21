@@ -1,6 +1,6 @@
 # Spec 017: Mensajes de error del MES (fidelidad con la evaluación práctica)
 
-> **Estado:** borrador para revisión (2026-10-21); decisiones D-92 a D-116 confirmadas, falta la aprobación de la spec. Fase 8.5, fila 10 (EP-4, EP-5).
+> **Estado:** **aprobada por el usuario el 2026-10-21** (decisiones D-92 a D-116). Plan: `docs/specs/017-plan.md`. Fase 8.5, fila 10 (EP-4, EP-5).
 > **Insumo:** `docs/ui-reference/errores-mes.md` (textos y capturas del ambiente de testing,
 > 2026-10-20, en `Screens SAP MES REAL/Errores/`; integrado junto con esta spec, D-115) y
 > la auditoría de fidelidad `docs/audits/2026-10-19-fidelidad-ui.md` (AUD-63, AUD-64,
