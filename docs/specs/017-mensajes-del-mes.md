@@ -1,6 +1,6 @@
 # Spec 017: Mensajes de error del MES (fidelidad con la evaluación práctica)
 
-> **Estado:** borrador para revisión (2026-10-21). Fase 8.5, fila 10 (EP-4, EP-5).
+> **Estado:** borrador para revisión (2026-10-21); decisiones D-92 a D-114 confirmadas, falta la aprobación de la spec. Fase 8.5, fila 10 (EP-4, EP-5).
 > **Insumo:** `docs/ui-reference/errores-mes.md` (textos y capturas del ambiente de testing,
 > 2026-10-20; rama `docs/errores-mes`) y la auditoría de fidelidad
 > `docs/audits/2026-10-19-fidelidad-ui.md` (AUD-63, AUD-64, AUD-69; rama
@@ -62,58 +62,58 @@ Además, la evaluación califica el Setup Type de Resource Setup, que tiene la o
   propios del simulador (`SelectAllPieces`, `StartWholeOrder`, `SplitRequired`…) siguen como
   SweetAlert en español.
 
-## Decisiones propuestas por Claude (por confirmar)
+## Decisiones propuestas por Claude (confirmadas por el usuario el 2026-10-21)
 
-- **C-1 · Regla de los mensajes fuera de secuencia.** Se muestra el mensaje real solo si **en
+- **C-1 (D-104) · Regla de los mensajes fuera de secuencia.** Se muestra el mensaje real solo si **en
   el MES esa acción, en ese estado del POD, daría ese error**. Si en el MES la acción pasaría
   (por ejemplo, DC Collect durante el paso de Assembly, con el SFC iniciado), se queda el
   aviso de hoy: el genérico en Assessment, "Ese no es el paso actual." en Práctica libre.
   Guided sigue sin dejar presionar otro botón.
-- **C-2 · Orden de los chequeos**, el del MES (el LC se revisa antes que el SFC):
+- **C-2 (D-108) · Orden de los chequeos**, el del MES (el LC se revisa antes que el SFC):
   1. Resource Setup pendiente → texto provisional (Start).
   2. Line Clearance de apertura pendiente → `22501` (Start, Assemble, DC Collect).
   3. Sin SFC iniciado → `22506` (Start, Complete) o `12906` (Assemble, DC Collect, Log NC,
      SFC Split).
   4. DC obligatorio pendiente → `15246` (Complete).
-- **C-3 · Qué texto de `22501`:** si la última respuesta del LC de apertura fue **No**, sale
+- **C-3 (D-108) · Qué texto de `22501`:** si la última respuesta del LC de apertura fue **No**, sale
   `Line Clearance status is NO…`; si no, `Line Clearance has not been done since the last
   Resource Setup…`. El LC de cierre no entra: el MES no lo revisa en Split, Log NC ni
   Complete, así que esos clics siguen con el aviso de hoy (C-1).
-- **C-4 · El Line Clearance sigue calificándose en su paso** (D-92). Responder No es intento
+- **C-4 (D-105) · El Line Clearance sigue calificándose en su paso** (D-92). Responder No es intento
   fallido en el LC, como hoy, aunque el MES lo guarda sin error y lo bloquea recién en Start.
   Mover el chequeo a Start cambiaría la calificación: va a Deferred.
-- **C-5 · SFC inexistente vs. SFC de otra orden.** El simulador no tiene otras órdenes, así
+- **C-5 (D-106) · SFC inexistente vs. SFC de otra orden.** El simulador no tiene otras órdenes, así
   que todo SFC que no es de la orden (`SfcNotInOrder`, NonSerialized) se trata como
   **inexistente**: `22507 · Invalid SFC`. Así se corrige lo que proponía AUD-63
   (`SfcNotInOrder → 22507/13005`): el `22501` "de otra orden" solo aplicaría con órdenes
   reales. El panel `Messages (n):` queda fuera.
-- **C-6 · Data Collection: un mensaje por Save.** El MES reporta **un** problema por Save.
+- **C-6 (D-109) · Data Collection: un mensaje por Save.** El MES reporta **un** problema por Save.
   El simulador muestra el del primer parámetro con fallo, en el orden de la pantalla, con
   esta prioridad por parámetro: vacío obligatorio (`10015`) → fuera de lista (`19973`, si
   el control tiene un parámetro de lista) → texto en un numérico (`12205`) → límites
   (`15232`/`15233`). La calificación no cambia: sigue siendo intento fallido. Un parámetro
   `Date` inválido conserva el genérico, porque no hay texto real. `15232`/`15233` muestran
   el valor escrito, como el MES.
-- **C-7 · `15246` lista todos los parámetros pendientes** de los grupos obligatorios no
+- **C-7 (D-113) · `15246` lista todos los parámetros pendientes** de los grupos obligatorios no
   guardados, con el patrón del MES (`<PARAM> (<DC_GROUP>) , …`). En el simulador son pocos y
   no hace falta truncar.
-- **C-8 · Log NC:** Done **sin** NC Code muestra `18117` y sigue siendo intento fallido
+- **C-8 (D-110) · Log NC:** Done **sin** NC Code muestra `18117` y sigue siendo intento fallido
   (botón equivocado, spec 007). Done **con** un código conserva el genérico, porque en el MES
   pasaría. Log NC sin fila es `12906` y sigue siendo intento fallido. Un NC Code escrito a
   mano que no existe da `12901`, como formato, si el control deja escribir el código: el plan
   lo verifica.
-- **C-9 · Setup Type sin calificación nueva.** La fila de la orden con otro tipo ya la
+- **C-9 (D-107) · Setup Type sin calificación nueva.** La fila de la orden con otro tipo ya la
   bloquea el formato "exactamente 1 Shop Order" (sin intento). Con un precargado en la tabla,
   el Save lo califica el servidor como hoy (D-26). La 017 solo agrega Material como tipo
   válido para herramientas. Si el usuario quiere que una orden con otro tipo sea intento
-  fallido (lectura literal de D-99), cambia la calificación y se anota como enmienda de D-92.
-- **C-10 · Texto provisional de Start sin Resource Setup** (D-93): `Resource Setup has not
+  fallido (lectura literal de D-99), cambia la calificación: el usuario eligió el formato (D-107).
+- **C-10 (D-111) · Texto provisional de Start sin Resource Setup** (D-93): `Resource Setup has not
   been done, please perform Resource Setup`, sin número. Se anota como provisional en
   "Deuda y riesgos" del roadmap, como D-72.
-- **C-11 · El banner del POD queda hasta la siguiente acción** del operador (AUD-63), no
+- **C-11 (D-112) · El banner del POD queda hasta la siguiente acción** del operador (AUD-63), no
   se oculta a los 3 s como el de éxito. La franja de ventana queda hasta el siguiente envío de
   esa ventana o hasta cerrarla.
-- **C-12 · Los textos en español de D-102 son los de la tabla de abajo**, con "usted", como
+- **C-12 (D-114) · Los textos en español de D-102 son los de la tabla de abajo**, con "usted", como
   las pistas actuales.
 
 ## Catálogo de mensajes
@@ -153,7 +153,7 @@ registró `errores-mes.md`. El plan confirma el formato exacto con las capturas.
 - los avisos propios del simulador (D-103);
 - los botones del MES sin lógica.
 
-### Explicaciones en español (D-102, textos para aprobar)
+### Explicaciones en español (D-102; textos aprobados, D-114)
 
 | Mensaje | Nota de la guía (Guided) y de Ver pista (Práctica libre) |
 |---|---|
