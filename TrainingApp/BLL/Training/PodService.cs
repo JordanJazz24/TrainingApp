@@ -540,6 +540,9 @@ namespace TrainingApp.BLL.Training
                 result.Outcome = result.StepResult.Outcome == StepSubmitOutcome.Incorrect
                     ? DataCollectionOutcome.Incorrect
                     : DataCollectionOutcome.StepResolved;
+                // Spec 017 (C-6): el mensaje del MES del primer parámetro con fallo; no cambia
+                // el intento.
+                result.MesError = validator.FirstDataCollectionError(group.Id, answersJson);
                 return result;
             }
 

@@ -1147,6 +1147,8 @@ namespace TrainingApp.Pages.Training
                 case DataCollectionOutcome.Incorrect:
                     // El control queda abierto en el modal donde se respondió (spec 006, E3);
                     // grupos y piezas ya guardados se conservan (AC-8).
+                    // Spec 017 (C-6): el mensaje del MES en la franja, junto al feedback de hoy.
+                    if (result.MesError != null) CtrlDataCollection.ShowMesError(result.MesError);
                     ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
                     _guideMoment = GuideMoment.Incorrect(step, e.GroupCode);
                     ReopenModal("modalDCEntry");

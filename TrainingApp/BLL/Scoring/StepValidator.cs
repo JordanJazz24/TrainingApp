@@ -190,6 +190,55 @@ namespace TrainingApp.BLL.Scoring
             return true;
         }
 
+        // Mensaje del MES de un Save de DC incorrecto (spec 017, C-6): el del primer parámetro con
+        // fallo en el orden de la pantalla. Por parámetro: vacío obligatorio (10015), texto en un
+        // numérico (12205), bajo el mínimo (15232) o sobre el máximo (15233), con el valor tal
+        // cual lo escribió el operador. Un Boolean o un Date inválido no tiene texto del MES y el
+        // nombre del grupo Trainer es opcional (spec 015): se siguen buscando en los demás. null
+        // si ningún parámetro tiene mensaje (se queda el feedback genérico). No decide si el
+        // grupo es correcto: eso es ValidateDataCollectionGroup.
+        public MesError FirstDataCollectionError(int groupId, string submittedAnswer)
+        {
+            Dictionary<string, string> submitted = null;
+            if (!string.IsNullOrWhiteSpace(submittedAnswer))
+            {
+                try
+                {
+                    submitted = JsonConvert.DeserializeObject<Dictionary<string, string>>(submittedAnswer);
+                }
+                catch (JsonException)
+                {
+                    return null;
+                }
+            }
+
+            var groupParams = _ctx.DataCollectionParams
+                .Where(p => p.DataCollectionGroupId == groupId)
+                .OrderBy(p => p.DisplayOrder);
+            foreach (var param in groupParams)
+            {
+                if (param.DataType == PersonNameRule.DataType)
+                    continue;
+
+                string value = null;
+                submitted?.TryGetValue(param.Id.ToString(CultureInfo.InvariantCulture), out value);
+                if (string.IsNullOrWhiteSpace(value))
+                    return MesMessage.Error(MesMessageId.RequiredValueMissing, ("param", param.Name));
+
+                if (param.DataType != "Numeric")
+                    continue;
+
+                decimal numeric;
+                if (!decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out numeric))
+                    return MesMessage.Error(MesMessageId.FieldMustBeNumber, ("param", param.Name));
+                if (param.MinValue.HasValue && numeric < param.MinValue.Value)
+                    return MesMessage.Error(MesMessageId.ValueBelowLowerLimit, ("value", value));
+                if (param.MaxValue.HasValue && numeric > param.MaxValue.Value)
+                    return MesMessage.Error(MesMessageId.ValueAboveUpperLimit, ("value", value));
+            }
+            return null;
+        }
+
         // Registro de actividad (spec 013): un Save de DC incorrecto por un valor vacío o que
         // falta (EmptyRequiredField) y no por un valor fuera de rango (WrongDecision).
         public bool HasMissingDataCollectionValue(int groupId, string submittedAnswer)

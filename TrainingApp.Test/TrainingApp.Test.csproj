@@ -130,6 +130,7 @@
     <Compile Include="StepNamesTests.cs" />
     <Compile Include="StepHintsTests.cs" />
     <Compile Include="StepValidatorLogNCTests.cs" />
+    <Compile Include="StepValidatorDataCollectionTests.cs" />
     <Compile Include="MesLoginRuleTests.cs" />
     <Compile Include="MesMessageTests.cs" />
     <Compile Include="MesSequenceRuleTests.cs" />

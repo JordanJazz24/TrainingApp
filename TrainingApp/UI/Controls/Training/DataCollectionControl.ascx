@@ -71,6 +71,13 @@
                 <span>Data Collection Entry</span>
                 <span class="mes-help" title="Help">?</span>
             </div>
+            <%-- Error del MES en la franja de la ventana (spec 017, C-6): solo en la respuesta del
+                 Save incorrecto; el siguiente Save o cerrar la ventana lo quitan. --%>
+            <asp:Panel ID="PnlDcMesError" runat="server" Visible="false" CssClass="mes-window-error"
+                data-guide="dc-mes-error" role="alert">
+                <span class="mes-error-icon" aria-hidden="true"></span>
+                <span><asp:Literal ID="LitDcMesError" runat="server" /></span>
+            </asp:Panel>
             <div class="mes-sfc-band">
                 SFC: <asp:Literal ID="LitSFCCounter" runat="server" />
             </div>

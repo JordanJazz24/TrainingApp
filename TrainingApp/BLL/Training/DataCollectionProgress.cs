@@ -70,5 +70,9 @@ namespace TrainingApp.BLL.Training
 
         // SFC de la pieza para la que se guardó el grupo (banner "SFC … completed").
         public string PieceSfcCode { get; set; }
+
+        // Grupo incorrecto (spec 017, C-6): el mensaje del MES de la franja de Data Collection
+        // Entry; null si ningún parámetro tiene uno.
+        public MesError MesError { get; set; }
     }
 }

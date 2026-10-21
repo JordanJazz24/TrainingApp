@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TrainingApp.BLL.Scoring;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Pages.Training.Models;
 // DataCollectionParameter.DataType is a string: "Numeric" | "Boolean" | "Date" | "Text" | "PersonName"
@@ -41,12 +42,23 @@ namespace TrainingApp.UI.Controls.Training
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // La franja del MES es de la respuesta de un Save: Visible persiste en ViewState.
+            PnlDcMesError.Visible = false;
+
             // Control estático: corre en cada request. Invisible = otro paso activo.
             if (!Visible) return;
 
             // Los inputs de parámetros son dinámicos: se recrean en cada postback
             // mientras hay un grupo abierto, para que Save lea sus valores.
             if (ActiveGroup != null) RenderParams(ActiveGroup);
+        }
+
+        // Save incorrecto con mensaje del MES (spec 017, C-6): la franja arriba del formulario,
+        // que sigue abierto.
+        public void ShowMesError(MesError error)
+        {
+            LitDcMesError.Text    = HttpUtility.HtmlEncode(error.Text);
+            PnlDcMesError.Visible = true;
         }
 
         public void Initialize()
