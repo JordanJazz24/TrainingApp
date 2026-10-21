@@ -156,10 +156,10 @@ del plan obliga a cambiar una calificación, Desarrollo para y avisa (enmienda).
 Mensajes M-4 (Start sin SFC), M-5 (Assembly/DC sin fila y Split sin fila), M-6, M-8 y M-14
 a M-16. Todos siguen sin intento (son formato).
 
-- [ ] `MesMessage`, `MesMessageId`, `MesError` y `Format`, con los 17 textos de la spec.
-- [ ] Tests `MesMessageTests`: cada id formatea con su número, `(Message n)` al final y los
+- [x] `MesMessage`, `MesMessageId`, `MesError` y `Format`, con los 17 textos de la spec.
+- [x] Tests `MesMessageTests`: cada id formatea con su número, `(Message n)` al final y los
       marcadores reemplazados; M-1 sin número; un texto con `"` (M-9) queda intacto.
-- [ ] `PodCommandResult.MesError`. En `PodService`, reemplazar estos avisos por su `MesError`
+- [x] `PodCommandResult.MesError`. En `PodService`, reemplazar estos avisos por su `MesError`
       sin cambiar el camino de cada uno:
   - `SfcRequired` → M-4 (`22506`);
   - `SfcNotInOrder` → M-6 (`22507 · Invalid SFC`, D-106);
@@ -167,14 +167,14 @@ a M-16. Todos siguen sin intento (son formato).
   - `InvalidSplit` y la Qty vacía del Split → M-14 / M-15 / M-16, según la causa. El
     servidor distingue vacía, 0 y mayor a la disponible; si hoy no lo hace, se separa
     `InvalidSplit` sin cambiar que no cuenta.
-- [ ] Banner de error (markup, `pod.css`, `ShowMesError`). Sin auto-hide.
-- [ ] Split: el mensaje S reemplaza el formulario y el OK cierra el modal.
-- [ ] Assembly (M-8): el barcode no numérico muestra la franja `17150` y despliega Component
+- [x] Banner de error (markup, `pod.css`, `ShowMesError`). Sin auto-hide.
+- [x] Split: el mensaje S reemplaza el formulario y el OK cierra el modal.
+- [x] Assembly (M-8): el barcode no numérico muestra la franja `17150` y despliega Component
       Details y Assembly Data vacíos con [Add] (AUD-69), en el cliente y en el servidor. Ya
       no hay SweetAlert "Barcode inválido".
-- [ ] Quitar de `NoticeText` los casos que pasaron al catálogo. Los avisos propios del
+- [x] Quitar de `NoticeText` los casos que pasaron al catálogo. Los avisos propios del
       simulador siguen ahí como SweetAlert (D-103).
-- [ ] `ScanNoticeTitleJs` / `ScanNoticeTextJs` (`GuidedTest.aspx.cs:459`, el escaneo en el
+- [x] `ScanNoticeTitleJs` / `ScanNoticeTextJs` (`GuidedTest.aspx.cs:459`, el escaneo en el
       cliente de la spec 011) usan el texto de M-6.
 
 **Checklist en el navegador:**
@@ -197,7 +197,7 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
 
 - [ ] ~~`PodState.LineClearanceAnsweredNo`~~ → reemplazado por la enmienda 3: el "No" del LC
       de apertura sale de los intentos de la sesión (`MesSequenceState.Build`).
-- [ ] `MesSequenceRule.For(clickedStep, ctx)`, en el orden de C-2, con la tabla de abajo.
+- [x] `MesSequenceRule.For(clickedStep, ctx)`, en el orden de C-2, con la tabla de abajo.
       Desarrollo verifica cómo identificar el LC **de apertura** (el primer `LineClearance`
       de la guía) con lo que ya da `PodContext`.
 
@@ -212,20 +212,20 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
   "Sin SFC iniciado" = ninguna fila de `PodState.Order` en `Active`, o `Order` nulo. "DC
   obligatorio pendiente" = algún grupo obligatorio de DC sin guardar en
   `PodState.DataCollection`.
-- [ ] M-7 lista **todos** los parámetros de los grupos obligatorios no guardados, con el
+- [x] M-7 lista **todos** los parámetros de los grupos obligatorios no guardados, con el
       patrón `<PARAM> (<DC_GROUP>) , …` y el SFC (D-113). **Un M-7 por pieza** (D-119): uno
       por cada SFC seleccionado y activo; sin selección, uno por cada fila activa. El
       resultado lleva una **lista** de `MesError` y el banner pinta una fila de 25 px por
       mensaje, una debajo de la otra. Es el único caso con varios mensajes.
-- [ ] `PodService.OutOfSequence` llama a la regla y deja el `MesError` en el resultado en
+- [x] `PodService.OutOfSequence` llama a la regla y deja el `MesError` en el resultado en
       los tres modos. La calificación no cambia: RecordAttempt sigue registrando el intento,
       Notice sigue sin intento e Ignore se sigue ignorando sin pintar nada.
-- [ ] Página: `HandleOutOfSequence` pinta el `MesError` si viene. En Práctica libre, en vez de
+- [x] Página: `HandleOutOfSequence` pinta el `MesError` si viene. En Práctica libre, en vez de
       "Ese no es el paso actual."; en Assessment, antes del feedback de hoy.
-- [ ] Complete sin fila dentro de su paso (`NoRowToComplete`, intento fallido) → M-4 cuando
+- [x] Complete sin fila dentro de su paso (`NoRowToComplete`, intento fallido) → M-4 cuando
       **no hay ninguna** fila seleccionada. La selección parcial de Serialized conserva su
       texto. Log NC sin fila (`NoScrappableRow`) → M-5 cuando no hay ninguna fila.
-- [ ] Tests `MesSequenceRuleTests`: cada fila de la tabla, la prioridad (Start con RS y LC
+- [x] Tests `MesSequenceRuleTests`: cada fila de la tabla, la prioridad (Start con RS y LC
       pendientes → M-1; Assemble con LC pendiente y sin SFC → M-2), M-3 con un intento `WrongDecision` del LC de apertura (y no con un clic fuera de secuencia), el LC
       de cierre sin resolver que no produce mensaje, DC Collect durante Assembly con el SFC
       iniciado → ninguno, y Complete en un área sin DC → M-4 o ninguno.

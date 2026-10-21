@@ -8,7 +8,7 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-10-21 · **Branch:** `TrainingApp` (la 017 se trabaja en
-`spec-017` y se integra por entrega) · **Último commit de código:** spec 017, entrega 1
+`spec-017` y se integra por entrega) · **Último commit de código:** spec 017, entrega 2
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -16,8 +16,12 @@
   quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7 y 012 (detalle en
   `docs/history.md`). La 016 ya se puede subir a `main` (D-81); lo sube el usuario.
 - **Ahora:** spec 017 (fila 10, plan aprobado el 2026-10-21). **E1 ✅** (mensajes del MES en
-  los avisos de formato, banner y franja de error, OK del Split), probada por el usuario.
-- **Siguiente:** E2 de la 017 (clics fuera de secuencia).
+  los avisos de formato, banner y franja de error, OK del Split) y **E2 ✅** (clics fuera de
+  secuencia con el mensaje del MES, `9f0ea3a` y `7b27967`), probadas por el usuario. En la
+  E2 el usuario corrigió que sin una fila seleccionada el MES da "SFC is missing" y que el
+  SFC cuenta como iniciado recién tras el Start; eso enmienda D-119 (M-7 solo de las piezas
+  seleccionadas), pendiente de anotar por Arquitectura y Planeación.
+- **Siguiente:** E3 de la 017 (Data Collection y Log NC).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`). Para el cierre de la 017: `docs/ui-reference/general-flow.md` todavía
   no refleja sus mensajes del MES (ej. la Qty del Split) y su plan no lo programa.
