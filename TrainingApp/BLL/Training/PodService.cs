@@ -1024,16 +1024,25 @@ namespace TrainingApp.BLL.Training
             => !string.IsNullOrWhiteSpace(barcode) && Regex.IsMatch(barcode.Trim(), @"^[0-9]+$");
 
         // Assembly y DC trabajan la selección del POD (spec 008, punto 6): en Serialized todas
-        // las piezas juntas (aviso del simulador); en NonSerialized, la fila del lote (sin ella,
-        // el 12906 del MES, spec 017). null si la selección es válida.
+        // las piezas juntas; en NonSerialized, la fila del lote. Sin ninguna fila es el 12906 del
+        // MES (spec 017); la selección parcial de Serialized, el aviso del simulador. null si la
+        // selección es válida.
         private static PodCommandResult CheckPodSelection(PodContext ctx, StepType stepType,
             ICollection<string> selectedRowIds)
         {
             var selected = SelectedRows(ctx, selectedRowIds);
             if (ctx.Area.SerializationType == SerializationType.Serialized)
-                return PieceSelectionRule.Evaluate(stepType, selected.Count, ActiveCount(ctx)) == PieceSelectionResult.Valid
-                    ? null
-                    : PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
+            {
+                switch (PieceSelectionRule.Evaluate(stepType, selected.Count, ActiveCount(ctx)))
+                {
+                    case PieceSelectionResult.Valid:
+                        return null;
+                    case PieceSelectionResult.NothingSelected:
+                        return PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.SfcMissing));
+                    default:
+                        return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
+                }
+            }
 
             return IsSingleRow(selected) ? null : PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.SfcMissing));
         }

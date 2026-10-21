@@ -14,8 +14,9 @@
 > trabajo relevante. Mantenerla corta: el detalle va en la sección de la fase, la spec o la
 > auditoría.
 
-**Última actualización:** 2026-10-20 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 012, entrega 4 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-21 · **Branch:** `TrainingApp` (la 017 se trabaja en
+`spec-017` y se integra por entrega) · **Último commit de código:** spec 017, entrega 1
+(`git log --oneline -10` para ver el estado real)
 
 - **Ahora — Fase 8.5 · Entrega de noviembre** (plan aprobado el 2026-10-12 y reordenado el
   2026-10-13 tras la trainer: 013 → T7 → 015 → 014 → 016 → 012; ver su sección). La Fase 8 cerró el
@@ -40,7 +41,9 @@ código:** spec 012, entrega 4 (`git log --oneline -10` para ver el estado real)
   y Line Clearance y consumir antes del MPI, probadas por el usuario.
   **Spec 012 ✅** (2026-10-20, T3, ver "Historial"): `ModePolicy` y el modo **Práctica
   libre** (sin guía ni puntaje, Ver pista, Saltar paso e Ir a…, resumen por paso), probada
-  por el usuario. **Siguiente:** la **017** (espera las capturas de T9).
+  por el usuario. **Ahora: spec 017** (fila 10, plan aprobado el 2026-10-21, ver
+  "Historial"): **E1 ✅** (mensajes del MES en los avisos de formato, banner y franja de
+  error, OK del Split), probada por el usuario. **Siguiente:** E2 (clics fuera de secuencia).
   Para mostrar a negocio:
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
@@ -747,3 +750,16 @@ paso ("Saltado (N fallos)") y pistas por tramo en el Ingreso a MES y en Logout (
 Sin scripts de BD (solo comentarios en `00`). Reviews: `high` en E1 y E3, `medium` en E2 y
 E4. Tests: 184 (`ModePolicyTests`, `StepNamesTests`, `StepHintsTests`). Reglas en
 `docs/domain.md`; mecanismos en `docs/architecture.md`.
+
+### Spec 017 · Mensajes de error del MES (en curso, Fase 8.5, fila 10)
+Plan `docs/specs/017-plan.md` (aprobado el 2026-10-21, con su enmienda 1), cuatro entregas;
+se trabaja en la rama `spec-017` y cada entrega se integra a `TrainingApp` para probarla.
+**E1** (`b3dfff8` y la corrección al probar): catálogo `MesMessage` en la BLL (M-1 a M-17 sin
+M-10, textos literales) y `MesError` en los resultados de `PodService`. Start sin SFC
+(`22506`) y con un SFC ajeno (`22507`), Assembly, DC y Split sin fila (`12906`, también en
+Serialized sin ninguna fila) en el banner rojo del POD (`#podMesError`, ancla
+`pod-mes-error`, hasta la acción siguiente); barcode no numérico (`17150`) en la franja de
+Assemble Components con los detalles vacíos; Qty del Split vacía, 0 o de más (`13875`,
+`13213`, `13885`) reemplaza el formulario y su OK cierra la ventana. Los chequeos del
+cliente toman el texto del catálogo. Sin cambios de intento ni de puntaje (D-92). Review
+`medium` (8 hallazgos aplicados). Tests: 206 (`MesMessageTests`). Probada por el usuario.
