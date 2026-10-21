@@ -1,7 +1,7 @@
 # Plan — Spec 017: Mensajes de error del MES
 
 **Spec:** `017-mensajes-del-mes.md` (aprobada el 2026-10-21, D-92 a D-116) · **Estado:**
-borrador para la aprobación del usuario.
+**aprobado por el usuario el 2026-10-21**, con D-117 a D-119 ("Puntos confirmados").
 **Autoría:** sesión de Arquitectura y Planeación, verificado contra el código en
 `cd3cb78`. Lo ejecuta Desarrollo (`docs/process.md` → "Tres sesiones de trabajo").
 
