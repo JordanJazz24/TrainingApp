@@ -186,11 +186,11 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 9. Confirmar el mensaje "Record changed"
 10. Cerrar con X
 
-### Reglas de negocio
+### Reglas de la pantalla
+- **Calificación** (Setup State, equipos precargados, secuencia): `docs/domain.md` → "Flujo
+  estándar" (paso 1) y "Qué cuenta como intento". Aquí, solo lo que valida el control.
 - **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
 - **El orden de las filas es libre** — no se exige que Shop Order sea la primera fila
-- **Setup State DEBE ser "Set Up"**: es una *decisión* del operador; guardar en "Open" se
-  envía al servidor y es intento fallido (`docs/domain.md` → "Qué cuenta como intento")
 - **Exactamente 1 Shop Order** — ni 0 ni 2+
 - **Al menos 1 Tool Number**
 - **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
@@ -202,11 +202,10 @@ que los equipos cargados son los de la estación y trabajar con una herramienta 
 Sin captura del Remove All.
 
 **Equipos precargados (spec 015, 2026-10-14):** el modal abre con una Shop Order y 2
-herramientas precargadas (las genera la BLL en cada apertura, distintas de `303406950`).
-Guardar con alguna en la tabla es intento fallido (mensaje genérico en Assessment); vale
-cualquier forma de quitarlas (Remove All o Remove Selected). Con alguna en la tabla, el
-control no muestra los avisos de formato de abajo (D-26). En Guided, la captura de la Shop
-Order y de la herramienta no acepta un valor precargado.
+herramientas precargadas, distintas de `303406950`. Con alguna en la tabla, el control no
+muestra los avisos de formato de abajo (D-26). En Guided, la captura de la Shop Order y de la
+herramienta no acepta un valor precargado (D-25). Cómo se califica guardar con alguno:
+`docs/domain.md` → "Qué cuenta como intento" → "Precargado antes que formato".
 
 ### Validaciones del UserControl (lado cliente + servidor)
 
@@ -384,8 +383,8 @@ el manejo genérico de modales apilados de `Training.Master`.
 
 ---
 
-### Reglas de negocio
-- Seleccionar "No" = respuesta incorrecta, registra intento fallido
+### Reglas de la pantalla
+- **Calificación** (Sí/No es una decisión): `docs/domain.md` → "Qué cuenta como intento"
 - Dejar dropdown en blanco = no permite guardar
 - Solo hay una pregunta por instancia de LC (DC_LC_DONE)
 - Retrieve es obligatorio antes de poder interactuar con la fila — sin Retrieve el [Collect] no es visible
@@ -498,7 +497,7 @@ en planta. Hallazgos y propuestas: roadmap → "Fase 8".
   seleccionarlas todas (spec 008), así que "seleccionar todo" siempre es correcto: entrena
   el hábito que el procedimiento prohíbe.
 
-### Reglas de negocio
+### Reglas de la pantalla
 - No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
 - Bifurcación por SerializationType (`docs/domain.md` → "Ejes de variación"): ver "Implementación en el simulador"
@@ -630,12 +629,9 @@ Assemble Components                                                        (?)
 4. Repetir por cada componente; con el último, el paso se completa y vuelve el POD
    con el banner del MES real **"All components processed at this operation"**
 
-### Reglas de negocio
-- **Un escaneo por componente** cubre toda su Qty y se aplica a todas las piezas
-  seleccionadas ("Apply to all SFCs").
-- **No se valida el barcode** contra el número de parte; barcode vacío o no numérico es
-  aviso de formato, sin intento.
-- Se califica **solo por secuencia** (S2). No existe `ExpectedComponentCount` (eliminado).
+### Reglas de la pantalla
+- **Qué cubre cada escaneo y cómo se califica:** `docs/domain.md` → "Flujo estándar" (paso 4)
+  y "Qué cuenta como intento".
 - El avance vive en Session: sobrevive a Return to POD / [X] y a F5.
 - El orden de Assembly en el flujo es después de Search/Start y antes de Data Collection, pero el motor respeta `TrainingStep.Order` — puede cambiar por área
 
@@ -760,19 +756,17 @@ simulador: verificarlo en el ambiente de calidad de SAP MES.
 | Iteración por SFC | No — un escaneo aplica a todas las piezas | Sí — (n/N), avanza al completar los grupos obligatorios de la pieza |
 | Paginación en lista | Sí | Sí |
 
-### Reglas de negocio
+### Reglas de la pantalla
 - Solo aplica si `RequiresDataCollection = true`
-- Grupos en BD (`DataCollectionGroups` por área, con `IsRequired`); parámetros en
-  `DataCollectionParameters` (con `DataCollectionGroupId`, `DataType`, `DisplayOrder`,
-  `MinValue?`, `MaxValue?`)
+- **Grupos, parámetros, cuándo termina el paso y qué cuenta como intento:** `docs/domain.md`
+  → "Catálogos en BD" y "Qué cuenta como intento".
 - Validación del Save: tienen que venir **todos** los parámetros del grupo y solo esos;
-  Numeric dentro de rango, Boolean = Sí, Date válida. Un campo vacío es intento fallido.
+  Numeric dentro de rango, Boolean = Sí, Date válida.
 - Un Save incorrecto es intento fallido del paso, pero **conserva** el avance (grupos y
   piezas ya guardados). Un grupo ya guardado por la pieza actual no se puede volver a
   guardar: su [Collect] está deshabilitado y el servidor ignora un segundo Save.
 - Save Draft no guarda nada (solo orienta al operador)
-- El paso finaliza cuando todas las piezas guardaron sus grupos obligatorios (Moldeo:
-  solo `DCGTM_FECHA_EXPIRACION_NIR/A`). El intento correcto se registra en ese momento.
+- El intento correcto se registra cuando la última pieza completa sus grupos obligatorios.
 - El avance vive en Session: sobrevive a Return to POD / [X] y a F5.
 
 ### Diferencias SAP real vs. Legacy
@@ -912,15 +906,16 @@ El campo SFC en la search bar queda vacío tras el scrap.
 **NonSerialized:** Sidebar [SFC Split] → Qty to Split → [Split] → confirmar → [Close] → verificar POD → Sidebar [Log NC] → NC Selection → [Log NC] del código → NC Data Entry → [Add-Done] → banner confirmación
 **Serialized:** Seleccionar SFC en POD → Sidebar [Log NC] → NC Selection → [Log NC] del código → NC Data Entry → [Add-Done] → banner confirmación
 
-### Reglas de negocio
+### Reglas de la pantalla
+- **Calificación** (pieza y código del hallazgo, Add-Done, filas, formato): `docs/domain.md`
+  → "Qué cuenta como intento" → "Log NC".
 - SFC Split solo para NonSerialized — Serialized selecciona directamente del POD
 - NC Code requerido; Component solo con código de reparación (requerido en la rápida); Comments opcional, salvo con un código que lo exige (`F_FX_GENERAL`)
 - NC Codes desde catálogo BD por área — no hardcodeados
-- [Add-Done] = flujo normal del paso; [Add] y [Done] son botones equivocados (intento fallido, spec 007)
 - **NonSerialized:** una fila, creada por el SFC Split. **Serialized:** el MES permite
-  seleccionar varias filas (spec 008), pero el hallazgo marca una sola (spec 014, D-33); en
-  el desecho tiene que quedar al menos una pieza para Complete (seleccionar todas = aviso
-  sin intento). Sin fila = intento fallido.
+  seleccionar varias filas (spec 008); en el desecho tiene que quedar al menos una pieza para
+  Complete: seleccionarlas todas es un aviso sin intento (`PieceSelectionRule.NoPieceLeft`),
+  antes de calificar.
 - Banner del desecho: "✓ All of {SFC} scrapped" (una) o "✓ N SFCs scrapped" (varias). En
   Serialized el SFC field queda vacío; en NonSerialized conserva el SFC del lote. Los de la
   reparación rápida y la extendida, abajo.
@@ -1063,12 +1058,11 @@ Lista los componentes ensamblados en la pieza (el BOM usado en Assemble).
    siguiente operación)
 4. Sigue el Paso 10 — Logout (spec 015)
 
-### Reglas de negocio
-- No valida contenido — se califica por secuencia
+### Reglas de la pantalla
+- **Calificación** (secuencia y filas): `docs/domain.md` → "Flujo estándar" (pasos 3 y 9) y
+  "Qué cuenta como intento".
 - Ya no es el último paso: la sesión sigue con Logout (spec 015)
-- Todos los pasos anteriores deben estar completos antes de llegar aquí
-- Sin fila seleccionada = intento fallido (spec 007). NonSerialized: una fila.
-  **Serialized (spec 008):** todas las filas que quedan en el POD (algunas = aviso sin intento).
+- NonSerialized: una fila. Serialized (spec 008): todas las filas que quedan en el POD.
 
 **Mensaje después de Complete — PROVISIONAL (spec 015, D-22):** banner genérico con el formato
 de los demás banners del POD: `SFC {sfc} completed` (NonSerialized) o `{N} SFCs completed`
@@ -1085,21 +1079,20 @@ de los demás banners del POD: `SFC {sfc} completed` (NonSerialized) o `{N} SFCs
 
 ---
 
-## Paso 10 — Logout (spec 015)
+## Paso 10 — Logout (specs 015 y 016)
 
-**StepType:** `Logout` | **Validación:** secuencia (correcto solo con el ícono Logout)
+**StepType:** `Logout` | **Calificación:** `docs/domain.md` → "Flujo estándar" (paso 10) y
+"Qué cuenta como intento"
 
 **Acceso:** ícono **Logout** del header del POD.
 
 ### Flujo del operador
-1. Clic en el ícono **Logout** del header
+1. Clic en el ícono **Logout** del header.
+2. La limpieza al salir (spec 016): "You have logged off" en Edge → cerrar Edge → el script
+   con el Code1 en el escritorio. Pantallas: `pre-sap-flow.md`.
 
-### Reglas de negocio
-- **Simulado:** registra el paso, cierra la sesión de entrenamiento y muestra el resumen
-  final. No cierra la sesión de la app y no hay pantalla de logout del MES (sin captura).
-- **Antes del último paso:** en Assessment es un botón más del POD (intento fallido del paso
-  actual, mensaje genérico, no cierra nada); en Guided está deshabilitado. Para salir a mitad
-  de una sesión queda Abandon.
+### Reglas de la pantalla
+- No cierra la sesión de la app; el resumen final sale al cerrar la consola del script.
 - **Con la sesión ya cerrada** (resumen final): el ícono cierra la sesión de la app (D-21).
 - **Guía de Guided:** el subpaso señala el ícono con la nota de la trainer ("Cierra sesión en
   MES siempre que dejes de usar activamente el sistema…").
@@ -1113,6 +1106,7 @@ estación: hubo CAPAs por Code1 compartidos y sesiones abiertas.
 
 | Paso | StepType | Condicional |
 |---|---|---|
+| 0 — Ingreso a MES | `MesLogin` | No (spec 016; pantallas en `pre-sap-flow.md`) |
 | 1 — Resource Setup | `ResourceSetup` | No |
 | 2 — Line Clearance apertura | `LineClearance` | No |
 | 3 — Search / Start Order | `Search` | No |
