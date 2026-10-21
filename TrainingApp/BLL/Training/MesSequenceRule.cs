@@ -19,8 +19,9 @@ namespace TrainingApp.BLL.Training
         // steps: los de la guía; currentStepOrder: el paso actual de la sesión; attempts: los
         // intentos de la sesión (de ellos sale la última respuesta del LC, que así sobrevive a la
         // reconstrucción del estado, D-10). dcGroups/dcParameters: null si el botón no los
-        // necesita (solo Complete, M-7). selectedRowIds: la selección del POD; null o vacía,
-        // todas las filas activas (D-119).
+        // necesita (solo Complete, M-7). selectedRowIds: la selección del POD; el M-7 es de las
+        // piezas seleccionadas (D-119, corregido por el usuario al probar la E2: sin selección
+        // el MES dice "SFC is missing").
         public static MesSequenceState Build(IList<TrainingStep> steps, int currentStepOrder,
             IList<TrainingSessionStepAttempt> attempts, SimulatedOrder order, DataCollectionProgress dcProgress,
             IList<DataCollectionGroup> dcGroups, IList<DataCollectionParameter> dcParameters,
@@ -29,7 +30,12 @@ namespace TrainingApp.BLL.Training
             bool Pending(TrainingStep s) => s != null && currentStepOrder <= s.Order;
 
             var openingLc = OpeningLineClearance(steps);
-            var active    = order?.ActiveRows() ?? new List<SimulatedOrderRow>();
+            // En NonSerialized la fila del lote queda Active desde Resource Setup: el SFC está
+            // iniciado recién con el paso de Start resuelto.
+            var active    = !Pending(FirstOf(steps, StepType.Search))
+                ? order?.ActiveRows() ?? new List<SimulatedOrderRow>()
+                : new List<SimulatedOrderRow>();
+            var selected  = active.Count > 0 ? order.FindActiveRows(selectedRowIds) : new List<SimulatedOrderRow>();
             var state = new MesSequenceState
             {
                 ResourceSetupPending        = Pending(FirstOf(steps, StepType.ResourceSetup)),
@@ -38,18 +44,18 @@ namespace TrainingApp.BLL.Training
                 // última respuesta. Los clics fuera de secuencia en el LC no son respuestas.
                 LineClearanceAnsweredNo     = openingLc != null && (attempts ?? new List<TrainingSessionStepAttempt>())
                     .Any(a => a.StepId == openingLc.Id && a.Reason == AttemptReason.WrongDecision),
-                SfcStarted                  = active.Count > 0
+                SfcStarted                  = active.Count > 0,
+                SfcSelected                 = selected.Count > 0
             };
 
-            if (dcGroups == null || dcParameters == null || active.Count == 0 ||
+            if (dcGroups == null || dcParameters == null || selected.Count == 0 ||
                 !Pending(FirstOf(steps, StepType.DataCollection)))
                 return state;
 
             var required = dcGroups.Where(g => g.IsRequired).OrderBy(g => g.DisplayOrder).ToList();
             if (required.Count == 0) return state;
 
-            var selected = order.FindActiveRows(selectedRowIds);
-            foreach (var row in selected.Count > 0 ? selected : active)
+            foreach (var row in selected)
             {
                 var saved = dcProgress?.SavedGroupIds(row.RowId) ?? new HashSet<int>();
                 state.PendingDataCollection.Add(new MesPendingDataCollection
@@ -83,11 +89,17 @@ namespace TrainingApp.BLL.Training
         // La última respuesta del LC de apertura fue No (C-3).
         public bool LineClearanceAnsweredNo { get; set; }
 
-        // Alguna fila de la orden en Active.
+        // El paso de Start ya se resolvió y quedan filas en Active.
         public bool SfcStarted { get; set; }
 
-        // Un elemento por pieza con DC obligatorio pendiente (D-119); vacío si no hay o el área
-        // no tiene DC.
+        // Alguna fila iniciada está seleccionada en el POD (lo que el MES toma como el SFC).
+        public bool SfcSelected { get; set; }
+
+        // El SFC con el que el MES trabaja el botón: iniciado y seleccionado.
+        public bool HasSfc => SfcStarted && SfcSelected;
+
+        // Un elemento por pieza seleccionada con DC obligatorio pendiente (D-119); vacío si no
+        // hay o el área no tiene DC.
         public IList<MesPendingDataCollection> PendingDataCollection { get; set; } = new List<MesPendingDataCollection>();
     }
 
@@ -111,13 +123,13 @@ namespace TrainingApp.BLL.Training
                 case StepType.DataCollection:
                     if (state.OpeningLineClearancePending)
                         return LineClearance(state);
-                    return state.SfcStarted ? none : One(MesMessageId.SfcMissing);
+                    return state.HasSfc ? none : One(MesMessageId.SfcMissing);
 
                 case StepType.SFC_Split:
-                    return state.SfcStarted ? none : One(MesMessageId.SfcMissing);
+                    return state.HasSfc ? none : One(MesMessageId.SfcMissing);
 
                 case StepType.Complete:
-                    if (!state.SfcStarted)
+                    if (!state.HasSfc)
                         return One(MesMessageId.SfcMissingStart);
                     // Un M-7 por pieza (D-119), con todos sus parámetros pendientes (D-113).
                     return state.PendingDataCollection
@@ -130,7 +142,7 @@ namespace TrainingApp.BLL.Training
                     // Log NC (los tres métodos, spec 014) como SFC Split; el resto no tiene
                     // chequeo en el MES (Resource Setup, Line Clearance, Logout, sin lógica).
                     if (StepTypes.IsLogNC(clicked))
-                        return state.SfcStarted ? none : One(MesMessageId.SfcMissing);
+                        return state.HasSfc ? none : One(MesMessageId.SfcMissing);
                     return none;
             }
         }

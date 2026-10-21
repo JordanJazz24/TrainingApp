@@ -12,7 +12,10 @@ namespace TrainingApp.Test
     public class MesSequenceRuleTests
     {
         // Después del LC de apertura y del Start: todo lo que el MES revisa está en orden.
-        private static MesSequenceState Started() => new MesSequenceState { SfcStarted = true };
+        private static MesSequenceState Started() => new MesSequenceState { SfcStarted = true, SfcSelected = true };
+
+        // Start ya hecho, pero sin ninguna fila seleccionada en el POD.
+        private static MesSequenceState StartedWithoutSelection() => new MesSequenceState { SfcStarted = true };
 
         private static MesSequenceState BeforeResourceSetup() => new MesSequenceState
         {
@@ -119,6 +122,29 @@ namespace TrainingApp.Test
         public void SplitOrLogNC_WithStartedSfc_HasNoMessage(StepType clicked)
         {
             Assert.That(Ids(clicked, Started()), Is.Empty);
+        }
+
+        // Corrección del usuario al probar la E2: sin una fila seleccionada el MES no tiene SFC.
+        [TestCase(StepType.Assembly)]
+        [TestCase(StepType.DataCollection)]
+        [TestCase(StepType.SFC_Split)]
+        [TestCase(StepType.LogNC)]
+        public void SfcButtons_StartedButNothingSelected_IsM5(StepType clicked)
+        {
+            Assert.That(Ids(clicked, StartedWithoutSelection()), Is.EqualTo(new[] { MesMessageId.SfcMissing }));
+        }
+
+        [Test]
+        public void Complete_StartedButNothingSelected_IsM4()
+        {
+            var state = StartedWithoutSelection();
+            state.PendingDataCollection.Add(new MesPendingDataCollection
+            {
+                Sfc = "SFC-1",
+                Parameters = new List<string> { "TEMP (DCG_A)" }
+            });
+
+            Assert.That(Ids(StepType.Complete, state), Is.EqualTo(new[] { MesMessageId.SfcMissingStart }));
         }
 
         // ── Complete ─────────────────────────────────────────────────────
@@ -260,6 +286,17 @@ namespace TrainingApp.Test
             Assert.That(state.SfcStarted, Is.False, "una fila en New no es un SFC iniciado");
         }
 
+        // NonSerialized: la fila del lote queda Active desde Resource Setup, pero el SFC se inicia
+        // con el Start (corrección del usuario al probar la E2).
+        [Test]
+        public void BeforeStart_AnActiveLotRowIsNotAStartedSfc()
+        {
+            var state = Build(currentStepOrder: 3, order: Order(Row("1")), selected: new[] { "1" });
+
+            Assert.That(state.SfcStarted, Is.False);
+            Assert.That(state.SfcSelected, Is.False);
+        }
+
         // C-3: el LC de cierre sin resolver no cuenta.
         [Test]
         public void InClosingLineClearance_TheOpeningOneIsResolved()
@@ -268,6 +305,17 @@ namespace TrainingApp.Test
 
             Assert.That(state.OpeningLineClearancePending, Is.False);
             Assert.That(state.SfcStarted, Is.True);
+            Assert.That(state.SfcSelected, Is.False);
+        }
+
+        [Test]
+        public void SfcSelected_OnlyCountsSelectedActiveRows()
+        {
+            var order = Order(Row("1"), Row("2", SimulatedOrderRow.StatusNew));
+
+            Assert.That(Build(4, order, selected: new[] { "1" }).SfcSelected, Is.True);
+            Assert.That(Build(4, order, selected: new[] { "2" }).SfcSelected, Is.False);
+            Assert.That(Build(4, order, selected: new string[0]).SfcSelected, Is.False);
         }
 
         [Test]
@@ -302,7 +350,7 @@ namespace TrainingApp.Test
         [Test]
         public void PendingDataCollection_ListsTheRequiredParametersInScreenOrder()
         {
-            var state = Build(4, Order(Row("1")), withDc: true);
+            var state = Build(4, Order(Row("1")), withDc: true, selected: new[] { "1" });
 
             Assert.That(state.PendingDataCollection.Count, Is.EqualTo(1));
             Assert.That(state.PendingDataCollection[0].Sfc, Is.EqualTo("SFC-1"));
@@ -310,26 +358,25 @@ namespace TrainingApp.Test
                 Is.EqualTo(new[] { "TEMP (DCG_A)", "HUMIDITY (DCG_A)", "PRESSURE (DCG_B)" }));
         }
 
-        // D-119: sin selección, una por fila activa; las filas en New no cuentan.
+        // Sin selección no hay piezas que listar: Complete da M-4 (corrección del usuario al
+        // probar la E2, enmienda de D-119).
         [Test]
-        public void PendingDataCollection_WithoutSelection_IsOnePerActiveRow()
-        {
-            var order = Order(Row("1"), Row("2"), Row("3", SimulatedOrderRow.StatusNew));
-
-            var state = Build(5, order, withDc: true);
-
-            Assert.That(state.PendingDataCollection.Select(p => p.Sfc), Is.EqualTo(new[] { "SFC-1", "SFC-2" }));
-        }
-
-        // D-119: con selección, solo las seleccionadas y activas.
-        [Test]
-        public void PendingDataCollection_WithSelection_IsOnlyTheSelectedActiveRows()
+        public void PendingDataCollection_WithoutSelection_IsEmpty()
         {
             var order = Order(Row("1"), Row("2"));
 
-            var state = Build(5, order, withDc: true, selected: new[] { "2" });
+            Assert.That(Build(5, order, withDc: true).PendingDataCollection, Is.Empty);
+        }
 
-            Assert.That(state.PendingDataCollection.Select(p => p.Sfc), Is.EqualTo(new[] { "SFC-2" }));
+        // D-119: una por pieza seleccionada y activa; las filas en New no cuentan.
+        [Test]
+        public void PendingDataCollection_IsOnePerSelectedActiveRow()
+        {
+            var order = Order(Row("1"), Row("2"), Row("3"), Row("4", SimulatedOrderRow.StatusNew));
+
+            var state = Build(5, order, withDc: true, selected: new[] { "1", "3", "4" });
+
+            Assert.That(state.PendingDataCollection.Select(p => p.Sfc), Is.EqualTo(new[] { "SFC-1", "SFC-3" }));
         }
 
         // Los grupos ya guardados de cada pieza no se listan.
@@ -339,7 +386,7 @@ namespace TrainingApp.Test
             var progress = new DataCollectionProgress();
             progress.MarkSaved("1", 1);
 
-            var state = Build(5, Order(Row("1")), progress: progress, withDc: true);
+            var state = Build(5, Order(Row("1")), progress: progress, withDc: true, selected: new[] { "1" });
 
             Assert.That(state.PendingDataCollection[0].Parameters, Is.EqualTo(new[] { "PRESSURE (DCG_B)" }));
         }
@@ -348,15 +395,15 @@ namespace TrainingApp.Test
         [Test]
         public void PendingDataCollection_AfterTheDataCollectionStep_IsEmpty()
         {
-            Assert.That(Build(6, Order(Row("1")), withDc: true).PendingDataCollection, Is.Empty);
+            Assert.That(Build(6, Order(Row("1")), withDc: true, selected: new[] { "1" }).PendingDataCollection, Is.Empty);
         }
 
         // Sin SFC iniciado no hay piezas que listar (Complete da M-4).
         [Test]
         public void PendingDataCollection_WithoutActiveRows_IsEmpty()
         {
-            Assert.That(Build(4, Order(Row("1", SimulatedOrderRow.StatusNew)), withDc: true).PendingDataCollection,
-                Is.Empty);
+            Assert.That(Build(4, Order(Row("1", SimulatedOrderRow.StatusNew)), withDc: true, selected: new[] { "1" })
+                .PendingDataCollection, Is.Empty);
         }
     }
 }

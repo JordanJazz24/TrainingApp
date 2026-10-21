@@ -338,7 +338,14 @@ namespace TrainingApp.BLL.Training
             if (ctx.Area.SerializationType == SerializationType.Serialized)
             {
                 if (!IsBrowseSelectionValid(order, browseRowIds))
-                    return PodCommandResult.WithNotice(PodNotice.StartWholeOrder);
+                {
+                    // Sin ninguna pieza, además del aviso del simulador, el 22506 del MES
+                    // (corrección del usuario al probar la E2 de la spec 017).
+                    var notice = PodCommandResult.WithNotice(PodNotice.StartWholeOrder);
+                    if (browseRowIds == null || order.FindRows(browseRowIds).Count == 0)
+                        notice.MesErrors = new List<MesError> { MesMessage.Error(MesMessageId.SfcMissingStart) };
+                    return notice;
+                }
             }
             else if (string.IsNullOrWhiteSpace(scannedSfc))
             {
@@ -422,7 +429,7 @@ namespace TrainingApp.BLL.Training
         // Abrir la Component List exige la selección del paso (aviso de formato, sin intento).
         public PodCommandResult OpenAssembly(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            return CheckSequence(ctx, StepType.Assembly, AttemptActions.Assemble)
+            return CheckSequence(ctx, StepType.Assembly, AttemptActions.Assemble, selectedRowIds)
                 ?? CheckPodSelection(ctx, StepType.Assembly, selectedRowIds)
                 ?? new PodCommandResult();
         }
@@ -476,7 +483,7 @@ namespace TrainingApp.BLL.Training
         // spec 008).
         public PodCommandResult OpenDataCollection(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            var sequence = CheckSequence(ctx, StepType.DataCollection, AttemptActions.DCCollect);
+            var sequence = CheckSequence(ctx, StepType.DataCollection, AttemptActions.DCCollect, selectedRowIds);
             if (sequence != null) return sequence;
 
             var selection = CheckPodSelection(ctx, StepType.DataCollection, selectedRowIds);
@@ -580,7 +587,7 @@ namespace TrainingApp.BLL.Training
         // el 12906 del MES (spec 017).
         public PodCommandResult OpenSplit(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            return CheckSequence(ctx, StepType.SFC_Split, AttemptActions.SFCSplit)
+            return CheckSequence(ctx, StepType.SFC_Split, AttemptActions.SFCSplit, selectedRowIds)
                 ?? (IsSingleRow(SelectedRows(ctx, selectedRowIds))
                     ? new PodCommandResult()
                     : PodCommandResult.WithMesError(MesMessage.Error(MesMessageId.SfcMissing)));
@@ -672,7 +679,7 @@ namespace TrainingApp.BLL.Training
         // (P-3): abrir con otra pieza y salir con Return to POD no cuenta.
         public PodCommandResult OpenLogNC(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            var sequence = CheckSequence(ctx, StepType.LogNC, AttemptActions.LogNC);
+            var sequence = CheckSequence(ctx, StepType.LogNC, AttemptActions.LogNC, selectedRowIds);
             if (sequence != null) return sequence;
 
             var finding = EnsureFinding(ctx);
@@ -929,7 +936,7 @@ namespace TrainingApp.BLL.Training
         // null si el botón es el del paso actual. Si no: según ModePolicy, intento fallido del
         // paso actual (Assessment), aviso sin intento (Práctica libre) o se ignora (Guided).
         // action: el botón presionado, para el registro de actividad (spec 013, AC-20).
-        // selectedRowIds: la selección del POD, para el M-7 por pieza de Complete (spec 017).
+        // selectedRowIds: la selección del POD; sin ella el MES no tiene SFC (spec 017).
         private PodCommandResult CheckSequence(PodContext ctx, StepType clickedStepType, string action,
             ICollection<string> selectedRowIds = null)
         {

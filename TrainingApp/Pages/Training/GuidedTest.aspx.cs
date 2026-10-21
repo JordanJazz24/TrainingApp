@@ -1008,14 +1008,12 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             var result = Pod.ClickStart(_ctx, BrowseSelectedIds(), ScannedSfc());
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
-            if (result.MesErrors != null)
+            // El mensaje del MES y, si lo hay, el aviso del simulador (Serialized sin piezas:
+            // los dos).
+            if (result.MesErrors != null || result.Notice != PodNotice.None)
             {
-                ShowMesErrors(result.MesErrors);
-                return;
-            }
-            if (result.Notice != PodNotice.None)
-            {
-                ShowNotice(result.Notice);
+                if (result.MesErrors != null) ShowMesErrors(result.MesErrors);
+                if (result.Notice != PodNotice.None) ShowNotice(result.Notice);
                 return;
             }
 
