@@ -70,41 +70,42 @@
         if (success && texts.length) success.style.display = 'none';
     }
 
-    // (?) al final de un mensaje del MES (spec 017, D-102; elección del usuario al probar la
-    // E4): en Práctica libre abre un globo con la explicación en español; otro clic, o un
-    // clic fuera, lo cierra. Texto plano.
+    // Botón "¿Qué significa?" al final de un mensaje del MES (spec 017, D-102; elección del
+    // usuario al probar la E4): en Práctica libre abre un aviso de información con el mensaje
+    // y su explicación en español. Texto plano (textContent).
     function podAttachMesHelp(el, help) {
-        if (!el || !help || el.querySelector('.mes-help-toggle')) return;
+        if (!el || !help || el.querySelector('.mes-help-btn')) return;
+        var message = el.textContent.trim();
         var btn = document.createElement('button');
-        var pop = document.createElement('div');
         btn.type = 'button';
-        btn.className = 'mes-help-toggle';
-        btn.textContent = '?';
-        btn.title = '¿Qué significa?';
-        btn.setAttribute('aria-label', '¿Qué significa?');
-        btn.setAttribute('aria-expanded', 'false');
-        pop.className = 'mes-help-pop';
-        pop.setAttribute('role', 'note');
-        pop.textContent = help;
-        pop.hidden = true;
+        btn.className = 'mes-help-btn';
+        var icon = document.createElement('span');
+        icon.className = 'mes-help-ico';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = 'i';
+        btn.appendChild(icon);
+        var label = document.createElement('span');
+        label.textContent = '¿Qué significa?';
+        btn.appendChild(label);
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
-            pop.hidden = !pop.hidden;
-            btn.setAttribute('aria-expanded', String(!pop.hidden));
+            podShowMesHelp(message, help);
         });
         el.appendChild(btn);
-        el.appendChild(pop);
     }
 
-    document.addEventListener('click', function (e) {
-        document.querySelectorAll('.mes-help-pop').forEach(function (pop) {
-            if (!pop.hidden && !pop.parentNode.contains(e.target)) {
-                pop.hidden = true;
-                var btn = pop.parentNode.querySelector('.mes-help-toggle');
-                if (btn) btn.setAttribute('aria-expanded', 'false');
-            }
-        });
-    });
+    function podShowMesHelp(message, help) {
+        var box  = document.createElement('div');
+        var mes  = document.createElement('div');
+        var text = document.createElement('p');
+        box.className  = 'mes-help-dialog';
+        mes.className  = 'mes-help-dialog-mes';
+        mes.textContent  = message;
+        text.textContent = help;
+        box.appendChild(mes);
+        box.appendChild(text);
+        Swal.fire({ titleText: '¿Qué significa?', html: box, icon: 'info', confirmButtonText: 'Entendido' });
+    }
 
     // Explicación de un mensaje del MES que mostró un chequeo del cliente (spec 017, D-102):
     // en Guided, la nota de la guía; en Práctica libre, el (?) sobre su superficie (en el

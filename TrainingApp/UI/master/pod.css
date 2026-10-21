@@ -147,38 +147,50 @@ body {
 .mes-error-row,
 .mes-window-error { position: relative; }
 
-/* (?) de Práctica libre (spec 017, D-102): elemento del simulador, no del MES. Abre un globo
-   con la explicación en español, con el estilo de la guía. */
-.mes-help-toggle {
+/* "¿Qué significa?" de Práctica libre (spec 017, D-102): elemento del simulador, no del MES.
+   Píldora con ícono de información; abre un aviso SweetAlert con la explicación. */
+.mes-help-btn {
     flex: none;
-    width: 18px;
-    height: 18px;
-    margin-left: 4px;
-    padding: 0;
-    border: 1px solid #0a6ed1;
-    border-radius: 50%;
-    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 20px;
+    margin-left: 8px;
+    padding: 0 9px 0 3px;
+    border: 0;
+    border-radius: 999px;
+    background: #e5f0fb;
     color: #0a6ed1;
-    font: 700 11px/16px Arial, sans-serif;
+    font: 600 11px/1 "Segoe UI", Arial, sans-serif;
+    white-space: nowrap;
     cursor: pointer;
+    transition: background .15s, color .15s, box-shadow .15s;
 }
-.mes-help-toggle:hover,
-.mes-help-toggle[aria-expanded="true"] { background: #0a6ed1; color: #fff; }
-.mes-help-pop {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 40px;
-    z-index: 1061;
-    max-width: 420px;
-    padding: 8px 12px;
-    border: 1px solid #0a6ed1;
-    border-radius: 6px;
-    background: #fff;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
+.mes-help-btn:hover { background: #0a6ed1; color: #fff; box-shadow: 0 2px 6px rgba(10, 110, 209, .35); }
+.mes-help-btn:focus-visible { outline: 2px solid #0a6ed1; outline-offset: 2px; }
+.mes-help-ico {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #0a6ed1;
+    color: #fff;
+    font: 700 10px/14px Georgia, serif;
+    text-align: center;
+}
+.mes-help-btn:hover .mes-help-ico { background: #fff; color: #0a6ed1; }
+
+/* Aviso de "¿Qué significa?": el mensaje del MES tal cual y la explicación debajo. */
+.mes-help-dialog { text-align: left; }
+.mes-help-dialog-mes {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-left: 4px solid #c9241c;
+    border-radius: 4px;
+    background: #fbeeed;
     color: #1d2d3e;
     font-size: 13px;
-    line-height: 1.4;
 }
+.mes-help-dialog p { margin: 0; font-size: 15px; line-height: 1.45; }
 .mes-window-error { margin: 10px 14px 2px; padding: 3px 6px; background: #fff; }
 
 .split-mes-error {

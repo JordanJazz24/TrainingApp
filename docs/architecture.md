@@ -330,15 +330,16 @@ Reglas: `docs/domain.md` → "Qué cuenta como intento" → "Mensajes del MES".
   D-114). La página anota el primer mensaje del servidor del request (`NoteMesError`); en
   Guided, `GuideMoment.WithMesError` y `GuideScriptBuilder.AddMesErrorNote` insertan una nota
   Info sobre su ancla justo antes de la entrada del paso (la del Split espera el clic en su
-  OK). En Práctica libre, `podAttachMesHelp` (`Training.Master`) agrega un (?) al final del
-  mensaje (cada fila del banner, o la franja) que abre un globo con la explicación; la
+  OK). En Práctica libre, `podAttachMesHelp` (`Training.Master`) agrega un botón "¿Qué
+  significa?" al final del mensaje (cada fila del banner, o la franja) que abre un SweetAlert
+  de información con el mensaje y la explicación (`podShowMesHelp`, texto plano); la
   página la pasa solo si `Policy.HintOnDemand` (`MesHelp`): al banner con
   `podShowMesErrors(texts, help)` y a las franjas con un script de arranque de cada control.
   Ver pista muestra solo el paso, su pista y el texto propio de un intento. Los mensajes de
   los chequeos del cliente usan `podNoteMesError` con `window.podMesNotes`, que la página
   llena solo con lo que el modo recibe: en Guided la nota entra con `PodGuide.note` (antes
-  del subpaso en curso); en Práctica libre, el (?) sobre su superficie. Assessment no recibe
-  ni notas ni (?).
+  del subpaso en curso); en Práctica libre, el botón sobre su superficie. Assessment no
+  recibe ni notas ni el botón.
 
 ## Modos de sesión y Práctica libre (spec 012)
 
