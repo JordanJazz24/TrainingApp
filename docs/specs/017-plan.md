@@ -79,6 +79,16 @@
 >   demás clics mientras la muestra.
 > - **M-17** salió del catálogo y del enum (D-120). Las notas cubren solo lo que el simulador
 >   muestra.
+>
+> **Enmienda 7 del plan (2026-10-21, pedido del usuario al probar la E4, `f77147e` y
+> `b692d45`):** en Práctica libre la explicación en español **ya no va en Ver pista**. Va en
+> un botón **"¿Qué significa?"** junto a cada mensaje del MES (banner y franjas), que abre un
+> SweetAlert de información con el mensaje y su explicación. D-102 queda enmendada. Guided
+> conserva su nota y Assessment sigue sin explicación.
+>
+> **Confirmación (2026-10-21):** el usuario revisó y confirmó los desvíos que Arquitectura y
+> Planeación había aceptado sin consultarle: enmiendas 1, 3, 4 (incluida la extensión de "sin
+> selección" a Assemble, DC Collect, SFC Split y Log NC) y 6.
 
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
@@ -333,8 +343,9 @@ Mensajes M-9, M-11, M-12 y M-13. M-17 quedó fuera (enmienda 5, D-120).
       (`pod-mes-error`, enmienda 1) o a la franja de la ventana (`asm-mes-error`, `dc-mes-error`,
       `nc-mes-error`, Split). Si la guía ya estaba mostrando un paso, la nota del error tiene
       prioridad en ese request.
-- [ ] Práctica libre: Ver pista incluye el texto del MES y su explicación como "último
-      fallo" (`_lastFailureFeedback`), también para un clic fuera de secuencia sin intento.
+- [ ] ~~Práctica libre: Ver pista incluye el texto del MES y su explicación como "último
+      fallo" (`_lastFailureFeedback`), también para un clic fuera de secuencia sin intento.~~
+      → reemplazado por la enmienda 7: botón "¿Qué significa?" junto a cada mensaje.
 - [x] Assessment: verificar que ninguna nota ni explicación llega a la página (no recibe la
       guía).
 - [x] Tests: `StepHintsTests` / `GuideScriptReader`, para que cada `MesMessageId` del
