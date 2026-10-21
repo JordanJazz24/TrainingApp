@@ -18,8 +18,9 @@
 - **Ahora:** spec 017 (fila 10, plan aprobado el 2026-10-21). **E1 ✅** (mensajes del MES en
   los avisos de formato, banner y franja de error, OK del Split), probada por el usuario.
 - **Siguiente:** E2 de la 017 (clics fuera de secuencia).
-- **Documentación (2026-10-21, sin spec):** optimización de los docs en entregas chicas, en
-  la rama `docs/optimizacion` (plan aprobado por el usuario en el chat).
+- **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
+  `docs/history.md`). Para el cierre de la 017: `docs/ui-reference/general-flow.md` todavía
+  no refleja sus mensajes del MES (ej. la Qty del Split) y su plan no lo programa.
 - **Para mostrar a negocio:**
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo

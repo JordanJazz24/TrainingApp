@@ -348,3 +348,20 @@ Assemble Components con los detalles vacíos; Qty del Split vacía, 0 o de más 
 `13213`, `13885`) reemplaza el formulario y su OK cierra la ventana. Los chequeos del
 cliente toman el texto del catálogo. Sin cambios de intento ni de puntaje (D-92). Review
 `medium` (8 hallazgos aplicados). Tests: 206 (`MesMessageTests`). Probada por el usuario.
+
+## Optimización de la documentación ✅ (2026-10-21, sin spec)
+Plan aprobado por el usuario en el chat, en 7 entregas sobre la rama `docs/optimizacion`
+(`81f3407`…`d9337ae`). **E0:** se integró W23, que estaba olvidado en su rama desde el
+2026-10-15, y se borraron 4 worktrees de docs ya integrados; la auditoría de fidelidad sigue
+en su rama por D-115. **E1:** `docs/process.md`: cada sesión commitea solo sus rutas en la
+carpeta real y desaparece el worktree de docs obligatorio (se contradecía con la sección 7);
+un job en segundo plano no integra su rama; la exclusión de escala del review aplica solo al
+motor; las reglas nuevas de la BLL llevan tests. **E2:** el roadmap se dividió por dueño:
+`docs/status.md` y `docs/history.md` (Desarrollo) y `docs/roadmap.md` (Arquitectura y
+Planeación). **E3:** `docs/decisions.md`, índice de D-1…D-119 y de los B-n, que pasan a
+numeración global. **E4:** CLAUDE.md de 16,9 a 13,3 KB (Auth Flow a `docs/architecture.md`)
+y dos contradicciones del glosario. **E5:** `general-flow.md` apunta a `docs/domain.md` para la
+calificación; Logout con la limpieza de la spec 016. **E6:** la memoria, al día. Iniciar una
+sesión pasó de leer 81 KB (CLAUDE.md y el roadmap entero) a 21 KB (CLAUDE.md y
+`docs/status.md`). La medición con preguntas de prueba se omitió (usuario). Pendiente para
+el cierre de la spec 017: `general-flow.md` todavía no refleja sus mensajes del MES.
