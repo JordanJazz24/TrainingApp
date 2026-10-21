@@ -1,11 +1,12 @@
 # Spec 017: Mensajes de error del MES (fidelidad con la evaluación práctica)
 
-> **Estado:** borrador para revisión (2026-10-21); decisiones D-92 a D-114 confirmadas, falta la aprobación de la spec. Fase 8.5, fila 10 (EP-4, EP-5).
+> **Estado:** borrador para revisión (2026-10-21); decisiones D-92 a D-116 confirmadas, falta la aprobación de la spec. Fase 8.5, fila 10 (EP-4, EP-5).
 > **Insumo:** `docs/ui-reference/errores-mes.md` (textos y capturas del ambiente de testing,
-> 2026-10-20; rama `docs/errores-mes`) y la auditoría de fidelidad
-> `docs/audits/2026-10-19-fidelidad-ui.md` (AUD-63, AUD-64, AUD-69; rama
-> `docs/fidelidad-ui`). Los textos que usa esta spec están copiados abajo, así que la spec no
-> depende de que esas ramas estén integradas.
+> 2026-10-20, en `Screens SAP MES REAL/Errores/`; integrado junto con esta spec, D-115) y
+> la auditoría de fidelidad `docs/audits/2026-10-19-fidelidad-ui.md` (AUD-63, AUD-64,
+> AUD-69), que **sigue en su rama `docs/fidelidad-ui`** hasta que el usuario revise el resto
+> de sus hallazgos (D-115). Los textos y las medidas que usa esta spec están copiados abajo:
+> la spec no depende de esa rama.
 
 ## Problem
 
@@ -123,6 +124,19 @@ del POD; F = franja roja dentro de la ventana; S = mensaje que reemplaza el form
 Split con [OK], y el OK cierra la ventana (AUD-64). **Hoy** es lo que el simulador hace ahora
 y **Calificación** no cambia (D-92).
 
+**Medidas de las superficies** (medidas en testing el 2026-10-19, copiadas de
+`estilos-y-mensajes-mes.md`, rama `docs/fidelidad-ui`):
+- **B · banner del POD:** entre el header y la franja de búsqueda, **empuja el contenido**;
+  fila de 25 px sobre blanco, ícono rojo "!" de 24×24, texto 12 px negro. Queda hasta la
+  siguiente acción (D-112). Con un banner, las NC por página de NC Selection bajan (de 4 a
+  2), porque dependen del alto disponible.
+- **F · franja de ventana:** dentro de la ventana (Assemble Components, Data Collection Entry,
+  NC Data Entry), con el mismo ícono. En Assemble Components, al escanear (aunque falle) se
+  despliegan Component Details y Assembly Data, y aparece [Add] (AUD-69).
+- **S · SFC Split:** el mensaje reemplaza el formulario, con [OK]; el OK cierra la ventana
+  entera.
+- Nunca son popups. El estilo de color exacto de la franja lo toma el plan de las capturas.
+
 | # | Situación en el simulador | Mensaje del MES | Sup. | Hoy | Calificación |
 |---|---|---|---|---|---|
 | M-1 | Start sin Resource Setup | *Provisional (C-10):* `Resource Setup has not been done, please perform Resource Setup` | B | `ResourceSetupRequired` o fuera de secuencia | como hoy |
@@ -177,7 +191,7 @@ registró `errores-mes.md`. El plan confirma el formato exacto con las capturas.
 ### In
 
 1. **Mecanismo visual** (D-95; AUD-63, AUD-64, AUD-69): variante de error del banner del POD
-   y franja roja de ventana, con las medidas de `estilos-y-mensajes-mes.md`. El mensaje de
+   y franja roja de ventana, con las medidas de "Medidas de las superficies". El mensaje de
    SFC Split reemplaza el formulario y su OK cierra la ventana.
 2. **Catálogo M-1 a M-18** y su uso en Start, Assembly, DC, SFC Split, Log NC y Complete,
    incluidos los clics fuera de secuencia (C-1 a C-3), en los tres modos (D-98, D-101).
@@ -259,7 +273,7 @@ Ninguna.
 
 **Mecanismo**
 - **AC-1:** Given cualquier mensaje del catálogo, Then se ve con la superficie indicada (B,
-  F o S), en inglés, con su número y con las medidas de `estilos-y-mensajes-mes.md`. El
+  F o S), en inglés, con su número y con las medidas de "Medidas de las superficies". El
   banner B queda hasta la siguiente acción.
 - **AC-2:** Given un mensaje S de SFC Split, When presiona OK, Then la ventana de Split se
   cierra y hay que reabrirla.
@@ -302,11 +316,11 @@ Ninguna.
 
 ## Open Questions
 
-Ninguna bloquea la spec. Antes del plan:
+Ninguna. Cerradas el 2026-10-21:
 
-1. **Integrar los insumos.** `docs/errores-mes` y `docs/fidelidad-ui` no se pueden integrar
-   con fast-forward sobre `TrainingApp` (salieron de commits anteriores). Hay que traerlos
-   (cherry-pick en una rama nueva desde `TrainingApp`) antes de que Desarrollo implemente,
-   porque el plan apunta a sus capturas y medidas.
-2. **Capturas con el Code1 del usuario y SFC de testing** (`Screens SAP MES REAL/Errores/`):
-   ¿se difuminan antes de integrarlas?
+- **D-115 · Insumos:** solo `docs/errores-mes` se trae con cherry-pick a la rama de esta
+  spec. La auditoría de fidelidad (`docs/fidelidad-ui`) sigue aparte hasta que el usuario
+  revise el resto de sus hallazgos. AUD-63/64/69 quedan aprobadas por D-95 y se marcan al
+  integrarla.
+- **D-116 · Capturas:** se integran tal cual, con el Code1 del usuario y los SFC de testing
+  (repo interno).
