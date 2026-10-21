@@ -24,6 +24,17 @@
 >   capturado para ese caso.
 > - **"La siguiente acción" (D-112)** incluye elegir una fila del POD: quita el banner de
 >   error.
+>
+> **Enmienda 2 del plan (2026-10-21, Arquitectura y Planeación, tras la optimización de la
+> documentación; no cambia la spec ni el comportamiento):** el cierre de la E4 se ajusta a
+> los documentos nuevos. "Deuda y riesgos" y "Estado actual" pasan a `docs/status.md` y
+> "Historial" a `docs/history.md` (los escribe Desarrollo). La fila 10 sigue en
+> `docs/roadmap.md`: Desarrollo avisa y Arquitectura y Planeación la marca ✅. Las D-n de
+> la 017 ya están en `docs/decisions.md`; al cerrar, se actualiza el estado de las que
+> cambien (ej. D-111 provisional). Además, la E4 actualiza `docs/ui-reference/general-flow.md`
+> → "Reglas de la pantalla" de Search/Start, Assembly, Data Collection, SFC Split y Log NC
+> con los mensajes del MES que reemplazan a los SweetAlert (hoy dice, por ejemplo, que la
+> Qty vacía del Split se avisa con SweetAlert), y la de Resource Setup con Material.
 
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
@@ -298,10 +309,16 @@ Mensajes M-9, M-11, M-12, M-13 y M-17.
     la BLL; la página solo los pinta".
   - `docs/ui-reference/evaluacion-practica-mes.md`: enmienda fechada de EP-4 y EP-5, con lo
     que cubre la 017 y lo que queda fuera (D-96, D-97, D-100).
-  - Roadmap:
+  - `docs/ui-reference/general-flow.md` → "Reglas de la pantalla" (enmienda 2): Search/Start,
+    Assembly, Data Collection, SFC Split y Log NC con sus mensajes del MES, y Resource Setup
+    con Material.
+  - `docs/status.md` (enmienda 2):
     - "Deuda y riesgos": M-1 provisional (D-111) y, **al integrar `docs/fidelidad-ui`**,
       marcar AUD-63/64/69 ☑ vía la 017 y anotar la corrección de `SfcNotInOrder` (D-106);
-    - "Historial", "Estado actual" y la fila 10 ✅.
+    - "Estado actual".
+  - `docs/history.md`: la entrada de la 017.
+  - `docs/decisions.md`: el estado de las D-n de la 017 que cambien al cerrar.
+  - Aviso a Arquitectura y Planeación para marcar ✅ la fila 10 en `docs/roadmap.md`.
 
 **Checklist en el navegador:**
 - Resource Setup en los tres modos: una herramienta con Material se acepta como con Tool
