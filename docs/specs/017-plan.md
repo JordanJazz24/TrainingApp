@@ -59,6 +59,14 @@
 > - **Serialized, Start sin ninguna pieza:** el banner `22506` **y** el SweetAlert
 >   `StartWholeOrder` del simulador, los dos (pedido del usuario; ajusta D-103 para este
 >   caso).
+>
+> **Enmienda 5 del plan (2026-10-21, consulta de Desarrollo durante la E3, decisión del
+> usuario D-120; no cambia la spec ni D-92):** **M-17 (`18117`) queda fuera**, como M-18
+> (D-118). En el simulador no se puede provocar: NC Data Entry solo se abre al elegir un
+> código en NC Selection (`BtnLogNCCode_Click`) y `TxtNCCode` es `ReadOnly`, así que Done
+> siempre tiene un código. Done con código sigue con el feedback de hoy (D-110, enmendada).
+> Abrir NC Data Entry vacío, como en el MES, sería alcance nuevo. La E3 queda solo con DC
+> (M-9, M-11, M-12, M-13).
 
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
@@ -261,7 +269,7 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
 
 ## Entrega 3 · Data Collection y Log NC
 
-Mensajes M-9, M-11, M-12, M-13 y M-17.
+Mensajes M-9, M-11, M-12 y M-13. M-17 quedó fuera (enmienda 5, D-120).
 
 - [ ] `StepValidator.FirstDataCollectionError(groupId, answer)` → `(param, value,
       MesMessageId)?`. Recorre los parámetros **en el orden de la pantalla**
@@ -279,9 +287,8 @@ Mensajes M-9, M-11, M-12, M-13 y M-17.
       `Reason` (`EmptyRequiredField` o `WrongDecision`).
 - [ ] La franja de Data Collection Entry muestra el mensaje y la ventana queda abierta, como
       hoy tras un fallo.
-- [ ] Log NC: Done con `TxtNCCode` vacío → franja M-17 (`18117`) en NC Data Entry; sigue
-      siendo intento fallido (`InvalidAction`). Done con código y Add siguen con el feedback
-      de hoy (D-110).
+- [ ] ~~Log NC: Done con `TxtNCCode` vacío → franja M-17 (`18117`)~~ → fuera (enmienda 5,
+      D-120): no se puede provocar. Done y Add siguen con el feedback de hoy.
 - [ ] Tests en `StepValidator` (archivo nuevo `StepValidatorDataCollectionTests`):
   - el primero en orden gana;
   - vacío antes que límites en el mismo parámetro;
@@ -296,7 +303,6 @@ Mensajes M-9, M-11, M-12, M-13 y M-17.
 - **Assessment:** DC con un valor `99999` → franja `Value 99999 is above the upper limit
   (Message 15233)` más los intentos restantes. Con dos vacíos, solo el primero (`10015`).
   Con texto en un numérico → `12205`.
-- Log NC: Done sin código → `18117`, y cuenta el intento como hoy.
 - **Práctica libre:** los mismos mensajes con "Respuesta incorrecta.".
 - **Guided:** si la guía deja llegar a ese estado, la franja también sale.
 
@@ -356,8 +362,9 @@ Mensajes M-9, M-11, M-12, M-13 y M-17.
 ## Fuera de este plan
 
 Lo que la spec dejó fuera (D-96, D-97, D-100, C-4) y, por lo verificado en el código, M-10
-(`19973`: no hay parámetros de lista libre) y M-18 (`12901`: el NC Code no se escribe).
-Si un área futura agrega uno de los dos, entra con su propio plan.
+(`19973`: no hay parámetros de lista libre), M-18 (`12901`: el NC Code no se escribe) y M-17
+(`18117`: NC Data Entry no se abre sin código; enmienda 5, D-120). Si un área futura hace
+posible alguno de ellos, entra con su propio plan.
 
 ## Puntos confirmados por el usuario (2026-10-21)
 

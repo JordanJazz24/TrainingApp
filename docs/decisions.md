@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-120. Siguiente B-n: B-3.** La numeración es continua entre
+> - **Siguiente D-n: D-121. Siguiente B-n: B-3.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -126,7 +126,7 @@
 | D-107 | 2026-10-21 | Setup Type sin calificación nueva (C-9) | specs/017-mensajes-del-mes.md | vigente |
 | D-108 | 2026-10-21 | Orden de los chequeos, el del MES (C-2) | specs/017-mensajes-del-mes.md | vigente |
 | D-109 | 2026-10-21 | Data Collection: un mensaje por Save (C-6) | specs/017-mensajes-del-mes.md | vigente |
-| D-110 | 2026-10-21 | Log NC: Done sin NC Code muestra `18117` y es intento fallido (C-8) | specs/017-mensajes-del-mes.md | vigente |
+| D-110 | 2026-10-21 | Log NC: Done sin NC Code muestra `18117` y es intento fallido (C-8) | specs/017-mensajes-del-mes.md; specs/017-plan.md (enmienda 5: el `18117` queda fuera, D-120) | enmendada |
 | D-111 | 2026-10-21 | Texto provisional de Start sin Resource Setup (C-10) | specs/017-mensajes-del-mes.md | provisional |
 | D-112 | 2026-10-21 | El banner del POD queda hasta la siguiente acción del operador (C-11) | specs/017-mensajes-del-mes.md | vigente |
 | D-113 | 2026-10-21 | `15246` lista todos los parámetros pendientes de los grupos obligatorios (C-7) | specs/017-mensajes-del-mes.md | vigente |
@@ -136,6 +136,7 @@
 | D-117 | 2026-10-21 | Assessment: el mensaje del MES junto con el SweetAlert de hoy | specs/017-plan.md | vigente |
 | D-118 | 2026-10-21 | M-10 y M-18 quedan fuera | specs/017-plan.md | vigente |
 | D-119 | 2026-10-21 | M-7 es un mensaje por pieza seleccionada; sin selección, M-4 | specs/017-plan.md (enmienda 4) | enmendada |
+| D-120 | 2026-10-21 | M-17 (`18117`) queda fuera: no se puede provocar en el simulador | specs/017-plan.md (enmienda 5) | vigente |
 
 ## Bugs que ya existían (B-n)
 
