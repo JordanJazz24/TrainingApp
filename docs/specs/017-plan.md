@@ -44,6 +44,21 @@
 > reconstruir el estado (D-10) y daba M-2 en vez de M-3; desde los intentos, sobrevive. El
 > estado que lee la regla se arma con una función pura (`MesSequenceState.Build`) con sus
 > tests, y los catálogos de DC solo se leen para Complete (M-7).
+>
+> **Enmienda 4 del plan (2026-10-21, correcciones del usuario al probar la E2, `7b27967`; no
+> cambia la spec ni D-92):**
+>
+> - **"SFC iniciado"** = el paso de Start está resuelto **y** hay filas en `Active`. En
+>   NonSerialized, la fila del lote está `Active` desde Resource Setup, así que Complete
+>   antes del Start daba `15246` en vez de `22506`.
+> - **Sin ninguna fila seleccionada, el MES no tiene SFC:** fuera de turno, Complete da M-4,
+>   y Assemble, DC Collect, SFC Split y Log NC dan M-5. El usuario lo pidió para Complete y
+>   Desarrollo lo extendió a los demás, con la misma lógica de C-1.
+> - **M-7 (D-119, enmendada)** es uno por pieza **seleccionada**. Sin selección ya no se
+>   lista uno por fila activa: sale M-4.
+> - **Serialized, Start sin ninguna pieza:** el banner `22506` **y** el SweetAlert
+>   `StartWholeOrder` del simulador, los dos (pedido del usuario; ajusta D-103 para este
+>   caso).
 
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
@@ -209,12 +224,13 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
   | Complete | — | — | M-4 | M-7 (área con DC) | ninguno |
   | Resource Setup, Activities → LC, Logout, botones sin lógica | — | — | — | — | ninguno |
 
-  "Sin SFC iniciado" = ninguna fila de `PodState.Order` en `Active`, o `Order` nulo. "DC
+  "Sin SFC iniciado" = el paso de Start sin resolver, ninguna fila de `PodState.Order` en
+  `Active`, `Order` nulo o ninguna fila seleccionada (enmienda 4). "DC
   obligatorio pendiente" = algún grupo obligatorio de DC sin guardar en
   `PodState.DataCollection`.
 - [x] M-7 lista **todos** los parámetros de los grupos obligatorios no guardados, con el
       patrón `<PARAM> (<DC_GROUP>) , …` y el SFC (D-113). **Un M-7 por pieza** (D-119): uno
-      por cada SFC seleccionado y activo; sin selección, uno por cada fila activa. El
+      por cada SFC seleccionado y activo; sin selección, M-4 (enmienda 4). El
       resultado lleva una **lista** de `MesError` y el banner pinta una fila de 25 px por
       mensaje, una debajo de la otra. Es el único caso con varios mensajes.
 - [x] `PodService.OutOfSequence` llama a la regla y deja el `MesError` en el resultado en
