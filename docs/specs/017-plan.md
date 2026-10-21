@@ -5,6 +5,26 @@
 **Autoría:** sesión de Arquitectura y Planeación, verificado contra el código en
 `cd3cb78`. Lo ejecuta Desarrollo (`docs/process.md` → "Tres sesiones de trabajo").
 
+> **Enmienda 1 del plan (2026-10-21, Desarrollo durante la E1, aceptada por Arquitectura y
+> Planeación; no cambia la spec ni D-92):**
+>
+> - **Banner B:** es un elemento aparte (`#podMesError`), no una variante de
+>   `PnlBannerZone`. Lo llena una función JS de `Training.Master`, porque también lo usan los
+>   chequeos del cliente (DC y Split sin fila → `12906`; escaneo ajeno en Start → `22507`), y
+>   en la E2 admite varias filas (M-7, D-119). Al mostrarse oculta el banner de éxito: no se
+>   apilan. Los chequeos del cliente toman el texto del catálogo `MesMessage` renderizado por
+>   el servidor (como `ScanNoticeTextJs`), sin copias en el JS, y el servidor sigue validando
+>   lo mismo.
+> - **Ancla:** `data-guide="pod-mes-error"`, no `pod-banner`. Los subpasos `banner`
+>   (`hide: true`) de la guía se le pegarían. En la E4 la nota del banner se ancla a
+>   `pod-mes-error`.
+> - **Split, por casos:** la Qty llega como decimal a la BLL. Vacía → M-14, ≤ 0 → M-16, mayor
+>   a la disponible → M-15 (también un número enorme). Una Qty no entera es el aviso del
+>   simulador `InvalidSplitQty` (SweetAlert, sin intento), porque el MES no tiene texto
+>   capturado para ese caso.
+> - **"La siguiente acción" (D-112)** incluye elegir una fila del POD: quita el banner de
+>   error.
+
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
 explicaciones y el cierre. Cada una sigue el ciclo de `docs/process.md` §2:
@@ -257,7 +277,7 @@ Mensajes M-9, M-11, M-12, M-13 y M-17.
 - [ ] `MesErrorNotes` (presentación) con los textos de la tabla "Explicaciones en español"
       de la spec, **literales**.
 - [ ] Guided: `GuideMoment.MesError` y su nota en `GuideScriptBuilder`, anclada al banner
-      (`pod-banner`) o a la franja de la ventana (`asm-mes-error`, `dc-mes-error`,
+      (`pod-mes-error`, enmienda 1) o a la franja de la ventana (`asm-mes-error`, `dc-mes-error`,
       `nc-mes-error`, Split). Si la guía ya estaba mostrando un paso, la nota del error tiene
       prioridad en ese request.
 - [ ] Práctica libre: Ver pista incluye el texto del MES y su explicación como "último
