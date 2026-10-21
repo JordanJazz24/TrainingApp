@@ -320,26 +320,26 @@ Mensajes M-9, M-11, M-12 y M-13. M-17 quedó fuera (enmienda 5, D-120).
 
 ## Entrega 4 · Setup Type Material, explicaciones en español y cierre
 
-- [ ] Resource Setup:
+- [x] Resource Setup:
   - `<option value="Material">Material</option>` en `rs-type`;
   - en `rsFormatOk`, "al menos 1 herramienta" cuenta Tool Number **o** Material (actualizar
     el texto del aviso);
   - "exactamente 1 Shop Order" no cambia (D-107);
   - los precargados y su calificación no cambian (D-100);
   - la guía sigue enseñando Tool Number.
-- [ ] `MesErrorNotes` (presentación) con los textos de la tabla "Explicaciones en español"
+- [x] `MesErrorNotes` (presentación) con los textos de la tabla "Explicaciones en español"
       de la spec, **literales**.
-- [ ] Guided: `GuideMoment.MesError` y su nota en `GuideScriptBuilder`, anclada al banner
+- [x] Guided: `GuideMoment.MesError` y su nota en `GuideScriptBuilder`, anclada al banner
       (`pod-mes-error`, enmienda 1) o a la franja de la ventana (`asm-mes-error`, `dc-mes-error`,
       `nc-mes-error`, Split). Si la guía ya estaba mostrando un paso, la nota del error tiene
       prioridad en ese request.
 - [ ] Práctica libre: Ver pista incluye el texto del MES y su explicación como "último
       fallo" (`_lastFailureFeedback`), también para un clic fuera de secuencia sin intento.
-- [ ] Assessment: verificar que ninguna nota ni explicación llega a la página (no recibe la
+- [x] Assessment: verificar que ninguna nota ni explicación llega a la página (no recibe la
       guía).
-- [ ] Tests: `StepHintsTests` / `GuideScriptReader`, para que cada `MesMessageId` del
+- [x] Tests: `StepHintsTests` / `GuideScriptReader`, para que cada `MesMessageId` del
       catálogo tenga su nota.
-- [ ] **Cierre (documentación):**
+- [x] **Cierre (documentación):**
   - `docs/domain.md`:
     - "Qué cuenta como intento": S2 enmendada por D-98 (el mensaje del MES se muestra
       también en Assessment) y la regla C-1;

@@ -118,7 +118,7 @@
 | D-99 | 2026-10-21 | Setup Type: en las filas de herramienta valen Material o Tool Number | specs/017-mensajes-del-mes.md | vigente |
 | D-100 | 2026-10-21 | El procedimiento de Resource Setup no cambia | specs/017-mensajes-del-mes.md | vigente |
 | D-101 | 2026-10-21 | En Práctica libre, el botón de otro paso muestra el mensaje real si existe | specs/017-mensajes-del-mes.md | vigente |
-| D-102 | 2026-10-21 | Explicación en español del mensaje del MES en Guided y en Ver pista | specs/017-mensajes-del-mes.md | vigente |
+| D-102 | 2026-10-21 | Explicación en español del mensaje del MES en Guided y en Ver pista | specs/017-mensajes-del-mes.md; history.md → "Spec 017" (en Práctica libre, un botón "¿Qué significa?" junto al mensaje en lugar de Ver pista: decisión del usuario al probar la E4) | enmendada |
 | D-103 | 2026-10-21 | Los avisos de formato que el MES también tiene pasan a su texto real | specs/017-mensajes-del-mes.md; specs/017-plan.md (enmienda 4: Start de Serialized sin piezas da el 22506 y el aviso del simulador) | enmendada |
 | D-104 | 2026-10-21 | Regla de los mensajes fuera de secuencia (C-1) | specs/017-mensajes-del-mes.md | vigente |
 | D-105 | 2026-10-21 | El Line Clearance sigue calificándose en su paso (C-4) | specs/017-mensajes-del-mes.md | vigente |

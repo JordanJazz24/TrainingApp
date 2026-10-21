@@ -336,18 +336,34 @@ Sin scripts de BD (solo comentarios en `00`). Reviews: `high` en E1 y E3, `mediu
 E4. Tests: 184 (`ModePolicyTests`, `StepNamesTests`, `StepHintsTests`). Reglas en
 `docs/domain.md`; mecanismos en `docs/architecture.md`.
 
-## Spec 017 · Mensajes de error del MES (en curso, Fase 8.5, fila 10)
-Plan `docs/specs/017-plan.md` (aprobado el 2026-10-21, con su enmienda 1), cuatro entregas;
-se trabaja en la rama `spec-017` y cada entrega se integra a `TrainingApp` para probarla.
-**E1** (`b3dfff8` y la corrección al probar): catálogo `MesMessage` en la BLL (M-1 a M-17 sin
-M-10, textos literales) y `MesError` en los resultados de `PodService`. Start sin SFC
-(`22506`) y con un SFC ajeno (`22507`), Assembly, DC y Split sin fila (`12906`, también en
-Serialized sin ninguna fila) en el banner rojo del POD (`#podMesError`, ancla
-`pod-mes-error`, hasta la acción siguiente); barcode no numérico (`17150`) en la franja de
-Assemble Components con los detalles vacíos; Qty del Split vacía, 0 o de más (`13875`,
-`13213`, `13885`) reemplaza el formulario y su OK cierra la ventana. Los chequeos del
-cliente toman el texto del catálogo. Sin cambios de intento ni de puntaje (D-92). Review
-`medium` (8 hallazgos aplicados). Tests: 206 (`MesMessageTests`). Probada por el usuario.
+## Spec 017 · Mensajes de error del MES ✅ (2026-10-21, Fase 8.5, fila 10)
+Plan `docs/specs/017-plan.md`, cuatro entregas probadas por el usuario, con las enmiendas 1 a
+6 del plan. Salida de T6 (EP-4, EP-5) con las capturas del ambiente de testing (T9). Primera
+spec trabajada en su propia rama (`spec-017`), integrada a `TrainingApp` por fast-forward en
+cada entrega. Regla de toda la spec (D-92): **ningún cambio de intento ni de puntaje**.
+**E1** (`b3dfff8`, `0d0b0da`): catálogo `MesMessage` en la BLL (textos literales, número y
+superficie) y `MesError` en los resultados. Banner rojo del POD (`#podMesError`, sin
+auto-hide, lo llena `podShowMesErrors` desde el servidor o el cliente), franja de Assemble
+Components y mensaje de SFC Split que reemplaza el formulario con un OK que cierra la ventana
+(AUD-63, AUD-64, AUD-69). Start sin SFC o con uno ajeno (`22506`, `22507`), sin fila
+(`12906`, también en Serialized sin ninguna, corrección del usuario), barcode no numérico
+(`17150`) y Qty del Split (`13875`, `13213`, `13885`). **E2** (`9f0ea3a`, `7b27967`): el botón
+de otro paso muestra el mensaje del MES si el MES lo rechazaría (`MesSequenceRule` y
+`MesSequenceState.Build`, puras y con tests; C-1 a C-3): Resource Setup provisional (D-111),
+`22501` del LC de apertura ("status is NO" sacado de los intentos, enmienda 3), sin SFC y
+`15246` por pieza seleccionada. Correcciones del usuario: el SFC cuenta como iniciado recién
+tras el Start, y sin selección el MES dice "SFC is missing" (enmienda 4). **E3** (`7ee24ed`):
+la franja de Data Collection Entry con el primer error (C-6: `10015`, `12205`, `15232`,
+`15233`); M-17 fuera (D-120, enmienda 5). **E4** (`a39b6c1`, `f77147e`, `b692d45`): Setup
+Type **Material** en Resource Setup (D-94); explicaciones en español (`MesErrorNotes`, D-114):
+la nota de la guía en Guided, también para los chequeos del cliente (`PodGuide.note`,
+enmienda 6), y en Práctica libre un botón "¿Qué significa?" junto al mensaje que abre un
+aviso de información (decisión del usuario al probar, en lugar de Ver pista). Assessment no
+recibe explicaciones. Sin scripts de BD. Reviews: `medium` en E1, E2 y E4, `low` en E3.
+Tests: 281 (`MesMessageTests`, `MesSequenceRuleTests`, `MesSequenceStateTests`,
+`StepValidatorDataCollectionTests`, `MesErrorNotesTests`, `GuideMesErrorNoteTests`). Reglas
+en `docs/domain.md` → "Mensajes del MES"; mecanismos en `docs/architecture.md`; pantallas en
+`general-flow.md`; EP-4/EP-5 enmendados en `evaluacion-practica-mes.md`.
 
 ## Optimización de la documentación ✅ (2026-10-21, sin spec)
 Plan aprobado por el usuario en el chat, en 7 entregas sobre la rama `docs/optimizacion`
@@ -364,4 +380,5 @@ y dos contradicciones del glosario. **E5:** `general-flow.md` apunta a `docs/dom
 calificación; Logout con la limpieza de la spec 016. **E6:** la memoria, al día. Iniciar una
 sesión pasó de leer 81 KB (CLAUDE.md y el roadmap entero) a 21 KB (CLAUDE.md y
 `docs/status.md`). La medición con preguntas de prueba se omitió (usuario). Pendiente para
-el cierre de la spec 017: `general-flow.md` todavía no refleja sus mensajes del MES.
+el cierre de la spec 017: `general-flow.md` todavía no refleja sus mensajes del MES (hecho en
+el cierre de la 017).

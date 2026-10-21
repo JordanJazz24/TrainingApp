@@ -7,23 +7,23 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-21 · **Branch:** `TrainingApp` (la 017 se trabaja en
-`spec-017` y se integra por entrega) · **Último commit de código:** spec 017, entrega 3
-(`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-21 · **Branch:** `TrainingApp` · **Último commit de
+código:** spec 017, entrega 4 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
-  quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7 y 012 (detalle en
-  `docs/history.md`). La 016 ya se puede subir a `main` (D-81); lo sube el usuario.
-- **Ahora:** spec 017 (fila 10, plan aprobado el 2026-10-21). **E1 ✅** (mensajes del MES en
-  los avisos de formato, banner y franja de error, OK del Split) y **E2 ✅** (clics fuera de
-  secuencia con el mensaje del MES, `9f0ea3a` y `7b27967`; enmienda 4 del plan) y **E3 ✅**
-  (franja de Data Collection Entry con 10015, 12205, 15232 y 15233, `7ee24ed`; M-17 fuera
-  por D-120, enmienda 5), probadas por el usuario.
-- **Siguiente:** E4 de la 017 (Setup Type Material, explicaciones en español y cierre).
+  quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7, 012 y **017**
+  (detalle en `docs/history.md`). La 016 ya se puede subir a `main` (D-81); lo sube el
+  usuario.
+- **Spec 017 ✅** (2026-10-21, fila 10, ver "Historial"): mensajes de error del MES en
+  inglés y con número, en los tres modos y sin cambiar la calificación; Setup Type Material;
+  explicaciones en español (nota de la guía en Guided, botón "¿Qué significa?" en Práctica
+  libre). Probada por el usuario. Se trabajó en la rama `spec-017`, ya integrada en
+  `TrainingApp`.
+- **Siguiente:** filas 12 (W23, SFC `{12NC}-{serial}`) y 13 (quitar `RequiresNCComponent`)
+  de la Fase 8.5: planes directos que esperan la aprobación del usuario.
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
-  `docs/history.md`). Para el cierre de la 017: `docs/ui-reference/general-flow.md` todavía
-  no refleja sus mensajes del MES (ej. la Qty del Split) y su plan no lo programa.
+  `docs/history.md`).
 - **Para mostrar a negocio:**
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
@@ -64,6 +64,10 @@ final (D-16) repasó esta lista.
 - **Spec 016, provisional o genérico hasta tener capturas:** el aviso de Hora a Hora después
   de Iniciar (D-72) y el marco de Edge (D-71; sin la URL de las pestañas de Hora a Hora y
   Recursos MES, solo el host, ni la del logout de MES).
+- **Spec 017, provisional:** el texto de Start sin Resource Setup (M-1, D-111), sin captura
+  del MES y sin número, hasta capturarlo en testing. Al integrar la auditoría de fidelidad
+  (`docs/fidelidad-ui`, D-115): marcar AUD-63, AUD-64 y AUD-69 ☑ vía la 017 y anotar la
+  corrección de `SfcNotInOrder` (un SFC ajeno es `22507`, no `22501`; D-106).
 - **`RequiresNCComponent` sin uso** desde la enmienda 4 de la spec 014 (Component lo decide
   el método del código): columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`,
   `spAreaGet*`, `AreaRepository` y `Area.RequiresNCComponent`. Quitarla no entró en la
