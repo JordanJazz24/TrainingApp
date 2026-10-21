@@ -67,6 +67,18 @@
 > siempre tiene un código. Done con código sigue con el feedback de hoy (D-110, enmendada).
 > Abrir NC Data Entry vacío, como en el MES, sería alcance nuevo. La E3 queda solo con DC
 > (M-9, M-11, M-12, M-13).
+>
+> **Enmienda 6 del plan (2026-10-21, Desarrollo durante la E4, aceptada por Arquitectura y
+> Planeación; no cambia la spec ni D-92):**
+>
+> - **Notas de los chequeos del cliente:** los mensajes que pinta el cliente (`12906` de DC y
+>   Split sin fila, `22507` del escaneo, `17150`) también llevan su nota de Guided, con
+>   `PodGuide.note` y `window.podMesNotes` renderizadas por el servidor desde
+>   `MesErrorNotes`. Sin esto no se cumplía "cada mensaje provocable muestra su nota".
+> - **Nota del Split:** espera el clic en su OK (`split-mes-ok`), porque la guía bloquea los
+>   demás clics mientras la muestra.
+> - **M-17** salió del catálogo y del enum (D-120). Las notas cubren solo lo que el simulador
+>   muestra.
 
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
