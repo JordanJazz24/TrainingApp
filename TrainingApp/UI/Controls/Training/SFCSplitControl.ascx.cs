@@ -67,7 +67,7 @@ namespace TrainingApp.UI.Controls.Training
 
             if (args.MesError != null)
             {
-                ShowMesError(args.MesError);
+                ShowMesError(args.MesError, args.MesHelp);
                 return;
             }
 
@@ -110,13 +110,17 @@ namespace TrainingApp.UI.Controls.Training
         }
 
         // Superficie S (spec 017, AUD-64): el mensaje reemplaza el formulario y la confirmación
-        // anterior; su OK cierra la ventana en el cliente.
-        private void ShowMesError(MesError error)
+        // anterior; su OK cierra la ventana en el cliente. help: el (?) de Práctica libre.
+        private void ShowMesError(MesError error, string help)
         {
             LitSplitMesError.Text    = HttpUtility.HtmlEncode(error.Text);
             PnlSplitMesError.Visible = true;
             PnlSplitForm.Visible     = false;
             PnlSplitConfirm.Visible  = false;
+            if (help != null)
+                Page.ClientScript.RegisterStartupScript(GetType(), "splitMesHelp",
+                    "podAttachMesHelp(document.querySelector('[data-guide=\"split-mes-error\"]'), '" +
+                    HttpUtility.JavaScriptStringEncode(help) + "');", true);
         }
 
         private void ReopenModal()

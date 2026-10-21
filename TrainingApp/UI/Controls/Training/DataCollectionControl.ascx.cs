@@ -54,11 +54,15 @@ namespace TrainingApp.UI.Controls.Training
         }
 
         // Save incorrecto con mensaje del MES (spec 017, C-6): la franja arriba del formulario,
-        // que sigue abierto.
-        public void ShowMesError(MesError error)
+        // que sigue abierto. help: la explicación del (?) de Práctica libre; null sin ella.
+        public void ShowMesError(MesError error, string help)
         {
             LitDcMesError.Text    = HttpUtility.HtmlEncode(error.Text);
             PnlDcMesError.Visible = true;
+            if (help != null)
+                Page.ClientScript.RegisterStartupScript(GetType(), "dcMesHelp",
+                    "podAttachMesHelp(document.querySelector('[data-guide=\"dc-mes-error\"]'), '" +
+                    HttpUtility.JavaScriptStringEncode(help) + "');", true);
         }
 
         public void Initialize()

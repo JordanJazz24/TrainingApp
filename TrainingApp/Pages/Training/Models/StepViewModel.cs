@@ -94,6 +94,10 @@ namespace TrainingApp.Pages.Training.Models
         public string ErrorMessage { get; set; }
         public MesError MesError { get; set; }
 
+        // Explicación en español del mensaje del MES para su (?) (spec 017, solo Práctica
+        // libre); null sin ella.
+        public string MesHelp { get; set; }
+
         // SFC de la fila creada, para el mensaje "New SFC … created with quantity …".
         public string NewSfcCode { get; set; }
 

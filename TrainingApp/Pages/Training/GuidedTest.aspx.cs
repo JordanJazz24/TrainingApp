@@ -296,7 +296,7 @@ namespace TrainingApp.Pages.Training
             var data = new
             {
                 hint     = StepHints.For(_ctx, current.StepType),
-                failure  = LastFailureForHint(),
+                failure  = _lastFailureFeedback,
                 current  = new { order = current.Order, name = StepNames.Display(steps, current) },
                 next,
                 hiddenId = HfSkipTarget.ClientID
@@ -305,15 +305,13 @@ namespace TrainingApp.Pages.Training
                 "window.podPractice = " + new JavaScriptSerializer().Serialize(data) + ";", true);
         }
 
-        // Último fallo de Ver pista: el mensaje del MES con su explicación (spec 017, D-102) y,
-        // si el mismo request trajo un intento con texto propio, también ese texto.
-        private string LastFailureForHint()
-        {
-            if (_lastMesError == null || !MesErrorNotes.Has(_lastMesError.Id))
-                return _lastFailureFeedback;
-            string mes = _lastMesError.Text + " — " + MesErrorNotes.Plain(_lastMesError.Id);
-            return string.IsNullOrEmpty(_lastFailureFeedback) ? mes : mes + " " + _lastFailureFeedback;
-        }
+        // Explicación en español de un mensaje del MES para su (?) (spec 017, D-102): solo en
+        // Práctica libre (la que tiene Ver pista); null en Guided (lleva la nota de la guía) y
+        // en Assessment.
+        private string MesHelp(MesError error)
+            => _ctx != null && _ctx.Policy.HintOnDemand && MesErrorNotes.Has(error.Id)
+                ? MesErrorNotes.Plain(error.Id)
+                : null;
 
         // Saltar paso / Ir a… (spec 012, D-83, D-84 enmendada): el destino viaja en
         // HfSkipTarget. La BLL ignora uno que ya no está adelante (doble clic, F5). Si el salto
@@ -739,7 +737,7 @@ namespace TrainingApp.Pages.Training
             // Spec 017 (M-8): el 17150 en la franja de la ventana, que queda abierta.
             if (result.MesError != null)
             {
-                CtrlAssembly.ShowMesError(e.ComponentId, NoteMesError(result.MesError));
+                CtrlAssembly.ShowMesError(e.ComponentId, NoteMesError(result.MesError), MesHelp(result.MesError));
                 // La guía vuelve al escaneo de ese componente después de la nota.
                 _guideMoment = GuideMoment.Incorrect(step, e.ComponentId.ToString(CultureInfo.InvariantCulture));
                 return;
@@ -819,6 +817,7 @@ namespace TrainingApp.Pages.Training
             if (result.MesErrors != null)
             {
                 e.MesError = NoteMesError(result.MesErrors[0]);
+                e.MesHelp  = MesHelp(result.MesErrors[0]);
                 return;
             }
             if (result.Notice != PodNotice.None)
@@ -1198,7 +1197,8 @@ namespace TrainingApp.Pages.Training
                     // El control queda abierto en el modal donde se respondió (spec 006, E3);
                     // grupos y piezas ya guardados se conservan (AC-8).
                     // Spec 017 (C-6): el mensaje del MES en la franja, junto al feedback de hoy.
-                    if (result.MesError != null) CtrlDataCollection.ShowMesError(NoteMesError(result.MesError));
+                    if (result.MesError != null)
+                        CtrlDataCollection.ShowMesError(NoteMesError(result.MesError), MesHelp(result.MesError));
                     ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
                     _guideMoment = GuideMoment.Incorrect(step, e.GroupCode);
                     ReopenModal("modalDCEntry");
@@ -1836,8 +1836,11 @@ namespace TrainingApp.Pages.Training
         {
             NoteMesError(errors[0]);
             var texts = errors.Select(e => e.Text).ToArray();
+            // Varios mensajes son siempre del mismo id (M-7 por pieza): una sola explicación.
+            var serializer = new JavaScriptSerializer();
             ClientScript.RegisterStartupScript(GetType(), "podMesError",
-                "podShowMesErrors(" + new JavaScriptSerializer().Serialize(texts) + ");", true);
+                "podShowMesErrors(" + serializer.Serialize(texts) + ", " +
+                serializer.Serialize(MesHelp(errors[0])) + ");", true);
         }
 
         // Avisos de formato propios del simulador que decide la BLL (no cuentan como intento).

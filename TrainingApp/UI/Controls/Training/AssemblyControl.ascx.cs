@@ -106,11 +106,15 @@ namespace TrainingApp.UI.Controls.Training
 
         // Barcode rechazado por la BLL (spec 017, M-8): el modal vuelve a abrirse con la franja
         // del MES y Component Details y Assembly Data vacíos con [Add] (AUD-69).
-        public void ShowMesError(int componentId, MesError error)
+        // help: la explicación del (?) de Práctica libre; null sin ella.
+        public void ShowMesError(int componentId, MesError error, string help)
         {
             Page.ClientScript.RegisterStartupScript(GetType(), "asmMesError",
                 "asmReopenWithError('" + componentId + "', '" +
-                HttpUtility.JavaScriptStringEncode(error.Text) + "');", true);
+                HttpUtility.JavaScriptStringEncode(error.Text) + "');" +
+                (help == null ? string.Empty
+                    : "podAttachMesHelp(document.getElementById('asmMesError'), '" +
+                      HttpUtility.JavaScriptStringEncode(help) + "');"), true);
         }
 
         // Texto del 17150 para el chequeo de formato del cliente, del catálogo de la BLL.

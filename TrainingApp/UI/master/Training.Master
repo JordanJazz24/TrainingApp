@@ -47,7 +47,8 @@
     // Banner de error del MES del POD (spec 017, superficie B): una fila por texto, como texto
     // plano; [] lo oculta. Va en el head para que RegisterStartupScript lo pueda llamar. Con un
     // error a la vista, el banner de éxito (.pod-banner) se oculta: nunca se apilan.
-    function podShowMesErrors(texts) {
+    // help: la explicación en español (solo Práctica libre); null sin ella.
+    function podShowMesErrors(texts, help) {
         var zone = document.getElementById('podMesError');
         if (!zone) return;
         zone.textContent = '';
@@ -62,20 +63,64 @@
             row.appendChild(icon);
             row.appendChild(text);
             zone.appendChild(row);
+            if (help) podAttachMesHelp(row, help);
         });
         zone.style.display = texts.length ? '' : 'none';
         var success = document.querySelector('.pod-banner');
         if (success && texts.length) success.style.display = 'none';
     }
 
+    // (?) al final de un mensaje del MES (spec 017, D-102; elección del usuario al probar la
+    // E4): en Práctica libre abre un globo con la explicación en español; otro clic, o un
+    // clic fuera, lo cierra. Texto plano.
+    function podAttachMesHelp(el, help) {
+        if (!el || !help || el.querySelector('.mes-help-toggle')) return;
+        var btn = document.createElement('button');
+        var pop = document.createElement('div');
+        btn.type = 'button';
+        btn.className = 'mes-help-toggle';
+        btn.textContent = '?';
+        btn.title = '¿Qué significa?';
+        btn.setAttribute('aria-label', '¿Qué significa?');
+        btn.setAttribute('aria-expanded', 'false');
+        pop.className = 'mes-help-pop';
+        pop.setAttribute('role', 'note');
+        pop.textContent = help;
+        pop.hidden = true;
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            pop.hidden = !pop.hidden;
+            btn.setAttribute('aria-expanded', String(!pop.hidden));
+        });
+        el.appendChild(btn);
+        el.appendChild(pop);
+    }
+
+    document.addEventListener('click', function (e) {
+        document.querySelectorAll('.mes-help-pop').forEach(function (pop) {
+            if (!pop.hidden && !pop.parentNode.contains(e.target)) {
+                pop.hidden = true;
+                var btn = pop.parentNode.querySelector('.mes-help-toggle');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+
     // Explicación de un mensaje del MES que mostró un chequeo del cliente (spec 017, D-102):
-    // en Guided, la nota de la guía; en Práctica libre, el último fallo de Ver pista. La página
-    // deja en window.podMesNotes solo lo que el modo recibe (Assessment, nada).
+    // en Guided, la nota de la guía; en Práctica libre, el (?) sobre su superficie (en el
+    // banner, en cada fila). La página deja en window.podMesNotes solo lo que el modo recibe
+    // (Assessment, nada).
     function podNoteMesError(id) {
         var n = window.podMesNotes && window.podMesNotes[id];
         if (!n) return;
         if (n.html && window.PodGuide && window.PodGuide.note) window.PodGuide.note(n.anchor, n.html);
-        if (n.plain && window.podPractice) window.podPractice.failure = n.text + ' — ' + n.plain;
+        if (n.plain) {
+            var surface = document.querySelector('[data-guide="' + n.anchor + '"]');
+            if (!surface) return;
+            var rows = surface.querySelectorAll('.mes-error-row');
+            if (rows.length) rows.forEach(function (r) { podAttachMesHelp(r, n.plain); });
+            else podAttachMesHelp(surface, n.plain);
+        }
     }
 
     // [↗] de la barra de título estándar de los modales del MES: maximiza o restaura

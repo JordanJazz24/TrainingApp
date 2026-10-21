@@ -290,8 +290,10 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
   - **Dentro del paso:** Data Collection muestra el error del primer parámetro con fallo
     (C-6: vacío `10015`, texto en un numérico `12205`, límites `15232`/`15233`); Complete y
     Log NC sin ninguna fila suman `22506` y `12906` a su intento fallido.
-  - **Explicación en español** (D-102): la guía de Guided pone una nota junto al mensaje y
-    Ver pista lo incluye como último fallo. Assessment no la recibe.
+  - **Explicación en español** (D-102): la guía de Guided pone una nota junto al mensaje; en
+    Práctica libre, un (?) al final del mensaje abre un globo con la explicación (elección
+    del usuario al probar la E4: Ver pista muestra solo el paso y su pista). Assessment no la
+    recibe.
   - Fuera: M-10, M-17 y M-18 no se pueden provocar en el simulador (D-118, D-120).
 - **Paso saltado (Práctica libre, spec 012, P-9):** Saltar paso e Ir a… reusan el avance
   forzado: cada paso adelantado es un intento no correcto con `Reason = Skipped` (6) y
