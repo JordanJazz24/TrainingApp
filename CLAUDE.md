@@ -7,8 +7,8 @@ reportes. Parte de los datos está hardcodeada porque representa pantallas y val
 a día del operador; eso no justifica una mala arquitectura: capas separadas, mantenible y
 extensible.
 
-Este archivo tiene solo **reglas vigentes**. El historial (qué se cerró y cuándo) va en el
-roadmap.
+Este archivo tiene solo **reglas vigentes**. El historial (qué se cerró y cuándo) va en
+`docs/history.md`.
 
 ## Mapa de documentos
 
@@ -16,7 +16,9 @@ roadmap.
 |---|---|---|
 | Reglas de trabajo, arquitectura, convenciones y comandos | este archivo | siempre |
 | Reglas de negocio del dominio: jerarquía, ejes de variación, flujo estándar, modos, qué cuenta como intento, pesos, catálogos | `docs/domain.md` | antes de tocar `Domain/`, `BLL/Scoring`, `BLL/Training`, controles de paso o scripts de catálogo y guía |
-| **Dónde quedamos**: fase actual y siguiente, pendientes, deuda, estado de la BD del usuario e historial de fases | `docs/roadmap.md` → "📍 Estado actual" | al iniciar cada sesión |
+| **Dónde quedamos**: fase actual y siguiente, pendientes, deuda, estado de la BD del usuario y auditorías | `docs/status.md` | al iniciar cada sesión |
+| Fases, su alcance ("No incluye"), planes, revisiones con negocio y orden de tareas | `docs/roadmap.md` | al planificar o ante una duda de alcance |
+| Qué se cerró, cuándo y cómo | `docs/history.md` | al buscar el origen de algo ya cerrado |
 | Proceso de trabajo: spec o plan directo, entregas, verificación, `/code-review` calibrado, auditorías, commits, ramas y worktrees, scripts de BD, fidelidad de pantallas | `docs/process.md` | antes de proponer o empezar trabajo |
 | Mecanismos y decisiones de diseño: árbol del código, motor del POD, controles de paso, guía de Guided, Session y caché de empleados | `docs/architecture.md` | antes de tocar `GuidedTest`, controles, `BLL/Training` o auth |
 | Términos MES (SFC, LC, Shop Order, POD…) | `docs/glossary.md` | ante un término desconocido |

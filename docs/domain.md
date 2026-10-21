@@ -336,7 +336,7 @@ cargada crea una versión nueva (D-56, `docs/architecture.md` → "Versión de l
   `RequiresNCComponent` y `RequiresStartChecklist`. `RequiresNCComponent` quedó sin uso con
   la spec 014 (enmienda 4): Component aparece solo con los códigos de reparación
   (obligatorio en la rápida, opcional en la extendida) y el desecho no lo muestra en ningún
-  área. Deuda anotada en el roadmap.
+  área. Deuda anotada en `docs/status.md`.
 - Datos de simulación (preguntas LC, parámetros de DC, códigos NC) van en scripts de
   `Database/StoredProcedures/`, nunca en arrays de la BLL ni en `Web.config`. Excepción
   aceptada (D-6): la pregunta de Line Clearance ("¿La limpieza de linea se ejecuto?") es la

@@ -41,7 +41,7 @@ planeación, "desarrollo").
 |---|---|---|---|
 | **Reuniones y Dudas** | Documentar notas de reuniones, aclaraciones funcionales, decisiones de negocio, validaciones con usuarios expertos y descubrimientos del proceso | Registra lo que se habló y lo que decidió el usuario; lo manda a Arquitectura y Planeación para que lo lleve a specs y roadmap; puede documentar pantallas en `docs/ui-reference/` | Specs, planes ni código |
 | **Arquitectura y Planeación** | Analizar alternativas, diseñar soluciones, definir arquitectura, modelar datos, evaluar trade-offs y planificar funcionalidades o fases | `/spec`, enmiendas de spec y **plan por entregas** (`docs/specs/NNN-plan.md`), con la aprobación del usuario; orden de tareas y secciones de fases y planes del roadmap; decisiones de diseño | Código |
-| **Desarrollo** | Solo la implementación: construir lo ya definido y aprobado, sin desviar la conversación hacia negocio o diseño | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, "Estado actual", "Historial", la fila de la BD del usuario, `CLAUDE.md`, `docs/domain.md` y `docs/architecture.md` | Specs ni planes; discusiones de negocio o diseño (las deriva) |
+| **Desarrollo** | Solo la implementación: construir lo ya definido y aprobado, sin desviar la conversación hacia negocio o diseño | Ejecuta el plan aprobado tal cual, entrega por entrega (sección 2): implementar, verificar, `/code-review`, checklist, commit con el "funciona" del usuario; al cerrar, `docs/status.md`, `docs/history.md`, `CLAUDE.md`, `docs/domain.md` y `docs/architecture.md` | Specs ni planes; discusiones de negocio o diseño (las deriva) |
 
 - El traspaso es el repo: lo que sale de Reuniones y Dudas, en el roadmap y
   `docs/ui-reference/`; la spec y el plan aprobados, en `docs/specs/`. Además, las sesiones
@@ -58,9 +58,12 @@ planeación, "desarrollo").
   de la primera (se avisan por mensaje). Reemplaza el worktree de docs obligatorio de
   Arquitectura y Planeación: dejaba ramas sueltas y contenido sin integrar (al 2026-10-21,
   6 worktrees de docs y el hallazgo W23 olvidado en su rama desde el 2026-10-15).
-- **Reparto del roadmap:** Arquitectura y Planeación escribe las secciones de fases, planes y
-  revisiones con negocio, y el orden de tareas; Desarrollo, "Estado actual", "Historial" y
-  "BD de desarrollo del usuario".
+- **Un dueño por archivo de estado (usuario, 2026-10-21):** Arquitectura y Planeación
+  escribe `docs/roadmap.md` (fases, alcance, planes, revisiones con negocio y orden de
+  tareas); Desarrollo, `docs/status.md` (estado, deuda, BD del usuario y auditorías) y
+  `docs/history.md`. Antes eran secciones de un solo roadmap y las dos sesiones editaban el
+  mismo archivo. Cuando Desarrollo cierra una fase, le avisa a Arquitectura y Planeación para
+  que la marque ✅ en la tabla de fases.
 
 ## 2. Cada entrega
 
@@ -77,8 +80,8 @@ planeación, "desarrollo").
    (ej. "la fila vuelve con el texto literal" cuando ASP.NET bloqueaba el `<`) le hace perder
    una vuelta al usuario.
 6. El usuario prueba y confirma ("funciona") → commit `feat|fix|docs|test: … (spec NNN)` con
-   la línea `Co-Authored-By` vigente. El roadmap (y la auditoría o el plan, si aplica) se
-   actualiza **en el mismo commit**.
+   la línea `Co-Authored-By` vigente. `docs/status.md` (y la auditoría o el plan, si aplica)
+   se actualiza **en el mismo commit**.
 
 **Variantes que usa el usuario:**
 - "corrige eso, haz commit y sigamos": hacerlo y avisar qué quedó sin re-verificar, para
@@ -123,8 +126,8 @@ auth, Session, roles y gestión de usuarios no se descarta nada por este criteri
 1. **Fase A, solo lectura:** health-check, arch-check, security-scan, `/code-review` por
    carpetas, outdated, código muerto. No se corrige mientras se audita.
 2. **Fase B:** lista única en su propio archivo `docs/audits/AAAA-MM-DD-*.md` con severidad,
-   vía y entrega. El roadmap solo la referencia.
-3. **Fase C:** entregas chicas con el ciclo de la sección 2. Commit con el roadmap y el
+   vía y entrega. `docs/status.md` → "Auditorías" solo la referencia.
+3. **Fase C:** entregas chicas con el ciclo de la sección 2. Commit con `docs/status.md` y el
    archivo de la auditoría actualizados.
 
 ## 5. Tests
@@ -167,7 +170,7 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
   se resuelve a mano).
 - **Área nueva** (ej. LoFlo): un script de catálogo y uno de guía con la plantilla de `06` y
   `07`. Un área de ejemplo de `05` que pase a tener catálogo real se deja de tocar en `05`.
-- Después de que el usuario corre un script, anotarlo en el roadmap → "BD de desarrollo del
+- Después de que el usuario corre un script, anotarlo en `docs/status.md` → "BD de desarrollo del
   usuario".
 
 ## 7. Ramas y worktrees
@@ -210,14 +213,14 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
 
 | Al… | Actualizar |
 |---|---|
-| Cerrar una entrega o una sesión de trabajo relevante | `docs/roadmap.md` → "📍 Estado actual" (corto) y la casilla del plan |
-| Cerrar una fase | Su sección del roadmap: resultado, commits y fecha |
+| Cerrar una entrega o una sesión de trabajo relevante | `docs/status.md` → "📍 Estado actual" (corto: lo cerrado se resume ahí en una línea) y la casilla del plan |
+| Cerrar una fase, una spec o un plan directo | Su sección en `docs/history.md`: resultado, commits y fecha (Desarrollo); la tabla de fases del roadmap (Arquitectura y Planeación) |
 | Fijar una regla de negocio del dominio (flujo, intentos, pesos, flags, catálogos) | `docs/domain.md`, en **un solo lugar**; los demás documentos la referencian |
 | Fijar una regla general (capas, seguridad, convención, comando) | `CLAUDE.md`, en **un solo lugar**. Mantenerlo corto: se carga en cada turno; lo que solo hace falta para cierta tarea va a un doc con su puntero en el mapa |
 | Cerrar una decisión de diseño o cambiar la estructura del código | `docs/architecture.md` |
 | Aprender algo de una pantalla del MES | `docs/ui-reference/` |
 | Acordar una forma de trabajar | Este archivo |
-| Correr un script de BD (el usuario) | Roadmap → "BD de desarrollo del usuario" |
+| Correr un script de BD (el usuario) | `docs/status.md` → "BD de desarrollo del usuario" |
 
 - No copiar reglas ni tablas (pesos, flags, fórmulas) en otros documentos: enlazar
   `CLAUDE.md → sección` o `docs/domain.md → sección`. Las copias se desalinean (pasó con los
