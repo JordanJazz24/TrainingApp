@@ -682,6 +682,9 @@ namespace TrainingApp.BLL.Training
             if (scrappable.Count == 0)
             {
                 var failed = FailedAttempt(ctx, PodAttemptReason.NoScrappableRow, AttemptActions.LogNC);
+                // Spec 017 (M-5): sin ninguna fila, además, el 12906 del MES.
+                if (SelectedRows(ctx, selectedRowIds).Count == 0)
+                    failed.MesErrors = new List<MesError> { MesMessage.Error(MesMessageId.SfcMissing) };
                 // P-5: el paso forzado aplica la disposición del hallazgo.
                 if (failed.Step.Outcome == StepSubmitOutcome.FailedForced)
                     ResolveFinding(ctx, finding, null, failed);
@@ -806,7 +809,7 @@ namespace TrainingApp.BLL.Training
         // seleccionada es un intento fallido (spec 007).
         public PodCommandResult Complete(PodContext ctx, ICollection<string> selectedRowIds)
         {
-            var sequence = CheckSequence(ctx, StepType.Complete, AttemptActions.Complete);
+            var sequence = CheckSequence(ctx, StepType.Complete, AttemptActions.Complete, selectedRowIds);
             if (sequence != null) return sequence;
 
             var selected = SelectedRows(ctx, selectedRowIds);
@@ -816,11 +819,11 @@ namespace TrainingApp.BLL.Training
                 if (selection == PieceSelectionResult.MissingPieces)
                     return PodCommandResult.WithNotice(PodNotice.SelectAllPieces);
                 if (PieceSelectionRule.CountsAsFailedAttempt(StepType.Complete, selection))
-                    return FailedComplete(ctx);
+                    return FailedComplete(ctx, selected.Count == 0);
             }
             else if (!IsSingleRow(selected))
             {
-                return FailedComplete(ctx);
+                return FailedComplete(ctx, selected.Count == 0);
             }
 
             // Spec 015 (D-22): Complete ya no cierra la sesión (sigue Logout); las filas
@@ -832,10 +835,13 @@ namespace TrainingApp.BLL.Training
         }
 
         // Complete sin la selección del paso: intento fallido. Si avanza forzado, el POD queda
-        // como tras un Complete hecho (D-22): sin filas.
-        private PodCommandResult FailedComplete(PodContext ctx)
+        // como tras un Complete hecho (D-22): sin filas. Sin ninguna fila, además, el 22506 del
+        // MES (spec 017, M-4).
+        private PodCommandResult FailedComplete(PodContext ctx, bool nothingSelected)
         {
             var result = FailedAttempt(ctx, PodAttemptReason.NoRowToComplete, AttemptActions.Complete);
+            if (nothingSelected)
+                result.MesErrors = new List<MesError> { MesMessage.Error(MesMessageId.SfcMissingStart) };
             if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
                 result.Completed = RemoveRows(ctx, ctx.State.Order?.ActiveRows() ?? new List<SimulatedOrderRow>());
             return result;
@@ -923,7 +929,9 @@ namespace TrainingApp.BLL.Training
         // null si el botón es el del paso actual. Si no: según ModePolicy, intento fallido del
         // paso actual (Assessment), aviso sin intento (Práctica libre) o se ignora (Guided).
         // action: el botón presionado, para el registro de actividad (spec 013, AC-20).
-        private PodCommandResult CheckSequence(PodContext ctx, StepType clickedStepType, string action)
+        // selectedRowIds: la selección del POD, para el M-7 por pieza de Complete (spec 017).
+        private PodCommandResult CheckSequence(PodContext ctx, StepType clickedStepType, string action,
+            ICollection<string> selectedRowIds = null)
         {
             var step = ctx.CurrentStep;
             if (step.StepType == clickedStepType) return null;
@@ -931,21 +939,33 @@ namespace TrainingApp.BLL.Training
             if (StepTypes.IsLogNC(clickedStepType) && StepTypes.IsLogNC(step.StepType))
                 return null;
 
-            return OutOfSequence(ctx, action, ctx.Policy.OutOfSequence);
+            return OutOfSequence(ctx, action, ctx.Policy.OutOfSequence, clickedStepType, selectedRowIds);
         }
 
         // Click que no es el del paso actual. RecordAttempt: intento fallido del paso actual y,
         // si avanzó forzado, el POD queda como si el paso se hubiera hecho. Notice: el aviso sin
-        // intento. Ignore (o con la sesión ya cerrada): el click se ignora.
-        private PodCommandResult OutOfSequence(PodContext ctx, string action, OutOfSequenceHandling handling)
+        // intento. Ignore (o con la sesión ya cerrada): el click se ignora. Spec 017: en
+        // RecordAttempt y Notice, además, el mensaje que daría el MES (MesSequenceRule), con el
+        // estado de antes del intento; no cambia la calificación (D-92).
+        private PodCommandResult OutOfSequence(PodContext ctx, string action, OutOfSequenceHandling handling,
+            StepType? clickedStepType = null, ICollection<string> selectedRowIds = null)
         {
             var step   = ctx.CurrentStep;
             var result = new PodCommandResult { OutOfSequence = true };
-            if (ctx.Session.Status != SessionStatus.InProgress)
+            if (ctx.Session.Status != SessionStatus.InProgress || handling == OutOfSequenceHandling.Ignore)
                 return result;
-            if (handling != OutOfSequenceHandling.RecordAttempt)
+
+            if (clickedStepType.HasValue)
             {
-                result.NotCurrentStepNotice = handling == OutOfSequenceHandling.Notice;
+                var errors = MesSequenceRule.For(clickedStepType.Value,
+                    SequenceState(ctx, clickedStepType.Value, selectedRowIds));
+                if (errors.Count > 0) result.MesErrors = errors;
+            }
+
+            if (handling == OutOfSequenceHandling.Notice)
+            {
+                // Práctica libre (D-101): el mensaje del MES reemplaza "Ese no es el paso actual.".
+                result.NotCurrentStepNotice = result.MesErrors == null;
                 return result;
             }
 
@@ -953,6 +973,19 @@ namespace TrainingApp.BLL.Training
             if (result.Step.Outcome == StepSubmitOutcome.FailedForced)
                 result.PodChanged = RestoreAfterForcedAdvance(ctx, step);
             return result;
+        }
+
+        // Estado del POD que mira el MES para rechazar el botón (spec 017, C-2). Los catálogos de
+        // DC solo se leen para Complete, el único que los usa (M-7).
+        private static MesSequenceState SequenceState(PodContext ctx, StepType clickedStepType,
+            ICollection<string> selectedRowIds)
+        {
+            bool forComplete = clickedStepType == StepType.Complete;
+            return MesSequenceState.Build(ctx.Guide.Steps, ctx.Session.CurrentStepOrder, ctx.Attempts,
+                ctx.State.Order, ctx.State.DataCollection,
+                forComplete ? ctx.DataCollectionGroups : null,
+                forComplete ? ctx.DataCollectionParameters : null,
+                selectedRowIds);
         }
 
         // Un paso forzado por errores de secuencia nunca abrió su control: el POD queda como si

@@ -766,9 +766,9 @@ namespace TrainingApp.Pages.Training
             }
             // El modal del split muestra el mensaje del MES en lugar del formulario (spec 017) o
             // el aviso del simulador en su propio mensaje de error.
-            if (result.MesError != null)
+            if (result.MesErrors != null)
             {
-                e.MesError = result.MesError;
+                e.MesError = result.MesErrors[0];
                 return;
             }
             if (result.Notice != PodNotice.None)
@@ -849,6 +849,9 @@ namespace TrainingApp.Pages.Training
             TrainingGuide guide, Area area, TrainingStep step)
         {
             if (!result.OutOfSequence) return false;
+            // Spec 017: el mensaje del MES para ese botón, si lo hay, antes del feedback de hoy
+            // (Assessment) o en lugar de "Ese no es el paso actual." (Práctica libre, D-101).
+            if (result.MesErrors != null) ShowMesErrors(result.MesErrors);
             if (result.Step == null)
             {
                 if (result.NotCurrentStepNotice) ShowNotCurrentStepNotice();
@@ -1005,9 +1008,9 @@ namespace TrainingApp.Pages.Training
             if (session == null) return;
             var result = Pod.ClickStart(_ctx, BrowseSelectedIds(), ScannedSfc());
             if (HandleOutOfSequence(result, session, guide, area, step)) return;
-            if (result.MesError != null)
+            if (result.MesErrors != null)
             {
-                ShowMesError(result.MesError);
+                ShowMesErrors(result.MesErrors);
                 return;
             }
             if (result.Notice != PodNotice.None)
@@ -1084,11 +1087,11 @@ namespace TrainingApp.Pages.Training
         // el aviso del simulador. Devuelve si hubo alguno.
         private bool ShowSelectionError(PodCommandResult result, Area area, TrainingSession session)
         {
-            if (result.MesError != null)
+            if (result.MesErrors != null)
             {
                 ClearRowSelection();
                 BindWorkList(area, session);
-                ShowMesError(result.MesError);
+                ShowMesErrors(result.MesErrors);
                 return true;
             }
             if (result.Notice != PodNotice.None)
@@ -1216,6 +1219,8 @@ namespace TrainingApp.Pages.Training
             }
             if (result.Step != null)
             {
+                // Spec 017 (M-5): sin ninguna fila, el 12906 junto al feedback del intento.
+                if (result.MesErrors != null) ShowMesErrors(result.MesErrors);
                 ApplySubmitResult(result.Step, session, guide, area, step,
                     AttemptFeedback(result.FeedbackReason, area));
                 // Avance forzado (spec 014, P-5): la BLL aplicó la disposición del hallazgo.
@@ -1280,6 +1285,8 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Spec 017 (M-4): sin ninguna fila, el 22506 junto al feedback del intento.
+            if (result.MesErrors != null) ShowMesErrors(result.MesErrors);
             ApplySubmitResult(result.Step, session, guide, area, step,
                 AttemptFeedback(result.FeedbackReason, area));
             ShowCompleted(area, session, result.Completed, banner: result.Step.Outcome == StepSubmitOutcome.Correct);
@@ -1772,12 +1779,14 @@ namespace TrainingApp.Pages.Training
 
         // ── Modal re-open & SweetAlert helpers ───────────────────────────
 
-        // Mensaje del MES del banner del POD (spec 017, superficie B), elegido por la BLL. Lo
-        // pinta podShowMesErrors como texto plano; queda hasta el siguiente postback (D-112).
-        private void ShowMesError(MesError error)
+        // Mensajes del MES del banner del POD (spec 017, superficie B), elegidos por la BLL: una
+        // fila por mensaje (varias solo con M-7, D-119). Los pinta podShowMesErrors como texto
+        // plano; quedan hasta la acción siguiente (D-112).
+        private void ShowMesErrors(IList<MesError> errors)
         {
+            var texts = errors.Select(e => e.Text).ToArray();
             ClientScript.RegisterStartupScript(GetType(), "podMesError",
-                "podShowMesErrors(" + new JavaScriptSerializer().Serialize(new[] { error.Text }) + ");", true);
+                "podShowMesErrors(" + new JavaScriptSerializer().Serialize(texts) + ");", true);
         }
 
         // Avisos de formato propios del simulador que decide la BLL (no cuentan como intento).

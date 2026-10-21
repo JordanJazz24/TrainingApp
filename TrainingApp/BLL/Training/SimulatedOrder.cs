@@ -83,8 +83,11 @@ namespace TrainingApp.BLL.Training
             => Rows.Where(r => r.IsActive).ToList();
 
         // Los ids llegan del cliente: solo cuentan los que existen en la orden y están Active.
+        // Sin ids (null), ninguna.
         public IList<SimulatedOrderRow> FindActiveRows(ICollection<string> rowIds)
-            => Rows.Where(r => r.IsActive && rowIds.Contains(r.RowId)).ToList();
+            => rowIds == null
+                ? new List<SimulatedOrderRow>()
+                : Rows.Where(r => r.IsActive && rowIds.Contains(r.RowId)).ToList();
 
         // Piezas elegidas en Browse Work List, en cualquier estado.
         public IList<SimulatedOrderRow> FindRows(ICollection<string> rowIds)

@@ -132,6 +132,7 @@
     <Compile Include="StepValidatorLogNCTests.cs" />
     <Compile Include="MesLoginRuleTests.cs" />
     <Compile Include="MesMessageTests.cs" />
+    <Compile Include="MesSequenceRuleTests.cs" />
     <Compile Include="GuideScriptReader.cs" />
     <Compile Include="UserAdminServiceTests.cs" />
   </ItemGroup>

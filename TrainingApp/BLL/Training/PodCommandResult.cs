@@ -51,9 +51,10 @@ namespace TrainingApp.BLL.Training
 
         public PodNotice Notice { get; set; }
 
-        // Mensaje del MES para la situación (spec 017): formato sin intento, o el que acompaña a
-        // un intento. La página lo pinta en su superficie; null si el MES no tiene uno.
-        public MesError MesError { get; set; }
+        // Mensajes del MES para la situación (spec 017): formato sin intento, o los que acompañan
+        // a un intento (también fuera de secuencia). La página los pinta en su superficie; null
+        // si el MES no tiene uno. Solo M-7 trae varios, uno por pieza (D-119).
+        public IList<MesError> MesErrors { get; set; }
 
         // Intento registrado; null si el comando no calificó el paso.
         public StepSubmitResult Step { get; set; }
@@ -92,6 +93,6 @@ namespace TrainingApp.BLL.Training
             => new PodCommandResult { Notice = notice };
 
         public static PodCommandResult WithMesError(MesError error)
-            => new PodCommandResult { MesError = error };
+            => new PodCommandResult { MesErrors = new List<MesError> { error } };
     }
 }
