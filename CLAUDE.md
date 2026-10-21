@@ -24,7 +24,8 @@ Este archivo tiene solo **reglas vigentes**. El historial (qué se cerró y cuá
 | Términos MES (SFC, LC, Shop Order, POD…) | `docs/glossary.md` | ante un término desconocido |
 | Cómo se ve y se opera cada pantalla del MES real | `docs/ui-reference/` (`general-flow.md`, un archivo por área, `inventario-pantallas.md`) | antes de tocar UI |
 | Specs y planes por entregas | `docs/specs/` | al trabajar en esa spec |
-| Auditorías (hallazgos AUD-n, decisiones D-n) | `docs/audits/` (una por archivo) | al citar un hallazgo o una decisión |
+| Auditorías (hallazgos AUD-n) | `docs/audits/` (una por archivo) | al citar un hallazgo |
+| Índice de decisiones D-n y bugs B-n: estado y dónde está cada una | `docs/decisions.md` | al citar, numerar o reabrir una decisión |
 
 **Cada regla vive en un solo lugar.** Los demás documentos la referencian
 (`CLAUDE.md → sección` o `docs/domain.md → sección`) en vez de copiarla. Las specs y las

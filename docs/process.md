@@ -9,7 +9,7 @@
 | Pedido | Camino |
 |---|---|
 | Funcionalidad o reglas de negocio nuevas (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. Spec y plan, en la sesión de Arquitectura y Planeación; la implementación, en la de Desarrollo (ver "Tres sesiones de trabajo"). |
-| Pocas decisiones acotadas (3-6 preguntas, una pantalla) | Una ronda de `AskUserQuestion` + plan directo; las decisiones se anotan en el roadmap. |
+| Pocas decisiones acotadas (3-6 preguntas, una pantalla) | Una ronda de `AskUserQuestion` + plan directo; las decisiones se anotan en la sección de la tarea en el roadmap, con su fila en `docs/decisions.md`. |
 | Bugs, robustez, rendimiento | Plan corto en el chat e implementación directa, sin spec. Ofrecer spec solo si aparecen decisiones de negocio. |
 
 - Ante la duda, preguntarse si una spec es sobreingeniería para un simulador interno, y
@@ -26,10 +26,13 @@
 - **Decisiones que bloquean** una entrega: se preguntan juntas, numeradas (D-1, D-2…), cada
   una con opciones y una **recomendada**, con la herramienta de preguntas (`AskUserQuestion`),
   no como texto para responder en bloque (usuario, 2026-10-14). Se anotan en el archivo de la
-  auditoría, la spec o el plan. La numeración D-n es continua entre auditorías, specs y
-  planes: antes de numerar, buscar la última en el repo (`grep "D-[0-9]"`).
+  auditoría, la spec o el plan (en un plan directo, en la sección de la tarea en el
+  roadmap). La numeración D-n es continua entre todos ellos: la siguiente está en el
+  encabezado de `docs/decisions.md`, y la fila se agrega en el mismo commit que la fuente.
 - **Bugs que ya existían**, encontrados en un review o un refactor: no se arreglan en
-  silencio. Se presentan como B-1, B-2… con una propuesta y decide el usuario (D-12).
+  silencio. Se presentan como B-n con una propuesta y decide el usuario (D-12). Desde el
+  2026-10-21 la numeración es global, como la de D-n (antes había un B-1 por contexto), y
+  cada uno lleva su fila en `docs/decisions.md`.
 
 ### Tres sesiones de trabajo (usuario, 2026-10-14)
 
