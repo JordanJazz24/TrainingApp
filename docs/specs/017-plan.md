@@ -271,7 +271,7 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
 
 Mensajes M-9, M-11, M-12 y M-13. M-17 quedó fuera (enmienda 5, D-120).
 
-- [ ] `StepValidator.FirstDataCollectionError(groupId, answer)` → `(param, value,
+- [x] `StepValidator.FirstDataCollectionError(groupId, answer)` → `(param, value,
       MesMessageId)?`. Recorre los parámetros **en el orden de la pantalla**
       (`DisplayOrder`) y, por parámetro, aplica la prioridad de C-6:
   - vacío obligatorio → M-9;
@@ -282,14 +282,14 @@ Mensajes M-9, M-11, M-12 y M-13. M-17 quedó fuera (enmienda 5, D-120).
   Los mismos casos que hoy hacen fallar `ValidateParamValue`, sin cambiar cuáles fallan. Un
   Date o un Boolean inválido no da mensaje: se queda el genérico. El nombre de la plantilla
   es el `Name` del parámetro, como en el MES.
-- [ ] `PodService.SubmitDataCollectionGroup` deja ese `MesError` en el resultado **solo
+- [x] `PodService.SubmitDataCollectionGroup` deja ese `MesError` en el resultado **solo
       cuando el grupo es incorrecto**. El intento se registra igual que hoy, con el mismo
       `Reason` (`EmptyRequiredField` o `WrongDecision`).
-- [ ] La franja de Data Collection Entry muestra el mensaje y la ventana queda abierta, como
+- [x] La franja de Data Collection Entry muestra el mensaje y la ventana queda abierta, como
       hoy tras un fallo.
 - [ ] ~~Log NC: Done con `TxtNCCode` vacío → franja M-17 (`18117`)~~ → fuera (enmienda 5,
       D-120): no se puede provocar. Done y Add siguen con el feedback de hoy.
-- [ ] Tests en `StepValidator` (archivo nuevo `StepValidatorDataCollectionTests`):
+- [x] Tests en `StepValidator` (archivo nuevo `StepValidatorDataCollectionTests`):
   - el primero en orden gana;
   - vacío antes que límites en el mismo parámetro;
   - texto en un numérico;
