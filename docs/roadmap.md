@@ -340,7 +340,8 @@ testing (T9):
 - **W15:** ícono ✔ del grupo de DC guardado (captura pendiente en `inventario-pantallas.md`).
 - **W23 (2026-10-15, captura del POD real):** el SFC serializado es `{12NC}-{serial}`, no
   `{ShopOrder}-{sufijo}` como en el simulador. Ajuste de la orden simulada, sin efecto en el
-  puntaje; candidato para la spec 014 (que ya cambia las piezas por orden) o un plan directo.
+  puntaje. La spec 014 cerró sin tomarlo (integrado el 2026-10-21): candidato para un plan
+  directo.
 - **W20:** `F_FR_GENERAL` está en el catálogo de scrap de Moldeo, pero en el MES es un código
   de reparación. Lo resuelve la spec 014 (método de cada código en el catálogo).
 - Para T4, la WI ya describe los pasos de la reparación rápida (`F_FR`) y la extendida
