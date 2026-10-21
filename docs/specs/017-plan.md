@@ -35,6 +35,15 @@
 > → "Reglas de la pantalla" de Search/Start, Assembly, Data Collection, SFC Split y Log NC
 > con los mensajes del MES que reemplazan a los SweetAlert (hoy dice, por ejemplo, que la
 > Qty vacía del Split se avisa con SweetAlert), y la de Resource Setup con Material.
+>
+> **Enmienda 3 del plan (2026-10-21, Desarrollo durante la E2, aceptada por Arquitectura y
+> Planeación; no cambia la spec ni D-92):** no se agrega `PodState.LineClearanceAnsweredNo`.
+> El "No" del LC de apertura (C-3, M-3) se deduce de los **intentos de la sesión**: algún
+> intento del primer `LineClearance` de la guía con `Reason = WrongDecision`. Los clics fuera
+> de secuencia no cuentan, y el Sí resuelve el paso. La marca en `PodState` se perdía al
+> reconstruir el estado (D-10) y daba M-2 en vez de M-3; desde los intentos, sobrevive. El
+> estado que lee la regla se arma con una función pura (`MesSequenceState.Build`) con sus
+> tests, y los catálogos de DC solo se leen para Complete (M-7).
 
 Hay cuatro entregas, en el orden del flujo: primero el mecanismo y los avisos de formato,
 después los clics fuera de secuencia, después DC y Log NC, y al final Setup Type, las
@@ -186,16 +195,15 @@ a M-16. Todos siguen sin intento (son formato).
 
 Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
 
-- [ ] `PodState.LineClearanceAnsweredNo` (bool). `PodService` lo pone en `true` cuando el LC
-      **de apertura** se responde No (intento fallido, como hoy) y en `false` al responderlo
-      Sí. No cambia el intento.
+- [ ] ~~`PodState.LineClearanceAnsweredNo`~~ → reemplazado por la enmienda 3: el "No" del LC
+      de apertura sale de los intentos de la sesión (`MesSequenceState.Build`).
 - [ ] `MesSequenceRule.For(clickedStep, ctx)`, en el orden de C-2, con la tabla de abajo.
       Desarrollo verifica cómo identificar el LC **de apertura** (el primer `LineClearance`
       de la guía) con lo que ya da `PodContext`.
 
   | Botón | 1. RS sin resolver | 2. LC de apertura sin resolver | 3. Sin SFC iniciado | 4. DC obligatorio pendiente | Si no |
   |---|---|---|---|---|---|
-  | Start | M-1 | M-3 si `LineClearanceAnsweredNo`, si no M-2 | — | — | ninguno |
+  | Start | M-1 | M-3 si el LC de apertura tiene un intento `WrongDecision` (enmienda 3), si no M-2 | — | — | ninguno |
   | Assemble, DC Collect | — | ídem | M-5 | — | ninguno |
   | Log NC, SFC Split | — | — | M-5 | — | ninguno |
   | Complete | — | — | M-4 | M-7 (área con DC) | ninguno |
@@ -218,7 +226,7 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
       **no hay ninguna** fila seleccionada. La selección parcial de Serialized conserva su
       texto. Log NC sin fila (`NoScrappableRow`) → M-5 cuando no hay ninguna fila.
 - [ ] Tests `MesSequenceRuleTests`: cada fila de la tabla, la prioridad (Start con RS y LC
-      pendientes → M-1; Assemble con LC pendiente y sin SFC → M-2), M-3 con el flag, el LC
+      pendientes → M-1; Assemble con LC pendiente y sin SFC → M-2), M-3 con un intento `WrongDecision` del LC de apertura (y no con un clic fuera de secuencia), el LC
       de cierre sin resolver que no produce mensaje, DC Collect durante Assembly con el SFC
       iniciado → ninguno, y Complete en un área sin DC → M-4 o ninguno.
 
