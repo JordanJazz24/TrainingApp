@@ -37,6 +37,19 @@ namespace TrainingApp.Pages.Training
         // NC): Ver pista lo muestra antes de la pista del paso. No se guarda entre requests (D-87).
         private string _lastFailureFeedback;
 
+        // Mensaje del MES que la página mostró en este request (spec 017, D-102): la guía de
+        // Guided pone su nota en español y Ver pista lo muestra como último fallo, con la
+        // explicación. Assessment no recibe ninguna de las dos. Solo los del servidor: los
+        // chequeos del cliente no pasan por aquí.
+        private MesError _lastMesError;
+
+        // Anota el mensaje que se va a pintar y lo devuelve (el primero del request).
+        private MesError NoteMesError(MesError error)
+        {
+            if (_lastMesError == null) _lastMesError = error;
+            return error;
+        }
+
 
         // ── Controles de paso estáticos (spec 006) ───────────────────────
         // Los 8 controles están declarados en el .aspx, así que el árbol es idéntico en
@@ -228,6 +241,29 @@ namespace TrainingApp.Pages.Training
             ApplyNcFindingNote();
             ApplyPracticeBar();
             RegisterGuide();
+            RegisterClientMesNotes();
+        }
+
+        // Mensajes del MES que muestra un chequeo del cliente (spec 017): DC Collect o SFC Split
+        // sin fila, un escaneo ajeno en Start y un barcode no numérico. Su explicación va con la
+        // página solo si el modo la recibe (D-102): la nota en Guided, Ver pista en Práctica
+        // libre; Assessment no recibe nada. Texto del catálogo y nota de MesErrorNotes.
+        private void RegisterClientMesNotes()
+        {
+            if (_ctx == null) return;
+            bool guide = _ctx.Policy.ShowsGuide, hint = _ctx.Policy.HintOnDemand;
+            if (!guide && !hint) return;
+
+            var ids = new[] { MesMessageId.SfcMissing, MesMessageId.InvalidSfc, MesMessageId.BarcodeNotCompliant };
+            var notes = ids.ToDictionary(id => id.ToString(), id => new
+            {
+                text   = MesMessage.Get(id).Format(),
+                anchor = MesErrorNotes.AnchorName(id),
+                html   = guide ? MesErrorNotes.Html(id) : null,
+                plain  = hint ? MesErrorNotes.Plain(id) : null
+            });
+            ClientScript.RegisterStartupScript(GetType(), "podMesNotes",
+                "window.podMesNotes = " + new JavaScriptSerializer().Serialize(notes) + ";", true);
         }
 
         // Barra de práctica (spec 012, D-87 a D-89): Ver pista, Saltar paso e Ir a… según la
@@ -260,13 +296,23 @@ namespace TrainingApp.Pages.Training
             var data = new
             {
                 hint     = StepHints.For(_ctx, current.StepType),
-                failure  = _lastFailureFeedback,
+                failure  = LastFailureForHint(),
                 current  = new { order = current.Order, name = StepNames.Display(steps, current) },
                 next,
                 hiddenId = HfSkipTarget.ClientID
             };
             ClientScript.RegisterStartupScript(GetType(), "podPractice",
                 "window.podPractice = " + new JavaScriptSerializer().Serialize(data) + ";", true);
+        }
+
+        // Último fallo de Ver pista: el mensaje del MES con su explicación (spec 017, D-102) y,
+        // si el mismo request trajo un intento con texto propio, también ese texto.
+        private string LastFailureForHint()
+        {
+            if (_lastMesError == null || !MesErrorNotes.Has(_lastMesError.Id))
+                return _lastFailureFeedback;
+            string mes = _lastMesError.Text + " — " + MesErrorNotes.Plain(_lastMesError.Id);
+            return string.IsNullOrEmpty(_lastFailureFeedback) ? mes : mes + " " + _lastFailureFeedback;
         }
 
         // Saltar paso / Ir a… (spec 012, D-83, D-84 enmendada): el destino viaja en
@@ -471,7 +517,9 @@ namespace TrainingApp.Pages.Training
             PhGuideAssets.Visible = false;
             if (_ctx == null || !_ctx.Policy.ShowsGuide) return;
 
-            var script = new GuideScriptBuilder().Build(_ctx, _guideMoment);
+            // Spec 017 (D-102): con un mensaje del MES en pantalla, su nota en español primero.
+            var moment = _lastMesError != null ? _guideMoment.WithMesError(_lastMesError.Id) : _guideMoment;
+            var script = new GuideScriptBuilder().Build(_ctx, moment);
             if (script.IsEmpty) return;
 
             PhGuideAssets.Visible = true;
@@ -691,7 +739,9 @@ namespace TrainingApp.Pages.Training
             // Spec 017 (M-8): el 17150 en la franja de la ventana, que queda abierta.
             if (result.MesError != null)
             {
-                CtrlAssembly.ShowMesError(e.ComponentId, result.MesError);
+                CtrlAssembly.ShowMesError(e.ComponentId, NoteMesError(result.MesError));
+                // La guía vuelve al escaneo de ese componente después de la nota.
+                _guideMoment = GuideMoment.Incorrect(step, e.ComponentId.ToString(CultureInfo.InvariantCulture));
                 return;
             }
             if (result.StepResult == null)
@@ -768,7 +818,7 @@ namespace TrainingApp.Pages.Training
             // el aviso del simulador en su propio mensaje de error.
             if (result.MesErrors != null)
             {
-                e.MesError = result.MesErrors[0];
+                e.MesError = NoteMesError(result.MesErrors[0]);
                 return;
             }
             if (result.Notice != PodNotice.None)
@@ -1148,7 +1198,7 @@ namespace TrainingApp.Pages.Training
                     // El control queda abierto en el modal donde se respondió (spec 006, E3);
                     // grupos y piezas ya guardados se conservan (AC-8).
                     // Spec 017 (C-6): el mensaje del MES en la franja, junto al feedback de hoy.
-                    if (result.MesError != null) CtrlDataCollection.ShowMesError(result.MesError);
+                    if (result.MesError != null) CtrlDataCollection.ShowMesError(NoteMesError(result.MesError));
                     ApplySubmitResult(result.StepResult, session, guide, area, step, incorrectFeedback: null);
                     _guideMoment = GuideMoment.Incorrect(step, e.GroupCode);
                     ReopenModal("modalDCEntry");
@@ -1784,6 +1834,7 @@ namespace TrainingApp.Pages.Training
         // plano; quedan hasta la acción siguiente (D-112).
         private void ShowMesErrors(IList<MesError> errors)
         {
+            NoteMesError(errors[0]);
             var texts = errors.Select(e => e.Text).ToArray();
             ClientScript.RegisterStartupScript(GetType(), "podMesError",
                 "podShowMesErrors(" + new JavaScriptSerializer().Serialize(texts) + ");", true);

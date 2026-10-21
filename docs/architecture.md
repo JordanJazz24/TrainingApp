@@ -63,7 +63,12 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje, estado,
 │   │   │   │                                 Code1 del usuario y catálogos del área (perezosos,
 │   │   │   │                                 una vez por request)
-│   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, intento, scrap…
+│   │   │   ├── PodCommandResult.cs        ← resultado de un comando: PodNotice, MesErrors,
+│   │   │   │                                 intento, scrap…
+│   │   │   ├── MesMessage.cs              ← catálogo de mensajes del MES, MesError y
+│   │   │   │                                 superficies (spec 017)
+│   │   │   ├── MesSequenceRule.cs         ← mensaje del MES de un botón fuera de turno y
+│   │   │   │                                 MesSequenceState.Build (spec 017)
 │   │   │   ├── StepSubmitResult.cs        ← resultado de un intento (outcome, intentos restantes)
 │   │   │   ├── PodState.cs                ← estado del POD (orden + avance + precargados +
 │   │   │   │                                 hallazgos + lo ensamblado + Ingreso a MES y
@@ -262,7 +267,8 @@ diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de e
   `spStepAttemptRecord` vuelve a validar en su transacción estado, paso y número de intento:
   si la sesión cambió, falla sin guardar nada.
 - **Código nuevo del POD** = un comando en `PodService`; la página solo traduce el
-  `PodCommandResult` (`PodNotice`, intento) a UI y elige los textos de los avisos.
+  `PodCommandResult` (`PodNotice`, `MesErrors`, intento) a UI y elige los textos de los
+  avisos propios del simulador (los del MES vienen armados de la BLL, ver "Mensajes del MES").
 - **Estado (`PodState`)**: orden simulada + avance de Assembly y DC + equipos precargados
   de Resource Setup (spec 015: los genera `OpenResourceSetup` en cada apertura, viajan con el
   control en un campo oculto sin otro postback y se descartan al resolver el paso) +
@@ -286,6 +292,49 @@ diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de e
   `SessionHelper.Logout()` (D-21, AUD-33). Logout no tiene control de paso
   (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
   también al forzarse y al reconstruir el estado.
+
+## Mensajes del MES (spec 017)
+
+Reglas: `docs/domain.md` → "Qué cuenta como intento" → "Mensajes del MES".
+
+- **Catálogo en la BLL** (`BLL/Training/MesMessage.cs`): `MesMessageId` (el M-n de la spec;
+  solo lo que el simulador puede mostrar), número, plantilla en inglés con marcadores
+  (`{param}`, `{value}`, `{sfc}`, `{list}`, `{n}`, `{m}`) y superficie. `Format` arma el texto
+  con "(Message n)" al final; `MesMessage.Error(id, args)` devuelve el `MesError` (id, texto,
+  superficie). La BLL elige el mensaje; la página nunca lo decide.
+- **Dónde viaja:** `PodCommandResult.MesErrors` (lista: solo M-7 trae varios, uno por pieza),
+  `AssemblySubmitResult.MesError`, `DataCollectionSubmitResult.MesError` y, para el Split,
+  `SFCSplitRequestedEventArgs.MesError`. El formato del Split (Qty como decimal) y del barcode
+  de Assembly lo decide `PodService`, no el control.
+- **Fuera de turno:** `PodService.OutOfSequence` arma el estado con `MesSequenceState.Build`
+  (función pura: pasos sin resolver, SFC iniciado y seleccionado, "No" del LC de apertura
+  sacado de los intentos para que sobreviva a la reconstrucción D-10, DC pendiente por pieza
+  solo para Complete) y `MesSequenceRule.For` devuelve el mensaje. Con `RecordAttempt` el
+  intento se registra igual que antes; con `Notice` el mensaje reemplaza "Ese no es el paso
+  actual."; con `Ignore` (Guided) no se calcula.
+- **Superficies (página y controles):**
+  - **B, banner del POD:** `#podMesError` en `GuidedTest.aspx`, una fila por mensaje, lo
+    llena `podShowMesErrors` (`Training.Master`, en el head para los scripts de arranque)
+    desde el servidor (`ShowMesErrors`) o desde un chequeo del cliente (DC/Split sin fila,
+    escaneo de Start ajeno). Sin auto-hide: un postback o elegir una fila lo quitan. Oculta el
+    banner de éxito. Ancla `pod-mes-error`.
+  - **F, franja de ventana:** Assemble Components (`#asmMesError`, la llena el JS del control:
+    escaneo en el cliente o `ShowMesError` tras el Add), Data Collection Entry
+    (`PnlDcMesError`). Anclas `asm-mes-error` y `dc-mes-error`.
+  - **S, SFC Split:** `PnlSplitMesError` reemplaza el formulario; su OK cierra el modal en el
+    cliente. Ancla `split-mes-error`. Los `Panel.Visible` de F y S se reponen en el
+    `Page_Load` del control (persisten en ViewState).
+  - Los chequeos del cliente toman el texto del catálogo renderizado por el servidor
+    (`*MesErrorJs`, con `JavaScriptStringEncode`), sin copias en el JS.
+- **Explicaciones en español:** `Pages/Training/Guide/MesErrorNotes` (presentación, textos de
+  D-114). La página anota el primer mensaje del servidor del request (`NoteMesError`); en
+  Guided, `GuideMoment.WithMesError` y `GuideScriptBuilder.AddMesErrorNote` insertan una nota
+  Info sobre su ancla justo antes de la entrada del paso (la del Split espera el clic en su
+  OK); en Práctica libre, Ver pista la muestra como último fallo, junto al texto del intento.
+  Los mensajes de los chequeos del cliente usan `podNoteMesError` (`Training.Master`) con
+  `window.podMesNotes`, que la página llena solo con lo que el modo recibe: en Guided la nota
+  entra con `PodGuide.note` (antes del subpaso en curso); en Práctica libre, en
+  `podPractice.failure`. Assessment no recibe ni notas ni la barra de práctica.
 
 ## Modos de sesión y Práctica libre (spec 012)
 

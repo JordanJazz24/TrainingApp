@@ -148,6 +148,10 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 - **Guía visual de Guided** (spec 010): solo presentación, no decide el flujo ni guarda
   estado; Assessment no recibe ni el motor ni el guion. Toda pantalla o control nuevo del POD
   necesita sus anclas `data-guide` (nunca ids) y su guion en `GuideScriptBuilder`.
+- **Errores del MES** (spec 017): salen del catálogo `MesMessage` de la BLL, que también
+  elige cuál aplica; la página y los controles solo los pintan (banner, franja o el mensaje
+  del Split), sin cambiar qué cuenta como intento. Sus explicaciones en español son
+  presentación (`MesErrorNotes`).
 
 **Código**
 - Nullable: `<Nullable>enable</Nullable>` en el csproj cuando sea posible, o comentarios de

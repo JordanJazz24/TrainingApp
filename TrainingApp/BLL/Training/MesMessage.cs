@@ -6,7 +6,8 @@ using System.Text.RegularExpressions;
 namespace TrainingApp.BLL.Training
 {
     // Mensajes de error del MES real (spec 017, tabla "Catálogo de mensajes"). El número del
-    // enum es el M-n de la spec; M-10 (19973) y M-18 (12901) quedaron fuera (D-118).
+    // enum es el M-n de la spec. Solo los que el simulador puede mostrar: M-10 (19973) y M-18
+    // (12901) quedaron fuera (D-118) y M-17 (18117) también (D-120).
     public enum MesMessageId
     {
         ResourceSetupMissing   = 1,   // M-1 · provisional (C-10, D-111)
@@ -23,8 +24,7 @@ namespace TrainingApp.BLL.Training
         ValueBelowLowerLimit   = 13,  // M-13 · 15232
         SplitQtyMissing        = 14,  // M-14 · 13875
         SplitQtyAboveAvailable = 15,  // M-15 · 13885
-        SplitQtyNotPositive    = 16,  // M-16 · 13213
-        NoNcCodesLogged        = 17   // M-17 · 18117
+        SplitQtyNotPositive    = 16   // M-16 · 13213
     }
 
     // Dónde lo pinta el MES (spec 017, "Medidas de las superficies"). Nunca es un popup.
@@ -85,8 +85,7 @@ namespace TrainingApp.BLL.Training
             new MesMessage(MesMessageId.SplitQtyAboveAvailable, 13885,
                 "Requested qty to split {n} is greater than the available SFC qty {m}", MesSurface.SplitForm),
             new MesMessage(MesMessageId.SplitQtyNotPositive, 13213,
-                "Quantity must be greater than 0", MesSurface.SplitForm),
-            new MesMessage(MesMessageId.NoNcCodesLogged, 18117, "No NC codes logged", MesSurface.WindowStrip)
+                "Quantity must be greater than 0", MesSurface.SplitForm)
         }.ToDictionary(m => m.Id);
 
         private MesMessage(MesMessageId id, int? number, string template, MesSurface surface)

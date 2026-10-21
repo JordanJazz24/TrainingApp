@@ -134,6 +134,7 @@
     <Compile Include="MesLoginRuleTests.cs" />
     <Compile Include="MesMessageTests.cs" />
     <Compile Include="MesSequenceRuleTests.cs" />
+    <Compile Include="MesErrorNotesTests.cs" />
     <Compile Include="GuideScriptReader.cs" />
     <Compile Include="UserAdminServiceTests.cs" />
   </ItemGroup>

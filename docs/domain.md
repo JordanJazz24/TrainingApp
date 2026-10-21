@@ -88,6 +88,10 @@ Apertura
                       sin validar contra catálogo. Se califica por SECUENCIA y por
                       Setup State = "Set Up" (guardar en "Open" es intento fallido); los
                       recursos capturados no se califican, salvo los precargados.
+                      · Setup Type (spec 017, D-94, D-99): cada fila de herramienta puede ser
+                        Tool Number o Material, los dos valen en todos los modos; la fila de
+                        la orden tiene que ser Shop Order, como formato (D-107). La guía
+                        enseña Tool Number.
                       · Equipos precargados (spec 015): el control abre con una Shop Order
                         y 2 herramientas "del turno anterior", que genera la BLL en cada
                         apertura. Guardar con alguno en la tabla (por valor, también
@@ -188,7 +192,8 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
   como intento. Toda *decisión* del operador (Sí/No, Setup State, código NC, valores de DC,
   elegir la fila en Log NC y Complete) se envía siempre al servidor y la califica
   `StepValidator`. Nunca rechazar una decisión en el control ni revelar la respuesta correcta
-  en Assessment (el mensaje solo muestra los intentos restantes). Excepción: en Data
+  en Assessment (el mensaje solo muestra los intentos restantes, más el mensaje real del MES
+  si lo hay: ver "Mensajes del MES"). Excepción: en Data
   Collection un campo vacío sí es intento fallido, salvo el nombre opcional del grupo
   Trainer (`PersonName`, spec 015).
 - **Precargado antes que formato** (spec 015, D-26): si la tabla de Resource Setup trae
@@ -203,12 +208,16 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
   los que no aplican al área y las acciones del MES sin lógica (Work Instructions, Reports,
   Place Back in Queue, Tool List, las opciones de relleno de Activities). Un click en un
   botón que no es el del paso actual es un intento fallido **del paso actual**, con el mismo
-  mensaje genérico (no revela que fue de secuencia), y no abre su control. La secuencia se
-  evalúa antes que los avisos de formato. Activities → LC entra en la regla, y también el
-  ícono Logout antes del último paso (spec 015; en Guided se ignora).
+  mensaje genérico, y no abre su control. Enmendada por la spec 017 (D-98): si el MES
+  rechazaría esa acción en ese estado del POD, además se muestra su mensaje real (ver
+  "Mensajes del MES"); si no, solo el genérico. La secuencia se evalúa antes que los avisos de
+  formato. Activities → LC entra en la regla, y también el ícono Logout antes del último paso
+  (spec 015; en Guided se ignora).
 - **Secuencia en Práctica libre (spec 012, P-4 y P-5):** el botón de otro paso, el ícono
   Logout antes del último paso y el Repositorio fuera de su turno (en el Ingreso y en la
-  limpieza) muestran "Ese no es el paso actual." **sin intento** y no abren nada. Log On sin
+  limpieza) muestran "Ese no es el paso actual." **sin intento** y no abren nada; si el MES
+  tiene un mensaje para ese botón en ese estado, se muestra ese mensaje en su lugar (spec
+  017, D-101). Log On sin
   el registro de Hora a Hora es un error dentro del paso, no "otro paso": intento fallido. Los
   botones del MES sin lógica no hacen nada, sin aviso ni intento.
 - **Ingreso a MES y limpieza al salir (spec 016):** cada pantalla se califica al enviarla.
@@ -261,6 +270,29 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
   rápida: queda con el componente reemplazado; extendida: según la disposición); Complete
   forzado quita las filas del POD; Logout forzado (4.º fallo en la limpieza) cierra la sesión
   con su resumen.
+- **Mensajes del MES (spec 017):** cuando el operador provoca una situación que el MES real
+  rechaza, se muestra su mensaje, en inglés y con número, en el banner del POD o en la franja
+  de la ventana, **en los tres modos y sin cambiar la calificación** (D-92): lo que era
+  intento fallido lo sigue siendo, y lo que era formato también. Solo errores reactivos: no
+  se inyectan escenarios (D-96).
+  - **Formato con texto del MES** (D-103): Start sin SFC (`22506`) o con uno que no es del
+    lote (`22507`, D-106); Assemble, DC Collect y SFC Split sin fila (`12906`); barcode no
+    numérico (`17150`); Qty del Split vacía, 0 o mayor a la disponible (`13875`, `13213`,
+    `13885`). Los avisos propios del simulador (seleccionar todas las piezas, split
+    requerido…) siguen en español.
+  - **Botón de otro paso** (C-1): el mensaje sale solo si en el MES esa acción, en ese
+    estado, daría ese error. Orden de los chequeos (C-2): Resource Setup pendiente (Start,
+    texto provisional, D-111) → Line Clearance de apertura pendiente (`22501`; "status is
+    NO" si su última respuesta fue No, C-3; el LC de cierre no cuenta) → sin SFC (`22506`
+    en Start y Complete, `12906` en el resto). Sin SFC = el Start todavía no se resolvió o
+    no hay ninguna fila seleccionada. Complete con DC obligatorio pendiente da un `15246` por
+    pieza seleccionada (D-113, D-119).
+  - **Dentro del paso:** Data Collection muestra el error del primer parámetro con fallo
+    (C-6: vacío `10015`, texto en un numérico `12205`, límites `15232`/`15233`); Complete y
+    Log NC sin ninguna fila suman `22506` y `12906` a su intento fallido.
+  - **Explicación en español** (D-102): la guía de Guided pone una nota junto al mensaje y
+    Ver pista lo incluye como último fallo. Assessment no la recibe.
+  - Fuera: M-10, M-17 y M-18 no se pueden provocar en el simulador (D-118, D-120).
 - **Paso saltado (Práctica libre, spec 012, P-9):** Saltar paso e Ir a… reusan el avance
   forzado: cada paso adelantado es un intento no correcto con `Reason = Skipped` (6) y
   `Action = Practice.Skip`, que resuelve el paso y deja el POD igual que el avance forzado

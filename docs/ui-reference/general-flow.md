@@ -158,7 +158,8 @@ en un **recuadro rojo arriba**; las confirmaciones duran unos **5 segundos**.
 ```
 [Setup Type ▼]          [valor texto libre             ⧉]
 ```
-Setup Type opciones: `Shop Order`, `Tool Number`
+Setup Type opciones: `Shop Order`, `Tool Number`, `Material` (spec 017, D-94: el MES real lo
+ofrece y la evaluación práctica lo califica, EP-4b)
 
 - **⧉ copia el valor al portapapeles** para pegarlo en otra fila (confirmado por el
   usuario, 2026-09-29). No hay botón de borrar por fila: se borra con REMOVE SELECTED
@@ -192,8 +193,9 @@ Setup Type opciones: `Shop Order`, `Tool Number`
 - **Contenido libre** — no se valida Shop Order ni Tool Numbers contra catálogo
 - **El orden de las filas es libre** — no se exige que Shop Order sea la primera fila
 - **Exactamente 1 Shop Order** — ni 0 ni 2+
-- **Al menos 1 Tool Number**
-- **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 TN)
+- **Al menos 1 herramienta: Tool Number o Material** (spec 017, D-99: los dos valen; la guía
+  enseña Tool Number)
+- **Mínimo 2 filas en total** (se cumple implícitamente con 1 SO + ≥1 herramienta)
 
 **Procedimiento real (trainer de Wires, 2026-10-13):** al inicio del turno y en cada cambio
 de lote, el operador hace **Remove All** de los equipos que quedaron cargados (del turno o
@@ -219,12 +221,12 @@ el servidor.
 
 | # | Validación | Mensaje al operador |
 |---|---|---|
-| 1 | Al menos 1 fila existe | "No existen recursos creados. Agrega al menos un Shop Order y un Tool Number." |
-| 2 | Total filas ≥ 2 | "Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 Tool Number." |
+| 1 | Al menos 1 fila existe | "No existen recursos creados. Agrega al menos un Shop Order y una herramienta (Tool Number o Material)." |
+| 2 | Total filas ≥ 2 | "Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 herramienta (Tool Number o Material)." |
 | 3 | Exactamente 1 Shop Order (0 filas SO) | "Debe existir exactamente 1 fila de tipo Shop Order." |
 | 4 | Exactamente 1 Shop Order (>1 filas SO) | "Solo puede existir 1 fila de tipo Shop Order." |
 | 5 | Shop Order numérico (semilla de la orden simulada, spec 005) | "El valor de Shop Order debe ser numérico." |
-| 6 | Al menos 1 Tool Number | "Debe existir al menos 1 fila de tipo Tool Number." |
+| 6 | Al menos 1 herramienta (Tool Number o Material) | "Debe existir al menos 1 fila de tipo Tool Number o Material." |
 | 7 | Todas las filas con valor no vacío | "Todas las filas deben tener un valor. Ninguna fila puede estar vacía." |
 | 8 | Sin `<` ni `>` (ASP.NET rechaza el postback con marcado, AUD-11) | aviso de formato |
 
@@ -501,6 +503,11 @@ en planta. Hallazgos y propuestas: roadmap → "Fase 8".
 - No se valida el SFC/Shop Order contra catálogo — cualquier valor es aceptado
 - La tabla POD debe quedar con al menos una fila visible — estado vacío no es válido para continuar
 - Bifurcación por SerializationType (`docs/domain.md` → "Ejes de variación"): ver "Implementación en el simulador"
+- **Mensajes del MES** (spec 017, banner rojo del POD, sin auto-hide): Start sin SFC →
+  `SFC is missing (Message 22506)`; con un número que no es de la orden (al escanearlo o al
+  presionar Start) → `Invalid SFC (Message 22507)`. En Serialized, Start sin ninguna pieza
+  muestra el `22506` y además el aviso del simulador "Inicia la orden completa". Cuándo sale
+  cada mensaje de un botón fuera de turno: `docs/domain.md` → "Mensajes del MES".
 
 ### Implementación en el simulador (specs 005 y 008)
 - `TxtSFC` es readonly: el SFC se elige solo vía Browse Work List (spec 005).
@@ -634,6 +641,10 @@ Assemble Components                                                        (?)
   y "Qué cuenta como intento".
 - El avance vive en Session: sobrevive a Return to POD / [X] y a F5.
 - El orden de Assembly en el flujo es después de Search/Start y antes de Data Collection, pero el motor respeta `TrainingStep.Order` — puede cambiar por área
+- **Mensajes del MES** (spec 017): [Assemble] sin la fila → banner `SFC is missing (Message
+  12906)`. Un barcode no numérico → franja roja en Assemble Components `2D barcode is not
+  compliant with ISO 15434 format (Message 17150)`, y se despliegan Component Details y
+  Assembly Data vacíos con [Add] (AUD-69); ya no hay SweetAlert "Barcode inválido".
 
 ### Diferencias SAP real vs. Legacy
 | Elemento | SAP real | Legacy |
@@ -766,6 +777,11 @@ simulador: verificarlo en el ambiente de calidad de SAP MES.
   piezas ya guardados). Un grupo ya guardado por la pieza actual no se puede volver a
   guardar: su [Collect] está deshabilitado y el servidor ignora un segundo Save.
 - Save Draft no guarda nada (solo orienta al operador)
+- **Mensajes del MES** (spec 017): [DC Collect] sin la fila → banner `SFC is missing (Message
+  12906)`. Un Save incorrecto muestra, en la franja roja de Data Collection Entry, el mensaje
+  del **primer** parámetro con fallo en el orden de la pantalla (vacío `10015`, texto en un
+  numérico `12205`, bajo o sobre el límite `15232`/`15233` con el valor escrito). Un Boolean
+  en NO no tiene mensaje del MES. La franja queda hasta el siguiente Save o al cerrar.
 - El intento correcto se registra cuando la última pieza completa sus grupos obligatorios.
 - El avance vive en Session: sobrevive a Return to POD / [X] y a F5.
 
@@ -825,8 +841,13 @@ entrega 9)
                        [Split]  [Close]     ← contorno celeste, centrados
 ```
 - Formulario centrado, etiquetas en negrita a la derecha, fondo gris claro `#EBEDEF`.
-  Sin mensajes de validación bajo el campo: una cantidad vacía o fuera de rango se avisa
-  con SweetAlert (formato, sin intento).
+  Sin mensajes de validación bajo el campo. Una cantidad que el MES rechaza **reemplaza el
+  formulario** por su mensaje con [OK], y el OK cierra la ventana entera: hay que reabrir
+  SFC Split (spec 017, AUD-64). Vacía → `Define Qty to Split (Message 13875)`; 0 →
+  `Quantity must be greater than 0 (Message 13213)`; mayor a la disponible → `Requested qty
+  to split {n} is greater than the available SFC qty {m} (Message 13885)`. La Qty entera de
+  la fila o con decimales sigue como aviso del simulador (SweetAlert). Formato, sin intento.
+- [SFC Split] sin fila seleccionada → banner `SFC is missing (Message 12906)` (spec 017).
 - La confirmación va arriba, con el check verde y sin recuadro, con el **SFC nuevo**.
 - **El split crea un SFC nuevo de la misma Shop Order**, como el real (enmienda 2026-10-01
   de la spec 005): mismo prefijo que el SFC del lote y 4 dígitos finales nuevos que no se
@@ -910,6 +931,9 @@ El campo SFC en la search bar queda vacío tras el scrap.
 - **Calificación** (pieza y código del hallazgo, Add-Done, filas, formato): `docs/domain.md`
   → "Qué cuenta como intento" → "Log NC".
 - SFC Split solo para NonSerialized — Serialized selecciona directamente del POD
+- **Mensajes del MES** (spec 017): [Log NC] sin ninguna fila → banner `SFC is missing
+  (Message 12906)`, además del intento fallido. Done sin NC Code (`18117`) no se puede
+  provocar: NC Data Entry se abre siempre con un código (D-120).
 - NC Code requerido; Component solo con código de reparación (requerido en la rápida); Comments opcional, salvo con un código que lo exige (`F_FX_GENERAL`)
 - NC Codes desde catálogo BD por área — no hardcodeados
 - **NonSerialized:** una fila, creada por el SFC Split. **Serialized:** el MES permite

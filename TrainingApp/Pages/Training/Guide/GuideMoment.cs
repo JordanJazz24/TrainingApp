@@ -1,3 +1,4 @@
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
 namespace TrainingApp.Pages.Training.Guide
@@ -16,12 +17,22 @@ namespace TrainingApp.Pages.Training.Guide
     // los handlers y GuideScriptBuilder lo usa para elegir el subpaso de entrada.
     public sealed class GuideMoment
     {
-        private GuideMoment(GuideMomentKind kind, TrainingStep step, string detail = null)
+        private GuideMoment(GuideMomentKind kind, TrainingStep step, string detail = null,
+            MesMessageId? mesError = null)
         {
-            Kind   = kind;
-            Step   = step;
-            Detail = detail;
+            Kind     = kind;
+            Step     = step;
+            Detail   = detail;
+            MesError = mesError;
         }
+
+        // Mensaje del MES que la página mostró en este request (spec 017, D-102): la guía pone
+        // su nota en español junto a la superficie antes de la entrada. null si no hubo.
+        public MesMessageId? MesError { get; }
+
+        // El mismo momento con el mensaje del MES que la página mostró.
+        public GuideMoment WithMesError(MesMessageId id)
+            => new GuideMoment(Kind, Step, Detail, id);
 
         public GuideMomentKind Kind { get; }
 

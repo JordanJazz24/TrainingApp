@@ -198,6 +198,7 @@
             '<td><select class="rs-select rs-type" data-guide="rs-row-type">' +
                 '<option value="Shop Order">Shop Order</option>' +
                 '<option value="Tool Number">Tool Number</option>' +
+                '<option value="Material">Material</option>' +
             '</select></td>' +
             '<td><span class="mes-field mes-field-copy rs-value-box">' +
                 '<input type="text" class="rs-value" data-guide="rs-row-value" />' +
@@ -288,14 +289,14 @@
         // 2. At least one row exists
         if (rows.length === 0) {
             rsShowError('Sin recursos',
-                'No existen recursos creados. Agrega al menos un Shop Order y un Tool Number.');
+                'No existen recursos creados. Agrega al menos un Shop Order y una herramienta (Tool Number o Material).');
             return false;
         }
 
         // 3. At least 2 rows
         if (rows.length < 2) {
             rsShowError('Recursos insuficientes',
-                'Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 Tool Number.');
+                'Se requieren mínimo 2 recursos: 1 Shop Order y al menos 1 herramienta (Tool Number o Material).');
             return false;
         }
 
@@ -319,11 +320,11 @@
             return false;
         }
 
-        // 5. At least 1 Tool Number
-        var toolNumbers = rows.filter(function(r) { return r.type === 'Tool Number'; });
-        if (toolNumbers.length === 0) {
-            rsShowError('Tool Number requerido',
-                'Debe existir al menos 1 fila de tipo Tool Number.');
+        // 5. At least 1 tool: Tool Number o Material, los dos valen (spec 017, D-94, D-99)
+        var tools = rows.filter(function(r) { return r.type === 'Tool Number' || r.type === 'Material'; });
+        if (tools.length === 0) {
+            rsShowError('Herramienta requerida',
+                'Debe existir al menos 1 fila de tipo Tool Number o Material.');
             return false;
         }
 

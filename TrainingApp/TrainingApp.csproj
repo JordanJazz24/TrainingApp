@@ -300,6 +300,7 @@
     <Compile Include="Pages\Training\SessionPodStateStore.cs" />
     <Compile Include="Pages\Training\Guide\GuideMoment.cs" />
     <Compile Include="Pages\Training\Guide\GuideScriptBuilder.cs" />
+    <Compile Include="Pages\Training\Guide\MesErrorNotes.cs" />
     <Compile Include="Pages\Training\Guide\GuideSubstep.cs" />
     <Compile Include="UI\master\AntiXsrfMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>

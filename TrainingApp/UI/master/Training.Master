@@ -68,6 +68,16 @@
         if (success && texts.length) success.style.display = 'none';
     }
 
+    // Explicación de un mensaje del MES que mostró un chequeo del cliente (spec 017, D-102):
+    // en Guided, la nota de la guía; en Práctica libre, el último fallo de Ver pista. La página
+    // deja en window.podMesNotes solo lo que el modo recibe (Assessment, nada).
+    function podNoteMesError(id) {
+        var n = window.podMesNotes && window.podMesNotes[id];
+        if (!n) return;
+        if (n.html && window.PodGuide && window.PodGuide.note) window.PodGuide.note(n.anchor, n.html);
+        if (n.plain && window.podPractice) window.podPractice.failure = n.text + ' — ' + n.plain;
+    }
+
     // [↗] de la barra de título estándar de los modales del MES: maximiza o restaura
     // el modal. Es estado de cliente; un postback lo devuelve a su tamaño normal.
     function mesToggleMaximize(btn) {

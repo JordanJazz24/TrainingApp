@@ -266,6 +266,7 @@ function asmScan() {
     if (!v) { asmShowError(null); asmShowScanned(false); return; }
     if (!asmBarcodeIsValid()) {
         asmShowRejected('<%= BarcodeMesErrorJs %>');
+        podNoteMesError('BarcodeNotCompliant');
         return;
     }
     asmShowError(null);
@@ -291,6 +292,7 @@ function asmShowScanned(scanned) {
 function assembleValidate() {
     if (!asmBarcodeIsValid()) {
         asmShowRejected('<%= BarcodeMesErrorJs %>');
+        podNoteMesError('BarcodeNotCompliant');
         return false;
     }
     return true;

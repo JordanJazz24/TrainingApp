@@ -133,6 +133,10 @@ distinto) · ❌ no existe · 🧠 comprensión (no se ejecuta en el POD).
   **REMOVE ALL + Save → Insert New**; el simulador acepta también Remove Selected y no pide
   el Save intermedio. (b) Se evalúa elegir bien el **Setup Type**, con una opción
   **Material** que el simulador no tiene, y el tipo no se califica (solo es formato).
+  *(Enmienda 2026-10-21, spec 017: (b) cubierta: el Setup Type ofrece Material, que vale
+  como Tool Number para las herramientas en los tres modos (D-94, D-99); la fila de la orden
+  sigue siendo Shop Order por formato (D-107). (a) queda como brecha documentada: el
+  procedimiento de Resource Setup no cambia (D-100).)*
 - **EP-5 · Errores que la evaluación pide reconocer y el simulador no muestra:** SFC ya
   iniciado en otro recurso (Start); componente no requerido, material sensible al tiempo
   expirado, batch inválido y cantidad insuficiente (Assembly); alertas de parámetros fuera
@@ -144,6 +148,16 @@ distinto) · ❌ no existe · 🧠 comprensión (no se ejecuta en el POD).
   grupo, inexistente), pero el simulador modela el Standard. Siguen sin texto: SFC iniciado
   en otro recurso, herramienta en otro recurso y expirada, y material expirado. Catálogo por
   paso en `errores-mes.md`.)*
+  *(Enmienda 2026-10-21, spec 017: el simulador muestra el mensaje real del MES, en inglés y
+  con número, en los errores que el operador **puede provocar**: Start sin SFC o con uno
+  inexistente, botones fuera de turno según el estado del POD (Resource Setup, Line
+  Clearance de apertura, sin SFC, DC obligatorio pendiente), barcode no numérico, DC vacío,
+  con texto en un numérico o fuera de límites (`15232`/`15233`), y la cantidad del SFC Split.
+  Sin cambiar la calificación (D-92), en los tres modos, con explicación en español en
+  Guided y Ver pista. **Quedan fuera** los que el operador no puede provocar, para una spec de
+  escenarios inyectados si se piden: batch inválido y cantidad insuficiente (`22801`), material
+  sensible al tiempo expirado y SFC iniciado en otro recurso (D-96); el componente no
+  requerido (`13252`), porque el barcode no se valida contra el BOM (D-97).)*
 - **EP-6 · W13 vuelve a tener respaldo.** La evaluación pide verificar Inventory SFC, Batch
   Number o Material Document Number según el material. Es una de las condiciones para
   retomar W13 que puso la enmienda 6 de la spec 014. Tendría valor solo si se califica (por

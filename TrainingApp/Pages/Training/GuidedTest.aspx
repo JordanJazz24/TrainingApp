@@ -594,6 +594,7 @@
         var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) {
             podShowMesErrors(['<%= SfcMissingMesErrorJs %>']);
+            podNoteMesError('SfcMissing');
             return false;
         }
         return true;
@@ -604,6 +605,7 @@
         var hfRow = document.getElementById('<%= HfSelectedRowIds.ClientID %>');
         if (!hfRow || !hfRow.value) {
             podShowMesErrors(['<%= SfcMissingMesErrorJs %>']);
+            podNoteMesError('SfcMissing');
             return false;
         }
         return true;
@@ -703,6 +705,7 @@
                 selectForNextScan(txt);
             }
             podShowMesErrors(['<%= InvalidSfcMesErrorJs %>']);
+            podNoteMesError('InvalidSfc');
             return false;
         }
         // Un escaneo válido es la acción siguiente: el error anterior ya no aplica.

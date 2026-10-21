@@ -618,6 +618,23 @@
                 if (s.hide && el.matches(s.anchor)) return true;
             }
             return false;
+        },
+
+        // Spec 017 (D-102): un mensaje del MES que mostró un chequeo del cliente (sin postback).
+        // La nota en español, sobre su superficie, va antes del subpaso en curso y "Continuar"
+        // vuelve a él. Otro mensaje con la nota todavía en pantalla la reemplaza. El texto llega
+        // ya codificado del servidor (MesErrorNotes).
+        note: function (anchorName, html) {
+            if (state === 'idle' || state === 'done') return;
+            var s = current();
+            if (!s) return;
+            var note = {
+                key: s.key + ':mes-error', anchor: '[data-guide="' + anchorName + '"]', mode: 'info',
+                html: html, step: s.step, index: s.index, total: s.total, free: s.free
+            };
+            if (s.mesNote) substeps[idx] = Object.assign(note, { key: s.key, mesNote: true });
+            else substeps.splice(idx, 0, Object.assign(note, { mesNote: true }));
+            goTo(idx);
         }
     };
 })();

@@ -37,8 +37,7 @@ namespace TrainingApp.Test
             new object[] { MesMessageId.SplitQtyMissing, NoArgs, "Define Qty to Split (Message 13875)" },
             new object[] { MesMessageId.SplitQtyAboveAvailable, new[] { ("n", "30"), ("m", "20") },
                 "Requested qty to split 30 is greater than the available SFC qty 20 (Message 13885)" },
-            new object[] { MesMessageId.SplitQtyNotPositive, NoArgs, "Quantity must be greater than 0 (Message 13213)" },
-            new object[] { MesMessageId.NoNcCodesLogged, NoArgs, "No NC codes logged (Message 18117)" }
+            new object[] { MesMessageId.SplitQtyNotPositive, NoArgs, "Quantity must be greater than 0 (Message 13213)" }
         };
 
         [TestCaseSource(nameof(Cases))]
@@ -63,14 +62,15 @@ namespace TrainingApp.Test
                 Is.EqualTo("Resource Setup has not been done, please perform Resource Setup"));
         }
 
-        // M-1 a M-17 sin M-10 (D-118), cada uno con su id.
+        // M-1 a M-16 sin M-10 (D-118); M-17 y M-18 tampoco (D-120, D-118): solo lo que el
+        // simulador puede mostrar, cada uno con su id.
         [Test]
-        public void Catalog_HasEveryMessageOfTheSpecButM10()
+        public void Catalog_HasEveryMessageTheSimulatorCanShow()
         {
             var ids = MesMessage.All.Select(m => (int)m.Id).OrderBy(n => n).ToArray();
 
-            Assert.That(ids, Is.EqualTo(Enumerable.Range(1, 17).Where(n => n != 10).ToArray()));
-            Assert.That(Enum.GetValues(typeof(MesMessageId)).Length, Is.EqualTo(16));
+            Assert.That(ids, Is.EqualTo(Enumerable.Range(1, 16).Where(n => n != 10).ToArray()));
+            Assert.That(Enum.GetValues(typeof(MesMessageId)).Length, Is.EqualTo(15));
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace TrainingApp.Test
 
                 foreach (var id in new[] { MesMessageId.BarcodeNotCompliant, MesMessageId.RequiredValueMissing,
                     MesMessageId.FieldMustBeNumber, MesMessageId.ValueAboveUpperLimit,
-                    MesMessageId.ValueBelowLowerLimit, MesMessageId.NoNcCodesLogged })
+                    MesMessageId.ValueBelowLowerLimit })
                     Assert.That(MesMessage.Get(id).Surface, Is.EqualTo(MesSurface.WindowStrip), id.ToString());
 
                 foreach (var id in new[] { MesMessageId.SplitQtyMissing, MesMessageId.SplitQtyAboveAvailable,
