@@ -174,6 +174,33 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
 
 ## Roles, login y gestión de usuarios (spec 013; login único, spec 016)
 
+Las invariantes (cuenta `User`, roles excluyentes, `AccessPolicy`) están en `CLAUDE.md` →
+"Auth"; aquí, el flujo y cómo está implementado (movido desde `CLAUDE.md` el 2026-10-21: las
+referencias `CLAUDE.md → "Auth Flow"` de specs, auditorías e historial apuntan aquí).
+
+**Flujo del login** (`AuthService`, `Pages/Auth/Login.aspx`, el `loginUrl` de Forms; el
+diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de entrenamiento):
+1. `AuthService` busca el `code1` en la lista de empleados de la API (`EmployeeRepository`,
+   ver "API de empleados"). Si no existe → "Código de empleado no registrado".
+   **Autorregistro** (siempre como Operator): cualquier empleado de la lista activa su
+   cuenta. **Alta por un admin**: Gestión de usuarios crea la cuenta con su rol y la
+   contraseña por defecto. El primer admin, por `Database/Ops/CreateAdmin.sql`.
+2. Sin `User` local (primer acceso): la contraseña debe ser `Constants.DEFAULT_PASSWORD` → se
+   crea el `User` con `IsFirstLogin = true` → cambio de contraseña. Con `User`: primero el
+   **bloqueo** y después `PasswordHash` (PBKDF2).
+3. **Bloqueo** (`LoginLockPolicy`): 5 fallos seguidos bloquean la cuenta 15 minutos; se
+   desbloquea sola al vencer, antes por un admin o con un reset. El contador vuelve a 0 al
+   bloquear o con un login correcto. El primer acceso sin `User` no cuenta fallos.
+4. `AuthService.ChangePassword` (`Pages/Auth/ChangePassword.aspx`, la misma pantalla para los
+   dos roles) pide **siempre** la contraseña actual (en el primer acceso o tras un reset, la
+   por defecto; D-3) y la nueva no puede ser la por defecto → se guarda hasheada e
+   `IsFirstLogin = false`.
+5. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
+   `SessionHelper.SetUserSession` → el inicio del rol (`SessionHelper.HomeUrl`). Mientras
+   `IsFirstLogin`, las páginas del rol redirigen al cambio de contraseña (AUD-08). El usuario
+   ve su **último acceso anterior** ("Primer acceso" si no hay): si no fue él, avisa al
+   trainer (única detección del reclamo de cuenta ajena, D-20).
+
 - **Rol en cada request:** `Global.Application_PostAuthenticateRequest` arma un
   `UserPrincipal` con el rol de `RoleCache` (2 min; un borrado o `CreateAdmin.sql` se ve al
   vencer, o al instante si lo hizo este proceso). No usa la Session: la autorización por
@@ -188,7 +215,10 @@ App Pool, pero la cookie de Forms Authentication sobrevive: sin re-hidratar,
   `spUserLoginSucceeded` no quita un bloqueo vigente (devuelve 0 y la BLL responde
   `Locked`). Las fechas se guardan en UTC y se muestran en la hora de planta
   (`Central America Standard Time`, `SessionHelper.ToLocal`).
-- **Gestión de usuarios:** `UserAdminService` recibe el Id del admin autenticado y lo
+- **Gestión de usuarios** (`Pages/Admin/Users.aspx`): lista paginada con búsqueda, crear,
+  resetear contraseña (vuelve a la por defecto y desbloquea), desbloquear y borrar (borra la
+  cuenta y su historial; nadie se borra a sí mismo). El rol de una cuenta existente no se
+  cambia desde la UI (enmienda de la spec 013). `UserAdminService` recibe el Id del admin autenticado y lo
   verifica antes de tocar nada (`UnauthorizedAccessException` si no es admin; la página
   manda al inicio). `spUserDelete` borra intentos, sesiones y usuario en una transacción,
   bajo un lock de aplicación, y vuelve a verificar que quien borra sigue siendo admin y no se
@@ -386,7 +416,8 @@ Reemplaza el `THROW 50014` de antes. Cambiar solo los pesos actualiza la guía e
 
 Decisiones cerradas: no reabrir sin spec.
 
-- **Controles estáticos (spec 006).** Los 8 controles están declarados en `GuidedTest.aspx`
+- **Controles estáticos (spec 006).** Los 8 controles de paso (más `MesLoginControl`, ver la
+  excepción al final de este punto) están declarados en `GuidedTest.aspx`
   y se alterna `Visible`. Prohibido volver a `LoadControl` dinámico: generó cuatro bugs de
   ViewState en una sola sesión. Confirmado con negocio: los admins no crean tipos de paso
   desde la UI y un `StepType` no tiene UIs distintas por Area. Un `StepType` nuevo = `.ascx`

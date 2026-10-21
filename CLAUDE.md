@@ -15,12 +15,12 @@ Este archivo tiene solo **reglas vigentes**. El historial (qué se cerró y cuá
 | Qué | Dónde | Cuándo leerlo |
 |---|---|---|
 | Reglas de trabajo, arquitectura, convenciones y comandos | este archivo | siempre |
-| Reglas de negocio del dominio: jerarquía, ejes de variación, flujo estándar, modos, qué cuenta como intento, pesos, catálogos | `docs/domain.md` | antes de tocar `Domain/`, `BLL/Scoring`, `BLL/Training`, controles de paso o scripts de catálogo y guía |
+| Reglas de negocio del dominio: jerarquía, ejes de variación, flujo estándar, modos, qué cuenta como intento, pesos, catálogos | `docs/domain.md` (cerradas con negocio: no re-derivarlas del legacy ni asumir variantes) | antes de tocar `Domain/`, `BLL/Scoring`, `BLL/Training`, controles de paso o scripts de catálogo y guía |
 | **Dónde quedamos**: fase actual y siguiente, pendientes, deuda, estado de la BD del usuario y auditorías | `docs/status.md` | al iniciar cada sesión |
 | Fases, su alcance ("No incluye"), planes, revisiones con negocio y orden de tareas | `docs/roadmap.md` | al planificar o ante una duda de alcance |
 | Qué se cerró, cuándo y cómo | `docs/history.md` | al buscar el origen de algo ya cerrado |
 | Proceso de trabajo: spec o plan directo, entregas, verificación, `/code-review` calibrado, auditorías, commits, ramas y worktrees, scripts de BD, fidelidad de pantallas | `docs/process.md` | antes de proponer o empezar trabajo |
-| Mecanismos y decisiones de diseño: árbol del código, motor del POD, controles de paso, guía de Guided, Session y caché de empleados | `docs/architecture.md` | antes de tocar `GuidedTest`, controles, `BLL/Training` o auth |
+| Mecanismos y decisiones de diseño: árbol del código, login y roles, motor del POD, controles de paso, guía de Guided, Session y caché de empleados | `docs/architecture.md` | antes de tocar `GuidedTest`, controles, `BLL/Training` o auth |
 | Términos MES (SFC, LC, Shop Order, POD…) | `docs/glossary.md` | ante un término desconocido |
 | Cómo se ve y se opera cada pantalla del MES real | `docs/ui-reference/` (`general-flow.md`, un archivo por área, `inventario-pantallas.md`) | antes de tocar UI |
 | Specs y planes por entregas | `docs/specs/` | al trabajar en esa spec |
@@ -44,14 +44,10 @@ actualiza en cada cierre: `docs/process.md` → "Documentación".
 
 ## Legacy
 
-- `/MES Simulator Legacy` es la aplicación anterior y
-  `/MES Simulator Legacy/CLAUDE_Legacy_Reference.md` es solo referencia funcional y de
-  dominio: sirve para entender flujos, reglas del tutorial guiado, pantallas, pasos y datos
-  migrables. No se actualiza ni es la arquitectura destino.
-- No copiar sus patrones: `[WebMethod]` para lógica de negocio, `DataSet` como modelo de
-  dominio, `sessionStorage` como estado global ni lógica de negocio en code-behind.
-- Si una sección del tutorial se reutiliza tal cual, documentarlo explícitamente. Si cambia
-  de parámetros o de reglas, modelarla de nuevo en el dominio.
+`/MES Simulator Legacy` (y su `CLAUDE_Legacy_Reference.md`) es la aplicación anterior: solo
+referencia funcional (flujos, pantallas, datos migrables). No se actualiza ni se copian sus
+patrones (`[WebMethod]`, `DataSet`, `sessionStorage`, lógica en code-behind). Una sección del
+tutorial que se reutiliza tal cual se documenta; si cambia, se modela de nuevo en el dominio.
 
 ## Arquitectura objetivo y seguridad
 
@@ -65,33 +61,13 @@ actualiza en cada cierre: `docs/process.md` → "Documentación".
 - Contraseñas con **PBKDF2** (`Rfc2898DeriveBytes`, en `Shared/PasswordHelper.cs`), nunca en
   texto plano. Definitivo: reemplaza cualquier mención previa de SHA256+salt o BCrypt.
 
-## Reglas de Negocio del Dominio
-
-Cerradas con negocio: jerarquía Product → Area, ejes de variación, flujo estándar de una
-guía, modos de sesión, qué cuenta como intento, pesos de los pasos y catálogos en BD. Viven
-en `docs/domain.md`, la fuente de verdad para `Domain/`, `BLL/Scoring/`, `BLL/Training/` y
-los stored procedures de catálogo. Leerlo antes de tocar cualquiera de ellos, un control de
-paso o un script de guía; no re-derivar las reglas del legacy ni asumir variantes sin
-confirmar.
-
 ## Arquitectura: N-Tier
 
-```
-TrainingApp/                  Web Forms (.NET FW 4.7.2)
-  Pages/                      code-behind: Auth/ (login único), Admin/ (módulo administrativo),
-                              Training/ (POD, guía de Guided, modelos de UI)
-  UI/Controls/Training/       un UserControl por tipo de paso
-  UI/master/                  MasterPages (heredan AntiXsrfMasterPage), pod.css, pod-guide.js
-  BLL/  Auth/ Admin/ Training/ Scoring/
-  DAL/  Infrastructure/ Repositories/   (un repositorio por tabla)
-  Domain/                     POCOs puros
-  Shared/                     Constants.cs, PasswordHelper.cs
-TrainingApp.Test/             NUnit 4: reglas de la BLL con datos en memoria
-Database/StoredProcedures/    00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
-Database/Ops/                 scripts manuales: primer admin, reset de contraseña
-```
-
-Árbol completo con la responsabilidad de cada archivo: `docs/architecture.md`.
+`TrainingApp/` (Web Forms): `Pages/` (Auth, Admin, Training) · `UI/Controls/Training/` (un
+UserControl por tipo de paso) · `BLL/` (Auth, Admin, Training, Scoring) · `DAL/` (un
+repositorio por tabla) · `Domain/` · `Shared/`. `TrainingApp.Test/` (NUnit 4) y `Database/`
+(`StoredProcedures/` 00-09, `Ops/`). Árbol con la responsabilidad de cada archivo:
+`docs/architecture.md`.
 
 **Regla de dependencias:** Pages → BLL → DAL → Domain. Ninguna capa referencia hacia arriba;
 el code-behind nunca llama al DAL.
@@ -104,50 +80,21 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 - Las relaciones situacionales (ej. `TrainingSession` + sus `TrainingSessionStepAttempt`)
   **no** se exponen como colección: la BLL pide cada repositorio y compone el resultado.
 
-## Auth Flow
+## Auth
 
-La cuenta local es `User` (tabla `Users`), nunca `Operator`: "operador" es la persona en la
-línea del MES y uno de los dos roles (D-17).
-
-**Roles (spec 013), excluyentes:** `Users.Role` = **Operator** (entrena) o **Administrator**
-(administra usuarios y **no** entrena). Qué puede cada rol vive en un solo lugar,
-`AccessPolicy` (`CanTrain`, `CanManageUsers`): las páginas y los servicios preguntan por la
-capacidad, nunca por el nombre del rol. El rol de cada request lo arma `Global.asax`
-(`Application_PostAuthenticateRequest` → `UserPrincipal`, con `RoleCache` de 2 min); con él
-`Web.config` protege `Pages/Admin` (solo Administrator) y `Pages/Training` (solo Operator), y
-las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va a su inicio
-(`SessionHelper.RedirectHome`), nunca al login.
-
-1. **Un solo login, neutro** (spec 016, D-62): `Pages/Auth/Login.aspx` (el `loginUrl` de
-   Forms) y una sola pantalla de cambio de contraseña (`Pages/Auth/ChangePassword.aspx`),
-   con `Admin.Master`, para los dos roles. Cada rol va a su inicio
-   (`SessionHelper.HomeUrl`). El diseño de SAP NetWeaver es del login de MES simulado,
-   dentro de la sesión de entrenamiento.
-2. `AuthService` busca el `code1` en la lista de empleados de la API (`EmployeeRepository`,
-   en memoria; caché y fallos: `docs/architecture.md`). Si no existe → "Código de empleado
-   no registrado". **Autorregistro** (siempre como Operator): cualquier
-   empleado de la lista activa su cuenta. **Alta por un admin**: Gestión de usuarios crea la
-   cuenta con su rol y la contraseña por defecto. El primer admin, por
-   `Database/Ops/CreateAdmin.sql`.
-3. Sin `User` local (primer acceso): la contraseña debe ser `Constants.DEFAULT_PASSWORD`
-   → se crea el `User` con `IsFirstLogin = true` → cambio de contraseña. Con `User`: primero
-   el **bloqueo** y después `PasswordHash` (PBKDF2).
-4. **Bloqueo** (`LoginLockPolicy`): 5 fallos seguidos bloquean la cuenta 15 minutos; se
-   desbloquea sola al vencer, antes por un admin o con un reset. El contador vuelve a 0 al
-   bloquear o con un login correcto. El primer acceso sin `User` no cuenta fallos.
-5. `AuthService.ChangePassword` pide **siempre** la contraseña actual (en el primer acceso o
-   tras un reset, la por defecto) y la nueva no puede ser la por defecto → se guarda hasheada
-   e `IsFirstLogin = false`, en la pantalla única de los dos roles.
-6. Login exitoso → `FormsAuthentication.SetAuthCookie(code1)` +
-   `SessionHelper.SetUserSession`. Mientras `IsFirstLogin`, las páginas del rol redirigen al
-   cambio de contraseña (AUD-08). El usuario ve su **último acceso anterior** ("Primer
-   acceso" si no hay): si no fue él, avisa al trainer (única detección del reclamo de cuenta
-   ajena, D-20).
-7. **Gestión de usuarios** (`Pages/Admin/Users.aspx`, `UserAdminService`): lista paginada con
-   búsqueda, crear, resetear contraseña (vuelve a la por defecto y desbloquea), desbloquear y
-   borrar (borra la cuenta y su historial; nadie se borra a sí mismo). El rol de una cuenta
-   existente no se cambia desde la UI (enmienda de la spec 013). Cada método verifica en la
-   BLL que quien llama es admin.
+- La cuenta local es `User` (tabla `Users`), nunca `Operator`: "operador" es la persona en
+  la línea del MES y uno de los dos roles (D-17).
+- **Roles excluyentes** (spec 013): **Operator** entrena; **Administrator** administra
+  usuarios y **no** entrena. Qué puede cada rol vive solo en `AccessPolicy` (`CanTrain`,
+  `CanManageUsers`): páginas y servicios preguntan por la capacidad, nunca por el nombre del
+  rol. `Web.config` protege `Pages/Admin` y `Pages/Training` por rol y las páginas lo
+  revisan otra vez; sin la capacidad, al inicio del rol (`SessionHelper.RedirectHome`),
+  nunca al login.
+- Un solo login y un solo cambio de contraseña, neutros, para los dos roles (`Pages/Auth`,
+  D-62); el cambio pide siempre la contraseña actual (D-3). Cada método de gestión de
+  usuarios verifica en la BLL que quien llama es admin.
+- Flujo completo (autorregistro, primer acceso, bloqueo, último acceso, gestión de usuarios)
+  y rol por request: `docs/architecture.md` → "Roles, login y gestión de usuarios".
 
 ## Convenciones clave
 
@@ -241,4 +188,4 @@ las páginas lo revisan otra vez. Un usuario sin la capacidad de una página va 
 ## Skills
 
 `/scaffold` (nueva feature slice) · `/code-review` (siempre con nivel, archivos y foco:
-`docs/process.md` → "/code-review calibrado").
+`docs/process.md` → "3. `/code-review` calibrado").

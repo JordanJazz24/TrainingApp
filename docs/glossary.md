@@ -25,7 +25,7 @@
 | **Employee** | Empleado de la API de la empresa (`Constants.EmployeeApiUrl`); no se guarda en la BD. Si su `code1` está en la lista, puede activar su cuenta. |
 | **User** | Cuenta local de un Employee (tabla `Users`): se crea en su primer acceso y queda activa al cambiar la contraseña por defecto. No llamarla Operator: "operador" es la persona en la línea (D-17). |
 | **Product / Area / Operation** | Línea de manufactura / sublínea de ensamblaje / [futuro] subdivisión del Area. Jerarquía y lista oficial: `docs/domain.md` → "Jerarquía". |
-| **TrainingGuide** | Plantilla de pasos que define el flujo del operador (qué pasos, en qué orden, con qué pesos). Inmutable una vez publicada. No llamarla WorkflowDefinition. |
+| **TrainingGuide** | Plantilla de pasos que define el flujo del operador (qué pasos, en qué orden, con qué pesos). Publicada, su forma no cambia: otra forma crea una versión nueva y los pesos se actualizan en sitio (D-56, `docs/architecture.md` → "Versión de las guías"). No llamarla WorkflowDefinition. |
 | **TrainingSession** | Ejecución de una TrainingGuide por un operador: paso actual, intentos y, al terminar, el puntaje final. |
 | **Guided Test** | Nombre de la pantalla de entrenamiento (`GuidedTest.aspx`), en cualquiera de los tres modos. |
 | **SerializationType** | `Serialized` (varios SFC individuales) o `NonSerialized` (un SFC con cantidad). Reglas: `docs/domain.md` → "Ejes de variación". |
@@ -38,7 +38,7 @@
 | **eDHR / eLHR** | Registro electrónico histórico del dispositivo (producto terminado) / del lote (sub-ensamble). Lo que el MES registra queda en ellos. |
 | **Log Buyoff** | Aprobación electrónica al completar (usuario y contraseña o tarjeta, luego [Accept]) en operaciones de 50 SFC o menos por transacción. El simulador no la tiene: `ui-reference/wi-produccion-disposables.md` → W17. |
 | **Firma electrónica (eSignature)** | Firma con usuario y contraseña ("Data Collection Authentication") al completar operaciones que mueven toda la orden. |
-| **Fast scrap / Fast repair / Extended fast repair** | Métodos de Log NC, reconocibles por el prefijo del código: `F_FS` desecha la unidad, `F_FR` quita o cambia un componente (Return o Scrap), `F_FX` regresa la unidad a una operación anterior. |
+| **Fast scrap / Fast repair / Extended fast repair** | Métodos de Log NC. En el MES suelen reconocerse por el prefijo del código: `F_FS` desecha la unidad, `F_FR` quita o cambia un componente (Return o Scrap), `F_FX` regresa la unidad a una operación anterior. En el simulador el método lo define el catálogo (`NCCodes.Method`), no el prefijo: `docs/domain.md` → "Catálogos en BD". |
 | **Hold** | Retención de una Shop Order o un Process Lot (Activities → SFC Place Hold / Release Hold; Future Hold, hasta una operación). La usa Calidad. |
 | **Time-Based Assembly** | Ensamble automático de componentes al hacer Start, desde ranuras cargadas en la estación. Solo en algunas estaciones; no se simula. |
 | **Guía visual** | Overlay de Guided (Fase 6.6) que lleva al operador clic por clic. Mecanismo: `docs/architecture.md`. |
