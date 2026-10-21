@@ -51,13 +51,13 @@ planeación, "desarrollo").
   Planeación, que propone la enmienda al usuario y la registra **antes** de que se toque
   código. Las decisiones menores que no cambian ni la spec ni el plan las toma Desarrollo con
   el usuario y las informa.
-- **Docs en git:** cada sesión commitea los docs que le tocan. Arquitectura y Planeación
-  trabaja en un worktree de docs con nombre propio (`.claude/worktrees/docs-<tema>`, rama
-  `docs/<tema>`; nunca un nombre que use Desarrollo) creado desde `TrainingApp`, y lo integra
-  con `git merge --ff-only` en la carpeta real (sección 7), sin tocar el trabajo sin
-  commitear de Desarrollo. Si Desarrollo tiene sin commitear un archivo que el commit de docs
-  también toca, el fast-forward se rechaza: se espera su commit y se trae el de docs encima
-  (cherry-pick en una rama nueva desde `TrainingApp`).
+- **Commits sin pisarse (usuario, 2026-10-21):** las sesiones trabajan en la carpeta real
+  (sección 7) y cada una commitea **solo sus rutas**: `git commit -m "…" -- <rutas>`, nunca
+  `git add -A`, `git add .` ni `git commit -a`, que se llevarían el trabajo sin commitear de
+  otra sesión. Si dos sesiones tienen que tocar el mismo archivo, la segunda espera el commit
+  de la primera (se avisan por mensaje). Reemplaza el worktree de docs obligatorio de
+  Arquitectura y Planeación: dejaba ramas sueltas y contenido sin integrar (al 2026-10-21,
+  6 worktrees de docs y el hallazgo W23 olvidado en su rama desde el 2026-10-15).
 - **Reparto del roadmap:** Arquitectura y Planeación escribe las secciones de fases, planes y
   revisiones con negocio, y el orden de tareas; Desarrollo, "Estado actual", "Historial" y
   "BD de desarrollo del usuario".
@@ -109,7 +109,10 @@ descartar en una línea:
 - escenarios que necesitan HTML o JS manipulado, dos pestañas, doble click o postbacks
   repetidos, cuando la BLL ya protege la invariante y el efecto queda en la UI del propio
   usuario;
-- carga, concurrencia entre muchos usuarios y rendimiento a escala.
+- en el motor del POD (cada operador con su propia sesión): carga, concurrencia entre muchos
+  usuarios y rendimiento a escala. **No aplica al dashboard** (Fase 10) ni a nada que lea el
+  historial de todos los operadores: ese volumen crece con cada intento, así que ahí el
+  rendimiento sí se revisa (usuario, 2026-10-21).
 
 Siguen en alcance siempre: las invariantes del servidor (progreso, puntaje, paso actual,
 dueño de la sesión, intento y avance en la misma transacción) y lo que cruza usuarios. En
@@ -126,9 +129,12 @@ auth, Session, roles y gestión de usuarios no se descarta nada por este criteri
 
 ## 5. Tests
 
-Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/`). La Fase 5
-blindó `ScoreCalculator`. Fuera de una fase de tests, no proponerlos salvo que el usuario lo
-pida: él decidió dejarlos para fases propias.
+Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/`).
+- **Las reglas nuevas o cambiadas de la BLL llevan sus tests en la misma spec o plan**
+  (usuario, 2026-10-21; así se hizo de la spec 013 a la 017: 206 tests al 2026-10-21).
+- La cobertura de lo que ya existe va en fases propias (la Fase 5 blindó `ScoreCalculator`;
+  `PodService` contra LocalDB sigue en la deuda): no proponerla fuera de su fase salvo que el
+  usuario lo pida.
 
 ## 6. Base de datos
 
@@ -170,14 +176,21 @@ pida: él decidió dejarlos para fases propias.
   (`…\MES Training Simulator`) siempre está en ella: ahí apuntan VS, IIS Express y la
   terminal del usuario. A `main` sube los cambios finales el usuario (D-5): no tocarla. El
   usuario hace push cuando quiere.
-- Por defecto se trabaja en la carpeta real, con un commit por entrega verificada.
-- **Worktrees solo cuando hacen falta** (ej. trabajo aislado en segundo plano):
+- Por defecto se trabaja en la carpeta real, con un commit por entrega verificada y solo con
+  las rutas propias (sección 1 → "Commits sin pisarse").
+- **Worktrees solo cuando hacen falta:** trabajo aislado mientras el usuario prueba otra cosa
+  en la carpeta real (specs 013 y 017) o un job en segundo plano (la herramienta lo obliga a
+  aislarse antes de editar):
   - crearlo desde `TrainingApp`: `git worktree add .claude/worktrees/<n> -b <rama> TrainingApp`;
   - copiar `TrainingApp/connectionStrings.config` (está en `.gitignore`) y, para compilar, una
     junction a `packages`;
   - al terminar, desde la carpeta real: `git merge --ff-only <rama>`, `git worktree remove`,
     `git branch -d <rama>` y borrar la rama remota si se subió. Nunca dejar el proyecto activo
     en un worktree ni ramas sueltas (pasó el 2026-10-02 y al usuario no le gustó).
+  - **Un job en segundo plano no puede integrar su rama:** la herramienta no le deja usar git
+    fuera de su worktree (2026-10-21). Deja sus commits sobre `TrainingApp` y le pasa al
+    usuario los comandos para la carpeta real. Una rama que entró por cherry-pick se borra con
+    `-D`, después de comprobar con `git cherry` o `git range-diff` que su contenido ya está.
   - En Windows `git worktree remove` puede fallar por rutas largas (`bin\roslyn`): borrar con
     `rmdir /s /q "\\?\<ruta>"` y después `git worktree prune`.
 
