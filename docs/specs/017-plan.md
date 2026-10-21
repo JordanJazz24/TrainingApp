@@ -174,8 +174,10 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
   obligatorio pendiente" = algún grupo obligatorio de DC sin guardar en
   `PodState.DataCollection`.
 - [ ] M-7 lista **todos** los parámetros de los grupos obligatorios no guardados, con el
-      patrón `<PARAM> (<DC_GROUP>) , …` y el SFC (D-113). Con varias piezas (Serialized),
-      sale el SFC de la primera fila activa; el plan no repite el mensaje por pieza.
+      patrón `<PARAM> (<DC_GROUP>) , …` y el SFC (D-113). **Un M-7 por pieza** (D-119): uno
+      por cada SFC seleccionado y activo; sin selección, uno por cada fila activa. El
+      resultado lleva una **lista** de `MesError` y el banner pinta una fila de 25 px por
+      mensaje, una debajo de la otra. Es el único caso con varios mensajes.
 - [ ] `PodService.OutOfSequence` llama a la regla y deja el `MesError` en el resultado en
       los tres modos. La calificación no cambia: RecordAttempt sigue registrando el intento,
       Notice sigue sin intento e Ignore se sigue ignorando sin pintar nada.
@@ -195,7 +197,7 @@ Mensajes M-1 a M-5 y M-7, con la regla C-1 / C-2 / C-3.
   - en el LC de apertura, responder No y después Start → `Line Clearance status is NO…`;
   - sin responder el LC, Assemble → `has not been done since the last Resource Setup…`;
   - en Search, Complete → `22506`;
-  - en DC, Complete → `15246` con la lista;
+  - en DC, Complete → `15246` con la lista, una fila por pieza en Serialized;
   - en Assembly, DC Collect → solo el genérico.
 - El 4.º intento fuera de secuencia sigue forzando el avance.
 - **Práctica libre:** los mismos clics muestran el banner, sin intento y sin abrir nada; uno
@@ -296,12 +298,11 @@ Lo que la spec dejó fuera (D-96, D-97, D-100, C-4) y, por lo verificado en el c
 (`19973`: no hay parámetros de lista libre) y M-18 (`12901`: el NC Code no se escribe).
 Si un área futura agrega uno de los dos, entra con su propio plan.
 
-## Puntos a confirmar con el usuario
+## Puntos confirmados por el usuario (2026-10-21)
 
-1. **Assessment muestra dos cosas** ante un fallo con mensaje del MES: el mensaje en su
-   superficie y el SweetAlert de hoy con los intentos restantes. Es la lectura de "junto
-   con los intentos restantes" (D-98). La alternativa sería poner los intentos restantes
-   como texto del simulador debajo del banner, sin SweetAlert.
-2. **M-10 y M-18 fuera** por lo que se verificó en el código. No hace falta enmienda: la spec
-   ya los condicionaba.
-3. **M-7 con varias piezas:** un solo mensaje con el SFC de la primera fila activa.
+- **D-117 · Assessment:** el mensaje del MES en su superficie y el SweetAlert de hoy con los
+  intentos restantes, los dos (ver "Diseño").
+- **D-118 · M-10 y M-18 fuera** por lo verificado en el código. Sin enmienda: la spec ya los
+  condicionaba (C-6, C-8).
+- **D-119 · M-7 uno por pieza** (Entrega 2): el banner admite varias filas solo para este
+  caso.
