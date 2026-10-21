@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-121. Siguiente B-n: B-3.** La numeración es continua entre
+> - **Siguiente D-n: D-125. Siguiente B-n: B-3.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -137,6 +137,10 @@
 | D-118 | 2026-10-21 | M-10 y M-18 quedan fuera | specs/017-plan.md | vigente |
 | D-119 | 2026-10-21 | M-7 es un mensaje por pieza seleccionada; sin selección, M-4 | specs/017-plan.md (enmienda 4) | enmendada |
 | D-120 | 2026-10-21 | M-17 (`18117`) queda fuera: no se puede provocar en el simulador | specs/017-plan.md (enmienda 5) | vigente |
+| D-121 | 2026-10-21 | W23: 12NC simulado por área en `PodDefaults`, sin BD | roadmap.md → "Plan de la fila 12" | vigente |
+| D-122 | 2026-10-21 | W23: seriales consecutivos de 1 a 5 dígitos | roadmap.md → "Plan de la fila 12" | vigente |
+| D-123 | 2026-10-21 | W23: el As-Built de Log NC muestra `{12NC}/A` | roadmap.md → "Plan de la fila 12" | vigente |
+| D-124 | 2026-10-21 | Quitar `RequiresNCComponent` recreando la BD con `00`–`09` | roadmap.md → "Plan de la fila 13" | vigente |
 
 ## Bugs que ya existían (B-n)
 

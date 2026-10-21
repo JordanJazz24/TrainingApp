@@ -217,7 +217,7 @@ testing (T9):
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
 Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
 la validación con técnicos y tras la trainer; el usuario terminó la 013 antes que T7
-(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 ✅ → 012 ✅ → 017** (T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
+(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 ✅ → 012 ✅ → 017 → W23 (fila 12) → quitar `RequiresNCComponent` (fila 13)** (filas 12 y 13 agregadas el 2026-10-21; T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
@@ -232,6 +232,8 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 9 | ✅ **T6 · Evaluación práctica → Assessment** (QD001043644, 2026-10-19): contraste y decisiones en `docs/ui-reference/evaluacion-practica-mes.md`. La evaluación es insumo, no se replica: el simulador cubre como mínimo lo que pide. Sin cambios de pesos ni del criterio de aprobación (EP-1, EP-2); W13 sigue diferida (EP-6). Salieron: EP-3 → 016, EP-7 → fila 11, EP-4/EP-5 → fila 10 | análisis | — |
 | 10 | **Spec 017 · Mensajes de error del MES** (EP-4, EP-5; spec `docs/specs/017-mensajes-del-mes.md`, aprobada el 2026-10-21; insumo `docs/ui-reference/errores-mes.md`): **solo errores reactivos** (D-92). Muestra el mensaje real del MES, en inglés y con número (banner del POD, franja de ventana, OK de Split que cierra), cuando el operador provoca la situación, incluidos los clics fuera de secuencia que el MES rechazaría. Es así en los tres modos, **sin cambiar la calificación**, con explicación en español en Guided y en Ver pista. Absorbe AUD-63/64/69 (D-95). Resource Setup solo gana el Setup Type Material (D-94, D-100). Fuera: batch inválido, cantidad insuficiente, TSM expirado, SFC en otro recurso, componente no requerido y REMOVE ALL + Save → Insert New (D-96, D-97, D-100) | spec 017 (plan `017-plan.md`, aprobado el 2026-10-21, 4 entregas) | — |
 | 11 | ✅ **Notas de comprensión en la guía de Guided** (EP-7, 2026-10-20, `9a5433c`): cuándo iniciar y cerrar sesión, riesgo de una sesión abierta, cuándo repetir Resource Setup y Line Clearance, consumir antes del MPI; cada una en su paso, como las de T7. Assessment no las evalúa. Las de login y limpieza de caché, con los pasos de la 016. Plan y textos aprobados el 2026-10-20: ver "Plan de la fila 11" | plan directo | — |
+| 12 | **W23 · SFC serializado `{12NC}-{serial}`** (captura del POD real de Wires, 2026-10-15): las piezas de una orden Serialized pasan de `{ShopOrder}-{sufijo}` a `{12NC}-{serial}`, con un 12NC simulado por área y seriales consecutivos (D-121, D-122); el As-Built de Log NC muestra el 12NC (D-123). Sin cambio de BD ni de puntaje. Ver "Plan de la fila 12" | plan directo | spec 017 cerrada |
+| 13 | **Quitar `RequiresNCComponent`** (deuda desde la enmienda 4 de la spec 014): la columna `Areas.RequiresNCComponent` y lo que la lee, sin cambio de comportamiento. Se recrea la BD con `00`–`09` (D-124). Ver "Plan de la fila 13" | plan directo | fila 12 |
 
 **Plan de la fila 11 · notas EP-7** (aprobado por el usuario el 2026-10-20, con la
 verificación de que no repiten lo de otros pasos). La spec 016 ya cubrió el inicio de
@@ -245,6 +247,87 @@ guía), y ninguna prueba compara estos textos.
 | Resource Setup · `open` | "Resource Setup **se repite cada vez que se sustituye un equipo**: mantenimiento preventivo, correctivo o calibración." | Nota nueva; la alerta de `removeAll` no cambia |
 | Line Clearance de apertura · `activities` | "Siempre después de **Resource Setup**: la limpieza física y la del sistema.<br>Se registra de nuevo cuando:<br>• cambia el usuario o la Shop Order,<br>• queda un SFC activo,<br>• vence el tiempo configurado." | Reemplaza la nota de T7 (el cambio de orden queda dentro). El LC de cierre conserva su alerta y no lleva estas condiciones: W7 sigue abierta |
 | Assembly · `open` | "**Consuma los componentes antes** de empezar la instrucción del MPI." | Nota nueva; solo en las áreas con Assembly |
+
+**Plan de la fila 12 · W23, SFC `{12NC}-{serial}`** (decisiones del usuario del
+2026-10-21; espera su aprobación). Hallazgo: `docs/ui-reference/wi-produccion-disposables.md`
+→ W23. Es dato de la orden simulada (`PodService`): no cambia el puntaje, la BD ni los
+pasos. Una entrega. Verificado en el código en `5565b10`.
+
+- **12NC simulado por área (D-121):** `PodDefaults.MaterialNumber(Area)` devuelve 12
+  dígitos fijos por área, como los demás valores simulados de `PodDefaults` (ruta, BOM,
+  operación): `"3000"` + el `Id` del área con 8 dígitos (ej. `300000000003`). No pasa por
+  la BD. Se reemplaza por el real cuando negocio lo dé.
+- **Seriales consecutivos de 1 a 5 dígitos (D-122):** `SerialSfcGenerator.Generate` recibe el
+  12NC en vez de la Shop Order. Elige un inicio aleatorio de 1 a 5 dígitos, sin ceros a la
+  izquierda y que no pase de `99999` con la última pieza, y numera las 4-5 piezas
+  consecutivas: `{12NC}-{inicio}`, `{12NC}-{inicio+1}`… (ej. `300000000003-46705` …
+  `-46709`). Actualizar el comentario de la clase.
+- **`SimulatedOrder`** gana `MaterialNumber`. `SimulatedOrder.Create` lo recibe de
+  `PodService` (`:314`), que conoce el área. NonSerialized no cambia: su lote sigue siendo
+  `CR9A` + 8 dígitos (`DeriveSFCCode`) y W23 no dice nada de él.
+- **As-Built de Log NC (D-123):** `PodDefaults.MaterialVersion` pasa a `{12NC}/A`
+  (`GuidedTest.aspx.cs:1450`, campo `material`). `SimBom` sigue con la Shop Order, porque es
+  un dato SIM. No se califica: solo se muestra. Esto corrige el supuesto de la spec 014, P-11
+  ("el material es la Shop Order, prefijo de los SFC"): se registra como enmienda fechada en
+  esa spec al cerrar.
+- **Verificar que nada dependa del prefijo:** hoy ningún código parte un SFC Serialized por
+  `-` ni lo compara con la Shop Order (el escaneo de la spec 011 compara contra la Shop Order
+  y la lista de piezas). Desarrollo lo confirma.
+- **Tests:**
+  - `SerialSfcGeneratorTests` (`TrainingApp.Test/Class1.cs:71`): formato
+    `^\d{12}-[1-9]\d{0,4}$`, 4-5 piezas únicas y consecutivas, la última ≤ `99999`, en
+    muchas semillas;
+  - `PodDefaults.MaterialNumber`: 12 dígitos y estable para la misma área.
+
+  Los tests que usan `"000123-430"` como dato no dependen del formato y pueden quedar
+  igual.
+- **Docs al cerrar:**
+  - `docs/ui-reference/general-flow.md:511` y `docs/glossary.md` → "Pieza (Serialized)",
+    con `{12NC}-{serial}`;
+  - W23 en `wi-produccion-disposables.md` → resuelto;
+  - la enmienda de la spec 014 (P-11);
+  - `docs/architecture.md`, si nombra el formato;
+  - `status.md` y `history.md` (Desarrollo); la fila 12 ✅ (Arquitectura y Planeación).
+
+**Checklist en el navegador:**
+- LoFlo y Redefinity: Resource Setup → Start. Las 4-5 piezas muestran `{12NC}-{serial}`
+  consecutivos, y la Shop Order va aparte en su columna.
+- Escanear la Shop Order y elegir piezas en Browse Work List funciona como antes (spec 011).
+- En la reparación rápida, el As-Built muestra `{12NC}/A`.
+- El `15246` de Complete (spec 017) nombra los SFC nuevos.
+- Moldeo (NonSerialized) sin cambios.
+- Una sesión de Assessment completa da el mismo puntaje que antes con las mismas
+  respuestas.
+
+**Plan de la fila 13 · quitar `RequiresNCComponent`** (decisión del usuario D-124, del
+2026-10-21; espera su aprobación). La columna no se lee desde la enmienda 4 de la spec 014:
+Component en Log NC lo decide el método del código. Sin cambio de comportamiento. Una
+entrega, después de la fila 12. Verificado en el código en `5565b10`: estas son todas las
+referencias.
+
+- **BD:**
+  - `00_Schema.sql`: quitar la columna, su `DF_Areas_RequiresNCComponent` y el comentario
+    (`:33`, `:46`);
+  - `02_spTrainingGuide.sql`: quitarla de los dos `SELECT` de `spAreaGet*` (`:67`, `:81`);
+  - `05_SeedData.sql` (`:37`), `06_RCMoldeoCatalog.sql` (`:23`, `:39`, `:44`) y
+    `08_SensoresLoFloCatalog.sql` (`:28`, `:38`, `:43`): quitarla de la tabla de valores,
+    del `INSERT`, del `UPDATE` y del comentario.
+- **Código:** `DAL/Repositories/AreaRepository.cs:43` y `Domain/Area.cs:13`.
+- **Verificación:**
+  - rebuild y tests;
+  - los scripts en una BD descartable de LocalDB (`docs/process.md` §6: instalación limpia
+    con `00`–`09`, y comparar que `Areas` tenga los mismos datos menos la columna);
+  - la BD del usuario se **recrea** con `00`–`09`, sin `ALTER` aparte (D-124). Se pierden
+    las sesiones de prueba.
+- **Docs al cerrar:**
+  - `docs/domain.md` (`:40` y `:336`, la mención de `RequiresNCComponent`);
+  - `docs/status.md` → "Deuda y riesgos" (quitar la entrada) y "BD de desarrollo del
+    usuario" (la fila de la recreación);
+  - `history.md` (Desarrollo); la fila 13 ✅ (Arquitectura y Planeación).
+
+**Checklist en el navegador:** con la BD recreada, el login, una sesión de cada área (Moldeo,
+LoFlo, Redefinity) hasta Log NC y el campo Component de la reparación rápida, que se sigue
+mostrando como antes.
 
 Si el tiempo no alcanza, se recorta primero T3 (modo práctica), después T10 y T4 si las
 capturas o las pantallas no llegan; nunca la spec 013: sin ella solo el desarrollador administra las cuentas y no se
