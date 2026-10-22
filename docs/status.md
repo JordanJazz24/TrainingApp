@@ -8,7 +8,7 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-10-22 · **Branch:** `TrainingApp` · **Último commit de
-código:** fila 13, sin `RequiresNCComponent` (`git log --oneline -10` para ver el estado real)
+código:** Fase 9, E1: perfil de publicación del MVP (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -28,7 +28,18 @@ código:** fila 13, sin `RequiresNCComponent` (`git log --oneline -10` para ver 
   desde la enmienda 4 de la spec 014), sin cambio de comportamiento; BD del usuario recreada
   con `00`–`09` (D-124). Nuevo `Database/Ops/RunAllScripts.ps1` para correr los scripts en
   orden. Probada por el usuario.
-- **Siguiente:** lo que defina Arquitectura y Planeación en el roadmap de la Fase 8.5.
+- **Fase 9 · Deploy del MVP, en curso** (plan aprobado el 2026-10-22:
+  `docs/specs/fase-9-plan.md`, D-129 a D-134). Fase 8.5 ✅.
+  - **E1 ✅ de Desarrollo** (2026-10-22): perfil `TrainingApp/Properties/PublishProfiles/MVP.pubxml`
+    (Release, a carpeta `publish\MVP`, precompilado y no actualizable, sin `.pdb`), carpeta
+    publicada revisada (sin `connectionStrings.config` ni `.cs`; `web.config` sin `debug`, con
+    `customErrors` y `configSource`), `docs/deploy.md` para TI y D-130 en `docs/process.md` §6.
+    Regresión local en Assessment (LoFlo y Moldeo completas) confirmada por el usuario.
+  - **Pendiente del usuario:** publicar con el perfil y pasarle a TI la carpeta, `Database/` y
+    `docs/deploy.md`; la prueba de humo en el servidor cuando TI lo tenga listo (cierra D-19);
+    el mensaje de lanzamiento (Redefinity de demostración, D-132; retroalimentación fuera de la
+    app, D-134).
+  - **Siguiente:** E2, después del MVP (AUD-28 lo barato y los parches de AUD-29, D-131).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**
@@ -58,7 +69,7 @@ final (D-16) repasó esta lista.
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.
-- **AUD-28/29** (endurecimiento del deploy y paquetes): en la Fase 9 (D-7). El inventario
+- **AUD-28/29** (endurecimiento del deploy y paquetes): en la E2 de la Fase 9 (D-7, D-131). El inventario
   de AUD-29 suma JsBarcode 3.11.6 (`Scripts/`, spec 011).
 - **Contraseña por defecto versionada (D-18):** quien tenga acceso al repo la conoce y, con un
   Code1, puede activar la cuenta de un compañero que aún no entró ("reclamo de cuenta
