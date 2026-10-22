@@ -28,17 +28,22 @@ están ✅.
 
 **Desarrollo:**
 
-- [ ] **Perfil de publicación a carpeta** `TrainingApp/Properties/PublishProfiles/MVP.pubxml`:
+> **E1 de Desarrollo cerrada** (2026-10-22, `584cdf2`, con el "funciona" del usuario después de
+> la regresión). Detalle que no cambia el plan: el perfil también excluye el `.pdb`
+> (`ExcludeGeneratedDebugSymbol`), y `docs/deploy.md` trae la plantilla de
+> `connectionStrings.config` completa, porque el `.example` no viaja en la carpeta publicada.
+
+- [x] **Perfil de publicación a carpeta** `TrainingApp/Properties/PublishProfiles/MVP.pubxml`:
   - Release, `FileSystem`, `DeleteExistingFiles`;
   - **precompilado y no actualizable** (`PrecompileBeforePublish`, `EnableUpdateable=false`):
     el primer request no compila nada (los ~18 s del arranque en frío que se midieron en
     desarrollo el 2026-10-07; roadmap → "Fase 9").
-- [ ] **Verificar la carpeta publicada** (publicar con MSBuild usando el perfil):
+- [x] **Verificar la carpeta publicada** (publicar con MSBuild usando el perfil):
   - **no** trae `connectionStrings.config`, que lo crea TI;
   - `web.config` sin `debug` ni `optimizeCompilations`, con `customErrors mode="RemoteOnly"`
     y `configSource="connectionStrings.config"`;
   - trae `Scripts/` (incluido JsBarcode), `Content/` y `bin/`, y no trae ningún `.cs`.
-- [ ] **`docs/deploy.md`, instrucciones para TI** (en lenguaje de TI, sin jerga del dominio):
+- [x] **`docs/deploy.md`, instrucciones para TI** (en lenguaje de TI, sin jerga del dominio):
   1. **Requisitos:** IIS con ASP.NET 4.7.2 y el feature *Application Initialization*; SQL
      Server; salida HTTPS del servidor a la API de empleados (el host de
      `Constants.EmployeeApiUrl`; sin ella nadie puede registrarse ni entrar).
@@ -64,12 +69,12 @@ están ✅.
   6. **Republicar:** reemplazar la carpeta **conservando `connectionStrings.config`** y
      reciclar el App Pool.
   7. **Recrear la BD** (D-130): `RunAllScripts.ps1 -Recreate` + `CreateAdmin.sql`.
-- [ ] **`docs/process.md` §6:** una línea que aclara que la BD del servidor del MVP también
+- [x] **`docs/process.md` §6:** una línea que aclara que la BD del servidor del MVP también
   es de pruebas (D-130) hasta la versión final.
 
 **Usuario:**
 
-- [ ] **Regresión local** antes de publicar, en Assessment: **LoFlo (Serialized) completa** y
+- [x] **Regresión local** antes de publicar, en Assessment: **LoFlo (Serialized) completa** y
   **Moldeo (NonSerialized) completa**, del login al resumen.
 - [ ] Publicar con el perfil `MVP` y pasarle a TI la carpeta, `Database/` y `docs/deploy.md`.
 - [ ] **Prueba de humo en el servidor**, cuando TI lo tenga listo (cierra D-19):
@@ -86,6 +91,13 @@ están ✅.
 revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la app.
 
 ## E2 · Endurecimiento y parches (2.ª publicación, después del MVP)
+
+> **Enmienda 1 · 2026-10-22 (usuario, con el reporte de la E1 de Desarrollo):**
+> - **Cuándo (D-135):** la E2 no va enseguida del MVP. Se hace **junto con la Fase 10**, antes
+>   de la versión final de noviembre, y la Fase 9 se cierra con ella.
+> - **Se suma:** corregir el comentario de `Web.config` que dice que la plantilla
+>   `connectionStrings.config.example` está "en esta misma carpeta". En el servidor no está:
+>   el comentario tiene que apuntar a `docs/deploy.md`, que trae la plantilla.
 
 - [ ] **AUD-28, lo barato:**
   - **renovar el ID de Session en el login** (contra la fijación de sesión): la Session del
@@ -105,6 +117,8 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 - [ ] **AUD-29, parches:** Newtonsoft.Json 13.0.4, jQuery 3.7.1,
   Microsoft.Web.Infrastructure 2.0.1 y `System.*`, uno por uno, con rebuild y tests después
   de cada uno. Confirmar la última versión de parche al momento de actualizar.
+- [ ] Comentario de `Web.config` sobre la plantilla de `connectionStrings.config`: que apunte a
+  `docs/deploy.md` (enmienda 1).
 - [ ] `docs/deploy.md`: permiso de escritura en `App_Data/Logs` para la identidad del App
   Pool.
 - [ ] Verificación: rebuild, `aspnet_compiler`, tests y `/code-review medium` sobre

@@ -366,8 +366,10 @@ Data Collection para todas las piezas.
 
 ### Fase 9 — Deploy del MVP
 **Plan aprobado el 2026-10-22: `docs/specs/fase-9-plan.md`** (D-129 a D-134). El MVP se
-publica el 2026-10-22 en el IIS interno para recoger retroalimentación (E1). AUD-28 (lo
-barato) y AUD-29 (parches) se suman en una 2.ª publicación (E2). Mientras tanto avanzan la
+publica el 2026-10-22 en el IIS interno para recoger retroalimentación (E1: la parte de
+Desarrollo está cerrada en `584cdf2`; faltan la publicación, la prueba de humo y el
+lanzamiento, que hace el usuario). AUD-28 (lo barato) y AUD-29 (parches) se suman en una
+2.ª publicación (E2), que se hace **junto con la Fase 10** (D-135). Mientras tanto avanzan la
 Fase 10 y las mejoras, y la **versión final se entrega en la 2.ª semana de noviembre**. Los
 datos del MVP se descartan (D-130). Lo que sigue es el texto original de la fase.
 

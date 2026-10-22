@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-135. Siguiente B-n: B-3.** La numeración es continua entre
+> - **Siguiente D-n: D-136. Siguiente B-n: B-3.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -151,6 +151,7 @@
 | D-132 | 2026-10-22 | Redefinity (`05`) entra en el MVP con aviso de demostración en el mensaje de lanzamiento | specs/fase-9-plan.md | vigente |
 | D-133 | 2026-10-22 | TI administra el servidor (cadena de conexión, BD, scripts, App Pool) con `docs/deploy.md`; el usuario publica en una carpeta | specs/fase-9-plan.md | vigente |
 | D-134 | 2026-10-22 | La retroalimentación del MVP se junta fuera de la app (la registra Reuniones y Dudas) | specs/fase-9-plan.md | vigente |
+| D-135 | 2026-10-22 | La E2 de la Fase 9 se hace junto con la Fase 10, antes de la versión final de noviembre | specs/fase-9-plan.md (enmienda 1) | vigente |
 
 ## Bugs que ya existían (B-n)
 
