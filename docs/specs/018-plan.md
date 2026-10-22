@@ -31,6 +31,22 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 - la curva y la ficha al final;
 - los nombres de archivo en inglés, como los existentes (`Users.aspx`).
 
+> **Enmienda 1 · 2026-10-22 (usuario, con el desvío que avisó Desarrollo al hacer la E1;
+> D-143):** la lista de operadores **no se pagina en el SP**.
+> - `spDashboardOperators` devuelve todos los que cumplen la búsqueda, y la BLL calcula el
+>   estado, filtra por estado y guía y pagina de a 50. Sigue siendo "paginada en el servidor".
+> - **Por qué:** el estado lo decide `ReadinessPolicy` en la BLL (D-139). Si el SP paginara,
+>   el filtro de estado solo vería los 50 de la página y el total saldría mal. Paginar en SQL
+>   obligaría a repetir la regla de Aprobado en SQL.
+> - **Medido:** 150-250 ms con 1600 operadores.
+> - **Plan B, también aceptado:** si la E7 no da los 3 s, el SP agrega por operador, guía,
+>   modo y estado, sin reglas.
+>
+> **Enmienda 2 · 2026-10-22 (usuario; B-3):** la E2 suma el arreglo de B-3, un bug que ya
+> existía. Cuando la BLL niega el acceso, `Users.aspx` (spec 013) manda al login, en vez de
+> mandar al inicio del rol (`SessionHelper.RedirectHome`), como piden `CLAUDE.md` → Auth y
+> AC-2. `Operators.aspx` ya lo hace bien.
+
 ## Diseño común (lo usan todas las entregas)
 
 - **Capas** (`CLAUDE.md`), de abajo hacia arriba:
@@ -153,8 +169,12 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
   del paso anterior, o desde `StartedAt` en el primero.
 - [ ] **Página `Operator.aspx?id=…`** (AC-14). Un id inexistente, de un administrador o
   manipulado → aviso y vuelta a Operadores, sin datos de otro usuario.
-- [ ] **Checklist:** el detalle de un operador con sesiones de los tres modos, con horas de
-  la planta y duraciones.
+- [ ] **B-3** (enmienda 2): en `Users.aspx.cs`, cuando la BLL niega el acceso,
+  `RedirectHome` en vez del login.
+- [ ] **Checklist:**
+  - el detalle de un operador con sesiones de los tres modos, con horas de la planta y
+    duraciones;
+  - B-3: un admin al que le quitan el rol a mitad de sesión vuelve a su inicio, no al login.
 
 ## E3 · Pasos
 

@@ -99,6 +99,14 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 >   `connectionStrings.config.example` está "en esta misma carpeta". En el servidor no está:
 >   el comentario tiene que apuntar a `docs/deploy.md`, que trae la plantilla.
 
+> **Enmienda 2 · 2026-10-22 (usuario, con el reporte de la E2 de Desarrollo; D-144):** la
+> cabecera `Server` de IIS **se queda por ahora**. `removeServerHeader` solo existe en IIS 10
+> o superior, y en uno anterior el sitio da error 500.
+> - El usuario le pregunta a TI qué versión de IIS tiene, junto con lo de HTTPS.
+> - Si TI confirma IIS 10 o superior, `removeServerHeader="true"` se agrega **solo en
+>   `Web.Release.config`**, igual que `requireSSL` con HTTPS.
+> - Riesgo bajo: la cabecera dice que es IIS, no la versión de ASP.NET.
+
 > **E2 de Desarrollo integrada a `TrainingApp` sin probar** (2026-10-22, rama `fase-10`; el
 > usuario pidió integrar sin el "funciona": falta su checklist). Detalle que no cambia el
 > plan:

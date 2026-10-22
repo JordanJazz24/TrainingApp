@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-143. Siguiente B-n: B-3.** La numeración es continua entre
+> - **Siguiente D-n: D-145. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -159,6 +159,8 @@
 | D-140 | 2026-10-22 | Dashboard: Chart.js local y `.xlsx` con ClosedXML; si ClosedXML falla en .NET FW 4.7.2, se para y decide el usuario | specs/018-dashboard-training.md | vigente |
 | D-141 | 2026-10-22 | Dashboard: seguimiento S-1/S-2/S-3 por guía, sin período, y sale al aprobar | specs/018-dashboard-training.md | vigente |
 | D-142 | 2026-10-22 | Borrar un usuario avisa cuántas sesiones se pierden y que los indicadores cambian | specs/018-dashboard-training.md | vigente |
+| D-143 | 2026-10-22 | Dashboard: la lista de operadores la filtra y pagina la BLL (el SP no pagina), para no repetir la regla de Aprobado en SQL; plan B: el SP agrega sin reglas | specs/018-plan.md (enmienda 1) | vigente |
+| D-144 | 2026-10-22 | La cabecera `Server` se quita (`removeServerHeader`, solo en Release) si TI confirma IIS 10+; mientras tanto queda | specs/fase-9-plan.md (enmienda 2) | pendiente (versión de IIS de TI) |
 
 ## Bugs que ya existían (B-n)
 
@@ -171,3 +173,4 @@ es global.
 | B-2 (009) | 2026-10-05 | Log NC se puede acertar sin scrapear, solo manipulando el cliente | specs/009-plan.md (E4) | riesgo aceptado (D-16) |
 | B-1 (rendimiento) | 2026-10-07 | Una lista vacía de la API reemplazaba la última lista de empleados | history.md → "Arreglo de rendimiento del arranque" | corregido |
 | B-1 (011) | 2026-10-13 | Browse después del Start reescribía `TxtSFC` y la selección | specs/011-plan.md (E2) | corregido |
+| B-3 | 2026-10-22 | `Users.aspx` manda al login, y no al inicio del rol, cuando la BLL niega el acceso (spec 013) | specs/018-plan.md (enmienda 2, E2) | pendiente (E2 de la 018) |
