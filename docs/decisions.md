@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-129. Siguiente B-n: B-3.** La numeración es continua entre
+> - **Siguiente D-n: D-135. Siguiente B-n: B-3.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -35,7 +35,7 @@
 | D-16 | 2026-10-06 | Alcance de la auditoría final: E1-E4; AUD-40 y AUD-42 diferidos | audits/2026-10-06-auditoria-final.md | cerrada (AUD-40/42 siguen en la deuda) |
 | D-17 | 2026-10-09 | La cuenta local se llama `User` (tabla `Users`), nunca `Operator` | history.md → "Refactor `Operator` → `User`" | vigente |
 | D-18 | 2026-10-12 | `DEFAULT_PASSWORD` sigue versionada en `Constants`, con su valor de siempre | roadmap.md → "Fase 8.5" | vigente |
-| D-19 | 2026-10-12 | T1 se aprueba como preparación, sin probarlo en el servidor real | history.md → "T1" | pendiente (prueba en el servidor real) |
+| D-19 | 2026-10-12 | T1 se aprueba como preparación, sin probarlo en el servidor real | history.md → "T1" | pendiente (prueba en el servidor real: la prueba de humo de la E1 de la Fase 9) |
 | D-20 | 2026-10-13 | El reclamo de cuenta ajena no se cierra: solo detección, riesgo aceptado | specs/013-cuentas-roles-actividad.md; roadmap.md → "Fase 8.5" | vigente |
 | D-21 | 2026-10-14 | Con la sesión de entrenamiento cerrada, Logout cierra la sesión de la app | specs/015-plan.md | vigente |
 | D-22 | 2026-10-14 | Complete saca del POD las filas completadas | specs/015-plan.md | vigente |
@@ -145,6 +145,12 @@
 | D-126 | 2026-10-21 | W23: el inicio del serial sortea primero sus dígitos (1 a 5) y después el número | roadmap.md → "Plan de la fila 12" | enmendada (2026-10-22: de 1 a 6 dígitos) |
 | D-127 | 2026-10-21 | W23: el lote NonSerialized no cambia (sin captura del SFC real) | roadmap.md → "Plan de la fila 12" | vigente |
 | D-128 | 2026-10-21 | W23: el BOM simulado del As-Built sigue con la Shop Order | roadmap.md → "Plan de la fila 12" | vigente |
+| D-129 | 2026-10-22 | MVP publicado hoy para recoger retroalimentación; la versión final es la de la 2.ª semana de noviembre | specs/fase-9-plan.md | vigente |
+| D-130 | 2026-10-22 | Los datos del MVP se descartan: la BD del servidor se recrea con `00`–`09`, sin `ALTER`, hasta la versión final | specs/fase-9-plan.md | vigente |
+| D-131 | 2026-10-22 | AUD-28 (lo barato) y AUD-29 (solo parches) en una 2.ª publicación; Bootstrap, SweetAlert2 y CodeDom fuera | specs/fase-9-plan.md | vigente |
+| D-132 | 2026-10-22 | Redefinity (`05`) entra en el MVP con aviso de demostración en el mensaje de lanzamiento | specs/fase-9-plan.md | vigente |
+| D-133 | 2026-10-22 | TI administra el servidor (cadena de conexión, BD, scripts, App Pool) con `docs/deploy.md`; el usuario publica en una carpeta | specs/fase-9-plan.md | vigente |
+| D-134 | 2026-10-22 | La retroalimentación del MVP se junta fuera de la app (la registra Reuniones y Dudas) | specs/fase-9-plan.md | vigente |
 
 ## Bugs que ya existían (B-n)
 

@@ -29,8 +29,8 @@
 | 6.6 · Overlays guiados | ✅ | 2026-10-07 | `010-*.md` |
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
-| **8.5 · Entrega de noviembre** | ▶️ en curso | 2.ª semana de nov. | specs 011-014 |
-| 9 · Deploy del MVP | pendiente (T1 adelanta una parte) | | |
+| 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
+| **9 · Deploy del MVP** | ▶️ en curso (MVP 2026-10-22) | | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | pendiente | | |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
@@ -212,7 +212,10 @@ testing (T9):
   Costa Rica. Moldeo en el simulador corresponde a Normal Flow con cantidad > 1. No
   versionada en el repo.
 
-### Fase 8.5 — Entrega de noviembre
+### Fase 8.5 — Entrega de noviembre ✅ (2026-10-22)
+> **Cerrada el 2026-10-22** con las filas 1 a 13 ✅. La entrega de noviembre pasa a ser la
+> versión final, después del MVP (Fase 9) y del dashboard (Fase 10) (D-129).
+
 **Objetivo:** versión de entrenamiento para la segunda semana de noviembre de 2026, con la
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
 Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
@@ -362,6 +365,12 @@ otra vez el 2026-10-13, aunque lo pide la trainer) y lo descartado el 2026-10-12
 Data Collection para todas las piezas.
 
 ### Fase 9 — Deploy del MVP
+**Plan aprobado el 2026-10-22: `docs/specs/fase-9-plan.md`** (D-129 a D-134). El MVP se
+publica el 2026-10-22 en el IIS interno para recoger retroalimentación (E1). AUD-28 (lo
+barato) y AUD-29 (parches) se suman en una 2.ª publicación (E2). Mientras tanto avanzan la
+Fase 10 y las mejoras, y la **versión final se entrega en la 2.ª semana de noviembre**. Los
+datos del MVP se descartan (D-130). Lo que sigue es el texto original de la fase.
+
 **Objetivo:** deploy en servidor interno con IIS: connection string de producción, App Pool,
 permisos, prueba de humo. Incluye AUD-28/29.
 - **Arranque en frío en IIS** (medido 2026-10-07 en desarrollo): tras reciclar el App Pool,
