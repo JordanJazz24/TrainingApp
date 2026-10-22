@@ -408,3 +408,23 @@ columna. La BD del usuario se recreó con `00`–`09`, sin `ALTER` aparte. A ped
 usuario, `Database/Ops/RunAllScripts.ps1` corre los scripts en orden (`-Recreate` borra y
 crea la BD antes); documentado en `docs/process.md` §6. Sin review (solo se borraron líneas).
 Tests: 283. Probada por el usuario en el navegador.
+
+## Fase 9 · Deploy del MVP ✅ (2026-10-22, plan directo)
+Plan aprobado por el usuario el 2026-10-22 (`docs/specs/fase-9-plan.md`, D-129 a D-135).
+- **E1 (`584cdf2`):** perfil de publicación `MVP.pubxml` (Release, precompilado, sin `.pdb`) y
+  `docs/deploy.md` para TI. Regresión en Assessment (LoFlo y Moldeo) confirmada por el usuario.
+- **E2 (`a4ffefb`, en la rama `fase-10`):**
+  - AUD-28 lo barato: ID de Session nuevo en el login (el "Último acceso" viaja en el ticket de
+    Forms); `Shared/AppLog` con errores, logins fallidos y bloqueos en `App_Data/Logs` (sin
+    contraseñas, retención de 60 días); cabeceras nosniff, SAMEORIGIN y same-origin; sin
+    `X-AspNet-Version` ni `X-Powered-By`; cookies HttpOnly; `requireSSL` comentado en
+    `Web.Release.config` hasta que TI confirme HTTPS.
+  - AUD-29, solo parches: Newtonsoft 13.0.4, jQuery 3.7.1 y Microsoft.Web.Infrastructure 2.0.1;
+    en los tests, DiagnosticSource 6.0.2 y Reflection.Metadata 8.0.1.
+  - El comentario de `Web.config` apunta a `docs/deploy.md`, que suma el permiso de escritura
+    en `App_Data`.
+  - Review `medium`: 9 hallazgos, 5 aplicados. Tests: 283.
+  - Se integró a `TrainingApp` antes de probarse, a pedido del usuario. Probada después por el
+    usuario en el navegador.
+- **Queda abierto:** la cabecera `Server`, hasta que TI confirme la versión de IIS (D-144);
+  publicar, la prueba de humo en el servidor (D-19) y el mensaje de lanzamiento (usuario).

@@ -107,9 +107,8 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 >   `Web.Release.config`**, igual que `requireSSL` con HTTPS.
 > - Riesgo bajo: la cabecera dice que es IIS, no la versión de ASP.NET.
 
-> **E2 de Desarrollo integrada a `TrainingApp` sin probar** (2026-10-22, rama `fase-10`; el
-> usuario pidió integrar sin el "funciona": falta su checklist). Detalle que no cambia el
-> plan:
+> **E2 de Desarrollo ✅** (2026-10-22, `a4ffefb`; se integró a `TrainingApp` antes de probarse
+> y el usuario la probó después: "funciona"). Detalle que no cambia el plan:
 > - el login renueva el ID con `Session.Abandon` + la cookie expirada (como `Logout`); la página
 >   siguiente llena la Session desde la BD. El "Último acceso" viaja en el ticket de Forms (cifrado),
 >   así que también se ve tras re-hidratar la Session. Quien vuelve a entrar con un entrenamiento
@@ -152,7 +151,7 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
   Pool.
 - [x] Verificación: rebuild, `aspnet_compiler`, tests y `/code-review medium` sobre
   `Global.asax.cs`, `SessionHelper`, el login, `Web.config` y `Web.Release.config`.
-- [ ] Checklist del usuario:
+- [x] Checklist del usuario:
   - login, primer acceso, cambio de contraseña, bloqueo tras 5 fallos y logout;
   - el ID de la cookie de Session cambia al hacer login;
   - un error provocado queda en el archivo de log;

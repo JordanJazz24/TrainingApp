@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-22 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** Fase 9 E2 + spec 018 E1, **no probadas** (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** Fase 9 E2 + spec 018 E1, probadas por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -29,32 +29,25 @@
   desde la enmienda 4 de la spec 014), sin cambio de comportamiento; BD del usuario recreada
   con `00`–`09` (D-124). Nuevo `Database/Ops/RunAllScripts.ps1` para correr los scripts en
   orden. Probada por el usuario.
-- **Fase 9 · Deploy del MVP, en curso** (plan aprobado el 2026-10-22:
-  `docs/specs/fase-9-plan.md`, D-129 a D-134). Fase 8.5 ✅.
-  - **E1 ✅ de Desarrollo** (2026-10-22): perfil `TrainingApp/Properties/PublishProfiles/MVP.pubxml`
-    (Release, a carpeta `publish\MVP`, precompilado y no actualizable, sin `.pdb`), carpeta
-    publicada revisada (sin `connectionStrings.config` ni `.cs`; `web.config` sin `debug`, con
-    `customErrors` y `configSource`), `docs/deploy.md` para TI y D-130 en `docs/process.md` §6.
-    Regresión local en Assessment (LoFlo y Moldeo completas) confirmada por el usuario.
+- **Fase 9 · Deploy del MVP ✅** (2026-10-22, ver "Historial"; plan
+  `docs/specs/fase-9-plan.md`, D-129 a D-135): E1 (perfil `MVP.pubxml` y `docs/deploy.md`) y
+  E2 (AUD-28 lo barato y los parches de AUD-29), probadas por el usuario.
   - **Pendiente del usuario:** publicar con el perfil y pasarle a TI la carpeta, `Database/` y
-    `docs/deploy.md`; la prueba de humo en el servidor cuando TI lo tenga listo (cierra D-19);
-    el mensaje de lanzamiento (Redefinity de demostración, D-132; retroalimentación fuera de la
-    app, D-134).
-  - **E2 integrada sin probar** (2026-10-22, commit en `fase-10` integrado a `TrainingApp`
-    sin el "funciona": pendiente el checklist de `docs/specs/fase-9-plan.md`, E2): ID de
-    Session nuevo en el login, log en `App_Data/Logs` (errores, logins
-    fallidos y bloqueos), cabeceras de seguridad, cookies HttpOnly, los parches de AUD-29
-    (Newtonsoft 13.0.4, jQuery 3.7.1, Microsoft.Web.Infrastructure 2.0.1 y dos `System.*`
-    de los tests) y el comentario de `Web.config`. Detalle en `docs/specs/fase-9-plan.md`,
-    E2. Con el "funciona" se cierra la Fase 9 (D-135) y AUD-28/29 pasan a ☑.
-- **Fase 10 · Dashboard de Training (spec 018), en curso** en la misma rama `fase-10`
-  (plan: `docs/specs/018-plan.md`). **E1 integrada sin probar** (2026-10-22, pendiente su
-  checklist): `CanViewReports`, menú del
-  dashboard, `ReadinessPolicy`, la lista de Operadores, el aviso al borrar, índices,
-  `10_spDashboard.sql`, el generador `Database/Ops/GenerateDashboardData.sql`, ClosedXML
-  verificado (D-140) y Chart.js 4.5.1. Paginar Operadores en la BLL y no en el SP es un
-  desvío aceptado (D-143). **Para probar:** recrear la BD con `RunAllScripts.ps1
-  -Recreate` (entra `10_spDashboard.sql`).
+    `docs/deploy.md` (republicar si ya publicó: la E2 cambia el sitio y pide permiso en
+    `App_Data`); la prueba de humo en el servidor (cierra D-19); el mensaje de lanzamiento
+    (Redefinity de demostración, D-132; retroalimentación fuera de la app, D-134); preguntarle a
+    TI la versión de IIS (cabecera `Server`, D-144) y si hay HTTPS (`requireSSL`).
+- **Fase 10 · Dashboard de Training (spec 018), en curso** en la rama `fase-10`
+  (plan: `docs/specs/018-plan.md`).
+  - **E1 ✅** (2026-10-22, probada por el usuario): `CanViewReports`, menú del dashboard,
+    `ReadinessPolicy`, la lista de Operadores, el aviso al borrar, índices,
+    `10_spDashboard.sql`, el generador `Database/Ops/GenerateDashboardData.sql`, ClosedXML
+    verificado (D-140) y Chart.js 4.5.1. Paginar Operadores en la BLL y no en el SP es un
+    desvío aceptado (D-143).
+  - **E2 lista para probar** (2026-10-22, sin commit): el detalle del Operador
+    (`Operator.aspx?id=`: estado por guía, sesiones con duración e intentos fallidos, pasos a
+    reforzar) y B-3 (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al login).
+  - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**
@@ -64,8 +57,9 @@
 - **Pendientes del usuario (diferidos):** revisar la auditoría de fidelidad AUD-45 a AUD-70
   (`docs/audits/2026-10-19-fidelidad-ui.md`, integrada en `TrainingApp` el 2026-10-22;
   AUD-63/64/69 ya ☑ vía la 017) y marcar sus casillas; las capturas de los 4 modales del Start de Moldeo (inventario #8);
-  rotar la contraseña de `sa` y actualizar `connectionStrings.config` (D-8), y probar T1 en
-  el servidor IIS real (D-19; checklist en `docs/history.md` → "T1").
+  rotar la contraseña de `sa` de su BD local y actualizar su `connectionStrings.config` (D-8;
+  en el servidor no aplica: TI da el login de la app), y probar T1 en el servidor IIS real
+  (D-19; checklist en `docs/history.md` → "T1").
 - **Descartado:** que la guía sugiera los códigos NC más comunes (spec 010, R6).
 
 ## Deuda y riesgos conocidos
@@ -84,8 +78,10 @@ final (D-16) repasó esta lista.
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.
-- **AUD-28/29** (endurecimiento del deploy y paquetes): en la E2 de la Fase 9 (D-7, D-131). El inventario
-  de AUD-29 suma JsBarcode 3.11.6 (`Scripts/`, spec 011).
+- **Lo que quedó fuera de AUD-28/29** (☑ en la Fase 9, E2): la cabecera `Server` hasta que TI
+  confirme IIS 10 o superior (D-144), `requireSSL` hasta que confirme HTTPS, CSP, y Bootstrap
+  5.3.8, SweetAlert2 11.26 y CodeDom 4.x (D-131). El inventario de paquetes suma JsBarcode
+  3.11.6 (spec 011), ClosedXML 0.105.1 y sus dependencias, y Chart.js 4.5.1 (spec 018).
 - **Contraseña por defecto versionada (D-18):** quien tenga acceso al repo la conoce y, con un
   Code1, puede activar la cuenta de un compañero que aún no entró ("reclamo de cuenta
   ajena"); un reset por admin vuelve a abrirlo (spec 013). Riesgo aceptado también en
@@ -135,7 +131,7 @@ datos".
 
 | Fecha | Archivo | Alcance | Estado |
 |---|---|---|---|
-| 2026-10-01 / 02 | `docs/audits/2026-10-01-auditoria.md` | Proyecto completo: AUD-01…32, D-1…D-12, entregas E1-E5 + spec 009 | ✅ (AUD-28/29 en la Fase 9) |
+| 2026-10-01 / 02 | `docs/audits/2026-10-01-auditoria.md` | Proyecto completo: AUD-01…32, D-1…D-12, entregas E1-E5 + spec 009 | ✅ (AUD-28/29 ☑ en la Fase 9, E2) |
 | 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Spec 009 + regresión completa en el navegador, antes de la 6.6: AUD-33…44, D-13…D-16 | ✅ (AUD-40/42 diferidos) |
 | 2026-10-19 | `docs/audits/2026-10-19-fidelidad-ui.md` | Fidelidad de UI/UX contra el MES de testing: AUD-45…70 | Abierta: espera la revisión del usuario (AUD-63/64/69 ☑ vía la 017) |
 

@@ -77,8 +77,8 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E1 · Cimientos, Operadores y verificación de las librerías
 
-> **E1 de Desarrollo integrada a `TrainingApp` sin probar** (2026-10-22, rama `fase-10`; el
-> usuario pidió integrar sin el "funciona": falta su checklist).
+> **E1 de Desarrollo ✅** (2026-10-22, `a4ffefb`; se integró a `TrainingApp` antes de probarse
+> y el usuario la probó después: "funciona").
 > - **Desvío aceptado por el usuario (2026-10-22, D-143, lo registra Arquitectura y
 >   Planeación como enmienda 1):** el SP de
 >   operadores devuelve todos los que cumplen la búsqueda, **sin paginar**, y la BLL filtra por
@@ -147,7 +147,7 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
   - `ReadinessPolicy` (AC-3 a AC-6 y AC-8): aprobado con 0.70, reprobado, aprobó y después
     reprobó, abandonado o en curso, solo Guided y sin sesiones;
   - la búsqueda y la paginación con un repositorio en memoria.
-- [ ] **Checklist:**
+- [x] **Checklist:**
   - el admin ve el menú; el operador no, y una URL de Operadores lo devuelve a su inicio
     (AC-2);
   - estados correctos con datos armados a mano;
@@ -157,19 +157,46 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E2 · Detalle del Operador
 
-- [ ] SP: los intentos por sesión y paso de un operador (con el resultado, el motivo, la
+> **E2 de Desarrollo lista para probar** (2026-10-22, rama `fase-10`, sin commit hasta la
+> aprobación del usuario). Detalle que no cambia el plan:
+> - `StepRuns` (BLL) arma cada paso de una sesión desde sus intentos: duración (DA-2),
+>   intentos fallidos (sin contar el salto), y si terminó sin acierto. Lo van a usar también
+>   Pasos y las descargas. "Sin acierto" = el paso quedó atrás sin un intento correcto: en
+>   Assessment, el avance forzado, también en el último paso de una sesión abandonada
+>   (`ModePolicy.ForcesAdvanceAt`, el 4.º fallo); en Práctica libre, el salto **con** fallos.
+> - Los intentos fallidos de cada sesión del detalle salen de sus intentos (`StepRuns`), con la
+>   misma regla que los pasos a reforzar.
+> - El puntaje de una sesión se muestra si está completada y su modo lo muestra
+>   (`ModePolicy.ShowsScore`, D-90): "—" en Práctica libre y en las no completadas.
+> - Un id inválido vuelve a `Operators.aspx?missing=1`, que muestra el aviso.
+> - **B-3:** `SessionHelper.RedirectHomeAfterRoleChange` invalida `RoleCache`, vuelve a leer el
+>   rol y manda al inicio del rol nuevo. `RedirectHome` solo no alcanzaba: el principal del
+>   request todavía tiene el rol viejo, así que mandaba a `Users.aspx`, que `Web.config` ya le
+>   niega. Lo usan `Users`, `Operators` y `Operator`.
+> - **Generador:** ahora cada paso dura de 60 a 180 s más 40 s por fallo (antes todas las
+>   sesiones duraban lo mismo), el avance forzado lleva el 4.º fallo como en la app, y ninguna
+>   sesión queda en el futuro.
+> - Del `/code-review medium` (8 hallazgos) se aplicaron 6 (B-3 con el rol nuevo, salto sin
+>   fallos, avance forzado en una sesión abandonada, los intentos agrupados por sesión, las
+>   sesiones de una guía publicada a mitad de la lectura, el filtro de rol en el SP de intentos,
+>   y los tiempos del generador). Se descartaron 2: el mapeo de pasos que se parece al de
+>   `TrainingGuideRepository` (este SP tiene otra forma) y los nombres de modo que también están
+>   en `GuidedTest` (unificarlos es otro refactor). El índice para leer los intentos de un
+>   operador sin key lookups queda para la E7.
+
+- [x] SP: los intentos por sesión y paso de un operador (con el resultado, el motivo, la
   acción y las horas), para la duración por paso y los pasos a reforzar.
-- [ ] **`DashboardService.GetOperator`:**
+- [x] **`DashboardService.GetOperator`:**
   - el estado por guía;
   - las sesiones, con la duración de la sesión, y "—" si está en curso;
   - **pasos a reforzar:** en sus **Assessment** de cada guía, los pasos que terminaron sin
     acierto o con 2 o más intentos fallidos. Se ordenan por veces sin acierto y después por
     intentos fallidos, hasta **5 por guía**, con su motivo más frecuente.
-- [ ] **Duración de un paso** (DA-2), como función pura con tests: desde el último intento
+- [x] **Duración de un paso** (DA-2), como función pura con tests: desde el último intento
   del paso anterior, o desde `StartedAt` en el primero.
-- [ ] **Página `Operator.aspx?id=…`** (AC-14). Un id inexistente, de un administrador o
+- [x] **Página `Operator.aspx?id=…`** (AC-14). Un id inexistente, de un administrador o
   manipulado → aviso y vuelta a Operadores, sin datos de otro usuario.
-- [ ] **B-3** (enmienda 2): en `Users.aspx.cs`, cuando la BLL niega el acceso,
+- [x] **B-3** (enmienda 2): en `Users.aspx.cs`, cuando la BLL niega el acceso,
   `RedirectHome` en vez del login.
 - [ ] **Checklist:**
   - el detalle de un operador con sesiones de los tres modos, con horas de la planta y
