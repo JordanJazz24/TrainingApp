@@ -136,6 +136,14 @@
 >   MES (T9) muestran errores con el Inventory SFC o el Material Document. En ese caso, con
 >   otra spec: etiquetas simuladas del componente y el dato calificado.
 
+> **Enmienda 7 · 2026-10-22 (fila 12 de la Fase 8.5, W23; D-123, D-128):** afecta P-11 y el
+> As-Built de Remove component y Add Component. La implementación tomó la **Shop Order**
+> como Material/Vers. (`{ShopOrder}/A`), con el supuesto de que era el prefijo de los SFC.
+> La captura del POD real de Wires (W23) mostró que el SFC serializado es
+> `{12NC}-{serial}`: el material es el **12NC** del producto. Desde la fila 12,
+> Material/Vers. es `{12NC}/A`, con el 12NC simulado del área (D-121). BOM/Version sigue
+> con la Shop Order porque es un dato `SIM` (D-128). No se califica: solo se muestra.
+
 Fuentes: roadmap → Fase 8 ("Revisión con SAP MES", "Revisión con Ernesto", "Validación con
 técnicos de MES", "Retroalimentación de la trainer") y Fase 8.5, tarea 6 (T4); WI
 QD001001524 rev. 27 (`docs/ui-reference/wi-produccion-disposables.md`, W13 y W19-W21);
@@ -296,6 +304,7 @@ Log NC/` (2026-10-15), documentadas en `docs/ui-reference/general-flow.md` → "
 - ~~P-10 · SFC Split con varios SFC~~: **sin efecto por D-53**; el split no cambia.
 - **P-11 · Datos de Remove component** (captura `remove compoenet modal .png`):
   - SFC, Material/Vers. y Description salen de la orden simulada; Status = `Active`.
+    *(Enmienda 7, 2026-10-22: Material/Vers. es `{12NC}/A`, no la Shop Order.)*
   - Routing/Vers. y BOM/Version son simulados (`SIM`).
   - Actual Component/Vers. y su Description son el componente elegido en el Browse.
   - Qty Required y Qty Assembled son la Qty del BOM.

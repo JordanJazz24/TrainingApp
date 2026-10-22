@@ -217,7 +217,7 @@ testing (T9):
 identidad del operador y el historial de Assessment confiables (ver "Revisión con Ernesto").
 Plan aprobado por el usuario el 2026-10-12 y **reordenado el 2026-10-13** dos veces: tras
 la validación con técnicos y tras la trainer; el usuario terminó la 013 antes que T7
-(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 ✅ → 012 ✅ → 017 ✅ → W23 (fila 12) → quitar `RequiresNCComponent` (fila 13)** (filas 12 y 13 agregadas el 2026-10-21; T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
+(2026-10-13). Orden vigente: **013 ✅ → T7 → 015 → 014 ✅ → 016 ✅ → notas EP-7 ✅ → 012 ✅ → 017 ✅ → W23 (fila 12) ✅ → quitar `RequiresNCComponent` (fila 13)** (filas 12 y 13 agregadas el 2026-10-21; T6, 2026-10-19; si las capturas de la 016 se atrasan, las notas EP-7 van primero). Cada tarea con funcionalidad nueva lleva su `/spec` (`docs/process.md`).
 
 | # | Tarea | Tipo | Depende de |
 |---|---|---|---|
@@ -232,7 +232,7 @@ la validación con técnicos y tras la trainer; el usuario terminó la 013 antes
 | 9 | ✅ **T6 · Evaluación práctica → Assessment** (QD001043644, 2026-10-19): contraste y decisiones en `docs/ui-reference/evaluacion-practica-mes.md`. La evaluación es insumo, no se replica: el simulador cubre como mínimo lo que pide. Sin cambios de pesos ni del criterio de aprobación (EP-1, EP-2); W13 sigue diferida (EP-6). Salieron: EP-3 → 016, EP-7 → fila 11, EP-4/EP-5 → fila 10 | análisis | — |
 | 10 | ✅ **Spec 017 · Mensajes de error del MES** (2026-10-21, `b3dfff8`…`5e07a1b`; enmiendas 1 a 7 del plan; en Práctica libre la explicación va en "¿Qué significa?" junto al mensaje, enmienda 7) (EP-4, EP-5; spec `docs/specs/017-mensajes-del-mes.md`, aprobada el 2026-10-21; insumo `docs/ui-reference/errores-mes.md`): **solo errores reactivos** (D-92). Muestra el mensaje real del MES, en inglés y con número (banner del POD, franja de ventana, OK de Split que cierra), cuando el operador provoca la situación, incluidos los clics fuera de secuencia que el MES rechazaría. Es así en los tres modos, **sin cambiar la calificación**, con explicación en español en Guided y en Ver pista. Absorbe AUD-63/64/69 (D-95). Resource Setup solo gana el Setup Type Material (D-94, D-100). Fuera: batch inválido, cantidad insuficiente, TSM expirado, SFC en otro recurso, componente no requerido y REMOVE ALL + Save → Insert New (D-96, D-97, D-100) | spec 017 (plan `017-plan.md`, aprobado el 2026-10-21, 4 entregas) | — |
 | 11 | ✅ **Notas de comprensión en la guía de Guided** (EP-7, 2026-10-20, `9a5433c`): cuándo iniciar y cerrar sesión, riesgo de una sesión abierta, cuándo repetir Resource Setup y Line Clearance, consumir antes del MPI; cada una en su paso, como las de T7. Assessment no las evalúa. Las de login y limpieza de caché, con los pasos de la 016. Plan y textos aprobados el 2026-10-20: ver "Plan de la fila 11" | plan directo | — |
-| 12 | **W23 · SFC serializado `{12NC}-{serial}`** (captura del POD real de Wires, 2026-10-15): las piezas de una orden Serialized pasan de `{ShopOrder}-{sufijo}` a `{12NC}-{serial}`, con un 12NC simulado por área y seriales consecutivos (D-121, D-122); el As-Built de Log NC muestra el 12NC (D-123). Sin cambio de BD ni de puntaje. Ver "Plan de la fila 12" | plan directo | spec 017 cerrada |
+| 12 | ✅ **W23 · SFC serializado `{12NC}-{serial}`** (2026-10-22, `7abda99`; captura del POD real de Wires, 2026-10-15): las piezas de una orden Serialized pasan de `{ShopOrder}-{sufijo}` a `{12NC}-{serial}`, con un 12NC simulado por área y seriales consecutivos de 1 a 6 dígitos (D-121, D-122, enmendada el 2026-10-22); el As-Built de Log NC muestra el 12NC (D-123; enmienda 7 de la spec 014). Sin cambio de BD ni de puntaje. Ver "Plan de la fila 12" | plan directo | spec 017 cerrada |
 | 13 | **Quitar `RequiresNCComponent`** (deuda desde la enmienda 4 de la spec 014): la columna `Areas.RequiresNCComponent` y lo que la lee, sin cambio de comportamiento. Se recrea la BD con `00`–`09` (D-124). Ver "Plan de la fila 13" | plan directo | fila 12 |
 
 **Plan de la fila 11 · notas EP-7** (aprobado por el usuario el 2026-10-20, con la
@@ -258,12 +258,16 @@ pasos. Una entrega. Verificado en el código en `5565b10`.
   operación): `"3000"` + el `Id` del área con 8 dígitos (ej. `300000000003`). No pasa por
   la BD. Se reemplaza por el real cuando negocio lo dé. El usuario aceptó que el 12NC de un
   área cambie entre BDs si su `Id` cambia (D-125).
-- **Seriales consecutivos de 1 a 5 dígitos (D-122):** `SerialSfcGenerator.Generate` recibe el
-  12NC en vez de la Shop Order. Sortea **primero cuántos dígitos** tiene el inicio (1 a 5,
-  como los sufijos de hoy) y después el número, sin ceros a la izquierda (D-126). Numera las
-  4-5 piezas consecutivas: `{12NC}-{inicio}`, `{12NC}-{inicio+1}`… (ej. `-7` … `-11`,
-  `-46705` … `-46709`). La última no pasa de `99999`: si el inicio sorteado no alcanza para
-  las 4-5 piezas, se baja. Actualizar el comentario de la clase.
+- **Seriales consecutivos de 1 a 6 dígitos (D-122):** `SerialSfcGenerator.Generate` recibe el
+  12NC en vez de la Shop Order. Sortea **primero cuántos dígitos** tiene el inicio (1 a 6,
+  como los sufijos de hoy: `MaxSuffixDigits = 6`) y después el número, sin ceros a la
+  izquierda (D-126). Numera las 4-5 piezas consecutivas: `{12NC}-{inicio}`,
+  `{12NC}-{inicio+1}`… (ej. `-7` … `-11`, `-46705` … `-46709`). La última no pasa de
+  `999999`: si el inicio sorteado no alcanza para las 4-5 piezas, se baja. Actualizar el
+  comentario de la clase.
+  - **Enmendado 2026-10-22** (aviso de Desarrollo al empezar): el plan decía "1 a 5, como
+    los sufijos de hoy", pero hoy son de 1 a 6. El usuario eligió de 1 a 6, como hoy, aunque la
+    única captura real tiene 5 dígitos (`-46705`).
 - **`SimulatedOrder`** gana `MaterialNumber`. `SimulatedOrder.Create` lo recibe de
   `PodService` (`:314`), que conoce el área. NonSerialized no cambia: su lote sigue siendo
   `CR9A` + 8 dígitos (`DeriveSFCCode`), porque no hay captura del SFC real de un lote
@@ -278,7 +282,7 @@ pasos. Una entrega. Verificado en el código en `5565b10`.
   y la lista de piezas). Desarrollo lo confirma.
 - **Tests:**
   - `SerialSfcGeneratorTests` (`TrainingApp.Test/Class1.cs:71`): formato
-    `^\d{12}-[1-9]\d{0,4}$`, 4-5 piezas únicas y consecutivas, la última ≤ `99999`, en
+    `^\d{12}-[1-9]\d{0,5}$`, 4-5 piezas únicas y consecutivas, la última ≤ `999999`, en
     muchas semillas;
   - `PodDefaults.MaterialNumber`: 12 dígitos y estable para la misma área.
 
