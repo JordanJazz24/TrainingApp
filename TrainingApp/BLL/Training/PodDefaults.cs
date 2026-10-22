@@ -31,12 +31,17 @@ namespace TrainingApp.BLL.Training
         public static string MaterialDescription(Product product, Area area)
             => (product?.Name ?? "") + " / " + area.Name;
 
+        // 12NC simulado del material del área (W23, D-121): "3000" + el Id del área con 8
+        // dígitos. Es el prefijo de los SFC Serialized; se reemplaza por el real cuando negocio
+        // lo dé. Cambia entre BDs si el Id del área cambia (D-125).
+        public static string MaterialNumber(Area area) => "3000" + area.Id.ToString("D8");
+
         // As-Built Configuration de Remove component y Add Component (spec 014, P-11). El
-        // material es la Shop Order (prefijo de los SFC, como en el MES real); Routing y BOM son
-        // simulados (SIM). La operación es la actual de las Operations del área (D-58);
-        // SimOperation es el respaldo de un área sin Operations.
+        // material es el 12NC (prefijo de los SFC, como en el MES real; D-123); Routing y BOM
+        // son simulados (SIM, D-128). La operación es la actual de las Operations del área
+        // (D-58); SimOperation es el respaldo de un área sin Operations.
         public static string MaterialVersion(SimulatedOrder order)
-            => order == null ? string.Empty : order.ShopOrderInput + "/A";
+            => string.IsNullOrEmpty(order?.MaterialNumber) ? string.Empty : order.MaterialNumber + "/A";
 
         public static string SimRouting(Area area) => "PR_" + Code(area) + "_SIM/A-1";
 

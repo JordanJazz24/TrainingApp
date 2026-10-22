@@ -7,12 +7,12 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-21 · **Branch:** `TrainingApp` · **Último commit de
-código:** spec 017, entrega 4 (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-22 · **Branch:** `TrainingApp` · **Último commit de
+código:** fila 12, W23 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
-  quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7, 012 y **017**
+  quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7, 012, 017 y **fila 12**
   (detalle en `docs/history.md`). La 016 ya se puede subir a `main` (D-81); lo sube el
   usuario.
 - **Spec 017 ✅** (2026-10-21, fila 10, ver "Historial"): mensajes de error del MES en
@@ -20,8 +20,12 @@ código:** spec 017, entrega 4 (`git log --oneline -10` para ver el estado real)
   explicaciones en español (nota de la guía en Guided, botón "¿Qué significa?" en Práctica
   libre). Probada por el usuario. Se trabajó en la rama `spec-017`, ya integrada en
   `TrainingApp`.
-- **Siguiente:** filas 12 (W23, SFC `{12NC}-{serial}`) y 13 (quitar `RequiresNCComponent`)
-  de la Fase 8.5: planes directos que esperan la aprobación del usuario.
+- **Fila 12 ✅** (2026-10-22, W23, ver "Historial"): las piezas Serialized pasan a
+  `{12NC}-{serial}`, con un 12NC simulado por área y seriales consecutivos de 1 a 6 dígitos;
+  el As-Built de Log NC muestra `{12NC}/A`. Sin cambios de BD ni de puntaje. Probada por el
+  usuario.
+- **Siguiente:** fila 13 de la Fase 8.5 (quitar `RequiresNCComponent`), plan directo aprobado
+  por el usuario el 2026-10-21.
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**

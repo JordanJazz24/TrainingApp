@@ -515,8 +515,8 @@ en planta. Hallazgos y propuestas: roadmap → "Fase 8".
   secuencia de 4 modales de `moldeo-flow.md`.
 - **Sin checklist** (el resto): Start es directo, sin modales; se califica solo por
   secuencia.
-- **Serialized:** la orden tiene 4-5 piezas `{ShopOrder}-{sufijo}` (en `New`; 3-5 hasta la
-  spec 014). Browse Work
+- **Serialized:** la orden tiene 4-5 piezas `{12NC}-{serial}` con seriales consecutivos
+  (en `New`; 3-5 hasta la spec 014; `{ShopOrder}-{sufijo}` hasta la fila 12 de la Fase 8.5, W23). Browse Work
   List permite multi-selección (click alterna la fila, sin columna Status) y `TxtSFC`
   muestra el SFC o `[N SELECTED]`. Start exige **todas** las piezas (si no, aviso sin
   intento), las pasa a `Active` y las carga en el POD **sin seleccionar**: el operador las

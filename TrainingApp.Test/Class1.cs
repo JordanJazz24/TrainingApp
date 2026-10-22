@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 using TrainingApp.BLL.Scoring;
 using TrainingApp.Domain;
@@ -70,18 +71,54 @@ namespace TrainingApp.Test
     [TestFixture]
     public class SerialSfcGeneratorTests
     {
+        // W23 (D-122, D-126): {12NC}-{serial}, 4-5 piezas consecutivas, sin ceros a la
+        // izquierda y la última ≤ 999999.
         [Test]
-        public void Generate_Returns4To5UniquePiecesWithNumericSuffixOf1To6Digits()
+        public void Generate_Returns4To5ConsecutivePiecesWith12NcPrefix()
         {
-            for (int seed = 0; seed < 200; seed++)
+            var digitCounts = new System.Collections.Generic.HashSet<int>();
+            for (int seed = 0; seed < 1000; seed++)
             {
-                var sfcs = TrainingApp.BLL.Training.SerialSfcGenerator.Generate("000123", new System.Random(seed));
+                var sfcs = TrainingApp.BLL.Training.SerialSfcGenerator.Generate("300000000003", new System.Random(seed));
 
                 Assert.That(sfcs.Count, Is.InRange(4, 5));
                 Assert.That(sfcs, Is.Unique);
                 foreach (var sfc in sfcs)
-                    Assert.That(sfc, Does.Match(@"^000123-\d{1,6}$"));
+                    Assert.That(sfc, Does.Match(@"^\d{12}-[1-9]\d{0,5}$"));
+
+                var serials = sfcs.Select(s => int.Parse(s.Substring(13))).ToList();
+                for (int i = 1; i < serials.Count; i++)
+                    Assert.That(serials[i], Is.EqualTo(serials[0] + i));
+                Assert.That(serials.Last(), Is.LessThanOrEqualTo(999999));
+                Assert.That(sfcs[0], Does.StartWith("300000000003-"));
+                digitCounts.Add(serials[0].ToString().Length);
             }
+            Assert.That(digitCounts, Is.EquivalentTo(new[] { 1, 2, 3, 4, 5, 6 }));
+        }
+    }
+
+    [TestFixture]
+    public class PodDefaultsMaterialNumberTests
+    {
+        [Test]
+        public void MaterialNumber_Is12DigitsAndStableForTheSameArea()
+        {
+            var area = new Area { Id = 3 };
+
+            Assert.That(TrainingApp.BLL.Training.PodDefaults.MaterialNumber(area), Is.EqualTo("300000000003"));
+            Assert.That(TrainingApp.BLL.Training.PodDefaults.MaterialNumber(new Area { Id = 3 }),
+                Is.EqualTo(TrainingApp.BLL.Training.PodDefaults.MaterialNumber(area)));
+            Assert.That(TrainingApp.BLL.Training.PodDefaults.MaterialNumber(new Area { Id = 1234 }),
+                Does.Match(@"^\d{12}$"));
+        }
+
+        [Test]
+        public void MaterialVersion_Is12NcSlashA()
+        {
+            var order = new TrainingApp.BLL.Training.SimulatedOrder { ShopOrderInput = "303406950", MaterialNumber = "300000000003" };
+
+            Assert.That(TrainingApp.BLL.Training.PodDefaults.MaterialVersion(order), Is.EqualTo("300000000003/A"));
+            Assert.That(TrainingApp.BLL.Training.PodDefaults.MaterialVersion(null), Is.Empty);
         }
     }
 

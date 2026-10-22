@@ -382,3 +382,17 @@ sesión pasó de leer 81 KB (CLAUDE.md y el roadmap entero) a 21 KB (CLAUDE.md y
 `docs/status.md`). La medición con preguntas de prueba se omitió (usuario). Pendiente para
 el cierre de la spec 017: `general-flow.md` todavía no refleja sus mensajes del MES (hecho en
 el cierre de la 017).
+
+## Fila 12 · W23, SFC serializado `{12NC}-{serial}` ✅ (2026-10-22, Fase 8.5, plan directo)
+Plan aprobado por el usuario el 2026-10-21 (`docs/roadmap.md` → "Plan de la fila 12"), con
+D-121 a D-123 y D-125 a D-128. Las piezas de una orden Serialized pasan de
+`{ShopOrder}-{sufijo}` a `{12NC}-{serial}`, como en el POD real de Wires:
+`PodDefaults.MaterialNumber(Area)` arma un 12NC simulado (`"3000"` + el `Id` del área con 8
+dígitos) y `SerialSfcGenerator` sortea cuántos dígitos tiene el inicio (de 1 a 6, decisión del
+usuario al implementar: el plan decía 5) y numera las 4-5 piezas consecutivas, con la última
+≤ `999999`. `SimulatedOrder` guarda `MaterialNumber`; el As-Built de Log NC muestra
+`{12NC}/A` y `SimBom` sigue con la Shop Order. NonSerialized no cambia. Se confirmó que nada
+partía el SFC por `-` ni lo comparaba con la Shop Order. Sin scripts de BD ni cambios de
+puntaje. Review `low` sin hallazgos. Tests: 283 (`SerialSfcGeneratorTests` reescrito,
+`PodDefaultsMaterialNumberTests`). W23 resuelto en `wi-produccion-disposables.md`; glosario
+y `general-flow.md` al día. Probada por el usuario en el navegador.

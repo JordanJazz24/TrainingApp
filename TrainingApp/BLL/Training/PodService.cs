@@ -311,7 +311,7 @@ namespace TrainingApp.BLL.Training
         // Assembly y DC apuntaba a filas de la orden vieja: se descarta con ella.
         private void CreateOrder(PodContext ctx, string shopOrderInput)
         {
-            ctx.State.Order = SimulatedOrder.Create(shopOrderInput,
+            ctx.State.Order = SimulatedOrder.Create(shopOrderInput, PodDefaults.MaterialNumber(ctx.Area),
                 PodDefaults.MaterialDescription(ctx.Product, ctx.Area), ctx.Area.SerializationType);
             ctx.State.Assembly       = null;
             ctx.State.DataCollection = null;

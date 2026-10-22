@@ -50,7 +50,7 @@ Cómo se ve y se opera cada pantalla del simulador: `general-flow.md`. Reglas de
 | W20 | Log NC | Prefijos reales: `F_FS` scrap, `F_FR` reparación rápida, `F_FX` reparación extendida, `F` fallas de DC. Moldeo incluye `F_FR_GENERAL` y el simulador lo trata como scrap | A considerar |
 | W21 | Log NC | Pasos de la reparación rápida y la extendida, útiles para T4 | Contexto |
 | W22 | Sesión | Logout obligatorio en descansos, cambio de estación o de turno | Contexto |
-| W23 | Search/Start | El SFC serializado real es `{12NC del material}-{serial}` (ej. `300014142061-46705`); el simulador usa `{ShopOrder}-{sufijo}` | A considerar |
+| W23 | Search/Start | El SFC serializado real es `{12NC del material}-{serial}` (ej. `300014142061-46705`); el simulador usaba `{ShopOrder}-{sufijo}` | Resuelto (fila 12 de la Fase 8.5) |
 
 ---
 
@@ -141,7 +141,7 @@ puede escanear la etiqueta Traveler del SFC directamente.
   inician unidades en la primera operación entre 11:30 p. m. y 12:30 a. m. ni durante un
   mantenimiento del MES (se pierden datos de expiración). Ninguna área simulada es primera
   operación con expiración que se sepa; no aplica hoy.
-- **W23, A considerar** (captura del POD real de Wires, 2026-10-15). Formato del SFC
+- **W23, resuelto** (captura del POD real de Wires, 2026-10-15; fila 12 de la Fase 8.5). Formato del SFC
   serializado: `{12NC del material}-{serial}`, ej. `300014142061-46705`.
   - **12NC** (`300014142061`): número de parte Philips de 12 dígitos del **producto**
     ("OmniWire, 185CM, Straight Tip SoS"); igual en todas sus unidades. La WI de Colorado lo
@@ -153,10 +153,13 @@ puede escanear la etiqueta Traveler del SFC directamente.
   - La **Shop Order** (`303628518`) no forma parte del SFC; va en su propia columna. La
     herramienta de Shelf Life de la WI valida el mismo formato ("12 NC de 12 dígitos", guion,
     solo números después).
-  - El simulador genera las piezas como `{ShopOrder}-{sufijo}` (ej. `303406950-430`). Para
-    la fidelidad, `{12NC}-{serial}`, con el 12NC del material de la guía. Importa para escanear
-    (spec 011): la orden y una pieza tienen que ser números claramente distintos. Es dato de
-    la orden simulada (`PodService`), sin efecto en el puntaje.
+  - El simulador generaba las piezas como `{ShopOrder}-{sufijo}` (ej. `303406950-430`). Desde
+    la fila 12 de la Fase 8.5 las genera como `{12NC}-{serial}`: un 12NC simulado por área
+    (`"3000"` + el `Id` del área con 8 dígitos, D-121, D-125) y 4-5 seriales consecutivos que
+    empiezan en un número de 1 a 6 dígitos, la última ≤ `999999` (D-122, D-126). Así la orden y
+    una pieza son números claramente distintos al escanear (spec 011). El As-Built de Log NC
+    muestra `{12NC}/A` (D-123). Es dato de la orden simulada (`PodService`), sin efecto en el
+    puntaje. NonSerialized sigue con `CR9A` + 8 dígitos (D-127).
 
 ### 4. Assembly
 

@@ -14,6 +14,9 @@ namespace TrainingApp.BLL.Training
     {
         public string ShopOrderInput       { get; set; }
 
+        // 12NC del material (W23, D-121): prefijo de los SFC Serialized y material del As-Built.
+        public string MaterialNumber       { get; set; }
+
         // SFC del lote (NonSerialized). En Serialized es null: cada pieza tiene el suyo.
         public string SFCCode              { get; set; }
         public string MaterialDescription  { get; set; }
@@ -33,12 +36,13 @@ namespace TrainingApp.BLL.Training
         // shopOrderInput ya viene validado con IsValidShopOrder por quien llama.
         //   NonSerialized: una sola fila con la cantidad del lote, ya Active.
         //   Serialized (spec 008): entre 4 y 5 piezas con SFC propio (spec 014), en New hasta el Start.
-        public static SimulatedOrder Create(string shopOrderInput, string materialDescription,
-            SerializationType serializationType)
+        public static SimulatedOrder Create(string shopOrderInput, string materialNumber,
+            string materialDescription, SerializationType serializationType)
         {
             var order = new SimulatedOrder
             {
                 ShopOrderInput      = shopOrderInput,
+                MaterialNumber      = materialNumber,
                 MaterialDescription = materialDescription,
                 Status              = SimulatedOrderRow.StatusActive,
                 ProcessLot          = PodDefaults.ProcessLot(DateTime.Today)
@@ -46,7 +50,7 @@ namespace TrainingApp.BLL.Training
 
             if (serializationType == SerializationType.Serialized)
             {
-                foreach (var sfc in SerialSfcGenerator.Generate(shopOrderInput, new Random()))
+                foreach (var sfc in SerialSfcGenerator.Generate(materialNumber, new Random()))
                     order.Rows.Add(new SimulatedOrderRow
                     {
                         RowId   = Guid.NewGuid().ToString(),

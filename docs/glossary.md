@@ -14,7 +14,7 @@
 | **Search / Start** | Paso en que el operador elige el SFC (o las piezas) y ejecuta Start. |
 | **Start con checklist** | `Areas.RequiresStartChecklist = 1`: Start abre la secuencia de 4 modales (hoy solo Moldeo). Con 0, Start es directo. |
 | **Browse Work List** | Modal "SFCS QUEUED" desde el que se elige qué SFC (o qué piezas, en Serialized) se inicia con Start. |
-| **Pieza (Serialized)** | Cada SFC individual de una Shop Order serializada, `{ShopOrder}-{sufijo}`. |
+| **Pieza (Serialized)** | Cada SFC individual de una Shop Order serializada, `{12NC}-{serial}`: el 12NC del material y un serial consecutivo dentro de la orden (W23, D-121, D-122). La Shop Order no forma parte del SFC. |
 | **[N SELECTED]** | Texto de `TxtSFC` con varias filas seleccionadas (ej. `[3 SELECTED]`), como el MES real. Con una fila muestra su SFC. |
 | **Process Lot / Batch Number** | Lote al que pertenecen las piezas de la orden (columna Process Lot del POD); es el valor de ★ Batch Number en Assemble Components. |
 | **BOM / Component List** | Lista de materiales de la operación (`AssemblyComponents`); en Assembly se muestra como Component List. |
