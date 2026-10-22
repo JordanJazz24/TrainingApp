@@ -31,7 +31,7 @@
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | **9 · Deploy del MVP** | ▶️ en curso (MVP 2026-10-22) | | `fase-9-plan.md` |
-| 10 · Dashboard e historial por operador (T8) | pendiente | | |
+| **10 · Dashboard e historial por operador (T8)** | ▶️ spec aprobada (2026-10-22); plan en preparación | | `018-dashboard-training.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -380,4 +380,32 @@ permisos, prueba de humo. Incluye AUD-28/29.
   publicar: precompilar el sitio y configurar el App Pool con `startMode="AlwaysRunning"`,
   `preloadEnabled="true"` (Application Initialization) e idle timeout 0.
 **No incluye:** CI/CD automatizado, monitoreo avanzado.
+
+### Fase 10 — Dashboard de Training e historial por operador (T8)
+
+**Spec aprobada el 2026-10-22: `docs/specs/018-dashboard-training.md`** (D-136 a D-142).
+Va en la versión final de la 2.ª semana de noviembre, junto con la E2 de la Fase 9 (D-135).
+El plan por entregas (`018-plan.md`) está en preparación.
+
+**Objetivo:** que los administradores (gerencia, trainers y el desarrollador) vean:
+- quién está listo, por guía;
+- dónde se falla más;
+- cómo avanza el entrenamiento.
+
+Son cinco vistas en Administración (Resumen, Operadores, Operador, Pasos y Seguimiento),
+con Excel, gráficas, curva de aprendizaje y ficha imprimible. Solo lectura y con los datos
+que ya se guardan.
+
+**No incluye:**
+- el historial visible para el operador;
+- el área del operador (diferida);
+- el rol Trainer;
+- re-entrenamiento por vencimiento;
+- marcar casos de seguimiento como atendidos;
+- registrar las descargas;
+- caché;
+- cambios en cómo se entrena o se califica;
+- tablas nuevas.
+
+**Si falta tiempo,** se recortan primero la curva y la ficha.
 

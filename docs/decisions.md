@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-136. Siguiente B-n: B-3.** La numeración es continua entre
+> - **Siguiente D-n: D-143. Siguiente B-n: B-3.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -152,6 +152,13 @@
 | D-133 | 2026-10-22 | TI administra el servidor (cadena de conexión, BD, scripts, App Pool) con `docs/deploy.md`; el usuario publica en una carpeta | specs/fase-9-plan.md | vigente |
 | D-134 | 2026-10-22 | La retroalimentación del MVP se junta fuera de la app (la registra Reuniones y Dudas) | specs/fase-9-plan.md | vigente |
 | D-135 | 2026-10-22 | La E2 de la Fase 9 se hace junto con la Fase 10, antes de la versión final de noviembre | specs/fase-9-plan.md (enmienda 1) | vigente |
+| D-136 | 2026-10-22 | Dashboard: estado "Aprobado" = algún Assessment completado ≥ 0.70, en `ReadinessPolicy` (la regla puede cambiar) | specs/018-dashboard-training.md | vigente |
+| D-137 | 2026-10-22 | Dashboard: la unidad es la guía publicada; el área del operador queda diferida | specs/018-dashboard-training.md | vigente |
+| D-138 | 2026-10-22 | Dashboard: capacidad nueva `CanViewReports` (hoy solo Administrator); el operador no ve su historial | specs/018-dashboard-training.md | vigente |
+| D-139 | 2026-10-22 | Dashboard: los SP agregan sin reglas y la BLL decide (estado, tasas, seguimiento) | specs/018-dashboard-training.md | vigente |
+| D-140 | 2026-10-22 | Dashboard: Chart.js local y `.xlsx` con ClosedXML; si ClosedXML falla en .NET FW 4.7.2, se para y decide el usuario | specs/018-dashboard-training.md | vigente |
+| D-141 | 2026-10-22 | Dashboard: seguimiento S-1/S-2/S-3 por guía, sin período, y sale al aprobar | specs/018-dashboard-training.md | vigente |
+| D-142 | 2026-10-22 | Borrar un usuario avisa cuántas sesiones se pierden y que los indicadores cambian | specs/018-dashboard-training.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
