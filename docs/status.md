@@ -39,6 +39,10 @@
     entregarle a TI la carpeta y `docs/deploy.md`; la prueba de humo en el servidor (cierra D-19); el mensaje de lanzamiento
     (Redefinity de demostración, D-132; retroalimentación fuera de la app, D-134); preguntarle a
     TI la versión de IIS (cabecera `Server`, D-144) y si hay HTTPS (`requireSSL`).
+  - **El reparto nuevo reemplaza D-133:** Arquitectura y Planeación lo registra en
+    `docs/decisions.md` y en `fase-9-plan.md` (avisado el 2026-10-22, pendiente). La app en
+    producción usa el login `developer3`, que tiene `CONTROL` sobre la BD; `docs/deploy.md` →
+    2.3 recomienda uno con solo `GRANT EXECUTE` (lo decide el usuario).
 - **Fase 10 · Dashboard de Training (spec 018), en curso** en la rama `fase-10`
   (plan: `docs/specs/018-plan.md`).
   - **E1 ✅** (2026-10-22, probada por el usuario): `CanViewReports`, menú del dashboard,
@@ -46,9 +50,17 @@
     `10_spDashboard.sql`, el generador `Database/Ops/GenerateDashboardData.sql`, ClosedXML
     verificado (D-140) y Chart.js 4.5.1. Paginar Operadores en la BLL y no en el SP es un
     desvío aceptado (D-143).
-  - **E2 lista para probar** (2026-10-22, sin commit): el detalle del Operador
-    (`Operator.aspx?id=`: estado por guía, sesiones con duración e intentos fallidos, pasos a
-    reforzar) y B-3 (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al login).
+  - **E2 lista para probar** (2026-10-22): el detalle del Operador (`Operator.aspx?id=`:
+    estado por guía, sesiones con duración e intentos fallidos, pasos a reforzar) y B-3
+    (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al login). **El código
+    está sin commit, solo en el worktree `.claude/worktrees/fase-10`** (20 archivos; `git
+    status` ahí): no borrar el worktree. Falta el checklist del usuario (`docs/specs/018-plan.md`
+    → E2); con su "funciona", commit en `fase-10`, merge y volver a correr `10_spDashboard.sql`
+    en la BD local y en la de producción (trae `spDashboardGuideSteps` y
+    `spDashboardOperatorAttempts`). La E3 espera esa aprobación y el aviso de Arquitectura y
+    Planeación.
+  - **Para probar el dashboard con volumen:** BD `TrainingApp_DashboardTest` en LocalDB, con
+    el generador (1600 operadores; admin = Code1 del usuario).
   - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
@@ -60,7 +72,7 @@
   (`docs/audits/2026-10-19-fidelidad-ui.md`, integrada en `TrainingApp` el 2026-10-22;
   AUD-63/64/69 ya ☑ vía la 017) y marcar sus casillas; las capturas de los 4 modales del Start de Moldeo (inventario #8);
   rotar la contraseña de `sa` de su BD local y actualizar su `connectionStrings.config` (D-8;
-  en el servidor no aplica: TI da el login de la app), y probar T1 en el servidor IIS real
+  en el servidor no aplica: la app usa el login de producción, no `sa`), y probar T1 en el servidor IIS real
   (D-19; checklist en `docs/history.md` → "T1").
 - **Descartado:** que la guía sugiera los códigos NC más comunes (spec 010, R6).
 
