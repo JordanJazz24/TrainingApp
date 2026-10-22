@@ -58,14 +58,27 @@ Order y Status al elegir la orden.
 
 | Hallazgo | Real | Simulador hoy | Propuesta | Aprobado |
 |---|---|---|---|---|
-| **AUD-63** Mensajes de error del MES | Banner rojo (POD) o franja roja dentro de la ventana; en inglés, con número; el del POD queda hasta la siguiente acción; a veces `Messages (n):` en el panel | SweetAlert en español (`PodNotice`, `BtnSplit_Click`, barcode de Assemble); el banner solo tiene la variante de éxito y se oculta a los 3 s | Variante de error del banner y de la franja de ventana, con los **textos reales** de la referencia donde el MES tiene el mismo caso (ej. `SfcRequired` → 22506, `SfcNotInOrder` → 22507/13005, split vacío → 13875). Los avisos propios del simulador (`SelectAllPieces`, `StartWholeOrder`, `SplitRequired`…) siguen como avisos del simulador | ☐ |
-| **AUD-64** Errores de SFC Split | El mensaje reemplaza el formulario con [OK], y el OK **cierra la ventana** | SweetAlert sobre la ventana abierta | Igualar (parte de AUD-63) | ☐ |
+| **AUD-63** Mensajes de error del MES | Banner rojo (POD) o franja roja dentro de la ventana; en inglés, con número; el del POD queda hasta la siguiente acción; a veces `Messages (n):` en el panel | SweetAlert en español (`PodNotice`, `BtnSplit_Click`, barcode de Assemble); el banner solo tiene la variante de éxito y se oculta a los 3 s | Variante de error del banner y de la franja de ventana, con los **textos reales** de la referencia donde el MES tiene el mismo caso (ej. `SfcRequired` → 22506, `SfcNotInOrder` → 22507/13005, split vacío → 13875). Los avisos propios del simulador (`SelectAllPieces`, `StartWholeOrder`, `SplitRequired`…) siguen como avisos del simulador | ☑ vía la spec 017 |
+| **AUD-64** Errores de SFC Split | El mensaje reemplaza el formulario con [OK], y el OK **cierra la ventana** | SweetAlert sobre la ventana abierta | Igualar (parte de AUD-63) | ☑ vía la spec 017 |
 | **AUD-65** Activities: ítems habilitados | **Todos se ven habilitados** | Los ajenos al paso, deshabilitados en gris: **en Assessment delata cuál elegir** | Mostrarlos todos habilitados; el que no corresponde, como intento o aviso según `docs/domain.md` | ☐ |
 | **AUD-66** NC Selection | Paginación por links numerados; NC por página según el alto disponible; × para cerrar | First/Prev/Next/Last con "Rows 1-N of N"; página fija | Igualar la paginación y la × | ☐ |
 | **AUD-67** Assemble abre el modal directo | Assemble abre Assemble Components de inmediato, con la Component List detrás | Primero la Component List; el modal se abre desde una fila | **Confirmar con planta** si siempre es así o depende de la orden, antes de decidir | ☐ |
 | **AUD-68** "Unsaved Data" | Return to POD con datos escritos pide confirmación [OK] [Cancel] | Sale sin preguntar | Agregar la confirmación | ☐ |
-| **AUD-69** Barcode inválido en Assemble | Franja roja 17150 y se despliegan Component Details / Assembly Data vacíos con [Add] | SweetAlert "Barcode inválido" | Igualar (parte de AUD-63) | ☐ |
+| **AUD-69** Barcode inválido en Assemble | Franja roja 17150 y se despliegan Component Details / Assembly Data vacíos con [Add] | SweetAlert "Barcode inválido" | Igualar (parte de AUD-63) | ☑ vía la spec 017 |
 | **AUD-70** Firma electrónica de DC | Workstation `_ESIG`: Data Collection Authentication antes de DC Entry | No existe | **Confirmar con planta** si las workstations que se entrenan la tienen | ☐ |
+
+## Enmienda 2026-10-22 · Integración en `TrainingApp`
+
+La auditoría se integró en `TrainingApp` el 2026-10-22 (D-115, sin efecto). Hasta entonces
+estaba en la rama `docs/fidelidad-ui`.
+- **AUD-63, AUD-64 y AUD-69 ☑ vía la spec 017** (mensajes de error del MES): banner y franja
+  roja con el texto y el número reales, el error del Split con [OK] que cierra la ventana y el
+  barcode inválido de Assemble como `17150`.
+- **Corrección de AUD-63 (`SfcNotInOrder`, D-106):** en el MES real, un SFC de **otra**
+  orden da `22501` ("not from shop order …"), y `22507`/`13005` corresponde solo a un SFC que
+  **no existe** (`docs/ui-reference/errores-mes.md`). El simulador no tiene otras órdenes, así
+  que todo SFC ajeno se trata como inexistente: `22507 · Invalid SFC`. El `22501` "de otra
+  orden" solo aplicaría con órdenes reales.
 
 ## Decisiones
 

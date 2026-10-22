@@ -49,9 +49,9 @@ código:** Fase 9, E1: perfil de publicación del MVP (`git log --oneline -10` p
   [hoja de requerimientos](https://claude.ai/code/artifact/7e0ae556-9a55-4d78-8ff7-a20b2419e352),
   una foto del 2026-10-09 (la fuente de verdad sigue siendo el repo); se actualiza solo
   cuando el usuario lo pida.
-- **Pendientes del usuario (diferidos):** revisar la auditoría de fidelidad AUD-45 a AUD-70,
-  que sigue en la rama `docs/fidelidad-ui` hasta esa revisión (D-115; AUD-63/64/69 ya
-  aprobadas por la 017); las capturas de los 4 modales del Start de Moldeo (inventario #8);
+- **Pendientes del usuario (diferidos):** revisar la auditoría de fidelidad AUD-45 a AUD-70
+  (`docs/audits/2026-10-19-fidelidad-ui.md`, integrada en `TrainingApp` el 2026-10-22;
+  AUD-63/64/69 ya ☑ vía la 017) y marcar sus casillas; las capturas de los 4 modales del Start de Moldeo (inventario #8);
   rotar la contraseña de `sa` y actualizar `connectionStrings.config` (D-8), y probar T1 en
   el servidor IIS real (D-19; checklist en `docs/history.md` → "T1").
 - **Descartado:** que la guía sugiera los códigos NC más comunes (spec 010, R6).
@@ -86,9 +86,7 @@ final (D-16) repasó esta lista.
   de Iniciar (D-72) y el marco de Edge (D-71; sin la URL de las pestañas de Hora a Hora y
   Recursos MES, solo el host, ni la del logout de MES).
 - **Spec 017, provisional:** el texto de Start sin Resource Setup (M-1, D-111), sin captura
-  del MES y sin número, hasta capturarlo en testing. Al integrar la auditoría de fidelidad
-  (`docs/fidelidad-ui`, D-115): marcar AUD-63, AUD-64 y AUD-69 ☑ vía la 017 y anotar la
-  corrección de `SfcNotInOrder` (un SFC ajeno es `22507`, no `22501`; D-106).
+  del MES y sin número, hasta capturarlo en testing.
 
 ## BD de desarrollo del usuario
 
@@ -127,4 +125,5 @@ datos".
 |---|---|---|---|
 | 2026-10-01 / 02 | `docs/audits/2026-10-01-auditoria.md` | Proyecto completo: AUD-01…32, D-1…D-12, entregas E1-E5 + spec 009 | ✅ (AUD-28/29 en la Fase 9) |
 | 2026-10-06 | `docs/audits/2026-10-06-auditoria-final.md` | Spec 009 + regresión completa en el navegador, antes de la 6.6: AUD-33…44, D-13…D-16 | ✅ (AUD-40/42 diferidos) |
+| 2026-10-19 | `docs/audits/2026-10-19-fidelidad-ui.md` | Fidelidad de UI/UX contra el MES de testing: AUD-45…70 | Abierta: espera la revisión del usuario (AUD-63/64/69 ☑ vía la 017) |
 
