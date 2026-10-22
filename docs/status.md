@@ -39,7 +39,10 @@ código:** Fase 9, E1: perfil de publicación del MVP (`git log --oneline -10` p
     `docs/deploy.md`; la prueba de humo en el servidor cuando TI lo tenga listo (cierra D-19);
     el mensaje de lanzamiento (Redefinity de demostración, D-132; retroalimentación fuera de la
     app, D-134).
-  - **Siguiente:** E2, después del MVP (AUD-28 lo barato y los parches de AUD-29, D-131).
+  - **Siguiente:** la E2 (AUD-28 lo barato, los parches de AUD-29 y el comentario de
+    `Web.config` que apunta a `docs/deploy.md`; D-131) no empieza ahora: va junto con la
+    Fase 10, antes de la versión final de noviembre, y cierra la Fase 9 (D-135). Se espera el
+    aviso de Arquitectura y Planeación.
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**
