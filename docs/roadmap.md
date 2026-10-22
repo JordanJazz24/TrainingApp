@@ -30,7 +30,7 @@
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
-| **9 · Deploy del MVP** | ▶️ en curso (MVP 2026-10-22) | | `fase-9-plan.md` |
+| 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
 | **10 · Dashboard e historial por operador (T8)** | ▶️ en curso (spec y plan aprobados el 2026-10-22) | | `018-dashboard-training.md`, `018-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅

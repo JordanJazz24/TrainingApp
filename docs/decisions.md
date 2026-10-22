@@ -23,7 +23,7 @@
 | D-4 | 2026-10-01 | Reiniciar una guía marca la sesión vieja `Abandoned` y conserva sus intentos | audits/2026-10-01-auditoria.md (AUD-01) | vigente |
 | D-5 | 2026-10-01 | No se toca `main`: `TrainingApp` es la rama de desarrollo; los worktrees salen de ella | audits/2026-10-01-auditoria.md (AUD-30) | vigente |
 | D-6 | 2026-10-01 | La pregunta de Line Clearance se queda en el código (igual en todas las operaciones) | audits/2026-10-01-auditoria.md (AUD-27) | vigente |
-| D-7 | 2026-10-01 | Endurecer el deploy y actualizar paquetes, en la Fase 9 | audits/2026-10-01-auditoria.md (AUD-28, 29) | vigente |
+| D-7 | 2026-10-01 | Endurecer el deploy y actualizar paquetes, en la Fase 9 | audits/2026-10-01-auditoria.md (AUD-28, 29) | cerrada (2026-10-22: E2 de la Fase 9) |
 | D-8 | 2026-10-01 | El usuario rota la contraseña de `sa` en su momento | audits/2026-10-01-auditoria.md (AUD-04) | pendiente |
 | D-9 | 2026-10-02 | Una sola sesión activa por operador: iniciar una guía o hacer logout abandona las demás | audits/2026-10-01-auditoria.md | vigente |
 | D-10 | 2026-10-02 | El estado del POD sigue en Session y la BLL lo reconstruye si falta | audits/2026-10-01-auditoria.md (AUD-26) | vigente |
@@ -147,11 +147,11 @@
 | D-128 | 2026-10-21 | W23: el BOM simulado del As-Built sigue con la Shop Order | roadmap.md → "Plan de la fila 12" | vigente |
 | D-129 | 2026-10-22 | MVP publicado hoy para recoger retroalimentación; la versión final es la de la 2.ª semana de noviembre | specs/fase-9-plan.md | vigente |
 | D-130 | 2026-10-22 | Los datos del MVP se descartan: la BD del servidor se recrea con `00`–`09`, sin `ALTER`, hasta la versión final | specs/fase-9-plan.md | vigente |
-| D-131 | 2026-10-22 | AUD-28 (lo barato) y AUD-29 (solo parches) en una 2.ª publicación; Bootstrap, SweetAlert2 y CodeDom fuera | specs/fase-9-plan.md | vigente |
+| D-131 | 2026-10-22 | AUD-28 (lo barato) y AUD-29 (solo parches) en una 2.ª publicación; Bootstrap, SweetAlert2 y CodeDom fuera | specs/fase-9-plan.md | cerrada (2026-10-22: E2 probada) |
 | D-132 | 2026-10-22 | Redefinity (`05`) entra en el MVP con aviso de demostración en el mensaje de lanzamiento | specs/fase-9-plan.md | vigente |
 | D-133 | 2026-10-22 | TI administra el servidor (cadena de conexión, BD, scripts, App Pool) con `docs/deploy.md`; el usuario publica en una carpeta | specs/fase-9-plan.md | vigente |
 | D-134 | 2026-10-22 | La retroalimentación del MVP se junta fuera de la app (la registra Reuniones y Dudas) | specs/fase-9-plan.md | vigente |
-| D-135 | 2026-10-22 | La E2 de la Fase 9 se hace junto con la Fase 10, antes de la versión final de noviembre | specs/fase-9-plan.md (enmienda 1) | vigente |
+| D-135 | 2026-10-22 | La E2 de la Fase 9 se hace junto con la Fase 10, antes de la versión final de noviembre | specs/fase-9-plan.md (enmienda 1) | cerrada (2026-10-22: se hizo antes de la E1 de la 018) |
 | D-136 | 2026-10-22 | Dashboard: estado "Aprobado" = algún Assessment completado ≥ 0.70, en `ReadinessPolicy` (la regla puede cambiar) | specs/018-dashboard-training.md | vigente |
 | D-137 | 2026-10-22 | Dashboard: la unidad es la guía publicada; el área del operador queda diferida | specs/018-dashboard-training.md | vigente |
 | D-138 | 2026-10-22 | Dashboard: capacidad nueva `CanViewReports` (hoy solo Administrator); el operador no ve su historial | specs/018-dashboard-training.md | vigente |
