@@ -131,7 +131,7 @@
 | D-112 | 2026-10-21 | El banner del POD queda hasta la siguiente acción del operador (C-11) | specs/017-mensajes-del-mes.md | vigente |
 | D-113 | 2026-10-21 | `15246` lista todos los parámetros pendientes de los grupos obligatorios (C-7) | specs/017-mensajes-del-mes.md | vigente |
 | D-114 | 2026-10-21 | Los textos en español de D-102 son los de la tabla de la spec (C-12) | specs/017-mensajes-del-mes.md | vigente |
-| D-115 | 2026-10-21 | La auditoría de fidelidad sigue en su rama hasta que el usuario la revise | specs/017-mensajes-del-mes.md | vigente |
+| D-115 | 2026-10-21 | La auditoría de fidelidad sigue en su rama hasta que el usuario la revise | specs/017-mensajes-del-mes.md | sin efecto (2026-10-22: el usuario la hizo integrar en `TrainingApp`, `dd25b63`; la revisión sigue pendiente) |
 | D-116 | 2026-10-21 | Las capturas de testing se integran tal cual | specs/017-mensajes-del-mes.md | vigente |
 | D-117 | 2026-10-21 | Assessment: el mensaje del MES junto con el SweetAlert de hoy | specs/017-plan.md | vigente |
 | D-118 | 2026-10-21 | M-10 y M-18 quedan fuera | specs/017-plan.md | vigente |
