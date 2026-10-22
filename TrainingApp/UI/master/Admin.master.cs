@@ -1,5 +1,6 @@
 using System;
 using System.Web;
+using System.Web.UI.WebControls;
 using TrainingApp.Pages;
 using TrainingApp.Shared;
 
@@ -20,6 +21,25 @@ namespace TrainingApp.UI.Master
                 LitUser.Text      = HttpUtility.HtmlEncode(Session[Constants.SessionKeys.Code1].ToString());
                 LitLastLogin.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
             }
+
+            // Menú del dashboard (spec 018): solo con la capacidad de ver reportes.
+            PhMenu.Visible = signedIn && SessionHelper.CanViewReports();
+            if (PhMenu.Visible)
+            {
+                LnkUsers.Visible = SessionHelper.CanManageUsers();
+                MarkCurrent(LnkOperators, "~/Pages/Admin/Operators.aspx", "~/Pages/Admin/Operator.aspx");
+                MarkCurrent(LnkUsers, "~/Pages/Admin/Users.aspx");
+            }
+        }
+
+        // La vista actual (o su detalle) queda marcada en el menú. Se compara el archivo de la
+        // página: con FriendlyUrls la URL del request no lleva ".aspx".
+        private void MarkCurrent(HyperLink link, params string[] pages)
+        {
+            var current = Page.AppRelativeVirtualPath;
+            foreach (var page in pages)
+                if (string.Equals(current, page, StringComparison.OrdinalIgnoreCase))
+                    link.CssClass += " active";
         }
 
         protected void BtnLogout_Click(object sender, EventArgs e)

@@ -39,6 +39,9 @@ namespace TrainingApp.Pages
         public static bool CanManageUsers()
             => CurrentRole() is UserRole role && AccessPolicy.CanManageUsers(role);
 
+        public static bool CanViewReports()
+            => CurrentRole() is UserRole role && AccessPolicy.CanViewReports(role);
+
         /// <summary>
         /// Inicio del usuario según su capacidad: el módulo administrativo o la selección de
         /// entrenamiento.
@@ -90,7 +93,8 @@ namespace TrainingApp.Pages
                 context.Session.Clear();
             }
 
-            // Session perdida pero FormsAuth sigue válido — re-hidratar desde BD
+            // Session vacía con FormsAuth válido: el primer request después del login (SignIn la
+            // deja con un ID nuevo) o una Session perdida. Se llena desde la BD.
             var user = new AuthService().GetUserByCode1(code1);
 
             if (user == null)
@@ -116,36 +120,51 @@ namespace TrainingApp.Pages
         }
 
         /// <summary>
-        /// Escribe en la Session los datos del operador autenticado. La usan el login y la
-        /// re-hidratación, así una clave nueva no puede quedar en un solo lado. En un login, si
-        /// la Session tenía los datos de otra cuenta, se descarta antes (fijación de sesión): el
-        /// mismo usuario que vuelve a entrar conserva su PodState.
+        /// Abre la sesión de un login correcto con un ID de Session nuevo (fijación de sesión,
+        /// AUD-28): descarta la Session que traía el navegador y expira su cookie, así el
+        /// request siguiente recibe un ID nuevo y EnsureUserSession la llena desde la BD. El
+        /// último acceso anterior (solo lo conoce el login, spec 013 AC-17) viaja en el ticket
+        /// de Forms, que va cifrado y firmado.
         /// </summary>
-        public static void SetUserSession(User user, LoginResult login = null)
+        public static void SignIn(LoginResult login)
+        {
+            var context = HttpContext.Current;
+            context.Session?.Abandon();
+            ExpireSessionCookie(context);
+
+            var cookie = FormsAuthentication.GetAuthCookie(login.User.Code1, false);
+            var ticket = FormsAuthentication.Decrypt(cookie.Value);
+            var lastAccess = login.PreviousLoginAt.HasValue
+                ? "Último acceso: " + ToLocal(login.PreviousLoginAt.Value).ToString("dd/MM/yyyy HH:mm")
+                : "Primer acceso";
+            cookie.Value = FormsAuthentication.Encrypt(new FormsAuthenticationTicket(ticket.Version,
+                ticket.Name, ticket.IssueDate, ticket.Expiration, ticket.IsPersistent, lastAccess,
+                ticket.CookiePath));
+            context.Response.Cookies.Add(cookie);
+        }
+
+        /// <summary>
+        /// Escribe en la Session los datos del operador autenticado, desde la BD
+        /// (EnsureUserSession). Es el único lugar que la llena: una clave nueva va aquí.
+        /// </summary>
+        public static void SetUserSession(User user)
         {
             var session = HttpContext.Current.Session;
-            if (login != null && session[Constants.SessionKeys.UserId] != null &&
-                !SessionBelongsTo(user.Code1, user.Id))
-                session.Clear();
-
             session[Constants.SessionKeys.UserId]       = user.Id;
             session[Constants.SessionKeys.Code1]        = user.Code1;
             session[Constants.SessionKeys.Name]         = user.Name;
             session[Constants.SessionKeys.IsFirstLogin] = user.IsFirstLogin;
-
-            // Solo el login conoce el acceso anterior (spec 013, AC-17).
-            if (login != null)
-                session[Constants.SessionKeys.LastAccess] = login.PreviousLoginAt.HasValue
-                    ? "Último acceso: " + ToLocal(login.PreviousLoginAt.Value).ToString("dd/MM/yyyy HH:mm")
-                    : "Primer acceso";
         }
 
         /// <summary>
-        /// "Último acceso: …" o "Primer acceso" del login actual; null si la Session se
-        /// re-hidrató (no se sabe el anterior).
+        /// "Último acceso: …" o "Primer acceso" del login actual, del ticket de Forms (SignIn);
+        /// null sin login.
         /// </summary>
         public static string LastAccessText()
-            => HttpContext.Current.Session?[Constants.SessionKeys.LastAccess] as string;
+        {
+            var text = (HttpContext.Current.User?.Identity as FormsIdentity)?.Ticket.UserData;
+            return string.IsNullOrEmpty(text) ? null : text;
+        }
 
         // Hora de planta (Costa Rica, UTC-6 sin horario de verano), sin depender de la zona
         // horaria configurada en el servidor.
@@ -182,15 +201,18 @@ namespace TrainingApp.Pages
             {
                 context.Session?.Abandon();
                 FormsAuthentication.SignOut();
-                // Abandon conserva el id de la Session: se expira su cookie para que el próximo
-                // login en este navegador reciba uno nuevo (fijación de sesión, 2026-10-19).
-                context.Response.Cookies.Add(new HttpCookie(SessionCookieName, string.Empty)
-                {
-                    Expires = DateTime.UtcNow.AddYears(-1)
-                });
+                ExpireSessionCookie(context);
             }
             context.Response.Redirect(LoginUrl);
         }
+
+        // Abandon conserva el id de la Session: se expira su cookie para que el próximo request
+        // de este navegador reciba uno nuevo (fijación de sesión, 2026-10-19; AUD-28).
+        private static void ExpireSessionCookie(HttpContext context)
+            => context.Response.Cookies.Add(new HttpCookie(SessionCookieName, string.Empty)
+            {
+                Expires = DateTime.UtcNow.AddYears(-1)
+            });
 
         /// <summary>
         /// True mientras el operador no cambió la contraseña del primer acceso (auditoría

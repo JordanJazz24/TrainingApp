@@ -40,8 +40,28 @@ namespace TrainingApp.UI.Master
         protected global::System.Web.UI.WebControls.LinkButton BtnLogout;
 
         /// <summary>
+        /// PhMenu control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhMenu;
+
+        /// <summary>
+        /// LnkOperators control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink LnkOperators;
+
+        /// <summary>
+        /// LnkUsers control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HyperLink LnkUsers;
+
+        /// <summary>
         /// MainContent control.
         /// </summary>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder MainContent;
+
+        /// <summary>
+        /// ScriptContent control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.ContentPlaceHolder ScriptContent;
     }
 }

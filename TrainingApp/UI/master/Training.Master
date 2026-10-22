@@ -11,7 +11,7 @@
     <link href="<%=ResolveUrl("~/UI/master/pod.css")%>"          rel="stylesheet" />
 
     <%-- Bootstrap and SweetAlert2 in <head> so RegisterStartupScript can use them --%>
-    <script src="<%=ResolveUrl("~/Scripts/jquery-3.7.0.min.js")%>"></script>
+    <script src="<%=ResolveUrl("~/Scripts/jquery-3.7.1.min.js")%>"></script>
     <script src="<%=ResolveUrl("~/Scripts/bootstrap.bundle.min.js")%>"></script>
     <script src="<%=ResolveUrl("~/Scripts/sweetalert2.all.min.js")%>"></script>
 

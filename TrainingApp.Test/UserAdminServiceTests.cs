@@ -28,6 +28,14 @@ namespace TrainingApp.Test
             Assert.That(AccessPolicy.CanManageUsers(UserRole.Administrator), Is.True);
             Assert.That(AccessPolicy.CanTrain(UserRole.Administrator), Is.False);
         }
+
+        // Spec 018: el dashboard es solo del administrador; el operador no ve su historial.
+        [Test]
+        public void ViewReports_OnlyAdministrator()
+        {
+            Assert.That(AccessPolicy.CanViewReports(UserRole.Administrator), Is.True);
+            Assert.That(AccessPolicy.CanViewReports(UserRole.Operator), Is.False);
+        }
     }
 
     [TestFixture]

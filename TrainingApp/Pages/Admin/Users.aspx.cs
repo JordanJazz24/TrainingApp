@@ -188,7 +188,8 @@ namespace TrainingApp.Pages.Admin
                 ConfirmUnlock     = "¿Desbloquear la cuenta de " + who + "?",
                 ConfirmDelete     = u.SessionCount > 0
                     ? "¿Borrar a " + who + "? Tiene " + u.SessionCount + (u.SessionCount == 1 ? " sesión" : " sesiones") +
-                      " de entrenamiento: se borrarán su historial y sus puntajes y no se pueden recuperar."
+                      " de entrenamiento: se borrarán su historial y sus puntajes y no se pueden recuperar." +
+                      " Los indicadores del dashboard cambian." // spec 018, D-142 (AC-23)
                     : "¿Borrar a " + who + "?"
             };
         }

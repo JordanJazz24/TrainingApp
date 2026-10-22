@@ -99,7 +99,28 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 >   `connectionStrings.config.example` está "en esta misma carpeta". En el servidor no está:
 >   el comentario tiene que apuntar a `docs/deploy.md`, que trae la plantilla.
 
-- [ ] **AUD-28, lo barato:**
+> **E2 de Desarrollo integrada a `TrainingApp` sin probar** (2026-10-22, rama `fase-10`; el
+> usuario pidió integrar sin el "funciona": falta su checklist). Detalle que no cambia el
+> plan:
+> - el login renueva el ID con `Session.Abandon` + la cookie expirada (como `Logout`); la página
+>   siguiente llena la Session desde la BD. El "Último acceso" viaja en el ticket de Forms (cifrado),
+>   así que también se ve tras re-hidratar la Session. Quien vuelve a entrar con un entrenamiento
+>   a medias pierde el avance de Assembly/DC en memoria (D-10 lo reconstruye); no hay forma de
+>   retomarlo desde la UI (D-9), así que no cambia el flujo;
+> - log en `App_Data/Logs/AAAA-MM-DD.log` (UTC), con retención de 60 días; los 404 no se
+>   registran; el Code1 que no existe en la API se enmascara (puede ser una contraseña escrita en
+>   el campo equivocado); de las excepciones de validación y de ViewState solo el tipo y el stack;
+> - `requireSSL` queda comentado en `Web.Release.config` hasta que TI confirme HTTPS;
+> - `System.*` (solo los usa `TrainingApp.Test`): parches DiagnosticSource 6.0.2 y
+>   Reflection.Metadata 8.0.1; los demás no tienen parche en su versión menor;
+> - del `/code-review medium` (9 hallazgos) se aplicaron 5 (mensajes de excepción limpios y sin
+>   ViewState, `Application_Error` que no lanza, Code1 enmascarado, caracteres de control,
+>   retención) y se descartaron 4 (PodState al volver a entrar, ver arriba; dos procesos
+>   escribiendo el log en un reciclado; la cabecera `Server`, porque `removeServerHeader` solo
+>   existe en IIS 10 y rompe el sitio en uno anterior; reconstruir el ticket a mano en vez de
+>   `GetAuthCookie`).
+
+- [x] **AUD-28, lo barato:**
   - **renovar el ID de Session en el login** (contra la fijación de sesión): la Session del
     usuario se crea con un ID nuevo, sin que cambie el flujo de login, primer acceso ni
     cambio de contraseña;
@@ -114,14 +135,14 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
     obligarían a reescribirlos;
   - **cookies:** `httpOnlyCookies="true"`; `requireSSL` (en `httpCookies` y en `forms`)
     **solo si TI confirma HTTPS**, en `Web.Release.config`.
-- [ ] **AUD-29, parches:** Newtonsoft.Json 13.0.4, jQuery 3.7.1,
+- [x] **AUD-29, parches:** Newtonsoft.Json 13.0.4, jQuery 3.7.1,
   Microsoft.Web.Infrastructure 2.0.1 y `System.*`, uno por uno, con rebuild y tests después
   de cada uno. Confirmar la última versión de parche al momento de actualizar.
-- [ ] Comentario de `Web.config` sobre la plantilla de `connectionStrings.config`: que apunte a
+- [x] Comentario de `Web.config` sobre la plantilla de `connectionStrings.config`: que apunte a
   `docs/deploy.md` (enmienda 1).
-- [ ] `docs/deploy.md`: permiso de escritura en `App_Data/Logs` para la identidad del App
+- [x] `docs/deploy.md`: permiso de escritura en `App_Data/Logs` para la identidad del App
   Pool.
-- [ ] Verificación: rebuild, `aspnet_compiler`, tests y `/code-review medium` sobre
+- [x] Verificación: rebuild, `aspnet_compiler`, tests y `/code-review medium` sobre
   `Global.asax.cs`, `SessionHelper`, el login, `Web.config` y `Web.Release.config`.
 - [ ] Checklist del usuario:
   - login, primer acceso, cambio de contraseña, bloqueo tras 5 fallos y logout;

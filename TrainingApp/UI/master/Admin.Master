@@ -43,9 +43,28 @@
             </div>
         </nav>
 
+        <%-- Menú del dashboard (spec 018): Resumen · Operadores · Pasos · Seguimiento · Usuarios.
+             Solo con CanViewReports (este master también lo usan el login y el cambio de
+             contraseña). Cada vista agrega su enlace en la entrega que la crea. --%>
+        <asp:PlaceHolder ID="PhMenu" runat="server" Visible="false">
+            <div class="admin-menu">
+                <div class="container">
+                    <ul class="nav">
+                        <li class="nav-item"><asp:HyperLink ID="LnkOperators" runat="server" CssClass="nav-link"
+                            NavigateUrl="~/Pages/Admin/Operators.aspx">Operadores</asp:HyperLink></li>
+                        <li class="nav-item"><asp:HyperLink ID="LnkUsers" runat="server" CssClass="nav-link"
+                            NavigateUrl="~/Pages/Admin/Users.aspx">Usuarios</asp:HyperLink></li>
+                    </ul>
+                </div>
+            </div>
+        </asp:PlaceHolder>
+
         <main class="container admin-main">
             <asp:ContentPlaceHolder ID="MainContent" runat="server" />
         </main>
     </form>
+    <%-- Scripts de cada página, después del contenido (ej. Chart.js en las vistas con gráficas,
+         spec 018: <script src="~/Scripts/chart-4.5.1.umd.min.js">). --%>
+    <asp:ContentPlaceHolder ID="ScriptContent" runat="server" />
 </body>
 </html>

@@ -7,8 +7,9 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-22 · **Branch:** `TrainingApp` · **Último commit de
-código:** Fase 9, E1: perfil de publicación del MVP (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-22 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
+(`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
+§7) · **Último commit de código:** Fase 9 E2 + spec 018 E1, **no probadas** (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -39,10 +40,21 @@ código:** Fase 9, E1: perfil de publicación del MVP (`git log --oneline -10` p
     `docs/deploy.md`; la prueba de humo en el servidor cuando TI lo tenga listo (cierra D-19);
     el mensaje de lanzamiento (Redefinity de demostración, D-132; retroalimentación fuera de la
     app, D-134).
-  - **Siguiente:** la E2 (AUD-28 lo barato, los parches de AUD-29 y el comentario de
-    `Web.config` que apunta a `docs/deploy.md`; D-131) no empieza ahora: va junto con la
-    Fase 10, antes de la versión final de noviembre, y cierra la Fase 9 (D-135). Se espera el
-    aviso de Arquitectura y Planeación.
+  - **E2 integrada sin probar** (2026-10-22, commit en `fase-10` integrado a `TrainingApp`
+    sin el "funciona": pendiente el checklist de `docs/specs/fase-9-plan.md`, E2): ID de
+    Session nuevo en el login, log en `App_Data/Logs` (errores, logins
+    fallidos y bloqueos), cabeceras de seguridad, cookies HttpOnly, los parches de AUD-29
+    (Newtonsoft 13.0.4, jQuery 3.7.1, Microsoft.Web.Infrastructure 2.0.1 y dos `System.*`
+    de los tests) y el comentario de `Web.config`. Detalle en `docs/specs/fase-9-plan.md`,
+    E2. Con el "funciona" se cierra la Fase 9 (D-135) y AUD-28/29 pasan a ☑.
+- **Fase 10 · Dashboard de Training (spec 018), en curso** en la misma rama `fase-10`
+  (plan: `docs/specs/018-plan.md`). **E1 integrada sin probar** (2026-10-22, pendiente su
+  checklist): `CanViewReports`, menú del
+  dashboard, `ReadinessPolicy`, la lista de Operadores, el aviso al borrar, índices,
+  `10_spDashboard.sql`, el generador `Database/Ops/GenerateDashboardData.sql`, ClosedXML
+  verificado (D-140) y Chart.js 4.5.1. Paginar Operadores en la BLL y no en el SP es un
+  desvío aceptado (D-143). **Para probar:** recrear la BD con `RunAllScripts.ps1
+  -Recreate` (entra `10_spDashboard.sql`).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**

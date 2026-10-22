@@ -1,5 +1,4 @@
 using System;
-using System.Web.Security;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
 using TrainingApp.UI.Master;
@@ -48,25 +47,19 @@ namespace TrainingApp.Pages.Auth
                     ShowError(SessionHelper.LockedMessage(result.LockedUntil.Value));
                     break;
 
-                // FirstLogin y Success solo difieren en User.IsFirstLogin, que
-                // SetUserSession guarda en la Session (auditoría AUD-08).
+                // FirstLogin y Success solo difieren en User.IsFirstLogin, que la página
+                // siguiente lee de la BD al llenar la Session (auditoría AUD-08). SignIn deja la
+                // Session con un ID nuevo (AUD-28).
                 case LoginStatus.FirstLogin:
-                    SignIn(result);
+                    SessionHelper.SignIn(result);
                     Response.Redirect(SessionHelper.ChangePasswordUrl);
                     break;
 
                 case LoginStatus.Success:
-                    SignIn(result);
+                    SessionHelper.SignIn(result);
                     Response.Redirect(SessionHelper.HomeUrl(result.User.Role));
                     break;
             }
-        }
-
-        // SetUserSession descarta una Session de otra cuenta (fijación de sesión, 2026-10-19).
-        private static void SignIn(LoginResult result)
-        {
-            FormsAuthentication.SetAuthCookie(result.User.Code1, false);
-            SessionHelper.SetUserSession(result.User, result);
         }
 
         private void ShowError(string message) => ((AdminMaster)Master).ShowMessage("error", "Error", message);

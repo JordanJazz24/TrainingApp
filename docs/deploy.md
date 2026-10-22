@@ -67,6 +67,16 @@ accede a la base de datos mediante stored procedures.
    Este archivo no viene en la carpeta publicada y no se versiona: solo existe en el servidor.
 3. Dar al dueño de la aplicación la cadena de conexión que corresponda (D-133), sin la
    contraseña si se usa un login SQL.
+4. **Permiso de escritura para el log.** La aplicación registra los errores, los inicios de
+   sesión fallidos y los bloqueos de cuenta en un archivo por día en `App_Data\Logs` (sin
+   contraseñas). Crear la carpeta `App_Data` en la carpeta del sitio, si no viene, y darle
+   permiso de **modificación** a la identidad del App Pool (ej. `IIS AppPool\TrainingApp`):
+   ```bat
+   icacls "D:\Sites\TrainingApp\App_Data" /grant "IIS AppPool\TrainingApp:(OI)(CI)M"
+   ```
+   Sin ese permiso la aplicación funciona igual, pero no deja registro. La aplicación borra
+   sola los archivos de más de 60 días. IIS no sirve el contenido de `App_Data`: el log solo
+   se lee desde el servidor.
 
 ## 4. Application Pool
 
@@ -98,8 +108,9 @@ siguiente publicación activa las cookies seguras, que solo funcionan con HTTPS.
 ## 6. Republicar (versiones nuevas)
 
 1. Reemplazar el contenido de la carpeta del sitio por la carpeta publicada nueva,
-   **conservando `connectionStrings.config`** (respaldarlo antes y volver a ponerlo si se
-   borra la carpeta completa).
+   **conservando `connectionStrings.config` y `App_Data\Logs`** (respaldarlos antes y volver
+   a ponerlos si se borra la carpeta completa; el permiso del paso 3.4 también se vuelve a
+   dar).
 2. **Reciclar el App Pool.**
 
 ## 7. Recrear la base de datos (D-130)

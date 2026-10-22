@@ -187,15 +187,19 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
   (`…\MES Training Simulator`) siempre está en ella: ahí apuntan VS, IIS Express y la
   terminal del usuario. A `main` sube los cambios finales el usuario (D-5): no tocarla. El
   usuario hace push cuando quiere.
-- Por defecto se trabaja en la carpeta real, con un commit por entrega verificada y solo con
-  las rutas propias (sección 1 → "Commits sin pisarse").
-- **Worktrees solo cuando hacen falta:** trabajo aislado mientras el usuario prueba otra cosa
-  en la carpeta real (specs 013 y 017) o un job en segundo plano (la herramienta lo obliga a
-  aislarse antes de editar):
+- **Se trabaja en una rama y su worktree, y se integra a `TrainingApp` cuando el usuario lo
+  aprueba** (usuario, 2026-10-22: "primero trabajamos en la branch o worktree y luego de
+  aprobado se integra"). Así la carpeta real queda libre para mostrar o probar otra cosa. Un
+  commit por entrega y solo con las rutas propias (sección 1 → "Commits sin pisarse"). La
+  rama y el worktree siguen vivos mientras dure su fase.
+- Cómo armar el worktree:
   - crearlo desde `TrainingApp`: `git worktree add .claude/worktrees/<n> -b <rama> TrainingApp`;
   - copiar `TrainingApp/connectionStrings.config` (está en `.gitignore`) y, para compilar, una
-    junction a `packages`;
-  - al terminar, desde la carpeta real: `git merge --ff-only <rama>`, `git worktree remove`,
+    junction a `TrainingApp/packages`; si la entrega agrega o actualiza paquetes, una copia
+    propia en vez de la junction (así no se meten versiones nuevas en la carpeta real), y para
+    probar, una BD propia de LocalDB;
+  - integrar, desde la carpeta real: `git merge --ff-only <rama>`;
+  - al terminar la fase, desde la carpeta real: `git merge --ff-only <rama>`, `git worktree remove`,
     `git branch -d <rama>` y borrar la rama remota si se subió. Nunca dejar el proyecto activo
     en un worktree ni ramas sueltas (pasó el 2026-10-02 y al usuario no le gustó).
   - **Un job en segundo plano no puede integrar su rama:** la herramienta no le deja usar git

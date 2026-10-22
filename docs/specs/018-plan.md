@@ -61,40 +61,73 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E1 · Cimientos, Operadores y verificación de las librerías
 
-- [ ] **`AccessPolicy.CanViewReports`**, solo para Administrator, con su test.
-- [ ] **Menú en `Admin.Master`:** Resumen · Operadores · Pasos · Seguimiento · Usuarios.
+> **E1 de Desarrollo integrada a `TrainingApp` sin probar** (2026-10-22, rama `fase-10`; el
+> usuario pidió integrar sin el "funciona": falta su checklist).
+> - **Desvío aceptado por el usuario (2026-10-22, D-143, lo registra Arquitectura y
+>   Planeación como enmienda 1):** el SP de
+>   operadores devuelve todos los que cumplen la búsqueda, **sin paginar**, y la BLL filtra por
+>   estado y guía y pagina de a 50. El estado lo decide `ReadinessPolicy` (D-139); si el SP
+>   paginara, el filtro de estado solo vería los 50 de la página. Con 1600 operadores la página
+>   responde en unos 200 ms. Si la E7 no da los 3 s, el plan B es que el SP agregue por
+>   operador, guía, modo y estado, que sigue sin reglas.
+> - **ClosedXML ✅ (D-140):** 0.105.1 con sus 11 dependencias por `packages.config` (web y
+>   tests; 4 `bindingRedirect` de `System.*` en `Web.config`). Un test genera un `.xlsx` con dos
+>   hojas, acentos, fecha y %, y Excel lo abre sin avisos. El primer `AdjustToContents` tarda
+>   unos 20 s (SixLabors.Fonts escanea las fuentes del sistema): se resuelve en la E6.
+> - **Chart.js 4.5.1** (la 4.6.1 salió hoy): `Scripts/chart-4.5.1.umd.min.js`. `Admin.Master`
+>   tiene un `ScriptContent` al final para que cada vista con gráficas lo cargue; el login no lo
+>   descarga.
+> - El menú muestra solo las vistas que ya existen: en la E1, Operadores y Usuarios.
+> - `spDashboardSessions` cuenta los intentos fallidos solo con `@IncludeFailedAttempts = 1`:
+>   contarlos para todos los operadores tarda ~1,5 s y el estado no los necesita.
+>   `IX_StepAttempts_Session` suma `INCLUDE (IsCorrect, Reason)`, y `00` lo recrea en una BD
+>   que lo tenga sin él.
+> - Los filtros de Operadores: con solo el estado, el operador lo tiene en alguna guía (Sin
+>   iniciar = ninguna sesión); con solo la guía, la entrenó; con los dos, su estado en esa guía.
+> - **Generador:** con los valores por defecto, 1600 operadores (~10 % sin iniciar), ~22 000
+>   sesiones y ~285 000 intentos en unos 40 s. A lo más una sesión en curso por operador (D-9),
+>   y `CompletedAt` en las abandonadas, como la app.
+> - Del `/code-review medium` (8 hallazgos) se aplicaron 7 (vuelta al inicio y no al login si
+>   la BLL niega el acceso, recrear el índice sin `INCLUDE`, `@Pattern` que no se trunca, la
+>   página usa los filtros que aplicó el servicio, y en el generador: `CompletedAt`, una sesión
+>   en curso y el overflow de `ABS(CHECKSUM())`). Se descartó cargar todas las sesiones en cada
+>   búsqueda: responde en ~200 ms y la E7 es la que mide. `Users.aspx` tiene el mismo patrón de
+>   mandar al login cuando la BLL niega el acceso (spec 013): no se tocó.
+
+- [x] **`AccessPolicy.CanViewReports`**, solo para Administrator, con su test.
+- [x] **Menú en `Admin.Master`:** Resumen · Operadores · Pasos · Seguimiento · Usuarios.
   - Solo se ve con un usuario con `CanViewReports`: el mismo master lo usan el login y el
     cambio de contraseña.
   - Las vistas que todavía no existen no se muestran.
-- [ ] **Índices** en `00_Schema.sql`: sesiones por `(UserId, StartedAt)` y por
+- [x] **Índices** en `00_Schema.sql`: sesiones por `(UserId, StartedAt)` y por
   `(TrainingGuideId, Mode, StartedAt)`, con `INCLUDE` de estado y puntaje.
-- [ ] **SPs** (`10_spDashboard.sql`):
+- [x] **SPs** (`10_spDashboard.sql`):
   - las sesiones por operador y guía publicada, con el modo, el estado, el puntaje, las
     fechas y el conteo de intentos fallidos;
   - la lista paginada de operadores, con búsqueda por nombre o Code1, que incluya a los que
     no tienen sesiones.
-- [ ] **`ReadinessPolicy`** y **`DashboardService.SearchOperators`**:
+- [x] **`ReadinessPolicy`** y **`DashboardService.SearchOperators`**:
   - el estado por guía, el general **Sin iniciar**, el mejor y el último puntaje y la
     última actividad;
   - filtro por estado y guía y 50 por página.
-- [ ] **Página `Operators.aspx`** (AC-7, AC-13), con su enlace al detalle. La página de
+- [x] **Página `Operators.aspx`** (AC-7, AC-13), con su enlace al detalle. La página de
   detalle se arma en la E2.
-- [ ] **Aviso al borrar** (D-142, AC-23): `Users.aspx.cs` suma al texto actual, que ya dice
+- [x] **Aviso al borrar** (D-142, AC-23): `Users.aspx.cs` suma al texto actual, que ya dice
   cuántas sesiones se pierden, que "los indicadores del dashboard cambian".
-- [ ] **Generador de datos de prueba**, `Database/Ops/GenerateDashboardData.sql`:
+- [x] **Generador de datos de prueba**, `Database/Ops/GenerateDashboardData.sql`:
   - solo para una BD **descartable** de LocalDB: se niega a correr si la BD no se llama
     `TrainingApp_DashboardTest`;
   - se usa desde la E1 para ver cada vista con datos realistas, y en la E7 para medir;
   - genera unos **1600 operadores y 12 meses** de sesiones de las tres guías, con un reparto
     realista: aprobados, reprobados, abandonos y fallos concentrados en algunos pasos;
   - parámetros de cantidad arriba del script.
-- [ ] **Verificar ClosedXML** (D-140): instalarlo con `packages.config` en .NET FW 4.7.2,
+- [x] **Verificar ClosedXML** (D-140): instalarlo con `packages.config` en .NET FW 4.7.2,
   compilar, generar un `.xlsx` de prueba con un test y abrirlo en Excel.
   - **Si falla: parar y avisar** a Arquitectura y Planeación, que lo pasa al usuario con las
     opciones. No se elige un plan B solo.
-- [ ] **Agregar Chart.js** (versión fija, el build UMD) en `Scripts/` y comprobar que carga
+- [x] **Agregar Chart.js** (versión fija, el build UMD) en `Scripts/` y comprobar que carga
   en `Admin.Master`.
-- [ ] **Tests:**
+- [x] **Tests:**
   - `ReadinessPolicy` (AC-3 a AC-6 y AC-8): aprobado con 0.70, reprobado, aprobó y después
     reprobó, abandonado o en curso, solo Guided y sin sesiones;
   - la búsqueda y la paginación con un repositorio en memoria.

@@ -25,7 +25,11 @@ namespace TrainingApp.BLL.Auth
             // Step 1: verify code1 exists in external company API
             var employee = _employeeRepo.GetByCode1(code1);
             if (employee == null)
+            {
+                // Enmascarado: puede ser la contraseña escrita en el campo del Code1.
+                AppLog.Write("Login fallido", "Code1 " + AppLog.Mask(code1) + ": no registrado en la API de empleados");
                 return LoginResult.NotFound();
+            }
 
             // Después de la API (puede tardar con la caché fría): el bloqueo se mide desde aquí.
             var now = DateTime.UtcNow;
@@ -37,7 +41,10 @@ namespace TrainingApp.BLL.Auth
             {
                 // First access — no local record yet; validate against default password
                 if (password != Constants.DEFAULT_PASSWORD)
+                {
+                    LogFailure(code1, "contraseña incorrecta (primer acceso)");
                     return LoginResult.Invalid();
+                }
 
                 // El autorregistro crea siempre un Operator (spec 013, P-3): los admins los
                 // crea otro admin o Database/Ops/CreateAdmin.sql.
@@ -58,15 +65,23 @@ namespace TrainingApp.BLL.Auth
             // Step 3: existing account. Bloqueada: no se mira la contraseña (no revela si era
             // correcta) y no suma otro fallo.
             if (LoginLockPolicy.IsLocked(user, now))
+            {
+                LogFailure(code1, "cuenta bloqueada hasta " + user.LockedUntil.Value.ToString("HH:mm") + "Z");
                 return LoginResult.Locked(user.LockedUntil.Value);
+            }
 
             if (!PasswordHelper.Verify(password, user.PasswordHash))
             {
                 var lockedUntil = _userRepo.RecordLoginFailure(user.Id,
                     LoginLockPolicy.MaxFailedLogins, now.Add(LoginLockPolicy.LockDuration), now);
-                return lockedUntil.HasValue && lockedUntil.Value > now
-                    ? LoginResult.Locked(lockedUntil.Value)
-                    : LoginResult.Invalid();
+                if (lockedUntil.HasValue && lockedUntil.Value > now)
+                {
+                    AppLog.Write("Bloqueo", "Code1 " + AppLog.Clean(code1) + ": " + LoginLockPolicy.MaxFailedLogins +
+                        " fallos seguidos, bloqueada hasta " + lockedUntil.Value.ToString("HH:mm") + "Z");
+                    return LoginResult.Locked(lockedUntil.Value);
+                }
+                LogFailure(code1, "contraseña incorrecta");
+                return LoginResult.Invalid();
             }
 
             // El último acceso que ve el usuario es el anterior a este login (AC-17).
@@ -75,6 +90,7 @@ namespace TrainingApp.BLL.Auth
             if (!_userRepo.RecordLoginSuccess(user.Id, now))
             {
                 var current = _userRepo.GetByCode1(code1);
+                LogFailure(code1, "cuenta bloqueada mientras se revisaba la contraseña");
                 return LoginResult.Locked(current?.LockedUntil ?? now.Add(LoginLockPolicy.LockDuration));
             }
             user.LastLoginAt      = now;
@@ -90,6 +106,11 @@ namespace TrainingApp.BLL.Auth
                 ? LoginResult.AsFirstLogin(user, previousLoginAt)
                 : LoginResult.Ok(user, previousLoginAt);
         }
+
+        // Login fallido en App_Data/Logs (AUD-28): el Code1 que se escribió, el motivo y la hora;
+        // nunca la contraseña.
+        private static void LogFailure(string code1, string reason)
+            => AppLog.Write("Login fallido", "Code1 " + AppLog.Clean(code1) + ": " + reason);
 
         // Precarga la lista de empleados en segundo plano al arrancar la aplicación
         // (Global.Application_Start): el primer login no espera a la API.
