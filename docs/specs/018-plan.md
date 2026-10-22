@@ -1,7 +1,7 @@
 # Plan de la spec 018 — Dashboard de Training (Fase 10)
 
-**Status:** borrador (2026-10-22) · spec `018-dashboard-training.md`, aprobada el 2026-10-22
-(D-136 a D-142).
+**Status:** **aprobado por el usuario (2026-10-22)** · spec `018-dashboard-training.md`,
+aprobada el 2026-10-22 (D-136 a D-142).
 
 Cada entrega se cierra como dice `docs/process.md` §2:
 1. verificar (rebuild, `aspnet_compiler` si se toca markup, tests si cambia la BLL);

@@ -31,7 +31,7 @@
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | **9 · Deploy del MVP** | ▶️ en curso (MVP 2026-10-22) | | `fase-9-plan.md` |
-| **10 · Dashboard e historial por operador (T8)** | ▶️ spec aprobada (2026-10-22); plan en preparación | | `018-dashboard-training.md` |
+| **10 · Dashboard e historial por operador (T8)** | ▶️ en curso (spec y plan aprobados el 2026-10-22) | | `018-dashboard-training.md`, `018-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -385,7 +385,8 @@ permisos, prueba de humo. Incluye AUD-28/29.
 
 **Spec aprobada el 2026-10-22: `docs/specs/018-dashboard-training.md`** (D-136 a D-142).
 Va en la versión final de la 2.ª semana de noviembre, junto con la E2 de la Fase 9 (D-135).
-El plan por entregas (`018-plan.md`) está en preparación.
+El plan por entregas (`018-plan.md`, 8 entregas) se aprobó el 2026-10-22. Antes de su E1 va
+la E2 de la Fase 9.
 
 **Objetivo:** que los administradores (gerencia, trainers y el desarrollador) vean:
 - quién está listo, por guía;
