@@ -8,6 +8,9 @@ puntaje (pesos, qué cuenta como intento, modos) están en `docs/domain.md`; aqu
 >
 > Procedimiento oficial del MES real (WI QD001001524) y su contraste con cada paso:
 > `wi-produccion-disposables.md` (hallazgos W1-W23).
+>
+> Estilos medidos en el MES de testing (px, colores, tipografía) y los mensajes de error
+> reales con su número: `estilos-y-mensajes-mes.md` (2026-10-19).
 
 ---
 
