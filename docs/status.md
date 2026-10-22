@@ -32,9 +32,11 @@
 - **Fase 9 · Deploy del MVP ✅** (2026-10-22, ver "Historial"; plan
   `docs/specs/fase-9-plan.md`, D-129 a D-135): E1 (perfil `MVP.pubxml` y `docs/deploy.md`) y
   E2 (AUD-28 lo barato y los parches de AUD-29), probadas por el usuario.
-  - **Pendiente del usuario:** publicar con el perfil y pasarle a TI la carpeta, `Database/` y
-    `docs/deploy.md` (republicar si ya publicó: la E2 cambia el sitio y pide permiso en
-    `App_Data`); la prueba de humo en el servidor (cierra D-19); el mensaje de lanzamiento
+  - **Pendiente del usuario** (reparto nuevo, 2026-10-22: él prepara la BD y entrega la
+    carpeta con su `connectionStrings.config`; `docs/deploy.md` → 0): la BD de producción ya
+    tiene `00`–`10`, **falta el primer administrador** (`CreateAdmin.sql`; revisado el
+    2026-10-22: 0 admins); publicar, copiar `connectionStrings.config` a `publish\MVP` y
+    entregarle a TI la carpeta y `docs/deploy.md`; la prueba de humo en el servidor (cierra D-19); el mensaje de lanzamiento
     (Redefinity de demostración, D-132; retroalimentación fuera de la app, D-134); preguntarle a
     TI la versión de IIS (cabecera `Server`, D-144) y si hay HTTPS (`requireSSL`).
 - **Fase 10 · Dashboard de Training (spec 018), en curso** en la rama `fase-10`
