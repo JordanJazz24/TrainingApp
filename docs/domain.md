@@ -37,7 +37,7 @@ conocen al validarla con negocio). Áreas en BD y sus flags:
 | Área | Origen | Flags |
 |---|---|---|
 | **Moldeo** (S&RC) | catálogo real (`06_RCMoldeoCatalog.sql`, guía en `07`) | NonSerialized · Assembly no · DC sí · checklist de Start sí |
-| **LoFlo** (Sensores) | `08_SensoresLoFloCatalog.sql`, guía en `09` (Fase 7) | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC sí (sin uso desde la spec 014: lo decide el método del código) · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
+| **LoFlo** (Sensores) | `08_SensoresLoFloCatalog.sql`, guía en `09` (Fase 7) | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC: lo decide el método del código (spec 014) · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
 | **Redefinity** (Catéteres) | **datos de ejemplo** en `05` ("NO USAR EN PRODUCCIÓN"), para probar el camino Serialized en dev | Serialized · Assembly sí · DC sí (no son decisiones de negocio) |
 | **Subensamble 1** (Wires) | ejemplo en `05` | no son decisiones de negocio |
 
@@ -366,11 +366,11 @@ cargada crea una versión nueva (D-56, `docs/architecture.md` → "Versión de l
 - `AssemblyComponents`: BOM de la operación (hoy por Area, `OperationId` nullable),
   `PartNumber`/`Revision`, `Description`, `Qty` decimal. Simulado por ahora. No hay conteo
   esperado de escaneos (`ExpectedComponentCount` se eliminó).
-- Flags de `Areas`: `SerializationType`, `RequiresAssembly`, `RequiresDataCollection`,
-  `RequiresNCComponent` y `RequiresStartChecklist`. `RequiresNCComponent` quedó sin uso con
-  la spec 014 (enmienda 4): Component aparece solo con los códigos de reparación
-  (obligatorio en la rápida, opcional en la extendida) y el desecho no lo muestra en ningún
-  área. Deuda anotada en `docs/status.md`.
+- Flags de `Areas`: `SerializationType`, `RequiresAssembly`, `RequiresDataCollection` y
+  `RequiresStartChecklist`. Component en Log NC no es un flag del área: lo decide el método
+  del código (spec 014, enmienda 4): aparece solo con los códigos de reparación (obligatorio
+  en la rápida, opcional en la extendida) y el desecho no lo muestra en ningún área.
+  `RequiresNCComponent` se quitó en la fila 13 de la Fase 8.5 (D-124).
 - Datos de simulación (preguntas LC, parámetros de DC, códigos NC) van en scripts de
   `Database/StoredProcedures/`, nunca en arrays de la BLL ni en `Web.config`. Excepción
   aceptada (D-6): la pregunta de Line Clearance ("¿La limpieza de linea se ejecuto?") es la

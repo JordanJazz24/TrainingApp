@@ -34,8 +34,8 @@ WHERE  NOT EXISTS (SELECT 1 FROM dbo.Products p WHERE p.Name = s.Name)
 ORDER  BY s.Seq;
 
 INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
-                       RequiresDataCollection, RequiresNCComponent, RequiresStartChecklist)
-SELECT p.Id, s.Area, s.Ser, s.Asm, s.Dc, 1, 0
+                       RequiresDataCollection, RequiresStartChecklist)
+SELECT p.Id, s.Area, s.Ser, s.Asm, s.Dc, 0
 FROM   (VALUES (1, N'Catéteres', N'Redefinity',    0, 1, 1),   -- Serialized, Assembly, DC
                (2, N'Wires',     N'Subensamble 1', 1, 1, 0))   -- NonSerialized, Assembly, sin DC
        AS s (Seq, Product, Area, Ser, Asm, Dc)

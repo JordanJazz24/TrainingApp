@@ -64,7 +64,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection,
-           RequiresNCComponent, RequiresStartChecklist
+           RequiresStartChecklist
     FROM   dbo.Areas
     WHERE  ProductId = @ProductId
     ORDER  BY Name;
@@ -78,7 +78,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT Id, ProductId, Name, SerializationType, RequiresAssembly, RequiresDataCollection,
-           RequiresNCComponent, RequiresStartChecklist
+           RequiresStartChecklist
     FROM   dbo.Areas
     WHERE  Id = @Id;
 END;

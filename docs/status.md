@@ -8,11 +8,11 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-10-22 · **Branch:** `TrainingApp` · **Último commit de
-código:** fila 12, W23 (`git log --oneline -10` para ver el estado real)
+código:** fila 13, sin `RequiresNCComponent` (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
-  quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7, 012, 017 y **fila 12**
+  quedó diferida, D-19), 011, 013, T7, 015, 014, 016, T6, notas EP-7, 012, 017 y las **filas 12 y 13**
   (detalle en `docs/history.md`). La 016 ya se puede subir a `main` (D-81); lo sube el
   usuario.
 - **Spec 017 ✅** (2026-10-21, fila 10, ver "Historial"): mensajes de error del MES en
@@ -24,8 +24,11 @@ código:** fila 12, W23 (`git log --oneline -10` para ver el estado real)
   `{12NC}-{serial}`, con un 12NC simulado por área y seriales consecutivos de 1 a 6 dígitos;
   el As-Built de Log NC muestra `{12NC}/A`. Sin cambios de BD ni de puntaje. Probada por el
   usuario.
-- **Siguiente:** fila 13 de la Fase 8.5 (quitar `RequiresNCComponent`), plan directo aprobado
-  por el usuario el 2026-10-21.
+- **Fila 13 ✅** (2026-10-22, ver "Historial"): se quitó `Areas.RequiresNCComponent` (sin uso
+  desde la enmienda 4 de la spec 014), sin cambio de comportamiento; BD del usuario recreada
+  con `00`–`09` (D-124). Nuevo `Database/Ops/RunAllScripts.ps1` para correr los scripts en
+  orden. Probada por el usuario.
+- **Siguiente:** lo que defina Arquitectura y Planeación en el roadmap de la Fase 8.5.
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**
@@ -72,10 +75,6 @@ final (D-16) repasó esta lista.
   del MES y sin número, hasta capturarlo en testing. Al integrar la auditoría de fidelidad
   (`docs/fidelidad-ui`, D-115): marcar AUD-63, AUD-64 y AUD-69 ☑ vía la 017 y anotar la
   corrección de `SfcNotInOrder` (un SFC ajeno es `22507`, no `22501`; D-106).
-- **`RequiresNCComponent` sin uso** desde la enmienda 4 de la spec 014 (Component lo decide
-  el método del código): columna `Areas.RequiresNCComponent` en `00`, `05`, `06` y `08`,
-  `spAreaGet*`, `AreaRepository` y `Area.RequiresNCComponent`. Quitarla no entró en la
-  spec 014; va con su propio plan.
 
 ## BD de desarrollo del usuario
 
@@ -100,6 +99,7 @@ corrió el usuario:
 | 2026-10-19 | `02`, `05`, `09` | Spec 014 E2: `StepType` 9 (reparación rápida) y D-56; guías de LoFlo y Redefinity en versión nueva con el paso y los pesos de D-57 |
 | 2026-10-19 | ALTER de la spec 014 E3 + `02`, `05`, `08`, `09` | Spec 014 E3: `Operations.Sequence` y `Description` con 2 operaciones `SIM` por área, `spOperationGetByArea`, `StepType` 10 (versión nueva de las guías, DC 0.25); enmienda 5: `F_FR_GENERAL`/`F_FX_GENERAL` en LoFlo y Redefinity y se borran los `SIM_FR`/`SIM_FX` |
 | 2026-10-19 | `00`–`09` (BD recreada) | Spec 016 E2: `StepType` 11 (Ingreso a MES) primero en las tres guías, DC −0.05 |
+| 2026-10-22 | `00`–`09` (BD recreada con `RunAllScripts.ps1 -Recreate`) + `Ops/CreateAdmin` | Fila 13: sin la columna `Areas.RequiresNCComponent` (D-124) |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.

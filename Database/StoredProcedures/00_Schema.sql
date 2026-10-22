@@ -30,8 +30,6 @@ CREATE TABLE dbo.Products (
 -- -------------------------------------------------------
 -- Areas
 -- SerializationType: 0=Serialized, 1=NonSerialized
--- RequiresNCComponent: sin uso desde la enmienda 4 de la spec 014 (Component lo decide el método del código NC)
---   (la norma es pedirlo; Moldeo es la excepción).
 -- RequiresStartChecklist: Start abre la secuencia de 4 modales
 --   (ID de molde, LC, MSS, verificación); 0 = Start directo (spec 008).
 -- -------------------------------------------------------
@@ -43,7 +41,6 @@ CREATE TABLE dbo.Areas (
     SerializationType      TINYINT NOT NULL DEFAULT 0,
     RequiresAssembly       BIT NOT NULL DEFAULT 0,
     RequiresDataCollection BIT NOT NULL DEFAULT 0,
-    RequiresNCComponent    BIT NOT NULL CONSTRAINT DF_Areas_RequiresNCComponent DEFAULT 1,
     RequiresStartChecklist BIT NOT NULL CONSTRAINT DF_Areas_RequiresStartChecklist DEFAULT 0
 );
 

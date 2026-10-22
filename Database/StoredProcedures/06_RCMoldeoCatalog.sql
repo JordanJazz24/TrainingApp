@@ -20,7 +20,6 @@ BEGIN TRANSACTION;
 --   SerializationType      1 = NonSerialized (lote)
 --   RequiresAssembly       0 — el ID del molde es un parámetro de DC
 --   RequiresDataCollection 1
---   RequiresNCComponent    0 — sin uso desde la enmienda 4 de la spec 014
 --   RequiresStartChecklist 1 — Start abre la secuencia de 4 modales
 -- ------------------------------------------------------------
 -- El producto se llamaba 'R&C' hasta el 2026-10-14 (T7: su nombre es S&RC, confirmado
@@ -36,12 +35,12 @@ DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = 'S&RC');
 
 IF NOT EXISTS (SELECT 1 FROM dbo.Areas WHERE ProductId = @ProductId AND Name = 'Moldeo')
     INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
-                           RequiresDataCollection, RequiresNCComponent, RequiresStartChecklist)
-    VALUES (@ProductId, 'Moldeo', 1, 0, 1, 0, 1);
+                           RequiresDataCollection, RequiresStartChecklist)
+    VALUES (@ProductId, 'Moldeo', 1, 0, 1, 1);
 ELSE
     UPDATE dbo.Areas
     SET    SerializationType = 1, RequiresAssembly = 0, RequiresDataCollection = 1,
-           RequiresNCComponent = 0, RequiresStartChecklist = 1
+           RequiresStartChecklist = 1
     WHERE  ProductId = @ProductId AND Name = 'Moldeo';
 
 DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE ProductId = @ProductId AND Name = 'Moldeo');

@@ -25,7 +25,6 @@ BEGIN TRANSACTION;
 --   SerializationType      0 = Serialized (varios SFC por orden)
 --   RequiresAssembly       1
 --   RequiresDataCollection 1
---   RequiresNCComponent    1 — sin uso desde la enmienda 4 de la spec 014
 --   RequiresStartChecklist 0 — Start directo
 -- ------------------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM dbo.Products WHERE Name = N'Sensores')
@@ -35,12 +34,12 @@ DECLARE @ProductId INT = (SELECT Id FROM dbo.Products WHERE Name = N'Sensores');
 
 IF NOT EXISTS (SELECT 1 FROM dbo.Areas WHERE ProductId = @ProductId AND Name = N'LoFlo')
     INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
-                           RequiresDataCollection, RequiresNCComponent, RequiresStartChecklist)
-    VALUES (@ProductId, N'LoFlo', 0, 1, 1, 1, 0);
+                           RequiresDataCollection, RequiresStartChecklist)
+    VALUES (@ProductId, N'LoFlo', 0, 1, 1, 0);
 ELSE
     UPDATE dbo.Areas
     SET    SerializationType = 0, RequiresAssembly = 1, RequiresDataCollection = 1,
-           RequiresNCComponent = 1, RequiresStartChecklist = 0
+           RequiresStartChecklist = 0
     WHERE  ProductId = @ProductId AND Name = N'LoFlo';
 
 DECLARE @AreaId INT = (SELECT Id FROM dbo.Areas WHERE ProductId = @ProductId AND Name = N'LoFlo');

@@ -396,3 +396,15 @@ partía el SFC por `-` ni lo comparaba con la Shop Order. Sin scripts de BD ni c
 puntaje. Review `low` sin hallazgos. Tests: 283 (`SerialSfcGeneratorTests` reescrito,
 `PodDefaultsMaterialNumberTests`). W23 resuelto en `wi-produccion-disposables.md`; glosario
 y `general-flow.md` al día. Probada por el usuario en el navegador.
+
+## Fila 13 · Quitar `RequiresNCComponent` ✅ (2026-10-22, Fase 8.5, plan directo)
+Plan aprobado por el usuario el 2026-10-21 (`docs/roadmap.md` → "Plan de la fila 13", D-124).
+La columna `Areas.RequiresNCComponent` no se leía desde la enmienda 4 de la spec 014
+(Component lo decide el método del código NC). Se quitó de `00_Schema.sql` (con su default),
+de los `spAreaGet*` de `02`, de los catálogos `05`, `06` y `08`, de `Area` y de
+`AreaRepository`. Sin cambio de comportamiento ni de puntaje. Verificado en LocalDB: los
+scripts nuevos corren limpios dos veces y `Areas` queda con los mismos datos menos la
+columna. La BD del usuario se recreó con `00`–`09`, sin `ALTER` aparte. A pedido del
+usuario, `Database/Ops/RunAllScripts.ps1` corre los scripts en orden (`-Recreate` borra y
+crea la BD antes); documentado en `docs/process.md` §6. Sin review (solo se borraron líneas).
+Tests: 283. Probada por el usuario en el navegador.

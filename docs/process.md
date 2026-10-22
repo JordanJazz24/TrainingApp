@@ -147,6 +147,8 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
 - La conexión MCP a SQL Server es de **solo lectura**: los scripts de
   `Database/StoredProcedures/` los ejecuta el usuario, en orden numérico (`00`–`09`; índice
   en el encabezado de `00_Schema.sql`). Todos se pueden volver a correr sobre su BD.
+  `Database/Ops/RunAllScripts.ps1` los corre todos en orden y se detiene en el primero que
+  falla; con `-Recreate` borra y crea la BD antes (pide confirmación).
 - Antes de entregarlos, probarlos en una BD descartable de LocalDB
   (`(localdb)\MSSQLLocalDB`, con `sqlcmd -I -f 65001`): instalación limpia, re-ejecución
   sobre una BD con sesiones e intentos, y comparación de datos contra la versión anterior.
