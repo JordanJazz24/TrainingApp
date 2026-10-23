@@ -502,6 +502,38 @@ namespace TrainingApp.Test
             Assert.That(summary.GuideSummaries.All(g => g.PassRate == null && g.FirstAttemptRate == null), Is.True);
         }
 
+        // ---- Seguimiento (E5, AC-20) ----
+
+        // S-3 con el nombre del paso y el enlace al operador; con el filtro de otra guía no
+        // aparece; sin la capacidad, excepción.
+        [Test]
+        public void GetFollowUp_StuckStepWithName()
+        {
+            LoFloSteps();
+            Operator(OperatorId, "Ana");
+            for (int id = 1; id <= 2; id++)
+                StepSessionIn(LoFlo, id, SessionMode.Assessment, SessionStatus.Completed,
+                    (1, false, AttemptReason.WrongDecision, 10), (1, false, AttemptReason.WrongDecision, 20),
+                    (1, false, AttemptReason.WrongDecision, 30), (1, false, AttemptReason.WrongDecision, 40),
+                    (2, true, AttemptReason.None, 50));
+            foreach (var s in _dashboard.Sessions) s.FinalScore = 0.40m;
+
+            var report = _service.GetFollowUp(AdminId, new FollowUpFilter { GuideId = 999 });
+
+            Assert.That(report.Applied.GuideId, Is.Null);
+            var row = report.Rows.Single();
+            Assert.That(row.Name, Is.EqualTo("Ana"));
+            Assert.That(row.TrainingGuideId, Is.EqualTo(LoFlo));
+            Assert.That(row.State, Is.EqualTo(ReadinessState.Failed));
+            Assert.That(row.Reasons.Select(r => r.Rule), Does.Contain(FollowUpRule.RepeatedFailures));
+            var stuck = row.Reasons.Single(r => r.Rule == FollowUpRule.StuckStep).Steps.Single();
+            Assert.That(stuck.StepName, Is.EqualTo("Resource Setup"));
+            Assert.That(stuck.Times, Is.EqualTo(2));
+
+            Assert.That(_service.GetFollowUp(AdminId, new FollowUpFilter { GuideId = Moldeo }).Rows, Is.Empty);
+            Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetFollowUp(OperatorId, new FollowUpFilter())));
+        }
+
         private static DashboardAttempt Attempt(int sessionId, int order, bool correct, AttemptReason reason, DateTime at)
             => new DashboardAttempt
             {

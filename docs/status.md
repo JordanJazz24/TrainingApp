@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** spec 018 E4, probada por el usuario (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** spec 018 E5, probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -70,8 +70,14 @@
     - la actividad por semana de la planta y modo;
     - el top 5 de pasos con fallo en Assessment, el mismo cálculo que Pasos (D-147).
 
-    Filtros de período y guía en la URL. No cambia la BD. La E5 (Seguimiento) espera el aviso
-    de Arquitectura y Planeación.
+    Filtros de período y guía en la URL. No cambia la BD.
+  - **E5 ✅** (2026-10-23, probada por el usuario): `FollowUp.aspx`, los operadores que
+    requieren atención por guía, con sus reglas S-1, S-2 y S-3 y el enlace a su detalle.
+    Ignora el período y quien aprueba la guía sale de ella. **Pendiente del usuario:** volver
+    a correr `10_spDashboard.sql` en su BD local y en la de producción
+    (`spDashboardStepAttempts` ahora devuelve el `UserId`; `TrainingApp_Fase10` y
+    `TrainingApp_DashboardTest` ya lo tienen). La E6 (Excel) espera el aviso de Arquitectura y
+    Planeación.
   - **Para probar el dashboard con volumen:** BD `TrainingApp_DashboardTest` en LocalDB, con
     el generador (1600 operadores; admin = Code1 del usuario).
   - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).

@@ -56,6 +56,8 @@
                             NavigateUrl="~/Pages/Admin/Operators.aspx">Operadores</asp:HyperLink></li>
                         <li class="nav-item"><asp:HyperLink ID="LnkSteps" runat="server" CssClass="nav-link"
                             NavigateUrl="~/Pages/Admin/Steps.aspx">Pasos</asp:HyperLink></li>
+                        <li class="nav-item"><asp:HyperLink ID="LnkFollowUp" runat="server" CssClass="nav-link"
+                            NavigateUrl="~/Pages/Admin/FollowUp.aspx">Seguimiento</asp:HyperLink></li>
                         <li class="nav-item"><asp:HyperLink ID="LnkUsers" runat="server" CssClass="nav-link"
                             NavigateUrl="~/Pages/Admin/Users.aspx">Usuarios</asp:HyperLink></li>
                     </ul>

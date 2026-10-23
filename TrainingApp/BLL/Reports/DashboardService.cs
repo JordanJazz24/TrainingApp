@@ -154,6 +154,38 @@ namespace TrainingApp.BLL.Reports
         public IList<StepStats> TopSteps { get; set; }
     }
 
+    // Filtros de Seguimiento: solo la guía; ignora el período (DA-3a).
+    public class FollowUpFilter
+    {
+        // null = todas las guías.
+        public int? GuideId { get; set; }
+    }
+
+    // Un operador que requiere atención en una guía, con todas las reglas que cumple.
+    public class FollowUpRow
+    {
+        public int UserId { get; set; }
+        public string Code1 { get; set; }
+        public string Name { get; set; }
+        public int TrainingGuideId { get; set; }
+        public ReadinessState State { get; set; }
+
+        // Inicio de su última sesión de la guía.
+        public DateTime? LastActivity { get; set; }
+
+        public IList<FollowUpReason> Reasons { get; set; }
+    }
+
+    // Seguimiento (spec 018, AC-19 y AC-20).
+    public class FollowUpReport
+    {
+        public FollowUpFilter Applied { get; set; }
+        public IList<DashboardGuide> Guides { get; set; }
+
+        // Por guía (en el orden de Guides) y después por nombre.
+        public IList<FollowUpRow> Rows { get; set; }
+    }
+
     // Dashboard de Training (spec 018). Lee lo que los SPs agregan y aplica las reglas
     // (ReadinessPolicy). Cada método recibe el userId del usuario autenticado y verifica
     // CanViewReports sin confiar en la página: si no la tiene, es una excepción.
@@ -369,6 +401,78 @@ namespace TrainingApp.BLL.Reports
                     .Where(s => s.SessionsWithFailure > 0)
                     .Take(TopStepCount)
                     .ToList()
+            };
+        }
+
+        // Seguimiento (AC-19, AC-20): los operadores que cumplen S-1, S-2 o S-3 en una guía, sin
+        // período (DA-3a); quien aprobó la guía no aparece en ella. S-3 sale de los pasos de todos
+        // sus Assessment (StepRuns, la misma regla que los pasos a reforzar).
+        public FollowUpReport GetFollowUp(int userId, FollowUpFilter filter)
+        {
+            RequireReports(userId);
+            filter = filter ?? new FollowUpFilter();
+
+            var guides  = _dashboard.GetGuides();
+            int? guideId = PublishedOrAll(guides, filter.GuideId);
+            var shown   = guides.Where(g => !guideId.HasValue || g.Id == guideId.Value).ToList();
+            var shownIds = new HashSet<int>(shown.Select(g => g.Id));
+            var now     = DateTime.UtcNow;
+
+            // Las sesiones y el estado de cada operador en cada guía que entrenó.
+            var byPair = _dashboard.GetSessions(null, false)
+                .Where(s => shownIds.Contains(s.TrainingGuideId))
+                .GroupBy(s => new { s.UserId, s.TrainingGuideId })
+                .ToDictionary(g => g.Key, g =>
+                {
+                    var list = g.ToList();
+                    return new { Sessions = list, Readiness = ReadinessPolicy.ForGuide(g.Key.TrainingGuideId, list) };
+                });
+
+            // Los pasos de los Assessment (abandonados y en curso incluidos), solo de quien no
+            // aprobó esa guía: quien la aprobó sale de Seguimiento con todas sus reglas.
+            var assessments = _dashboard.GetStepAttempts(SessionMode.Assessment, null, guideId);
+            var attempts    = assessments.Attempts.ToLookup(a => a.SessionId);
+            var runs = assessments.Sessions
+                .Where(s => byPair.TryGetValue(new { s.UserId, s.TrainingGuideId }, out var pair)
+                            && pair.Readiness.State != ReadinessState.Passed)
+                .ToLookup(s => new { s.UserId, s.TrainingGuideId }, s => StepRuns.ForSession(s, attempts[s.SessionId]));
+
+            var stepsByGuide = _dashboard.GetGuideSteps().ToLookup(st => st.TrainingGuideId);
+            var rows = new List<FollowUpRow>();
+            foreach (var op in _dashboard.GetOperators(string.Empty))
+            {
+                foreach (var g in shown)
+                {
+                    var key = new { op.UserId, TrainingGuideId = g.Id };
+                    if (!byPair.TryGetValue(key, out var pair)) continue;
+
+                    var readiness = pair.Readiness;
+                    var reasons = FollowUpRules.ForGuide(readiness, pair.Sessions, runs[key], now);
+                    if (reasons.Count == 0) continue;
+
+                    var guideSteps = stepsByGuide[g.Id].ToList();
+                    foreach (var s in reasons.SelectMany(r => r.Steps))
+                        s.StepName = StepName(guideSteps, s.StepId, s.StepOrder);
+
+                    rows.Add(new FollowUpRow
+                    {
+                        UserId          = op.UserId,
+                        Code1           = op.Code1,
+                        Name            = op.Name,
+                        TrainingGuideId = g.Id,
+                        State           = readiness.State,
+                        LastActivity    = readiness.LastActivity,
+                        Reasons         = reasons
+                    });
+                }
+            }
+
+            var order = shown.Select((g, i) => new { g.Id, i }).ToDictionary(x => x.Id, x => x.i);
+            return new FollowUpReport
+            {
+                Applied = new FollowUpFilter { GuideId = guideId },
+                Guides  = guides,
+                Rows    = rows.OrderBy(r => order[r.TrainingGuideId]).ThenBy(r => r.Name, StringComparer.CurrentCulture).ToList()
             };
         }
 

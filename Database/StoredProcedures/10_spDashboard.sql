@@ -108,7 +108,7 @@ GO
 
 -- spDashboardStepAttempts — los intentos de las sesiones de un modo
 -- que empezaron desde @From (NULL = todo) en las guías publicadas (o
--- en una con @GuideId), con su sesión (guía, estado e inicio). Pasos
+-- en una con @GuideId), con su sesión (dueño, guía, estado e inicio). Pasos
 -- los agrega en la BLL (StepRuns, D-146): fallos, sin acierto, saltos,
 -- motivos y la mediana de duración.
 CREATE OR ALTER PROCEDURE dbo.spDashboardStepAttempts
@@ -118,7 +118,7 @@ CREATE OR ALTER PROCEDURE dbo.spDashboardStepAttempts
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT a.SessionId, s.TrainingGuideId, s.Mode, s.Status, s.StartedAt,
+    SELECT a.SessionId, s.UserId, s.TrainingGuideId, s.Mode, s.Status, s.StartedAt,
            a.StepId, st.[Order] AS StepOrder, a.AttemptNumber, a.IsCorrect,
            a.[Timestamp], a.Reason, a.[Action]
     FROM dbo.TrainingSessions s

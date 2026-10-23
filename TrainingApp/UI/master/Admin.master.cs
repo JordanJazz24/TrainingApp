@@ -30,6 +30,7 @@ namespace TrainingApp.UI.Master
                 MarkCurrent(LnkSummary, "~/Pages/Admin/Summary.aspx");
                 MarkCurrent(LnkOperators,"~/Pages/Admin/Operators.aspx", "~/Pages/Admin/Operator.aspx");
                 MarkCurrent(LnkSteps, "~/Pages/Admin/Steps.aspx");
+                MarkCurrent(LnkFollowUp, "~/Pages/Admin/FollowUp.aspx");
                 MarkCurrent(LnkUsers, "~/Pages/Admin/Users.aspx");
             }
         }

@@ -127,6 +127,7 @@ namespace TrainingApp.DAL.Repositories
                         sessions.Add(attempt.SessionId, new DashboardSession
                         {
                             SessionId       = attempt.SessionId,
+                            UserId          = Convert.ToInt32(reader["UserId"]),
                             TrainingGuideId = Convert.ToInt32(reader["TrainingGuideId"]),
                             Mode            = (SessionMode)Convert.ToByte(reader["Mode"]),
                             Status          = (SessionStatus)Convert.ToByte(reader["Status"]),

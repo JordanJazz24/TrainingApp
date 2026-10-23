@@ -180,6 +180,7 @@
     <Content Include="UI\master\admin.css" />
     <Content Include="Pages\Admin\Operator.aspx" />
     <Content Include="Pages\Admin\Operators.aspx" />
+    <Content Include="Pages\Admin\FollowUp.aspx" />
     <Content Include="Pages\Admin\Steps.aspx" />
     <Content Include="Pages\Admin\Summary.aspx" />
     <Content Include="Pages\Admin\Users.aspx" />
@@ -386,6 +387,14 @@
     <Compile Include="Pages\Admin\OperatorDetailRows.cs" />
     <Compile Include="Pages\Admin\OperatorListRow.cs" />
     <Compile Include="Pages\Admin\ReportText.cs" />
+    <Compile Include="Pages\Admin\FollowUpListRow.cs" />
+    <Compile Include="Pages\Admin\FollowUp.aspx.cs">
+      <DependentUpon>FollowUp.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\FollowUp.aspx.designer.cs">
+      <DependentUpon>FollowUp.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Admin\StepRows.cs" />
     <Compile Include="Pages\Admin\SummaryRows.cs" />
     <Compile Include="Pages\Admin\Summary.aspx.cs">
@@ -410,6 +419,7 @@
     <Compile Include="BLL\Reports\ReadinessPolicy.cs" />
     <Compile Include="BLL\Reports\ReinforcementRule.cs" />
     <Compile Include="BLL\Reports\StepRuns.cs" />
+    <Compile Include="BLL\Reports\FollowUpRules.cs" />
     <Compile Include="BLL\Reports\ReportPeriod.cs" />
     <Compile Include="BLL\Reports\StepStatistics.cs" />
     <Compile Include="BLL\Reports\SummaryRules.cs" />

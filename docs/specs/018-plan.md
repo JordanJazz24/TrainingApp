@@ -326,13 +326,46 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E5 · Seguimiento
 
-- [ ] **Reglas S-1, S-2 y S-3** en la BLL, como funciones puras con sus umbrales como
+> **E5 de Desarrollo ✅** (2026-10-23; probada por el usuario: "funciona"). Detalle que no
+> cambia el plan:
+> - **`FollowUpRules`** (S-1, S-2, S-3), con los umbrales como constantes (2, 14 días, 2).
+>   La página los muestra desde ahí.
+> - **S-2:** cuenta los días completos desde el `StartedAt` de la última sesión de la guía
+>   (`GuideReadiness.LastActivity`). Con 14 o más, aparece.
+> - **S-3:** agrupa por `StepId` y cuenta los `StepRun` con `EndedWithoutSuccess`.
+> - **Origen de los datos:** los pasos salen de todos los Assessment
+>   (`spDashboardStepAttempts` sin período), solo de los operadores que no aprobaron esa guía.
+>   El SP ahora devuelve también el `UserId` de la sesión.
+> - **La página:**
+>   - una fila por operador y guía, con el estado, la última sesión de la guía, una línea
+>     por regla (S-3, una por paso) y el enlace al detalle;
+>   - filtro de guía en la URL;
+>   - abajo, cuántos operadores y casos hay.
+> - **Del `/code-review medium` (9 hallazgos) se aplicaron 6:**
+>   - el `UserId` en el SP, sin cruzar dos lecturas;
+>   - los pasos solo de quien no aprobó;
+>   - el estado se calcula una vez y S-2 sale de él;
+>   - S-3 por `StepId` solo;
+>   - los pasos por guía con un lookup;
+>   - cada regla con su texto.
+> - **Descartados:**
+>   - validar dentro de la regla la guía y el modo de los pasos (el contrato está documentado
+>     y el servicio los filtra);
+>   - unificar `StuckStep` con `ReinforcementStep` (son vistas distintas);
+>   - el orden de las revisiones de `Page_Load` (es el de todas las páginas del dashboard).
+> - **Queda para la E7:** el rendimiento de leer todos los Assessment.
+>   - **Primero:** el índice que cubre los intentos por sesión.
+>   - **Si no alcanza:** el plan B de la enmienda 3, una fila por sesión y paso.
+>   - **No va:** filtrar en el SP a quien ya aprobó, porque repetiría en SQL la regla de
+>     `ReadinessPolicy` (D-136, D-139). Mover una regla a SQL lo decide el usuario.
+
+- [x] **Reglas S-1, S-2 y S-3** en la BLL, como funciones puras con sus umbrales como
   constantes (D-141): por guía, sin período, y el operador sale al aprobar.
-- [ ] **Página `FollowUp.aspx`**, con todas las reglas que cumple cada operador y el
+- [x] **Página `FollowUp.aspx`**, con todas las reglas que cumple cada operador y el
   enlace a su detalle.
-- [ ] **Tests:** AC-19 (S-2 por guía aunque practique otra), AC-20 (S-3 y la salida al
+- [x] **Tests:** AC-19 (S-2 por guía aunque practique otra), AC-20 (S-3 y la salida al
   aprobar) y AC-4 (S-1).
-- [ ] **Checklist** con casos armados a mano.
+- [x] **Checklist** con casos armados a mano.
 
 ## E6 · Exportar a Excel
 
