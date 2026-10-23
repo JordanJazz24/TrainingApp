@@ -6,6 +6,20 @@ en `docs/decisions.md`
 la confirmación de DA-1 a DA-9 y cuatro de revisión, porque el usuario pidió "no dejar dudas
 pendientes"
 
+> **Enmienda 1 (2026-10-23, usuario, al probar la E3; D-147):** con la guía en **"Todas"**,
+> Pasos y el top 5 del Resumen **agrupan por tipo de paso**, no por guía.
+> - **Pasos (In 4, AC-17):** con "Todas" sale una sola tabla, "Todas las guías", con un renglón
+>   por paso agrupado por el nombre de `StepNames.Display`. Así, "Line Clearance (apertura)" y
+>   "(cierre)" y los tres Log NC siguen separados. El %, los conteos y la mediana salen de
+>   todas las sesiones juntas, no de promediar guías. Con una guía elegida, su ranking, como
+>   antes.
+> - **Top 5 del Resumen (In 1, AC-9; reemplaza DA-4):** con "Todas", es el top 5 de esa misma
+>   agrupación, sin el nombre de la guía, así sus números coinciden con los de Pasos al seguir el
+>   enlace. Con una guía elegida, el top 5 de esa guía.
+> - **Excel de Pasos (In 6, DA-5):** trae la misma vista que la pantalla con sus filtros.
+> - El usuario eligió agrupar por tipo de paso entre tres opciones: una tabla mezclada con
+>   columna Guía, agrupar por tipo de paso o un top mezclado.
+
 ## Problem
 
 Training, gerencia y el desarrollador no ven cómo les va a los operadores en el simulador:
@@ -343,7 +357,7 @@ Las preguntó el usuario una por una antes de aprobar:
 - **DA-3 ✔:** la lista de Seguimiento ignora el período (a), y S-3 se cuenta por paso de
   una misma guía (b).
 - **DA-4 ✔:** el top 5 mezcla guías, con el nombre de cada una, y el filtro de guía muestra
-  el de una sola.
+  el de una sola. *(Superada por la enmienda 1, D-147: con "Todas", agrupa por tipo de paso.)*
 - **DA-5 ✔:** Excel exporta lo filtrado.
 - **DA-6 → diferida:** cómo se genera la ficha se decide al implementarla.
 - **DA-7 ✔:** índices nuevos y un script de datos de prueba para medir AC-24.
