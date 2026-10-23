@@ -90,6 +90,9 @@ namespace TrainingApp.BLL.Reports
 
         // Solo las guías con algún paso a reforzar, en el orden de Guides.
         public IList<GuideReinforcement> Reinforcement { get; set; }
+
+        // La curva de aprendizaje de cada guía que entrenó, en el orden de Guides (AC-15).
+        public IList<GuideCurve> Curves { get; set; }
     }
 
     // Filtros de Pasos (spec 018 → Filtros). Los valida el servicio, como OperatorFilter.
@@ -367,6 +370,12 @@ namespace TrainingApp.BLL.Reports
                             steps.Where(st => st.TrainingGuideId == g.Id).ToList())
                     })
                     .Where(r => r.Steps.Count > 0)
+                    .ToList(),
+                // Las guías que entrenó; los intentos fallidos y el puntaje, como en las sesiones.
+                Curves = guides
+                    .Where(g => sessions.Any(s => s.TrainingGuideId == g.Id))
+                    .Select(g => LearningCurve.ForGuide(g.Id, sessions,
+                        s => runs[s.SessionId].Sum(r => r.FailedAttempts), VisibleScore))
                     .ToList()
             };
         }

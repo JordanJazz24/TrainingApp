@@ -18,6 +18,14 @@ quedó en 0 warnings. **Los tests quedaron fuera** por decisión del usuario.
   en la BLL; el estado sigue en Session y se reconstruye si se pierde (D-10).
 - ☑ **Fase 9, E2 (2026-10-22, enmienda):** se hizo lo barato de AUD-28 y los parches de AUD-29 (D-131); Bootstrap, SweetAlert2 y CodeDom 4.x quedaron fuera, y la cabecera `Server` espera la versión de IIS de TI (D-144). Original: **Fase 9 (o cuando el usuario lo pida explícitamente, D-7):** AUD-28 (endurecimiento
   del deploy) y AUD-29 (actualizar paquetes).
+- **Enmienda (2026-10-23, Fase 10, spec 018):** el inventario de paquetes de AUD-29 suma:
+  - **Chart.js 4.5.1:** local en `Scripts/chart-4.5.1.umd.min.js`, sin CDN.
+  - **ClosedXML 0.105.1 (D-140)**, con sus dependencias por `packages.config`:
+    DocumentFormat.OpenXml 3.1.1, ExcelNumberFormat, SixLabors.Fonts y `System.*`, con 4
+    `bindingRedirect` en `Web.config`.
+
+  Tenerlos en cuenta en la próxima revisión de paquetes. La descarga grande de sesiones no
+  usa `System.IO.Packaging` (D-149).
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` (AUD-04; sigue
   en el historial de git) y actualizar `connectionStrings.config`.
 - AUD-27 quedó cerrado por decisión del usuario (D-6): la pregunta de Line Clearance se

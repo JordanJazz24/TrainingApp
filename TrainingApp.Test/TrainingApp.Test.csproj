@@ -168,6 +168,7 @@
     <Compile Include="DashboardPerformanceTests.cs" />
     <Compile Include="ExcelReportsTests.cs" />
     <Compile Include="FollowUpRulesTests.cs" />
+    <Compile Include="LearningCurveTests.cs" />
     <Compile Include="StepRunsTests.cs" />
     <Compile Include="SummaryRulesTests.cs" />
   </ItemGroup>

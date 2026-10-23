@@ -92,6 +92,15 @@ namespace TrainingApp.Pages.Admin
         public static string ReasonCount(ReasonCount reason)
             => Reason(reason.Reason) + " · " + (reason.Action ?? None) + " (" + reason.Count + ")";
 
+        // El dato de la curva (AC-15): "4 sesiones de práctica antes del primer aprobado".
+        public static string PracticeBeforeFirstPass(int? sessions)
+        {
+            if (!sessions.HasValue) return "Todavía no aprueba esta guía.";
+            return sessions.Value == 1
+                ? "1 sesión de práctica antes del primer aprobado"
+                : sessions.Value + " sesiones de práctica antes del primer aprobado";
+        }
+
         // Cómo terminó un paso de una sesión (hoja Intentos por paso).
         public static string Outcome(StepOutcome outcome)
         {

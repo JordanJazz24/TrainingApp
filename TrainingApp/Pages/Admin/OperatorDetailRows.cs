@@ -32,6 +32,15 @@ namespace TrainingApp.Pages.Admin
         public IList<OperatorReinforcementRow> Steps { get; set; }
     }
 
+    public class OperatorCurveCard
+    {
+        public string GuideName { get; set; }
+        public string GuideTitle { get; set; }
+        public bool HasPoints { get; set; }
+        public string PracticeText { get; set; }
+        public string ScoresText { get; set; }
+    }
+
     public class OperatorReinforcementRow
     {
         public string StepName { get; set; }

@@ -23,6 +23,33 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.HyperLink LnkBack;
 
         /// <summary>
+        /// LitPrinted control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitPrinted;
+
+        /// <summary>
+        /// PhCurves control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhCurves;
+
+        /// <summary>
+        /// RptCurves control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptCurves;
+
+        /// <summary>
         /// LitName control.
         /// </summary>
         /// <remarks>

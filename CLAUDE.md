@@ -67,7 +67,7 @@ tutorial que se reutiliza tal cual se documenta; si cambia, se modela de nuevo e
 `TrainingApp/` (Web Forms): `Pages/` (Auth, Admin, Training) · `UI/Controls/Training/` (un
 UserControl por tipo de paso) · `BLL/` (Auth, Admin, Training, Scoring) · `DAL/` (un
 repositorio por tabla) · `Domain/` · `Shared/`. `TrainingApp.Test/` (NUnit 4) y `Database/`
-(`StoredProcedures/` 00-09, `Ops/`). Árbol con la responsabilidad de cada archivo:
+(`StoredProcedures/` 00-10, `Ops/`). Árbol con la responsabilidad de cada archivo:
 `docs/architecture.md`.
 
 **Regla de dependencias:** Pages → BLL → DAL → Domain. Ninguna capa referencia hacia arriba;
@@ -86,11 +86,12 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 - La cuenta local es `User` (tabla `Users`), nunca `Operator`: "operador" es la persona en
   la línea del MES y uno de los dos roles (D-17).
 - **Roles excluyentes** (spec 013): **Operator** entrena; **Administrator** administra
-  usuarios y **no** entrena. Qué puede cada rol vive solo en `AccessPolicy` (`CanTrain`,
-  `CanManageUsers`): páginas y servicios preguntan por la capacidad, nunca por el nombre del
+  usuarios, ve el dashboard de Training (spec 018; su inicio es el Resumen) y **no** entrena.
+  Qué puede cada rol vive solo en `AccessPolicy` (`CanTrain`, `CanManageUsers`,
+  `CanViewReports`): páginas y servicios preguntan por la capacidad, nunca por el nombre del
   rol. `Web.config` protege `Pages/Admin` y `Pages/Training` por rol y las páginas lo
   revisan otra vez; sin la capacidad, al inicio del rol (`SessionHelper.RedirectHome`),
-  nunca al login.
+  nunca al login. Cada método del dashboard verifica `CanViewReports` en la BLL.
 - Un solo login y un solo cambio de contraseña, neutros, para los dos roles (`Pages/Auth`,
   D-62); el cambio pide siempre la contraseña actual (D-3). Cada método de gestión de
   usuarios verifica en la BLL que quien llama es admin.
@@ -170,7 +171,7 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 
 - **Local:** abrir `TrainingApp.slnx` → crear `TrainingApp/connectionStrings.config` desde el
   `.example` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` en
-  orden numérico (`00`–`09`) → F5 con IIS Express.
+  orden numérico (`00`–`10`; o `Database/Ops/RunAllScripts.ps1`) → F5 con IIS Express.
 - **Tests:** unit tests de la BLL (servicios, scoring) con datos en memoria, sin BD. La
   integración del DAL, contra una BD de test dedicada (LocalDB); Testcontainers descartado.
   Las ASPX no se prueban.

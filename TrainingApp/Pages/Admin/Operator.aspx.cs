@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Web;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
 using TrainingApp.BLL.Reports;
@@ -20,6 +21,10 @@ namespace TrainingApp.Pages.Admin
 
         // Usuario autenticado (Session escrita solo por el servidor tras el login).
         private int UserId => (int)Session[Constants.SessionKeys.UserId];
+
+        // Datos de las curvas para el <script>, en el orden de RptCurves (JavaScriptSerializer
+        // escapa < y >).
+        protected string ChartJson { get; private set; } = "null";
 
         // Quien perdió la capacidad con el RoleCache vigente vuelve a su inicio, nunca al login
         // (AC-2), como en Operadores.
@@ -73,6 +78,7 @@ namespace TrainingApp.Pages.Admin
             LnkBack.NavigateUrl = OperatorsUrl;
             LitName.Text  = HttpUtility.HtmlEncode(detail.Name);
             LitCode1.Text = HttpUtility.HtmlEncode(detail.Code1);
+            LitPrinted.Text = HttpUtility.HtmlEncode(ReportText.Date(DateTime.UtcNow));
 
             var guideNames = detail.Guides.ToDictionary(g => g.Id, g => g.AreaName);
 
@@ -114,6 +120,35 @@ namespace TrainingApp.Pages.Admin
             }).ToList();
             RptSessions.DataBind();
             LblNoSessions.Visible = detail.Sessions.Count == 0;
+
+            BindCurves(detail);
+        }
+
+        // Curva de aprendizaje (AC-15): una tarjeta por guía que entrenó, con su gráfica.
+        private void BindCurves(OperatorDetail detail)
+        {
+            var guides = detail.Guides.ToDictionary(g => g.Id);
+            PhCurves.Visible = detail.Curves.Count > 0;
+            RptCurves.DataSource = detail.Curves.Select(c => new OperatorCurveCard
+            {
+                GuideName    = guides[c.TrainingGuideId].AreaName,
+                GuideTitle   = guides[c.TrainingGuideId].Title,
+                HasPoints    = c.Points.Count > 0,
+                PracticeText = ReportText.PracticeBeforeFirstPass(c.PracticeBeforeFirstPass),
+                ScoresText   = c.Points.Any(p => p.Score.HasValue)
+                    ? "Puntajes de Assessment: " + string.Join(" · ", c.Points.Where(p => p.Score.HasValue).Select(p => ReportText.Score(p.Score)))
+                    : string.Empty
+            }).ToList();
+            RptCurves.DataBind();
+
+            ChartJson = new JavaScriptSerializer().Serialize(detail.Curves.Select(c => c.Points.Count == 0 ? null : new
+            {
+                // "#1 · 05/10": el número de la sesión en la curva y su fecha en la planta.
+                labels     = c.Points.Select((p, i) => "#" + (i + 1) + " · " + SessionHelper.ToLocal(p.StartedAt).ToString("dd/MM")),
+                practice   = c.Points.Select(p => p.Mode == SessionMode.FreePractice ? (int?)p.FailedAttempts : null),
+                assessment = c.Points.Select(p => p.Mode == SessionMode.Assessment ? (int?)p.FailedAttempts : null),
+                scores     = c.Points.Select(p => p.Score.HasValue ? ReportText.Score(p.Score) : null)
+            }));
         }
     }
 }

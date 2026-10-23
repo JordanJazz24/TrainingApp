@@ -266,6 +266,38 @@ namespace TrainingApp.Test
             Assert.That(step.MainReason, Is.EqualTo(AttemptReason.EmptyRequiredField));
         }
 
+        // AC-15: la curva del detalle, solo de las guías que entrenó, con los intentos fallidos de
+        // StepRuns (sin saltos) y el puntaje visible.
+        [Test]
+        public void GetOperator_LearningCurve()
+        {
+            var start = new DateTime(2026, 10, 1, 14, 0, 0);
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 1, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.Guided,
+                Status = SessionStatus.Completed, StartedAt = start, CompletedAt = start.AddMinutes(10)
+            });
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 2, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.FreePractice,
+                Status = SessionStatus.Completed, StartedAt = start.AddDays(1), CompletedAt = start.AddDays(1).AddMinutes(10)
+            });
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 3, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.Assessment,
+                Status = SessionStatus.Completed, FinalScore = 0.9m, StartedAt = start.AddDays(2), CompletedAt = start.AddDays(2).AddMinutes(10)
+            });
+            _dashboard.Attempts.Add(Attempt(2, 1, false, AttemptReason.WrongDecision, start.AddDays(1).AddMinutes(1)));
+            _dashboard.Attempts.Add(Attempt(2, 2, false, AttemptReason.Skipped, start.AddDays(1).AddMinutes(2)));
+
+            var curve = _service.GetOperator(AdminId, OperatorId).Curves.Single();
+
+            Assert.That(curve.TrainingGuideId, Is.EqualTo(LoFlo));
+            Assert.That(curve.Points.Select(p => p.FailedAttempts), Is.EqualTo(new[] { 1, 0 }));
+            Assert.That(curve.Points.Select(p => p.Score), Is.EqualTo(new decimal?[] { null, 0.9m }));
+            Assert.That(curve.PracticeBeforeFirstPass, Is.EqualTo(2));
+        }
+
         // ---- Pasos (E3, AC-17 y AC-18) ----
 
         // Una sesión de LoFlo con sus intentos: (orden del paso, correcto, motivo, segundos desde

@@ -43,3 +43,14 @@ body.admin-page {
 
 /* Gráficas del Resumen (spec 018): alto fijo para que Chart.js no crezca sin límite. */
 .summary-chart { position: relative; height: 240px; }
+
+/* Ficha imprimible del Operador (spec 018, AC-16, D-150): al imprimir desde el navegador se
+   ocultan la barra, el menú y los botones (d-print-none); el PDF sale de "Guardar como PDF". */
+@media print {
+    .admin-nav, .admin-menu { display: none !important; }
+    body.admin-page { background: #fff; }
+    .admin-main { padding-top: 0; padding-bottom: 0; max-width: none; }
+    .card { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    .table { font-size: 0.8rem; }
+}

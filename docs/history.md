@@ -428,3 +428,39 @@ Plan aprobado por el usuario el 2026-10-22 (`docs/specs/fase-9-plan.md`, D-129 a
     usuario en el navegador.
 - **Queda abierto:** la cabecera `Server`, hasta que TI confirme la versión de IIS (D-144);
   publicar, la prueba de humo en el servidor (D-19) y el mensaje de lanzamiento (usuario).
+
+## Fase 10 · Dashboard de Training (spec 018) ✅ (2026-10-22 a 2026-10-23)
+Spec y plan aprobados por el usuario el 2026-10-22 (`docs/specs/018-dashboard-training.md`,
+`docs/specs/018-plan.md`; D-136 a D-150). Rama y worktree `fase-10`; cada entrega se integró
+a `TrainingApp` con el "funciona" del usuario. Mecanismo: `docs/architecture.md` →
+"Dashboard de Training"; reglas: `docs/domain.md` → "Dashboard de Training".
+- **E1 (`a4ffefb`):**
+  - `CanViewReports`, el menú del dashboard, `ReadinessPolicy` y la lista de Operadores;
+  - el aviso al borrar un usuario, los índices y `10_spDashboard.sql`;
+  - el generador `GenerateDashboardData.sql`;
+  - ClosedXML verificado (D-140) y Chart.js 4.5.1 local.
+  - Paginar en la BLL y no en el SP fue un desvío aceptado (D-143).
+- **E2 (`33a6a9d`):** el detalle del Operador (estado, sesiones, pasos a reforzar) con
+  `StepRuns`, y B-3 (vuelta al inicio del rol nuevo).
+- **E3 (`e542fce`):** Pasos.
+  - El SP devuelve los intentos y la BLL calcula (D-146).
+  - Con "Todas", un resumen agrupado por tipo de paso: lo pidió el usuario al probar (D-147).
+- **E4 (`d519151`):** el Resumen como inicio del admin: estados, tasas, actividad por semana de
+  la planta (`Shared/PlantTime`) y el top 5 (el mismo cálculo que Pasos).
+- **E5 (`bd82796`):** Seguimiento (S-1, S-2, S-3; D-141).
+- **E6 (`c5b0741`):** descargas a `.xlsx` con los mismos filtros que cada vista
+  (`Export.ashx`, `ReportFilters`).
+  - Un salto siempre resuelve el paso (D-83).
+  - El usuario pidió una fase de mejora de UI/UX al cerrar la 10: es la Fase 11 del roadmap.
+- **E7 (`e71f7d2`):** rendimiento (AC-24).
+  - Vistas y descargas en menos de 3 s con 1600 operadores y un año de datos.
+  - Descarga de sesiones: de 3,75 a 1,3 s con 30 días y de 16,7 a 4,7 s con Todo (excepción con
+    aviso, D-148); en streaming con `ZipArchive` (D-149).
+  - El índice ampliado se descartó y el plan B no aplicó.
+  - BD de prueba borrada con la aprobación del usuario.
+- **E8:** la curva de aprendizaje en el detalle (AC-15) y la ficha imprimible desde el navegador
+  (AC-16, D-150). Review `low` sin hallazgos. Tests: 356. Con ella se hicieron los "Docs al
+  cerrar": `architecture.md`, `domain.md`, `CLAUDE.md`, esta sección y la enmienda de AUD-29.
+- **Queda abierto:**
+  - la Fase 11 (UI/UX del dashboard y diseño de los `.xlsx`);
+  - volver a correr `10_spDashboard.sql` en la BD local y en la de producción (usuario).

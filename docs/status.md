@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** spec 018 E7, probada por el usuario (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** spec 018 E8 (Fase 10 ✅), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -42,66 +42,27 @@
   - **El reparto nuevo es D-145** (reemplaza D-133; `fase-9-plan.md` → enmienda 3). La app en
     producción usa el login `developer3`, que tiene `CONTROL` sobre la BD; `docs/deploy.md` →
     2.3 recomienda uno con solo `GRANT EXECUTE` (lo decide el usuario; no bloquea el MVP, D-130).
-- **Fase 10 · Dashboard de Training (spec 018), en curso** en la rama `fase-10`
-  (plan: `docs/specs/018-plan.md`).
-  - **E1 ✅** (2026-10-22, probada por el usuario): `CanViewReports`, menú del dashboard,
-    `ReadinessPolicy`, la lista de Operadores, el aviso al borrar, índices,
-    `10_spDashboard.sql`, el generador `Database/Ops/GenerateDashboardData.sql`, ClosedXML
-    verificado (D-140) y Chart.js 4.5.1. Paginar Operadores en la BLL y no en el SP es un
-    desvío aceptado (D-143).
-  - **E2 ✅** (2026-10-23, probada por el usuario): el detalle del Operador
-    (`Operator.aspx?id=`: estado por guía, sesiones con duración e intentos fallidos, pasos a
-    reforzar) y B-3 (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al
-    login). **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y
-    en la de producción (trae `spDashboardGuideSteps` y `spDashboardOperatorAttempts`;
-    `TrainingApp_Fase10` ya lo tiene).
-  - **E3 ✅** (2026-10-23, probada por el usuario; enmienda 3 / D-146): `Steps.aspx`, el
-    ranking de pasos por % de sesiones con fallo, con intentos fallidos, veces sin acierto,
-    saltos (Práctica libre), la mediana y los motivos con su acción. Filtros en la URL:
-    período, guía y modo. Con la guía en "Todas", un solo resumen que suma el mismo paso de
-    cada guía (lo pidió el usuario al probar; Arquitectura y Planeación lo registra).
-    **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y en la de
-    producción (trae `spDashboardStepAttempts`; `TrainingApp_Fase10` y
-    `TrainingApp_DashboardTest` ya lo tienen).
-  - **E4 ✅** (2026-10-23, probada por el usuario): `Summary.aspx`, el nuevo inicio del
-    administrador (AC-1), con:
-    - operadores por estado y guía, con todo el historial;
-    - la tasa de aprobación, la tasa al primer intento y el puntaje promedio del período;
-    - la actividad por semana de la planta y modo;
-    - el top 5 de pasos con fallo en Assessment, el mismo cálculo que Pasos (D-147).
+- **Fase 10 · Dashboard de Training (spec 018) ✅** (2026-10-22 a 2026-10-23, ver
+  "Historial"; plan `docs/specs/018-plan.md`, D-136 a D-150): **E1 a E8**, probadas por el
+  usuario e integradas en `TrainingApp`:
+  - Resumen (el inicio del admin), Operadores, Operador (con la curva y la ficha imprimible),
+    Pasos y Seguimiento;
+  - las descargas a Excel;
+  - el rendimiento (AC-24).
 
-    Filtros de período y guía en la URL. No cambia la BD.
-  - **E5 ✅** (2026-10-23, probada por el usuario): `FollowUp.aspx`, los operadores que
-    requieren atención por guía, con sus reglas S-1, S-2 y S-3 y el enlace a su detalle.
-    Ignora el período y quien aprueba la guía sale de ella. **Pendiente del usuario:** volver
-    a correr `10_spDashboard.sql` en su BD local y en la de producción
-    (`spDashboardStepAttempts` ahora devuelve el `UserId`; `TrainingApp_Fase10` y
-    `TrainingApp_DashboardTest` ya lo tienen).
-  - **E6 ✅** (2026-10-23, probada por el usuario): descargas a `.xlsx`
-    (`Pages/Admin/Export.ashx`) desde Operadores, Pasos, Seguimiento y el Resumen (sesiones,
-    con dos hojas), con los mismos filtros que cada pantalla. La de sesiones con "Todo" tarda
-    ~16 s y queda fuera de AC-24 (D-148); se mejora en la E7. No cambia la BD.
-  - **E7 ✅** (2026-10-23, probada por el usuario): con el volumen máximo del generador, todas
-    las vistas y las descargas chicas responden en menos de 3 s.
-    - Descarga de sesiones: 1,3 s con 30 días y 4,7 s con Todo (antes 3,75 s y 16,7 s).
-    - Con Todo sigue la excepción con su aviso (D-148, D-149).
-    - El archivo se escribe en streaming con `ZipArchive` a un temporal del disco.
-    - `10_spDashboard.sql` suma filtros sin reglas.
-
-    **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y en la de
-    producción. `TrainingApp_DashboardTest` está borrada (con su aprobación); para volver a
-    medir, se crea otra con el generador. La E8 (curva y ficha, recortables) espera el aviso de
-    Arquitectura y Planeación.
-  - **Después de la Fase 10:** una fase de mejora de UI/UX del dashboard y del Excel (ver
-    "Deuda y riesgos").
+  Los "Docs al cerrar" están hechos. Arquitectura y Planeación marca la fase en el roadmap. La
+  rama y el worktree `fase-10` siguen hasta que el usuario los cierre (`docs/process.md` §7).
+  - **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y en la de
+    producción (trae los SPs y los filtros de las E2, E3, E5 y E7).
   - **Para probar el dashboard con volumen:**
-    1. crear de nuevo la BD `TrainingApp_DashboardTest` en LocalDB (`00`–`10`) y correr el
-       generador (1600 operadores; admin = Code1 del usuario);
+    1. crear la BD `TrainingApp_DashboardTest` en LocalDB (`00`–`10`) y correr
+       `Database/Ops/GenerateDashboardData.sql` (1600 operadores; admin = Code1 del usuario);
     2. medir con `DashboardPerformanceTests` (test explícito; ids del admin y de un operador en
        `MES_PERF_ADMIN` y `MES_PERF_OPERATOR`).
 
-    Se borró al cerrar la E7 (2026-10-23).
-  - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).
+    Se borró al cerrar la E7.
+- **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`**, después de la 10, con spec antes
+  (pedido del usuario al aprobar la E6; en el roadmap).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**

@@ -531,21 +531,43 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E8 · Curva de aprendizaje y ficha (recortables)
 
-- [ ] **Curva** (AC-15), en el detalle del Operador:
+> **E8 de Desarrollo ✅** (2026-10-23; probada por el usuario: "funciona"). Con ella se cierra
+> la Fase 10. Detalle que no cambia el plan:
+> - **`LearningCurve` (BLL), una función pura:**
+>   - los puntos son las sesiones de Práctica libre y Assessment ordenadas por inicio;
+>   - los intentos fallidos salen de `StepRuns` y el puntaje es el visible (`VisibleScore`);
+>   - la práctica antes del primer aprobado cuenta Guided y Práctica libre antes del primer
+>     Assessment aprobado (`ReadinessPolicy.IsPassed`, por inicio, como en la E4).
+>
+>   Se arma solo para las guías que entrenó; sin aprobado: "Todavía no aprueba esta guía."
+> - **La gráfica:** una barra de intentos fallidos por sesión, con el color según el modo
+>   (los mismos colores de la actividad del Resumen). El puntaje sale en el detalle al pasar el
+>   mouse y en una línea de texto. No se usa un gráfico de dos ejes, porque los intentos
+>   fallidos y el puntaje tienen escalas distintas.
+> - **La ficha (D-150):**
+>   - el botón "Imprimir ficha" llama a `window.print()`;
+>   - `@media print` en `admin.css` y `d-print-none` ocultan la barra, el menú, los botones y
+>     la curva;
+>   - un encabezado que solo sale al imprimir trae la fecha y la aclaración de que **no es un
+>     registro oficial** (spec → Out).
+> - **Sin librerías nuevas.** El diseño fino queda para la Fase 11.
+> - **`/code-review low`:** sin hallazgos.
+
+- [x] **Curva** (AC-15), en el detalle del Operador:
   - una gráfica de Chart.js con Práctica libre y Assessment en orden, sin Guided, con sus
     intentos fallidos y el puntaje de cada Assessment;
   - el dato de las sesiones de práctica antes del primer aprobado, contando Guided.
-- [ ] **Ficha** (AC-16): **antes de implementarla, Desarrollo avisa** y el usuario decide
+- [x] **Ficha** (AC-16): **antes de implementarla, Desarrollo avisa** y el usuario decide
   DA-6 (impresión desde el navegador o un PDF en el servidor). Lleva el estado y los puntajes
   por guía, las sesiones y los pasos a reforzar, sin menú ni botones.
   - **DA-6 decidida (usuario, 2026-10-23; D-150): impresión desde el navegador.** Estilos de
     impresión (`@media print`) que ocultan el menú, los filtros y los botones; el PDF sale del
     "Guardar como PDF" del navegador. Sin librerías nuevas. El diseño se pule en la Fase 11.
-- [ ] **Tests:** el conteo de sesiones de práctica antes del primer aprobado.
+- [x] **Tests:** el conteo de sesiones de práctica antes del primer aprobado.
 
 ## Docs al cerrar
 
-- **Desarrollo:**
+- **Desarrollo** (hechos con la E8, 2026-10-23):
   - `docs/architecture.md`: el dashboard, `ReadinessPolicy` y `IDashboardRepository`;
   - `docs/domain.md`: la regla de Aprobado y las de seguimiento, en un solo lugar;
   - `CLAUDE.md`: los scripts pasan a ser `00`–`10`, y `CanViewReports` entra en "Auth";

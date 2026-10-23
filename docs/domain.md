@@ -375,3 +375,58 @@ cargada crea una versión nueva (D-56, `docs/architecture.md` → "Versión de l
   `Database/StoredProcedures/`, nunca en arrays de la BLL ni en `Web.config`. Excepción
   aceptada (D-6): la pregunta de Line Clearance ("¿La limpieza de linea se ejecuto?") es la
   misma en todas las operaciones y queda en el código.
+
+## Dashboard de Training (spec 018)
+
+Solo lectura; cambian lo que se **muestra**, nunca cómo se entrena o se califica. Implementación:
+`docs/architecture.md` → "Dashboard de Training".
+
+- **Unidad: la guía publicada.** Las no publicadas no aparecen nunca, ni sus sesiones.
+  Operadores = usuarios con rol Operator (DA-9).
+- **Estado por operador y guía** (`ReadinessPolicy`, D-136; usa **todo el historial**, DA-1):
+  - **Aprobado:** al menos un Assessment **completado** de la guía con `FinalScore` ≥
+    `ScoreCalculator.PassingScore` (0.70). Una vez aprobado, sigue aprobado.
+  - **Reprobado:** Assessment completados de la guía y ninguno aprobado.
+  - **En entrenamiento:** sesiones de la guía, pero ningún Assessment completado (Guided,
+    Práctica libre, o Assessment en curso o abandonado).
+  - **Sin iniciar** (estado general): ninguna sesión en ninguna guía publicada.
+- **Período** de las vistas: últimos 30 días o todo, por la fecha de **inicio** de la sesión.
+  El estado y Seguimiento lo ignoran.
+- **Tasa de aprobación** (guía × período), sin denominador = "—", nunca 0 %:
+  - **% aprobados:** de los operadores con algún Assessment completado en el período, los que
+    aprobaron alguno en el período;
+  - **% al primer intento:** de los operadores cuyo primer Assessment completado de la guía (en
+    todo su historial, por fecha de inicio) cae en el período, los que lo aprobaron;
+  - **puntaje promedio:** de los Assessment completados del período.
+- **Pasos** (por paso de la guía; con "Todas", el mismo paso de cada guía en un renglón por su
+  nombre de `StepNames`, D-147):
+  - **% de sesiones con fallo:** de las sesiones con algún intento en el paso (el salto
+    incluido), las que tienen algún intento fallido en él;
+  - **intento fallido:** `IsCorrect = 0` sin contar los saltos;
+  - **terminó sin acierto:** el paso quedó atrás sin un intento correcto: avance forzado en
+    Assessment (también en el último paso de una sesión abandonada) o saltado con fallos en
+    Práctica libre. El salto siempre resuelve el paso (D-83); sin fallos no es "sin acierto";
+  - **saltos:** solo en Práctica libre, aparte, nunca como fallo;
+  - **duración de un paso (DA-2):** desde el último intento del paso anterior (o el inicio de
+    la sesión) hasta su último intento; en Pasos, la **mediana** de los pasos resueltos sin
+    salto. Duración de la sesión: `CompletedAt − StartedAt` ("—" en curso).
+  - **top 5 del Resumen:** los primeros de Pasos en Assessment con el mismo período y guía,
+    solo pasos con algún fallo.
+- **Pasos a reforzar** (detalle del Operador): en sus Assessment de cada guía, los pasos que
+  terminaron sin acierto o con 2 o más intentos fallidos en una sesión; por veces sin acierto
+  y después por intentos fallidos, hasta 5 por guía, con el motivo más frecuente.
+- **Seguimiento** (D-141; por operador y guía, sin período, DA-3a). Quien aprueba la guía sale
+  con todas sus reglas. Umbrales: constantes de `FollowUpRules`.
+  - **S-1:** 2 o más Assessment completados y reprobados de la guía, sin aprobar ninguno;
+  - **S-2:** 14 días o más desde el inicio de su última sesión de **esa** guía (de cualquier
+    modo, aunque siga en curso); practicar otras guías no lo reinicia;
+  - **S-3:** el **mismo paso de la guía** (por paso, no por nombre, DA-3b) terminó sin acierto
+    en 2 o más Assessment, abandonados incluidos.
+- **Curva de aprendizaje** (operador × guía): sus sesiones de Práctica libre y Assessment en
+  orden, con sus intentos fallidos y el puntaje de cada Assessment; **Guided no se grafica**.
+  El dato: cuántas sesiones de práctica (**Guided y Práctica libre**) hizo antes de su primer
+  Assessment aprobado.
+- **Puntaje de una sesión:** se muestra si está completada y su modo lo muestra (D-90).
+- **Ficha imprimible (D-150):** estado y puntajes por guía, pasos a reforzar y sesiones, sin
+  menú ni botones. **No es un registro oficial de entrenamiento** (el simulador no es un
+  sistema validado).

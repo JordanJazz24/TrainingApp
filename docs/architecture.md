@@ -20,7 +20,13 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   └── ChangePassword.aspx + .cs
 │   │   ├── Admin/                         ← módulo administrativo (spec 013, Admin.Master):
 │   │   │                                     Users (gestión de usuarios) y UserListRow
-│   │   │                                     (fila de la lista)
+│   │   │                                     (fila de la lista); dashboard de Training
+│   │   │                                     (spec 018): Summary (inicio del admin),
+│   │   │                                     Operators, Operator (detalle, curva y ficha
+│   │   │                                     imprimible), Steps, FollowUp, Export.ashx
+│   │   │                                     (descargas), ReportFilters (filtros de la URL),
+│   │   │                                     ReportText (textos), ExcelReports y
+│   │   │                                     XlsxStreamWriter (.xlsx), filas de cada vista
 │   │   └── Training/
 │   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
@@ -46,13 +52,25 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Auth/
 │   │   │   ├── AuthService.cs             ← login único, bloqueo, último acceso, cambio de
 │   │   │   │                                 contraseña
-│   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers) (spec 013)
+│   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers,
+│   │   │   │                                 CanViewReports) (specs 013 y 018)
 │   │   │   ├── RoleCache.cs               ← rol e Id de la cuenta por Code1, 2 min (Global.asax)
 │   │   │   ├── LoginLockPolicy.cs         ← 5 fallos → 15 min de bloqueo
 │   │   │   └── LoginResult.cs, ChangePasswordStatus.cs
 │   │   ├── Admin/
 │   │   │   └── UserAdminService.cs        ← gestión de usuarios: cada método verifica que
 │   │   │                                     quien llama es admin (spec 013)
+│   │   ├── Reports/                       ← dashboard de Training (spec 018), solo lectura
+│   │   │   ├── DashboardService.cs        ← cada vista y descarga; verifica CanViewReports
+│   │   │   ├── ReadinessPolicy.cs         ← Aprobado, Reprobado, En entrenamiento (D-136)
+│   │   │   ├── StepRuns.cs                ← cada paso de una sesión desde sus intentos:
+│   │   │   │                                 duración, fallos, saltos, sin acierto, resultado
+│   │   │   ├── StepStatistics.cs          ← ranking de Pasos (por paso o por nombre, D-147)
+│   │   │   ├── ReinforcementRule.cs       ← pasos a reforzar del detalle
+│   │   │   ├── SummaryRules.cs            ← tasas, puntaje promedio y semanas del Resumen
+│   │   │   ├── FollowUpRules.cs           ← Seguimiento: S-1, S-2, S-3 (D-141)
+│   │   │   ├── LearningCurve.cs           ← curva y práctica antes del primer aprobado
+│   │   │   └── ReportPeriod.cs            ← últimos 30 días o todo
 │   │   ├── Training/
 │   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products)
 │   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
@@ -114,7 +132,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │                                         TrainingGuide, TrainingSession, StepAttempt,
 │   │                                         NCCode, DataCollectionGroup,
 │   │                                         DataCollectionParameter, AssemblyComponent,
-│   │                                         Operation
+│   │                                         Operation; Dashboard (+ IDashboardRepository,
+│   │                                         lecturas del dashboard, spec 018)
 │   ├── Domain/                            ← POCOs puros, sin dependencias
 │   │   ├── Employee.cs, Product.cs
 │   │   ├── User.cs (UserRole), UserSummary.cs ← cuenta local; UserSummary suma sus sesiones
@@ -125,18 +144,26 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Operation.cs                   ← hoy solo las operaciones SIM del banner de la
 │   │   │                                     extendida (D-58); nivel de las guías a futuro
 │   │   ├── NCCode.cs (NCMethod), DataCollectionGroup.cs, DataCollectionParameter.cs
-│   │   └── AssemblyComponent.cs           ← BOM (Qty decimal)
+│   │   ├── AssemblyComponent.cs           ← BOM (Qty decimal)
+│   │   └── Dashboard*.cs                  ← lecturas del dashboard (spec 018): guía, operador,
+│   │                                         sesión, intento y DashboardAttemptSet
 │   ├── Shared/
 │   │   ├── Constants.cs                   ← DEFAULT_PASSWORD, SessionKeys, API de empleados
-│   │   └── PasswordHelper.cs              ← hashing y comparación (PBKDF2)
+│   │   ├── PasswordHelper.cs              ← hashing y comparación (PBKDF2)
+│   │   └── PlantTime.cs                   ← hora de la planta (UTC-6), páginas y dashboard
 │   └── Web.config
 ├── TrainingApp.Test/                      ← NUnit (.NET FW 4.7.2), tests de reglas BLL
 │                                             (ScoreCalculator, StepValidator, Log NC y
 │                                             hallazgos, Ingreso a MES y limpieza, guías
-│                                             contra sus scripts, gestión de usuarios)
+│                                             contra sus scripts, gestión de usuarios,
+│                                             reglas y descargas del dashboard; medición
+│                                             explícita: DashboardPerformanceTests)
 ├── Database/
-│   ├── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo · 08-09 LoFlo
-│   └── Ops/                               ← scripts manuales: CreateAdmin, ResetUserPassword
+│   ├── StoredProcedures/                  ← 00 esquema · 01-04 SPs · 05 datos dev · 06-07 Moldeo
+│   │                                         · 08-09 LoFlo · 10 dashboard (spec 018)
+│   └── Ops/                               ← scripts manuales: CreateAdmin, ResetUserPassword,
+│                                             RunAllScripts, GenerateDashboardData (solo BD
+│                                             descartable TrainingApp_DashboardTest)
 └── docs/                                  ← ver el mapa de documentos en CLAUDE.md
 ```
 
@@ -530,3 +557,41 @@ Decisiones cerradas: no reabrir sin spec.
   del escritorio (doble clic) avanzan cuando aparece la consola o Edge.
 - Los mensajes del MES que se ocultan solos pasan por `podAutoHide` (`Training.Master`) y
   esperan a la guía solo si ella los muestra (R9).
+
+## Dashboard de Training (spec 018)
+
+Solo lectura, para el administrador (`AccessPolicy.CanViewReports`): Resumen (su inicio,
+`SessionHelper.AdminHomeUrl`), Operadores, Operador, Pasos, Seguimiento y las descargas.
+Plan, enmiendas y mediciones: `docs/specs/018-plan.md`. Reglas de negocio:
+`docs/domain.md` → "Dashboard de Training".
+
+- **Los SPs agregan sin reglas, la BLL decide (D-139).** `10_spDashboard.sql` devuelve guías
+  publicadas, operadores (rol Operator), sesiones e intentos, con filtros sin reglas (período
+  por `StartedAt`, guía, modo). Lo que es aprobado, sin acierto, un fallo o un caso de
+  seguimiento lo deciden `ReadinessPolicy`, `StepRuns` y las reglas de `BLL/Reports/`. Mover
+  una regla a SQL lo decide el usuario.
+- **`IDashboardRepository`** (`DashboardRepository`) es la única puerta a la BD del dashboard;
+  `DashboardService` la recibe en el constructor, así sus reglas se prueban en memoria. Cada
+  método verifica `CanViewReports` en la BLL (una excepción si falta; la página vuelve al
+  inicio del rol con `SessionHelper.RedirectHomeAfterRoleChange`, B-3).
+- **`ReadinessPolicy`** es la única regla de estado (Aprobado, Reprobado, En entrenamiento);
+  tasas, seguimiento, curva, Excel y ficha le preguntan.
+- **`StepRuns`** arma cada paso de una sesión desde sus intentos (duración DA-2, fallos sin
+  saltos, sin acierto, resultado) y es la misma regla para el detalle, Pasos, el top 5,
+  Seguimiento (S-3) y el Excel (D-146).
+- **Filtros en la URL:** `Pages/Admin/ReportFilters` los lee para las páginas y para
+  `Export.ashx`, así cada descarga usa los mismos filtros y el mismo método del servicio que
+  su pantalla (DA-5). Nada se guarda en `Session`.
+- **Descargas** (`Export.ashx`, GET de solo lectura, Session de solo lectura): Operadores,
+  Pasos y Seguimiento con ClosedXML (D-140); las sesiones del Resumen en streaming con
+  `XlsxStreamWriter` sobre `ZipArchive` (D-149), porque `System.IO.Packaging` en .NET Framework
+  no escribe en streaming y pasa las partes grandes a IsolatedStorage. El archivo va a un
+  temporal del disco con `DeleteOnClose`. Sin `AdjustToContents` (carga las fuentes).
+- **Gráficas:** Chart.js local (`Scripts/chart-4.5.1.umd.min.js`, sin CDN), en el
+  `ScriptContent` de `Admin.Master`; los datos van al `<script>` con `JavaScriptSerializer`.
+- **Hora de la planta:** `Shared/PlantTime` (UTC-6), que usan `SessionHelper.ToLocal` y las
+  semanas del Resumen.
+- **Ficha imprimible (D-150):** el detalle del Operador impreso desde el navegador; `@media
+  print` en `admin.css` y `d-print-none` ocultan el menú, los botones y la curva.
+- **Rendimiento (AC-24, E7):** medido con `DashboardPerformanceTests` (explícito) contra la BD
+  del generador; las vistas y descargas en menos de 3 s, salvo las sesiones con "Todo" (D-148).
