@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-149. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: D-150. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -164,7 +164,8 @@
 | D-145 | 2026-10-22 | El usuario prepara la BD de producción y entrega la carpeta publicada con su `connectionStrings.config`; TI solo instala el sitio, el App Pool y el permiso de `App_Data\Logs` | specs/fase-9-plan.md (enmienda 3) | vigente |
 | D-146 | 2026-10-23 | Dashboard, Pasos: el SP devuelve los intentos sin agregar y la BLL calcula todo con `StepRuns` (regla de "sin acierto" y mediana); plan B: una fila por sesión y paso, sin reglas | specs/018-plan.md (enmienda 3) | vigente |
 | D-147 | 2026-10-23 | Dashboard: con la guía en "Todas", Pasos, el top 5 del Resumen y el Excel de Pasos agrupan por tipo de paso (`StepNames.Display`), con todas las sesiones juntas; reemplaza DA-4 | specs/018-dashboard-training.md (enmienda 1) | vigente |
-| D-148 | 2026-10-23 | Dashboard: la descarga de sesiones del Resumen con "Todo" queda fuera de AC-24 (~16 s con un año de datos) y avisa que puede tardar; en la E7 se prueba en streaming (`OpenXmlWriter`) | specs/018-dashboard-training.md (enmienda 2) | vigente |
+| D-148 | 2026-10-23 | Dashboard: la descarga de sesiones del Resumen con "Todo" queda fuera de AC-24 (~16 s con un año de datos) y avisa que puede tardar; en la E7 se prueba en streaming (`OpenXmlWriter`) | specs/018-dashboard-training.md (enmienda 2) | enmendada (D-149: ZipArchive; la excepción con "Todo" sigue) |
+| D-149 | 2026-10-23 | Dashboard: la descarga de sesiones se arma con `ZipArchive` + `XmlWriter`, sin `System.IO.Packaging` (IsolatedStorage falla en IIS sin perfil pasados ~10 MB), validada por un test contra el esquema de SpreadsheetML | specs/018-plan.md (enmienda 4) | vigente |
 
 ## Bugs que ya existían (B-n)
 

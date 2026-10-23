@@ -64,6 +64,24 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 >   SP baja a una fila por sesión y paso (fallos, saltos, si hubo acierto, la hora del último
 >   intento y los conteos por motivo y acción), sin reglas, y `StepRuns` parte de esas filas.
 
+> **Enmienda 4 · 2026-10-23 (usuario, con un hallazgo del `/code-review` de la E7; D-149):**
+> la descarga de sesiones del Resumen se arma con **`System.IO.Compression.ZipArchive`** y las
+> hojas en XML directo (`XmlWriter`), **sin `System.IO.Packaging`** (el SDK de OpenXML).
+> - **Por qué:** en .NET Framework, el `ZipPackage` de `System.IO.Packaging` no escribe en
+>   streaming. Pasados ~10 MB por parte, la guarda en IsolatedStorage del usuario, y en un App
+>   Pool de IIS sin perfil cargado eso puede fallar ("Unable to determine application identity
+>   of the caller"). En IIS Express no se ve. La hoja Intentos por paso con "Todo" pasa de
+>   10 MB, y además el archivo no quedaba de verdad en streaming, que era el motivo de D-148.
+> - **Cómo se cubre que sea código propio:** un test valida el archivo contra el esquema de
+>   SpreadsheetML (`OpenXmlValidator` del SDK, solo en `TrainingApp.Test`), y otros lo leen con
+>   ClosedXML.
+> - **Medido** (1600 operadores, un año): con 30 días, 1,3 s; con "Todo", 4,7 s. Siguen la
+>   excepción de AC-24 con "Todo" y su aviso (D-148).
+> - Las otras descargas (Operadores, Pasos, Seguimiento) siguen con ClosedXML: son archivos
+>   chicos, lejos de los 10 MB.
+> - Descartado: volver al SDK y probar en el servidor real, con `LoadUserProfile=true` en el App
+>   Pool (a cargo de TI) si fallaba.
+
 ## Diseño común (lo usan todas las entregas)
 
 - **Capas** (`CLAUDE.md`), de abajo hacia arriba:
