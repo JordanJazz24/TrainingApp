@@ -39,10 +39,9 @@
     entregarle a TI la carpeta y `docs/deploy.md`; la prueba de humo en el servidor (cierra D-19); el mensaje de lanzamiento
     (Redefinity de demostración, D-132; retroalimentación fuera de la app, D-134); preguntarle a
     TI la versión de IIS (cabecera `Server`, D-144) y si hay HTTPS (`requireSSL`).
-  - **El reparto nuevo reemplaza D-133:** Arquitectura y Planeación lo registra en
-    `docs/decisions.md` y en `fase-9-plan.md` (avisado el 2026-10-22, pendiente). La app en
+  - **El reparto nuevo es D-145** (reemplaza D-133; `fase-9-plan.md` → enmienda 3). La app en
     producción usa el login `developer3`, que tiene `CONTROL` sobre la BD; `docs/deploy.md` →
-    2.3 recomienda uno con solo `GRANT EXECUTE` (lo decide el usuario).
+    2.3 recomienda uno con solo `GRANT EXECUTE` (lo decide el usuario; no bloquea el MVP, D-130).
 - **Fase 10 · Dashboard de Training (spec 018), en curso** en la rama `fase-10`
   (plan: `docs/specs/018-plan.md`).
   - **E1 ✅** (2026-10-22, probada por el usuario): `CanViewReports`, menú del dashboard,
