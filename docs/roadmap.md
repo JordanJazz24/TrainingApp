@@ -418,8 +418,8 @@ Ernesto **aprobó el contenido del simulador**.
 
 | # | Tarea | Estado |
 |---|---|---|
-| R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | Decidido por el usuario · **enmienda de la spec 016** antes de tocar código · por ordenar |
-| R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | Decidido por el usuario · cambio de texto, plan directo · por ordenar |
+| R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | Decidido por el usuario · **enmienda de la spec 016** antes de tocar código · **después de la Fase 10** (usuario, 2026-10-23) |
+| R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | Decidido por el usuario · cambio de texto, plan directo · **después de la Fase 10** (usuario, 2026-10-23) |
 | R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | Decidido por el usuario · **después de la Fase 10** · necesita spec |
 
 - **Confirmado:** el Logout va seguido del script de limpieza (como está, spec 016).
