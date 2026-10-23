@@ -28,9 +28,13 @@
             <label class="form-label small text-muted mb-1" for="<%= DdlGuide.ClientID %>">Guía</label>
             <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-primary w-100"
                 OnClick="BtnFilter_Click" />
+        </div>
+        <div class="col-md-1">
+            <asp:HyperLink ID="LnkExport" runat="server" CssClass="btn btn-outline-secondary w-100"
+                ToolTip="Descargar la lista con estos filtros en Excel">Excel</asp:HyperLink>
         </div>
     </asp:Panel>
 

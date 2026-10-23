@@ -25,6 +25,13 @@
             <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-primary w-100"
                 OnClick="BtnFilter_Click" />
         </div>
+        <div class="col-sm-6 col-md-3 ms-md-auto">
+            <asp:HyperLink ID="LnkExport" runat="server" CssClass="btn btn-outline-secondary w-100"
+                ToolTip="Sesiones e intentos por paso del período y la guía, en Excel">Descargar sesiones (Excel)</asp:HyperLink>
+            <%-- Con todo el historial el archivo es grande y tarda (D-148). --%>
+            <asp:Label ID="LblExportSlow" runat="server" CssClass="small text-muted d-block mt-1" Visible="false"
+                Text="Con &quot;Todo&quot; el archivo es grande y la descarga puede tardar varios segundos." />
+        </div>
     </asp:Panel>
 
     <div class="row g-4">

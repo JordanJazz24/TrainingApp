@@ -16,7 +16,6 @@ namespace TrainingApp.Pages.Admin
     {
         private const string PageUrl  = "~/Pages/Admin/Summary.aspx";
         private const string StepsUrl = "~/Pages/Admin/Steps.aspx";
-        private const string PeriodAll = "all";
 
         private readonly DashboardService _dashboard = new DashboardService();
 
@@ -60,25 +59,13 @@ namespace TrainingApp.Pages.Admin
             }
 
             if (!IsPostBack)
-                Bind(ReadFilter());
+                Bind(ReportFilters.Summary(Request.QueryString));
         }
 
         protected void BtnFilter_Click(object sender, EventArgs e)
         {
             int.TryParse(DdlGuide.SelectedValue, out int guideId);
-            Response.Redirect(BuildUrl(PageUrl, DdlPeriod.SelectedValue == PeriodAll, guideId > 0 ? guideId : (int?)null));
-        }
-
-        // Los filtros de la URL; un valor inválido vale el de inicio (el servicio también valida).
-        private SummaryFilter ReadFilter()
-        {
-            var filter = new SummaryFilter
-            {
-                Period = Request.QueryString["period"] == PeriodAll ? ReportPeriod.All : ReportPeriod.Last30Days
-            };
-            if (int.TryParse(Request.QueryString["guide"], out int guideId))
-                filter.GuideId = guideId;
-            return filter;
+            Response.Redirect(BuildUrl(PageUrl, DdlPeriod.SelectedValue == ReportFilters.PeriodAll, guideId > 0 ? guideId : (int?)null));
         }
 
         private void Bind(SummaryFilter filter)
@@ -87,7 +74,7 @@ namespace TrainingApp.Pages.Admin
             var applied = report.Applied;
             bool all    = applied.Period == ReportPeriod.All;
 
-            DdlPeriod.SelectedValue = all ? PeriodAll : string.Empty;
+            DdlPeriod.SelectedValue = all ? ReportFilters.PeriodAll : string.Empty;
             DdlGuide.Items.Clear();
             DdlGuide.Items.Add(new ListItem("Todas", string.Empty));
             foreach (var g in report.Guides)
@@ -100,6 +87,9 @@ namespace TrainingApp.Pages.Admin
             LitTopPeriod.Text      = HttpUtility.HtmlEncode(period);
             // Pasos con el mismo período y guía, en Assessment: los mismos números (D-147).
             LnkSteps.NavigateUrl = BuildUrl(StepsUrl, all, applied.GuideId);
+            // Las sesiones con el período y la guía del Resumen (AC-22).
+            LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewSessions, Request.QueryString);
+            LblExportSlow.Visible = all;
 
             var guides = report.Guides.ToDictionary(g => g.Id);
             var rows = report.GuideSummaries.Select(s => new SummaryGuideRow
@@ -175,7 +165,7 @@ namespace TrainingApp.Pages.Admin
         private string BuildUrl(string page, bool allPeriod, int? guideId)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
-            if (allPeriod) query["period"] = PeriodAll;
+            if (allPeriod) query["period"] = ReportFilters.PeriodAll;
             if (guideId.HasValue) query["guide"] = guideId.Value.ToString();
             var url = ResolveUrl(page);
             return query.Count == 0 ? url : url + "?" + query;

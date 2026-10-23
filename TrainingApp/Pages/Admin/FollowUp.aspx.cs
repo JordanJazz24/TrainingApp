@@ -54,12 +54,7 @@ namespace TrainingApp.Pages.Admin
             }
 
             if (!IsPostBack)
-            {
-                var filter = new FollowUpFilter();
-                if (int.TryParse(Request.QueryString["guide"], out int guideId))
-                    filter.GuideId = guideId;
-                Bind(filter);
-            }
+                Bind(ReportFilters.FollowUp(Request.QueryString));
         }
 
         protected void BtnFilter_Click(object sender, EventArgs e)
@@ -89,10 +84,11 @@ namespace TrainingApp.Pages.Admin
                 StateText        = ReportText.State(r.State),
                 StateCss         = ReportText.StateCss(r.State),
                 LastActivityText = ReportText.Date(r.LastActivity),
-                Reasons          = r.Reasons.SelectMany(ReasonLines).ToList(),
+                Reasons          = r.Reasons.SelectMany(ReportText.FollowUpLines).ToList(),
                 DetailUrl        = detailUrl + r.UserId
             }).ToList();
             RptRows.DataBind();
+            LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewFollowUp, Request.QueryString);
 
             LblEmpty.Visible = report.Rows.Count == 0;
             int operators = report.Rows.Select(r => r.UserId).Distinct().Count();
@@ -100,20 +96,5 @@ namespace TrainingApp.Pages.Admin
                 "{0} operadores · {1} casos (operador y guía)", operators, report.Rows.Count));
         }
 
-        // Una línea por regla; S-3, una por paso.
-        private static IEnumerable<string> ReasonLines(FollowUpReason reason)
-        {
-            switch (reason.Rule)
-            {
-                case FollowUpRule.RepeatedFailures:
-                    return new[] { string.Format("S-1 · Reprobó {0} Assessment sin aprobar ninguno", reason.FailedAssessments) };
-                case FollowUpRule.Inactive:
-                    return new[] { string.Format("S-2 · {0} días sin sesiones de esta guía", reason.DaysInactive) };
-                case FollowUpRule.StuckStep:
-                    return reason.Steps.Select(s => string.Format("S-3 · {0}: sin acierto en {1} Assessment", s.StepName, s.Times));
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(reason), reason.Rule, "Regla de seguimiento sin texto.");
-            }
-        }
     }
 }

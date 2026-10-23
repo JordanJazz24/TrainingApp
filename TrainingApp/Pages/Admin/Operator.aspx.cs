@@ -108,9 +108,7 @@ namespace TrainingApp.Pages.Admin
                 GuideName      = guideNames[row.Session.TrainingGuideId],
                 ModeText       = ReportText.Mode(row.Session.Mode),
                 StatusText     = ReportText.Status(row.Session.Status),
-                // Puntaje solo de una sesión completada y de un modo que lo muestra (D-90).
-                ScoreText      = row.Session.Status == SessionStatus.Completed && ModePolicy.For(row.Session.Mode).ShowsScore
-                    ? ReportText.Score(row.Session.FinalScore) : ReportText.None,
+                ScoreText      = ReportText.Score(row.Score),
                 DurationText   = ReportText.Duration(row.Duration),
                 FailedAttempts = row.FailedAttempts
             }).ToList();

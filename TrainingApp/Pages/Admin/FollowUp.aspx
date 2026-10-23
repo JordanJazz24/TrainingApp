@@ -17,6 +17,9 @@
             <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-primary w-100"
                 OnClick="BtnFilter_Click" />
         </div>
+        <div class="col-sm-6 col-md-2 ms-md-auto">
+            <asp:HyperLink ID="LnkExport" runat="server" CssClass="btn btn-outline-secondary w-100">Descargar Excel</asp:HyperLink>
+        </div>
     </asp:Panel>
 
     <p class="small text-muted mb-3">

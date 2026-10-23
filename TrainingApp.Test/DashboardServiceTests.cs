@@ -534,6 +534,52 @@ namespace TrainingApp.Test
             Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetFollowUp(OperatorId, new FollowUpFilter())));
         }
 
+        // ---- Exportar (E6, DA-5) ----
+
+        // La descarga de Operadores trae todas las filas con los mismos filtros, sin paginar.
+        [Test]
+        public void ExportOperators_AllRowsSameFilters()
+        {
+            for (int i = 0; i < 120; i++) Operator(100 + i, "Op " + i.ToString("000"));
+            Operator(999, "Zeta");
+            Session(999, LoFlo, SessionMode.Guided, 0m, 1);
+
+            var all = _service.ExportOperators(AdminId, new OperatorFilter { Page = 3 });
+            var notStarted = _service.ExportOperators(AdminId, new OperatorFilter { State = ReadinessState.NotStarted });
+
+            Assert.That(all.Rows.Count, Is.EqualTo(121));
+            Assert.That(all.Total, Is.EqualTo(121));
+            Assert.That(notStarted.Rows.Count, Is.EqualTo(120));
+            Assert.That(_service.SearchOperators(AdminId, new OperatorFilter()).Rows.Count, Is.EqualTo(DashboardService.PageSize));
+        }
+
+        // Las sesiones del Resumen con sus pasos: el resultado de StepRuns, el nombre del paso y
+        // las sesiones sin intentos también; las de otro rol no (sin operador).
+        [Test]
+        public void GetSessionExport_SessionsWithSteps()
+        {
+            LoFloSteps();
+            Operator(OperatorId, "Ana");
+            StepSessionIn(LoFlo, 1, SessionMode.FreePractice, SessionStatus.Completed,
+                (1, false, AttemptReason.Skipped, 10), (2, true, AttemptReason.None, 30));
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 2, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.Guided,
+                Status = SessionStatus.InProgress, StartedAt = DateTime.UtcNow.AddDays(-1)
+            });
+            foreach (var s in _dashboard.Sessions) s.StartedAt = DateTime.UtcNow.AddDays(-2);
+
+            var export = _service.GetSessionExport(AdminId, new SummaryFilter());
+
+            Assert.That(export.Rows.Select(r => r.Session.SessionId), Is.EquivalentTo(new[] { 1, 2 }));
+            var practice = export.Rows.Single(r => r.Session.SessionId == 1);
+            Assert.That(practice.Name, Is.EqualTo("Ana"));
+            Assert.That(practice.Steps.Select(s => s.StepName), Is.EqualTo(new[] { "Resource Setup", "Line Clearance (apertura)" }));
+            Assert.That(practice.Steps.Select(s => s.Run.Outcome), Is.EqualTo(new[] { StepOutcome.Skipped, StepOutcome.Correct }));
+            Assert.That(export.Rows.Single(r => r.Session.SessionId == 2).Steps, Is.Empty);
+            Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetSessionExport(OperatorId, new SummaryFilter())));
+        }
+
         private static DashboardAttempt Attempt(int sessionId, int order, bool correct, AttemptReason reason, DateTime at)
             => new DashboardAttempt
             {

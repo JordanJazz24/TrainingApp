@@ -50,6 +50,24 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Button BtnFilter;
 
         /// <summary>
+        /// LnkExport control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink LnkExport;
+
+        /// <summary>
+        /// LblExportSlow control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label LblExportSlow;
+
+        /// <summary>
         /// PhStates control.
         /// </summary>
         /// <remarks>

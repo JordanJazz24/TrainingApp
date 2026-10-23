@@ -113,6 +113,24 @@ namespace TrainingApp.Test
             Assert.That(three.Single().EndedWithoutSuccess, Is.False);
         }
 
+        // El salto resuelve el paso (D-83) aunque sea el último con intentos de una sesión
+        // abandonada: "Saltado" si no tuvo fallos, "Sin acierto" si los tuvo.
+        [Test]
+        public void Skip_OnLastStepOfAbandonedSession_IsResolved()
+        {
+            var session = Session(SessionStatus.Abandoned); session.Mode = SessionMode.FreePractice;
+            var clean = StepRuns.ForSession(session, new[] { Attempt(1, 10, true), Attempt(2, 20, false, AttemptReason.Skipped) });
+            var withFailure = StepRuns.ForSession(session, new[]
+            {
+                Attempt(1, 10, true), Attempt(2, 15, false), Attempt(2, 20, false, AttemptReason.Skipped)
+            });
+
+            Assert.That(clean[1].Resolved, Is.True);
+            Assert.That(clean[1].Outcome, Is.EqualTo(StepOutcome.Skipped));
+            Assert.That(withFailure[1].EndedWithoutSuccess, Is.True);
+            Assert.That(withFailure[1].Outcome, Is.EqualTo(StepOutcome.WithoutSuccess));
+        }
+
         // En una sesión completada todos sus pasos quedaron atrás.
         [Test]
         public void CompletedSession_LastStepIsResolved()

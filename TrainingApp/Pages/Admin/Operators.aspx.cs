@@ -17,16 +17,6 @@ namespace TrainingApp.Pages.Admin
     {
         private const string PageUrl = "~/Pages/Admin/Operators.aspx";
 
-        // Valor del filtro de estado en la URL ↔ estado de la política.
-        private static readonly Dictionary<string, ReadinessState> StateValues =
-            new Dictionary<string, ReadinessState>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "passed",     ReadinessState.Passed },
-                { "failed",     ReadinessState.Failed },
-                { "training",   ReadinessState.InTraining },
-                { "notstarted", ReadinessState.NotStarted }
-            };
-
         private readonly DashboardService _dashboard = new DashboardService();
 
         // Usuario autenticado (Session escrita solo por el servidor tras el login).
@@ -70,7 +60,7 @@ namespace TrainingApp.Pages.Admin
 
             if (!IsPostBack)
             {
-                Bind(ReadFilter());
+                Bind(ReportFilters.Operators(Request.QueryString));
                 // Vuelta desde un detalle con un id que no existe o no es de un operador.
                 if (Request.QueryString["missing"] == "1")
                     ((UI.Master.AdminMaster)Master).ShowMessage("warning", "Operador no encontrado",
@@ -86,20 +76,6 @@ namespace TrainingApp.Pages.Admin
                 guideId > 0 ? guideId : (int?)null, 1));
         }
 
-        // Los filtros de la URL; un valor inválido vale el de inicio (el servicio también valida
-        // la guía y el estado).
-        private OperatorFilter ReadFilter()
-        {
-            var filter = new OperatorFilter { Text = Request.QueryString["q"] };
-            if (StateValues.TryGetValue(Request.QueryString["state"] ?? string.Empty, out var state))
-                filter.State = state;
-            if (int.TryParse(Request.QueryString["guide"], out int guideId))
-                filter.GuideId = guideId;
-            if (int.TryParse(Request.QueryString["page"], out int page))
-                filter.Page = page;
-            return filter;
-        }
-
         private void Bind(OperatorFilter filter)
         {
             var result = _dashboard.SearchOperators(UserId, filter);
@@ -107,7 +83,7 @@ namespace TrainingApp.Pages.Admin
             // Los controles y los enlaces muestran los filtros que de verdad se aplicaron.
             var applied = result.Applied;
             string stateValue = applied.State.HasValue
-                ? StateValues.First(kv => kv.Value == applied.State.Value).Key : string.Empty;
+                ? ReportFilters.StateValues.First(kv => kv.Value == applied.State.Value).Key : string.Empty;
             int? guideId = applied.GuideId;
             TxtSearch.Text = applied.Text;
             DdlState.SelectedValue = stateValue;
@@ -128,6 +104,7 @@ namespace TrainingApp.Pages.Admin
             LnkNext.Visible = result.Page < result.PageCount;
             LnkPrev.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, guideId, result.Page - 1);
             LnkNext.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, guideId, result.Page + 1);
+            LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewOperators, Request.QueryString);
         }
 
         private static OperatorListRow ToRow(OperatorRow row)

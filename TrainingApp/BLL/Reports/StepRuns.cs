@@ -6,6 +6,15 @@ using TrainingApp.Domain;
 
 namespace TrainingApp.BLL.Reports
 {
+    // Cómo terminó un paso de una sesión (la hoja "Intentos por paso" del Excel).
+    public enum StepOutcome
+    {
+        Correct,          // tuvo un intento correcto
+        WithoutSuccess,   // quedó atrás sin acierto (StepRun.EndedWithoutSuccess)
+        Skipped,          // se saltó sin fallos (Práctica libre): no es un fallo
+        Unresolved        // la sesión sigue en él o se abandonó ahí
+    }
+
     // Cómo le fue a una sesión en uno de sus pasos (spec 018).
     public class StepRun
     {
@@ -25,13 +34,20 @@ namespace TrainingApp.BLL.Reports
         public bool HasCorrectAttempt { get; set; }
         public bool Skipped { get; set; }
 
-        // El paso quedó atrás: la sesión se completó, tiene intentos en un paso posterior o el
-        // modo forzó el avance (ModePolicy.ForcesAdvanceAt), aunque después la abandonara.
+        // El paso quedó atrás: la sesión se completó, tiene intentos en un paso posterior, el
+        // modo forzó el avance (ModePolicy.ForcesAdvanceAt) o se saltó (el salto resuelve el
+        // paso, D-83), aunque después la abandonara.
         public bool Resolved { get; set; }
 
         // Terminó sin acierto (spec 018): avance forzado en Assessment, o saltado con fallos en
         // Práctica libre. Un salto sin fallos no cuenta: saltar nunca es un fallo.
         public bool EndedWithoutSuccess => Resolved && !HasCorrectAttempt && (!Skipped || FailedAttempts > 0);
+
+        public StepOutcome Outcome
+            => HasCorrectAttempt   ? StepOutcome.Correct
+             : EndedWithoutSuccess ? StepOutcome.WithoutSuccess
+             : Resolved            ? StepOutcome.Skipped
+             :                       StepOutcome.Unresolved;
 
         // Hora de su último intento y duración (DA-2).
         public DateTime LastAttempt { get; set; }
@@ -66,6 +82,7 @@ namespace TrainingApp.BLL.Reports
                 var step = steps[i];
                 var last = step.Max(a => a.Timestamp);
                 var failures = step.Where(IsFailure).ToList();
+                bool skipped = step.Any(a => a.Reason == AttemptReason.Skipped);
                 runs.Add(new StepRun
                 {
                     StepId            = step.Key.StepId,
@@ -73,9 +90,9 @@ namespace TrainingApp.BLL.Reports
                     FailedAttempts    = failures.Count,
                     Failures          = failures,
                     HasCorrectAttempt = step.Any(a => a.IsCorrect),
-                    Skipped           = step.Any(a => a.Reason == AttemptReason.Skipped),
+                    Skipped           = skipped,
                     Resolved          = session.Status == SessionStatus.Completed || i < steps.Count - 1
-                                        || policy.ForcesAdvanceAt(failures.Count),
+                                        || policy.ForcesAdvanceAt(failures.Count) || skipped,
                     LastAttempt       = last,
                     Duration          = last > previous ? last - previous : TimeSpan.Zero
                 });

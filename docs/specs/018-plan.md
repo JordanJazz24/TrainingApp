@@ -369,7 +369,58 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E6 · Exportar a Excel
 
-- [ ] **Un `IHttpHandler` `Export.ashx?view=…&filters…`:**
+> **E6 de Desarrollo ✅** (2026-10-23; probada por el usuario: "funciona"). Al aprobarla, el
+> usuario pidió dejar anotado que **al cerrar la Fase 10 sigue una fase de mejora de UI/UX**
+> del dashboard, sus módulos y el Excel: la funcionalidad es correcta pero el diseño es muy
+> básico (`docs/status.md` → "Deuda y riesgos"). Detalle que no cambia el plan:
+> - **`Pages/Admin/Export.ashx`:** queda bajo la regla de `Web.config` de `Pages/Admin`. La
+>   Session es de solo lectura, así una descarga larga no bloquea las otras pestañas.
+> - **Los filtros de la URL se leen en un solo lugar, `ReportFilters`:** lo usan las cuatro
+>   páginas y el handler, así una descarga no puede filtrar distinto que su pantalla (DA-5).
+> - **Los datos salen del mismo método del servicio que cada página:**
+>   - `GetSteps` y `GetFollowUp`, sin cambios;
+>   - `ExportOperators`: la misma búsqueda que `SearchOperators`, sin paginar;
+>   - `GetSessionExport`, nuevo: período y guía, todos los modos, incluidas las sesiones sin
+>     intentos.
+> - **El armado está en `ExcelReports` (presentación):**
+>   - los textos de pantalla (`ReportText`); la acción va como código;
+>   - fechas en la hora de la planta;
+>   - duraciones como tiempo de Excel;
+>   - encabezado fijo con autofiltro;
+>   - sin `AdjustToContents`, porque medir el texto carga las fuentes y tardaba ~20 s: cada
+>     columna lleva su ancho.
+> - **Nombres de archivo:** `Operadores_`, `Pasos_`, `Seguimiento_` y `Sesiones_`, cada uno
+>   con la fecha de la planta (`yyyy-MM-dd`).
+> - **Resultado de cada paso (hoja Intentos por paso):** `StepRun.Outcome` (acierto, sin
+>   acierto, saltado o sin resolver).
+> - **El puntaje visible** lo decide la BLL (`VisibleScore`, D-90) para el detalle y el Excel.
+> - **Corrección en `StepRuns`:** un salto resuelve el paso (D-83) aunque sea el último con
+>   intentos de una sesión en curso o abandonada. Antes salía "sin resolver" y, si tenía
+>   fallos, no contaba como "sin acierto" (spec: "saltado con fallos en Práctica libre"). Como
+>   solo se salta en Práctica libre, en la práctica solo cambia Pasos en ese modo: S-3 y los
+>   pasos a reforzar miran solo Assessment. Lo revisó Arquitectura y Planeación.
+> - **Medición aproximada (AC-24, con un test explícito):** sesiones con "Todo", ~22 000
+>   sesiones y ~264 000 filas de pasos (10 MB).
+>   - ClosedXML: 3,7 s para armar y 8,6 s para guardar, ~12 s.
+>   - Con la lectura de datos: ~16 s.
+>   - Con 30 días, ~1/12 del volumen: ~1 s.
+>   - **D-148 (enmienda 2 de la spec):** esta descarga con "Todo" queda fuera de AC-24. El
+>     Resumen avisa junto al botón que puede tardar, y la E7 la prueba en streaming con
+>     `OpenXmlWriter`.
+> - **Del `/code-review medium` (10 hallazgos) se aplicaron 8:**
+>   - la Session de solo lectura;
+>   - el salto como resuelto;
+>   - el puntaje visible en la BLL;
+>   - S-3 con el texto de pantalla;
+>   - escribir el archivo sin copiarlo;
+>   - sin código redundante en la descarga de sesiones;
+>   - la rama explícita sin paginar;
+>   - sin alias de constantes.
+> - **Queda para la E7:** las tres lecturas del SP (una por modo) y leer todas las sesiones.
+> - **Descartado:** armar la URL de descarga desde los filtros aplicados. El handler vuelve a
+>   validar igual que la página.
+
+- [x] **Un `IHttpHandler` `Export.ashx?view=…&filters…`:**
   - es un **GET** con los mismos parámetros de la URL de la página. Solo lee datos, así que
     no necesita anti-CSRF;
   - verifica la sesión del usuario y `CanViewReports`; sin ellas, `RedirectHome` (AC-2);
@@ -377,14 +428,14 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
   - pide los datos al `DashboardService` con los **mismos filtros** que la página (DA-5);
   - arma el `.xlsx` con ClosedXML: encabezados en español, fechas en la hora de la planta y
     nombre de archivo con la vista y la fecha.
-- [ ] **Descargas** (AC-21, AC-22):
+- [x] **Descargas** (AC-21, AC-22):
   - Operadores;
   - Pasos, con la misma vista que la pantalla: con "Todas", la tabla agrupada por tipo de
     paso (spec → enmienda 1, D-147);
   - Seguimiento;
   - desde el **Resumen**, las sesiones, con las hojas **Sesiones** e **Intentos por paso**.
-- [ ] Con 0 filas, solo los encabezados.
-- [ ] **Checklist:** abrir cada archivo en Excel; probar la descarga como operador (AC-2).
+- [x] Con 0 filas, solo los encabezados.
+- [x] **Checklist:** abrir cada archivo en Excel; probar la descarga como operador (AC-2).
 
 ## E7 · Rendimiento (AC-24)
 

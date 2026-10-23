@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** spec 018 E5, probada por el usuario (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** spec 018 E6, probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -76,8 +76,14 @@
     Ignora el período y quien aprueba la guía sale de ella. **Pendiente del usuario:** volver
     a correr `10_spDashboard.sql` en su BD local y en la de producción
     (`spDashboardStepAttempts` ahora devuelve el `UserId`; `TrainingApp_Fase10` y
-    `TrainingApp_DashboardTest` ya lo tienen). La E6 (Excel) espera el aviso de Arquitectura y
-    Planeación.
+    `TrainingApp_DashboardTest` ya lo tienen).
+  - **E6 ✅** (2026-10-23, probada por el usuario): descargas a `.xlsx`
+    (`Pages/Admin/Export.ashx`) desde Operadores, Pasos, Seguimiento y el Resumen (sesiones,
+    con dos hojas), con los mismos filtros que cada pantalla. La de sesiones con "Todo" tarda
+    ~16 s y queda fuera de AC-24 (D-148); se mejora en la E7. No cambia la BD. La E7
+    (Rendimiento) espera el aviso de Arquitectura y Planeación.
+  - **Después de la Fase 10:** una fase de mejora de UI/UX del dashboard y del Excel (ver
+    "Deuda y riesgos").
   - **Para probar el dashboard con volumen:** BD `TrainingApp_DashboardTest` en LocalDB, con
     el generador (1600 operadores; admin = Code1 del usuario).
   - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).
@@ -100,6 +106,14 @@
 Solo lo abierto; lo resuelto queda en la auditoría o la spec que lo cerró. La auditoría
 final (D-16) repasó esta lista.
 
+- **UI/UX del dashboard (usuario, 2026-10-23, al aprobar la E6):** la funcionalidad de la
+  Fase 10 es correcta, pero el diseño es muy básico. Cubre:
+  - las vistas: Resumen, Operadores, Operador, Pasos y Seguimiento;
+  - las gráficas;
+  - el diseño de los `.xlsx`.
+
+  **Al cerrar la Fase 10 sigue una fase de mejora de UI/UX** de todo el dashboard y sus
+  módulos, Excel incluido. Arquitectura y Planeación la agrega al roadmap.
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).
   Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).

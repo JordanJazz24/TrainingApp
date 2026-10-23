@@ -16,10 +16,6 @@ namespace TrainingApp.Pages.Admin
     {
         private const string PageUrl = "~/Pages/Admin/Steps.aspx";
 
-        // Valores de la URL; sin el parámetro, el de inicio (últimos 30 días, Assessment).
-        private const string PeriodAll    = "all";
-        private const string ModePractice = "practice";
-
         private readonly DashboardService _dashboard = new DashboardService();
 
         // Usuario autenticado (Session escrita solo por el servidor tras el login).
@@ -62,27 +58,14 @@ namespace TrainingApp.Pages.Admin
             }
 
             if (!IsPostBack)
-                Bind(ReadFilter());
+                Bind(ReportFilters.Steps(Request.QueryString));
         }
 
         protected void BtnFilter_Click(object sender, EventArgs e)
         {
             int.TryParse(DdlGuide.SelectedValue, out int guideId);
-            Response.Redirect(BuildUrl(DdlPeriod.SelectedValue == PeriodAll, guideId > 0 ? guideId : (int?)null,
-                DdlMode.SelectedValue == ModePractice));
-        }
-
-        // Los filtros de la URL; un valor inválido vale el de inicio (el servicio también valida).
-        private StepFilter ReadFilter()
-        {
-            var filter = new StepFilter
-            {
-                Period = Request.QueryString["period"] == PeriodAll ? ReportPeriod.All : ReportPeriod.Last30Days,
-                Mode   = Request.QueryString["mode"] == ModePractice ? SessionMode.FreePractice : SessionMode.Assessment
-            };
-            if (int.TryParse(Request.QueryString["guide"], out int guideId))
-                filter.GuideId = guideId;
-            return filter;
+            Response.Redirect(BuildUrl(DdlPeriod.SelectedValue == ReportFilters.PeriodAll, guideId > 0 ? guideId : (int?)null,
+                DdlMode.SelectedValue == ReportFilters.ModePractice));
         }
 
         private void Bind(StepFilter filter)
@@ -91,8 +74,8 @@ namespace TrainingApp.Pages.Admin
 
             // Los controles muestran los filtros que de verdad se aplicaron.
             var applied = report.Applied;
-            DdlPeriod.SelectedValue = applied.Period == ReportPeriod.All ? PeriodAll : string.Empty;
-            DdlMode.SelectedValue   = applied.Mode == SessionMode.FreePractice ? ModePractice : string.Empty;
+            DdlPeriod.SelectedValue = applied.Period == ReportPeriod.All ? ReportFilters.PeriodAll : string.Empty;
+            DdlMode.SelectedValue   = applied.Mode == SessionMode.FreePractice ? ReportFilters.ModePractice : string.Empty;
             DdlGuide.Items.Clear();
             DdlGuide.Items.Add(new ListItem("Todas", string.Empty));
             foreach (var g in report.Guides)
@@ -117,21 +100,20 @@ namespace TrainingApp.Pages.Admin
                     TimesWithoutSuccess = s.TimesWithoutSuccess,
                     Skips               = s.Skips,
                     MedianText          = ReportText.Duration(s.MedianDuration),
-                    Reasons             = s.Reasons
-                        .Select(x => ReportText.Reason(x.Reason) + " · " + (x.Action ?? ReportText.None) + " (" + x.Count + ")")
-                        .ToList()
+                    Reasons             = s.Reasons.Select(ReportText.ReasonCount).ToList()
                 }).ToList()
             }).ToList();
             RptGuides.DataBind();
             LblEmpty.Visible = report.Rankings.Count == 0;
+            LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewSteps, Request.QueryString);
         }
 
         private string BuildUrl(bool allPeriod, int? guideId, bool practice)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
-            if (allPeriod) query["period"] = PeriodAll;
+            if (allPeriod) query["period"] = ReportFilters.PeriodAll;
             if (guideId.HasValue) query["guide"] = guideId.Value.ToString();
-            if (practice) query["mode"] = ModePractice;
+            if (practice) query["mode"] = ReportFilters.ModePractice;
             var url = ResolveUrl(PageUrl);
             return query.Count == 0 ? url : url + "?" + query;
         }

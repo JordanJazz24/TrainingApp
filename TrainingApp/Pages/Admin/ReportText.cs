@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TrainingApp.BLL.Reports;
 using TrainingApp.Domain;
 
@@ -82,6 +84,39 @@ namespace TrainingApp.Pages.Admin
                 case AttemptReason.EmptyRequiredField: return "Campo vacío";
                 case AttemptReason.Skipped:            return "Saltado";
                 default:                               return None;
+            }
+        }
+
+        // Un motivo con su acción y cuántas veces se registró (Pasos y su Excel). La acción va
+        // con su código, como se registra (AttemptActions).
+        public static string ReasonCount(ReasonCount reason)
+            => Reason(reason.Reason) + " · " + (reason.Action ?? None) + " (" + reason.Count + ")";
+
+        // Cómo terminó un paso de una sesión (hoja Intentos por paso).
+        public static string Outcome(StepOutcome outcome)
+        {
+            switch (outcome)
+            {
+                case StepOutcome.Correct:        return "Acierto";
+                case StepOutcome.WithoutSuccess: return "Sin acierto";
+                case StepOutcome.Skipped:        return "Saltado";
+                default:                         return "Sin resolver";
+            }
+        }
+
+        // Una línea por regla de Seguimiento; S-3, una por paso (página y Excel).
+        public static IEnumerable<string> FollowUpLines(FollowUpReason reason)
+        {
+            switch (reason.Rule)
+            {
+                case FollowUpRule.RepeatedFailures:
+                    return new[] { string.Format("S-1 · Reprobó {0} Assessment sin aprobar ninguno", reason.FailedAssessments) };
+                case FollowUpRule.Inactive:
+                    return new[] { string.Format("S-2 · {0} días sin sesiones de esta guía", reason.DaysInactive) };
+                case FollowUpRule.StuckStep:
+                    return reason.Steps.Select(s => string.Format("S-3 · {0}: sin acierto en {1} Assessment", s.StepName, s.Times));
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(reason), reason.Rule, "Regla de seguimiento sin texto.");
             }
         }
 

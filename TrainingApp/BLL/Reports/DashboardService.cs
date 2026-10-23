@@ -62,6 +62,9 @@ namespace TrainingApp.BLL.Reports
         // Null si sigue en curso ("—").
         public TimeSpan? Duration { get; set; }
         public int FailedAttempts { get; set; }
+
+        // Null si no se muestra (DashboardService.VisibleScore).
+        public decimal? Score { get; set; }
     }
 
     // Los pasos a reforzar de una guía.
@@ -154,6 +157,41 @@ namespace TrainingApp.BLL.Reports
         public IList<StepStats> TopSteps { get; set; }
     }
 
+    // Un paso de una sesión en la descarga de sesiones, con su nombre (StepNames).
+    public class SessionStepRow
+    {
+        public string StepName { get; set; }
+        public StepRun Run { get; set; }
+    }
+
+    // Una sesión en la descarga de sesiones del Resumen (AC-22).
+    public class SessionExportRow
+    {
+        public DashboardSession Session { get; set; }
+        public string Code1 { get; set; }
+        public string Name { get; set; }
+
+        // Null si sigue en curso.
+        public TimeSpan? Duration { get; set; }
+        public int FailedAttempts { get; set; }
+
+        // Null si no se muestra (DashboardService.VisibleScore).
+        public decimal? Score { get; set; }
+
+        // En orden de la guía.
+        public IList<SessionStepRow> Steps { get; set; }
+    }
+
+    // Descarga de sesiones del Resumen (AC-22): las hojas Sesiones e Intentos por paso.
+    public class SessionExport
+    {
+        public SummaryFilter Applied { get; set; }
+        public IList<DashboardGuide> Guides { get; set; }
+
+        // De la más reciente a la más vieja.
+        public IList<SessionExportRow> Rows { get; set; }
+    }
+
     // Filtros de Seguimiento: solo la guía; ignora el período (DA-3a).
     public class FollowUpFilter
     {
@@ -226,6 +264,14 @@ namespace TrainingApp.BLL.Reports
         // Una guía que no está publicada o un estado fuera del enum valen "todas" o "todos";
         // una página fuera de rango, la última que exista.
         public OperatorPage SearchOperators(int userId, OperatorFilter filter)
+            => FindOperators(userId, filter, paged: true);
+
+        // La misma lista con los mismos filtros, sin paginar (el Excel de Operadores, DA-5): una
+        // sola "página" con todas las filas.
+        public OperatorPage ExportOperators(int userId, OperatorFilter filter)
+            => FindOperators(userId, filter, paged: false);
+
+        private OperatorPage FindOperators(int userId, OperatorFilter filter, bool paged)
         {
             RequireReports(userId);
             filter = filter ?? new OperatorFilter();
@@ -249,6 +295,17 @@ namespace TrainingApp.BLL.Reports
                 })
                 .Where(r => Matches(r, state, guideId))
                 .ToList();
+
+            if (!paged)
+                return new OperatorPage
+                {
+                    Applied   = new OperatorFilter { Text = text, State = state, GuideId = guideId, Page = 1 },
+                    Guides    = guides,
+                    Rows      = rows,
+                    Total     = rows.Count,
+                    Page      = 1,
+                    PageCount = 1
+                };
 
             int pageCount = Math.Max(1, (rows.Count + PageSize - 1) / PageSize);
             int page = Math.Min(Math.Max(1, filter.Page), pageCount);
@@ -296,7 +353,8 @@ namespace TrainingApp.BLL.Reports
                     {
                         Session        = s,
                         Duration       = StepRuns.SessionDuration(s),
-                        FailedAttempts = runs[s.SessionId].Sum(r => r.FailedAttempts)
+                        FailedAttempts = runs[s.SessionId].Sum(r => r.FailedAttempts),
+                        Score          = VisibleScore(s)
                     })
                     .ToList(),
                 Reinforcement = guides
@@ -353,10 +411,7 @@ namespace TrainingApp.BLL.Reports
                 .Select(s => StepRuns.ForSession(s, attempts[s.SessionId]))
                 .ToList();
 
-            // El nombre de cada paso, con su variante dentro de su guía (StepNames).
-            var steps = _dashboard.GetGuideSteps();
-            var names = steps.ToDictionary(st => st.Id,
-                st => StepNames.Display(steps.Where(x => x.TrainingGuideId == st.TrainingGuideId).ToList(), st));
+            var names = StepNameMap(_dashboard.GetGuideSteps());
             Func<int, int, string> nameOf = (stepId, order) => names.TryGetValue(stepId, out var name) ? name : "Paso " + order;
 
             // Con una guía, sus pasos; con todas, el resumen por nombre de paso (usuario,
@@ -474,6 +529,79 @@ namespace TrainingApp.BLL.Reports
                 Guides  = guides,
                 Rows    = rows.OrderBy(r => order[r.TrainingGuideId]).ThenBy(r => r.Name, StringComparer.CurrentCulture).ToList()
             };
+        }
+
+        // Las sesiones del Resumen (AC-22), con los mismos filtros de período y guía: cada sesión
+        // con su duración y sus intentos fallidos, y cada paso con su resultado (StepRuns, la
+        // misma regla del detalle y de Pasos). Todos los modos.
+        public SessionExport GetSessionExport(int userId, SummaryFilter filter)
+        {
+            RequireReports(userId);
+            filter = filter ?? new SummaryFilter();
+
+            var guides = _dashboard.GetGuides();
+            int? guideId = PublishedOrAll(guides, filter.GuideId);
+            var period = ValidPeriod(filter.Period);
+            var from = ReportPeriods.FromUtc(period, DateTime.UtcNow);
+            var guideIds = new HashSet<int>(guides.Select(g => g.Id));
+
+            // Los intentos de los tres modos (el SP es por modo).
+            var attempts = new List<DashboardAttempt>();
+            foreach (SessionMode mode in Enum.GetValues(typeof(SessionMode)))
+                attempts.AddRange(_dashboard.GetStepAttempts(mode, from, guideId).Attempts);
+            var bySession = attempts.ToLookup(a => a.SessionId);
+
+            // Las sesiones salen de GetSessions (con el puntaje y el cierre, y también las que no
+            // tienen intentos).
+            var all = _dashboard.GetSessions(null, false)
+                .Where(s => guideIds.Contains(s.TrainingGuideId)
+                            && (!guideId.HasValue || s.TrainingGuideId == guideId.Value)
+                            && (!from.HasValue || s.StartedAt >= from.Value))
+                .ToList();
+
+            var operators = _dashboard.GetOperators(string.Empty).ToDictionary(o => o.UserId);
+            var names = StepNameMap(_dashboard.GetGuideSteps());
+
+            return new SessionExport
+            {
+                Applied = new SummaryFilter { Period = period, GuideId = guideId },
+                Guides  = guides,
+                Rows    = all
+                    .Where(s => operators.ContainsKey(s.UserId))
+                    .OrderByDescending(s => s.StartedAt)
+                    .Select(s =>
+                    {
+                        var runs = StepRuns.ForSession(s, bySession[s.SessionId]);
+                        return new SessionExportRow
+                        {
+                            Session        = s,
+                            Code1          = operators[s.UserId].Code1,
+                            Name           = operators[s.UserId].Name,
+                            Duration       = StepRuns.SessionDuration(s),
+                            FailedAttempts = runs.Sum(r => r.FailedAttempts),
+                            Score          = VisibleScore(s),
+                            Steps          = runs.Select(r => new SessionStepRow
+                            {
+                                StepName = names.TryGetValue(r.StepId, out var name) ? name : "Paso " + r.StepOrder,
+                                Run      = r
+                            }).ToList()
+                        };
+                    })
+                    .ToList()
+            };
+        }
+
+        // El puntaje de una sesión se muestra si está completada y su modo lo muestra (D-90);
+        // si no, null ("—" en pantalla, vacío en el Excel).
+        private static decimal? VisibleScore(DashboardSession session)
+            => session.Status == SessionStatus.Completed && ModePolicy.For(session.Mode).ShowsScore
+                ? session.FinalScore : (decimal?)null;
+
+        // El nombre de cada paso por su id, con su variante dentro de su guía (StepNames).
+        private static Dictionary<int, string> StepNameMap(IList<TrainingStep> steps)
+        {
+            var byGuide = steps.ToLookup(st => st.TrainingGuideId);
+            return steps.ToDictionary(st => st.Id, st => StepNames.Display(byGuide[st.TrainingGuideId].ToList(), st));
         }
 
         private static ReportPeriod ValidPeriod(ReportPeriod period)

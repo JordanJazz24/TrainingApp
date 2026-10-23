@@ -164,6 +164,7 @@
     <Compile Include="ClosedXmlSmokeTests.cs" />
     <Compile Include="ReadinessPolicyTests.cs" />
     <Compile Include="DashboardServiceTests.cs" />
+    <Compile Include="ExcelReportsTests.cs" />
     <Compile Include="FollowUpRulesTests.cs" />
     <Compile Include="StepRunsTests.cs" />
     <Compile Include="SummaryRulesTests.cs" />

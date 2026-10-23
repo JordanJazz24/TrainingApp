@@ -29,9 +29,12 @@
                 <asp:ListItem Value="practice" Text="Práctica libre" />
             </asp:DropDownList>
         </div>
-        <div class="col-sm-6 col-md-3">
+        <div class="col-sm-6 col-md-1">
             <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-primary w-100"
                 OnClick="BtnFilter_Click" />
+        </div>
+        <div class="col-sm-6 col-md-2">
+            <asp:HyperLink ID="LnkExport" runat="server" CssClass="btn btn-outline-secondary w-100">Descargar Excel</asp:HyperLink>
         </div>
     </asp:Panel>
 
