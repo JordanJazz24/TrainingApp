@@ -46,6 +46,23 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 > existía. Cuando la BLL niega el acceso, `Users.aspx` (spec 013) manda al login, en vez de
 > mandar al inicio del rol (`SessionHelper.RedirectHome`), como piden `CLAUDE.md` → Auth y
 > AC-2. `Operators.aspx` ya lo hace bien.
+>
+> **Enmienda 3 · 2026-10-23 (usuario, al cerrar la E2; D-146):** el SP de Pasos (E3) **no
+> agrega**: devuelve los intentos.
+> - **Qué cambia:** el SP devuelve los intentos del período, la guía y el modo, con su sesión,
+>   paso, resultado, motivo, acción y hora, y el `StartedAt` y el estado de la sesión. Es la
+>   versión por período, guía y modo de `spDashboardOperatorAttempts`, con los mismos filtros
+>   de rol y de guía publicada. `DashboardService.GetSteps` arma todo con `StepRuns`: sesiones
+>   con fallo, intentos fallidos, veces sin acierto, saltos, motivos y la mediana.
+> - **Por qué:** "terminó sin acierto" depende del modo (avance forzado en el 4.º fallo, el
+>   último paso de una sesión abandonada, el salto con fallos; `ModePolicy`) y ya vive en
+>   `StepRuns` desde la E2. Agregarlo en el SP repetiría la regla en SQL (D-139). Además, la
+>   mediana necesita la duración de cada paso (DA-2), que sale de los intentos uno por uno.
+>   Así la misma regla sirve para el detalle, Pasos, el top 5 del Resumen (E4), S-3 (E5) y el
+>   Excel (E6).
+> - **Plan B, también aceptado:** si en la E7 Pasos con "Todo" no responde en menos de 3 s, el
+>   SP baja a una fila por sesión y paso (fallos, saltos, si hubo acierto, la hora del último
+>   intento y los conteos por motivo y acción), sin reglas, y `StepRuns` parte de esas filas.
 
 ## Diseño común (lo usan todas las entregas)
 
@@ -204,6 +221,9 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
   - B-3: un admin al que le quitan el rol a mitad de sesión vuelve a su inicio, no al login.
 
 ## E3 · Pasos
+
+> **Enmienda 3:** el SP devuelve los intentos y los conteos de abajo los calcula
+> `DashboardService.GetSteps` con `StepRuns` (D-146).
 
 - [ ] SP: por paso, guía y modo, en el período, devuelve:
   - las sesiones que llegaron al paso;

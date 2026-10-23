@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-146. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: D-147. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -162,6 +162,7 @@
 | D-143 | 2026-10-22 | Dashboard: la lista de operadores la filtra y pagina la BLL (el SP no pagina), para no repetir la regla de Aprobado en SQL; plan B: el SP agrega sin reglas | specs/018-plan.md (enmienda 1) | vigente |
 | D-144 | 2026-10-22 | La cabecera `Server` se quita (`removeServerHeader`, solo en Release) si TI confirma IIS 10+; mientras tanto queda | specs/fase-9-plan.md (enmienda 2) | pendiente (versión de IIS de TI) |
 | D-145 | 2026-10-22 | El usuario prepara la BD de producción y entrega la carpeta publicada con su `connectionStrings.config`; TI solo instala el sitio, el App Pool y el permiso de `App_Data\Logs` | specs/fase-9-plan.md (enmienda 3) | vigente |
+| D-146 | 2026-10-23 | Dashboard, Pasos: el SP devuelve los intentos sin agregar y la BLL calcula todo con `StepRuns` (regla de "sin acierto" y mediana); plan B: una fila por sesión y paso, sin reglas | specs/018-plan.md (enmienda 3) | vigente |
 
 ## Bugs que ya existían (B-n)
 
