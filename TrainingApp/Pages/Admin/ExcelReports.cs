@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ClosedXML.Excel;
 using TrainingApp.BLL.Reports;
@@ -11,36 +12,24 @@ namespace TrainingApp.Pages.Admin
     // (ReportText). Encabezados en español, fechas en la hora de la planta y duraciones como
     // tiempo de Excel. Con 0 filas, solo los encabezados.
     //
+    // Operadores, Pasos y Seguimiento con ClosedXML (D-140), pocas filas. Las sesiones, que con
+    // todo el historial son cientos de miles de filas, en streaming (XlsxStreamWriter, E7,
+    // D-148), con el mismo aspecto y los mismos formatos (XlsxStreamWriter.FormatCode).
+    //
     // Sin AdjustToContents: medir el texto carga las fuentes del sistema (~20 s la primera vez,
     // plan 018 → E1); cada columna tiene su ancho.
     public static class ExcelReports
     {
-        private const string DateFormat     = "dd/MM/yyyy HH:mm";
-        private const string DurationFormat = "[h]:mm:ss";
-        private const string PercentFormat  = "0.0%";
-
-        // Una columna: encabezado, ancho en caracteres y formato de número (null = general).
-        private sealed class Column
-        {
-            public string Header;
-            public double Width;
-            public string Format;
-            public Column(string header, double width, string format = null)
-            {
-                Header = header; Width = width; Format = format;
-            }
-        }
-
         public static XLWorkbook Operators(OperatorPage page)
         {
-            var columns = new List<Column> { new Column("Código", 12), new Column("Nombre", 32) };
+            var columns = new List<XlsxColumn> { new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32) };
             foreach (var g in page.Guides)
             {
-                columns.Add(new Column(g.AreaName + " · Estado", 18));
-                columns.Add(new Column(g.AreaName + " · Mejor puntaje", 14, PercentFormat));
-                columns.Add(new Column(g.AreaName + " · Último puntaje", 14, PercentFormat));
+                columns.Add(new XlsxColumn(g.AreaName + " · Estado", 18));
+                columns.Add(new XlsxColumn(g.AreaName + " · Mejor puntaje", 14, XlsxFormat.Percent));
+                columns.Add(new XlsxColumn(g.AreaName + " · Último puntaje", 14, XlsxFormat.Percent));
             }
-            columns.Add(new Column("Última actividad", 17, DateFormat));
+            columns.Add(new XlsxColumn("Última actividad", 17, XlsxFormat.Date));
 
             var rows = page.Rows.Select(r =>
             {
@@ -61,15 +50,15 @@ namespace TrainingApp.Pages.Admin
         public static XLWorkbook Steps(StepReport report)
         {
             var guides = report.Guides.ToDictionary(g => g.Id);
-            var columns = new List<Column>
+            var columns = new List<XlsxColumn>
             {
-                new Column("Guía", 18), new Column("Paso", 30), new Column("Sesiones", 10),
-                new Column("% con fallo", 11, PercentFormat), new Column("Intentos fallidos", 12),
-                new Column("Veces sin acierto", 12)
+                new XlsxColumn("Guía", 18), new XlsxColumn("Paso", 30), new XlsxColumn("Sesiones", 10),
+                new XlsxColumn("% con fallo", 11, XlsxFormat.Percent), new XlsxColumn("Intentos fallidos", 12),
+                new XlsxColumn("Veces sin acierto", 12)
             };
-            if (report.ShowsSkips) columns.Add(new Column("Saltos", 9));
-            columns.Add(new Column("Mediana", 10, DurationFormat));
-            columns.Add(new Column("Motivos y acciones", 70));
+            if (report.ShowsSkips) columns.Add(new XlsxColumn("Saltos", 9));
+            columns.Add(new XlsxColumn("Mediana", 10, XlsxFormat.Time));
+            columns.Add(new XlsxColumn("Motivos y acciones", 70));
 
             var rows = report.Rankings.SelectMany(r => r.Steps.Select(s =>
             {
@@ -90,12 +79,12 @@ namespace TrainingApp.Pages.Admin
         public static XLWorkbook FollowUp(FollowUpReport report)
         {
             var guides = report.Guides.ToDictionary(g => g.Id);
-            var columns = new List<Column>
+            var columns = new List<XlsxColumn>
             {
-                new Column("Código", 12), new Column("Nombre", 32), new Column("Guía", 18), new Column("Estado", 18),
-                new Column("Última sesión de la guía", 17, DateFormat),
-                new Column("S-1 · Assessment reprobados", 14), new Column("S-2 · Días sin sesiones", 14),
-                new Column("S-3 · Pasos sin acierto", 50), new Column("Reglas", 70)
+                new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Guía", 18), new XlsxColumn("Estado", 18),
+                new XlsxColumn("Última sesión de la guía", 17, XlsxFormat.Date),
+                new XlsxColumn("S-1 · Assessment reprobados", 14), new XlsxColumn("S-2 · Días sin sesiones", 14),
+                new XlsxColumn("S-3 · Pasos sin acierto", 50), new XlsxColumn("Reglas", 70)
             };
 
             var rows = report.Rows.Select(r =>
@@ -115,71 +104,67 @@ namespace TrainingApp.Pages.Admin
             return Book("Seguimiento", columns, rows);
         }
 
-        // Sesiones del Resumen (AC-22): una fila por sesión y una por sesión y paso.
-        public static XLWorkbook Sessions(SessionExport export)
+        // Sesiones del Resumen (AC-22): una fila por sesión y una por sesión y paso, escritas en
+        // streaming a output (E7, D-148).
+        public static void Sessions(SessionExport export, Stream output)
         {
             var guides = export.Guides.ToDictionary(g => g.Id);
-            var workbook = new XLWorkbook();
+            using (var writer = new XlsxStreamWriter(output))
+            {
+                writer.WriteSheet("Sesiones", new List<XlsxColumn>
+                {
+                    new XlsxColumn("Sesión", 9), new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Guía", 18),
+                    new XlsxColumn("Modo", 14), new XlsxColumn("Estado", 12), new XlsxColumn("Inicio", 17, XlsxFormat.Date),
+                    new XlsxColumn("Fin", 17, XlsxFormat.Date), new XlsxColumn("Duración", 10, XlsxFormat.Time),
+                    new XlsxColumn("Puntaje", 9, XlsxFormat.Percent), new XlsxColumn("Intentos fallidos", 12)
+                }, export.Rows.Select(r => new object[]
+                {
+                    r.Session.SessionId, r.Code1, r.Name, guides[r.Session.TrainingGuideId].AreaName,
+                    ReportText.Mode(r.Session.Mode), ReportText.Status(r.Session.Status),
+                    Local(r.Session.StartedAt), Local(r.Session.CompletedAt), r.Duration, r.Score, r.FailedAttempts
+                }));
 
-            AddSheet(workbook, "Sesiones", new List<Column>
-            {
-                new Column("Sesión", 9), new Column("Código", 12), new Column("Nombre", 32), new Column("Guía", 18),
-                new Column("Modo", 14), new Column("Estado", 12), new Column("Inicio", 17, DateFormat),
-                new Column("Fin", 17, DateFormat), new Column("Duración", 10, DurationFormat),
-                new Column("Puntaje", 9, PercentFormat), new Column("Intentos fallidos", 12)
-            }, export.Rows.Select(r => new object[]
-            {
-                r.Session.SessionId, r.Code1, r.Name, guides[r.Session.TrainingGuideId].AreaName,
-                ReportText.Mode(r.Session.Mode), ReportText.Status(r.Session.Status),
-                Local(r.Session.StartedAt), Local(r.Session.CompletedAt), r.Duration, r.Score, r.FailedAttempts
-            }));
-
-            AddSheet(workbook, "Intentos por paso", new List<Column>
-            {
-                new Column("Sesión", 9), new Column("Código", 12), new Column("Guía", 18), new Column("Modo", 14),
-                new Column("Orden", 7), new Column("Paso", 30), new Column("Resultado", 13),
-                new Column("Intentos fallidos", 12), new Column("Duración", 10, DurationFormat),
-                new Column("Último intento", 17, DateFormat)
-            }, export.Rows.SelectMany(r => r.Steps.Select(s => new object[]
-            {
-                r.Session.SessionId, r.Code1, guides[r.Session.TrainingGuideId].AreaName, ReportText.Mode(r.Session.Mode),
-                s.Run.StepOrder, s.StepName, ReportText.Outcome(s.Run.Outcome), s.Run.FailedAttempts,
-                s.Run.Duration, Local(s.Run.LastAttempt)
-            })));
-
-            return workbook;
+                writer.WriteSheet("Intentos por paso", new List<XlsxColumn>
+                {
+                    new XlsxColumn("Sesión", 9), new XlsxColumn("Código", 12), new XlsxColumn("Guía", 18), new XlsxColumn("Modo", 14),
+                    new XlsxColumn("Orden", 7), new XlsxColumn("Paso", 30), new XlsxColumn("Resultado", 13),
+                    new XlsxColumn("Intentos fallidos", 12), new XlsxColumn("Duración", 10, XlsxFormat.Time),
+                    new XlsxColumn("Último intento", 17, XlsxFormat.Date)
+                }, export.Rows.SelectMany(r => r.Steps.Select(s => new object[]
+                {
+                    r.Session.SessionId, r.Code1, guides[r.Session.TrainingGuideId].AreaName, ReportText.Mode(r.Session.Mode),
+                    s.Run.StepOrder, s.StepName, ReportText.Outcome(s.Run.Outcome), s.Run.FailedAttempts,
+                    s.Run.Duration, Local(s.Run.LastAttempt)
+                })));
+            }
         }
 
-        private static XLWorkbook Book(string sheet, IList<Column> columns, IEnumerable<object[]> rows)
+        private static XLWorkbook Book(string sheet, IList<XlsxColumn> columns, IEnumerable<object[]> rows)
         {
             var workbook = new XLWorkbook();
-            AddSheet(workbook, sheet, columns, rows);
-            return workbook;
-        }
-
-        private static void AddSheet(XLWorkbook workbook, string name, IList<Column> columns, IEnumerable<object[]> rows)
-        {
-            var sheet = workbook.Worksheets.Add(name);
+            var ws = workbook.Worksheets.Add(sheet);
             for (int c = 0; c < columns.Count; c++)
             {
-                sheet.Cell(1, c + 1).Value = columns[c].Header;
-                var column = sheet.Column(c + 1);
+                ws.Cell(1, c + 1).Value = columns[c].Header;
+                var column = ws.Column(c + 1);
                 column.Width = columns[c].Width;
-                if (columns[c].Format != null) column.Style.NumberFormat.Format = columns[c].Format;
+                var format = XlsxStreamWriter.FormatCode(columns[c].Format);
+                if (format != null) column.Style.NumberFormat.Format = format;
             }
-            var header = sheet.Row(1);
+            var header = ws.Row(1);
             header.Style.Font.Bold = true;
             header.Style.NumberFormat.Format = "@";
-            sheet.SheetView.FreezeRows(1);
+            ws.SheetView.FreezeRows(1);
 
             int r = 2;
             foreach (var row in rows)
             {
                 for (int c = 0; c < row.Length; c++)
-                    SetValue(sheet.Cell(r, c + 1), row[c]);
+                    SetValue(ws.Cell(r, c + 1), row[c]);
                 r++;
             }
-            if (r > 2) sheet.Range(1, 1, r - 1, columns.Count).SetAutoFilter();
+            if (r > 2) ws.Range(1, 1, r - 1, columns.Count).SetAutoFilter();
+            return workbook;
         }
 
         private static void SetValue(IXLCell cell, object value)

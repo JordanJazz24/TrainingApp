@@ -104,15 +104,104 @@ namespace TrainingApp.Test
                 }
             };
 
-            using (var book = ExcelReports.Sessions(export))
+            using (var stream = new MemoryStream())
             {
+                ExcelReports.Sessions(export, stream);
+                stream.Position = 0;
+                using (var book = new XLWorkbook(stream))
+                {
                 Assert.That(book.Worksheets.Select(w => w.Name), Is.EqualTo(new[] { "Sesiones", "Intentos por paso" }));
+                Assert.That(book.Worksheet("Sesiones").Cell(1, 1).GetString(), Is.EqualTo("Sesión"));
+                Assert.That(book.Worksheet("Sesiones").Cell(1, 1).Style.Font.Bold, Is.True);
+                Assert.That(book.Worksheet("Sesiones").Cell(2, 9).GetTimeSpan(), Is.EqualTo(TimeSpan.FromMinutes(30)));
                 var sessions = book.Worksheet("Sesiones");
                 Assert.That(sessions.Cell(2, 5).GetString(), Is.EqualTo("Práctica libre"));
                 Assert.That(sessions.Cell(2, 10).IsEmpty(), Is.True, "Práctica libre no muestra puntaje (D-90)");
                 // Hora de la planta (UTC-6).
                 Assert.That(sessions.Cell(2, 7).GetDateTime(), Is.EqualTo(new DateTime(2026, 10, 20, 12, 0, 0)));
                 Assert.That(book.Worksheet("Intentos por paso").Cell(2, 7).GetString(), Is.EqualTo("Saltado"));
+                }
+            }
+        }
+
+        // El .xlsx escrito en streaming cumple el esquema de SpreadsheetML (Excel lo abre sin
+        // pedir reparación).
+        [Test]
+        public void Sessions_ValidSpreadsheetMl()
+        {
+            var start = new DateTime(2026, 10, 20, 18, 0, 0);
+            var export = new SessionExport
+            {
+                Guides = Guides,
+                Rows = new List<SessionExportRow>
+                {
+                    new SessionExportRow
+                    {
+                        Session = new DashboardSession { SessionId = 1, TrainingGuideId = 10, Mode = SessionMode.Assessment,
+                                                         Status = SessionStatus.Completed, FinalScore = 0.8m, StartedAt = start, CompletedAt = start.AddMinutes(9) },
+                        Code1 = "C1", Name = "Ana", Duration = TimeSpan.FromMinutes(9), Score = 0.8m, FailedAttempts = 1,
+                        Steps = new List<SessionStepRow>
+                        {
+                            new SessionStepRow { StepName = "Resource Setup", Run = new StepRun { StepOrder = 1, HasCorrectAttempt = true, Resolved = true, Duration = TimeSpan.FromMinutes(2), LastAttempt = start } }
+                        }
+                    }
+                }
+            };
+
+            using (var stream = new MemoryStream())
+            {
+                ExcelReports.Sessions(export, stream);
+                stream.Position = 0;
+                using (var document = DocumentFormat.OpenXml.Packaging.SpreadsheetDocument.Open(stream, false))
+                {
+                    var errors = new DocumentFormat.OpenXml.Validation.OpenXmlValidator().Validate(document)
+                        .Select(e => e.Path?.XPath + ": " + e.Description).ToList();
+                    Assert.That(errors, Is.Empty);
+                }
+            }
+        }
+
+        // Un carácter que XML no admite (de control) en un nombre no rompe la descarga: se quita.
+        [Test]
+        public void Sessions_InvalidXmlCharacter_IsRemoved()
+        {
+            var start = new DateTime(2026, 10, 20, 18, 0, 0);
+            var export = new SessionExport
+            {
+                Guides = Guides,
+                Rows = new List<SessionExportRow>
+                {
+                    new SessionExportRow
+                    {
+                        Session = new DashboardSession { SessionId = 1, TrainingGuideId = 10, Mode = SessionMode.Guided,
+                                                         Status = SessionStatus.InProgress, StartedAt = start },
+                        Code1 = "C1", Name = "Ana\u0001 Pérez", Steps = new List<SessionStepRow>()
+                    }
+                }
+            };
+
+            using (var stream = new MemoryStream())
+            {
+                ExcelReports.Sessions(export, stream);
+                stream.Position = 0;
+                using (var book = new XLWorkbook(stream))
+                    Assert.That(book.Worksheet("Sesiones").Cell(2, 3).GetString(), Is.EqualTo("Ana Pérez"));
+            }
+        }
+
+        // Sin sesiones: las dos hojas con solo sus encabezados (AC-21).
+        [Test]
+        public void Sessions_NoRows_OnlyHeaders()
+        {
+            using (var stream = new MemoryStream())
+            {
+                ExcelReports.Sessions(new SessionExport { Guides = Guides, Rows = new List<SessionExportRow>() }, stream);
+                stream.Position = 0;
+                using (var book = new XLWorkbook(stream))
+                {
+                    Assert.That(book.Worksheet("Sesiones").LastRowUsed().RowNumber(), Is.EqualTo(1));
+                    Assert.That(book.Worksheet("Intentos por paso").Cell(1, 6).GetString(), Is.EqualTo("Paso"));
+                }
             }
         }
 
@@ -134,13 +223,10 @@ namespace TrainingApp.Test
             }).ToList();
 
             var watch = Stopwatch.StartNew();
-            using (var book = ExcelReports.Sessions(new SessionExport { Guides = Guides, Rows = rows }))
             using (var stream = new MemoryStream())
             {
-                var built = watch.Elapsed;
-                book.SaveAs(stream);
-                TestContext.Progress.WriteLine("Armar: {0:N1} s · Guardar: {1:N1} s · Total: {2:N1} s · {3:N1} MB",
-                    built.TotalSeconds, (watch.Elapsed - built).TotalSeconds, watch.Elapsed.TotalSeconds, stream.Length / 1048576.0);
+                ExcelReports.Sessions(new SessionExport { Guides = Guides, Rows = rows }, stream);
+                TestContext.Progress.WriteLine("Streaming: {0:N1} s · {1:N1} MB", watch.Elapsed.TotalSeconds, stream.Length / 1048576.0);
             }
         }
     }

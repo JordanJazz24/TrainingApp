@@ -618,19 +618,23 @@ namespace TrainingApp.Test
                     .ToList();
             }
 
-            public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts)
-                => Sessions.Where(s => !userId.HasValue || s.UserId == userId.Value).ToList();
+            public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts,
+                DateTime? fromUtc = null, int? guideId = null)
+                => Sessions.Where(s => (!userId.HasValue || s.UserId == userId.Value)
+                                       && (!fromUtc.HasValue || s.StartedAt >= fromUtc.Value)
+                                       && (!guideId.HasValue || s.TrainingGuideId == guideId.Value)).ToList();
 
             public SessionMode? LastStepMode { get; private set; }
             public DateTime? LastStepFrom { get; private set; }
             public int? LastStepGuide { get; private set; }
 
-            // Como el SP: las sesiones del modo, desde fromUtc y de la guía, con sus intentos.
-            public DashboardAttemptSet GetStepAttempts(SessionMode mode, DateTime? fromUtc, int? guideId)
+            // Como el SP: las sesiones del modo (null = todos), desde fromUtc y de la guía, con sus
+            // intentos. El período no se filtra: los tests de Pasos usan fechas fijas.
+            public DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, int? guideId)
             {
                 LastStepMode = mode; LastStepFrom = fromUtc; LastStepGuide = guideId;
                 var sessions = Sessions
-                    .Where(s => s.Mode == mode && (!guideId.HasValue || s.TrainingGuideId == guideId.Value))
+                    .Where(s => (!mode.HasValue || s.Mode == mode.Value) && (!guideId.HasValue || s.TrainingGuideId == guideId.Value))
                     .ToList();
                 var ids = new HashSet<int>(sessions.Select(s => s.SessionId));
                 return new DashboardAttemptSet

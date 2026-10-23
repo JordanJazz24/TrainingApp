@@ -15,9 +15,11 @@ namespace TrainingApp.DAL.Repositories
         // paginar: la BLL filtra por estado y después pagina.
         IList<DashboardOperator> GetOperators(string text);
 
-        // Las sesiones de las guías publicadas de los operadores (de uno solo con userId). Con
-        // includeFailedAttempts, cada una con su conteo de intentos fallidos; si no, null.
-        IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts);
+        // Las sesiones de las guías publicadas de los operadores (de uno solo con userId; desde
+        // fromUtc y de guideId si vienen). Con includeFailedAttempts, cada una con su conteo de
+        // intentos fallidos; si no, null.
+        IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts,
+            DateTime? fromUtc = null, int? guideId = null);
 
         // Los pasos de las guías publicadas, en orden.
         IList<TrainingStep> GetGuideSteps();
@@ -25,8 +27,8 @@ namespace TrainingApp.DAL.Repositories
         // Los intentos de las sesiones de un operador en las guías publicadas, en orden.
         IList<DashboardAttempt> GetOperatorAttempts(int userId);
 
-        // Los intentos de las sesiones de un modo que empezaron desde fromUtc (null = todo), en
-        // las guías publicadas (o en guideId), con sus sesiones (Pasos).
-        DashboardAttemptSet GetStepAttempts(SessionMode mode, DateTime? fromUtc, int? guideId);
+        // Los intentos de las sesiones de un modo (null = todos) que empezaron desde fromUtc
+        // (null = todo), en las guías publicadas (o en guideId), con sus sesiones.
+        DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, int? guideId);
     }
 }

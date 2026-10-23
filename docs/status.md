@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** spec 018 E6, probada por el usuario (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** spec 018 E7, probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -80,12 +80,27 @@
   - **E6 ✅** (2026-10-23, probada por el usuario): descargas a `.xlsx`
     (`Pages/Admin/Export.ashx`) desde Operadores, Pasos, Seguimiento y el Resumen (sesiones,
     con dos hojas), con los mismos filtros que cada pantalla. La de sesiones con "Todo" tarda
-    ~16 s y queda fuera de AC-24 (D-148); se mejora en la E7. No cambia la BD. La E7
-    (Rendimiento) espera el aviso de Arquitectura y Planeación.
+    ~16 s y queda fuera de AC-24 (D-148); se mejora en la E7. No cambia la BD.
+  - **E7 ✅** (2026-10-23, probada por el usuario): con el volumen máximo del generador, todas
+    las vistas y las descargas chicas responden en menos de 3 s.
+    - Descarga de sesiones: 1,3 s con 30 días y 4,7 s con Todo (antes 3,75 s y 16,7 s).
+    - Con Todo sigue la excepción con su aviso (D-148, D-149).
+    - El archivo se escribe en streaming con `ZipArchive` a un temporal del disco.
+    - `10_spDashboard.sql` suma filtros sin reglas.
+
+    **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y en la de
+    producción. `TrainingApp_DashboardTest` está borrada (con su aprobación); para volver a
+    medir, se crea otra con el generador. La E8 (curva y ficha, recortables) espera el aviso de
+    Arquitectura y Planeación.
   - **Después de la Fase 10:** una fase de mejora de UI/UX del dashboard y del Excel (ver
     "Deuda y riesgos").
-  - **Para probar el dashboard con volumen:** BD `TrainingApp_DashboardTest` en LocalDB, con
-    el generador (1600 operadores; admin = Code1 del usuario).
+  - **Para probar el dashboard con volumen:**
+    1. crear de nuevo la BD `TrainingApp_DashboardTest` en LocalDB (`00`–`10`) y correr el
+       generador (1600 operadores; admin = Code1 del usuario);
+    2. medir con `DashboardPerformanceTests` (test explícito; ids del admin y de un operador en
+       `MES_PERF_ADMIN` y `MES_PERF_OPERATOR`).
+
+    Se borró al cerrar la E7 (2026-10-23).
   - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).

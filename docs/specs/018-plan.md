@@ -457,20 +457,77 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E7 · Rendimiento (AC-24)
 
-- [ ] Correr el generador de la E1 en una BD descartable de LocalDB.
-- [ ] Medir cada vista y cada descarga.
-- [ ] Ajustar los índices o los SPs hasta que todas respondan en **menos de 3 s**, en este
+> **E7 de Desarrollo ✅** (2026-10-23; probada por el usuario: "funciona"; BD de prueba
+> `TrainingApp_DashboardTest` borrada con su aprobación).
+> - **Cómo se midió:** `DashboardPerformanceTests` es un test explícito: no corre con el resto
+>   y necesita la BD del generador. Usa `TrainingApp_DashboardTest` (1600 operadores, 22 868
+>   sesiones, 292 495 intentos, 12 meses). Los tiempos son de la BLL más el DAL (sin el
+>   render), en caliente, con ±20 % de ruido entre corridas.
+> - **Vistas (todas por debajo de 3 s, sin cambios):**
+>   - Resumen: 0,4 s con 30 días y 0,7–1,2 s con Todo.
+>   - Pasos: 0,2–0,3 s con 30 días y 0,6–1,0 s con Todo.
+>   - Operadores: 0,1 s.
+>   - Operador: 0,02 s.
+>   - Seguimiento: 0,7–1,2 s.
+> - **Descargas chicas (Operadores, Pasos con Todo, Seguimiento):** 0,2–1,0 s. La primera
+>   descarga del proceso tarda 2,3–2,8 s mientras se inicializa ClosedXML.
+> - **Descarga de sesiones:**
+>
+>   | | Antes | Después |
+>   |---|---|---|
+>   | 30 días | 3,75 s · 930 MB asignados | **1,3 s** · 167 MB |
+>   | Todo | 16,7 s · 3,4 GB asignados · pico +230 MB | **4,7 s** · 615 MB · pico +104 MB |
+>
+>   - Con Todo, ~2,2 s son de leer los datos.
+>   - Sigue la excepción de AC-24 con su aviso (D-148, enmendada por D-149).
+>   - Con 30 días, el usuario ya había aceptado el borde (2,9–3,0 s) antes del cambio a
+>     ZipArchive.
+> - **Ajustes, en el orden del plan:**
+>   1. **Índice:** ampliar `IX_StepAttempts_Session` con `StepId`, `AttemptNumber`,
+>      `Timestamp` y `Action` no mejoró nada, porque con Todo SQL lee la tabla igual. Se
+>      descartó: solo encarecería cada intento del POD.
+>   2. **Plan B de la enmienda 3:** no aplica. Una fila por sesión y paso son ~264 000 contra
+>      292 000 intentos, y el tiempo estaba en escribir el archivo.
+>   3. **Menos lecturas:** `spDashboardStepAttempts` con `@Mode` NULL (todos los modos) y
+>      `spDashboardSessions` con `@From` y `@GuideId`. Son filtros sin reglas: ninguna regla
+>      pasó a SQL.
+>   4. **Streaming:**
+>      - `OpenXmlWriter` tardaba ~10 s en escribir, porque crea varios objetos por celda.
+>      - XML directo con `XmlWriter` lo bajó a ~5,6 s.
+>      - Después, el `/code-review` mostró que `System.IO.Packaging` (el SDK en .NET
+>        Framework) no escribe en streaming y pasa las partes de más de ~10 MB a
+>        IsolatedStorage, que puede fallar en IIS.
+>      - Se cambió a `ZipArchive` (enmienda 4, D-149), con un test que valida el archivo contra
+>        el esquema de SpreadsheetML (`OpenXmlValidator`) y tests que lo leen con ClosedXML.
+>      - El archivo va a un temporal del disco con nombre único y `DeleteOnClose`, no a memoria.
+> - **Del `/code-review medium` (10 hallazgos) se aplicaron 8:**
+>   - `ZipArchive` en vez de `System.IO.Packaging`;
+>   - quitar los caracteres que XML no admite;
+>   - Calibri 11 y el estilo Normal, como ClosedXML;
+>   - el formato en la columna;
+>   - no terminar de armar un archivo que falló;
+>   - el temporal con nombre único;
+>   - los formatos en un solo lugar (`XlsxStreamWriter.FormatCode`);
+>   - los valores NaN como celda vacía.
+> - **Descartados:**
+>   - quitar el filtro de guías publicadas de `GetSessionExport` (protege si se publica una
+>     guía entre dos lecturas);
+>   - una proyección más chica del SP (la medición no la justifica).
+
+- [x] Correr el generador de la E1 en una BD descartable de LocalDB.
+- [x] Medir cada vista y cada descarga.
+- [x] Ajustar los índices o los SPs hasta que todas respondan en **menos de 3 s**, en este
   orden: índices (el que cubre los intentos por sesión), después el plan B de la enmienda 3
   (una fila por sesión y paso, sin reglas). **Ninguna regla pasa a SQL** (D-139): si no
   alcanza, Desarrollo avisa y decide el usuario.
-- [ ] **Descarga de sesiones del Resumen con "Todo"** (spec → enmienda 2, D-148):
+- [x] **Descarga de sesiones del Resumen con "Todo"** (spec → enmienda 2, D-148):
   - escribirla en streaming con `OpenXmlWriter`, con las mismas hojas y columnas;
   - reducir las lecturas: hoy son tres de `spDashboardStepAttempts` (una por modo) y todas las
     sesiones en `GetSessionExport`;
   - medir el tiempo **y la memoria** del proceso, antes y después. Si no llega a 3 s, se
     mantiene la excepción y el aviso.
-- [ ] Anotar las mediciones en el plan.
-- [ ] Borrar la BD de prueba al terminar (`docs/process.md` §6).
+- [x] Anotar las mediciones en el plan.
+- [x] Borrar la BD de prueba al terminar (`docs/process.md` §6).
 
 ## E8 · Curva de aprendizaje y ficha (recortables)
 

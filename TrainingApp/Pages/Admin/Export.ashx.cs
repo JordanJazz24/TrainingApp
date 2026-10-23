@@ -47,55 +47,64 @@ namespace TrainingApp.Pages.Admin
             var query  = context.Request.QueryString;
             var service = new DashboardService();
 
-            XLWorkbook workbook;
-            string name;
-            try
+            // El archivo se escribe en un temporal del disco (no en memoria: con todo el historial
+            // las sesiones son >10 MB, D-148) y se borra solo al cerrarlo. Se arma completo antes
+            // de mandar encabezados: un error a la mitad da una página de error, no un .xlsx roto.
+            string tempPath = Path.Combine(Path.GetTempPath(), "mes-export-" + Guid.NewGuid().ToString("N") + ".xlsx");
+            using (var file = new FileStream(tempPath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None,
+                                             81920, FileOptions.DeleteOnClose))
             {
-                switch (query["view"])
+                string name;
+                try
                 {
-                    case ReportFilters.ViewOperators:
-                        workbook = ExcelReports.Operators(service.ExportOperators(userId, ReportFilters.Operators(query)));
-                        name = "Operadores";
-                        break;
-                    case ReportFilters.ViewSteps:
-                        workbook = ExcelReports.Steps(service.GetSteps(userId, ReportFilters.Steps(query)));
-                        name = "Pasos";
-                        break;
-                    case ReportFilters.ViewFollowUp:
-                        workbook = ExcelReports.FollowUp(service.GetFollowUp(userId, ReportFilters.FollowUp(query)));
-                        name = "Seguimiento";
-                        break;
-                    case ReportFilters.ViewSessions:
-                        workbook = ExcelReports.Sessions(service.GetSessionExport(userId, ReportFilters.Summary(query)));
-                        name = "Sesiones";
-                        break;
-                    default:
-                        // Una vista que no existe: al Resumen, como un filtro inválido.
-                        context.Response.Redirect(SessionHelper.AdminHomeUrl);
-                        return;
+                    switch (query["view"])
+                    {
+                        case ReportFilters.ViewOperators:
+                            Save(ExcelReports.Operators(service.ExportOperators(userId, ReportFilters.Operators(query))), file);
+                            name = "Operadores";
+                            break;
+                        case ReportFilters.ViewSteps:
+                            Save(ExcelReports.Steps(service.GetSteps(userId, ReportFilters.Steps(query))), file);
+                            name = "Pasos";
+                            break;
+                        case ReportFilters.ViewFollowUp:
+                            Save(ExcelReports.FollowUp(service.GetFollowUp(userId, ReportFilters.FollowUp(query))), file);
+                            name = "Seguimiento";
+                            break;
+                        case ReportFilters.ViewSessions:
+                            ExcelReports.Sessions(service.GetSessionExport(userId, ReportFilters.Summary(query)), file);
+                            name = "Sesiones";
+                            break;
+                        default:
+                            // Una vista que no existe: al Resumen, como un filtro inválido.
+                            context.Response.Redirect(SessionHelper.AdminHomeUrl);
+                            return;
+                    }
                 }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // La BLL negó el acceso: el rol cambió con el RoleCache vigente (B-3).
-                SessionHelper.RedirectHomeAfterRoleChange();
-                return;
-            }
+                catch (UnauthorizedAccessException)
+                {
+                    // La BLL negó el acceso: el rol cambió con el RoleCache vigente (B-3).
+                    SessionHelper.RedirectHomeAfterRoleChange();
+                    return;
+                }
 
-            using (workbook)
-            using (var stream = new MemoryStream())
-            {
-                // Se arma completo antes de mandar encabezados: un error a la mitad da una página
-                // de error, no un .xlsx roto.
-                workbook.SaveAs(stream);
                 var response = context.Response;
                 response.Clear();
+                response.BufferOutput = false;
                 response.ContentType = XlsxType;
                 response.Cache.SetCacheability(HttpCacheability.NoCache);
                 response.AddHeader("Content-Disposition", string.Format("attachment; filename=\"{0}_{1:yyyy-MM-dd}.xlsx\"",
                     name, SessionHelper.ToLocal(DateTime.UtcNow)));
-                stream.WriteTo(response.OutputStream);
+                response.AddHeader("Content-Length", file.Length.ToString());
+                file.Position = 0;
+                file.CopyTo(response.OutputStream);
             }
+        }
+
+        private static void Save(XLWorkbook workbook, Stream output)
+        {
+            using (workbook)
+                workbook.SaveAs(output);
         }
     }
 }

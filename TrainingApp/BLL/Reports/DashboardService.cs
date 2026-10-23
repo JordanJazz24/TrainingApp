@@ -545,18 +545,12 @@ namespace TrainingApp.BLL.Reports
             var from = ReportPeriods.FromUtc(period, DateTime.UtcNow);
             var guideIds = new HashSet<int>(guides.Select(g => g.Id));
 
-            // Los intentos de los tres modos (el SP es por modo).
-            var attempts = new List<DashboardAttempt>();
-            foreach (SessionMode mode in Enum.GetValues(typeof(SessionMode)))
-                attempts.AddRange(_dashboard.GetStepAttempts(mode, from, guideId).Attempts);
-            var bySession = attempts.ToLookup(a => a.SessionId);
-
-            // Las sesiones salen de GetSessions (con el puntaje y el cierre, y también las que no
-            // tienen intentos).
-            var all = _dashboard.GetSessions(null, false)
-                .Where(s => guideIds.Contains(s.TrainingGuideId)
-                            && (!guideId.HasValue || s.TrainingGuideId == guideId.Value)
-                            && (!from.HasValue || s.StartedAt >= from.Value))
+            // Una lectura de intentos (todos los modos) y una de sesiones, las dos con el período y
+            // la guía (E7). Las sesiones salen de GetSessions: traen el puntaje y el cierre, y
+            // también las que no tienen intentos.
+            var bySession = _dashboard.GetStepAttempts(null, from, guideId).Attempts.ToLookup(a => a.SessionId);
+            var all = _dashboard.GetSessions(null, false, from, guideId)
+                .Where(s => guideIds.Contains(s.TrainingGuideId))
                 .ToList();
 
             var operators = _dashboard.GetOperators(string.Empty).ToDictionary(o => o.UserId);

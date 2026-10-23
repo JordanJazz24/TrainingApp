@@ -47,7 +47,8 @@ namespace TrainingApp.DAL.Repositories
             return operators;
         }
 
-        public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts)
+        public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts,
+            DateTime? fromUtc = null, int? guideId = null)
         {
             var sessions = new List<DashboardSession>();
             using (var db = DatabaseFactory.Create())
@@ -55,6 +56,8 @@ namespace TrainingApp.DAL.Repositories
             {
                 cmd.Parameters.AddWithValue("@UserId",                (object)userId ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@IncludeFailedAttempts", includeFailedAttempts);
+                cmd.Parameters.AddWithValue("@From",                  (object)fromUtc ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuideId",               (object)guideId ?? DBNull.Value);
             }))
             {
                 while (reader.Read())
@@ -108,14 +111,14 @@ namespace TrainingApp.DAL.Repositories
             return attempts;
         }
 
-        public DashboardAttemptSet GetStepAttempts(SessionMode mode, DateTime? fromUtc, int? guideId)
+        public DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, int? guideId)
         {
             var sessions = new Dictionary<int, DashboardSession>();
             var attempts = new List<DashboardAttempt>();
             using (var db = DatabaseFactory.Create())
             using (var reader = db.ExecuteReader("spDashboardStepAttempts", cmd =>
             {
-                cmd.Parameters.AddWithValue("@Mode",    (byte)mode);
+                cmd.Parameters.AddWithValue("@Mode",    mode.HasValue ? (object)(byte)mode.Value : DBNull.Value);
                 cmd.Parameters.AddWithValue("@From",    (object)fromUtc ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@GuideId", (object)guideId ?? DBNull.Value);
             }))
