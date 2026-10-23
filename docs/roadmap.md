@@ -32,6 +32,7 @@
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
 | **10 · Dashboard e historial por operador (T8)** | ▶️ en curso (spec y plan aprobados el 2026-10-22) | | `018-dashboard-training.md`, `018-plan.md` |
+| 11 · UI/UX del dashboard | ⏳ al cerrar la 10 (pedido del usuario, 2026-10-23) | | necesita spec |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -409,6 +410,31 @@ que ya se guardan.
 - tablas nuevas.
 
 **Si falta tiempo,** se recortan primero la curva y la ficha.
+
+### Fase 11 — UI/UX del dashboard
+
+**Pedido del usuario (2026-10-23, al aprobar la E6 de la spec 018):** la funcionalidad del
+dashboard es correcta, pero los diseños "son muy básicos y feos". Hay que "actualizar los
+ui/ux de todo este dashboard y todos sus módulos, también incluido el diseño del excel".
+Empieza **al cerrar la Fase 10**.
+
+**Objetivo:** rediseñar la presentación del dashboard sin cambiar qué calcula.
+
+**Incluye:**
+- las vistas Resumen, Operadores, Operador, Pasos y Seguimiento, con sus filtros, tablas y
+  navegación;
+- las gráficas de Chart.js;
+- el diseño de los `.xlsx`: encabezados, formato, anchos y estilos.
+
+**No incluye:**
+- cambios en los cálculos, reglas o datos del dashboard (spec 018: `ReadinessPolicy`,
+  `StepRuns`, seguimiento, D-136 a D-148);
+- vistas o descargas nuevas;
+- rediseñar el POD, el login o la gestión de usuarios, salvo lo que comparta `Admin.Master`
+  con el dashboard.
+
+**Antes de empezar:** `/spec`, con preguntas que arranquen por la intención de UX: quién mira
+cada vista, qué tiene que ver primero, referencias visuales y si se mantiene Bootstrap.
 
 ### Después de la Fase 10
 

@@ -441,7 +441,16 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 - [ ] Correr el generador de la E1 en una BD descartable de LocalDB.
 - [ ] Medir cada vista y cada descarga.
-- [ ] Ajustar los índices o los SPs hasta que todas respondan en **menos de 3 s**.
+- [ ] Ajustar los índices o los SPs hasta que todas respondan en **menos de 3 s**, en este
+  orden: índices (el que cubre los intentos por sesión), después el plan B de la enmienda 3
+  (una fila por sesión y paso, sin reglas). **Ninguna regla pasa a SQL** (D-139): si no
+  alcanza, Desarrollo avisa y decide el usuario.
+- [ ] **Descarga de sesiones del Resumen con "Todo"** (spec → enmienda 2, D-148):
+  - escribirla en streaming con `OpenXmlWriter`, con las mismas hojas y columnas;
+  - reducir las lecturas: hoy son tres de `spDashboardStepAttempts` (una por modo) y todas las
+    sesiones en `GetSessionExport`;
+  - medir el tiempo **y la memoria** del proceso, antes y después. Si no llega a 3 s, se
+    mantiene la excepción y el aviso.
 - [ ] Anotar las mediciones en el plan.
 - [ ] Borrar la BD de prueba al terminar (`docs/process.md` §6).
 
