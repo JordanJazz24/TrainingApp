@@ -61,8 +61,17 @@
        `MES_PERF_ADMIN` y `MES_PERF_OPERATOR`).
 
     Se borró al cerrar la E7.
-- **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`**, después de la 10, con spec antes
-  (pedido del usuario al aprobar la E6; en el roadmap).
+- **Lo que sigue después de la Fase 10** (orden del usuario, 2026-10-23; `docs/roadmap.md` →
+  "Después de la Fase 10"):
+  1. **R1 y R2 de la revisión con Ernesto (2026-10-22):**
+     - R1: quitar Hora a Hora del Ingreso a MES;
+     - R2: quitar las "acciones disciplinarias" de los textos de la guía.
+
+     Empieza Arquitectura y Planeación, con la enmienda de la spec 016 (R1) y el plan directo
+     (R2), para que los apruebe el usuario. **Desarrollo espera esa aprobación.**
+  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`** (con spec; pedido del usuario al
+     aprobar la E6).
+  3. **R3 · Custom Resource Setup** (con spec).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**
