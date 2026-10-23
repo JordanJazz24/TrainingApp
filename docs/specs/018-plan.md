@@ -281,14 +281,18 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
     - la tasa de **aprobados al primer intento**;
     - el puntaje promedio;
     - las sesiones por semana (de lunes a domingo) y por modo;
-    - el top 5 de pasos por % de sesiones con fallo en Assessment, que reutiliza la E3.
+    - el top 5 de pasos por % de sesiones con fallo en Assessment, que reutiliza la E3. Con
+      "Todas", son los primeros 5 de la agrupación por tipo de paso de `GetSteps`
+      (`RankByName`), sin el nombre de la guía; con una guía elegida, los de esa guía
+      (spec → enmienda 1, D-147).
 - [ ] **Página `Summary.aspx`**, con gráficas de Chart.js (estados, actividad y top 5) y el
   período de cada bloque.
 - [ ] **`SessionHelper.AdminHomeUrl` → `Summary.aspx`** (AC-1).
 - [ ] **Tests:** la tasa al primer intento (AC-10), "—" sin denominador (AC-11) y las semanas
   desde el lunes.
 - [ ] **Checklist:** el login del admin cae en el Resumen; con la BD vacía, "Sin datos"; las
-  guías no publicadas no aparecen (AC-12).
+  guías no publicadas no aparecen (AC-12); el top 5 con "Todas" coincide con Pasos al seguir
+  el enlace (D-147).
 
 ## E5 · Seguimiento
 
@@ -312,7 +316,8 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
     nombre de archivo con la vista y la fecha.
 - [ ] **Descargas** (AC-21, AC-22):
   - Operadores;
-  - Pasos;
+  - Pasos, con la misma vista que la pantalla: con "Todas", la tabla agrupada por tipo de
+    paso (spec → enmienda 1, D-147);
   - Seguimiento;
   - desde el **Resumen**, las sesiones, con las hojas **Sesiones** e **Intentos por paso**.
 - [ ] Con 0 filas, solo los encabezados.
