@@ -7,9 +7,9 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-22 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
+**Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** Fase 9 E2 + spec 018 E1, probadas por el usuario (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** spec 018 E2, probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -49,15 +49,12 @@
     `10_spDashboard.sql`, el generador `Database/Ops/GenerateDashboardData.sql`, ClosedXML
     verificado (D-140) y Chart.js 4.5.1. Paginar Operadores en la BLL y no en el SP es un
     desvío aceptado (D-143).
-  - **E2 lista para probar** (2026-10-22): el detalle del Operador (`Operator.aspx?id=`:
-    estado por guía, sesiones con duración e intentos fallidos, pasos a reforzar) y B-3
-    (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al login). **El código
-    está sin commit, solo en el worktree `.claude/worktrees/fase-10`** (20 archivos; `git
-    status` ahí): no borrar el worktree. Falta el checklist del usuario (`docs/specs/018-plan.md`
-    → E2); con su "funciona", commit en `fase-10`, merge y volver a correr `10_spDashboard.sql`
-    en la BD local y en la de producción (trae `spDashboardGuideSteps` y
-    `spDashboardOperatorAttempts`). La E3 espera esa aprobación y el aviso de Arquitectura y
-    Planeación.
+  - **E2 ✅** (2026-10-23, probada por el usuario): el detalle del Operador
+    (`Operator.aspx?id=`: estado por guía, sesiones con duración e intentos fallidos, pasos a
+    reforzar) y B-3 (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al
+    login). **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y
+    en la de producción (trae `spDashboardGuideSteps` y `spDashboardOperatorAttempts`;
+    `TrainingApp_Fase10` ya lo tiene). La E3 espera el aviso de Arquitectura y Planeación.
   - **Para probar el dashboard con volumen:** BD `TrainingApp_DashboardTest` en LocalDB, con
     el generador (1600 operadores; admin = Code1 del usuario).
   - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).

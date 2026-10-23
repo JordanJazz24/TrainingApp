@@ -68,6 +68,24 @@ namespace TrainingApp.Pages
         }
 
         /// <summary>
+        /// La BLL negó el acceso (UnauthorizedAccessException): el rol cambió y RoleCache seguía
+        /// con el viejo. Se descarta la caché, se vuelve a leer el rol y se va al inicio del rol
+        /// nuevo, nunca al login (B-3, AC-2 de la spec 018). El principal de este request todavía
+        /// tiene el rol viejo, así que RedirectHome mandaría al inicio equivocado. Sin cuenta,
+        /// cierra la sesión.
+        /// </summary>
+        public static void RedirectHomeAfterRoleChange()
+        {
+            string code1 = HttpContext.Current.User.Identity.Name;
+            RoleCache.Invalidate(code1);
+            var account = RoleCache.GetAccount(code1);
+            if (account == null)
+                Logout();
+            else
+                HttpContext.Current.Response.Redirect(HomeUrl(account.Role));
+        }
+
+        /// <summary>
         /// Asegura que sesión esté poblada con los datos del operador.
         /// Si sesión está vacía pero usuario está autenticado, re-hidrata desde BD.
         /// </summary>

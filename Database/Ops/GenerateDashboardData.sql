@@ -88,7 +88,7 @@ INSERT INTO dbo.Users (Code1, Name, PasswordHash, IsFirstLogin, CreatedAt, Role,
 SELECT N'GEN' + RIGHT(N'00000' + CAST(n.N AS NVARCHAR(10)), 5),
        N'Operador Generado ' + CAST(n.N AS NVARCHAR(10)),
        N'generado-sin-contrasena', 0,
-       DATEADD(DAY, -(ABS(CAST(CHECKSUM(NEWID()) AS BIGINT)) % (@Months * 30 + 30)), @Now),
+       DATEADD(DAY, -(1 + ABS(CAST(CHECKSUM(NEWID()) AS BIGINT)) % (@Months * 30 + 30)), @Now),  -- alta de al menos ayer
        1, NULL
 FROM #Numbers n
 WHERE n.N <= @Operators;
@@ -125,7 +125,10 @@ SELECT r.RowId, r.UserId, r.Skill,
        CAST(CASE WHEN r.StatusRoll < @InProgressPct THEN 0
                  WHEN r.StatusRoll < @InProgressPct + @AbandonedPct THEN 2
                  ELSE 1 END AS TINYINT) AS Status,
-       DATEADD(MINUTE, CAST(r.DateRoll % (DATEDIFF(MINUTE, r.EarliestStart, @Now) + 1) AS INT), r.EarliestStart) AS StartedAt
+       -- Hasta una hora antes de ahora: una sesión dura menos que eso y su cierre no queda en el futuro.
+       DATEADD(MINUTE, CAST(r.DateRoll % (CASE WHEN DATEDIFF(MINUTE, r.EarliestStart, @Now) > 60
+                                               THEN DATEDIFF(MINUTE, r.EarliestStart, @Now) - 60 ELSE 1 END) AS INT),
+               r.EarliestStart) AS StartedAt
 INTO #Sess
 FROM #SessRaw r
 JOIN #Guides g ON g.GuideIndex = CASE WHEN r.GuideRoll < 70 THEN r.MainGuide ELSE r.OtherGuide END;
@@ -159,7 +162,8 @@ FROM #Sess s
 JOIN dbo.TrainingSteps ts ON ts.TrainingGuideId = s.GuideId AND ts.[Order] <= s.ReachedOrder
 JOIN #StepDifficulty d ON d.StepType = ts.StepType;
 
--- Cómo termina el paso: 0 = con acierto; 1 = avance forzado (Assessment, 3 fallos, 40 %);
+-- Cómo termina el paso: 0 = con acierto; 1 = avance forzado (Assessment: a los 3 fallos se
+-- suma un 4.º, que fuerza el avance como ModePolicy.ForcesAdvanceAt; 40 %);
 -- 2 = saltado (Práctica libre, 6 % de los pasos); 3 = sin terminar (el paso en curso de una
 -- sesión no completada).
 ALTER TABLE #StepRuns ADD EndKind TINYINT NULL;
@@ -172,6 +176,16 @@ UPDATE r SET EndKind =
     END
 FROM #StepRuns r JOIN #Sess s ON s.RowId = r.RowId;
 CREATE CLUSTERED INDEX IX_StepRuns ON #StepRuns (RowId, [Order]);
+
+-- Tiempo de cada paso: de 60 a 180 s, más 40 s por fallo; los pasos van seguidos, así que
+-- cada uno empieza donde terminó el anterior (la duración por paso de DA-2 varía).
+ALTER TABLE #StepRuns ADD StepSeconds INT NULL, StepStart INT NULL;
+UPDATE #StepRuns SET StepSeconds = 60 + CAST(ABS(CAST(CHECKSUM(NEWID()) AS BIGINT)) % 121 AS INT) + Failures * 40;
+UPDATE r SET StepStart = x.StepStart
+FROM #StepRuns r
+JOIN (SELECT RowId, [Order],
+             SUM(StepSeconds) OVER (PARTITION BY RowId ORDER BY [Order] ROWS UNBOUNDED PRECEDING) - StepSeconds AS StepStart
+      FROM #StepRuns) x ON x.RowId = r.RowId AND x.[Order] = r.[Order];
 
 -- Puntaje: Assessment según la habilidad (con ruido) y los pasos sin acierto; Guided y
 -- Práctica libre altos. Solo las completadas tienen puntaje.
@@ -199,11 +213,11 @@ OUTPUT src.RowId, inserted.Id INTO #SessionMap (RowId, SessionId);
 
 -- ---------- Insertar intentos ----------
 -- Fallos: uno por número 1..Failures (motivo al azar 1-5); el paso termina con un acierto
--- (EndKind 0), un salto (2) o nada (1: avance forzado; 3: sin terminar). Cada paso empieza
--- unos 2 minutos después del anterior; cada intento, 25 segundos después del anterior.
+-- (EndKind 0), un salto (2), el 4.º fallo que fuerza el avance (1) o nada (3: sin terminar). Los intentos de un
+-- paso se reparten en su tiempo (StepSeconds): el último cae al final del paso.
 INSERT INTO dbo.TrainingSessionStepAttempts (SessionId, StepId, AttemptNumber, IsCorrect, [Timestamp], Reason, [Action])
 SELECT m.SessionId, r.StepId, a.AttemptNumber, a.IsCorrect,
-       DATEADD(SECOND, (r.[Order] - 1) * 120 + a.AttemptNumber * 25, s.StartedAt),
+       DATEADD(SECOND, r.StepStart + a.AttemptNumber * r.StepSeconds / (r.Failures + 1), s.StartedAt),
        a.Reason, r.ActionCode
 FROM #StepRuns r
 JOIN #Sess s        ON s.RowId = r.RowId
@@ -216,8 +230,9 @@ CROSS APPLY (
     UNION ALL
     SELECT r.Failures + 1,
            CAST(CASE WHEN r.EndKind = 0 THEN 1 ELSE 0 END AS BIT),
-           CAST(CASE WHEN r.EndKind = 0 THEN 0 ELSE 6 END AS TINYINT)
-    WHERE r.EndKind IN (0, 2)
+           CAST(CASE r.EndKind WHEN 0 THEN 0 WHEN 2 THEN 6
+                ELSE 1 + ABS(CAST(CHECKSUM(NEWID()) AS BIGINT)) % 5 END AS TINYINT)
+    WHERE r.EndKind IN (0, 1, 2)
 ) a;
 
 -- Fecha de cierre de las completadas y las abandonadas (como spTrainingSessionAbandon): su

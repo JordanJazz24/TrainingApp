@@ -40,8 +40,7 @@ namespace TrainingApp.Pages.Admin
             if (Server.GetLastError()?.GetBaseException() is UnauthorizedAccessException)
             {
                 Server.ClearError();
-                RoleCache.Invalidate(User.Identity.Name);
-                SessionHelper.RedirectHome();
+                SessionHelper.RedirectHomeAfterRoleChange();
                 return;
             }
             base.OnError(e);
@@ -70,7 +69,13 @@ namespace TrainingApp.Pages.Admin
             }
 
             if (!IsPostBack)
+            {
                 Bind(ReadFilter());
+                // Vuelta desde un detalle con un id que no existe o no es de un operador.
+                if (Request.QueryString["missing"] == "1")
+                    ((UI.Master.AdminMaster)Master).ShowMessage("warning", "Operador no encontrado",
+                        "El operador no existe o no se puede ver.");
+            }
         }
 
         // Filtrar vuelve a la página 1 con los filtros en la URL.

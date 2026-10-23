@@ -157,8 +157,8 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E2 · Detalle del Operador
 
-> **E2 de Desarrollo lista para probar** (2026-10-22, rama `fase-10`, sin commit hasta la
-> aprobación del usuario). Detalle que no cambia el plan:
+> **E2 de Desarrollo ✅** (2026-10-22; probada por el usuario el 2026-10-23: "funciona").
+> Detalle que no cambia el plan:
 > - `StepRuns` (BLL) arma cada paso de una sesión desde sus intentos: duración (DA-2),
 >   intentos fallidos (sin contar el salto), y si terminó sin acierto. Lo van a usar también
 >   Pasos y las descargas. "Sin acierto" = el paso quedó atrás sin un intento correcto: en
@@ -198,7 +198,7 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
   manipulado → aviso y vuelta a Operadores, sin datos de otro usuario.
 - [x] **B-3** (enmienda 2): en `Users.aspx.cs`, cuando la BLL niega el acceso,
   `RedirectHome` en vez del login.
-- [ ] **Checklist:**
+- [x] **Checklist:**
   - el detalle de un operador con sesiones de los tres modos, con horas de la planta y
     duraciones;
   - B-3: un admin al que le quitan el rol a mitad de sesión vuelve a su inicio, no al login.

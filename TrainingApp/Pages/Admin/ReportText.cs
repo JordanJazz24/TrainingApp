@@ -1,5 +1,6 @@
 using System;
 using TrainingApp.BLL.Reports;
+using TrainingApp.Domain;
 
 namespace TrainingApp.Pages.Admin
 {
@@ -39,5 +40,51 @@ namespace TrainingApp.Pages.Admin
         // Fecha UTC de la BD en la hora de la planta (DA-8).
         public static string Date(DateTime? utc)
             => utc.HasValue ? SessionHelper.ToLocal(utc.Value).ToString("dd/MM/yyyy HH:mm") : None;
+
+        // Los nombres de modo de la pantalla de inicio del operador.
+        public static string Mode(SessionMode mode)
+        {
+            switch (mode)
+            {
+                case SessionMode.Assessment:   return "Assessment";
+                case SessionMode.FreePractice: return "Práctica libre";
+                default:                       return "Guided";
+            }
+        }
+
+        public static string Status(SessionStatus status)
+        {
+            switch (status)
+            {
+                case SessionStatus.Completed: return "Completada";
+                case SessionStatus.Abandoned: return "Abandonada";
+                default:                      return "En curso";
+            }
+        }
+
+        // Motivo de un intento fallido (AttemptReason, spec 013).
+        public static string Reason(AttemptReason? reason)
+        {
+            switch (reason)
+            {
+                case AttemptReason.OutOfSequence:      return "Fuera de secuencia";
+                case AttemptReason.WrongDecision:      return "Decisión incorrecta";
+                case AttemptReason.InvalidAction:      return "Acción inválida";
+                case AttemptReason.MissingSelection:   return "Falta selección";
+                case AttemptReason.EmptyRequiredField: return "Campo vacío";
+                case AttemptReason.Skipped:            return "Saltado";
+                default:                               return None;
+            }
+        }
+
+        // "45 s", "25 min 13 s", "1 h 05 min"; "—" sin duración (sesión en curso).
+        public static string Duration(TimeSpan? duration)
+        {
+            if (!duration.HasValue) return None;
+            var d = duration.Value;
+            if (d.TotalHours >= 1) return string.Format("{0} h {1:00} min", (int)d.TotalHours, d.Minutes);
+            if (d.TotalMinutes >= 1) return string.Format("{0} min {1:00} s", d.Minutes, d.Seconds);
+            return d.Seconds + " s";
+        }
     }
 }

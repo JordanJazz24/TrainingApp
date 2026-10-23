@@ -35,14 +35,15 @@ namespace TrainingApp.Pages.Admin
         private int AdminUserId => (int)Session[Constants.SessionKeys.UserId];
 
         // Un admin al que otro le quitó el rol (en otro proceso, con RoleCache vigente) llega a
-        // la BLL, que lanza UnauthorizedAccessException: vuelve a su inicio en vez de un error.
+        // la BLL, que lanza UnauthorizedAccessException: vuelve a su inicio en vez de un error,
+        // nunca al login (B-3, AC-2 de la spec 018). Con la caché invalidada, el request
+        // siguiente ya lleva su rol nuevo.
         protected override void OnError(EventArgs e)
         {
             if (Server.GetLastError()?.GetBaseException() is UnauthorizedAccessException)
             {
                 Server.ClearError();
-                RoleCache.Invalidate(User.Identity.Name);
-                Response.Redirect(SessionHelper.LoginUrl);
+                SessionHelper.RedirectHomeAfterRoleChange();
                 return;
             }
             base.OnError(e);

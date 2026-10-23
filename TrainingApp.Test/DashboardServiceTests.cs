@@ -191,12 +191,104 @@ namespace TrainingApp.Test
             Assert.That(page.PageCount, Is.EqualTo(1));
         }
 
+        // ── Detalle del Operador (AC-14) ──────────────────────────────
+
+        // Un id inexistente o de un administrador no tiene detalle (DA-9).
+        [Test]
+        public void GetOperator_UnknownOrAdmin_IsNull()
+        {
+            Assert.That(_service.GetOperator(AdminId, 999), Is.Null);
+            Assert.That(_service.GetOperator(AdminId, AdminId), Is.Null);
+            Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetOperator(OperatorId, OperatorId)));
+        }
+
+        // Estado por guía, sesiones de la más reciente a la más vieja, duración ("—" en curso) e
+        // intentos fallidos de cada una, sin contar los saltos.
+        [Test]
+        public void GetOperator_SessionsAndReadiness()
+        {
+            var start = new DateTime(2026, 10, 1, 14, 0, 0);
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 1, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.Assessment,
+                Status = SessionStatus.Completed, FinalScore = 0.80m, StartedAt = start, CompletedAt = start.AddMinutes(20)
+            });
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 2, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.FreePractice,
+                Status = SessionStatus.InProgress, StartedAt = start.AddDays(1)
+            });
+            _dashboard.Attempts.Add(Attempt(1, 1, false, AttemptReason.WrongDecision, start.AddMinutes(1)));
+            _dashboard.Attempts.Add(Attempt(1, 1, true, AttemptReason.None, start.AddMinutes(2)));
+            _dashboard.Attempts.Add(Attempt(2, 1, false, AttemptReason.Skipped, start.AddDays(1).AddMinutes(1)));
+
+            var detail = _service.GetOperator(AdminId, OperatorId);
+
+            Assert.That(detail.Readiness.Select(r => r.State), Is.EqualTo(new[] { ReadinessState.Passed, ReadinessState.NotStarted }));
+            Assert.That(detail.Sessions.Select(s => s.Session.SessionId), Is.EqualTo(new[] { 2, 1 }));
+            Assert.That(detail.Sessions[0].Duration, Is.Null);
+            Assert.That(detail.Sessions[0].FailedAttempts, Is.EqualTo(0));
+            Assert.That(detail.Sessions[1].Duration, Is.EqualTo(TimeSpan.FromMinutes(20)));
+            Assert.That(detail.Sessions[1].FailedAttempts, Is.EqualTo(1));
+        }
+
+        // Pasos a reforzar solo de los Assessment, con el nombre del paso.
+        [Test]
+        public void GetOperator_ReinforcementOnlyFromAssessment()
+        {
+            var start = new DateTime(2026, 10, 1, 14, 0, 0);
+            _dashboard.Steps.Add(new TrainingStep { Id = 501, TrainingGuideId = LoFlo, StepType = StepType.ResourceSetup, Order = 1 });
+            _dashboard.Steps.Add(new TrainingStep { Id = 502, TrainingGuideId = LoFlo, StepType = StepType.DataCollection, Order = 2 });
+            foreach (var mode in new[] { SessionMode.Assessment, SessionMode.FreePractice })
+            {
+                int id = mode == SessionMode.Assessment ? 1 : 2;
+                _dashboard.Sessions.Add(new DashboardSession
+                {
+                    SessionId = id, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = mode,
+                    Status = SessionStatus.Completed, StartedAt = start, CompletedAt = start.AddMinutes(10)
+                });
+                int stepId = mode == SessionMode.Assessment ? 502 : 501;
+                int order  = mode == SessionMode.Assessment ? 2 : 1;
+                for (int i = 0; i < 3; i++)
+                    _dashboard.Attempts.Add(new DashboardAttempt
+                    {
+                        SessionId = id, StepId = stepId, StepOrder = order, IsCorrect = false,
+                        Reason = AttemptReason.EmptyRequiredField, Timestamp = start.AddMinutes(1 + i)
+                    });
+            }
+
+            var detail = _service.GetOperator(AdminId, OperatorId);
+
+            var step = detail.Reinforcement.Single().Steps.Single();
+            Assert.That(step.StepName, Is.EqualTo("Data Collection"));
+            Assert.That(step.TimesWithoutSuccess, Is.EqualTo(1));
+            Assert.That(step.FailedAttempts, Is.EqualTo(3));
+            Assert.That(step.MainReason, Is.EqualTo(AttemptReason.EmptyRequiredField));
+        }
+
+        private static DashboardAttempt Attempt(int sessionId, int order, bool correct, AttemptReason reason, DateTime at)
+            => new DashboardAttempt
+            {
+                SessionId = sessionId, StepId = 500 + order, StepOrder = order, IsCorrect = correct,
+                Reason = reason, Timestamp = at
+            };
+
         private sealed class FakeDashboardRepository : IDashboardRepository
         {
             public List<DashboardGuide> Guides { get; } = new List<DashboardGuide>();
             public List<DashboardOperator> Operators { get; } = new List<DashboardOperator>();
             public List<DashboardSession> Sessions { get; } = new List<DashboardSession>();
+            public List<TrainingStep> Steps { get; } = new List<TrainingStep>();
+            public List<DashboardAttempt> Attempts { get; } = new List<DashboardAttempt>();
             public string LastText { get; private set; }
+
+            public IList<TrainingStep> GetGuideSteps() => Steps.ToList();
+
+            public IList<DashboardAttempt> GetOperatorAttempts(int userId)
+            {
+                var mine = new HashSet<int>(Sessions.Where(s => s.UserId == userId).Select(s => s.SessionId));
+                return Attempts.Where(a => mine.Contains(a.SessionId)).ToList();
+            }
 
             public IList<DashboardGuide> GetGuides() => Guides.ToList();
 

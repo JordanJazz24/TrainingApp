@@ -178,6 +178,7 @@
     <Content Include="UI\master\Site.Master" />
     <Content Include="UI\master\Admin.Master" />
     <Content Include="UI\master\admin.css" />
+    <Content Include="Pages\Admin\Operator.aspx" />
     <Content Include="Pages\Admin\Operators.aspx" />
     <Content Include="Pages\Admin\Users.aspx" />
     <Content Include="UI\master\imgs\login.jpg" />
@@ -254,6 +255,7 @@
     <Compile Include="Domain\User.cs" />
     <Compile Include="Domain\Product.cs" />
     <Compile Include="Domain\Area.cs" />
+    <Compile Include="Domain\DashboardAttempt.cs" />
     <Compile Include="Domain\DashboardGuide.cs" />
     <Compile Include="Domain\DashboardOperator.cs" />
     <Compile Include="Domain\DashboardSession.cs" />
@@ -370,6 +372,14 @@
     <Compile Include="Pages\Admin\Operators.aspx.designer.cs">
       <DependentUpon>Operators.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Admin\Operator.aspx.cs">
+      <DependentUpon>Operator.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Admin\Operator.aspx.designer.cs">
+      <DependentUpon>Operator.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Admin\OperatorDetailRows.cs" />
     <Compile Include="Pages\Admin\OperatorListRow.cs" />
     <Compile Include="Pages\Admin\ReportText.cs" />
     <Compile Include="BLL\Auth\AccessPolicy.cs" />
@@ -378,6 +388,8 @@
     <Compile Include="BLL\Admin\UserAdminService.cs" />
     <Compile Include="BLL\Reports\DashboardService.cs" />
     <Compile Include="BLL\Reports\ReadinessPolicy.cs" />
+    <Compile Include="BLL\Reports\ReinforcementRule.cs" />
+    <Compile Include="BLL\Reports\StepRuns.cs" />
     <Compile Include="DAL\Repositories\IUserRepository.cs" />
     <Compile Include="Domain\UserSummary.cs" />
     <Compile Include="Pages\Admin\UserListRow.cs" />

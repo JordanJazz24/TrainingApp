@@ -71,3 +71,37 @@ BEGIN
     OPTION (RECOMPILE);
 END;
 GO
+
+-- spDashboardGuideSteps — los pasos de las guías publicadas, en orden
+-- (los nombres salen de StepNames en la BLL).
+CREATE OR ALTER PROCEDURE dbo.spDashboardGuideSteps
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT s.Id, s.TrainingGuideId, s.StepType, s.[Order], s.Weight
+    FROM dbo.TrainingSteps s
+    JOIN dbo.TrainingGuides g ON g.Id = s.TrainingGuideId AND g.IsPublished = 1
+    ORDER BY s.TrainingGuideId, s.[Order];
+END;
+GO
+
+-- spDashboardOperatorAttempts — los intentos de las sesiones de un
+-- operador en las guías publicadas, en orden, con el paso, el
+-- resultado, el motivo, la acción y la hora (duración por paso y
+-- pasos a reforzar, en la BLL).
+CREATE OR ALTER PROCEDURE dbo.spDashboardOperatorAttempts
+    @UserId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT a.SessionId, a.StepId, st.[Order] AS StepOrder, a.AttemptNumber, a.IsCorrect,
+           a.[Timestamp], a.Reason, a.[Action]
+    FROM dbo.TrainingSessions s
+    JOIN dbo.TrainingGuides g ON g.Id = s.TrainingGuideId AND g.IsPublished = 1
+    JOIN dbo.Users u          ON u.Id = s.UserId AND u.Role = 1
+    JOIN dbo.TrainingSessionStepAttempts a ON a.SessionId = s.Id
+    JOIN dbo.TrainingSteps st ON st.Id = a.StepId
+    WHERE s.UserId = @UserId
+    ORDER BY a.SessionId, a.[Timestamp], a.Id;
+END;
+GO

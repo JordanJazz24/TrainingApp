@@ -164,6 +164,7 @@
     <Compile Include="ClosedXmlSmokeTests.cs" />
     <Compile Include="ReadinessPolicyTests.cs" />
     <Compile Include="DashboardServiceTests.cs" />
+    <Compile Include="StepRunsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -17,5 +17,11 @@ namespace TrainingApp.DAL.Repositories
         // Las sesiones de las guías publicadas de los operadores (de uno solo con userId). Con
         // includeFailedAttempts, cada una con su conteo de intentos fallidos; si no, null.
         IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts);
+
+        // Los pasos de las guías publicadas, en orden.
+        IList<TrainingStep> GetGuideSteps();
+
+        // Los intentos de las sesiones de un operador en las guías publicadas, en orden.
+        IList<DashboardAttempt> GetOperatorAttempts(int userId);
     }
 }

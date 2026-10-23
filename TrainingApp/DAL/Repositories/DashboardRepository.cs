@@ -73,5 +73,48 @@ namespace TrainingApp.DAL.Repositories
             }
             return sessions;
         }
+
+        public IList<TrainingStep> GetGuideSteps()
+        {
+            var steps = new List<TrainingStep>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spDashboardGuideSteps"))
+            {
+                while (reader.Read())
+                    steps.Add(new TrainingStep
+                    {
+                        Id              = Convert.ToInt32(reader["Id"]),
+                        TrainingGuideId = Convert.ToInt32(reader["TrainingGuideId"]),
+                        StepType        = (StepType)Convert.ToByte(reader["StepType"]),
+                        Order           = Convert.ToInt32(reader["Order"]),
+                        Weight          = Convert.ToDecimal(reader["Weight"])
+                    });
+            }
+            return steps;
+        }
+
+        public IList<DashboardAttempt> GetOperatorAttempts(int userId)
+        {
+            var attempts = new List<DashboardAttempt>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spDashboardOperatorAttempts",
+                cmd => cmd.Parameters.AddWithValue("@UserId", userId)))
+            {
+                while (reader.Read())
+                    attempts.Add(new DashboardAttempt
+                    {
+                        SessionId     = Convert.ToInt32(reader["SessionId"]),
+                        StepId        = Convert.ToInt32(reader["StepId"]),
+                        StepOrder     = Convert.ToInt32(reader["StepOrder"]),
+                        AttemptNumber = Convert.ToInt32(reader["AttemptNumber"]),
+                        IsCorrect     = Convert.ToBoolean(reader["IsCorrect"]),
+                        Timestamp     = Convert.ToDateTime(reader["Timestamp"]),
+                        Reason        = reader["Reason"] == DBNull.Value
+                            ? (AttemptReason?)null : (AttemptReason)Convert.ToByte(reader["Reason"]),
+                        Action        = reader["Action"] == DBNull.Value ? null : reader["Action"].ToString()
+                    });
+            }
+            return attempts;
+        }
     }
 }
