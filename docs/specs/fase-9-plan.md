@@ -24,6 +24,22 @@ están ✅.
 | D-133 | **TI** administra el servidor: da la cadena de conexión, crea la BD, corre los scripts con las instrucciones de `docs/deploy.md` y configura el App Pool (idleTimeout, AlwaysRunning, preload). El usuario publica en una carpeta y se la pasa. |
 | D-134 | La retroalimentación se junta **fuera de la app** (Teams, un formulario o reuniones) y la registra la sesión de Reuniones y Dudas. |
 
+> **Enmienda 3 · 2026-10-22 (usuario; D-145 reemplaza a D-133):** cambia quién hace qué en
+> el servidor (detalle en `docs/deploy.md` → "Quién hace qué" y sección 0).
+> - **El usuario** prepara la BD de producción (scripts `00`–`10` y primer administrador),
+>   publica con el perfil `MVP`, copia su `connectionStrings.config` a `publish\MVP` en cada
+>   publicación y entrega la carpeta por un canal seguro (lleva la contraseña en texto plano).
+> - **TI** solo instala el sitio, configura IIS y el App Pool, da el permiso de escritura en
+>   `App_Data\Logs` y, al republicar, conserva `App_Data\Logs`.
+> - Queda sin efecto lo de la E1 que dice que TI crea la BD, corre los scripts, crea
+>   `connectionStrings.config` y da la cadena de conexión; la carpeta publicada sí lo trae.
+>   A TI se le entregan la carpeta y `docs/deploy.md`, ya no `Database/`.
+> - En "Docs al cerrar", D-8 sigue sin aplicar en el servidor, pero porque la app usa el login
+>   de producción que configura el usuario, no uno que dé TI.
+> - **Pendiente del usuario:** la app en producción entra con `developer3`, que tiene
+>   `CONTROL` sobre la BD. `docs/deploy.md` → 2.3 recomienda un login que solo tenga
+>   `GRANT EXECUTE`. No bloquea el MVP, porque sus datos se descartan (D-130).
+
 ## E1 · MVP (hoy)
 
 **Desarrollo:**
