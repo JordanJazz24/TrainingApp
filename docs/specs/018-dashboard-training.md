@@ -20,6 +20,20 @@ pendientes"
 > - El usuario eligió agrupar por tipo de paso entre tres opciones: una tabla mezclada con
 >   columna Guía, agrupar por tipo de paso o un top mezclado.
 
+> **Enmienda 2 (2026-10-23, usuario, con la medición de Desarrollo en la E6; D-148):** AC-24
+> tiene **una excepción**: la descarga de sesiones del Resumen (hojas Sesiones e Intentos por
+> paso) con el período **"Todo"**.
+> - **Medido:** con un año de datos de prueba (~22 000 sesiones, ~264 000 filas de Intentos por
+>   paso, 10 MB), ClosedXML tarda ~16 s en total. Con 30 días tarda ~1 s y cumple.
+> - **Ahora:** se acepta que tarde más. La página avisa, junto al botón, que con "Todo" la
+>   descarga puede tardar.
+> - **En la E7:** se prueba escribir esa descarga en streaming (`OpenXmlWriter`, de
+>   `DocumentFormat.OpenXml`, que ya está instalado), con las mismas hojas y columnas. Sobre
+>   todo para no cargar el archivo entero en la memoria del servidor: un reciclado del App Pool
+>   por memoria cerraría las sesiones de entrenamiento en curso (Session InProc). Si con
+>   streaming tampoco llega a 3 s, queda la excepción.
+> - Descartado: con "Todo", descargar solo la hoja Sesiones (cambiaba lo que se entrega).
+
 ## Problem
 
 Training, gerencia y el desarrollador no ven cómo les va a los operadores en el simulador:
@@ -345,7 +359,8 @@ No hay API pública: son páginas Web Forms en `Pages/Admin`, siguiendo las capa
 
 **Rendimiento**
 - **AC-24:** Given la BD de prueba con unos 1600 operadores y un año de datos generados, Then
-  cada vista y cada descarga responden en menos de 3 s.
+  cada vista y cada descarga responden en menos de 3 s. *(Excepción: la descarga de sesiones
+  del Resumen con "Todo", enmienda 2, D-148.)*
 
 ## Decisiones que propuso Arquitectura y Planeación (confirmadas por el usuario, 2026-10-22)
 
