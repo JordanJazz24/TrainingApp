@@ -105,3 +105,31 @@ BEGIN
     ORDER BY a.SessionId, a.[Timestamp], a.Id;
 END;
 GO
+
+-- spDashboardStepAttempts — los intentos de las sesiones de un modo
+-- que empezaron desde @From (NULL = todo) en las guías publicadas (o
+-- en una con @GuideId), con su sesión (guía, estado e inicio). Pasos
+-- los agrega en la BLL (StepRuns, D-146): fallos, sin acierto, saltos,
+-- motivos y la mediana de duración.
+CREATE OR ALTER PROCEDURE dbo.spDashboardStepAttempts
+    @Mode    TINYINT,
+    @From    DATETIME2 = NULL,
+    @GuideId INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT a.SessionId, s.TrainingGuideId, s.Mode, s.Status, s.StartedAt,
+           a.StepId, st.[Order] AS StepOrder, a.AttemptNumber, a.IsCorrect,
+           a.[Timestamp], a.Reason, a.[Action]
+    FROM dbo.TrainingSessions s
+    JOIN dbo.TrainingGuides g ON g.Id = s.TrainingGuideId AND g.IsPublished = 1
+    JOIN dbo.Users u          ON u.Id = s.UserId AND u.Role = 1
+    JOIN dbo.TrainingSessionStepAttempts a ON a.SessionId = s.Id
+    JOIN dbo.TrainingSteps st ON st.Id = a.StepId
+    WHERE s.Mode = @Mode
+      AND (@From IS NULL OR s.StartedAt >= @From)
+      AND (@GuideId IS NULL OR s.TrainingGuideId = @GuideId)
+    -- Sin ORDER BY: la BLL agrupa por sesión y paso (ordenar ~100 000 filas no sirve de nada).
+    OPTION (RECOMPILE);
+END;
+GO

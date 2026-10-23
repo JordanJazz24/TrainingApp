@@ -225,7 +225,36 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 > **Enmienda 3:** el SP devuelve los intentos y los conteos de abajo los calcula
 > `DashboardService.GetSteps` con `StepRuns` (D-146).
 
-- [ ] SP: por paso, guía y modo, en el período, devuelve:
+> **E3 de Desarrollo ✅** (2026-10-23; probada por el usuario: "funciona"). Detalle:
+> - `spDashboardStepAttempts` (modo, desde, guía) devuelve los intentos con su sesión, sin
+>   `ORDER BY`: la BLL agrupa. `StepStatistics.Rank` agrega los `StepRun` por paso.
+> - **"Sesiones que llegaron al paso"** = las que tienen algún intento en él, el salto
+>   incluido. Por eso un salto sin fallos suma al denominador del %, pero no al numerador.
+> - **Mediana:** solo de los pasos resueltos sin salto. Un salto de 3 s o el paso a medias de
+>   una sesión en curso o abandonada la bajarían. Si no hay ninguno, "—".
+> - **Cambio pedido por el usuario al probar (2026-10-23; lo registra Arquitectura y
+>   Planeación):** con la guía en "Todas", Pasos muestra **una sola tabla resumen**. Junta el
+>   mismo paso de cada guía en un renglón, agrupado por el nombre de `StepNames`, así que
+>   "Line Clearance (apertura)" y "(cierre)" y los tres Log NC siguen separados. El %, los
+>   conteos y la mediana salen de todas sus sesiones juntas, no de promediar guías. Con una
+>   guía elegida, su ranking como antes (`StepStatistics.RankByName`).
+> - La columna de saltos y su nota salen con `ModePolicy.AllowsSkip`, no con el nombre del modo.
+> - **Motivos y acciones:** "Motivo · acción (veces)", con el código de la acción tal como se
+>   registra (`AttemptActions`, p. ej. `LC.Save`).
+> - El período (`ReportPeriod`: últimos 30 días o todo) vive en su propio archivo. Lo van a
+>   usar el Resumen, el Seguimiento y las descargas.
+> - Medido con `sqlcmd` en `TrainingApp_DashboardTest`, con "Todo": ~1,5 s y ~100 000 intentos
+>   por modo.
+> - Del `/code-review medium` (8 hallazgos) se aplicaron 5:
+>   - la mediana sin saltos ni pasos a medias;
+>   - el SP sin `ORDER BY`;
+>   - `FailureReasons` se calcula a partir de `Failures`;
+>   - la validación de la guía en un solo método;
+>   - `ReportPeriod` en su propio archivo.
+> - Quedan para la E7: el índice que cubre los intentos por sesión y leer las columnas por
+>   ordinal. Se descartó el filtro repetido de `StepRuns.ForSession`: es defensivo y barato.
+
+- [x] SP: por paso, guía y modo, en el período, devuelve:
   - las sesiones que llegaron al paso;
   - las sesiones con algún fallo;
   - los intentos fallidos sin saltos;
@@ -234,14 +263,14 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
   - el conteo por motivo y acción.
 
   Las duraciones se calculan en la BLL, como en la E2.
-- [ ] **`DashboardService.GetSteps`:**
+- [x] **`DashboardService.GetSteps`:**
   - el **% de sesiones con fallo** y el orden;
   - la **mediana** de duración;
   - los saltos solo en Práctica libre (AC-17, AC-18).
-- [ ] **Página `Steps.aspx`:** filtros de período, guía y modo (Assessment o Práctica
+- [x] **Página `Steps.aspx`:** filtros de período, guía y modo (Assessment o Práctica
   libre).
-- [ ] **Tests:** el % con y sin saltos, la mediana con un valor atípico y el orden.
-- [ ] **Checklist** con los datos generados.
+- [x] **Tests:** el % con y sin saltos, la mediana con un valor atípico y el orden.
+- [x] **Checklist** con los datos generados.
 
 ## E4 · Resumen e inicio del administrador
 

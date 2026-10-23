@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TrainingApp.BLL.Auth;
+using TrainingApp.BLL.Scoring;
 using TrainingApp.BLL.Training;
 using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
@@ -88,6 +89,42 @@ namespace TrainingApp.BLL.Reports
         public IList<GuideReinforcement> Reinforcement { get; set; }
     }
 
+    // Filtros de Pasos (spec 018 → Filtros). Los valida el servicio, como OperatorFilter.
+    public class StepFilter
+    {
+        public ReportPeriod Period { get; set; } = ReportPeriod.Last30Days;
+
+        // null = todas las guías.
+        public int? GuideId { get; set; }
+
+        // Assessment (al entrar) o Práctica libre; Guided no se ofrece.
+        public SessionMode Mode { get; set; } = SessionMode.Assessment;
+    }
+
+    // El ranking de pasos de una guía, o el resumen de todas.
+    public class GuideStepRanking
+    {
+        // null = todas las guías, con el mismo paso de cada una en un renglón.
+        public int? TrainingGuideId { get; set; }
+        public IList<StepStats> Steps { get; set; }
+    }
+
+    // Pasos (spec 018, AC-17 y AC-18).
+    public class StepReport
+    {
+        // Los filtros que se aplicaron, ya validados.
+        public StepFilter Applied { get; set; }
+
+        public IList<DashboardGuide> Guides { get; set; }
+
+        // Con una guía, su ranking; con todas, un solo resumen (TrainingGuideId null). Vacío si
+        // no hay intentos en el período.
+        public IList<GuideStepRanking> Rankings { get; set; }
+
+        // Los saltos solo existen en el modo que permite saltar (Práctica libre, AC-18).
+        public bool ShowsSkips { get; set; }
+    }
+
     // Dashboard de Training (spec 018). Lee lo que los SPs agregan y aplica las reglas
     // (ReadinessPolicy). Cada método recibe el userId del usuario autenticado y verifica
     // CanViewReports sin confiar en la página: si no la tiene, es una excepción.
@@ -133,8 +170,7 @@ namespace TrainingApp.BLL.Reports
             filter = filter ?? new OperatorFilter();
 
             var guides = _dashboard.GetGuides();
-            int? guideId = filter.GuideId.HasValue && guides.Any(g => g.Id == filter.GuideId.Value)
-                ? filter.GuideId : null;
+            int? guideId = PublishedOrAll(guides, filter.GuideId);
             ReadinessState? state = filter.State.HasValue && Enum.IsDefined(typeof(ReadinessState), filter.State.Value)
                 ? filter.State : null;
 
@@ -216,15 +252,77 @@ namespace TrainingApp.BLL.Reports
             };
         }
 
+        // Pasos (AC-17, AC-18): el ranking de pasos por % de sesiones con fallo del período y el
+        // modo, de una guía o, con todas, un resumen con el mismo paso de cada guía junto. Todo sale de los intentos con StepRuns (D-146), la misma regla del
+        // detalle. Una guía que no está publicada vale "todas"; un período o un modo fuera de
+        // las opciones, el de inicio.
+        public StepReport GetSteps(int userId, StepFilter filter)
+        {
+            RequireReports(userId);
+            filter = filter ?? new StepFilter();
+
+            var guides = _dashboard.GetGuides();
+            int? guideId = PublishedOrAll(guides, filter.GuideId);
+            var period = Enum.IsDefined(typeof(ReportPeriod), filter.Period) ? filter.Period : ReportPeriod.Last30Days;
+            var mode   = StepModes.Contains(filter.Mode) ? filter.Mode : SessionMode.Assessment;
+
+            var data     = _dashboard.GetStepAttempts(mode, ReportPeriods.FromUtc(period, DateTime.UtcNow), guideId);
+            var guideIds = new HashSet<int>(guides.Select(g => g.Id));
+            var attempts = data.Attempts.ToLookup(a => a.SessionId);
+            // Solo las sesiones de las guías leídas: una guía publicada entre las dos lecturas no
+            // tendría nombre.
+            var runs = data.Sessions
+                .Where(s => guideIds.Contains(s.TrainingGuideId))
+                .Select(s => StepRuns.ForSession(s, attempts[s.SessionId]))
+                .ToList();
+
+            // El nombre de cada paso, con su variante dentro de su guía (StepNames).
+            var steps = _dashboard.GetGuideSteps();
+            var names = steps.ToDictionary(st => st.Id,
+                st => StepNames.Display(steps.Where(x => x.TrainingGuideId == st.TrainingGuideId).ToList(), st));
+            Func<int, int, string> nameOf = (stepId, order) => names.TryGetValue(stepId, out var name) ? name : "Paso " + order;
+
+            // Con una guía, sus pasos; con todas, el resumen por nombre de paso (usuario,
+            // 2026-10-23).
+            IList<StepStats> ranking;
+            if (guideId.HasValue)
+            {
+                ranking = StepStatistics.Rank(runs);
+                foreach (var s in ranking) s.StepName = nameOf(s.StepId, s.StepOrder);
+            }
+            else
+                ranking = StepStatistics.RankByName(runs, r => nameOf(r.StepId, r.StepOrder));
+
+            return new StepReport
+            {
+                Applied    = new StepFilter { Period = period, GuideId = guideId, Mode = mode },
+                Guides     = guides,
+                ShowsSkips = ModePolicy.For(mode).AllowsSkip,
+                Rankings   = ranking.Count == 0
+                    ? new List<GuideStepRanking>()
+                    : new List<GuideStepRanking> { new GuideStepRanking { TrainingGuideId = guideId, Steps = ranking } }
+            };
+        }
+
+        // El filtro de guía: una que no está publicada vale "todas" (null).
+        private static int? PublishedOrAll(IList<DashboardGuide> guides, int? guideId)
+            => guideId.HasValue && guides.Any(g => g.Id == guideId.Value) ? guideId : null;
+
+        // Los modos de Pasos (spec 018 → Filtros): Guided casi no tiene fallos.
+        private static readonly SessionMode[] StepModes = { SessionMode.Assessment, SessionMode.FreePractice };
+
         // Nombre de cada paso como en el resumen final (StepNames).
         private static IList<ReinforcementStep> Named(IList<ReinforcementStep> reinforce, IList<TrainingStep> guideSteps)
         {
             foreach (var r in reinforce)
-            {
-                var step = guideSteps.FirstOrDefault(s => s.Id == r.StepId);
-                r.StepName = step != null ? StepNames.Display(guideSteps, step) : "Paso " + r.StepOrder;
-            }
+                r.StepName = StepName(guideSteps, r.StepId, r.StepOrder);
             return reinforce;
+        }
+
+        private static string StepName(IList<TrainingStep> guideSteps, int stepId, int stepOrder)
+        {
+            var step = guideSteps.FirstOrDefault(s => s.Id == stepId);
+            return step != null ? StepNames.Display(guideSteps, step) : "Paso " + stepOrder;
         }
 
         private static bool Matches(OperatorRow row, ReadinessState? state, int? guideId)

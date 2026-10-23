@@ -15,8 +15,12 @@ namespace TrainingApp.BLL.Reports
         // Intentos fallidos, sin contar el salto (StepRuns.IsFailure).
         public int FailedAttempts { get; set; }
 
-        // Motivos de los intentos fallidos, uno por intento.
-        public IList<AttemptReason> FailureReasons { get; set; }
+        // Los intentos fallidos, con su motivo y su acción (Pasos los cuenta por motivo y acción).
+        public IList<DashboardAttempt> Failures { get; set; } = new List<DashboardAttempt>();
+
+        // Motivos de los intentos fallidos que lo tienen registrado, uno por intento.
+        public IEnumerable<AttemptReason> FailureReasons
+            => Failures.Where(a => a.Reason.HasValue).Select(a => a.Reason.Value);
 
         public bool HasCorrectAttempt { get; set; }
         public bool Skipped { get; set; }
@@ -67,7 +71,7 @@ namespace TrainingApp.BLL.Reports
                     StepId            = step.Key.StepId,
                     StepOrder         = step.Key.StepOrder,
                     FailedAttempts    = failures.Count,
-                    FailureReasons    = failures.Where(a => a.Reason.HasValue).Select(a => a.Reason.Value).ToList(),
+                    Failures          = failures,
                     HasCorrectAttempt = step.Any(a => a.IsCorrect),
                     Skipped           = step.Any(a => a.Reason == AttemptReason.Skipped),
                     Resolved          = session.Status == SessionStatus.Completed || i < steps.Count - 1

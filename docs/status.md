@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
 (`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** spec 018 E2, probada por el usuario (`git log --oneline -10` para ver el estado real)
+§7) · **Último commit de código:** spec 018 E3, probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -54,7 +54,16 @@
     reforzar) y B-3 (`Users.aspx` y el dashboard vuelven al inicio del rol nuevo, no al
     login). **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y
     en la de producción (trae `spDashboardGuideSteps` y `spDashboardOperatorAttempts`;
-    `TrainingApp_Fase10` ya lo tiene). La E3 espera el aviso de Arquitectura y Planeación.
+    `TrainingApp_Fase10` ya lo tiene).
+  - **E3 ✅** (2026-10-23, probada por el usuario; enmienda 3 / D-146): `Steps.aspx`, el
+    ranking de pasos por % de sesiones con fallo, con intentos fallidos, veces sin acierto,
+    saltos (Práctica libre), la mediana y los motivos con su acción. Filtros en la URL:
+    período, guía y modo. Con la guía en "Todas", un solo resumen que suma el mismo paso de
+    cada guía (lo pidió el usuario al probar; Arquitectura y Planeación lo registra).
+    **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local y en la de
+    producción (trae `spDashboardStepAttempts`; `TrainingApp_Fase10` y
+    `TrainingApp_DashboardTest` ya lo tienen). La E4 espera el aviso de Arquitectura y
+    Planeación.
   - **Para probar el dashboard con volumen:** BD `TrainingApp_DashboardTest` en LocalDB, con
     el generador (1600 operadores; admin = Code1 del usuario).
   - **BD:** `RunAllScripts.ps1` corre `00`–`10` (entra `10_spDashboard.sql`).

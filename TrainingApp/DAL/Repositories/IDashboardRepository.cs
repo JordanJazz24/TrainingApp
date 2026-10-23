@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TrainingApp.Domain;
 
@@ -23,5 +24,9 @@ namespace TrainingApp.DAL.Repositories
 
         // Los intentos de las sesiones de un operador en las guías publicadas, en orden.
         IList<DashboardAttempt> GetOperatorAttempts(int userId);
+
+        // Los intentos de las sesiones de un modo que empezaron desde fromUtc (null = todo), en
+        // las guías publicadas (o en guideId), con sus sesiones (Pasos).
+        DashboardAttemptSet GetStepAttempts(SessionMode mode, DateTime? fromUtc, int? guideId);
     }
 }

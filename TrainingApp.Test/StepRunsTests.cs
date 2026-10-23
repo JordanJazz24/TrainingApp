@@ -142,7 +142,8 @@ namespace TrainingApp.Test
             => new StepRun
             {
                 StepId = 100 + order, StepOrder = order, FailedAttempts = failed,
-                FailureReasons = reasons.Length > 0 ? reasons.ToList() : Enumerable.Repeat(AttemptReason.WrongDecision, failed).ToList(),
+                Failures = (reasons.Length > 0 ? reasons : Enumerable.Repeat(AttemptReason.WrongDecision, failed))
+                    .Select(r => new DashboardAttempt { Reason = r }).ToList(),
                 HasCorrectAttempt = correct, Resolved = resolved
             };
 

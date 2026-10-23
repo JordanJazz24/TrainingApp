@@ -35,7 +35,15 @@ namespace TrainingApp.Pages.Admin
 
         // Puntaje de 0 a 1 como en el resumen final del operador ("85.0%").
         public static string Score(decimal? score)
-            => score.HasValue ? (score.Value * 100m).ToString("F1") + "%" : None;
+            => Percent(score);
+
+        // Una tasa de 0 a 1 ("45.0%"); "—" sin denominador (AC-11).
+        public static string Percent(decimal? rate)
+            => rate.HasValue ? (rate.Value * 100m).ToString("F1") + "%" : None;
+
+        // El período de una vista, para decir a qué corresponde cada bloque.
+        public static string Period(ReportPeriod period)
+            => period == ReportPeriod.All ? "Todo el historial" : "Últimos " + ReportPeriods.RecentDays + " días";
 
         // Fecha UTC de la BD en la hora de la planta (DA-8).
         public static string Date(DateTime? utc)

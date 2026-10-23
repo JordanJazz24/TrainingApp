@@ -50,6 +50,15 @@ namespace TrainingApp.UI.Master
         protected global::System.Web.UI.WebControls.HyperLink LnkOperators;
 
         /// <summary>
+        /// LnkSteps control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink LnkSteps;
+
+        /// <summary>
         /// LnkUsers control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink LnkUsers;

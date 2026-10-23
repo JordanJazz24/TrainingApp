@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using TrainingApp.DAL.Infrastructure;
 using TrainingApp.Domain;
 
@@ -101,20 +103,55 @@ namespace TrainingApp.DAL.Repositories
                 cmd => cmd.Parameters.AddWithValue("@UserId", userId)))
             {
                 while (reader.Read())
-                    attempts.Add(new DashboardAttempt
-                    {
-                        SessionId     = Convert.ToInt32(reader["SessionId"]),
-                        StepId        = Convert.ToInt32(reader["StepId"]),
-                        StepOrder     = Convert.ToInt32(reader["StepOrder"]),
-                        AttemptNumber = Convert.ToInt32(reader["AttemptNumber"]),
-                        IsCorrect     = Convert.ToBoolean(reader["IsCorrect"]),
-                        Timestamp     = Convert.ToDateTime(reader["Timestamp"]),
-                        Reason        = reader["Reason"] == DBNull.Value
-                            ? (AttemptReason?)null : (AttemptReason)Convert.ToByte(reader["Reason"]),
-                        Action        = reader["Action"] == DBNull.Value ? null : reader["Action"].ToString()
-                    });
+                    attempts.Add(ReadAttempt(reader));
             }
             return attempts;
+        }
+
+        public DashboardAttemptSet GetStepAttempts(SessionMode mode, DateTime? fromUtc, int? guideId)
+        {
+            var sessions = new Dictionary<int, DashboardSession>();
+            var attempts = new List<DashboardAttempt>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spDashboardStepAttempts", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Mode",    (byte)mode);
+                cmd.Parameters.AddWithValue("@From",    (object)fromUtc ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@GuideId", (object)guideId ?? DBNull.Value);
+            }))
+            {
+                while (reader.Read())
+                {
+                    var attempt = ReadAttempt(reader);
+                    if (!sessions.ContainsKey(attempt.SessionId))
+                        sessions.Add(attempt.SessionId, new DashboardSession
+                        {
+                            SessionId       = attempt.SessionId,
+                            TrainingGuideId = Convert.ToInt32(reader["TrainingGuideId"]),
+                            Mode            = (SessionMode)Convert.ToByte(reader["Mode"]),
+                            Status          = (SessionStatus)Convert.ToByte(reader["Status"]),
+                            StartedAt       = Convert.ToDateTime(reader["StartedAt"])
+                        });
+                    attempts.Add(attempt);
+                }
+            }
+            return new DashboardAttemptSet { Sessions = sessions.Values.ToList(), Attempts = attempts };
+        }
+
+        private static DashboardAttempt ReadAttempt(IDataRecord reader)
+        {
+            return new DashboardAttempt
+            {
+                SessionId     = Convert.ToInt32(reader["SessionId"]),
+                StepId        = Convert.ToInt32(reader["StepId"]),
+                StepOrder     = Convert.ToInt32(reader["StepOrder"]),
+                AttemptNumber = Convert.ToInt32(reader["AttemptNumber"]),
+                IsCorrect     = Convert.ToBoolean(reader["IsCorrect"]),
+                Timestamp     = Convert.ToDateTime(reader["Timestamp"]),
+                Reason        = reader["Reason"] == DBNull.Value
+                    ? (AttemptReason?)null : (AttemptReason)Convert.ToByte(reader["Reason"]),
+                Action        = reader["Action"] == DBNull.Value ? null : reader["Action"].ToString()
+            };
         }
     }
 }

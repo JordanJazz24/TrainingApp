@@ -28,6 +28,7 @@ namespace TrainingApp.UI.Master
             {
                 LnkUsers.Visible = SessionHelper.CanManageUsers();
                 MarkCurrent(LnkOperators, "~/Pages/Admin/Operators.aspx", "~/Pages/Admin/Operator.aspx");
+                MarkCurrent(LnkSteps, "~/Pages/Admin/Steps.aspx");
                 MarkCurrent(LnkUsers, "~/Pages/Admin/Users.aspx");
             }
         }

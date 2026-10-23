@@ -266,6 +266,195 @@ namespace TrainingApp.Test
             Assert.That(step.MainReason, Is.EqualTo(AttemptReason.EmptyRequiredField));
         }
 
+        // ---- Pasos (E3, AC-17 y AC-18) ----
+
+        // Una sesión de LoFlo con sus intentos: (orden del paso, correcto, motivo, segundos desde
+        // el inicio).
+        private void StepSession(int id, SessionMode mode, SessionStatus status,
+            params (int order, bool correct, AttemptReason reason, int second)[] attempts)
+            => StepSessionIn(LoFlo, id, mode, status, attempts);
+
+        // Los pasos de LoFlo son 501, 502…; los de Moldeo, 601, 602…
+        private void StepSessionIn(int guideId, int id, SessionMode mode, SessionStatus status,
+            params (int order, bool correct, AttemptReason reason, int second)[] attempts)
+        {
+            var start = new DateTime(2026, 10, 1, 14, 0, 0);
+            int firstStepId = guideId == LoFlo ? 500 : 600;
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = id, UserId = OperatorId, TrainingGuideId = guideId, Mode = mode, Status = status,
+                StartedAt = start
+            });
+            foreach (var a in attempts)
+                _dashboard.Attempts.Add(new DashboardAttempt
+                {
+                    SessionId = id, StepId = firstStepId + a.order, StepOrder = a.order, IsCorrect = a.correct,
+                    Reason = a.reason, Action = a.correct ? null : "LC.Save", Timestamp = start.AddSeconds(a.second)
+                });
+        }
+
+        private void LoFloSteps()
+        {
+            _dashboard.Steps.Add(new TrainingStep { Id = 501, TrainingGuideId = LoFlo, StepType = StepType.ResourceSetup, Order = 1 });
+            _dashboard.Steps.Add(new TrainingStep { Id = 502, TrainingGuideId = LoFlo, StepType = StepType.LineClearance, Order = 2 });
+        }
+
+        // AC-18: en Práctica libre el salto se cuenta aparte y no suma al % ni a los intentos
+        // fallidos; el salto con fallos sí terminó sin acierto.
+        [Test]
+        public void GetSteps_SkipsAreNotFailures()
+        {
+            LoFloSteps();
+            StepSession(1, SessionMode.FreePractice, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 30), (1, true, AttemptReason.None, 60));
+            StepSession(2, SessionMode.FreePractice, SessionStatus.Completed,
+                (1, false, AttemptReason.Skipped, 30));
+            StepSession(3, SessionMode.FreePractice, SessionStatus.Completed,
+                (1, false, AttemptReason.EmptyRequiredField, 30), (1, false, AttemptReason.Skipped, 60));
+            StepSession(4, SessionMode.FreePractice, SessionStatus.Completed,
+                (1, true, AttemptReason.None, 30));
+
+            var report = _service.GetSteps(AdminId, new StepFilter { Mode = SessionMode.FreePractice });
+
+            Assert.That(report.ShowsSkips, Is.True);
+            var step = report.Rankings.Single().Steps.Single();
+            Assert.That(step.StepName, Is.EqualTo("Resource Setup"));
+            Assert.That(step.Sessions, Is.EqualTo(4));
+            Assert.That(step.SessionsWithFailure, Is.EqualTo(2));
+            Assert.That(step.FailureRate, Is.EqualTo(0.5m));
+            Assert.That(step.FailedAttempts, Is.EqualTo(2));
+            Assert.That(step.Skips, Is.EqualTo(2));
+            Assert.That(step.TimesWithoutSuccess, Is.EqualTo(1));
+            Assert.That(step.Reasons.Select(r => r.Reason), Is.EquivalentTo(new AttemptReason?[] { AttemptReason.WrongDecision, AttemptReason.EmptyRequiredField }));
+        }
+
+        // AC-17: en Assessment, sin columna de saltos; el avance forzado (4.º fallo) terminó sin
+        // acierto; y el orden es por % de sesiones con fallo, después por intentos fallidos.
+        [Test]
+        public void GetSteps_AssessmentOrderAndForcedAdvance()
+        {
+            LoFloSteps();
+            // Paso 1: 1 de 2 sesiones con fallo (50 %), 4 intentos fallidos y avance forzado.
+            // Paso 2: 2 de 2 sesiones con fallo (100 %), 2 intentos fallidos.
+            StepSession(1, SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10), (1, false, AttemptReason.WrongDecision, 20),
+                (1, false, AttemptReason.WrongDecision, 30), (1, false, AttemptReason.WrongDecision, 40),
+                (2, false, AttemptReason.MissingSelection, 50), (2, true, AttemptReason.None, 60));
+            StepSession(2, SessionMode.Assessment, SessionStatus.Completed,
+                (1, true, AttemptReason.None, 10),
+                (2, false, AttemptReason.MissingSelection, 20), (2, true, AttemptReason.None, 30));
+
+            var report = _service.GetSteps(AdminId, new StepFilter());
+
+            Assert.That(report.ShowsSkips, Is.False);
+            var steps = report.Rankings.Single().Steps;
+            Assert.That(steps.Select(s => s.StepOrder), Is.EqualTo(new[] { 2, 1 }));
+            Assert.That(steps[0].FailureRate, Is.EqualTo(1m));
+            Assert.That(steps[1].FailureRate, Is.EqualTo(0.5m));
+            Assert.That(steps[1].FailedAttempts, Is.EqualTo(4));
+            Assert.That(steps[1].TimesWithoutSuccess, Is.EqualTo(1));
+            Assert.That(steps[1].Reasons.Single().Count, Is.EqualTo(4));
+        }
+
+        // Con el mismo % gana el de más intentos fallidos.
+        [Test]
+        public void GetSteps_TieBreaksByFailedAttempts()
+        {
+            LoFloSteps();
+            StepSession(1, SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10), (1, true, AttemptReason.None, 20),
+                (2, false, AttemptReason.WrongDecision, 30), (2, false, AttemptReason.WrongDecision, 40),
+                (2, true, AttemptReason.None, 50));
+
+            var steps = _service.GetSteps(AdminId, new StepFilter()).Rankings.Single().Steps;
+
+            Assert.That(steps.Select(s => s.StepOrder), Is.EqualTo(new[] { 2, 1 }));
+        }
+
+        // Con todas las guías (usuario, 2026-10-23): el mismo paso de cada guía en un solo
+        // renglón, con los conteos de todas sus sesiones; con una guía, solo sus pasos.
+        [Test]
+        public void GetSteps_AllGuidesSumsTheSameStep()
+        {
+            LoFloSteps();
+            _dashboard.Steps.Add(new TrainingStep { Id = 601, TrainingGuideId = Moldeo, StepType = StepType.ResourceSetup, Order = 1 });
+            _dashboard.Steps.Add(new TrainingStep { Id = 602, TrainingGuideId = Moldeo, StepType = StepType.SFC_Split, Order = 2 });
+            StepSessionIn(LoFlo, 1, SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10), (1, true, AttemptReason.None, 20));
+            StepSessionIn(Moldeo, 2, SessionMode.Assessment, SessionStatus.Completed,
+                (1, true, AttemptReason.None, 10),
+                (2, false, AttemptReason.MissingSelection, 20), (2, true, AttemptReason.None, 30));
+
+            var all = _service.GetSteps(AdminId, new StepFilter()).Rankings.Single();
+
+            Assert.That(all.TrainingGuideId, Is.Null);
+            Assert.That(all.Steps.Select(s => s.StepName), Is.EqualTo(new[] { "SFC Split", "Resource Setup" }));
+            var setup = all.Steps.Single(s => s.StepName == "Resource Setup");
+            Assert.That(setup.Sessions, Is.EqualTo(2));
+            Assert.That(setup.FailureRate, Is.EqualTo(0.5m));
+
+            var moldeo = _service.GetSteps(AdminId, new StepFilter { GuideId = Moldeo }).Rankings.Single();
+            Assert.That(moldeo.TrainingGuideId, Is.EqualTo(Moldeo));
+            Assert.That(moldeo.Steps.Single(s => s.StepName == "Resource Setup").Sessions, Is.EqualTo(1));
+        }
+
+        // La mediana de la duración no se mueve con un valor atípico (DA-2).
+        [Test]
+        public void GetSteps_MedianIgnoresOutlier()
+        {
+            LoFloSteps();
+            int[] seconds = { 60, 70, 80, 5000 };
+            for (int i = 0; i < seconds.Length; i++)
+                StepSession(i + 1, SessionMode.Assessment, SessionStatus.Completed, (1, true, AttemptReason.None, seconds[i]));
+
+            var step = _service.GetSteps(AdminId, new StepFilter()).Rankings.Single().Steps.Single();
+
+            Assert.That(step.MedianDuration, Is.EqualTo(TimeSpan.FromSeconds(75)));
+        }
+
+        // La mediana solo usa los pasos resueltos sin saltar: ni un salto rápido ni el paso a
+        // medias de una sesión abandonada la bajan; sin ninguno, null ("—").
+        [Test]
+        public void GetSteps_MedianOnlyFromResolvedSteps()
+        {
+            LoFloSteps();
+            StepSession(1, SessionMode.FreePractice, SessionStatus.Completed, (1, true, AttemptReason.None, 120));
+            StepSession(2, SessionMode.FreePractice, SessionStatus.Completed, (1, false, AttemptReason.Skipped, 3));
+            StepSession(3, SessionMode.FreePractice, SessionStatus.Completed, (1, false, AttemptReason.Skipped, 4));
+            StepSession(4, SessionMode.FreePractice, SessionStatus.Abandoned,
+                (1, true, AttemptReason.None, 100), (2, false, AttemptReason.WrongDecision, 105));
+
+            var steps = _service.GetSteps(AdminId, new StepFilter { Mode = SessionMode.FreePractice })
+                .Rankings.Single().Steps;
+
+            Assert.That(steps.Single(s => s.StepOrder == 1).MedianDuration, Is.EqualTo(TimeSpan.FromSeconds(110)));
+            Assert.That(steps.Single(s => s.StepOrder == 2).MedianDuration, Is.Null);
+        }
+
+        // Filtros manipulados: Guided vale Assessment, una guía no publicada vale "todas", y el
+        // período llega al repositorio (30 días o todo). Sin la capacidad, excepción.
+        [Test]
+        public void GetSteps_ValidatesFilters()
+        {
+            var report = _service.GetSteps(AdminId, new StepFilter
+            {
+                Mode = SessionMode.Guided, GuideId = 999, Period = (ReportPeriod)7
+            });
+
+            Assert.That(report.Applied.Mode, Is.EqualTo(SessionMode.Assessment));
+            Assert.That(report.Applied.GuideId, Is.Null);
+            Assert.That(report.Applied.Period, Is.EqualTo(ReportPeriod.Last30Days));
+            Assert.That(_dashboard.LastStepMode, Is.EqualTo(SessionMode.Assessment));
+            Assert.That(_dashboard.LastStepFrom, Is.EqualTo(DateTime.UtcNow.AddDays(-30)).Within(TimeSpan.FromMinutes(1)));
+            Assert.That(report.Rankings, Is.Empty);
+
+            _service.GetSteps(AdminId, new StepFilter { Period = ReportPeriod.All, GuideId = Moldeo });
+            Assert.That(_dashboard.LastStepFrom, Is.Null);
+            Assert.That(_dashboard.LastStepGuide, Is.EqualTo(Moldeo));
+
+            Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetSteps(OperatorId, new StepFilter())));
+        }
+
         private static DashboardAttempt Attempt(int sessionId, int order, bool correct, AttemptReason reason, DateTime at)
             => new DashboardAttempt
             {
@@ -306,6 +495,25 @@ namespace TrainingApp.Test
 
             public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts)
                 => Sessions.Where(s => !userId.HasValue || s.UserId == userId.Value).ToList();
+
+            public SessionMode? LastStepMode { get; private set; }
+            public DateTime? LastStepFrom { get; private set; }
+            public int? LastStepGuide { get; private set; }
+
+            // Como el SP: las sesiones del modo, desde fromUtc y de la guía, con sus intentos.
+            public DashboardAttemptSet GetStepAttempts(SessionMode mode, DateTime? fromUtc, int? guideId)
+            {
+                LastStepMode = mode; LastStepFrom = fromUtc; LastStepGuide = guideId;
+                var sessions = Sessions
+                    .Where(s => s.Mode == mode && (!guideId.HasValue || s.TrainingGuideId == guideId.Value))
+                    .ToList();
+                var ids = new HashSet<int>(sessions.Select(s => s.SessionId));
+                return new DashboardAttemptSet
+                {
+                    Sessions = sessions,
+                    Attempts = Attempts.Where(a => ids.Contains(a.SessionId)).ToList()
+                };
+            }
         }
 
         private sealed class FakeUsers : IUserRepository
