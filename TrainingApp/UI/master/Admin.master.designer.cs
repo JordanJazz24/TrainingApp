@@ -45,6 +45,15 @@ namespace TrainingApp.UI.Master
         protected global::System.Web.UI.WebControls.PlaceHolder PhMenu;
 
         /// <summary>
+        /// LnkSummary control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink LnkSummary;
+
+        /// <summary>
         /// LnkOperators control.
         /// </summary>
         protected global::System.Web.UI.WebControls.HyperLink LnkOperators;

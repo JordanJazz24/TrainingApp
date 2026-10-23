@@ -274,7 +274,37 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 
 ## E4 · Resumen e inicio del administrador
 
-- [ ] **`DashboardService.GetSummary`** (AC-9 a AC-12):
+> **E4 de Desarrollo ✅** (2026-10-23; probada por el usuario: "funciona"; Arquitectura y
+> Planeación aceptó las tres interpretaciones). Detalle que no cambia el plan:
+> - **El filtro de guía del Resumen** aplica a todos los bloques. Con una guía, los estados,
+>   la tasa, la actividad y el top 5 son solo de ella.
+> - **Reglas puras en `SummaryRules`:**
+>   - "Primer Assessment" = el primer Assessment completado **por fecha de inicio**, la misma
+>     fecha con la que filtra el período.
+>   - Las semanas son de la planta (`Shared/PlantTime`, que ahora también usa
+>     `SessionHelper.ToLocal`) y las semanas sin sesiones van en 0.
+> - **El top 5** sale del mismo cálculo que Pasos (`RankSteps`, con las mismas guías y el
+>   mismo período) y **solo trae pasos con algún fallo**: un paso con 0 % no es "un paso con
+>   más fallos". Por eso puede traer menos de 5.
+> - **`HomeUrl`** elige el Resumen con `CanViewReports`, la misma capacidad que revisa la página.
+> - **Gráficas:**
+>   - colores de la paleta de referencia de la skill dataviz: estados con los colores de
+>     estado, como sus badges; modos con los tres primeros colores categóricos;
+>   - cada gráfica lleva su tabla o sus totales al lado.
+> - **Del `/code-review medium` (10 hallazgos) se aplicaron 6:**
+>   - `HomeUrl` por capacidad;
+>   - el top 5 con la misma guía y el mismo período, sin volver a leer;
+>   - el top 5 sin pasos en 0 %;
+>   - el primer Assessment por inicio;
+>   - el año en las semanas con "Todo";
+>   - los mensajes sin datos de Estados y de la tasa.
+> - **Queda para la E7:** leer las sesiones de una sola guía en el SP.
+> - **Descartados:**
+>   - recorrer las sesiones una vez por guía (son 3);
+>   - la primera semana parcial con 30 días (la define el período);
+>   - el menú de un rol Trainer, que no existe.
+
+- [x] **`DashboardService.GetSummary`** (AC-9 a AC-12):
   - operadores por estado y guía, con **todo el historial**;
   - del **período**:
     - la tasa de operadores aprobados;
@@ -285,12 +315,12 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
       "Todas", son los primeros 5 de la agrupación por tipo de paso de `GetSteps`
       (`RankByName`), sin el nombre de la guía; con una guía elegida, los de esa guía
       (spec → enmienda 1, D-147).
-- [ ] **Página `Summary.aspx`**, con gráficas de Chart.js (estados, actividad y top 5) y el
+- [x] **Página `Summary.aspx`**, con gráficas de Chart.js (estados, actividad y top 5) y el
   período de cada bloque.
-- [ ] **`SessionHelper.AdminHomeUrl` → `Summary.aspx`** (AC-1).
-- [ ] **Tests:** la tasa al primer intento (AC-10), "—" sin denominador (AC-11) y las semanas
+- [x] **`SessionHelper.AdminHomeUrl` → `Summary.aspx`** (AC-1).
+- [x] **Tests:** la tasa al primer intento (AC-10), "—" sin denominador (AC-11) y las semanas
   desde el lunes.
-- [ ] **Checklist:** el login del admin cae en el Resumen; con la BD vacía, "Sin datos"; las
+- [x] **Checklist:** el login del admin cae en el Resumen; con la BD vacía, "Sin datos"; las
   guías no publicadas no aparecen (AC-12); el top 5 con "Todas" coincide con Pasos al seguir
   el enlace (D-147).
 

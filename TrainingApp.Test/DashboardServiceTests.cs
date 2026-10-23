@@ -455,6 +455,53 @@ namespace TrainingApp.Test
             Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetSteps(OperatorId, new StepFilter())));
         }
 
+        // ---- Resumen (E4, AC-9 y AC-12) ----
+
+        // El top 5 es el principio de Pasos con los mismos filtros (D-147); con una guía, todo de
+        // esa guía; los filtros se validan y sin la capacidad es una excepción.
+        [Test]
+        public void GetSummary_TopStepsMatchStepsAndGuideFilter()
+        {
+            LoFloSteps();
+            StepSessionIn(LoFlo, 1, SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10), (1, true, AttemptReason.None, 20),
+                (2, true, AttemptReason.None, 30));
+            _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = 2, UserId = OperatorId, TrainingGuideId = Moldeo, Mode = SessionMode.Guided,
+                Status = SessionStatus.Completed, StartedAt = DateTime.UtcNow.AddDays(-1)
+            });
+
+            var summary = _service.GetSummary(AdminId, new SummaryFilter { GuideId = 999, Period = (ReportPeriod)9 });
+            var steps   = _service.GetSteps(AdminId, new StepFilter()).Rankings.Single().Steps;
+
+            Assert.That(summary.Applied.GuideId, Is.Null);
+            Assert.That(summary.Applied.Period, Is.EqualTo(ReportPeriod.Last30Days));
+            Assert.That(summary.GuideSummaries.Select(g => g.TrainingGuideId), Is.EqualTo(new[] { LoFlo, Moldeo }));
+            // Solo los pasos con algún fallo: el paso 2 (0 %) está en Pasos pero no en el top 5.
+            Assert.That(summary.TopSteps.Select(s => s.StepName), Is.EqualTo(new[] { "Resource Setup" }));
+            Assert.That(steps.Select(s => s.StepName), Is.EqualTo(new[] { "Resource Setup", "Line Clearance (apertura)" }));
+            Assert.That(summary.TopSteps.First().FailureRate, Is.EqualTo(steps.First().FailureRate));
+
+            var moldeo = _service.GetSummary(AdminId, new SummaryFilter { GuideId = Moldeo, Period = ReportPeriod.All });
+            Assert.That(moldeo.GuideSummaries.Single().TrainingGuideId, Is.EqualTo(Moldeo));
+            Assert.That(moldeo.GuideSummaries.Single().InTraining, Is.EqualTo(1));
+            Assert.That(moldeo.TopSteps, Is.Empty);
+
+            Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetSummary(OperatorId, new SummaryFilter())));
+        }
+
+        // AC-11: una BD sin sesiones no rompe nada: sin semanas, sin top 5 y tasas en null.
+        [Test]
+        public void GetSummary_EmptyDatabase()
+        {
+            var summary = _service.GetSummary(AdminId, new SummaryFilter());
+
+            Assert.That(summary.Weeks, Is.Empty);
+            Assert.That(summary.TopSteps, Is.Empty);
+            Assert.That(summary.GuideSummaries.All(g => g.PassRate == null && g.FirstAttemptRate == null), Is.True);
+        }
+
         private static DashboardAttempt Attempt(int sessionId, int order, bool correct, AttemptReason reason, DateTime at)
             => new DashboardAttempt
             {

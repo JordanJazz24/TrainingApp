@@ -125,6 +125,35 @@ namespace TrainingApp.BLL.Reports
         public bool ShowsSkips { get; set; }
     }
 
+    // Filtros del Resumen (spec 018 → Filtros). Los valida el servicio.
+    public class SummaryFilter
+    {
+        public ReportPeriod Period { get; set; } = ReportPeriod.Last30Days;
+
+        // null = todas las guías.
+        public int? GuideId { get; set; }
+    }
+
+    // Resumen (spec 018, AC-9 a AC-12), el inicio del administrador.
+    public class SummaryReport
+    {
+        // Los filtros que se aplicaron, ya validados.
+        public SummaryFilter Applied { get; set; }
+
+        // Todas las guías publicadas, para el filtro.
+        public IList<DashboardGuide> Guides { get; set; }
+
+        // Una por guía mostrada (todas o la del filtro), en el orden de Guides.
+        public IList<GuideSummary> GuideSummaries { get; set; }
+
+        // Sesiones por semana y modo del período; vacío sin sesiones.
+        public IList<WeekActivity> Weeks { get; set; }
+
+        // Top 5 de pasos por % de sesiones con fallo en Assessment del período: los primeros de
+        // Pasos con los mismos filtros (D-147).
+        public IList<StepStats> TopSteps { get; set; }
+    }
+
     // Dashboard de Training (spec 018). Lee lo que los SPs agregan y aplica las reglas
     // (ReadinessPolicy). Cada método recibe el userId del usuario autenticado y verifica
     // CanViewReports sin confiar en la página: si no la tiene, es una excepción.
@@ -253,9 +282,9 @@ namespace TrainingApp.BLL.Reports
         }
 
         // Pasos (AC-17, AC-18): el ranking de pasos por % de sesiones con fallo del período y el
-        // modo, de una guía o, con todas, un resumen con el mismo paso de cada guía junto. Todo sale de los intentos con StepRuns (D-146), la misma regla del
-        // detalle. Una guía que no está publicada vale "todas"; un período o un modo fuera de
-        // las opciones, el de inicio.
+        // modo, de una guía o, con todas, un resumen con el mismo paso de cada guía junto. Todo
+        // sale de los intentos con StepRuns (D-146), la misma regla del detalle. Una guía que no
+        // está publicada vale "todas"; un período o un modo fuera de las opciones, el de inicio.
         public StepReport GetSteps(int userId, StepFilter filter)
         {
             RequireReports(userId);
@@ -263,10 +292,26 @@ namespace TrainingApp.BLL.Reports
 
             var guides = _dashboard.GetGuides();
             int? guideId = PublishedOrAll(guides, filter.GuideId);
-            var period = Enum.IsDefined(typeof(ReportPeriod), filter.Period) ? filter.Period : ReportPeriod.Last30Days;
+            var period = ValidPeriod(filter.Period);
             var mode   = StepModes.Contains(filter.Mode) ? filter.Mode : SessionMode.Assessment;
+            var ranking = RankSteps(guides, guideId, mode, ReportPeriods.FromUtc(period, DateTime.UtcNow));
 
-            var data     = _dashboard.GetStepAttempts(mode, ReportPeriods.FromUtc(period, DateTime.UtcNow), guideId);
+            return new StepReport
+            {
+                Applied    = new StepFilter { Period = period, GuideId = guideId, Mode = mode },
+                Guides     = guides,
+                ShowsSkips = ModePolicy.For(mode).AllowsSkip,
+                Rankings   = ranking.Count == 0
+                    ? new List<GuideStepRanking>()
+                    : new List<GuideStepRanking> { new GuideStepRanking { TrainingGuideId = guideId, Steps = ranking } }
+            };
+        }
+
+        // El ranking de Pasos con los filtros ya validados (lo usan Pasos y el top 5 del Resumen,
+        // con las mismas guías y el mismo período).
+        private IList<StepStats> RankSteps(IList<DashboardGuide> guides, int? guideId, SessionMode mode, DateTime? fromUtc)
+        {
+            var data     = _dashboard.GetStepAttempts(mode, fromUtc, guideId);
             var guideIds = new HashSet<int>(guides.Select(g => g.Id));
             var attempts = data.Attempts.ToLookup(a => a.SessionId);
             // Solo las sesiones de las guías leídas: una guía publicada entre las dos lecturas no
@@ -284,25 +329,51 @@ namespace TrainingApp.BLL.Reports
 
             // Con una guía, sus pasos; con todas, el resumen por nombre de paso (usuario,
             // 2026-10-23).
-            IList<StepStats> ranking;
-            if (guideId.HasValue)
-            {
-                ranking = StepStatistics.Rank(runs);
-                foreach (var s in ranking) s.StepName = nameOf(s.StepId, s.StepOrder);
-            }
-            else
-                ranking = StepStatistics.RankByName(runs, r => nameOf(r.StepId, r.StepOrder));
+            if (!guideId.HasValue)
+                return StepStatistics.RankByName(runs, r => nameOf(r.StepId, r.StepOrder));
 
-            return new StepReport
+            var ranking = StepStatistics.Rank(runs);
+            foreach (var s in ranking) s.StepName = nameOf(s.StepId, s.StepOrder);
+            return ranking;
+        }
+
+        public const int TopStepCount = 5;
+
+        // El Resumen (AC-9 a AC-12): los estados con todo el historial (DA-1); las tasas, el
+        // puntaje, la actividad y el top 5 del período. Con una guía, todo de esa guía.
+        public SummaryReport GetSummary(int userId, SummaryFilter filter)
+        {
+            RequireReports(userId);
+            filter = filter ?? new SummaryFilter();
+
+            var guides = _dashboard.GetGuides();
+            int? guideId = PublishedOrAll(guides, filter.GuideId);
+            var period = ValidPeriod(filter.Period);
+            var now  = DateTime.UtcNow;
+            var from = ReportPeriods.FromUtc(period, now);
+
+            var shown    = guides.Where(g => !guideId.HasValue || g.Id == guideId.Value).ToList();
+            var shownIds = new HashSet<int>(shown.Select(g => g.Id));
+            var sessions = _dashboard.GetSessions(null, false).Where(s => shownIds.Contains(s.TrainingGuideId)).ToList();
+
+            return new SummaryReport
             {
-                Applied    = new StepFilter { Period = period, GuideId = guideId, Mode = mode },
-                Guides     = guides,
-                ShowsSkips = ModePolicy.For(mode).AllowsSkip,
-                Rankings   = ranking.Count == 0
-                    ? new List<GuideStepRanking>()
-                    : new List<GuideStepRanking> { new GuideStepRanking { TrainingGuideId = guideId, Steps = ranking } }
+                Applied        = new SummaryFilter { Period = period, GuideId = guideId },
+                Guides         = guides,
+                GuideSummaries = shown.Select(g => SummaryRules.ForGuide(g.Id, sessions, from)).ToList(),
+                Weeks          = SummaryRules.Weeks(sessions, from, now),
+                // El principio de Pasos en Assessment con la misma guía y el mismo período, así sus
+                // números coinciden al seguir el enlace (D-147). Solo pasos con algún fallo: un
+                // 0 % no es un paso con fallos.
+                TopSteps       = RankSteps(guides, guideId, SessionMode.Assessment, from)
+                    .Where(s => s.SessionsWithFailure > 0)
+                    .Take(TopStepCount)
+                    .ToList()
             };
         }
+
+        private static ReportPeriod ValidPeriod(ReportPeriod period)
+            => Enum.IsDefined(typeof(ReportPeriod), period) ? period : ReportPeriod.Last30Days;
 
         // El filtro de guía: una que no está publicada vale "todas" (null).
         private static int? PublishedOrAll(IList<DashboardGuide> guides, int? guideId)

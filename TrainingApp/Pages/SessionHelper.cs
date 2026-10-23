@@ -21,7 +21,8 @@ namespace TrainingApp.Pages
         public const string LoginUrl          = "~/Pages/Auth/Login.aspx";
         public const string ChangePasswordUrl = "~/Pages/Auth/ChangePassword.aspx";
         public const string TrainingHomeUrl   = "~/Pages/Training/StartSession.aspx";
-        public const string AdminHomeUrl      = "~/Pages/Admin/Users.aspx";
+        // El inicio del administrador es el Resumen del dashboard (spec 018, AC-1).
+        public const string AdminHomeUrl      = "~/Pages/Admin/Summary.aspx";
 
         // Cookie de la Session de ASP.NET (Web.config no cambia el nombre por defecto).
         private const string SessionCookieName = "ASP.NET_SessionId";
@@ -53,7 +54,7 @@ namespace TrainingApp.Pages
         /// principal todavía es anónimo.
         /// </summary>
         public static string HomeUrl(UserRole role)
-            => AccessPolicy.CanManageUsers(role) ? AdminHomeUrl : TrainingHomeUrl;
+            => AccessPolicy.CanViewReports(role) ? AdminHomeUrl : TrainingHomeUrl;
 
         /// <summary>
         /// Una página que el usuario no puede usar lo manda a su inicio, nunca al login (spec
@@ -184,16 +185,10 @@ namespace TrainingApp.Pages
             return string.IsNullOrEmpty(text) ? null : text;
         }
 
-        // Hora de planta (Costa Rica, UTC-6 sin horario de verano), sin depender de la zona
-        // horaria configurada en el servidor.
-        private static readonly TimeZoneInfo PlantTimeZone =
-            TimeZoneInfo.FindSystemTimeZoneById("Central America Standard Time");
-
         /// <summary>
-        /// Fecha UTC de la BD en la hora de planta, para mostrarla.
+        /// Fecha UTC de la BD en la hora de planta, para mostrarla (PlantTime).
         /// </summary>
-        public static DateTime ToLocal(DateTime utc)
-            => TimeZoneInfo.ConvertTimeFromUtc(DateTime.SpecifyKind(utc, DateTimeKind.Utc), PlantTimeZone);
+        public static DateTime ToLocal(DateTime utc) => PlantTime.ToLocal(utc);
 
         /// <summary>
         /// Mensaje de cuenta bloqueada (spec 013, AC-14/15).
