@@ -1,7 +1,8 @@
 # Spec 018: Dashboard de Training e historial por operador (Fase 10, T8)
 
 **Status:** Approved (2026-10-22, usuario: "apruebo la spec") · decisiones D-136 a D-142
-en `docs/decisions.md`
+en `docs/decisions.md` · **Cerrada el 2026-10-23** (Fase 10 ✅, `51193c3`; enmiendas 1 y 2,
+D-147 a D-150)
 **Date:** 2026-10-22 · once rondas de preguntas con el usuario el 2026-10-22: siete de diseño,
 la confirmación de DA-1 a DA-9 y cuatro de revisión, porque el usuario pidió "no dejar dudas
 pendientes"

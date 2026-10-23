@@ -31,8 +31,8 @@
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
-| **10 · Dashboard e historial por operador (T8)** | ▶️ en curso (spec y plan aprobados el 2026-10-22) | | `018-dashboard-training.md`, `018-plan.md` |
-| 11 · UI/UX del dashboard | ⏳ después de la 10 y de R1/R2 (pedido del usuario, 2026-10-23) | | necesita spec |
+| 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
+| **11 · UI/UX del dashboard** | ⏳ después de R1/R2 (pedido del usuario, 2026-10-23) | | necesita spec |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -382,7 +382,12 @@ permisos, prueba de humo. Incluye AUD-28/29.
   `preloadEnabled="true"` (Application Initialization) e idle timeout 0.
 **No incluye:** CI/CD automatizado, monitoreo avanzado.
 
-### Fase 10 — Dashboard de Training e historial por operador (T8)
+### Fase 10 — Dashboard de Training e historial por operador (T8) ✅ (2026-10-23)
+
+**Cerrada el 2026-10-23** (`51193c3`): las ocho entregas, curva y ficha incluidas, probadas
+por el usuario. Durante la fase se sumaron D-143 a D-150 (enmiendas 1 y 2 de la spec,
+enmiendas 1 a 4 del plan). Qué se hizo: `docs/history.md` → "Fase 10". Lo que sigue:
+"Después de la Fase 10".
 
 **Spec aprobada el 2026-10-22: `docs/specs/018-dashboard-training.md`** (D-136 a D-142).
 Va en la versión final de la 2.ª semana de noviembre, junto con la E2 de la Fase 9 (D-135).
