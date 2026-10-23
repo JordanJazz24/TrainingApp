@@ -538,6 +538,9 @@ y el comentario de `Web.config`). Así lo decidió el usuario el 2026-10-22, den
 - [ ] **Ficha** (AC-16): **antes de implementarla, Desarrollo avisa** y el usuario decide
   DA-6 (impresión desde el navegador o un PDF en el servidor). Lleva el estado y los puntajes
   por guía, las sesiones y los pasos a reforzar, sin menú ni botones.
+  - **DA-6 decidida (usuario, 2026-10-23; D-150): impresión desde el navegador.** Estilos de
+    impresión (`@media print`) que ocultan el menú, los filtros y los botones; el PDF sale del
+    "Guardar como PDF" del navegador. Sin librerías nuevas. El diseño se pule en la Fase 11.
 - [ ] **Tests:** el conteo de sesiones de práctica antes del primer aprobado.
 
 ## Docs al cerrar

@@ -374,7 +374,9 @@ Las preguntó el usuario una por una antes de aprobar:
 - **DA-4 ✔:** el top 5 mezcla guías, con el nombre de cada una, y el filtro de guía muestra
   el de una sola. *(Superada por la enmienda 1, D-147: con "Todas", agrupa por tipo de paso.)*
 - **DA-5 ✔:** Excel exporta lo filtrado.
-- **DA-6 → diferida:** cómo se genera la ficha se decide al implementarla.
+- **DA-6 → diferida:** cómo se genera la ficha se decide al implementarla. *(Decidida el
+  2026-10-23, D-150: impresión desde el navegador, con estilos de impresión; el PDF sale del
+  "Guardar como PDF" del navegador.)*
 - **DA-7 ✔:** índices nuevos y un script de datos de prueba para medir AC-24.
 - **DA-8 ✔:** hora de la planta, formato `dd/MM/yyyy HH:mm`, y las semanas empiezan el
   lunes.
