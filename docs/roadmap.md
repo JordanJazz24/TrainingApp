@@ -410,3 +410,24 @@ que ya se guardan.
 
 **Si falta tiempo,** se recortan primero la curva y la ficha.
 
+### Después de la Fase 10
+
+#### Revisión con Ernesto, MES (2026-10-22)
+Registrada por Reuniones y Dudas. No cambia el foco: la Fase 10 sigue con su orden.
+Ernesto **aprobó el contenido del simulador**.
+
+| # | Tarea | Estado |
+|---|---|---|
+| R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | Decidido por el usuario · **enmienda de la spec 016** antes de tocar código · por ordenar |
+| R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | Decidido por el usuario · cambio de texto, plan directo · por ordenar |
+| R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | Decidido por el usuario · **después de la Fase 10** · necesita spec |
+
+- **Confirmado:** el Logout va seguido del script de limpieza (como está, spec 016).
+- **Pesos, el 70 % y la regla de aprobación:** los deja al equipo de training (no cambian).
+- **MVP:** el link va a Ernesto, a Diego y a otros testers que él nombre, junto con la hoja de
+  requerimientos.
+- **Abierto:** la contraseña del login de MES.
+- **Observado en la demo (sin numerar hasta confirmarlo):** al forzar el avance desde la BD, la
+  reparación rápida pierde el campo del componente. Falta saber si pasa sin forzar; forzar
+  desde la BD no es un flujo de la app. Si se confirma, es un B-n con plan directo.
+
