@@ -150,6 +150,24 @@ opciones por pantalla:
 - **Login y cambio de contraseña:** una tarjeta centrada con el sistema de diseño y el
   interruptor de tema.
 
+> **Enmienda 2026-10-26 (usuario, D-163): la página de inicio del operador entra en la
+> Fase 11.** `StartSession.aspx` y su master, `Site.Master`, que no usa ninguna otra página,
+> pasan a usar el sistema de diseño. Antes eran parte del "área del operador" del Out.
+> - **Barra superior:** el nombre de la app, el interruptor de tema, el usuario y **Cerrar
+>   sesión** (mismo comportamiento: D-13).
+> - **Contenido:**
+>   - el título y el último acceso (spec 013);
+>   - Producto, Área y Guía siguen como listas, con la misma cascada;
+>   - los **3 modos pasan a ser tarjetas grandes seleccionables**, con su ícono y una línea de
+>     qué es cada uno: Guided "paso a paso con la guía", Práctica libre "sin guía ni puntaje, con
+>     pistas", Assessment "evaluación con puntaje";
+>   - el botón Iniciar.
+> - **Mismos datos y mismo flujo:** mismos controles y postbacks; solo cambia cómo se ven.
+> - **Modo oscuro** con el interruptor, como el login (D-157). **El POD (`Training.Master`) no
+>   recibe el tema** y sigue con el aspecto del MES en claro.
+> - **Sin mockup** (usuario): se revisa en la app. Va **en la E2**, con el login y el cambio de
+>   contraseña.
+
 ## Skill de frontend-design (usuario, al aprobar)
 
 El mockup y la implementación usan la skill `frontend-design` (plugin `frontend-design`).
@@ -196,8 +214,9 @@ brief (otra librería, fuentes, animaciones pesadas), se pregunta antes.
 - El diseño de los `.xlsx`.
 
 ### Out
-- **El POD y el área del operador** (`Training.Master`, `Site.Master`): no cambia su diseño. Solo
-  se verifica que sigan funcionando con Bootstrap 5.3.
+- **El POD** (`Training.Master`): no cambia su diseño. Solo se verifica que siga funcionando con
+  Bootstrap 5.3. La página de inicio del operador (`StartSession.aspx`, `Site.Master`) sí entra
+  (enmienda, D-163).
 - Cambios en cálculos, reglas, datos, filtros o columnas del dashboard (spec 018, D-136 a D-150).
 - Vistas, descargas o gráficas nuevas.
 - Colores de marca corporativa: se usa un acento neutro. Si después hay guía de marca, se

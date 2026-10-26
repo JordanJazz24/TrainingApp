@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-163. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: D-164. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -179,6 +179,7 @@
 | D-160 | 2026-10-26 | Fase 11: Operadores, Pasos, Seguimiento y Usuarios como tablas con los componentes del mockup (insignias por guía, barra de % y 2 motivos, chips de reglas con texto, insignias de rol y cuenta) | specs/019-ui-ux-dashboard.md | vigente |
 | D-161 | 2026-10-26 | MVP: guía simulada de Wires / Subensamble 1, Serialized con la forma de LoFlo (Assembly, DC, sin checklist, mismos pesos), datos SIM, scripts `11` y `12`; para que los trainers prueben el flujo Serialized | `0f01f11` (plan directo; roadmap → tabla de fases) | vigente |
 | D-162 | 2026-10-26 | Fase 11: los campos (form-control, form-select, input-group) tienen un borde propio para pasar 3:1 (`#808B9B` en claro, `#627083` en oscuro); el borde del mockup queda para tablas, paneles y divisores | specs/019-ui-ux-dashboard.md (enmienda) | vigente |
+| D-163 | 2026-10-26 | Fase 11: la página de inicio del operador (`StartSession`, `Site.Master`) entra con el sistema de diseño y el tema; los modos como tarjetas; mismo flujo; sin mockup; va en la E2; el POD sigue fuera | specs/019-ui-ux-dashboard.md (enmienda) | vigente |
 
 ## Bugs que ya existían (B-n)
 
