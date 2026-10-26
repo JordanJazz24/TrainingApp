@@ -73,13 +73,12 @@ el catálogo (códigos NC, parámetros de DC), nunca la secuencia de tipos de pa
 Antes de SAP (spec 016)
   0. Ingreso a MES    Primer paso de todas las guías (`MesLogin`), en pantalla completa: el
                       escritorio de Windows (solo el script y el Repositorio), el script de
-                      limpieza con el Code1 (9 dígitos), el Repositorio en Edge, Hora a Hora
-                      3.0 (Code1, Iniciar) y Recursos MES (estación con etiqueta simulada,
-                      Code1, Buscar), y el login de MES (Code1 y contraseña, Log On). Se
-                      califican la SECUENCIA y el CODE1 PROPIO; no la estación, la contraseña
-                      (solo formato) ni el orden entre Hora a Hora y Recursos MES (en Guided
-                      la guía enseña Hora a Hora primero). Cada pantalla se califica al
-                      enviarla y un fallo vuelve a esa pantalla (D-68). Se hace al inicio del
+                      limpieza con el Code1 (9 dígitos), el Repositorio en Edge, Recursos
+                      MES (estación con etiqueta simulada, Code1, Buscar) y el login de MES
+                      (Code1 y contraseña, Log On). Hora a Hora no es parte del Ingreso
+                      (D-151): sus tarjetas se ven y no hacen nada. Se califican la
+                      SECUENCIA y el CODE1 PROPIO; no la estación ni la contraseña (solo
+                      formato). Cada pantalla se califica al enviarla y un fallo vuelve a esa pantalla (D-68). Se hace al inicio del
                       turno y al cambiar de estación.
 Apertura
   1. Resource Setup   Asocia el recurso (estación) a la Shop Order y las herramientas
@@ -217,19 +216,19 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
   Logout antes del último paso y el Repositorio fuera de su turno (en el Ingreso y en la
   limpieza) muestran "Ese no es el paso actual." **sin intento** y no abren nada; si el MES
   tiene un mensaje para ese botón en ese estado, se muestra ese mensaje en su lugar (spec
-  017, D-101). Log On sin
-  el registro de Hora a Hora es un error dentro del paso, no "otro paso": intento fallido. Los
-  botones del MES sin lógica no hacen nada, sin aviso ni intento.
+  017, D-101). Los botones del MES sin lógica no hacen nada, sin aviso ni intento.
 - **Ingreso a MES y limpieza al salir (spec 016):** cada pantalla se califica al enviarla.
-  - **Decisión:** el Code1 en el script, en Hora a Hora, en Recursos MES y en el login de MES
+  - **Decisión:** el Code1 en el script, en Recursos MES y en el login de MES
     (el propio está bien; uno ajeno es intento fallido, `WrongDecision`, y se queda en esa
     pantalla); abrir el Repositorio antes del script (en el Ingreso) o en el escritorio de la
     limpieza (intento fallido de Logout, `OutOfSequence`; en Guided se ignora, como un botón
-    fuera de secuencia); Log On sin el registro de Hora a Hora (vuelve al Repositorio).
+    fuera de secuencia). El login de MES solo se abre con Recursos MES hecho: un Log On sin
+    ese registro es un envío inválido, sin intento (D-151).
   - **Formato, sin intento:** Code1 vacío; en el script, un Code1 que no tiene exactamente 9
     dígitos; estación o contraseña vacías; `<`, `>` o `&#`.
   - **No cuentan:** cerrar Edge (lo hecho se conserva), cerrar la consola sin responder,
-    cambiar de pestaña, abrir una tarjeta (Hora-Hora 1.0 no hace nada) y Log On Again.
+    cambiar de pestaña, abrir una tarjeta (Hora-Hora 1.0 y 3.0 no hacen nada, D-151) y Log On
+    Again.
 - **Log NC (spec 014):** el operador ejecuta el método del paso sobre la pieza del hallazgo.
   Todo se califica junto en **un solo envío** (Add-Done, o la decisión equivocada que lo
   termina), contra el hallazgo; cualquier fallo es `WrongDecision` con el mensaje genérico

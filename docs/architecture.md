@@ -383,8 +383,7 @@ Reglas: `docs/domain.md` → "Modos de sesión" y "Qué cuenta como intento".
 - **Aviso de otro paso (D-88):** con `Notice`, `PodService.OutOfSequence` y `MesFailure`
   devuelven `PodCommandResult.NotCurrentStepNotice` sin intento y la página muestra "Ese no
   es el paso actual.". En el Ingreso y la limpieza solo el Repositorio fuera de turno es
-  "otro paso" (`MesAction.OpenRepository`); Log On sin Hora a Hora llega también como
-  `OutOfSequence` pero es intento fallido.
+  "otro paso" (`MesAction.OpenRepository`).
 - **Saltar e Ir a… (D-83, D-84 enmendada):** `PodService.Skip(ctx, targetOrder)` recorre
   desde el paso actual hasta el anterior al destino: `RecordAttempt(..., Skipped, resolve:
   true)` (sigue el camino del avance forzado, cada paso en su transacción de
@@ -460,7 +459,7 @@ cuenta como intento".
   `MesLoginControl`. No es un `IStepControl` ni pasa por `OpenStepType`: lo decide
   `ApplyMesLoginScreen` en `OnPreRender`, después de los handlers.
 - **Un control para las dos (D-76):** `MesLoginControl` tiene el escritorio, la consola del
-  script, Edge con pestañas, el Repositorio, Hora a Hora, Recursos MES con la etiqueta de la
+  script, Edge con pestañas, el Repositorio, Recursos MES con la etiqueta de la
   estación, el login de NetWeaver y "You have logged off" (`MesLoginView.Mode`: login o
   logout). Pantallas y pestañas se manejan en el cliente; la página le pasa en `View` la
   pantalla de arranque y el avance. Las pestañas abiertas viajan con cada postback en un
@@ -471,9 +470,10 @@ cuenta como intento".
   aceptado, ignorado (doble envío, script ya hecho), fallido (con la pantalla a la que se
   vuelve) o inválido. Un envío inválido (Session perdida, otra pestaña, manipulación) no
   registra nada y vuelve a la pantalla del avance guardado (`ResumeScreen`). Los fallos de
-  secuencia en Guided se ignoran sin intento (`MesFailure`).
-- **Avance en `PodState` (D-78):** `MesLoginProgress` (script, Edge abierto, Hora a Hora,
-  Recursos MES) y `LogoutProgress` (Edge cerrado). F5 retoma desde ahí. Se descartan al
+  secuencia en Guided se ignoran sin intento (`MesFailure`). Una acción que no está en
+  `MesAction` (ej. `HoraHoraStart` de una página abierta antes de D-151) la descarta
+  `MesLoginControl` (`Enum.TryParse` + `IsDefined`) sin llegar a la BLL.
+- **Avance en `PodState` (D-78):** `MesLoginProgress` (script, Edge abierto, Recursos MES) y `LogoutProgress` (Edge cerrado). F5 retoma desde ahí. Se descartan al
   resolver el paso. Si la Session se pierde, el Ingreso vuelve a empezar desde el escritorio
   y la limpieza desde el ícono Logout.
 - **Code1 (D-79):** `PodContext.Code1` sale de la BD por el `UserId` (perezoso), nunca del

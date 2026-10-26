@@ -50,7 +50,6 @@ namespace TrainingApp.Pages.Training.Models
     {
         public bool ScriptDone   { get; set; }
         public bool EdgeOpen     { get; set; }
-        public bool HoraHoraDone { get; set; }
         public bool RecursosDone { get; set; }
         public string Screen     { get; set; }
 

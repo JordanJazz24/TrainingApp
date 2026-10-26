@@ -12,10 +12,10 @@ namespace TrainingApp.Test
     [TestFixture]
     public class StepHintsTests
     {
-        private static string Login(bool script, bool edge, bool horaHora, bool recursos)
+        private static string Login(bool script, bool edge, bool recursos)
             => StepHints.For(StepType.MesLogin, new MesLoginProgress
             {
-                ScriptDone = script, EdgeOpen = edge, HoraHoraDone = horaHora, RecursosDone = recursos
+                ScriptDone = script, EdgeOpen = edge, RecursosDone = recursos
             }, null);
 
         [Test]
@@ -23,11 +23,10 @@ namespace TrainingApp.Test
         {
             Assert.Multiple(new System.Action(() =>
             {
-                Assert.That(Login(false, false, false, false), Does.StartWith("Haga doble clic en MES Limpiar historial y cache"));
-                Assert.That(Login(true, false, false, false), Does.StartWith("Cierre la consola"));
-                Assert.That(Login(true, true, false, false), Does.StartWith("Seleccione Hora-Hora (3.0)"));
-                Assert.That(Login(true, true, true, false), Does.StartWith("Vuelva a la pestaña del Repositorio"));
-                Assert.That(Login(true, true, true, true), Does.StartWith("En el login de MES"));
+                Assert.That(Login(false, false, false), Does.StartWith("Haga doble clic en MES Limpiar historial y cache"));
+                Assert.That(Login(true, false, false), Does.StartWith("Cierre la consola"));
+                Assert.That(Login(true, true, false), Does.StartWith("En el Repositorio seleccione Recursos MES"));
+                Assert.That(Login(true, true, true), Does.StartWith("En el login de MES"));
             }));
         }
 

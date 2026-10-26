@@ -56,7 +56,7 @@ spec 014, #17-#23)._
 | 24 | Escritorio de Windows (solo el script y el Repositorio) | 0 (Ingreso) y 10 (Logout) | `Pre-SAPMES/ESCRITORIO DE WINDWOS ` | ✅ spec 016 (*aceptada:* solo dos íconos, D-69; barra del simulador arriba, P-11) |
 | 25 | Consola del script de limpieza | 0 y 10 | `Pre-SAPMES/iNGRESO CODE1 Y EJECUYCION SCRIPT` | ✅ spec 016 |
 | 26 | Repositorio de Aplicaciones (en Edge) | 0 | `Pre-SAPMES/Repositorio APLICACIONES` | ✅ spec 016 (*aceptada:* Edge genérico, D-71) |
-| 27 | Hora a Hora 3.0 | 0 | `Pre-SAPMES/login hora-hora 3.0 ` | ✅ spec 016 (*aceptada:* después de Iniciar, aviso provisional, D-72) |
+| 27 | Hora a Hora 3.0 | — | `Pre-SAPMES/login hora-hora 3.0 ` | ❌ quitada (2026-10-26, D-151: no es parte del Ingreso; la tarjeta del Repositorio se ve y no hace nada) |
 | 28 | Recursos MES | 0 | `Pre-SAPMES/login recursos mes ` | ✅ spec 016 (la estación, con etiqueta simulada, D-70) |
 | 29 | Login de MES (SAP NetWeaver) | 0 | `Login SAP NETWEAVER` | ✅ spec 016 |
 | 30 | You have logged off | 10 | `Pre-SAPMES/logout sap mes` | ✅ spec 016 |

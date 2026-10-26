@@ -206,8 +206,7 @@ namespace TrainingApp.BLL.Training
 
         // Fallo de una pantalla del Ingreso o de la limpieza: uno de secuencia en Guided se
         // ignora sin intento, como un botón fuera de secuencia (S2). En Práctica libre solo el
-        // Repositorio fuera de su turno es "otro paso" (aviso sin intento, P-4); Log On sin Hora
-        // a Hora es un error dentro del paso. El resto registra el intento y dice a qué pantalla
+        // Repositorio fuera de su turno es "otro paso" (aviso sin intento, P-4). El resto registra el intento y dice a qué pantalla
         // volver (P-4).
         private PodCommandResult MesFailure(PodContext ctx, MesOutcome outcome, MesAction mesAction, string action)
         {

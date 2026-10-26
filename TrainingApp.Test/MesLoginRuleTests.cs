@@ -5,17 +5,16 @@ using TrainingApp.Domain;
 
 namespace TrainingApp.Test
 {
-    // Spec 016 (AC-2 a AC-8, P-3, P-4): el Ingreso a MES se califica por secuencia y por el
-    // Code1 propio; cada fallo vuelve a la pantalla que falló.
+    // Spec 016 (AC-2 a AC-8, P-3, P-4; enmienda 1, D-151): el Ingreso a MES se califica por
+    // secuencia y por el Code1 propio; cada fallo vuelve a la pantalla que falló.
     [TestFixture]
     public class MesLoginRuleTests
     {
         private const string Own   = "320102684";
         private const string Other = "320999999";
 
-        private static MesLoginProgress Progress(bool script = false, bool edge = false,
-            bool horaHora = false, bool recursos = false)
-            => new MesLoginProgress { ScriptDone = script, EdgeOpen = edge, HoraHoraDone = horaHora, RecursosDone = recursos };
+        private static MesLoginProgress Progress(bool script = false, bool edge = false, bool recursos = false)
+            => new MesLoginProgress { ScriptDone = script, EdgeOpen = edge, RecursosDone = recursos };
 
         private static MesOutcome Evaluate(MesLoginProgress progress, MesAction action,
             string code1 = null, string resource = null, string password = null)
@@ -40,10 +39,9 @@ namespace TrainingApp.Test
         {
             AssertAccepted(Evaluate(Progress(), MesAction.RunScript, Own), MesScreen.ScriptOutput);
             AssertAccepted(Evaluate(Progress(script: true), MesAction.OpenRepository), MesScreen.Repository);
-            AssertAccepted(Evaluate(Progress(true, true), MesAction.HoraHoraStart, Own), MesScreen.HoraHora);
             AssertAccepted(Evaluate(Progress(true, true), MesAction.RecursosSearch, Own, "LoFlo-01"), MesScreen.MesLogin);
             AssertAccepted(Evaluate(Progress(true, true), MesAction.CloseEdge), MesScreen.Desktop);
-            AssertAccepted(Evaluate(Progress(true, true, true, true), MesAction.LogOn, Own, password: "1"), null);
+            AssertAccepted(Evaluate(Progress(true, true, true), MesAction.LogOn, Own, password: "1"), null);
         }
 
         // F5 (D-78): Edge cerrado → escritorio; con Recursos MES hecho, el login; si no, el Repositorio.
@@ -51,16 +49,15 @@ namespace TrainingApp.Test
         public void ResumeScreen_FollowsSavedProgress()
         {
             Assert.That(Progress(script: true).ResumeScreen(), Is.EqualTo(MesScreen.Desktop));
-            Assert.That(Progress(true, true, horaHora: true).ResumeScreen(), Is.EqualTo(MesScreen.Repository));
+            Assert.That(Progress(true, true).ResumeScreen(), Is.EqualTo(MesScreen.Repository));
             Assert.That(Progress(true, true, recursos: true).ResumeScreen(), Is.EqualTo(MesScreen.MesLogin));
         }
 
-        // Ya hecho gana sobre el desfase: un doble envío de Hora a Hora con Edge cerrado en otra
-        // pestaña se ignora.
+        // D-151: Hora a Hora salió del Ingreso. Su acción ya no existe: MesLoginControl descarta
+        // la que llegue de una página abierta antes (Enum.TryParse + IsDefined), sin intento.
         [Test]
-        public void HoraHora_AlreadyDone_IsIgnoredEvenWithEdgeClosed()
-            => Assert.That(Evaluate(Progress(script: true, horaHora: true), MesAction.HoraHoraStart, Own).Kind,
-                Is.EqualTo(MesOutcomeKind.Ignored));
+        public void HoraHoraStart_IsNotAnAction()
+            => Assert.That(System.Enum.IsDefined(typeof(MesAction), "HoraHoraStart"), Is.False);
 
         // ── Script ───────────────────────────────────────────────────────
 
@@ -101,26 +98,16 @@ namespace TrainingApp.Test
         public void Repository_AfterScript_IsAccepted()
             => Assert.That(Evaluate(Progress(script: true), MesAction.OpenRepository).Kind, Is.EqualTo(MesOutcomeKind.Accepted));
 
-        // ── Hora a Hora y Recursos MES ───────────────────────────────────
-
-        [Test]
-        public void HoraHora_OtherCode1_FailsAndStaysThere()
-            => AssertFailed(Evaluate(Progress(true, true), MesAction.HoraHoraStart, Other),
-                AttemptReason.WrongDecision, MesScreen.HoraHora);
-
-        [Test]
-        public void HoraHora_WithEdgeClosed_IsInvalid()
-            => Assert.That(Evaluate(Progress(script: true), MesAction.HoraHoraStart, Own).Kind, Is.EqualTo(MesOutcomeKind.Invalid));
+        // ── Recursos MES ─────────────────────────────────────────────────
 
         [Test]
         public void Recursos_OtherCode1_FailsAndStaysThere()
             => AssertFailed(Evaluate(Progress(true, true), MesAction.RecursosSearch, Other, "LoFlo-01"),
                 AttemptReason.WrongDecision, MesScreen.Recursos);
 
-        // D-67: la estación no se califica (cualquier valor no vacío) y Recursos MES puede ir
-        // antes que Hora a Hora.
+        // D-67: la estación no se califica (cualquier valor no vacío).
         [Test]
-        public void Recursos_AnyStationBeforeHoraHora_IsAccepted()
+        public void Recursos_AnyStation_IsAccepted()
             => Assert.That(Evaluate(Progress(true, true), MesAction.RecursosSearch, Own, "OTRA-99").Kind,
                 Is.EqualTo(MesOutcomeKind.Accepted));
 
@@ -131,32 +118,27 @@ namespace TrainingApp.Test
 
         // ── Log On ───────────────────────────────────────────────────────
 
+        // AC-7 (enmienda 1): Log On exige solo el registro de Recursos MES.
         [Test]
-        public void LogOn_WithBothRegistrations_IsAccepted()
-            => Assert.That(Evaluate(Progress(true, true, true, true), MesAction.LogOn, Own, password: "1").Kind,
+        public void LogOn_WithRecursos_IsAccepted()
+            => Assert.That(Evaluate(Progress(true, true, true), MesAction.LogOn, Own, password: "1").Kind,
                 Is.EqualTo(MesOutcomeKind.Accepted));
-
-        // AC-7, P-4: sin Hora a Hora, intento fallido y vuelve a la pestaña del Repositorio.
-        [Test]
-        public void LogOn_WithoutHoraHora_FailsToRepository()
-            => AssertFailed(Evaluate(Progress(true, true, horaHora: false, recursos: true), MesAction.LogOn, Own, password: "1"),
-                AttemptReason.OutOfSequence, MesScreen.Repository);
 
         [Test]
         public void LogOn_OtherCode1_FailsAndStaysInLogin()
-            => AssertFailed(Evaluate(Progress(true, true, true, true), MesAction.LogOn, Other, password: "1"),
+            => AssertFailed(Evaluate(Progress(true, true, true), MesAction.LogOn, Other, password: "1"),
                 AttemptReason.WrongDecision, MesScreen.MesLogin);
 
         // D-73: la contraseña es solo formato.
         [Test]
         public void LogOn_EmptyPassword_IsInvalid()
-            => Assert.That(Evaluate(Progress(true, true, true, true), MesAction.LogOn, Own, password: "").Kind,
+            => Assert.That(Evaluate(Progress(true, true, true), MesAction.LogOn, Own, password: "").Kind,
                 Is.EqualTo(MesOutcomeKind.Invalid));
 
-        // El login de MES solo se abre con Recursos MES hecho.
+        // El login de MES solo se abre con Recursos MES hecho: sin él, el cliente está desfasado.
         [Test]
         public void LogOn_WithoutRecursos_IsInvalid()
-            => Assert.That(Evaluate(Progress(true, true, true, false), MesAction.LogOn, Own, password: "1").Kind,
+            => Assert.That(Evaluate(Progress(true, true), MesAction.LogOn, Own, password: "1").Kind,
                 Is.EqualTo(MesOutcomeKind.Invalid));
 
         // ── Cerrar Edge (P-13) ───────────────────────────────────────────
@@ -164,13 +146,13 @@ namespace TrainingApp.Test
         [Test]
         public void CloseEdge_KeepsRegistrations()
         {
-            var progress = Progress(true, true, true, false);
+            var progress = Progress(true, true, true);
             Assert.That(Evaluate(progress, MesAction.CloseEdge).Kind, Is.EqualTo(MesOutcomeKind.Accepted));
 
             progress.Apply(MesAction.CloseEdge);
 
             Assert.That(progress.EdgeOpen, Is.False);
-            Assert.That(progress.HoraHoraDone, Is.True);
+            Assert.That(progress.RecursosDone, Is.True);
             Assert.That(progress.ScriptDone, Is.True);
         }
 
@@ -204,11 +186,10 @@ namespace TrainingApp.Test
         public void Cleanup_Repository_FailsOutOfSequence()
             => AssertFailed(Cleanup(true, MesAction.OpenRepository), AttemptReason.OutOfSequence, MesScreen.Desktop);
 
-        // Con Edge todavía abierto el escritorio no se ve; Hora a Hora, Recursos y Log On no
-        // existen en la limpieza.
+        // Con Edge todavía abierto el escritorio no se ve; Recursos y Log On no existen en la
+        // limpieza.
         [TestCase(false, MesAction.RunScript)]
         [TestCase(false, MesAction.OpenRepository)]
-        [TestCase(true, MesAction.HoraHoraStart)]
         [TestCase(true, MesAction.RecursosSearch)]
         [TestCase(true, MesAction.LogOn)]
         public void Cleanup_UnreachableActions_AreInvalid(bool edgeClosed, MesAction action)

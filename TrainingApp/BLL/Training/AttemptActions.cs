@@ -59,7 +59,6 @@ namespace TrainingApp.BLL.Training
         // Ingreso a MES (spec 016): la pantalla y el botón que se calificaron.
         public const string MesScript         = "MES.Script.Enter";
         public const string MesRepository     = "MES.Desktop.Repositorio";
-        public const string MesHoraHoraStart  = "MES.HoraHora.Iniciar";
         public const string MesRecursosSearch = "MES.Recursos.Buscar";
         public const string MesLogOn          = "MES.Login.LogOn";
 
@@ -86,7 +85,6 @@ namespace TrainingApp.BLL.Training
             {
                 case MesAction.RunScript:      return MesScript;
                 case MesAction.OpenRepository: return MesRepository;
-                case MesAction.HoraHoraStart:  return MesHoraHoraStart;
                 case MesAction.RecursosSearch: return MesRecursosSearch;
                 case MesAction.LogOn:          return MesLogOn;
                 // Cerrar Edge no se califica (P-13).

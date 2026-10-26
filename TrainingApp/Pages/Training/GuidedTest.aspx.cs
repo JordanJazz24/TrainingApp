@@ -359,7 +359,6 @@ namespace TrainingApp.Pages.Training
                     Mode         = MesLoginControl.ModeLogin,
                     ScriptDone   = progress.ScriptDone,
                     EdgeOpen     = progress.EdgeOpen,
-                    HoraHoraDone = progress.HoraHoraDone,
                     RecursosDone = progress.RecursosDone,
                     Screen       = MesLoginControl.ScreenFor(screen),
                     ResourceName = _ctx.ResourceName,

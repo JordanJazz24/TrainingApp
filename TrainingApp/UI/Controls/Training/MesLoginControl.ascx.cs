@@ -7,7 +7,7 @@ using TrainingApp.Pages.Training.Models;
 namespace TrainingApp.UI.Controls.Training
 {
     // Ingreso a MES (spec 016, D-76): escritorio, consola del script, Edge con el Repositorio,
-    // Hora a Hora 3.0, Recursos MES y el login de MES. Las pantallas y las pestañas se manejan
+    // Recursos MES y el login de MES (sin Hora a Hora, D-151). Las pantallas y las pestañas se manejan
     // en el cliente; cada acción calificable o que cambia el avance es un postback (D-77) que
     // la página manda a PodService. No es un IStepControl: se ve mientras el paso actual es
     // Ingreso a MES y la página le pasa en View lo que tiene que pintar.
@@ -18,7 +18,6 @@ namespace TrainingApp.UI.Controls.Training
         public const string ScreenConsole     = "console";
         public const string ScreenConsoleDone = "consoleDone";
         public const string ScreenRepository  = "repository";
-        public const string ScreenHoraHora    = "horahora";
         public const string ScreenRecursos    = "recursos";
         public const string ScreenMesLogin    = "meslogin";
         public const string ScreenLoggedOff   = "loggedoff";
@@ -71,7 +70,6 @@ namespace TrainingApp.UI.Controls.Training
                 case MesScreen.Console:      return ScreenConsole;
                 case MesScreen.ScriptOutput: return ScreenConsoleDone;
                 case MesScreen.Repository: return ScreenRepository;
-                case MesScreen.HoraHora:   return ScreenHoraHora;
                 case MesScreen.Recursos:   return ScreenRecursos;
                 case MesScreen.MesLogin:   return ScreenMesLogin;
                 case MesScreen.LoggedOff:  return ScreenLoggedOff;

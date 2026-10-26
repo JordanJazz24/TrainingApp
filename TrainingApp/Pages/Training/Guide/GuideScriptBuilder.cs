@@ -158,7 +158,7 @@ namespace TrainingApp.Pages.Training.Guide
                 html: H("Presione ", B("REMOVE ALL"), " para limpiar la tabla antes de agregar los recursos de esta orden."),
                 alert: H("Si hay equipos registrados, haga ", B("Remove All"), " y escanee los de su estación. ",
                     "No asuma que son los mismos que tiene en su mesa; sin ese registro se pierde la trazabilidad ",
-                    "de la operación, lo que puede conllevar acciones disciplinarias."));
+                    "de la operación."));
             s.Add("insertShopOrder", GuideMode.Click, Anchor("rs-insert-new"),
                 html: H("Presione ", B("INSERT NEW"), " para agregar una fila."));
             s.Add("shopOrder", GuideMode.Capture, Anchor("rs-row-value"), pickLast: true, format: GuideFormat.Digits,
@@ -458,10 +458,11 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Alerta del subpaso 1 de Log NC (spec 014, D-43, texto aprobado).
+        // Alerta del subpaso 1 de Log NC (spec 014, D-43, texto aprobado; sin la mención
+        // disciplinaria, D-152).
         private static readonly string WrongUnitAlert = H(
             "Revise que solo esté seleccionada la pieza/SFC defectuosa. ",
-            "Scrapear la unidad equivocada es CRÍTICO: MES no lo detecta y puede haber acciones disciplinarias.");
+            "Scrapear la unidad equivocada es CRÍTICO: MES no lo detecta.");
 
         // Log NC (spec 014): la pieza del hallazgo (NonSerialized: la fila del split), el código
         // del hallazgo en NC Selection, el componente en la reparación rápida, Comments en la
@@ -648,10 +649,9 @@ namespace TrainingApp.Pages.Training.Guide
             return s;
         }
 
-        // Ingreso a MES (spec 016, P-8): el script, el Repositorio, Hora a Hora antes que
-        // Recursos MES (la guía impone ese orden) y el login de MES; al final, el usuario en el
-        // header (P-10). Retoma según el avance guardado; tras un intento fallido, en la pantalla
-        // que falló. Las capturas de Code1 solo dejan seguir con el del operador (como D-25).
+        // Ingreso a MES (spec 016, P-8): el script, el Repositorio, Recursos MES y el login de
+        // MES (sin Hora a Hora, D-151); al final, el usuario en el header (P-10). Retoma según
+        // el avance guardado; tras un intento fallido, en la pantalla que falló. Las capturas de Code1 solo dejan seguir con el del operador (como D-25).
         private static StepScript MesLogin(PodContext ctx, TrainingStep step)
         {
             var progress = ctx.MesLogin;
@@ -661,15 +661,12 @@ namespace TrainingApp.Pages.Training.Guide
                 TailName   = "userInfo",
                 ResumeName = !progress.ScriptDone ? "info"
                     : !progress.EdgeOpen ? "closeConsole"
-                    : !progress.HoraHoraDone ? "horahora"
-                    : !progress.RecursosDone ? "backToRepo"
+                    : !progress.RecursosDone ? "recursos"
                     : "loginUser"
             };
             s.IncorrectByDetail[MesScreen.Console.ToString()]    = "scriptCode1";
-            s.IncorrectByDetail[MesScreen.HoraHora.ToString()]   = "hhCode1";
             s.IncorrectByDetail[MesScreen.Recursos.ToString()]   = "recResource";
             s.IncorrectByDetail[MesScreen.MesLogin.ToString()]   = "loginUser";
-            s.IncorrectByDetail[MesScreen.Repository.ToString()] = "backToRepo";
 
             s.Add("info", GuideMode.Info, Anchor("mes-desktop"),
                 html: H("Antes de entrar a SAP MES se prepara la estación. Esto se hace al inicio del turno ",
@@ -679,14 +676,6 @@ namespace TrainingApp.Pages.Training.Guide
             s.Add("repositorio", GuideMode.Click, Anchor("mes-icon-repositorio"),
                 done: new[] { Anchor("mes-edge") },
                 html: H("Haga doble clic en ", B("Repositorio"), "."));
-            s.Add("horahora", GuideMode.Click, Anchor("mes-card-hh3"),
-                html: H("Seleccione ", B("Hora-Hora (3.0)"), "."));
-            s.Add("hhCode1", GuideMode.Capture, Anchor("mes-hh-code1"), format: GuideFormat.Required, expect: code1,
-                html: H("Escriba su Code1: ", B(code1), "."));
-            s.Add("hhStart", GuideMode.Click, Anchor("mes-hh-start"), postback: true,
-                html: H("Presione ", B("Iniciar"), "."));
-            s.Add("backToRepo", GuideMode.Click, Anchor("mes-tab-repositorio"),
-                html: H("Deje abierta esta pestaña y vuelva a la del ", B("Repositorio"), "."));
             s.Add("recursos", GuideMode.Click, Anchor("mes-card-recursos"),
                 html: H("Seleccione ", B("Recursos MES"), "."));
             // Como la etiqueta de la orden (spec 011): se resalta la etiqueta y el campo queda

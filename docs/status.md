@@ -7,9 +7,9 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-23 · **Branch:** `TrainingApp`; se trabaja en `fase-10`
-(`.claude/worktrees/fase-10`) y se integra con la aprobación del usuario (`docs/process.md`
-§7) · **Último commit de código:** spec 018 E8 (Fase 10 ✅), probada por el usuario (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; R1/R2 se trabaja en la
+rama `r1-r2` (worktree `.claude/worktrees/fase-10`) y se integra con la aprobación del usuario
+(`docs/process.md` §7) · **Último commit de código:** spec 018 E8 (Fase 10 ✅), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -63,12 +63,15 @@
     Se borró al cerrar la E7.
 - **Lo que sigue después de la Fase 10** (orden del usuario, 2026-10-23; `docs/roadmap.md` →
   "Después de la Fase 10"):
-  1. **R1 y R2 de la revisión con Ernesto (2026-10-22):**
-     - R1: quitar Hora a Hora del Ingreso a MES;
-     - R2: quitar las "acciones disciplinarias" de los textos de la guía.
+  1. **R1 y R2 de la revisión con Ernesto (2026-10-22), en curso:** plan
+     `docs/specs/r1-r2-plan.md` y spec 016 → enmienda 1, aprobados el 2026-10-26 (D-151,
+     D-152).
+     - R1: Hora a Hora sale del Ingreso a MES;
+     - R2: la guía no menciona acciones disciplinarias.
 
-     Empieza Arquitectura y Planeación, con la enmienda de la spec 016 (R1) y el plan directo
-     (R2), para que los apruebe el usuario. **Desarrollo espera esa aprobación.**
+     **E1 ✅ en la rama `r1-r2`**: build, 352 tests, `aspnet_compiler` y
+     `/code-review low` en verde; probada por el usuario (2026-10-26). **Falta integrarla
+     en `TrainingApp`** (`git merge --ff-only r1-r2` desde la carpeta real).
   2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`** (con brief de diseño; pedido del usuario al
      aprobar la E6).
   3. **R3 · Custom Resource Setup** (con spec).
@@ -122,9 +125,9 @@ final (D-16) repasó esta lista.
 - **AUD-40 y AUD-42** (`PodState` mutable fuera de `PodService`; orden no reproducible tras
   reconstruir en Serialized): diferidos (D-16). Con la spec 014, al reconstruir también
   cambian los hallazgos (se regeneran sobre las piezas nuevas).
-- **Spec 016, provisional o genérico hasta tener capturas:** el aviso de Hora a Hora después
-  de Iniciar (D-72) y el marco de Edge (D-71; sin la URL de las pestañas de Hora a Hora y
-  Recursos MES, solo el host, ni la del logout de MES).
+- **Spec 016, genérico hasta tener capturas:** el marco de Edge (D-71; sin la URL de la
+  pestaña de Recursos MES, solo el host, ni la del logout de MES). El aviso provisional de
+  Hora a Hora (D-72) se quitó con R1 (D-151).
 - **Spec 017, provisional:** el texto de Start sin Resource Setup (M-1, D-111), sin captura
   del MES y sin número, hasta capturarlo en testing.
 

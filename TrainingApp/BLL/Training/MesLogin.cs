@@ -12,7 +12,6 @@ namespace TrainingApp.BLL.Training
         Console,
         ScriptOutput,    // la consola con la salida del script y "Press any key to continue"
         Repository,
-        HoraHora,
         Recursos,
         MesLogin,
         LoggedOff        // Logout con la limpieza (spec 016, P-6): "You have logged off" en Edge
@@ -20,11 +19,12 @@ namespace TrainingApp.BLL.Training
 
     // Acciones del Ingreso que viajan al servidor (D-77): calificables o que cambian el avance.
     // Cambiar de pestaña, abrir una tarjeta y cerrar la consola se resuelven en el cliente.
+    // Hora a Hora salió del Ingreso (D-151): una acción que no está aquí (una página abierta
+    // antes) no llega a la BLL, sin intento.
     public enum MesAction
     {
         RunScript,       // Enter en la consola con el Code1
         OpenRepository,  // doble clic en Repositorio (abre Edge)
-        HoraHoraStart,   // Iniciar en Hora a Hora 3.0 con el Code1
         RecursosSearch,  // Buscar en Recursos MES con el recurso y el Code1
         LogOn,           // Log On en el login de MES: cierra el paso
         CloseEdge        // ✕ de Edge: vuelve al escritorio y conserva lo hecho (P-13)
@@ -38,7 +38,6 @@ namespace TrainingApp.BLL.Training
     {
         public bool ScriptDone   { get; set; }
         public bool EdgeOpen     { get; set; }
-        public bool HoraHoraDone { get; set; }
         public bool RecursosDone { get; set; }
 
         // Aplica una acción aceptada por MesLoginRule.
@@ -48,7 +47,6 @@ namespace TrainingApp.BLL.Training
             {
                 case MesAction.RunScript:      ScriptDone   = true;  break;
                 case MesAction.OpenRepository: EdgeOpen     = true;  break;
-                case MesAction.HoraHoraStart:  HoraHoraDone = true;  break;
                 case MesAction.RecursosSearch: RecursosDone = true;  break;
                 case MesAction.CloseEdge:      EdgeOpen     = false; break;
             }
@@ -115,9 +113,9 @@ namespace TrainingApp.BLL.Training
             => new MesOutcome(MesOutcomeKind.Failed, reason, returnScreen);
     }
 
-    // Calificación del Ingreso a MES (spec 016, D-67, P-3, P-4): la secuencia y el Code1 propio.
-    // No se califican la estación, la contraseña (solo formato, D-73) ni el orden entre Hora a
-    // Hora y Recursos MES. Sin estado: PodService aplica el resultado y registra el intento.
+    // Calificación del Ingreso a MES (spec 016, D-67, P-3, P-4; sin Hora a Hora, D-151): la
+    // secuencia script → Repositorio → Recursos MES → login y el Code1 propio. No se califican
+    // la estación ni la contraseña (solo formato, D-73). Sin estado: PodService aplica el resultado y registra el intento.
     public static class MesLoginRule
     {
         // Largo exacto que pide el script real (P-2).
@@ -140,11 +138,6 @@ namespace TrainingApp.BLL.Training
                         return MesOutcome.Failed(AttemptReason.OutOfSequence, MesScreen.Desktop);
                     return progress.EdgeOpen ? MesOutcome.Ignored : MesOutcome.Accepted(MesScreen.Repository);
 
-                case MesAction.HoraHoraStart:
-                    if (progress.HoraHoraDone) return MesOutcome.Ignored;
-                    if (!progress.EdgeOpen || IsBlank(code1)) return MesOutcome.Invalid;
-                    return Code1Outcome(ownCode1, code1, MesScreen.HoraHora, MesScreen.HoraHora);
-
                 case MesAction.RecursosSearch:
                     if (progress.RecursosDone) return MesOutcome.Ignored;
                     if (!progress.EdgeOpen || IsBlank(code1) || IsBlank(resource)) return MesOutcome.Invalid;
@@ -152,15 +145,12 @@ namespace TrainingApp.BLL.Training
                     return Code1Outcome(ownCode1, code1, MesScreen.Recursos, MesScreen.MesLogin);
 
                 case MesAction.LogOn:
-                    // El login de MES solo se abre con Recursos MES hecho.
+                    // El login de MES solo se abre con Recursos MES hecho, su único requisito (D-151).
                     if (!progress.EdgeOpen || !progress.RecursosDone || IsBlank(code1) || IsBlank(password))
                         return MesOutcome.Invalid;
-                    if (!IsOwnCode1(ownCode1, code1))
-                        return MesOutcome.Failed(AttemptReason.WrongDecision, MesScreen.MesLogin);
-                    // Sin el registro de Hora a Hora: vuelve a la pestaña del Repositorio (P-4).
-                    return progress.HoraHoraDone
+                    return IsOwnCode1(ownCode1, code1)
                         ? MesOutcome.Accepted(null)
-                        : MesOutcome.Failed(AttemptReason.OutOfSequence, MesScreen.Repository);
+                        : MesOutcome.Failed(AttemptReason.WrongDecision, MesScreen.MesLogin);
 
                 case MesAction.CloseEdge:
                     return progress.EdgeOpen ? MesOutcome.Accepted(MesScreen.Desktop) : MesOutcome.Ignored;
@@ -216,7 +206,7 @@ namespace TrainingApp.BLL.Training
                         : MesOutcome.Failed(AttemptReason.WrongDecision, MesScreen.Console);
 
                 default:
-                    // Hora a Hora, Recursos MES y Log On no existen en la limpieza.
+                    // Recursos MES y Log On no existen en la limpieza.
                     return MesOutcome.Invalid;
             }
         }

@@ -27,39 +27,39 @@ chicas y se prueban juntas (usuario, 2026-10-26).
 > Repositorio", que solo existía por Hora a Hora) y el ancla `mes-card-hh3`, que no usa nada más.
 
 **R2, textos** (`Pages/Training/Guide/GuideScriptBuilder.cs`):
-- [ ] **Resource Setup, alerta de Remove All:** termina en "…sin ese registro se pierde la
+- [x] **Resource Setup, alerta de Remove All:** termina en "…sin ese registro se pierde la
   trazabilidad de la operación." Se quita ", lo que puede conllevar acciones disciplinarias".
-- [ ] **Log NC, alerta del subpaso 1 (`WrongUnitAlert`):** "Revise que solo esté seleccionada la
+- [x] **Log NC, alerta del subpaso 1 (`WrongUnitAlert`):** "Revise que solo esté seleccionada la
   pieza/SFC defectuosa. Scrapear la unidad equivocada es CRÍTICO: MES no lo detecta." Se quita
   "y puede haber acciones disciplinarias". Actualizar el comentario que cita D-43.
-- [ ] Buscar en la app (`.cs`, `.ascx`, `.aspx`, `.js`) que no quede "disciplin" en un texto
+- [x] Buscar en la app (`.cs`, `.ascx`, `.aspx`, `.js`) que no quede "disciplin" en un texto
   visible.
 
 **R1, Hora a Hora fuera del Ingreso** (spec 016 → enmienda 1):
-- [ ] **BLL** (`BLL/Training/MesLogin.cs`): quitar la pantalla `HoraHora`, la acción
+- [x] **BLL** (`BLL/Training/MesLogin.cs`): quitar la pantalla `HoraHora`, la acción
   `HoraHoraStart` y `HoraHoraDone` del avance. Log On exige solo el registro de Recursos MES:
   sin él, inválido, sin intento (ver la corrección). Actualizar los comentarios (D-67).
-- [ ] **`AttemptActions`:** quitar el mapeo de la acción. Los intentos ya guardados con
+- [x] **`AttemptActions`:** quitar el mapeo de la acción. Los intentos ya guardados con
   `MES.HoraHora.Iniciar` se siguen viendo en el dashboard con ese código: revisar que ninguna
   vista ni descarga dependa de la constante.
-- [ ] **Una acción `HoraHoraStart` que llegue de una página vieja** (abierta antes de
+- [x] **Una acción `HoraHoraStart` que llegue de una página vieja** (abierta antes de
   publicar): se trata como cualquier acción desconocida del Ingreso hoy, sin intento y sin
   error 500.
-- [ ] **Control** (`MesLoginControl.ascx` y `.ascx.cs`):
+- [x] **Control** (`MesLoginControl.ascx` y `.ascx.cs`):
   - quitar la pantalla de Hora a Hora 3.0, su pestaña en Edge, el aviso provisional y su JS;
   - la tarjeta Hora-Hora (3.0) queda **visible e inerte**, como la (1.0): no abre nada, no
     envía nada;
   - el cálculo de pestañas abiertas sin `hh`.
-- [ ] **Estilos e imágenes:** quitar los `.mes-hh-*` de `presap.css` y `horahora-photo.jpg` (y
+- [x] **Estilos e imágenes:** quitar los `.mes-hh-*` de `presap.css` y `horahora-photo.jpg` (y
   su `Content` en el `.csproj`) si nadie más los usa. `card-hh3.jpg` se queda (la tarjeta se ve).
-- [ ] **Guía de Guided** (`GuideScriptBuilder`, Ingreso a MES): quitar los subpasos `horahora`,
+- [x] **Guía de Guided** (`GuideScriptBuilder`, Ingreso a MES): quitar los subpasos `horahora`,
   `hhCode1` y `hhStart` y el `IncorrectByDetail` de Hora a Hora. Del Repositorio va directo a la
   tarjeta de Recursos MES, sin mencionar Hora a Hora. El ancla `mes-card-hh3` se queda si la
   tarjeta la usa para otra cosa; si no, se quita.
-- [ ] **Práctica libre:** quitar la pista de Hora a Hora (`StepHints`), y `HoraHoraDone` de
+- [x] **Práctica libre:** quitar la pista de Hora a Hora (`StepHints`), y `HoraHoraDone` de
   `StepViewModel` y de `GuidedTest.aspx.cs`.
-- [ ] **Domain:** el comentario de `StepType.MesLogin` (`TrainingStep.cs`) sin Hora a Hora.
-- [ ] **Tests:** los de `MesLogin` y `StepValidator` que cubren Hora a Hora se ajustan:
+- [x] **Domain:** el comentario de `StepType.MesLogin` (`TrainingStep.cs`) sin Hora a Hora.
+- [x] **Tests:** los de `MesLogin` y `StepValidator` que cubren Hora a Hora se ajustan:
   - Log On sin Recursos MES: inválido, sin intento;
   - Log On con Recursos MES: completa;
   - la acción de Hora a Hora ya no existe.

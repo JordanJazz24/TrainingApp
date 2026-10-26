@@ -1,5 +1,5 @@
 /* Ingreso a MES (spec 016): escritorio de Windows, consola del script, Edge con el
-   Repositorio, Hora a Hora 3.0, Recursos MES y el login de MES (SAP NetWeaver). Pantalla
+   Repositorio, Recursos MES y el login de MES (SAP NetWeaver). Pantalla
    completa sobre el POD mientras el paso actual es Ingreso a MES (P-1). Imágenes recortadas
    de docs/ui-reference/Screens SAP MES REAL/Pre-SAPMES/ (imgs/presap); los estilos del login
    de NetWeaver salen del antiguo auth.css (login de la app hasta la E1 de la spec 016). */
@@ -323,110 +323,6 @@
     right: 70px;
     bottom: 60px;
     width: 92px;
-}
-
-/* ── Hora a Hora 3.0 ─────────────────────────────────────────────────────── */
-.mes-hh {
-    display: flex;
-    min-height: 100%;
-    background: #fff url("imgs/presap/horahora-photo.jpg") right top / cover no-repeat;
-}
-
-.mes-hh-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 38%;
-    min-width: 360px;
-    padding: 90px 50px 40px;
-    background: #0050b0;
-    color: #fff;
-}
-
-.mes-hh-lang {
-    align-self: flex-end;
-    margin-bottom: 40px;
-    font-size: 17px;
-}
-
-.mes-hh-panel h1 {
-    margin: 0 0 30px;
-    font-size: 46px;
-    font-weight: 700;
-}
-
-.mes-hh-panel h2 {
-    margin: 0 0 18px;
-    font-size: 34px;
-    font-weight: 600;
-}
-
-.mes-hh-panel h3 {
-    margin: 0 0 40px;
-    font-size: 26px;
-    font-weight: 600;
-}
-
-.mes-hh-form {
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
-}
-
-.mes-hh-switch {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    align-self: stretch;
-    margin-bottom: 30px;
-    font-size: 17px;
-}
-
-.mes-hh-switch span {
-    width: 40px;
-    height: 20px;
-    border-radius: 10px;
-    background: #fff;
-    box-shadow: inset -20px 0 0 2px #c8c8c8;
-}
-
-.mes-hh-input {
-    align-self: stretch;
-    height: 64px;
-    margin-bottom: 50px;
-    padding: 0 18px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 19px;
-}
-
-.mes-hh-start {
-    align-self: stretch;
-    height: 64px;
-    border: 0;
-    border-radius: 3px;
-    background: #6fadf0;
-    color: #fff;
-    font-size: 19px;
-}
-
-.mes-hh-start:hover {
-    background: #4f98e8;
-}
-
-.mes-hh-version {
-    margin-top: 40px;
-    font-size: 15px;
-}
-
-/* Después de Iniciar (D-72): aviso simple hasta tener la captura del tablero. */
-.mes-hh-notice {
-    align-self: stretch;
-    padding: 24px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    font-size: 20px;
-    text-align: center;
 }
 
 /* ── Recursos MES ────────────────────────────────────────────────────────── */

@@ -464,3 +464,21 @@ a `TrainingApp` con el "funciona" del usuario. Mecanismo: `docs/architecture.md`
 - **Queda abierto:**
   - la Fase 11 (UI/UX del dashboard y diseño de los `.xlsx`);
   - volver a correr `10_spDashboard.sql` en la BD local y en la de producción (usuario).
+
+## R1 y R2 · Ajustes de la revisión con Ernesto ✅ (2026-10-26, plan directo y spec 016 → enmienda 1)
+Plan `docs/specs/r1-r2-plan.md` y enmienda 1 de la spec 016, aprobados por el usuario el
+2026-10-26 (D-151, D-152). Rama `r1-r2`; una entrega (E1), probada por el usuario el 2026-10-26.
+- **R1 (D-151):** Hora a Hora sale del Ingreso a MES, que queda script → Repositorio →
+  Recursos MES → login.
+  - Se borraron la pantalla de Hora a Hora 3.0, su pestaña, el aviso de D-72, `HoraHoraDone`,
+    la acción `HoraHoraStart`, su pista, los `.mes-hh-*` y `horahora-photo.jpg`.
+  - La tarjeta (3.0) se ve y no hace nada, como la (1.0).
+  - Una `HoraHoraStart` de una página vieja la descarta el control, sin intento.
+  - La guía va del Repositorio a Recursos MES; también salió el subpaso `backToRepo`.
+- **Corrección durante la E1 (usuario, con el aviso de Desarrollo):** Log On sin Recursos MES
+  sigue inválido, sin intento, porque el login no se abre sin él. No es "fallido y vuelve al
+  Repositorio".
+- **R2 (D-152):** las alertas de Remove All (Resource Setup) y del subpaso 1 de Log NC terminan
+  sin la frase disciplinaria.
+- Sin cambios de BD, pesos ni versiones de guía. Los intentos guardados con
+  `MES.HoraHora.Iniciar` se siguen viendo en el dashboard.

@@ -44,10 +44,8 @@ namespace TrainingApp.Pages.Training
                 return "Haga doble clic en MES Limpiar historial y cache, escriba su Code1, presione Enter y luego cualquier tecla para cerrar la ventana.";
             if (!progress.EdgeOpen)
                 return "Cierre la consola con cualquier tecla y abra el Repositorio con doble clic.";
-            if (!progress.HoraHoraDone)
-                return "Seleccione Hora-Hora (3.0), escriba su Code1 y presione Iniciar.";
             if (!progress.RecursosDone)
-                return "Vuelva a la pestaña del Repositorio, seleccione Recursos MES, escanee la etiqueta de su estación, escriba su Code1 y presione Buscar.";
+                return "En el Repositorio seleccione Recursos MES, escanee la etiqueta de su estación, escriba su Code1 y presione Buscar.";
             return "En el login de MES ingrese su usuario (Code1) y su contraseña y presione Log On.";
         }
 

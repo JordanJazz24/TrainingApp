@@ -2,7 +2,7 @@
     Inherits="TrainingApp.UI.Controls.Training.MesLoginControl" %>
 
 <%-- Ingreso a MES (spec 016, P-2): escritorio con el script y el Repositorio (D-69), consola
-     del script, Edge genérico (D-71) con el Repositorio, Hora a Hora 3.0 y Recursos MES, y el
+     del script, Edge genérico (D-71) con el Repositorio y Recursos MES, y el
      login de MES con el diseño de SAP NetWeaver (D-63). Capturas en
      docs/ui-reference/Screens SAP MES REAL/Pre-SAPMES/. Los campos visibles no tienen name: no
      viajan; el script copia lo que se envía a los campos ocultos (la contraseña, solo si
@@ -43,8 +43,6 @@
         <div class="mes-edge-tabs">
             <button type="button" class="mes-edge-tab" id="mesTabRepo" data-tab="repo"
                 onclick="mesLogin.activateTab('repo')" data-guide="mes-tab-repositorio">Repositorio de Aplicaciones</button>
-            <button type="button" class="mes-edge-tab" id="mesTabHh" data-tab="hh"
-                onclick="mesLogin.activateTab('hh')" data-guide="mes-tab-horahora">Hora a Hora</button>
             <button type="button" class="mes-edge-tab" id="mesTabRec" data-tab="rec"
                 onclick="mesLogin.activateTab('rec')" data-guide="mes-tab-recursos">Recursos MES</button>
             <%-- Limpieza al salir (P-6): la pestaña de MES después del Logout. --%>
@@ -62,7 +60,8 @@
             <span class="mes-edge-url" id="mesEdgeUrl"></span>
         </div>
 
-        <%-- Repositorio de Aplicaciones: Hora-Hora (1.0) no hace nada (P-2, D-67). --%>
+        <%-- Repositorio de Aplicaciones: las tarjetas Hora-Hora (1.0) y (3.0) se ven y no hacen
+             nada (P-2, D-67, D-151). --%>
         <div class="mes-edge-page" id="mesPageRepo" style="display:none">
             <div class="mes-repo">
                 <h1>Repositorio de Aplicaciones</h1>
@@ -70,7 +69,7 @@
                     <button type="button" class="mes-repo-card" data-guide="mes-card-hh1">
                         <img src="<%=ResolveUrl("~/UI/master/imgs/presap/card-hh1.jpg")%>" alt="Hora-Hora (1.0)" />
                     </button>
-                    <button type="button" class="mes-repo-card" onclick="mesLogin.openTab('hh')" data-guide="mes-card-hh3">
+                    <button type="button" class="mes-repo-card">
                         <img src="<%=ResolveUrl("~/UI/master/imgs/presap/card-hh3.jpg")%>" alt="Hora-Hora (3.0)" />
                     </button>
                     <button type="button" class="mes-repo-card" onclick="mesLogin.openTab('rec')" data-guide="mes-card-recursos">
@@ -78,30 +77,6 @@
                     </button>
                 </div>
                 <img class="mes-repo-logo" src="<%=ResolveUrl("~/UI/master/imgs/presap/philips-shield.png")%>" alt="Philips" />
-            </div>
-        </div>
-
-        <%-- Hora a Hora 3.0: el idioma y el interruptor de Windows son decorativos (P-2). --%>
-        <div class="mes-edge-page" id="mesPageHh" style="display:none">
-            <div class="mes-hh">
-                <div class="mes-hh-panel">
-                    <div class="mes-hh-lang">&#127760; Español &#9662;</div>
-                    <h1>BIENVENIDO</h1>
-                    <h2>Hora a Hora</h2>
-                    <h3>Tiempo Real</h3>
-                    <div id="mesHhForm" class="mes-hh-form">
-                        <div class="mes-hh-switch"><span></span>Usar modo de autenticación de Windows</div>
-                        <input type="text" id="mesHhCode1" class="mes-hh-input" placeholder="Code1"
-                            maxlength="20" autocomplete="off" data-guide="mes-hh-code1" />
-                        <button type="button" class="mes-hh-start" onclick="mesLogin.submitHoraHora()"
-                            data-guide="mes-hh-start">Iniciar</button>
-                    </div>
-                    <%-- PROVISIONAL (D-72): aviso simple hasta tener la captura del tablero. --%>
-                    <div class="mes-hh-notice" id="mesHhNotice" style="display:none" data-guide="mes-hh-notice">
-                        Sesión de Hora a Hora iniciada
-                    </div>
-                    <div class="mes-hh-version">V3.0.1</div>
-                </div>
             </div>
         </div>
 
@@ -231,10 +206,10 @@
     var mesLogin = (function () {
         var state = <%= StateJson %>;
         var REPO_URL = 'http://crapps.philips.com/Repositorio/index.aspx';
-        // Hora a Hora y Recursos MES: solo el host, el mismo del Repositorio (spec 016,
+        // Recursos MES: solo el host, el mismo del Repositorio (spec 016,
         // confirmado por el usuario); sus rutas no se conocen.
         var HOST = 'crapps.philips.com';
-        var tabs = { repo: true, hh: false, rec: false };
+        var tabs = { repo: true, rec: false };
         var active = 'repo';
         var consoleDone = false;
         var sending = false;
@@ -255,8 +230,7 @@
             el('<%= HfMesResource.ClientID %>').value = fields.resource || '';
             el('<%= HfMesPassword.ClientID %>').value = fields.password ? '1' : '';
             // Cerrar Edge cierra sus pestañas; Repositorio vuelve a abrir solo la suya.
-            el('<%= HfMesTabs.ClientID %>').value = action === 'CloseEdge' ? '' :
-                ['hh', 'rec'].filter(function (t) { return tabs[t]; }).join(',');
+            el('<%= HfMesTabs.ClientID %>').value = action === 'CloseEdge' || !tabs.rec ? '' : 'rec';
             __doPostBack('<%= BtnMesSubmit.UniqueID %>', '');
         }
 
@@ -369,38 +343,25 @@
             show('mesPageLoggedOff', off);
             show('mesTabRepo', !off);
             if (off) {
-                ['mesTabHh', 'mesTabRec', 'mesPageRepo', 'mesPageHh', 'mesPageRec', 'mesPageLogin', 'mesStationLabel']
+                ['mesTabRec', 'mesPageRepo', 'mesPageRec', 'mesPageLogin', 'mesStationLabel']
                     .forEach(function (id) { show(id, false); });
                 el('mesTabOff').classList.add('active');
                 // La URL del logout de MES no se conoce (sin captura de Edge).
                 el('mesEdgeUrl').textContent = '';
                 return;
             }
-            show('mesTabHh', tabs.hh);
             show('mesTabRec', tabs.rec);
             el('mesTabRec').textContent = state.RecursosDone ? 'SAP NetWeaver' : 'Recursos MES';
-            ['repo', 'hh', 'rec'].forEach(function (t) {
-                el(t === 'repo' ? 'mesTabRepo' : t === 'hh' ? 'mesTabHh' : 'mesTabRec')
-                    .classList.toggle('active', t === active);
-            });
+            el('mesTabRepo').classList.toggle('active', active === 'repo');
+            el('mesTabRec').classList.toggle('active', active === 'rec');
             show('mesPageRepo', active === 'repo');
-            show('mesPageHh', active === 'hh');
             show('mesPageRec', active === 'rec' && !state.RecursosDone);
             show('mesPageLogin', active === 'rec' && state.RecursosDone);
-            show('mesHhForm', !state.HoraHoraDone);
-            show('mesHhNotice', state.HoraHoraDone);
             el('mesEdgeUrl').textContent = active === 'repo' ? REPO_URL : HOST;
             show('mesStationLabel', active === 'rec' && !state.RecursosDone);
         }
 
         // ── Pantallas que se envían ──────────────────────────────────────
-        function submitHoraHora() {
-            var code1 = value('mesHhCode1');
-            if (!code1) { warn('Campo requerido', 'Ingrese su Code1.'); return; }
-            if (hasMarkup(code1)) return;
-            submit('HoraHoraStart', { code1: code1 });
-        }
-
         function submitRecursos() {
             var resource = value('mesRecResource'), code1 = value('mesRecCode1');
             if (!resource) { warn('Campo requerido', 'Ingrese el recurso.'); return; }
@@ -456,10 +417,8 @@
         function start() {
             var screen = state.Screen || 'desktop';
             var posted = (el('<%= HfMesTabs.ClientID %>').value || '').split(',');
-            tabs.hh  = state.HoraHoraDone || screen === 'horahora' || posted.indexOf('hh') >= 0;
             tabs.rec = state.RecursosDone || screen === 'recursos' || screen === 'meslogin' || posted.indexOf('rec') >= 0;
-            active = screen === 'horahora' ? 'hh'
-                : (screen === 'recursos' || screen === 'meslogin') ? 'rec' : 'repo';
+            active = (screen === 'recursos' || screen === 'meslogin') ? 'rec' : 'repo';
 
             if (screen === 'loggedoff' ||
                 (state.EdgeOpen && screen !== 'desktop' && screen !== 'console' && screen !== 'consoleDone'))
@@ -481,7 +440,7 @@
                 if (consoleDone) closeConsole();
             });
             // Enter en los formularios de Edge envía su pantalla, como en el navegador.
-            [['mesHhCode1', submitHoraHora], ['mesRecResource', stationScanned],
+            [['mesRecResource', stationScanned],
              ['mesRecCode1', submitRecursos], ['mesLoginUser', submitLogOn],
              ['mesLoginPassword', submitLogOn]].forEach(function (pair) {
                 el(pair[0]).addEventListener('keydown', function (e) {
@@ -497,7 +456,7 @@
         return {
             openScript: openScript, focusConsole: focusConsole, closeConsole: closeConsole,
             openRepository: openRepository, closeEdge: closeEdge, openTab: openTab,
-            activateTab: activateTab, submitHoraHora: submitHoraHora, submitRecursos: submitRecursos,
+            activateTab: activateTab, submitRecursos: submitRecursos,
             submitLogOn: submitLogOn, scanStation: scanStation
         };
     })();

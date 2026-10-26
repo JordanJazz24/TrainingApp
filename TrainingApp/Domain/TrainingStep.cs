@@ -13,7 +13,7 @@ namespace TrainingApp.Domain
         Logout = 8,
         LogNCFastRepair = 9,   // Log NC · reparación rápida (spec 014, P-7); LogNC = desecho rápido
         LogNCExtendedRepair = 10, // Log NC · reparación extendida (spec 014, P-7)
-        MesLogin = 11          // Ingreso a MES: script, Repositorio, Hora a Hora, Recursos MES y login (spec 016, D-75)
+        MesLogin = 11          // Ingreso a MES: script, Repositorio, Recursos MES y login (spec 016, D-75, D-151)
     }
 
     public class TrainingStep
