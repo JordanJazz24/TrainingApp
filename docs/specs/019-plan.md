@@ -196,19 +196,26 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 ## E6 · Excel (D-158)
 
-- [ ] **`ExcelReports.cs` (ClosedXML):** Operadores, Pasos y Seguimiento con:
+- [x] **`ExcelReports.cs` (ClosedXML):** Operadores, Pasos y Seguimiento con:
   - la fila de título (vista, filtros y fecha de descarga);
   - los encabezados con color, los filtros de Excel y la primera fila fija;
   - anchos y formatos (%, fechas en la hora de la planta, duraciones);
   - los estados con color.
-- [ ] **`XlsxStreamWriter.cs`** (descarga de sesiones, D-149): los mismos estilos escritos en
+
+  Fila 1 el título, fila 2 el encabezado (fijo, autofiltro desde ahí, también sin filas), datos
+  desde la 3. Cada columna mide al menos su encabezado con el botón del filtro. Sin bordes en
+  los datos (la cuadrícula de Excel): estilar cada celda pesaría en el streaming.
+- [x] **`XlsxStreamWriter.cs`** (descarga de sesiones, D-149): los mismos estilos escritos en
   `styles.xml`, la fila de título, `sheetViews` con la primera fila fija y `autoFilter`.
   - Sigue en streaming.
   - El test de esquema (`OpenXmlValidator`) sigue en 0 errores, y los tests que lo leen con
     ClosedXML suman los estilos.
-- [ ] Mismas columnas y datos. Medir la descarga de sesiones con 30 días y con "Todo": no puede
-  empeorar más de lo razonable (D-148).
-- **Checklist del usuario:** abrir cada archivo en Excel:
+- [x] Mismas columnas y datos. Medir la descarga de sesiones con 30 días y con "Todo": no puede
+  empeorar más de lo razonable (D-148). Medido con `Sessions_LargeVolumeTiming` (~22 000
+  sesiones, el volumen de "Todo"): 3.9 s antes y 3.7 s después de promedio, 13.2 → 13.3 MB. Con
+  30 días no se midió: la BD de volumen se borró al cerrar la Fase 10, y solo se agregan dos
+  filas por hoja.
+- **Checklist del usuario** ✅ (2026-10-26, probado por el usuario): abrir cada archivo en Excel:
   - sin el aviso de "reparar";
   - con título, colores, filtros, la primera fila fija y los formatos.
 

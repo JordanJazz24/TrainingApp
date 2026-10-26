@@ -31,15 +31,56 @@ namespace TrainingApp.Test
             Assert.That(new StepRun { Resolved = false, FailedAttempts = 1 }.Outcome, Is.EqualTo(StepOutcome.Unresolved));
         }
 
-        // AC-21: con 0 filas, solo los encabezados en español.
+        // AC-21: con 0 filas, el título y los encabezados en español (Fase 11, D-158).
         [Test]
-        public void NoRows_OnlyHeaders()
+        public void NoRows_TitleAndHeaders()
         {
             using (var book = ExcelReports.FollowUp(new FollowUpReport { Guides = Guides, Rows = new List<FollowUpRow>() }))
             {
                 var sheet = book.Worksheet("Seguimiento");
-                Assert.That(sheet.Cell(1, 1).GetString(), Is.EqualTo("Código"));
-                Assert.That(sheet.LastRowUsed().RowNumber(), Is.EqualTo(1));
+                Assert.That(sheet.Cell(1, 1).GetString(), Does.StartWith("Seguimiento. Período: todo el historial. Guía: todas. Descargado el "));
+                Assert.That(sheet.Cell(2, 1).GetString(), Is.EqualTo("Código"));
+                Assert.That(sheet.LastRowUsed().RowNumber(), Is.EqualTo(2));
+            }
+        }
+
+        // Fase 11 (D-158): el título con los filtros aplicados; el encabezado con el acento, fijo y
+        // con autofiltro desde la fila 2; cada estado con su color.
+        [Test]
+        public void Operators_TitleHeaderAndStateColors()
+        {
+            var page = new OperatorPage
+            {
+                Guides = Guides,
+                Applied = new OperatorFilter { Text = "ana", State = ReadinessState.Failed, GuideId = 10 },
+                Rows = new List<OperatorRow>
+                {
+                    new OperatorRow
+                    {
+                        Code1 = "C1", Name = "Ana",
+                        Guides = new List<GuideReadiness> { new GuideReadiness { State = ReadinessState.Failed, BestScore = 0.6m } }
+                    }
+                }
+            };
+
+            using (var book = ExcelReports.Operators(page))
+            {
+                var sheet = book.Worksheet("Operadores");
+                Assert.That(sheet.Cell(1, 1).GetString(), Does.StartWith("Operadores. Búsqueda: \"ana\". Estado: reprobado. Guía: LoFlo. Descargado el "));
+                Assert.That(sheet.Cell(1, 1).Style.Font.Bold, Is.True);
+
+                var header = sheet.Cell(2, 1).Style;
+                Assert.That(header.Font.Bold, Is.True);
+                Assert.That(header.Fill.BackgroundColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFF1F55A5))));
+                Assert.That(header.Font.FontColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFFFFFFFF))));
+                Assert.That(sheet.SheetView.SplitRow, Is.EqualTo(2));
+                Assert.That(sheet.AutoFilter.Range.RangeAddress.FirstAddress.RowNumber, Is.EqualTo(2));
+
+                var state = sheet.Cell(3, 3);
+                Assert.That(state.GetString(), Is.EqualTo("Reprobado"));
+                Assert.That(state.Style.Fill.BackgroundColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFFFBE5E3))));
+                Assert.That(state.Style.Font.FontColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFFB93229))));
+                Assert.That(sheet.Cell(3, 4).GetDouble(), Is.EqualTo(0.6));
             }
         }
 
@@ -72,11 +113,11 @@ namespace TrainingApp.Test
             using (var book = ExcelReports.Steps(report))
             {
                 var sheet = book.Worksheet("Pasos");
-                var headers = sheet.Row(1).CellsUsed().Select(c => c.GetString()).ToList();
+                var headers = sheet.Row(2).CellsUsed().Select(c => c.GetString()).ToList();
                 Assert.That(headers, Does.Not.Contain("Saltos"));
-                Assert.That(sheet.Cell(2, 1).GetString(), Is.EqualTo("Todas las guías"));
-                Assert.That(sheet.Cell(2, 4).GetDouble(), Is.EqualTo(0.25));
-                Assert.That(sheet.Cell(2, headers.IndexOf("Motivos y acciones") + 1).GetString(),
+                Assert.That(sheet.Cell(3, 1).GetString(), Is.EqualTo("Todas las guías"));
+                Assert.That(sheet.Cell(3, 4).GetDouble(), Is.EqualTo(0.25));
+                Assert.That(sheet.Cell(3, headers.IndexOf("Motivos y acciones") + 1).GetString(),
                     Is.EqualTo("Decisión incorrecta · ResourceSetup.Save (2)"));
             }
         }
@@ -111,15 +152,18 @@ namespace TrainingApp.Test
                 using (var book = new XLWorkbook(stream))
                 {
                 Assert.That(book.Worksheets.Select(w => w.Name), Is.EqualTo(new[] { "Sesiones", "Intentos por paso" }));
-                Assert.That(book.Worksheet("Sesiones").Cell(1, 1).GetString(), Is.EqualTo("Sesión"));
-                Assert.That(book.Worksheet("Sesiones").Cell(1, 1).Style.Font.Bold, Is.True);
-                Assert.That(book.Worksheet("Sesiones").Cell(2, 9).GetTimeSpan(), Is.EqualTo(TimeSpan.FromMinutes(30)));
                 var sessions = book.Worksheet("Sesiones");
-                Assert.That(sessions.Cell(2, 5).GetString(), Is.EqualTo("Práctica libre"));
-                Assert.That(sessions.Cell(2, 10).IsEmpty(), Is.True, "Práctica libre no muestra puntaje (D-90)");
+                Assert.That(sessions.Cell(1, 1).GetString(), Does.StartWith("Sesiones. Período: últimos 30 días. Guía: todas. Descargado el "));
+                Assert.That(sessions.Cell(2, 1).GetString(), Is.EqualTo("Sesión"));
+                Assert.That(sessions.Cell(2, 1).Style.Font.Bold, Is.True);
+                Assert.That(sessions.Cell(2, 1).Style.Fill.BackgroundColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFF1F55A5))));
+                Assert.That(sessions.SheetView.SplitRow, Is.EqualTo(2));
+                Assert.That(sessions.Cell(3, 9).GetTimeSpan(), Is.EqualTo(TimeSpan.FromMinutes(30)));
+                Assert.That(sessions.Cell(3, 5).GetString(), Is.EqualTo("Práctica libre"));
+                Assert.That(sessions.Cell(3, 10).IsEmpty(), Is.True, "Práctica libre no muestra puntaje (D-90)");
                 // Hora de la planta (UTC-6).
-                Assert.That(sessions.Cell(2, 7).GetDateTime(), Is.EqualTo(new DateTime(2026, 10, 20, 12, 0, 0)));
-                Assert.That(book.Worksheet("Intentos por paso").Cell(2, 7).GetString(), Is.EqualTo("Saltado"));
+                Assert.That(sessions.Cell(3, 7).GetDateTime(), Is.EqualTo(new DateTime(2026, 10, 20, 12, 0, 0)));
+                Assert.That(book.Worksheet("Intentos por paso").Cell(3, 7).GetString(), Is.EqualTo("Saltado"));
                 }
             }
         }
@@ -185,13 +229,13 @@ namespace TrainingApp.Test
                 ExcelReports.Sessions(export, stream);
                 stream.Position = 0;
                 using (var book = new XLWorkbook(stream))
-                    Assert.That(book.Worksheet("Sesiones").Cell(2, 3).GetString(), Is.EqualTo("Ana Pérez"));
+                    Assert.That(book.Worksheet("Sesiones").Cell(3, 3).GetString(), Is.EqualTo("Ana Pérez"));
             }
         }
 
-        // Sin sesiones: las dos hojas con solo sus encabezados (AC-21).
+        // Sin sesiones: las dos hojas con su título y sus encabezados (AC-21).
         [Test]
-        public void Sessions_NoRows_OnlyHeaders()
+        public void Sessions_NoRows_TitleAndHeaders()
         {
             using (var stream = new MemoryStream())
             {
@@ -199,8 +243,8 @@ namespace TrainingApp.Test
                 stream.Position = 0;
                 using (var book = new XLWorkbook(stream))
                 {
-                    Assert.That(book.Worksheet("Sesiones").LastRowUsed().RowNumber(), Is.EqualTo(1));
-                    Assert.That(book.Worksheet("Intentos por paso").Cell(1, 6).GetString(), Is.EqualTo("Paso"));
+                    Assert.That(book.Worksheet("Sesiones").LastRowUsed().RowNumber(), Is.EqualTo(2));
+                    Assert.That(book.Worksheet("Intentos por paso").Cell(2, 6).GetString(), Is.EqualTo("Paso"));
                 }
             }
         }

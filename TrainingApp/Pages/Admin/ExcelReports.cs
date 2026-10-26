@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using ClosedXML.Excel;
 using TrainingApp.BLL.Reports;
+using TrainingApp.Domain;
 
 namespace TrainingApp.Pages.Admin
 {
@@ -16,16 +17,38 @@ namespace TrainingApp.Pages.Admin
     // todo el historial son cientos de miles de filas, en streaming (XlsxStreamWriter, E7,
     // D-148), con el mismo aspecto y los mismos formatos (XlsxStreamWriter.FormatCode).
     //
+    // Diseño de la Fase 11 (D-158, mockup v1 → "Excel"), igual en los cuatro: fila 1, el título
+    // con la vista, los filtros y la fecha de descarga; fila 2, el encabezado con el acento, fijo
+    // y con autofiltro; los estados del operador con su color del tema claro.
+    //
     // Sin AdjustToContents: medir el texto carga las fuentes del sistema (~20 s la primera vez,
     // plan 018 → E1); cada columna tiene su ancho.
     public static class ExcelReports
     {
+        private const int TitleRow  = 1;
+        private const int HeaderRow = 2;
+
+        // Fondo y texto de cada estado (P-2), los de admin.css en claro.
+        private static readonly Dictionary<string, (string Fill, string Text)> StateColors = new Dictionary<string, (string, string)>
+        {
+            { ReportText.State(ReadinessState.Passed),     ("FFE1F3E8", "FF1B7A43") },
+            { ReportText.State(ReadinessState.Failed),     ("FFFBE5E3", "FFB93229") },
+            { ReportText.State(ReadinessState.InTraining), ("FFFDF0D5", "FF8A5A00") },
+            { ReportText.State(ReadinessState.NotStarted), ("FFE6E9ED", "FF5D6673") }
+        };
+
         public static XLWorkbook Operators(OperatorPage page)
         {
+            var applied = page.Applied ?? new OperatorFilter();
+            var filters = new List<string>();
+            if (!string.IsNullOrEmpty(applied.Text)) filters.Add("Búsqueda: \"" + applied.Text + "\"");
+            filters.Add("Estado: " + (applied.State.HasValue ? ReportText.State(applied.State.Value).ToLowerInvariant() : "todos"));
+            filters.Add("Guía: " + GuideText(page.Guides, applied.GuideId));
+
             var columns = new List<XlsxColumn> { new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32) };
             foreach (var g in page.Guides)
             {
-                columns.Add(new XlsxColumn(g.AreaName + " · Estado", 18));
+                columns.Add(new XlsxColumn(g.AreaName + " · Estado", 18, states: true));
                 columns.Add(new XlsxColumn(g.AreaName + " · Mejor puntaje", 14, XlsxFormat.Percent));
                 columns.Add(new XlsxColumn(g.AreaName + " · Último puntaje", 14, XlsxFormat.Percent));
             }
@@ -44,11 +67,18 @@ namespace TrainingApp.Pages.Admin
                 return cells.ToArray();
             });
 
-            return Book("Operadores", columns, rows);
+            return Book("Operadores", Title("Operadores", filters), columns, rows);
         }
 
         public static XLWorkbook Steps(StepReport report)
         {
+            var applied = report.Applied ?? new StepFilter();
+            string title = Title("Pasos", new[]
+            {
+                "Período: " + ReportText.Period(applied.Period).ToLowerInvariant(),
+                "Guía: " + GuideText(report.Guides, applied.GuideId),
+                "Modo: " + ReportText.Mode(applied.Mode)
+            });
             var guides = report.Guides.ToDictionary(g => g.Id);
             var columns = new List<XlsxColumn>
             {
@@ -73,15 +103,21 @@ namespace TrainingApp.Pages.Admin
                 return cells.ToArray();
             }));
 
-            return Book("Pasos", columns, rows);
+            return Book("Pasos", title, columns, rows);
         }
 
         public static XLWorkbook FollowUp(FollowUpReport report)
         {
+            // Seguimiento ignora el período: siempre todo el historial.
+            string title = Title("Seguimiento", new[]
+            {
+                "Período: " + ReportText.Period(ReportPeriod.All).ToLowerInvariant(),
+                "Guía: " + GuideText(report.Guides, report.Applied?.GuideId)
+            });
             var guides = report.Guides.ToDictionary(g => g.Id);
             var columns = new List<XlsxColumn>
             {
-                new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Guía", 18), new XlsxColumn("Estado", 18),
+                new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Guía", 18), new XlsxColumn("Estado", 18, states: true),
                 new XlsxColumn("Última sesión de la guía", 17, XlsxFormat.Date),
                 new XlsxColumn("S-1 · Assessment reprobados", 14), new XlsxColumn("S-2 · Días sin sesiones", 14),
                 new XlsxColumn("S-3 · Pasos sin acierto", 50), new XlsxColumn("Reglas", 70)
@@ -101,17 +137,23 @@ namespace TrainingApp.Pages.Admin
                 };
             });
 
-            return Book("Seguimiento", columns, rows);
+            return Book("Seguimiento", title, columns, rows);
         }
 
         // Sesiones del Resumen (AC-22): una fila por sesión y una por sesión y paso, escritas en
         // streaming a output (E7, D-148).
         public static void Sessions(SessionExport export, Stream output)
         {
+            var applied = export.Applied ?? new SummaryFilter();
+            var filters = new[]
+            {
+                "Período: " + ReportText.Period(applied.Period).ToLowerInvariant(),
+                "Guía: " + GuideText(export.Guides, applied.GuideId)
+            };
             var guides = export.Guides.ToDictionary(g => g.Id);
             using (var writer = new XlsxStreamWriter(output))
             {
-                writer.WriteSheet("Sesiones", new List<XlsxColumn>
+                writer.WriteSheet("Sesiones", Title("Sesiones", filters), new List<XlsxColumn>
                 {
                     new XlsxColumn("Sesión", 9), new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Guía", 18),
                     new XlsxColumn("Modo", 14), new XlsxColumn("Estado", 12), new XlsxColumn("Inicio", 17, XlsxFormat.Date),
@@ -124,7 +166,7 @@ namespace TrainingApp.Pages.Admin
                     Local(r.Session.StartedAt), Local(r.Session.CompletedAt), r.Duration, r.Score, r.FailedAttempts
                 }));
 
-                writer.WriteSheet("Intentos por paso", new List<XlsxColumn>
+                writer.WriteSheet("Intentos por paso", Title("Intentos por paso", filters), new List<XlsxColumn>
                 {
                     new XlsxColumn("Sesión", 9), new XlsxColumn("Código", 12), new XlsxColumn("Guía", 18), new XlsxColumn("Modo", 14),
                     new XlsxColumn("Orden", 7), new XlsxColumn("Paso", 30), new XlsxColumn("Resultado", 13),
@@ -139,31 +181,62 @@ namespace TrainingApp.Pages.Admin
             }
         }
 
-        private static XLWorkbook Book(string sheet, IList<XlsxColumn> columns, IEnumerable<object[]> rows)
+        // "Pasos. Período: últimos 30 días. Guía: todas. Modo: Assessment. Descargado el
+        // 26/10/2026 10:30", la fecha en la hora de la planta (DA-8).
+        private static string Title(string view, IEnumerable<string> filters)
+            => view + ". " + string.Join(". ", filters) + ". Descargado el "
+               + ReportText.Date(DateTime.UtcNow) + ".";
+
+        private static string GuideText(IEnumerable<DashboardGuide> guides, int? guideId)
+            => guideId.HasValue ? guides.FirstOrDefault(g => g.Id == guideId.Value)?.AreaName ?? "todas" : "todas";
+
+        private static XLWorkbook Book(string sheet, string title, IList<XlsxColumn> columns, IEnumerable<object[]> rows)
         {
             var workbook = new XLWorkbook();
             var ws = workbook.Worksheets.Add(sheet);
+
+            var titleCell = ws.Cell(TitleRow, 1);
+            titleCell.Value = title;
+            titleCell.Style.Font.Bold = true;
+            titleCell.Style.Font.FontSize = 14;
+
             for (int c = 0; c < columns.Count; c++)
             {
-                ws.Cell(1, c + 1).Value = columns[c].Header;
+                ws.Cell(HeaderRow, c + 1).Value = columns[c].Header;
                 var column = ws.Column(c + 1);
                 column.Width = columns[c].Width;
                 var format = XlsxStreamWriter.FormatCode(columns[c].Format);
                 if (format != null) column.Style.NumberFormat.Format = format;
             }
-            var header = ws.Row(1);
-            header.Style.Font.Bold = true;
-            header.Style.NumberFormat.Format = "@";
-            ws.SheetView.FreezeRows(1);
+            var header = ws.Range(HeaderRow, 1, HeaderRow, columns.Count).Style;
+            header.Font.Bold = true;
+            header.Font.FontColor = Color(XlsxColors.OnAccent);
+            header.Fill.BackgroundColor = Color(XlsxColors.Accent);
+            header.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            header.Border.InsideBorder = XLBorderStyleValues.Thin;
+            header.Border.OutsideBorderColor = Color(XlsxColors.AccentBorder);
+            header.Border.InsideBorderColor = Color(XlsxColors.AccentBorder);
+            header.NumberFormat.Format = "@";
+            ws.SheetView.FreezeRows(HeaderRow);
 
-            int r = 2;
+            int r = HeaderRow + 1;
             foreach (var row in rows)
             {
                 for (int c = 0; c < row.Length; c++)
-                    SetValue(ws.Cell(r, c + 1), row[c]);
+                {
+                    var cell = ws.Cell(r, c + 1);
+                    SetValue(cell, row[c]);
+                    if (columns[c].States && row[c] is string state && StateColors.TryGetValue(state, out var colors))
+                    {
+                        cell.Style.Fill.BackgroundColor = Color(colors.Fill);
+                        cell.Style.Font.FontColor = Color(colors.Text);
+                        cell.Style.Font.Bold = true;
+                    }
+                }
                 r++;
             }
-            if (r > 2) ws.Range(1, 1, r - 1, columns.Count).SetAutoFilter();
+            // Autofiltro sobre el encabezado y los datos, no sobre el título (también sin filas).
+            ws.Range(HeaderRow, 1, r - 1, columns.Count).SetAutoFilter();
             return workbook;
         }
 
@@ -184,5 +257,9 @@ namespace TrainingApp.Pages.Admin
         // Fecha UTC de la BD en la hora de la planta (DA-8).
         private static DateTime? Local(DateTime? utc)
             => utc.HasValue ? SessionHelper.ToLocal(utc.Value) : (DateTime?)null;
+
+        // Un color ARGB de XlsxColors o StateColors ("FF1F55A5").
+        private static XLColor Color(string argb)
+            => XLColor.FromArgb(Convert.ToInt32(argb, 16));
     }
 }

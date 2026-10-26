@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
 rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E5 (Pasos y Seguimiento), probada por el usuario (`git log --oneline -10` para ver el estado real)
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Excel), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -91,7 +91,13 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E5 (Pa
        en Práctica libre) y Seguimiento (las reglas como chips con texto, la de reprobados en
        rojo con alerta; insignia con ícono; primero quien cumple más reglas, ordenado en
        `DashboardService.GetFollowUp` con su test; el Excel con el mismo texto, en ese orden).
-       Probada por el usuario. Sigue la **E6** (Excel).
+       Probada por el usuario.
+     - **E6 ✅** (2026-10-26): los cuatro `.xlsx` con la fila de título (vista, filtros y fecha
+       de descarga en la hora de la planta), el encabezado con el acento, fijo y con autofiltro,
+       y los estados con su color del tema claro; mismas columnas y datos. La descarga de
+       sesiones sigue en streaming, con el esquema en 0 errores y el mismo tiempo (3.9 → 3.7 s
+       con el volumen de "Todo"). Probada por el usuario en Excel. Sigue el **cierre** de la
+       fase: AC-7 con la BD de volumen y los "Docs al cerrar".
      - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
        Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
        defecto y el rol se cambia a mano para entrar como operador o admin.
@@ -123,10 +129,17 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E5 (Pa
        código anterior con el `03` nuevo también falla al iniciar una sesión: van juntos. El
        `02` cambió otra vez en la E2 (`spTrainingGuideSetResourceSetupType`): correrlo de nuevo
        donde ya se corrió el de la E1.
-     - **Choque de nombres al integrar con la Fase 11:** `Domain.GuideSummary` (R3) y
-       `BLL.Reports.GuideSummary` (dashboard); `Summary.aspx.cs` usa un alias.
-     - Siguen la E3 (control nuevo, `GuidedTest`, `GuideScriptBuilder`) y la E4
-       (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá `admin.css`).
+     - **E3 ✅** (2026-10-26, `3a18960` y `82d000d`, UI): el modal Custom Resource Setup
+       (`UI/Controls/Training/CustomResourceSetupControl.ascx`), cableado en `GuidedTest`: el
+       botón Resource Setup abre el estándar o el Custom según el tipo de la sesión. Guion de
+       Guided con anclas `crs-*` en `GuideScriptBuilder`, pista propia en `StepHints` y estilos
+       al final de `pod.css`. Enmienda 1 de la spec 020 (usuario, al probar): siempre 2 Tool
+       Groups (D-200) y cada fila con su Tool Number en todos los modos, como formato sin
+       intento (D-201). `Domain.GuideSummary` pasa a `Domain.PublishedGuide`, y con eso se va el
+       choque de nombres con `BLL.Reports.GuideSummary`. Probada por el usuario en Guided y
+       Assessment.
+     - Sigue la E4 (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá un bloque al final
+       de `admin.css`), después de integrar la Fase 11 en `TrainingApp`.
      - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a

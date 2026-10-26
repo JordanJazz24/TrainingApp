@@ -8,35 +8,55 @@ using System.Xml;
 
 namespace TrainingApp.Pages.Admin
 {
-    // Un formato de número de una columna del .xlsx (el valor es el índice del estilo).
+    // Un formato de número de una columna del .xlsx (el valor es el índice del estilo). Header y
+    // Title son los estilos del encabezado y de la fila de título (Fase 11, D-158).
     public enum XlsxFormat
     {
         General = 0,
         Header  = 1,
         Date    = 2,   // dd/MM/yyyy HH:mm
         Time    = 3,   // [h]:mm:ss
-        Percent = 4    // 0.0%
+        Percent = 4,   // 0.0%
+        Title   = 5
     }
 
-    // Una columna: encabezado, ancho en caracteres y formato.
+    // Una columna: encabezado, ancho en caracteres y formato. States: la columna lleva un estado
+    // del operador (Aprobado, Reprobado…) y va con su color.
     public sealed class XlsxColumn
     {
-        public string Header { get; }
-        public double Width { get; }
-        public XlsxFormat Format { get; }
+        // Lo que ocupa el botón del filtro junto al encabezado.
+        private const int FilterButton = 4;
 
-        public XlsxColumn(string header, double width, XlsxFormat format = XlsxFormat.General)
+        public string Header { get; }
+        public XlsxFormat Format { get; }
+        public bool States { get; }
+
+        // Al menos el encabezado completo con su filtro: un encabezado cortado no se lee.
+        public double Width { get; }
+
+        public XlsxColumn(string header, double width, XlsxFormat format = XlsxFormat.General, bool states = false)
         {
-            Header = header; Width = width; Format = format;
+            Header = header; Format = format; States = states;
+            Width = Math.Max(width, header.Length + FilterButton);
         }
+    }
+
+    // Colores del .xlsx (Fase 11, D-158): los del tema claro del sistema de diseño (admin.css),
+    // ARGB para ClosedXML y styles.xml. El Excel no tiene modo oscuro.
+    public static class XlsxColors
+    {
+        public const string Accent       = "FF1F55A5";   // fondo del encabezado
+        public const string AccentBorder = "FF1A4A8F";
+        public const string OnAccent     = "FFFFFFFF";
     }
 
     // Escribe un .xlsx fila por fila, directo al stream de salida (spec 018, E7, D-148: la
     // descarga de sesiones con todo el historial). El paquete se arma con ZipArchive: el SDK de
     // OpenXML en .NET Framework usa System.IO.Packaging, que guarda cada parte en memoria y pasados
     // ~10 MB la manda a IsolatedStorage (falla en un app pool de IIS sin perfil). Mismo aspecto
-    // que ExcelReports con ClosedXML: Calibri 11, encabezado en negrita y fijo, autofiltro, anchos
-    // y formatos por columna. Los textos van como cadenas en línea (sin tabla compartida).
+    // que ExcelReports con ClosedXML (Fase 11, D-158): Calibri 11; fila 1, el título; fila 2, el
+    // encabezado con el acento, fijo y con autofiltro; anchos y formatos por columna. Los textos
+    // van como cadenas en línea (sin tabla compartida).
     public sealed class XlsxStreamWriter : IDisposable
     {
         private const string MainNs = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
@@ -68,12 +88,15 @@ namespace TrainingApp.Pages.Admin
             }
         }
 
-        public void WriteSheet(string name, IList<XlsxColumn> columns, IEnumerable<object[]> rows)
+        // La fila de título y la del encabezado; los datos, desde la fila 3.
+        private const uint HeaderRow = 2;
+
+        public void WriteSheet(string name, string title, IList<XlsxColumn> columns, IEnumerable<object[]> rows)
         {
             int index = _sheets.Count + 1;
             var letters = new string[columns.Count];
             for (int c = 0; c < columns.Count; c++) letters[c] = Column(c);
-            uint lastRow = 1;
+            uint lastRow = HeaderRow;
 
             try
             {
@@ -83,14 +106,14 @@ namespace TrainingApp.Pages.Admin
                     xml.WriteStartDocument(true);
                     xml.WriteStartElement("worksheet", MainNs);
 
-                    // Encabezado fijo.
+                    // Título y encabezado fijos.
                     xml.WriteStartElement("sheetViews", MainNs);
                     xml.WriteStartElement("sheetView", MainNs);
                     if (index == 1) xml.WriteAttributeString("tabSelected", "1");
                     xml.WriteAttributeString("workbookViewId", "0");
                     xml.WriteStartElement("pane", MainNs);
-                    xml.WriteAttributeString("ySplit", "1");
-                    xml.WriteAttributeString("topLeftCell", "A2");
+                    xml.WriteAttributeString("ySplit", HeaderRow.ToString(CultureInfo.InvariantCulture));
+                    xml.WriteAttributeString("topLeftCell", "A" + (HeaderRow + 1).ToString(CultureInfo.InvariantCulture));
                     xml.WriteAttributeString("activePane", "bottomLeft");
                     xml.WriteAttributeString("state", "frozen");
                     xml.WriteEndElement();
@@ -115,8 +138,12 @@ namespace TrainingApp.Pages.Admin
 
                     xml.WriteStartElement("sheetData", MainNs);
                     StartRow(xml, 1);
+                    WriteText(xml, "A1", title, XlsxFormat.Title);
+                    xml.WriteEndElement();
+                    StartRow(xml, HeaderRow);
+                    string header = HeaderRow.ToString(CultureInfo.InvariantCulture);
                     for (int c = 0; c < columns.Count; c++)
-                        WriteText(xml, letters[c] + "1", columns[c].Header, XlsxFormat.Header);
+                        WriteText(xml, letters[c] + header, columns[c].Header, XlsxFormat.Header);
                     xml.WriteEndElement();
 
                     foreach (var row in rows)
@@ -130,12 +157,11 @@ namespace TrainingApp.Pages.Admin
                     }
                     xml.WriteEndElement(); // sheetData
 
-                    if (lastRow > 1)
-                    {
-                        xml.WriteStartElement("autoFilter", MainNs);
-                        xml.WriteAttributeString("ref", "A1:" + letters[columns.Count - 1] + lastRow.ToString(CultureInfo.InvariantCulture));
-                        xml.WriteEndElement();
-                    }
+                    // Autofiltro sobre el encabezado y los datos, no sobre el título; también sin
+                    // filas, para que se vea igual.
+                    xml.WriteStartElement("autoFilter", MainNs);
+                    xml.WriteAttributeString("ref", "A" + header + ":" + letters[columns.Count - 1] + lastRow.ToString(CultureInfo.InvariantCulture));
+                    xml.WriteEndElement();
                     xml.WriteEndElement(); // worksheet
                 }
             }
@@ -147,9 +173,8 @@ namespace TrainingApp.Pages.Admin
             }
 
             // Excel guarda el rango del autofiltro también como nombre oculto de la hoja.
-            if (lastRow > 1)
-                _filters.Add(string.Format(CultureInfo.InvariantCulture, "{0}|'{1}'!$A$1:${2}${3}",
-                    index - 1, name.Replace("'", "''"), letters[columns.Count - 1], lastRow));
+            _filters.Add(string.Format(CultureInfo.InvariantCulture, "{0}|'{1}'!$A${2}:${3}${4}",
+                index - 1, name.Replace("'", "''"), HeaderRow, letters[columns.Count - 1], lastRow));
             _sheets.Add(name);
         }
 
@@ -250,14 +275,17 @@ namespace TrainingApp.Pages.Admin
             NumberFormat(xml, 166, FormatCode(XlsxFormat.Percent));
             xml.WriteEndElement();
 
+            // Fuentes: 0 normal, 1 encabezado (negrita blanca), 2 título (negrita, 14).
             xml.WriteStartElement("fonts", MainNs);
-            xml.WriteAttributeString("count", "2");
-            Font(xml, bold: false);
-            Font(xml, bold: true);
+            xml.WriteAttributeString("count", "3");
+            Font(xml, bold: false, size: 11, color: null);
+            Font(xml, bold: true, size: 11, color: XlsxColors.OnAccent);
+            Font(xml, bold: true, size: 14, color: null);
             xml.WriteEndElement();
 
+            // Rellenos: los dos que Excel reserva y 2, el acento del encabezado.
             xml.WriteStartElement("fills", MainNs);
-            xml.WriteAttributeString("count", "2");
+            xml.WriteAttributeString("count", "3");
             foreach (var pattern in new[] { "none", "gray125" })
             {
                 xml.WriteStartElement("fill", MainNs);
@@ -266,13 +294,31 @@ namespace TrainingApp.Pages.Admin
                 xml.WriteEndElement();
                 xml.WriteEndElement();
             }
+            xml.WriteStartElement("fill", MainNs);
+            xml.WriteStartElement("patternFill", MainNs);
+            xml.WriteAttributeString("patternType", "solid");
+            Attribute(xml, "fgColor", "rgb", XlsxColors.Accent);
+            Attribute(xml, "bgColor", "indexed", "64");
+            xml.WriteEndElement();
+            xml.WriteEndElement();
             xml.WriteEndElement();
 
+            // Bordes: 0 ninguno, 1 fino del acento (encabezado).
             xml.WriteStartElement("borders", MainNs);
-            xml.WriteAttributeString("count", "1");
+            xml.WriteAttributeString("count", "2");
             xml.WriteStartElement("border", MainNs);
             foreach (var side in new[] { "left", "right", "top", "bottom", "diagonal" })
                 xml.WriteElementString(side, MainNs, string.Empty);
+            xml.WriteEndElement();
+            xml.WriteStartElement("border", MainNs);
+            foreach (var side in new[] { "left", "right", "top", "bottom" })
+            {
+                xml.WriteStartElement(side, MainNs);
+                xml.WriteAttributeString("style", "thin");
+                Attribute(xml, "color", "rgb", XlsxColors.AccentBorder);
+                xml.WriteEndElement();
+            }
+            xml.WriteElementString("diagonal", MainNs, string.Empty);
             xml.WriteEndElement();
             xml.WriteEndElement();
 
@@ -281,13 +327,15 @@ namespace TrainingApp.Pages.Admin
             CellFormat(xml, 0, 0, inStyle: true);
             xml.WriteEndElement();
 
+            // En el orden de XlsxFormat.
             xml.WriteStartElement("cellXfs", MainNs);
-            xml.WriteAttributeString("count", "5");
-            CellFormat(xml, 0, 0);     // General
-            CellFormat(xml, 0, 1);     // Header
-            CellFormat(xml, 164, 0);   // Date
-            CellFormat(xml, 165, 0);   // Time
-            CellFormat(xml, 166, 0);   // Percent
+            xml.WriteAttributeString("count", "6");
+            CellFormat(xml, 0, 0);                        // General
+            CellFormat(xml, 0, 1, fill: 2, border: 1);    // Header
+            CellFormat(xml, 164, 0);                      // Date
+            CellFormat(xml, 165, 0);                      // Time
+            CellFormat(xml, 166, 0);                      // Percent
+            CellFormat(xml, 0, 2);                        // Title
             xml.WriteEndElement();
 
             xml.WriteStartElement("cellStyles", MainNs);
@@ -310,28 +358,32 @@ namespace TrainingApp.Pages.Admin
             xml.WriteEndElement();
         }
 
-        private static void Font(XmlWriter xml, bool bold)
+        // Los hijos van en el orden del esquema (b, sz, color, name, family).
+        private static void Font(XmlWriter xml, bool bold, int size, string color)
         {
             xml.WriteStartElement("font", MainNs);
             if (bold) xml.WriteElementString("b", MainNs, string.Empty);
-            Attribute(xml, "sz", "val", "11");
+            Attribute(xml, "sz", "val", size.ToString(CultureInfo.InvariantCulture));
+            if (color != null) Attribute(xml, "color", "rgb", color);
             Attribute(xml, "name", "val", "Calibri");
             Attribute(xml, "family", "val", "2");
             xml.WriteEndElement();
         }
 
-        private static void CellFormat(XmlWriter xml, int numberFormat, int font, bool inStyle = false)
+        private static void CellFormat(XmlWriter xml, int numberFormat, int font, int fill = 0, int border = 0, bool inStyle = false)
         {
             xml.WriteStartElement("xf", MainNs);
             xml.WriteAttributeString("numFmtId", numberFormat.ToString(CultureInfo.InvariantCulture));
             xml.WriteAttributeString("fontId", font.ToString(CultureInfo.InvariantCulture));
-            xml.WriteAttributeString("fillId", "0");
-            xml.WriteAttributeString("borderId", "0");
+            xml.WriteAttributeString("fillId", fill.ToString(CultureInfo.InvariantCulture));
+            xml.WriteAttributeString("borderId", border.ToString(CultureInfo.InvariantCulture));
             if (!inStyle)
             {
                 xml.WriteAttributeString("xfId", "0");
                 if (numberFormat != 0) xml.WriteAttributeString("applyNumberFormat", "1");
                 if (font != 0) xml.WriteAttributeString("applyFont", "1");
+                if (fill != 0) xml.WriteAttributeString("applyFill", "1");
+                if (border != 0) xml.WriteAttributeString("applyBorder", "1");
             }
             xml.WriteEndElement();
         }
