@@ -2,100 +2,98 @@
     AutoEventWireup="true" CodeBehind="Operators.aspx.cs"
     Inherits="TrainingApp.Pages.Admin.Operators" %>
 
-<%-- Operadores (spec 018, AC-7 y AC-13): estado por guía (ReadinessPolicy), mejor y último
-     puntaje de Assessment y última actividad, con búsqueda y filtros en la URL (un enlace, F5
-     o Atrás conservan la vista) y 50 por página en el servidor. Solo lectura. --%>
+<%-- Operadores (spec 018, AC-7 y AC-13; diseño de la Fase 11, D-160): estado por guía
+     (ReadinessPolicy), mejor y último puntaje de Assessment y última actividad, con búsqueda y
+     filtros en la URL (un enlace, F5 o Atrás conservan la vista) y 50 por página en el
+     servidor. Solo lectura. --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
-    <h1 class="h3 mb-4">Operadores</h1>
+    <div class="admin-page-head">
+        <div>
+            <h1 class="admin-page-title">Operadores</h1>
+            <p class="admin-page-lead">El estado de cada operador en cada guía.</p>
+        </div>
+    </div>
 
-    <asp:Panel ID="PnlFilters" runat="server" CssClass="row g-2 align-items-end mb-3" DefaultButton="BtnFilter">
-        <div class="col-md-4">
-            <label class="form-label small text-muted mb-1" for="<%= TxtSearch.ClientID %>">Buscar</label>
-            <asp:TextBox ID="TxtSearch" runat="server" CssClass="form-control admin-no-markup" MaxLength="100"
-                placeholder="Código o nombre" />
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <label class="form-label small text-muted mb-1" for="<%= DdlState.ClientID %>">Estado</label>
-            <asp:DropDownList ID="DdlState" runat="server" CssClass="form-select">
-                <asp:ListItem Value="" Text="Todos" />
-                <asp:ListItem Value="passed" Text="Aprobado" />
-                <asp:ListItem Value="failed" Text="Reprobado" />
-                <asp:ListItem Value="training" Text="En entrenamiento" />
-                <asp:ListItem Value="notstarted" Text="Sin iniciar" />
-            </asp:DropDownList>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <label class="form-label small text-muted mb-1" for="<%= DdlGuide.ClientID %>">Guía</label>
-            <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
-        </div>
-        <div class="col-md-1">
-            <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-primary w-100"
+    <section class="mt-panel" aria-labelledby="listTitle">
+        <h2 id="listTitle" class="visually-hidden">Lista de operadores</h2>
+        <asp:Panel ID="PnlFilters" runat="server" CssClass="mt-panel-body mt-filters" DefaultButton="BtnFilter">
+            <div class="mt-field operators-search">
+                <label class="mt-field-label" for="<%= TxtSearch.ClientID %>">Buscar</label>
+                <asp:TextBox ID="TxtSearch" runat="server" CssClass="form-control admin-no-markup" MaxLength="100"
+                    placeholder="Código o nombre" />
+            </div>
+            <div class="mt-field">
+                <label class="mt-field-label" for="<%= DdlState.ClientID %>">Estado</label>
+                <asp:DropDownList ID="DdlState" runat="server" CssClass="form-select">
+                    <asp:ListItem Value="" Text="Todos" />
+                    <asp:ListItem Value="passed" Text="Aprobado" />
+                    <asp:ListItem Value="failed" Text="Reprobado" />
+                    <asp:ListItem Value="training" Text="En entrenamiento" />
+                    <asp:ListItem Value="notstarted" Text="Sin iniciar" />
+                </asp:DropDownList>
+            </div>
+            <div class="mt-field">
+                <label class="mt-field-label" for="<%= DdlGuide.ClientID %>">Guía</label>
+                <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
+            </div>
+            <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-secondary"
                 OnClick="BtnFilter_Click" />
-        </div>
-        <div class="col-md-1">
-            <asp:HyperLink ID="LnkExport" runat="server" CssClass="btn btn-outline-secondary w-100"
-                ToolTip="Descargar la lista con estos filtros en Excel">Excel</asp:HyperLink>
-        </div>
-    </asp:Panel>
+            <asp:HyperLink ID="LnkExport" runat="server" CssClass="btn btn-primary ms-md-auto"
+                ToolTip="La lista con estos filtros, en Excel"><i class="bi bi-download" aria-hidden="true"></i>Descargar</asp:HyperLink>
+        </asp:Panel>
 
-    <div class="table-responsive">
-        <table class="table table-sm table-hover bg-white align-middle admin-operators">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <asp:Repeater ID="RptGuideHeaders" runat="server">
-                        <ItemTemplate>
-                            <th title='<%#: Eval("Title") %>'><%#: Eval("AreaName") %></th>
-                        </ItemTemplate>
-                    </asp:Repeater>
-                    <th>Última actividad</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <asp:Repeater ID="RptOperators" runat="server">
-                    <ItemTemplate>
+        <asp:PlaceHolder ID="PhTable" runat="server">
+            <div class="mt-table-wrap">
+                <table class="table mt-table table-hover operators-table">
+                    <thead>
                         <tr>
-                            <td><%#: Eval("Code1") %></td>
-                            <td>
-                                <%#: Eval("Name") %>
-                                <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("NotStarted") %>'>
-                                    <span class="badge bg-light text-secondary border ms-1">Sin iniciar</span>
-                                </asp:PlaceHolder>
-                            </td>
-                            <asp:Repeater runat="server" DataSource='<%# Eval("Guides") %>'>
+                            <th scope="col">Operador</th>
+                            <asp:Repeater ID="RptGuideHeaders" runat="server">
                                 <ItemTemplate>
-                                    <td>
-                                        <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("HasSessions") %>'>
-                                            <span class='<%#: Eval("StateCss") %>'><%#: Eval("StateText") %></span>
-                                            <div class="small text-muted"><%#: Eval("ScoresText") %></div>
-                                        </asp:PlaceHolder>
-                                        <asp:PlaceHolder runat="server" Visible='<%# !(bool)Eval("HasSessions") %>'>
-                                            <span class="text-muted">—</span>
-                                        </asp:PlaceHolder>
-                                    </td>
+                                    <th scope="col" title='<%#: Eval("Title") %>'><%#: Eval("AreaName") %></th>
                                 </ItemTemplate>
                             </asp:Repeater>
-                            <td class="text-nowrap"><%#: Eval("LastActivityText") %></td>
-                            <td class="text-end">
-                                <a class="btn btn-link btn-sm" href='<%#: Eval("DetailUrl") %>'>Ver detalle</a>
-                            </td>
+                            <th scope="col" class="mt-col-secondary">Última actividad</th>
                         </tr>
-                    </ItemTemplate>
-                </asp:Repeater>
-            </tbody>
-        </table>
-    </div>
+                    </thead>
+                    <tbody>
+                        <asp:Repeater ID="RptOperators" runat="server">
+                            <ItemTemplate>
+                                <tr>
+                                    <td>
+                                        <a class="operators-name" href='<%#: Eval("DetailUrl") %>'><%#: Eval("Name") %></a>
+                                        <span class="mt-muted mt-small d-block"><%#: Eval("Code1") %></span>
+                                    </td>
+                                    <asp:Repeater runat="server" DataSource='<%# Eval("Guides") %>'>
+                                        <ItemTemplate>
+                                            <td>
+                                                <span class='<%#: Eval("StateCss") %>'><i class='<%#: Eval("StateIcon") %>' aria-hidden="true"></i><%#: Eval("StateText") %></span>
+                                                <span class="mt-muted mt-small d-block mt-1"><%#: Eval("ScoresText") %></span>
+                                            </td>
+                                        </ItemTemplate>
+                                    </asp:Repeater>
+                                    <td class="mt-col-secondary mt-muted text-nowrap"><%#: Eval("LastActivityText") %></td>
+                                </tr>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </tbody>
+                </table>
+            </div>
+        </asp:PlaceHolder>
 
-    <asp:Label ID="LblEmpty" runat="server" CssClass="text-muted d-block mb-3" Visible="false"
-        Text="No hay operadores que coincidan con los filtros." />
+        <asp:Panel ID="PnlEmpty" runat="server" CssClass="mt-empty" Visible="false">
+            <span>Ningún operador coincide con estos filtros.</span>
+            <asp:HyperLink ID="LnkClear" runat="server" CssClass="btn btn-secondary btn-sm">Quitar filtros</asp:HyperLink>
+        </asp:Panel>
 
-    <div class="d-flex align-items-center gap-3">
-        <asp:HyperLink ID="LnkPrev" runat="server" CssClass="btn btn-outline-secondary btn-sm">&laquo; Anterior</asp:HyperLink>
-        <span class="small text-muted"><asp:Literal ID="LitPageInfo" runat="server" /></span>
-        <asp:HyperLink ID="LnkNext" runat="server" CssClass="btn btn-outline-secondary btn-sm">Siguiente &raquo;</asp:HyperLink>
-    </div>
+        <asp:PlaceHolder ID="PhPager" runat="server">
+            <div class="mt-panel-body mt-pager">
+                <asp:HyperLink ID="LnkPrev" runat="server" CssClass="btn btn-secondary btn-sm"><i class="bi bi-chevron-left" aria-hidden="true"></i>Anterior</asp:HyperLink>
+                <span><asp:Literal ID="LitPageInfo" runat="server" /></span>
+                <asp:HyperLink ID="LnkNext" runat="server" CssClass="btn btn-secondary btn-sm">Siguiente<i class="bi bi-chevron-right" aria-hidden="true"></i></asp:HyperLink>
+            </div>
+        </asp:PlaceHolder>
+    </section>
 
     <script>
         // Formato: < y > no son parte de un código ni de un nombre, y ASP.NET rechaza un

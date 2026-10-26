@@ -88,7 +88,8 @@ namespace TrainingApp.Pages.Admin
                 GuideTitle       = g.Title,
                 StateText        = ReportText.State(r.State),
                 StateCss         = ReportText.StateCss(r.State),
-                BestText         = ReportText.Score(r.BestScore),
+                StateIcon        = ReportText.StateIcon(r.State),
+                BestText        = ReportText.Score(r.BestScore),
                 LastText         = ReportText.Score(r.LastScore),
                 LastActivityText = ReportText.Date(r.LastActivity)
             }).ToList();
@@ -106,7 +107,7 @@ namespace TrainingApp.Pages.Admin
                 }).ToList()
             }).ToList();
             RptReinforcement.DataBind();
-            LblNoReinforcement.Visible = detail.Reinforcement.Count == 0;
+            PnlNoReinforcement.Visible = detail.Reinforcement.Count == 0;
 
             RptSessions.DataSource = detail.Sessions.Select(row => new OperatorSessionListRow
             {
@@ -119,6 +120,7 @@ namespace TrainingApp.Pages.Admin
                 FailedAttempts = row.FailedAttempts
             }).ToList();
             RptSessions.DataBind();
+            PhSessions.Visible    = detail.Sessions.Count > 0;
             LblNoSessions.Visible = detail.Sessions.Count == 0;
 
             BindCurves(detail);

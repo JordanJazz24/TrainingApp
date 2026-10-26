@@ -628,6 +628,68 @@ body.mt-page {
     .summary-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ── Operadores (spec 018; D-160) ──────────────────────────── */
+.operators-search { flex: 1 1 260px; max-width: 380px; }
+.operators-name { font-weight: 600; color: var(--mt-text); text-decoration: none; }
+.operators-name:hover { color: var(--mt-accent); text-decoration: underline; }
+/* Una columna por guía: la insignia y sus puntajes, sin partir la insignia. */
+.operators-table td { min-width: 150px; }
+.operators-table td:first-child { min-width: 200px; }
+
+/* ── Operador (spec 018; D-160) ────────────────────────────── */
+/* Insignia grande: el estado de cada guía, lo primero que se ve. */
+.mt-badge-lg { gap: var(--mt-space-2); padding: 6px 14px 6px 12px; font-size: var(--mt-fs-body); }
+.mt-badge-lg .bi { font-size: 1.05em; }
+
+.operator-top { display: flex; flex-direction: column; gap: 22px; padding: 28px; margin-bottom: var(--mt-space-5); }
+.operator-guides {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--mt-space-4);
+}
+.operator-guide {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mt-space-3);
+    padding: 18px var(--mt-space-5);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-lg);
+}
+.operator-guide-name { font-size: 1.125rem; font-weight: 600; }
+.operator-guide-data { display: grid; gap: var(--mt-space-1); width: 100%; margin: 0; font-size: .875rem; }
+.operator-guide-data > div { display: flex; justify-content: space-between; gap: var(--mt-space-3); }
+.operator-guide-data dt { font-weight: 400; color: var(--mt-muted); }
+.operator-guide-data dd { margin: 0; font-weight: 600; text-align: right; }
+
+.operator-reinforce {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mt-space-4);
+    padding-top: 22px;
+    border-top: 1px solid var(--mt-border);
+}
+.operator-reinforce-guide { display: flex; flex-direction: column; gap: var(--mt-space-2); }
+.operator-reinforce-guide .mt-table-wrap { border: 1px solid var(--mt-border); border-radius: var(--mt-radius); }
+.operator-reinforce-none { display: inline-flex; align-items: center; gap: var(--mt-space-2); color: var(--mt-ok); font-weight: 600; }
+
+.operator-section { margin-bottom: var(--mt-space-5); }
+.operator-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--mt-space-3);
+    margin-bottom: var(--mt-space-4);
+}
+.operator-section-head p { max-width: 72ch; }
+.operator-curves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mt-space-4); }
+.operator-curve { display: flex; flex-direction: column; gap: var(--mt-space-3); min-width: 0; }
+
+@media (max-width: 991.98px) {
+    .operator-curves { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* ── Tablet (P-4): la barra se acomoda; las columnas secundarias se ocultan ── */
 @media (max-width: 991.98px) {
     .admin-bar { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
@@ -665,6 +727,9 @@ body.mt-page {
     body.mt-page { background: #FFFFFF; }
     .admin-main { padding-top: 0; padding-bottom: 0; max-width: none; }
     .card, .mt-panel, .mt-hero { break-inside: avoid; box-shadow: none; }
+    /* Los estados de la ficha conservan su color al imprimir (también llevan texto e ícono). */
+    .mt-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .operator-top { padding: 0; border: 0; }
     tr { break-inside: avoid; }
     .table { font-size: 0.8rem; }
 }

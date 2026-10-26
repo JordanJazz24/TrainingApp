@@ -97,9 +97,11 @@ namespace TrainingApp.Pages.Admin
             RptOperators.DataSource = result.Rows.Select(ToRow).ToList();
             RptOperators.DataBind();
 
-            LblEmpty.Visible = result.Total == 0;
-            LitPageInfo.Text = result.Total == 0 ? string.Empty :
-                string.Format("Página {0} de {1} · {2} operadores", result.Page, result.PageCount, result.Total);
+            PhTable.Visible  = result.Total > 0;
+            PnlEmpty.Visible = result.Total == 0;
+            LnkClear.NavigateUrl = ResolveUrl(PageUrl);
+            PhPager.Visible  = result.Total > 0;
+            LitPageInfo.Text = string.Format("Página {0} de {1} · {2} operadores", result.Page, result.PageCount, result.Total);
             LnkPrev.Visible = result.Page > 1;
             LnkNext.Visible = result.Page < result.PageCount;
             LnkPrev.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, guideId, result.Page - 1);
@@ -114,14 +116,14 @@ namespace TrainingApp.Pages.Admin
                 UserId           = row.UserId,
                 Code1            = row.Code1,
                 Name             = row.Name,
-                NotStarted       = row.NotStarted,
                 LastActivityText = ReportText.Date(row.LastActivity),
                 DetailUrl        = VirtualPathUtility.ToAbsolute("~/Pages/Admin/Operator.aspx") + "?id=" + row.UserId,
+                // "Sin iniciar" también es un estado con su insignia (P-2), no un "—".
                 Guides           = row.Guides.Select(g => new OperatorGuideCell
                 {
-                    HasSessions = g.State != ReadinessState.NotStarted,
                     StateText   = ReportText.State(g.State),
                     StateCss    = ReportText.StateCss(g.State),
+                    StateIcon   = ReportText.StateIcon(g.State),
                     ScoresText  = g.BestScore.HasValue
                         ? "Mejor " + ReportText.Score(g.BestScore) + " · Último " + ReportText.Score(g.LastScore)
                         : string.Empty

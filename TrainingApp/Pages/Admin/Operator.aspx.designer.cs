@@ -86,13 +86,13 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Repeater RptReinforcement;
 
         /// <summary>
-        /// LblNoReinforcement control.
+        /// PnlNoReinforcement control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblNoReinforcement;
+        protected global::System.Web.UI.WebControls.Panel PnlNoReinforcement;
 
         /// <summary>
         /// RptSessions control.
@@ -102,6 +102,15 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater RptSessions;
+
+        /// <summary>
+        /// PhSessions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhSessions;
 
         /// <summary>
         /// LblNoSessions control.

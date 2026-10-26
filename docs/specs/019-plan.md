@@ -163,14 +163,16 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 ## E4 · Operadores y Operador
 
-- [ ] **Operadores** (D-160): la barra de filtros, una columna por guía con su insignia, el mejor
-  puntaje, la última actividad y la paginación.
-- [ ] **Operador:**
+- [x] **Operadores** (D-160): la barra de filtros, una columna por guía con su insignia, el mejor
+  puntaje, la última actividad y la paginación. El mejor (y el último) puntaje va por guía dentro
+  de su celda, como antes: una cifra única entre guías sería un cálculo nuevo. "Sin iniciar" es
+  su insignia gris, no "—".
+- [x] **Operador:**
   - arriba, el estado por guía como insignias grandes y los pasos a reforzar;
   - la curva con los tokens;
   - las sesiones en tabla;
   - **la ficha se imprime en claro**, sin barra, menú, botones ni curva (D-150, D-157).
-- **Checklist del usuario:**
+- **Checklist del usuario** ✅ (2026-10-26, probado por el usuario):
   - los filtros y la paginación de siempre (en la URL, F5);
   - el detalle en claro y en oscuro;
   - la vista previa de impresión en claro con el tema oscuro activo.
@@ -217,6 +219,10 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 ## Docs al cerrar
 
+- [ ] **Rendimiento (AC-7), al cerrar la fase:** Resumen, Operadores y Pasos con la BD de volumen
+  (`DashboardPerformanceTests`), juntos (Planeación, 2026-10-26).
+- [ ] *Si sobra tiempo:* renombrar `BLL.Reports.GuideSummary` (por ejemplo `GuideSummaryRow`) y
+  quitar el alias de `Summary.aspx.cs` (choca con `Domain.GuideSummary` de la spec 020).
 - **Desarrollo:**
   - `docs/architecture.md`: el sistema de diseño (`admin.css` y sus tokens), el tema (script,
     `localStorage`, impresión) y `admin-charts.js`;

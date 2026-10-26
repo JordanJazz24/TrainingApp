@@ -86,13 +86,40 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Repeater RptOperators;
 
         /// <summary>
-        /// LblEmpty control.
+        /// PhTable control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblEmpty;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhTable;
+
+        /// <summary>
+        /// PnlEmpty control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel PnlEmpty;
+
+        /// <summary>
+        /// LnkClear control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink LnkClear;
+
+        /// <summary>
+        /// PhPager control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhPager;
 
         /// <summary>
         /// LnkPrev control.

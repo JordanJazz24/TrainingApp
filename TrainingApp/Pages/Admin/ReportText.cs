@@ -24,14 +24,26 @@ namespace TrainingApp.Pages.Admin
             }
         }
 
+        // Insignia de estado (brief 019, P-2): el color va siempre con el texto y su ícono.
         public static string StateCss(ReadinessState state)
         {
             switch (state)
             {
-                case ReadinessState.Passed:     return "badge bg-success";
-                case ReadinessState.Failed:     return "badge bg-danger";
-                case ReadinessState.InTraining: return "badge bg-warning text-dark";
-                default:                        return "badge bg-light text-secondary border";
+                case ReadinessState.Passed:     return "mt-badge mt-badge-ok";
+                case ReadinessState.Failed:     return "mt-badge mt-badge-bad";
+                case ReadinessState.InTraining: return "mt-badge mt-badge-warn";
+                default:                        return "mt-badge mt-badge-idle";
+            }
+        }
+
+        public static string StateIcon(ReadinessState state)
+        {
+            switch (state)
+            {
+                case ReadinessState.Passed:     return "bi bi-check-circle";
+                case ReadinessState.Failed:     return "bi bi-x-circle";
+                case ReadinessState.InTraining: return "bi bi-hourglass-split";
+                default:                        return "bi bi-dash-circle";
             }
         }
 

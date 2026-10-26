@@ -10,6 +10,7 @@ namespace TrainingApp.Pages.Admin
         public string GuideTitle { get; set; }
         public string StateText { get; set; }
         public string StateCss { get; set; }
+        public string StateIcon { get; set; }
         public string BestText { get; set; }
         public string LastText { get; set; }
         public string LastActivityText { get; set; }

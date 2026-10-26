@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
 rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E3 (Resumen), probada por el usuario (`git log --oneline -10` para ver el estado real)
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E4 (Operadores y Operador), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -79,7 +79,14 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E3 (Re
        los tokens y redibuja al cambiar de tema; mismas cifras de `GetSummary` sin tocar la
        BLL; sin "N sin iniciar" ni número en Seguimiento (D-164); se borró `Site.css`, sin
        uso. Probada por el usuario. **Falta medir** el rendimiento (AC-7) antes de cerrar la
-       fase. Sigue la **E4** (Operadores y Operador).
+       fase.
+     - **E4 ✅** (2026-10-26): Operadores (filtros y Descargar en el panel de la tabla, el
+       nombre como enlace al detalle, insignia con ícono por guía, también "Sin iniciar", y el
+       mejor y último puntaje por guía en su celda) y Operador (estado por guía con insignias
+       grandes y los pasos a reforzar arriba, la curva con `admin-charts.js`, las sesiones en
+       tabla, la ficha impresa en claro). `ReportText.StateCss`/`StateIcon` comparten la
+       insignia; Seguimiento recibe el ícono en la E5. Probada por el usuario. Sigue la **E5**
+       (Pasos y Seguimiento).
      - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
        Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
        defecto y el rol se cambia a mano para entrar como operador o admin.
