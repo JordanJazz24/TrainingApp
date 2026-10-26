@@ -99,7 +99,7 @@ Una página estática navegable con:
 La arma Arquitectura y Planeación como artifact (no es código de la app). **El usuario la
 aprueba antes del plan**, y queda como criterio de aceptación de todas las pantallas.
 
-**Mockup v1 (2026-10-26, espera la aprobación del usuario):**
+**Mockup v1, aprobado por el usuario como base (2026-10-26):**
 [canvas "Mockup Fase 11 · Dashboard de Training"](https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd).
 Es privado y solo lo abre el usuario. Tiene tres tableros:
 - **Sistema de diseño:** tokens claro y oscuro, tipografía, estados, modos, seguimiento,
@@ -109,6 +109,40 @@ Es privado y solo lo abre el usuario. Tiene tres tableros:
 
 Los datos son de ejemplo. Las gráficas se dibujan con HTML solo para mostrar el estilo; en la
 app son de Chart.js con los mismos tokens.
+
+## Pantallas sin mockup (usuario, 2026-10-26, D-160)
+
+Se construyen con los componentes del mockup. El usuario eligió estas disposiciones entre dos
+opciones por pantalla:
+
+- **Operadores:** tabla.
+  - Arriba, la barra de filtros: búsqueda por nombre o Code1, estado y guía, más Descargar.
+  - Columnas: el operador (nombre y Code1, enlace al detalle), **una columna por guía con su
+    insignia de estado**, el mejor puntaje y la última actividad.
+  - Paginación de 50 al pie. Descartado: tarjetas por operador.
+- **Pasos:** tabla.
+  - Columnas: el número en el ranking, el paso, **la barra de % de sesiones con fallo** (como el
+    top 5), los intentos fallidos, las veces sin acierto, la mediana y, en Práctica libre, los
+    saltos.
+  - Debajo de cada paso, los **2 motivos más frecuentes**. **"Ver todos"** despliega el resto en
+    el cliente, sin postback.
+  - Descartado: lista grande con panel lateral.
+- **Seguimiento:** tabla, **una fila por operador y guía**.
+  - Las reglas van como chips **con texto** ("Reprobó 2 Assessment", "14 días sin practicar",
+    "Mismo paso sin acierto: Log NC"), no solo S-1, S-2 y S-3.
+  - Columnas además de las reglas: la última sesión y el enlace al detalle.
+  - Primero quien cumple más reglas. Descartado: agrupado por guía.
+- **Usuarios:** tabla.
+  - Columnas: el **rol** y el **estado de la cuenta** como insignias (Activa, Bloqueada, Debe
+    cambiar la contraseña), el último acceso y las **acciones de hoy** como botones de la fila.
+  - **Mismo comportamiento que hoy** (spec 013): solo cambia el diseño.
+  - Descartado: dejar la disposición actual con el estilo nuevo.
+- **Operador (detalle):** como dice "Intención por vista":
+  - arriba, el estado por guía como insignias grandes y los pasos a reforzar;
+  - después la curva y las sesiones;
+  - la ficha impresa en claro (D-157).
+- **Login y cambio de contraseña:** una tarjeta centrada con el sistema de diseño y el
+  interruptor de tema.
 
 ## Skill de frontend-design (usuario, al aprobar)
 
@@ -193,6 +227,7 @@ brief (otra librería, fuentes, animaciones pesadas), se pregunta antes.
 | D-157 | **Modo oscuro:** sigue al sistema operativo, con un interruptor en la barra que se recuerda en el navegador; la ficha impresa sale siempre en claro (P-1). |
 | D-158 | **Excel profesional:** título con la vista, los filtros y la fecha; encabezados con color, filtros activos, primera fila fija, formatos y estados con color; mismas columnas y datos. |
 | D-159 | **Mockup navegable aprobado antes del plan**, como criterio de aceptación. El mockup y la implementación usan la skill `frontend-design`, dentro del brief. |
+| D-160 | **Pantallas sin mockup** (Operadores, Pasos, Seguimiento y Usuarios) como tablas con los componentes del mockup, con las disposiciones de "Pantallas sin mockup". |
 
 ## Open Questions
 
