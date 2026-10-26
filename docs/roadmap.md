@@ -32,6 +32,7 @@
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
+| — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | **11 · UI/UX del dashboard y la administración** | ▶️ en curso (brief, mockup y plan aprobados el 2026-10-26) | | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
