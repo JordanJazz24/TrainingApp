@@ -13,10 +13,13 @@
 > - **Se borran del código** la pantalla de Hora a Hora 3.0, su pestaña en Edge, su aviso
 >   provisional (D-72 queda sin efecto), su registro en el avance del Ingreso (P-7) y su pista
 >   de Práctica libre. Si algún día vuelve, se recupera del historial de git.
-> - **Log On** exige solo el registro de **Recursos MES**. Sin él, sigue siendo intento fallido y
->   vuelve a la pestaña del Repositorio (P-3, P-4, AC-7). Queda sin efecto la parte de D-67 sobre
->   el orden entre Hora a Hora y Recursos MES, y el caso límite "Recursos MES antes que Hora a
->   Hora".
+> - **Log On** exige solo el registro de **Recursos MES**. Como el login de MES solo se abre
+>   después de Buscar en Recursos MES, ya no hay un Log On fallido por falta de registro. Si llega
+>   uno (página vieja o envío manipulado), es **inválido, sin intento**, como cualquier envío
+>   imposible desde la pantalla (`CLAUDE.md` → "Capas"; corrección del usuario, 2026-10-26, con
+>   el aviso de Desarrollo). P-3 y P-4 pierden "Log On sin los registros". Queda sin efecto la
+>   parte de D-67 sobre el orden entre Hora a Hora y Recursos MES, y el caso límite "Recursos MES
+>   antes que Hora a Hora".
 > - **Guía de Guided:** no menciona Hora a Hora. Del Repositorio va directo a Recursos MES (P-8,
 >   AC-16).
 > - **Sin cambios** en la BD, los pesos (el Ingreso sigue en 0.05), los pasos de las guías ni la
@@ -24,8 +27,9 @@
 > - **Datos ya guardados:** los intentos con la acción `MES.HoraHora.Iniciar` se conservan y se
 >   siguen viendo en el dashboard con ese código.
 > - **AC-5 queda sin efecto.** AC-4 queda: "Repositorio con las tres tarjetas; Hora-Hora (1.0) y
->   (3.0) no hacen nada; Recursos MES se abre en su pestaña". AC-7 queda: "Log On con su Code1, una
->   contraseña cualquiera y el registro de Recursos MES".
+>   (3.0) no hacen nada; Recursos MES se abre en su pestaña". AC-7 queda: "Log On con su Code1 y una
+>   contraseña cualquiera completa el paso y aparece el POD; con un Code1 ajeno, intento fallido;
+>   con la contraseña vacía, formato".
 
 Fuentes: el flujo Pre-SAP del usuario y sus capturas (`docs/ui-reference/pre-sap-flow.md`,
 `Screens SAP MES REAL/Pre-SAPMES/`, 2026-10-19); WI QD001001524 → 6.4 y 6.5

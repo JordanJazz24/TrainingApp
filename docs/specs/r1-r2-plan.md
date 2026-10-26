@@ -13,10 +13,18 @@ chicas y se prueban juntas (usuario, 2026-10-26).
 
 | D | Decisión |
 |---|---|
-| D-151 | **Hora a Hora sale del Ingreso a MES** (spec 016 → enmienda 1): el flujo es script → Repositorio → Recursos MES → login. La tarjeta Hora-Hora (3.0) se ve y no hace nada, como la (1.0), sin intento ni aviso en ningún modo. La guía no menciona Hora a Hora. La pantalla, su pestaña, el aviso provisional (D-72) y su registro se borran del código. Log On exige solo Recursos MES. |
+| D-151 | **Hora a Hora sale del Ingreso a MES** (spec 016 → enmienda 1): el flujo es script → Repositorio → Recursos MES → login. La tarjeta Hora-Hora (3.0) se ve y no hace nada, como la (1.0), sin intento ni aviso en ningún modo. La guía no menciona Hora a Hora. La pantalla, su pestaña, el aviso provisional (D-72) y su registro se borran del código. Log On exige solo Recursos MES; como el login no se abre sin él, un Log On sin Recursos MES es inválido, sin intento (corrección del 2026-10-26). |
 | D-152 | **La guía no menciona acciones disciplinarias** ("no nos corresponde", Ernesto): las alertas de Resource Setup y de Log NC se cortan antes de esa frase y queda "CRÍTICO". Enmienda el texto de D-43 (spec 014). |
 
 ## E1 · R1 y R2
+
+> **Corrección 2026-10-26 (usuario, con el aviso de Desarrollo durante la E1):** sin Hora a
+> Hora, "Log On sin Recursos MES" no se puede provocar desde la pantalla, porque el login de MES
+> solo se abre después de Buscar. Se queda como hoy: **inválido, sin intento** (`MesLoginRule`,
+> `CLAUDE.md` → "Capas"), no "intento fallido y vuelve al Repositorio". Por eso salen de la
+> checklist y de los tests. También se aceptan dos cosas que hizo Desarrollo y que no cambian el
+> comportamiento: se quitan el subpaso `backToRepo` de la guía ("vuelva a la pestaña del
+> Repositorio", que solo existía por Hora a Hora) y el ancla `mes-card-hh3`, que no usa nada más.
 
 **R2, textos** (`Pages/Training/Guide/GuideScriptBuilder.cs`):
 - [ ] **Resource Setup, alerta de Remove All:** termina en "…sin ese registro se pierde la
@@ -30,7 +38,7 @@ chicas y se prueban juntas (usuario, 2026-10-26).
 **R1, Hora a Hora fuera del Ingreso** (spec 016 → enmienda 1):
 - [ ] **BLL** (`BLL/Training/MesLogin.cs`): quitar la pantalla `HoraHora`, la acción
   `HoraHoraStart` y `HoraHoraDone` del avance. Log On exige solo el registro de Recursos MES:
-  sin él, intento fallido y vuelve al Repositorio (P-4). Actualizar los comentarios (D-67).
+  sin él, inválido, sin intento (ver la corrección). Actualizar los comentarios (D-67).
 - [ ] **`AttemptActions`:** quitar el mapeo de la acción. Los intentos ya guardados con
   `MES.HoraHora.Iniciar` se siguen viendo en el dashboard con ese código: revisar que ninguna
   vista ni descarga dependa de la constante.
@@ -52,7 +60,7 @@ chicas y se prueban juntas (usuario, 2026-10-26).
   `StepViewModel` y de `GuidedTest.aspx.cs`.
 - [ ] **Domain:** el comentario de `StepType.MesLogin` (`TrainingStep.cs`) sin Hora a Hora.
 - [ ] **Tests:** los de `MesLogin` y `StepValidator` que cubren Hora a Hora se ajustan:
-  - Log On sin Recursos MES: intento fallido y vuelve al Repositorio;
+  - Log On sin Recursos MES: inválido, sin intento;
   - Log On con Recursos MES: completa;
   - la acción de Hora a Hora ya no existe.
 
@@ -72,7 +80,6 @@ chicas y se prueban juntas (usuario, 2026-10-26).
   frase disciplinaria.
 - **Práctica libre:**
   - clic en Hora-Hora (3.0) y en (1.0): no pasa nada, sin aviso;
-  - Log On antes de Recursos MES: intento fallido y vuelve al Repositorio;
   - las pistas no mencionan Hora a Hora.
 - **Assessment:** el Ingreso completo sin Hora a Hora llega al POD, y la sesión termina con su
   resumen (Logout con la limpieza, sin cambios).
