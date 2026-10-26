@@ -9,7 +9,9 @@
 
 **Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
 rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Excel), probada por el usuario (`git log --oneline -10` para ver el estado real)
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Excel), probada por el usuario, en `fase-11`
+rebaseada sobre `TrainingApp`; falta el fast-forward del usuario (`git log --oneline -10` para
+ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -96,8 +98,29 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Ex
        de descarga en la hora de la planta), el encabezado con el acento, fijo y con autofiltro,
        y los estados con su color del tema claro; mismas columnas y datos. La descarga de
        sesiones sigue en streaming, con el esquema en 0 errores y el mismo tiempo (3.9 → 3.7 s
-       con el volumen de "Todo"). Probada por el usuario en Excel. Sigue el **cierre** de la
-       fase: AC-7 con la BD de volumen y los "Docs al cerrar".
+       con el volumen de "Todo"). Probada por el usuario en Excel.
+     - **Integración pendiente (2026-10-26):** `fase-11` está rebaseada sobre `TrainingApp`
+       (trae las E1 a E3 de R3 y el roadmap de Planeación) y pasan los 390 tests. **Pendiente
+       del usuario**, en este orden:
+       1. correr `00`, `02` y `03` en `TrainingApp_Fase11` (los pide R3; sin ellos, iniciar
+          una sesión falla);
+       2. en la carpeta principal, sobre la rama `TrainingApp`: `git merge --ff-only fase-11`.
+     - **Cierre de la fase, sin empezar** ("Docs al cerrar" de `019-plan.md`):
+       1. **AC-7:** crear la BD de volumen `TrainingApp_DashboardTest` en LocalDB (`00`–`12`,
+          `GenerateDashboardData.sql` y un admin para medir), medir Resumen, Operadores, Pasos y
+          Seguimiento con 30 días y con "Todo" (`DashboardPerformanceTests`) y borrarla
+          (`docs/process.md` §6). **Pedir el OK del usuario antes de crearla**: el 2026-10-26
+          la detuvo al cerrar la sesión y no se creó nada. Si alguna vista pasa de 3 s, avisar
+          a Planeación antes de tocar SPs o índices.
+       2. **Docs:** `architecture.md` (`admin.css` y los tokens, `theme.js` con `localStorage`
+          y la impresión en claro, solo en `Admin.Master` y `Site.Master`, y
+          `admin-charts.js`), `CLAUDE.md` → "Sesión y seguridad" (`Training.Master` sin tema),
+          la auditoría `2026-10-01` (Bootstrap 5.3.8 y Bootstrap Icons 1.13.2 en AUD-29) y
+          `history.md` (la Fase 11 completa).
+       3. **Limpieza:** hecha (`Site.css` se borró en la E3 y el alias de `GuideSummary` en
+          `5bda389`).
+
+       Al terminar, avisar a Planeación para marcar la Fase 11 ✅ y D-153 a D-164.
      - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
        Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
        defecto y el rol se cambia a mano para entrar como operador o admin.
@@ -139,7 +162,8 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Ex
        choque de nombres con `BLL.Reports.GuideSummary`. Probada por el usuario en Guided y
        Assessment.
      - Sigue la E4 (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá un bloque al final
-       de `admin.css`), después de integrar la Fase 11 en `TrainingApp`.
+       de `admin.css`). **Espera el fast-forward de `fase-11` en `TrainingApp`**: Desarrollo le
+       avisa a `Custom-RS` cuando el usuario lo haga.
      - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a

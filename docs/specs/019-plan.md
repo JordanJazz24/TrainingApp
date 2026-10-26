@@ -152,9 +152,9 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
   los tres azules y los estados sus colores.
 - [x] Las mismas cifras que hoy, del mismo `DashboardService` (sin cambios en la BLL). Sin
   "N sin iniciar" ni número en Seguimiento (D-164). `Site.css`, sin uso, se borró.
-- [ ] Rendimiento: el Resumen sigue en menos de 3 s con la BD de volumen (AC-7). *No se midió
-  en la E3:* la BLL y las consultas son las mismas; se mide con `DashboardPerformanceTests`
-  antes de cerrar la fase.
+- Rendimiento: el Resumen sigue en menos de 3 s con la BD de volumen (AC-7). *No se midió
+  en la E3:* la BLL y las consultas son las mismas. **Se mide en el cierre**, con las demás
+  vistas: ver la casilla de AC-7 en "Docs al cerrar".
 - **Checklist del usuario** ✅ (2026-10-26, probado por el usuario):
   - claro y oscuro contra el mockup;
   - proyector (zoom del 150 %) y 768 px;
