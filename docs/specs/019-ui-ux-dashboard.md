@@ -65,6 +65,12 @@ acento y colores de estado. Todo en un CSS común con **tokens**, que usan todas
 - **Gráficas:** Chart.js con los tokens (colores, fuente, grilla suave, tooltips), en claro y en
   oscuro.
 - **Modo oscuro** (usuario): los mismos tokens con valores oscuros.
+- **Borde de los campos** (enmienda del 2026-10-26, usuario, con el aviso de Desarrollo en la E2;
+  D-162): el borde del mockup (`#D6DCE4` en claro y `#2C3746` en oscuro) da 1.4:1 y no alcanza
+  el contraste de los controles (WCAG 1.4.11, 3:1). Sirve para tablas, paneles y divisores, que
+  son decorativos. Los **campos** (`form-control`, `form-select`, `input-group`) usan un token
+  propio: **`#808B9B` en claro y `#627083` en oscuro** (3.2 a 3.7:1). El borde del mockup no
+  cambia.
 - **Contraste AA** en los dos modos.
 
 ## Bootstrap 5.3 (usuario: "actualizar, pero primero verificar que no rompa la aplicación")
