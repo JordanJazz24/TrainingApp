@@ -1,6 +1,6 @@
 # Plan del brief 019 — UI/UX del dashboard y la administración (Fase 11)
 
-**Status:** propuesto (2026-10-26), espera la aprobación del usuario · brief
+**Status:** **aprobado por el usuario (2026-10-26)** · brief
 `019-ui-ux-dashboard.md`, aprobado el 2026-10-26 (D-153 a D-160), con su
 [mockup v1](https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd) aprobado como base.
 

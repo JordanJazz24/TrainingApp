@@ -32,7 +32,7 @@
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
-| **11 · UI/UX del dashboard y la administración** | ▶️ brief aprobado el 2026-10-26; sigue el mockup y después el plan | | `019-ui-ux-dashboard.md` (brief de diseño) |
+| **11 · UI/UX del dashboard y la administración** | ▶️ en curso (brief, mockup y plan aprobados el 2026-10-26) | | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -444,8 +444,10 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > - **entran** Bootstrap 5.3, verificado primero en una entrega propia (D-155), el modo oscuro
 >   (D-157) y Bootstrap Icons (D-156).
 >
-> Lo que sigue: Arquitectura y Planeación arma el **mockup** (sistema de diseño y Resumen, en
-> claro y en oscuro). Con el mockup aprobado, se escribe el plan por entregas (D-159).
+> El [mockup v1](https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd) está aprobado como base,
+> con las pantallas sin mockup de D-160. El **plan `019-plan.md`** tiene 6 entregas
+> (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
+> Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
 ### Después de la Fase 10
 
