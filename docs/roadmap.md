@@ -32,7 +32,7 @@
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
 | 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
-| **11 · UI/UX del dashboard** | ⏳ después de R1/R2 (pedido del usuario, 2026-10-23) | | necesita spec |
+| **11 · UI/UX del dashboard** | ⏳ siguiente (R1/R2 ✅ el 2026-10-26; pedido del usuario, 2026-10-23) | | necesita brief de diseño |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -438,13 +438,14 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - rediseñar el POD, el login o la gestión de usuarios, salvo lo que comparta `Admin.Master`
   con el dashboard.
 
-**Antes de empezar:** `/spec`, con preguntas que arranquen por la intención de UX: quién mira
-cada vista, qué tiene que ver primero, referencias visuales y si se mantiene Bootstrap.
+**Antes de empezar:** brief de diseño (`docs/process.md` → "1. Clasificar el pedido", fila 3),
+con preguntas que arranquen por la intención de UX: quién mira cada vista, qué tiene que ver
+primero, referencias visuales y si se mantiene Bootstrap.
 
 ### Después de la Fase 10
 
 **Orden (usuario, 2026-10-23):**
-1. R1 y R2, cortos: corrigen lo que hoy se le enseña al operador.
+1. ✅ R1 y R2, cortos: corrigen lo que hoy se le enseña al operador (2026-10-26).
 2. Fase 11, UI/UX del dashboard.
 3. R3, Custom Resource Setup.
 
@@ -454,8 +455,8 @@ Ernesto **aprobó el contenido del simulador**.
 
 | # | Tarea | Estado |
 |---|---|---|
-| R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | ▶️ En curso: spec 016 → enmienda 1 y plan `r1-r2-plan.md`, aprobados el 2026-10-26 (D-151) |
-| R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | ▶️ En curso: plan `r1-r2-plan.md`, aprobado el 2026-10-26 (D-152) |
+| R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | ✅ 2026-10-26 (`6fb1568`; spec 016 → enmienda 1, plan `r1-r2-plan.md`, D-151) |
+| R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | ✅ 2026-10-26 (`6fb1568`; plan `r1-r2-plan.md`, D-152) |
 | R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | Decidido por el usuario · **después de la Fase 10** · necesita spec |
 
 - **Confirmado:** el Logout va seguido del script de limpieza (como está, spec 016).

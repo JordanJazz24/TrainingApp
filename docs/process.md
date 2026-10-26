@@ -6,12 +6,27 @@
 
 ## 1. Clasificar el pedido
 
-| Pedido | Camino |
-|---|---|
-| Funcionalidad o reglas de negocio nuevas (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. Spec y plan, en la sesión de Arquitectura y Planeación; la implementación, en la de Desarrollo (ver "Tres sesiones de trabajo"). |
-| Pocas decisiones acotadas (3-6 preguntas, una pantalla) | Una ronda de `AskUserQuestion` + plan directo; las decisiones se anotan en la sección de la tarea en el roadmap, con su fila en `docs/decisions.md`. |
-| Bugs, robustez, rendimiento | Plan corto en el chat e implementación directa, sin spec. Ofrecer spec solo si aparecen decisiones de negocio. |
+El camino no depende del tipo de trabajo, sino de **cuánto cuesta equivocarse** y de
+**cuántas decisiones quedan abiertas** (usuario, 2026-10-26). Las preguntas se hacen en orden
+y **gana la primera que aplica**:
 
+| # | Pedido | Camino |
+|---|---|---|
+| 1 | Funcionalidad o reglas de negocio nuevas: cambia el flujo, los pasos, el puntaje, los datos o los roles (fases, pasos nuevos, UX con reglas) | `/spec` → revisión y aprobación explícita del usuario ("apruebo", "procede con el plan") → `/plan` → aprobación del plan → implementación. Sin excepciones, aunque haya mucho contexto. Spec y plan, en la sesión de Arquitectura y Planeación; la implementación, en la de Desarrollo (ver "Tres sesiones de trabajo"). Es lo más caro de revertir: enseña mal o falsea la evaluación, y deja datos en la BD. |
+| 2 | Pantallas que replican el SAP MES real (POD, Ingreso a MES) | Plan directo (o por entregas si son varias pantallas, como la Fase 6.5) con la captura real como criterio de aceptación (sección 8). La fidelidad es una regla disfrazada de UI: no se diseña, se replica. |
+| 3 | Solo presentación (sin reglas ni datos nuevos), pero en varias pantallas o sin una intención de UX definida | **Brief de diseño**: una `/spec` ligera con las preguntas de UX de abajo, aprobada antes del plan. Sin él, cada pantalla queda distinta y se rehace al revisar. |
+| 4 | Pocas decisiones acotadas (3-6 preguntas, una pantalla), incluidos textos de la guía y presentación de una sola pantalla | Una ronda de `AskUserQuestion` + plan directo; las decisiones se anotan en la sección de la tarea en el roadmap, con su fila en `docs/decisions.md`. |
+| 5 | Bugs, robustez, rendimiento, deuda sin cambio de comportamiento | Plan corto en el chat e implementación directa, sin spec. La conducta correcta ya está definida. |
+
+- **Escalar, nunca bajar en silencio:** si en un camino ligero aparece algo de la fila 1
+  (una decisión de negocio, una regla nueva), se para y se propone pasar a spec.
+- **Brief de diseño** (fila 3): se escribe con `/spec` en `docs/specs/`, pero pregunta por la
+  intención de UX, no por el comportamiento: quién mira cada pantalla y qué decide con ella;
+  qué tiene que ver primero; referencias visuales y restricciones (Bootstrap, marca, uso en
+  planta); **primero el sistema de diseño** (tokens de color, tipografía y espaciado, y
+  componentes compartidos en un CSS común) y después las pantallas; y criterios de aceptación
+  verificables (capturas de antes y después, contraste accesible, anclas `data-guide` y
+  postbacks intactos, los `.xlsx` abren bien en Excel).
 - Ante la duda, preguntarse si una spec es sobreingeniería para un simulador interno, y
   decirle al usuario en una línea qué camino se propone y por qué. Él suele pedir "considera
   si realmente necesita spec".

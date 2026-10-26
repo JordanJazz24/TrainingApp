@@ -37,8 +37,9 @@ actualiza en cada cierre: `docs/process.md` → "Documentación".
 
 - Respetar el alcance de la fase en curso: su "No incluye" en el roadmap. Las features de
   fases futuras que se filtran a fases anteriores son la causa principal de la deuda técnica.
-- Funcionalidad o reglas de negocio nuevas: `/spec` aprobada antes de planificar. Los bugs
-  van con un plan directo (`docs/process.md`).
+- Cada pedido se clasifica (spec, brief de diseño, plan directo o bug) con
+  `docs/process.md` → "1. Clasificar el pedido". Funcionalidad o reglas de negocio nuevas
+  llevan siempre `/spec` aprobada antes de planificar.
 - El usuario prueba en el navegador y confirma ("funciona") **antes de cada commit**. Nunca
   afirmar que la UI funciona sin esa confirmación.
 - Rama de desarrollo `TrainingApp`. No tocar `main`: ahí sube los cambios el usuario (D-5).

@@ -69,7 +69,7 @@
 
      Empieza Arquitectura y Planeación, con la enmienda de la spec 016 (R1) y el plan directo
      (R2), para que los apruebe el usuario. **Desarrollo espera esa aprobación.**
-  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`** (con spec; pedido del usuario al
+  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`** (con brief de diseño; pedido del usuario al
      aprobar la E6).
   3. **R3 · Custom Resource Setup** (con spec).
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
