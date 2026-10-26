@@ -3,6 +3,30 @@
 **Status:** Approved (2026-10-19) · **Cerrada:** 2026-10-19 (E1-E4, `50aca9d`…`e1227dd`; cierre `96addd8`)
 **Date:** 2026-10-19 · **Approved:** 2026-10-19 (usuario, con P-1 a P-14)
 
+> **Enmienda 1 (2026-10-26, usuario; D-151; roadmap → "Revisión con Ernesto, MES
+> (2026-10-22)", R1): Hora a Hora sale del Ingreso a MES.** Ernesto aclaró que Hora a Hora 3.0
+> es el conteo de producción, no parte del proceso de MES. Lo enseñan los trainers aparte. El
+> Ingreso queda así: **script → Repositorio → Recursos MES → login de MES**.
+> - **Repositorio:** la tarjeta Hora-Hora (3.0) **se ve y no hace nada**, igual que Hora-Hora
+>   (1.0). No abre pestaña, no cuenta como intento y no muestra aviso, en ningún modo (P-2 y
+>   AC-4 cambian).
+> - **Se borran del código** la pantalla de Hora a Hora 3.0, su pestaña en Edge, su aviso
+>   provisional (D-72 queda sin efecto), su registro en el avance del Ingreso (P-7) y su pista
+>   de Práctica libre. Si algún día vuelve, se recupera del historial de git.
+> - **Log On** exige solo el registro de **Recursos MES**. Sin él, sigue siendo intento fallido y
+>   vuelve a la pestaña del Repositorio (P-3, P-4, AC-7). Queda sin efecto la parte de D-67 sobre
+>   el orden entre Hora a Hora y Recursos MES, y el caso límite "Recursos MES antes que Hora a
+>   Hora".
+> - **Guía de Guided:** no menciona Hora a Hora. Del Repositorio va directo a Recursos MES (P-8,
+>   AC-16).
+> - **Sin cambios** en la BD, los pesos (el Ingreso sigue en 0.05), los pasos de las guías ni la
+>   limpieza de Logout. No hacen falta versiones nuevas de las guías.
+> - **Datos ya guardados:** los intentos con la acción `MES.HoraHora.Iniciar` se conservan y se
+>   siguen viendo en el dashboard con ese código.
+> - **AC-5 queda sin efecto.** AC-4 queda: "Repositorio con las tres tarjetas; Hora-Hora (1.0) y
+>   (3.0) no hacen nada; Recursos MES se abre en su pestaña". AC-7 queda: "Log On con su Code1, una
+>   contraseña cualquiera y el registro de Recursos MES".
+
 Fuentes: el flujo Pre-SAP del usuario y sus capturas (`docs/ui-reference/pre-sap-flow.md`,
 `Screens SAP MES REAL/Pre-SAPMES/`, 2026-10-19); WI QD001001524 → 6.4 y 6.5
 (`wi-produccion-disposables.md`); evaluación práctica QD001043644, bloques 1 y 2, y su

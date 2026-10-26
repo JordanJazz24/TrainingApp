@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-151. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: D-153. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -59,7 +59,7 @@
 | D-40 | 2026-10-15 | Moldeo también con los tres métodos | specs/014-tres-scraps.md | superada (revertida por D-53) |
 | D-41 | 2026-10-15 | Componentes de Moldeo | specs/014-tres-scraps.md | sin efecto (D-53) |
 | D-42 | 2026-10-15 | Split en Moldeo con tres SFC | specs/014-tres-scraps.md | sin efecto (D-53) |
-| D-43 | 2026-10-15 | Alerta en rojo del subpaso 1 de Log NC (texto aprobado) | specs/014-tres-scraps.md | vigente |
+| D-43 | 2026-10-15 | Alerta en rojo del subpaso 1 de Log NC (texto aprobado) | specs/014-tres-scraps.md | enmendada (D-152: sin la mención disciplinaria) |
 | D-44 | 2026-10-15 | Notas de la guía en la reparación rápida (texto aprobado) | specs/014-tres-scraps.md | vigente |
 | D-45 | 2026-10-15 | Pesos de Moldeo | specs/014-tres-scraps.md | sin efecto (D-53) |
 | D-46 | 2026-10-15 | W13 en la 014: Assembly Data por tipo de control del material | specs/014-tres-scraps.md | en suspenso (enmienda 6: W13 diferida) |
@@ -80,15 +80,15 @@
 | D-61 | 2026-10-19 | La preparación antes de SAP es parte de la sesión de entrenamiento | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-62 | 2026-10-19 | Un solo login de la app, neutro, para los dos roles | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-63 | 2026-10-19 | El diseño de SAP NetWeaver pasa al login de MES simulado | specs/016-preparacion-antes-de-sap.md | vigente |
-| D-64 | 2026-10-19 | Paso nuevo "Ingreso a MES", primero de la guía | specs/016-preparacion-antes-de-sap.md | vigente |
+| D-64 | 2026-10-19 | Paso nuevo "Ingreso a MES", primero de la guía | specs/016-preparacion-antes-de-sap.md | enmendada (D-151: sin Hora a Hora) |
 | D-65 | 2026-10-19 | La limpieza al salir va dentro del paso Logout | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-66 | 2026-10-19 | El Ingreso pesa 0.05 y sale de Data Collection | specs/016-preparacion-antes-de-sap.md | vigente |
-| D-67 | 2026-10-19 | Del Ingreso se califican la secuencia y el Code1 propio | specs/016-preparacion-antes-de-sap.md | vigente |
+| D-67 | 2026-10-19 | Del Ingreso se califican la secuencia y el Code1 propio | specs/016-preparacion-antes-de-sap.md | enmendada (D-151: sin el orden entre Hora a Hora y Recursos MES) |
 | D-68 | 2026-10-19 | Un fallo vuelve a la pantalla que falló; cada pantalla se califica al enviarla | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-69 | 2026-10-19 | Escritorio con solo el script y el acceso al Repositorio | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-70 | 2026-10-19 | La estación de Recursos MES se escanea de una etiqueta simulada | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-71 | 2026-10-19 | Marco de Edge genérico con pestañas y barra de dirección | specs/016-preparacion-antes-de-sap.md | provisional (sin captura) |
-| D-72 | 2026-10-19 | Aviso simple de Hora a Hora después de Iniciar | specs/016-preparacion-antes-de-sap.md | provisional (sin captura) |
+| D-72 | 2026-10-19 | Aviso simple de Hora a Hora después de Iniciar | specs/016-preparacion-antes-de-sap.md | sin efecto (D-151: Hora a Hora sale del Ingreso) |
 | D-73 | 2026-10-19 | Contraseña del login de MES: solo formato, no viaja | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-74 | 2026-10-19 | El Ingreso, en todas las áreas y en los dos modos | specs/016-preparacion-antes-de-sap.md | vigente |
 | D-75 | 2026-10-19 | `StepType.MesLogin = 11` | specs/016-plan.md | vigente |
@@ -167,6 +167,8 @@
 | D-148 | 2026-10-23 | Dashboard: la descarga de sesiones del Resumen con "Todo" queda fuera de AC-24 (~16 s con un año de datos) y avisa que puede tardar; en la E7 se prueba en streaming (`OpenXmlWriter`) | specs/018-dashboard-training.md (enmienda 2) | enmendada (D-149: ZipArchive; la excepción con "Todo" sigue) |
 | D-149 | 2026-10-23 | Dashboard: la descarga de sesiones se arma con `ZipArchive` + `XmlWriter`, sin `System.IO.Packaging` (IsolatedStorage falla en IIS sin perfil pasados ~10 MB), validada por un test contra el esquema de SpreadsheetML | specs/018-plan.md (enmienda 4) | vigente |
 | D-150 | 2026-10-23 | Dashboard: la ficha del operador se imprime desde el navegador (estilos de impresión; PDF con "Guardar como PDF"), sin PDF en el servidor (DA-6) | specs/018-dashboard-training.md (DA-6), specs/018-plan.md (E8) | vigente |
+| D-151 | 2026-10-26 | Hora a Hora sale del Ingreso a MES (script → Repositorio → Recursos MES → login); la tarjeta (3.0) se ve y no hace nada; la guía no lo menciona; la pantalla se borra; Log On exige solo Recursos MES | specs/016-preparacion-antes-de-sap.md (enmienda 1), specs/r1-r2-plan.md | vigente |
+| D-152 | 2026-10-26 | La guía no menciona acciones disciplinarias: las alertas de Resource Setup y Log NC quedan en "CRÍTICO" | specs/r1-r2-plan.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
