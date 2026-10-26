@@ -10,11 +10,10 @@ namespace TrainingApp.UI.Master
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Barra del usuario solo con un admin autenticado. En el login y en el cambio de
-            // contraseña de un operador, el nombre neutro de la app (spec 016, D-80).
+            // Usuario y Cerrar sesión solo con un admin autenticado. La marca es siempre el
+            // nombre neutro de la app (spec 016, D-80; mockup de la Fase 11).
             bool signedIn = Context.User.Identity.IsAuthenticated && SessionHelper.CanManageUsers()
                 && Session[Constants.SessionKeys.Code1] != null;
-            LitBrand.Text  = signedIn ? "MES Training · Administración" : "Simulador de entrenamiento MES";
             PhUser.Visible = signedIn;
             if (signedIn)
             {
@@ -42,7 +41,10 @@ namespace TrainingApp.UI.Master
             var current = Page.AppRelativeVirtualPath;
             foreach (var page in pages)
                 if (string.Equals(current, page, StringComparison.OrdinalIgnoreCase))
-                    link.CssClass += " active";
+                {
+                    link.CssClass = "active";
+                    link.Attributes["aria-current"] = "page";
+                }
         }
 
         protected void BtnLogout_Click(object sender, EventArgs e)

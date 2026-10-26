@@ -1,56 +1,594 @@
 /* ============================================================
-   Módulo administrativo (spec 013) — Admin.Master. Diseño neutro: Bootstrap con pocos
-   ajustes, sin el estilo del MES ni el de SAP NetWeaver.
+   Sistema de diseño de la Fase 11 (brief 019, D-156, D-157 y D-163): Admin.Master (el
+   dashboard, Usuarios, el login y el cambio de contraseña) y Site.Master (el inicio del
+   operador). Se aplica dentro de <body class="mt-page">. El POD (Training.Master) no lo
+   carga.
+
+   Todo color, tipografía, espacio, radio y sombra sale de los tokens --mt-* (mockup v1 de la
+   Fase 11). Cada token tiene su valor claro y su valor oscuro; las páginas no usan colores
+   sueltos. Los tokens se conectan a las variables de Bootstrap 5.3 para que sus componentes
+   (formularios, tablas, tarjetas, modales) los tomen.
+
+   El tema lo pone theme.js en el <head> (<html data-bs-theme>); la ficha
+   impresa sale siempre en claro (@media print, al final).
    ============================================================ */
 
-body.admin-page {
+/* ── Tokens: claro ─────────────────────────────────────────── */
+:root,
+[data-bs-theme=light] {
+    --mt-bg: #F4F6F9;            /* fondo de la página */
+    --mt-surface: #FFFFFF;       /* paneles, tablas, campos */
+    --mt-surface-2: #EDF1F6;     /* encabezados de tabla, hover, pistas de barras */
+    --mt-border: #D6DCE4;        /* bordes y divisores */
+    --mt-field-border: #808B9B;  /* contorno de campos: 3:1 sobre la superficie (D-162) */
+    --mt-text: #18212D;
+    --mt-muted: #4E5A6A;         /* etiquetas y ayudas (AA sobre superficie) */
+    --mt-accent: #1F55A5;        /* botón principal, enlaces, foco, barras */
+    --mt-accent-rgb: 31, 85, 165;
+    --mt-accent-hover: #1A4A8F;
+    --mt-accent-soft: #E3ECF8;
+    --mt-on-accent: #FFFFFF;
+    --mt-focus: #1F55A5;
+    --mt-ok: #1B7A43;      --mt-ok-soft: #E1F3E8;      /* Aprobado */
+    --mt-bad: #B93229;     --mt-bad-soft: #FBE5E3;     /* Reprobado y Seguimiento */
+    --mt-warn: #8A5A00;    --mt-warn-soft: #FDF0D5;    /* En entrenamiento (texto) */
+    --mt-warn-bar: #E0A21B;                            /* En entrenamiento (barras) */
+    --mt-idle: #5D6673;    --mt-idle-soft: #E6E9ED;    /* Sin iniciar */
+    --mt-m1: #A9BFE3;      /* modo Guided */
+    --mt-m2: #5E86C9;      /* modo Práctica libre */
+    --mt-m3: #1F55A5;      /* modo Assessment */
+    --mt-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 2px 6px rgba(16, 24, 40, .06);
+    --mt-backdrop: rgba(24, 33, 45, .45);
+}
+
+/* ── Tokens: oscuro ────────────────────────────────────────── */
+[data-bs-theme=dark] {
+    --mt-bg: #0F141A;
+    --mt-surface: #171E27;
+    --mt-surface-2: #1F2833;
+    --mt-border: #2C3746;
+    --mt-field-border: #627083;
+    --mt-text: #E5EAF1;
+    --mt-muted: #A2ADBB;
+    --mt-accent: #7EA7EB;
+    --mt-accent-rgb: 126, 167, 235;
+    --mt-accent-hover: #9DBCF0;
+    --mt-accent-soft: #1E2F49;
+    --mt-on-accent: #0F141A;
+    --mt-focus: #9DBCF0;
+    --mt-ok: #5CCB8A;      --mt-ok-soft: #173326;
+    --mt-bad: #F2786E;     --mt-bad-soft: #3A1E1C;
+    --mt-warn: #F3C062;    --mt-warn-soft: #3A2E14;
+    --mt-warn-bar: #E0A21B;
+    --mt-idle: #9AA3AF;    --mt-idle-soft: #28313C;
+    --mt-m1: #3A527A;
+    --mt-m2: #5E86C9;
+    --mt-m3: #9DBCF0;
+    --mt-shadow: none;
+    --mt-backdrop: rgba(0, 0, 0, .6);
+}
+
+/* ── Escala (igual en los dos temas) ───────────────────────── */
+:root {
+    --mt-font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mt-fs-page: 1.875rem;      /* 30: título de página */
+    --mt-fs-section: 1.25rem;    /* 20: título de sección */
+    --mt-fs-block: 1rem;         /* 16: título de bloque */
+    --mt-fs-body: .9375rem;      /* 15: texto */
+    --mt-fs-small: .8125rem;     /* 13: secundario y etiquetas */
+    --mt-fs-figure: 2.5rem;      /* 40: cifra destacada */
+    --mt-space-1: 4px;
+    --mt-space-2: 8px;
+    --mt-space-3: 12px;
+    --mt-space-4: 16px;
+    --mt-space-5: 24px;
+    --mt-space-6: 32px;
+    --mt-radius-sm: 6px;
+    --mt-radius: 8px;
+    --mt-radius-lg: 10px;        /* paneles */
+    --mt-radius-xl: 14px;        /* bloque principal de cada vista */
+    --mt-control-h: 44px;        /* alto de botones y campos: táctil en tablet */
+}
+
+/* ── Bootstrap 5.3 toma los tokens ─────────────────────────── */
+/* Después del [data-bs-theme=dark] de Bootstrap (este archivo carga después): gana. */
+:root,
+[data-bs-theme=light],
+[data-bs-theme=dark] {
+    --bs-body-font-family: var(--mt-font);
+    --bs-body-font-size: var(--mt-fs-body);
+    --bs-body-bg: var(--mt-surface);           /* tarjetas, campos y tablas; la página usa --mt-bg */
+    --bs-body-color: var(--mt-text);
+    --bs-emphasis-color: var(--mt-text);
+    --bs-heading-color: var(--mt-text);
+    --bs-secondary-color: var(--mt-muted);
+    --bs-secondary-bg: var(--mt-surface-2);
+    --bs-tertiary-color: var(--mt-muted);
+    --bs-tertiary-bg: var(--mt-surface-2);
+    --bs-border-color: var(--mt-border);
+    --bs-border-radius: var(--mt-radius);
+    --bs-border-radius-sm: var(--mt-radius-sm);
+    --bs-border-radius-lg: var(--mt-radius-lg);
+    --bs-primary: var(--mt-accent);
+    --bs-primary-rgb: var(--mt-accent-rgb);
+    --bs-link-color: var(--mt-accent);
+    --bs-link-color-rgb: var(--mt-accent-rgb);
+    --bs-link-hover-color: var(--mt-text);
+    --bs-focus-ring-color: var(--mt-focus);
+    --bs-box-shadow: var(--mt-shadow);
+    --bs-box-shadow-sm: var(--mt-shadow);
+}
+
+body.mt-page {
     min-height: 100vh;
-    background: #f4f6f8;
-    color: #212529;
+    background: var(--mt-bg);
+    color: var(--mt-text);
+    font-family: var(--mt-font);
+    font-size: var(--mt-fs-body);
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;     /* columnas de números alineadas */
+}
+.mt-page h1, .mt-page h2, .mt-page h3 { font-weight: 600; letter-spacing: -0.01em; }
+
+/* Ninguna superficie con color fijo (Planeación, 2026-10-26): las utilidades de color de
+   Bootstrap que traen las vistas pasan por los tokens. Cada vista las quita en su entrega. */
+.mt-page .bg-white,
+.mt-page .bg-light { background-color: var(--mt-surface) !important; }
+.mt-page .text-dark { color: var(--mt-text) !important; }
+.mt-page .text-muted,
+.mt-page .text-secondary { color: var(--mt-muted) !important; }
+.mt-page .text-danger { color: var(--mt-bad) !important; }
+.mt-page .text-success { color: var(--mt-ok) !important; }
+
+/* Foco visible en todo lo que se opera con teclado. */
+.mt-page a:focus-visible,
+.mt-page button:focus-visible,
+.mt-page .btn:focus-visible,
+.mt-page input:focus-visible,
+.mt-page select:focus-visible {
+    outline: 3px solid var(--mt-focus);
+    outline-offset: 2px;
+    box-shadow: none;
 }
 
-.admin-nav { background: #2f3b48; }
-
-.admin-user {
+/* ── Barra superior ────────────────────────────────────────── */
+.admin-bar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 14px;
-    color: #dfe6ec;
-    font-size: 0.85rem;
+    gap: var(--mt-space-2) var(--mt-space-5);
+    min-height: 64px;
+    padding: var(--mt-space-2) var(--mt-space-6);
+    background: var(--mt-surface);
+    border-bottom: 1px solid var(--mt-border);
 }
-.admin-user-code { font-weight: 600; color: #fff; }
+.admin-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: var(--mt-fs-block);
+    color: var(--mt-text);
+}
+.admin-brand .bi { font-size: 1.375rem; color: var(--mt-accent); }
 
-/* Menú del dashboard (spec 018), debajo de la barra. */
-.admin-menu { background: #fff; border-bottom: 1px solid #dde3e8; }
-.admin-menu .nav-link { color: #44515e; padding: 10px 14px; border-bottom: 2px solid transparent; }
-.admin-menu .nav-link:hover { color: #1f2a35; }
-.admin-menu .nav-link.active { color: #1f2a35; font-weight: 600; border-bottom-color: #2f3b48; }
+.admin-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.admin-nav-links a {
+    display: inline-block;
+    padding: 10px 12px;
+    border-radius: var(--mt-radius);
+    color: var(--mt-muted);
+    font-weight: 600;
+    text-decoration: none;
+}
+.admin-nav-links a:hover { color: var(--mt-text); background: var(--mt-surface-2); }
+.admin-nav-links a.active { color: var(--mt-text); background: var(--mt-accent-soft); }
 
-.admin-main { padding-top: 28px; padding-bottom: 40px; }
+.admin-bar-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mt-space-3);
+    margin-left: auto;
+}
+.admin-user { display: flex; flex-direction: column; line-height: 1.25; }
+.admin-user-code { font-weight: 600; }
+.admin-user-last { color: var(--mt-muted); font-size: var(--mt-fs-small); }
 
-/* Login y cambio de contraseña: una tarjeta centrada. */
+/* ── Contenido ─────────────────────────────────────────────── */
+.admin-main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px var(--mt-space-6) 48px;
+}
+.admin-page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--mt-space-4);
+    margin-bottom: var(--mt-space-5);
+}
+.admin-page-title { margin: 0; font-size: var(--mt-fs-page); line-height: 1.2; }
+.admin-page-lead { margin: var(--mt-space-1) 0 0; color: var(--mt-muted); }
+
+/* Panel (sección) y bloque principal de una vista. */
+.mt-panel {
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-lg);
+}
+.mt-panel-body { padding: var(--mt-space-5); }
+.mt-hero {
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-xl);
+    box-shadow: var(--mt-shadow);
+}
+.mt-section-title { margin: 0; font-size: var(--mt-fs-section); }
+.mt-block-title { margin: 0; font-size: var(--mt-fs-block); }
+.mt-muted { color: var(--mt-muted); }
+.mt-small { font-size: var(--mt-fs-small); }
+
+/* Indicador: cifra grande con su etiqueta y su período. */
+.mt-stat { display: flex; flex-direction: column; gap: 2px; }
+.mt-stat-label { color: var(--mt-muted); font-size: var(--mt-fs-small); font-weight: 600; }
+.mt-stat-value { font-size: var(--mt-fs-figure); font-weight: 600; line-height: 1.1; }
+.mt-stat-detail { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+
+/* Estado vacío: qué pasó y qué hacer. */
+.mt-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: var(--mt-space-5);
+    color: var(--mt-muted);
+}
+
+/* ── Botones ───────────────────────────────────────────────── */
+.mt-page .btn {
+    --bs-btn-font-weight: 600;
+    --bs-btn-border-radius: var(--mt-radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mt-space-2);
+    min-height: var(--mt-control-h);
+    padding-left: var(--mt-space-4);
+    padding-right: var(--mt-space-4);
+}
+.mt-page .btn-sm {
+    --bs-btn-border-radius: var(--mt-radius-sm);
+    min-height: 36px;
+    padding-left: var(--mt-space-3);
+    padding-right: var(--mt-space-3);
+    font-size: var(--mt-fs-small);
+}
+.mt-page .btn-primary {
+    --bs-btn-color: var(--mt-on-accent);
+    --bs-btn-bg: var(--mt-accent);
+    --bs-btn-border-color: var(--mt-accent);
+    --bs-btn-hover-color: var(--mt-on-accent);
+    --bs-btn-hover-bg: var(--mt-accent-hover);
+    --bs-btn-hover-border-color: var(--mt-accent-hover);
+    --bs-btn-active-color: var(--mt-on-accent);
+    --bs-btn-active-bg: var(--mt-accent-hover);
+    --bs-btn-active-border-color: var(--mt-accent-hover);
+    --bs-btn-disabled-color: var(--mt-on-accent);
+    --bs-btn-disabled-bg: var(--mt-accent);
+    --bs-btn-disabled-border-color: var(--mt-accent);
+}
+/* Secundario: superficie con borde (los btn-outline-* de las vistas también). */
+.mt-page .btn-secondary,
+.mt-page .btn-outline-secondary,
+.mt-page .btn-outline-primary,
+.mt-page .btn-outline-light {
+    --bs-btn-color: var(--mt-text);
+    --bs-btn-bg: var(--mt-surface);
+    --bs-btn-border-color: var(--mt-border);
+    --bs-btn-hover-color: var(--mt-text);
+    --bs-btn-hover-bg: var(--mt-surface-2);
+    --bs-btn-hover-border-color: var(--mt-border);
+    --bs-btn-active-color: var(--mt-text);
+    --bs-btn-active-bg: var(--mt-surface-2);
+    --bs-btn-active-border-color: var(--mt-border);
+    --bs-btn-disabled-color: var(--mt-muted);
+    --bs-btn-disabled-bg: var(--mt-surface);
+    --bs-btn-disabled-border-color: var(--mt-border);
+}
+/* Acción destructiva: texto rojo sobre superficie; el relleno, al pasar el mouse. */
+.mt-page .btn-danger-soft,
+.mt-page .btn-outline-danger {
+    --bs-btn-color: var(--mt-bad);
+    --bs-btn-bg: var(--mt-surface);
+    --bs-btn-border-color: var(--mt-border);
+    --bs-btn-hover-color: var(--mt-bad);
+    --bs-btn-hover-bg: var(--mt-bad-soft);
+    --bs-btn-hover-border-color: var(--mt-bad);
+    --bs-btn-active-color: var(--mt-bad);
+    --bs-btn-active-bg: var(--mt-bad-soft);
+    --bs-btn-active-border-color: var(--mt-bad);
+}
+.mt-page .btn-link {
+    --bs-btn-color: var(--mt-accent);
+    --bs-btn-hover-color: var(--mt-text);
+    --bs-btn-active-color: var(--mt-text);
+    padding-left: var(--mt-space-2);
+    padding-right: var(--mt-space-2);
+}
+
+/* ── Campos ────────────────────────────────────────────────── */
+/* El contorno usa --mt-field-border y no --mt-border: es lo único que marca el campo
+   (WCAG 1.4.11, D-162). */
+.mt-page .form-control,
+.mt-page .form-select {
+    min-height: var(--mt-control-h);
+    background-color: var(--mt-surface);
+    color: var(--mt-text);
+    border-color: var(--mt-field-border);
+}
+.mt-page .form-control-sm,
+.mt-page .form-select-sm { min-height: 36px; }
+.mt-page .form-control::placeholder { color: var(--mt-muted); opacity: 1; }
+.mt-page .form-control:focus,
+.mt-page .form-select:focus {
+    border-color: var(--mt-accent);
+    box-shadow: 0 0 0 3px rgba(var(--mt-accent-rgb), .25);
+}
+.mt-page .form-label,
+.mt-field-label {
+    margin-bottom: var(--mt-space-1);
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+    font-weight: 600;
+}
+.mt-page .input-group-text {
+    background: var(--mt-surface-2);
+    color: var(--mt-muted);
+    border-color: var(--mt-field-border);
+}
+.mt-page .input-group > .btn { --bs-btn-border-color: var(--mt-field-border); }
+.admin-validation {
+    display: block;
+    margin-top: var(--mt-space-1);
+    color: var(--mt-bad);
+    font-size: var(--mt-fs-small);
+}
+
+/* ── Tablas ────────────────────────────────────────────────── */
+/* La tabla va dentro de su panel; en tablet se desplaza ahí, nunca la página (P-4). */
+.mt-table-wrap { overflow-x: auto; }
+.mt-page .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--mt-text);
+    --bs-table-border-color: var(--mt-border);
+    --bs-table-hover-bg: var(--mt-surface-2);
+    --bs-table-hover-color: var(--mt-text);
+    margin-bottom: 0;
+    font-size: .875rem;
+}
+.mt-page .table > thead > tr > th {
+    background: var(--mt-surface-2);
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.mt-table > :not(caption) > * > * { padding: var(--mt-space-3); vertical-align: middle; }
+.mt-table > thead > tr > th { padding-top: 10px; padding-bottom: 10px; }
+.mt-num { text-align: right; }
+
+/* ── Insignias y chips ─────────────────────────────────────── */
+/* Estado: siempre texto e ícono además del color (AC-2). */
+.mt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px 3px 8px;
+    border-radius: 999px;
+    font-size: var(--mt-fs-small);
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.mt-badge .bi { font-size: .9em; }
+.mt-badge-ok      { background: var(--mt-ok-soft);     color: var(--mt-ok); }
+.mt-badge-bad     { background: var(--mt-bad-soft);    color: var(--mt-bad); }
+.mt-badge-warn    { background: var(--mt-warn-soft);   color: var(--mt-warn); }
+.mt-badge-idle    { background: var(--mt-idle-soft);   color: var(--mt-idle); }
+.mt-badge-accent  { background: var(--mt-accent-soft); color: var(--mt-accent); }
+
+.mt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-sm);
+    background: var(--mt-surface-2);
+    color: var(--mt-text);
+    font-size: var(--mt-fs-small);
+}
+.mt-chip-alert { border-color: var(--mt-bad); background: var(--mt-bad-soft); color: var(--mt-bad); }
+
+/* Barra de % (tablas y top 5). */
+.mt-track { height: 8px; border-radius: 4px; background: var(--mt-surface-2); overflow: hidden; }
+.mt-fill { height: 100%; border-radius: 4px; background: var(--mt-accent); }
+
+/* ── Barra de filtros y paginación ─────────────────────────── */
+.mt-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--mt-space-3);
+}
+.mt-field { display: flex; flex-direction: column; gap: var(--mt-space-1); }
+.mt-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mt-space-2);
+    color: var(--mt-muted);
+    font-size: .875rem;
+}
+
+/* ── Usuarios (D-160) ──────────────────────────────────────── */
+.admin-search { flex: 0 1 380px; }
+.admin-row-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--mt-space-2);
+}
+
+/* ── Inicio del operador: StartSession (D-163) ─────────────── */
+.start-wrap { max-width: 760px; margin: 0 auto; }
+.start-card { padding: 28px; display: flex; flex-direction: column; gap: var(--mt-space-5); }
+.start-fields { display: grid; gap: var(--mt-space-4); }
+
+.start-modes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--mt-space-3);
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.start-modes legend { float: none; width: auto; margin-bottom: var(--mt-space-2); padding: 0; }
+/* La tarjeta es la etiqueta del radio: clic en cualquier parte lo marca. */
+.start-mode {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--mt-space-1);
+    min-height: 132px;
+    padding: var(--mt-space-4);
+    padding-right: 44px;
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-surface);
+    cursor: pointer;
+}
+.start-mode:hover { background: var(--mt-surface-2); }
+.start-mode input[type=radio] {
+    position: absolute;
+    top: var(--mt-space-4);
+    right: var(--mt-space-4);
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--mt-accent);
+    cursor: pointer;
+}
+.start-mode .bi { font-size: 1.75rem; line-height: 1; color: var(--mt-accent); }
+.start-mode-name { margin-top: var(--mt-space-2); font-size: var(--mt-fs-block); font-weight: 600; }
+.start-mode-line { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+/* Marcada: borde y fondo del acento; el radio marcado también lo dice sin color. */
+.start-mode:has(input:checked) {
+    border-color: var(--mt-accent);
+    background: var(--mt-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--mt-accent);
+}
+.start-mode:has(input:focus-visible) { outline: 3px solid var(--mt-focus); outline-offset: 2px; }
+.start-mode input:focus-visible { outline: none; }
+
+@media (max-width: 767.98px) {
+    .start-modes { grid-template-columns: 1fr; }
+    .start-mode { min-height: 0; }
+}
+
+/* Error del servidor en una página (StartSession). */
+.mt-page .alert-danger {
+    --bs-alert-color: var(--mt-bad);
+    --bs-alert-bg: var(--mt-bad-soft);
+    --bs-alert-border-color: var(--mt-bad);
+}
+
+/* ── Login y cambio de contraseña: una tarjeta centrada ────── */
+.admin-auth { display: flex; justify-content: center; padding-top: var(--mt-space-6); }
 .admin-card {
+    width: 100%;
     max-width: 420px;
-    margin: 40px auto 0;
-    padding: 28px 30px;
-    background: #fff;
-    border: 1px solid #dde3e8;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    padding: 28px;
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-xl);
+    box-shadow: var(--mt-shadow);
 }
-.admin-card h1 { font-size: 1.3rem; margin-bottom: 18px; }
-.admin-validation { display: block; font-size: 0.8rem; color: #c0392b; margin-top: 4px; }
+.admin-card h1 { margin: 0 0 var(--mt-space-1); font-size: 1.375rem; }
+.admin-card-lead { margin: 0 0 var(--mt-space-5); color: var(--mt-muted); }
 
-/* Gráficas del Resumen (spec 018): alto fijo para que Chart.js no crezca sin límite. */
+/* ── SweetAlert2 (11.7, sin opción de tema): toma los tokens ─ */
+.mt-page .swal2-container.swal2-backdrop-show { background: var(--mt-backdrop); }
+.mt-page .swal2-popup {
+    background: var(--mt-surface);
+    color: var(--mt-text);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-xl);
+    font-family: var(--mt-font);
+}
+.mt-page .swal2-title,
+.mt-page .swal2-html-container { color: var(--mt-text); }
+.mt-page .swal2-styled { border-radius: var(--mt-radius); font-weight: 600; min-height: var(--mt-control-h); }
+.mt-page .swal2-styled.swal2-confirm { background: var(--mt-accent); color: var(--mt-on-accent); }
+.mt-page .swal2-styled.swal2-cancel {
+    background: var(--mt-surface);
+    color: var(--mt-text);
+    border: 1px solid var(--mt-border);
+}
+.mt-page .swal2-styled:focus,
+.mt-page .swal2-styled:focus-visible { box-shadow: 0 0 0 3px var(--mt-focus); }
+
+/* ── Gráficas del Resumen (spec 018) ───────────────────────── */
 .summary-chart { position: relative; height: 240px; }
 
-/* Ficha imprimible del Operador (spec 018, AC-16, D-150): al imprimir desde el navegador se
-   ocultan la barra, el menú y los botones (d-print-none); el PDF sale de "Guardar como PDF". */
+/* ── Tablet (P-4): la barra se acomoda; las columnas secundarias se ocultan ── */
+@media (max-width: 991.98px) {
+    .admin-bar { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
+    .admin-main { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
+    .mt-col-secondary { display: none; }
+}
+
+/* ── Impresión: siempre en claro (D-157) ───────────────────── */
+/* Ficha imprimible del Operador (spec 018, AC-16, D-150): sin barra ni botones
+   (d-print-none); el PDF sale de "Guardar como PDF". */
 @media print {
-    .admin-nav, .admin-menu { display: none !important; }
-    body.admin-page { background: #fff; }
+    [data-bs-theme=dark] {
+        --mt-bg: #FFFFFF;
+        --mt-surface: #FFFFFF;
+        --mt-surface-2: #EDF1F6;
+        --mt-border: #D6DCE4;
+        --mt-field-border: #808B9B;
+        --mt-text: #18212D;
+        --mt-muted: #4E5A6A;
+        --mt-accent: #1F55A5;
+        --mt-accent-rgb: 31, 85, 165;
+        --mt-accent-soft: #E3ECF8;
+        --mt-on-accent: #FFFFFF;
+        --mt-ok: #1B7A43;      --mt-ok-soft: #E1F3E8;
+        --mt-bad: #B93229;     --mt-bad-soft: #FBE5E3;
+        --mt-warn: #8A5A00;    --mt-warn-soft: #FDF0D5;
+        --mt-idle: #5D6673;    --mt-idle-soft: #E6E9ED;
+        --mt-m1: #A9BFE3;
+        --mt-m2: #5E86C9;
+        --mt-m3: #1F55A5;
+        --mt-shadow: none;
+        color-scheme: light;
+    }
+    .admin-bar { display: none !important; }
+    body.mt-page { background: #FFFFFF; }
     .admin-main { padding-top: 0; padding-bottom: 0; max-width: none; }
-    .card { break-inside: avoid; }
+    .card, .mt-panel, .mt-hero { break-inside: avoid; box-shadow: none; }
     tr { break-inside: avoid; }
     .table { font-size: 0.8rem; }
 }

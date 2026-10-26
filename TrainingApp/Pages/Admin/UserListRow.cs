@@ -8,8 +8,11 @@ namespace TrainingApp.Pages.Admin
         public string Code1 { get; set; }
         public string Name { get; set; }
         public string RoleText { get; set; }
+        public string RoleCss { get; set; }
+        public string RoleIcon { get; set; }
         public string StateText { get; set; }
         public string StateCss { get; set; }
+        public string StateIcon { get; set; }
         public string CreatedText { get; set; }
         public string LastLoginText { get; set; }
 

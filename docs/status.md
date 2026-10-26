@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
 rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E1 (Bootstrap 5.3.8), probada por el usuario (`git log --oneline -10` para ver el estado real)
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E2 (sistema de diseño), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -69,8 +69,12 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E1 (Bo
      `docs/specs/019-ui-ux-dashboard.md` y plan `docs/specs/019-plan.md`, aprobados el
      2026-10-26 (D-153 a D-160). Rama y worktree `fase-11`.
      - **E1 ✅** (2026-10-26): Bootstrap 5.2.3 → 5.3.8 (D-155), sin cambios de diseño;
-       regresión completa del usuario en su navegador. Sigue la **E2** (sistema de diseño,
-       barra, login, cambio de contraseña y Usuarios).
+       regresión completa del usuario en su navegador.
+     - **E2 ✅** (2026-10-26): sistema de diseño en `admin.css` (tokens del mockup en claro y
+       oscuro, D-162 para el borde de los campos), Bootstrap Icons 1.13.2 local, tema con
+       `theme.js` en `Admin.Master` y `Site.Master` (el POD no lo recibe), login, cambio de
+       contraseña, Usuarios e inicio del operador (D-163). Probada por el usuario. Sigue la
+       **E3** (Resumen).
      - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
        Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
        defecto y el rol se cambia a mano para entrar como operador o admin.

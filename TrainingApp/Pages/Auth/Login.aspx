@@ -6,8 +6,9 @@
      diseño de SAP NetWeaver pasa al login de MES simulado dentro de la sesión (D-63). Los
      errores del servidor salen en un SweetAlert (AdminMaster.ShowMessage). --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
+  <div class="admin-auth">
     <asp:Panel ID="PnlLogin" runat="server" CssClass="admin-card" DefaultButton="BtnLogin">
-        <h1>Iniciar sesión</h1>
+        <h1 class="mb-4">Iniciar sesión</h1>
 
         <div class="mb-3">
             <asp:Label runat="server" AssociatedControlID="TxtCode1" CssClass="form-label">Código de empleado</asp:Label>
@@ -30,4 +31,5 @@
         <asp:Button ID="BtnLogin" runat="server" Text="Entrar"
             CssClass="btn btn-primary w-100" OnClick="BtnLogin_Click" />
     </asp:Panel>
+  </div>
 </asp:Content>

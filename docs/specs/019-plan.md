@@ -86,34 +86,58 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 >   login y del dashboard: en el job de Desarrollo. La regresión y la comparación las hace el
 >   usuario en su navegador (usuario, 2026-10-26).
 
-## E2 · Sistema de diseño, barra, login, cambio de contraseña y Usuarios
+## E2 · Sistema de diseño, barra, login, cambio de contraseña, Usuarios e inicio del operador
 
-- [ ] **`UI/master/admin.css` como sistema de diseño:**
+> **Enmiendas durante la E2 (2026-10-26, usuario, por medio de Arquitectura y Planeación):**
+> - **D-162 · Borde de los campos:** `--border` del mockup no llega a 3:1 en los controles
+>   (WCAG 1.4.11; 1.38:1 sobre la superficie). Token aparte, `--mt-field-border`: `#808B9B` en
+>   claro y `#627083` en oscuro, solo en `form-control`, `form-select` e `input-group`.
+>   `--border` sigue igual en tablas, paneles y divisores.
+> - **D-163 · Inicio del operador:** la E2 suma `Site.Master` y `StartSession` (abajo).
+> - **Ninguna superficie con color fijo:** las utilidades `bg-white`, `bg-light`, `text-dark`,
+>   `text-muted`… de las vistas pasan por los tokens en `admin.css` hasta que cada vista se
+>   rehaga en su entrega. El tema va solo en `Admin.Master` y `Site.Master`; `Training.Master`
+>   (el POD) no lo recibe.
+
+- [x] **`UI/master/admin.css` como sistema de diseño:**
   - los tokens del mockup, en claro y en oscuro (`[data-bs-theme=dark]`), conectados a las
     variables de Bootstrap 5.3 (`--bs-body-bg`, `--bs-body-color`, `--bs-border-color`,
     `--bs-primary`…), para que los componentes de Bootstrap los tomen;
   - la fuente del sistema y la escala del mockup;
   - los componentes del brief: tarjeta de indicador, panel, tabla, insignias de estado, chips
     de reglas, barra de filtros, botones, paginación, estado vacío y barra de %.
-- [ ] **Bootstrap Icons local**, con versión fija, en `Content/` o `fonts/` (como Chart.js en
-  `Scripts/`). Suma al inventario de AUD-29.
-- [ ] **`Admin.Master`:**
+- [x] **Bootstrap Icons local**, con versión fija, en `Content/` o `fonts/` (como Chart.js en
+  `Scripts/`). Suma al inventario de AUD-29. **1.13.2** (paquete npm oficial; en NuGet no hay
+  paquete), en `Content/bootstrap-icons-1.13.2/`, hash verificado; `.woff` y `.woff2` en
+  `Web.config` (`remove` + `mimeMap`).
+- [x] **`Admin.Master`:**
   - la barra superior del mockup: nombre de la app, menú (Resumen, Operadores, Pasos,
     Seguimiento y Usuarios, solo con `CanViewReports` como hoy), interruptor de tema y el
     usuario;
   - el script del tema en el `<head>`.
-- [ ] **Login y cambio de contraseña:** una tarjeta centrada con el sistema de diseño y el
+- [x] **Login y cambio de contraseña:** una tarjeta centrada con el sistema de diseño y el
   interruptor de tema. Mismo flujo y mismos mensajes (spec 013, D-62).
-- [ ] **Usuarios** (D-160): una tabla con el rol y el estado de la cuenta como insignias
+- [x] **Usuarios** (D-160): una tabla con el rol y el estado de la cuenta como insignias
   (Activa, Bloqueada, Debe cambiar la contraseña), el último acceso y las acciones de hoy como
   botones de la fila. El aviso al borrar (D-142) se conserva.
-- [ ] Capturas de antes y después (claro y oscuro).
-- [ ] `/code-review low`: el script del tema (que no rompa sin `localStorage`), las anclas y los
+- [x] Capturas de antes y después (claro y oscuro): las revisó el usuario en su navegador
+  (2026-10-26, "funciona").
+- [x] `/code-review low`: el script del tema (que no rompa sin `localStorage`), las anclas y los
   postbacks de Usuarios.
+- [x] **Inicio del operador** (D-163):
+  - `Site.Master` con el sistema de diseño: la barra con el nombre de la app, el interruptor de
+    tema, el usuario y Cerrar sesión (el mismo `SessionHelper.Logout()` de antes, D-13);
+  - `StartSession`: el título y el último acceso; Producto, Área y Guía como listas, con la
+    misma cascada y los mismos postbacks; los 3 modos como tarjetas grandes con ícono y una
+    línea (los mismos `RadioButton`, mismos IDs y `GroupName`), accesibles con el teclado y con
+    el foco visible; el botón Iniciar.
+  - Un solo script del tema para los dos masters (`UI/master/theme.js`).
 - **Checklist del usuario:**
   - el tema sigue al sistema, el interruptor lo cambia y se recuerda al recargar;
   - login, primer acceso, bloqueo y cambio de contraseña, en claro y en oscuro;
   - en Usuarios: reset, rol y borrar, con su aviso;
+  - en el inicio del operador: elegir producto, área, guía y cada modo, e iniciar; el POD
+    arranca en claro, con el aspecto de siempre, aunque el tema esté en oscuro;
   - 768 px.
 
 ## E3 · Resumen

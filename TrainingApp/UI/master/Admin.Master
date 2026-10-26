@@ -1,22 +1,27 @@
 <%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Admin.master.cs"
     Inherits="TrainingApp.UI.Master.AdminMaster" %>
-<%-- Diseño neutro con Bootstrap, sin el marco del MES ni el de SAP NetWeaver (esos son parte
-     de la simulación). Lo usan el login y el cambio de contraseña únicos de la app (spec 016,
-     D-62) y la gestión de usuarios del admin (spec 013). --%>
+<%-- Diseño neutro con el sistema de diseño de la Fase 11 (admin.css, brief 019), sin el marco
+     del MES ni el de SAP NetWeaver (esos son parte de la simulación). Lo usan el login y el
+     cambio de contraseña únicos de la app (spec 016, D-62), el dashboard (spec 018) y la
+     gestión de usuarios (spec 013). Solo este master recibe el modo oscuro (D-157). --%>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> - Simulador de entrenamiento MES</title>
+    <title><%: Page.Title %> - TrainingApp</title>
+
+    <%-- Tema claro u oscuro antes de pintar (D-157); el POD no lo carga. --%>
+    <script src="<%=ResolveUrl("~/UI/master/theme.js")%>"></script>
 
     <link href="<%=ResolveUrl("~/Content/bootstrap.min.css")%>" rel="stylesheet" />
+    <link href="<%=ResolveUrl("~/Content/bootstrap-icons-1.13.2/bootstrap-icons.min.css")%>" rel="stylesheet" />
     <link href="<%=ResolveUrl("~/UI/master/admin.css")%>" rel="stylesheet" />
 
     <%-- SweetAlert2 en <head> para que los mensajes de RegisterStartupScript lo encuentren --%>
     <script src="<%=ResolveUrl("~/Scripts/sweetalert2.all.min.js")%>"></script>
 </head>
-<body class="admin-page">
+<body class="mt-page">
     <form runat="server">
         <asp:ScriptManager runat="server">
             <Scripts>
@@ -29,46 +34,52 @@
             </Scripts>
         </asp:ScriptManager>
 
-        <nav class="navbar navbar-dark admin-nav">
-            <div class="container">
-                <span class="navbar-brand"><asp:Literal ID="LitBrand" runat="server" /></span>
+        <header class="admin-bar">
+            <span class="admin-brand"><i class="bi bi-display" aria-hidden="true"></i>TrainingApp</span>
+
+            <%-- Menú del dashboard (spec 018): Resumen · Operadores · Pasos · Seguimiento ·
+                 Usuarios. Solo con CanViewReports (este master también lo usan el login y el
+                 cambio de contraseña). --%>
+            <asp:PlaceHolder ID="PhMenu" runat="server" Visible="false">
+                <nav aria-label="Administración">
+                    <ul class="admin-nav-links">
+                        <li><asp:HyperLink ID="LnkSummary" runat="server"
+                            NavigateUrl="~/Pages/Admin/Summary.aspx">Resumen</asp:HyperLink></li>
+                        <li><asp:HyperLink ID="LnkOperators" runat="server"
+                            NavigateUrl="~/Pages/Admin/Operators.aspx">Operadores</asp:HyperLink></li>
+                        <li><asp:HyperLink ID="LnkSteps" runat="server"
+                            NavigateUrl="~/Pages/Admin/Steps.aspx">Pasos</asp:HyperLink></li>
+                        <li><asp:HyperLink ID="LnkFollowUp" runat="server"
+                            NavigateUrl="~/Pages/Admin/FollowUp.aspx">Seguimiento</asp:HyperLink></li>
+                        <li><asp:HyperLink ID="LnkUsers" runat="server"
+                            NavigateUrl="~/Pages/Admin/Users.aspx">Usuarios</asp:HyperLink></li>
+                    </ul>
+                </nav>
+            </asp:PlaceHolder>
+
+            <div class="admin-bar-end">
+                <%-- El texto dice a qué modo cambia; el script lo ajusta al tema actual. --%>
+                <button type="button" id="mtThemeToggle" class="btn btn-secondary btn-sm"
+                    aria-label="Cambiar a modo oscuro">
+                    <i class="bi bi-moon" aria-hidden="true"></i><span>Oscuro</span>
+                </button>
                 <asp:PlaceHolder ID="PhUser" runat="server" Visible="false">
                     <div class="admin-user">
                         <span class="admin-user-code"><asp:Literal ID="LitUser" runat="server" /></span>
-                        <asp:Literal ID="LitLastLogin" runat="server" />
-                        <asp:LinkButton ID="BtnLogout" runat="server" CssClass="btn btn-outline-light btn-sm"
-                            CausesValidation="false" OnClick="BtnLogout_Click">Cerrar sesión</asp:LinkButton>
+                        <span class="admin-user-last"><asp:Literal ID="LitLastLogin" runat="server" /></span>
                     </div>
+                    <asp:LinkButton ID="BtnLogout" runat="server" CssClass="btn btn-secondary btn-sm"
+                        CausesValidation="false" OnClick="BtnLogout_Click">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>Cerrar sesión</asp:LinkButton>
                 </asp:PlaceHolder>
             </div>
-        </nav>
+        </header>
 
-        <%-- Menú del dashboard (spec 018): Resumen · Operadores · Pasos · Seguimiento · Usuarios.
-             Solo con CanViewReports (este master también lo usan el login y el cambio de
-             contraseña). Cada vista agrega su enlace en la entrega que la crea. --%>
-        <asp:PlaceHolder ID="PhMenu" runat="server" Visible="false">
-            <div class="admin-menu">
-                <div class="container">
-                    <ul class="nav">
-                        <li class="nav-item"><asp:HyperLink ID="LnkSummary" runat="server" CssClass="nav-link"
-                            NavigateUrl="~/Pages/Admin/Summary.aspx">Resumen</asp:HyperLink></li>
-                        <li class="nav-item"><asp:HyperLink ID="LnkOperators" runat="server" CssClass="nav-link"
-                            NavigateUrl="~/Pages/Admin/Operators.aspx">Operadores</asp:HyperLink></li>
-                        <li class="nav-item"><asp:HyperLink ID="LnkSteps" runat="server" CssClass="nav-link"
-                            NavigateUrl="~/Pages/Admin/Steps.aspx">Pasos</asp:HyperLink></li>
-                        <li class="nav-item"><asp:HyperLink ID="LnkFollowUp" runat="server" CssClass="nav-link"
-                            NavigateUrl="~/Pages/Admin/FollowUp.aspx">Seguimiento</asp:HyperLink></li>
-                        <li class="nav-item"><asp:HyperLink ID="LnkUsers" runat="server" CssClass="nav-link"
-                            NavigateUrl="~/Pages/Admin/Users.aspx">Usuarios</asp:HyperLink></li>
-                    </ul>
-                </div>
-            </div>
-        </asp:PlaceHolder>
-
-        <main class="container admin-main">
+        <main class="admin-main">
             <asp:ContentPlaceHolder ID="MainContent" runat="server" />
         </main>
     </form>
+
     <%-- Scripts de cada página, después del contenido (ej. Chart.js en las vistas con gráficas,
          spec 018: <script src="~/Scripts/chart-4.5.1.umd.min.js">). --%>
     <asp:ContentPlaceHolder ID="ScriptContent" runat="server" />

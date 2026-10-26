@@ -177,8 +177,11 @@ namespace TrainingApp.Pages.Admin
                 Code1             = u.Code1,
                 Name              = u.Name,
                 RoleText          = RoleText(u.Role),
+                RoleCss           = u.Role == UserRole.Administrator ? "mt-badge mt-badge-accent" : "mt-badge mt-badge-idle",
+                RoleIcon          = u.Role == UserRole.Administrator ? "bi bi-shield-lock" : "bi bi-person",
                 StateText         = StateText(state, u),
                 StateCss          = StateCss(state),
+                StateIcon         = StateIcon(state),
                 CreatedText       = SessionHelper.ToLocal(u.CreatedAt).ToString("dd/MM/yyyy"),
                 LastLoginText     = u.LastLoginAt.HasValue
                     ? SessionHelper.ToLocal(u.LastLoginAt.Value).ToString("dd/MM/yyyy HH:mm") : "—",
@@ -205,19 +208,30 @@ namespace TrainingApp.Pages.Admin
                 case UserAccountState.Locked:
                     return "Bloqueada hasta las " + SessionHelper.ToLocal(u.LockedUntil.Value).ToString("HH:mm");
                 case UserAccountState.PendingFirstLogin:
-                    return "Primer acceso pendiente";
+                    return "Debe cambiar la contraseña";
                 default:
                     return "Activa";
             }
         }
 
+        // Insignia de estado (brief 019): texto e ícono además del color.
         private static string StateCss(UserAccountState state)
         {
             switch (state)
             {
-                case UserAccountState.Locked:            return "badge bg-danger";
-                case UserAccountState.PendingFirstLogin: return "badge bg-warning text-dark";
-                default:                                 return "badge bg-success";
+                case UserAccountState.Locked:            return "mt-badge mt-badge-bad";
+                case UserAccountState.PendingFirstLogin: return "mt-badge mt-badge-warn";
+                default:                                 return "mt-badge mt-badge-ok";
+            }
+        }
+
+        private static string StateIcon(UserAccountState state)
+        {
+            switch (state)
+            {
+                case UserAccountState.Locked:            return "bi bi-lock";
+                case UserAccountState.PendingFirstLogin: return "bi bi-key";
+                default:                                 return "bi bi-check-circle";
             }
         }
 

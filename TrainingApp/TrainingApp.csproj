@@ -150,6 +150,10 @@
     <Content Include="Scripts\bootstrap.bundle.min.js.map" />
     <Content Include="Content\bootstrap.min.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="Content\bootstrap-icons-1.13.2\bootstrap-icons.min.css" />
+    <Content Include="Content\bootstrap-icons-1.13.2\fonts\bootstrap-icons.woff" />
+    <Content Include="Content\bootstrap-icons-1.13.2\fonts\bootstrap-icons.woff2" />
+    <Content Include="Content\bootstrap-icons-1.13.2\LICENSE" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
     <Content Include="Scripts\WebForms\DetailsView.js" />
@@ -179,6 +183,7 @@
     <Content Include="UI\master\Site.Master" />
     <Content Include="UI\master\Admin.Master" />
     <Content Include="UI\master\admin.css" />
+    <Content Include="UI\master\theme.js" />
     <Content Include="Pages\Admin\Operator.aspx" />
     <Content Include="Pages\Admin\Operators.aspx" />
     <Content Include="Pages\Admin\Export.ashx" />

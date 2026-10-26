@@ -70,11 +70,6 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Training/GuidedTest.aspx?sessionId=" + session.Id);
         }
 
-        protected void BtnLogout_Click(object sender, EventArgs e)
-        {
-            SessionHelper.Logout();
-        }
-
         private void LoadProducts()
         {
             var products = _guideService.GetAllProducts();

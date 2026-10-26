@@ -5,11 +5,12 @@
 <%-- Cambio de contraseña único, neutro, para los dos roles (spec 016, D-62): primer acceso y
      tras un reset (spec 013). Las reglas viven en AuthService.ChangePassword. --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
+  <div class="admin-auth">
     <asp:Panel ID="PnlChangePassword" runat="server" CssClass="admin-card" DefaultButton="BtnSave">
-        <h1>Cambio de contraseña</h1>
+        <h1 class="mb-4">Cambio de contraseña</h1>
 
         <asp:PlaceHolder ID="PhFirstLogin" runat="server" Visible="false">
-            <p class="text-muted small">
+            <p class="admin-card-lead">
                 Por seguridad, debes establecer una contraseña personal antes de continuar.
                 Como contraseña actual, usa la misma con la que entraste.
             </p>
@@ -57,7 +58,8 @@
                 CssClass="btn btn-primary flex-fill" OnClick="BtnSave_Click" />
             <%-- Sale sin cambiar la contraseña: cierra la sesión y vuelve al login. --%>
             <asp:Button ID="BtnCancel" runat="server" Text="Cancelar"
-                CssClass="btn btn-outline-secondary flex-fill" CausesValidation="false" OnClick="BtnCancel_Click" />
+                CssClass="btn btn-secondary flex-fill" CausesValidation="false" OnClick="BtnCancel_Click" />
         </div>
     </asp:Panel>
+  </div>
 </asp:Content>
