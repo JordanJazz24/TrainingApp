@@ -116,6 +116,13 @@ Es privado y solo lo abre el usuario. Tiene tres tableros:
 Los datos son de ejemplo. Las gráficas se dibujan con HTML solo para mostrar el estilo; en la
 app son de Chart.js con los mismos tokens.
 
+> **Ajuste del mockup (2026-10-26, usuario, con el aviso de Desarrollo en la E3; D-164):** dos
+> cifras del Resumen del mockup no existen en `GetSummary`. Agregarlas sería un dato nuevo, no
+> solo presentación, así que **se quitan**:
+> - la línea "N operadores sin iniciar ninguna guía": quien no empezó se ve en Operadores, con el
+>   filtro "Sin iniciar";
+> - el número del acceso a Seguimiento: queda como el enlace "Ver seguimiento", sin número.
+
 ## Pantallas sin mockup (usuario, 2026-10-26, D-160)
 
 Se construyen con los componentes del mockup. El usuario eligió estas disposiciones entre dos
