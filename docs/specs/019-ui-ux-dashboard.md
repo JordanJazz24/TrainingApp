@@ -99,6 +99,17 @@ Una página estática navegable con:
 La arma Arquitectura y Planeación como artifact (no es código de la app). **El usuario la
 aprueba antes del plan**, y queda como criterio de aceptación de todas las pantallas.
 
+**Mockup v1 (2026-10-26, espera la aprobación del usuario):**
+[canvas "Mockup Fase 11 · Dashboard de Training"](https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd).
+Es privado y solo lo abre el usuario. Tiene tres tableros:
+- **Sistema de diseño:** tokens claro y oscuro, tipografía, estados, modos, seguimiento,
+  controles, indicador, estado vacío, tabla y Excel.
+- **Resumen:** interactivo, con el interruptor de tema.
+- **Resumen en oscuro.**
+
+Los datos son de ejemplo. Las gráficas se dibujan con HTML solo para mostrar el estilo; en la
+app son de Chart.js con los mismos tokens.
+
 ## Skill de frontend-design (usuario, al aprobar)
 
 El mockup y la implementación usan la skill `frontend-design` (plugin `frontend-design`).
