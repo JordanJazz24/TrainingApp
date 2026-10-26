@@ -207,6 +207,7 @@
     <Content Include="UI\Controls\Training\LineClearanceControl.ascx" />
     <Content Include="UI\Controls\Training\CompleteControl.ascx" />
     <Content Include="UI\Controls\Training\ResourceSetupControl.ascx" />
+    <Content Include="UI\Controls\Training\CustomResourceSetupControl.ascx" />
     <Content Include="UI\Controls\Training\SearchControl.ascx" />
     <Content Include="UI\Controls\Training\AssemblyControl.ascx" />
     <Content Include="UI\Controls\Training\DataCollectionControl.ascx" />
@@ -280,7 +281,7 @@
     <Compile Include="Domain\Operation.cs" />
     <Compile Include="Domain\TrainingSessionStepAttempt.cs" />
     <Compile Include="Domain\ResourceSetupType.cs" />
-    <Compile Include="Domain\GuideSummary.cs" />
+    <Compile Include="Domain\PublishedGuide.cs" />
     <Compile Include="Domain\ToolGroup.cs" />
     <Compile Include="BLL\Auth\LoginResult.cs" />
     <Compile Include="BLL\Auth\AuthService.cs" />
@@ -479,6 +480,13 @@
     </Compile>
     <Compile Include="UI\Controls\Training\ResourceSetupControl.ascx.designer.cs">
       <DependentUpon>ResourceSetupControl.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Controls\Training\CustomResourceSetupControl.ascx.cs">
+      <DependentUpon>CustomResourceSetupControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Training\CustomResourceSetupControl.ascx.designer.cs">
+      <DependentUpon>CustomResourceSetupControl.ascx</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\Training\SearchControl.ascx.cs">
       <DependentUpon>SearchControl.ascx</DependentUpon>

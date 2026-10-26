@@ -21,8 +21,8 @@ namespace TrainingApp.BLL.Training
     // solo cambia de dónde lee este proveedor.
     public static class CustomResourceSetupProvider
     {
-        public const int MinToolGroups = 2;
-        public const int MaxToolGroups = 4;
+        // Siempre 2 por sesión (D-200, enmienda 1 de la spec 020).
+        public const int ToolGroupCount = 2;
 
         // Los de la captura del MES real (Custom Resourse Setup/tabal de heraemintas cargada).
         public static readonly IReadOnlyList<ToolGroup> Pool = new List<ToolGroup>
@@ -45,18 +45,17 @@ namespace TrainingApp.BLL.Training
             ToolGroups = ToolGroupsFor(ctx.Session.Id)
         };
 
-        // De 2 a 4 grupos sorteados con el Id de la sesión como semilla: el mismo conjunto en
-        // cada request de la sesión sin guardarlo (D-184); otra sesión, otro sorteo (D-192).
+        // Grupos sorteados con el Id de la sesión como semilla: el mismo conjunto en cada request
+        // de la sesión sin guardarlo (D-184); otra sesión, otro sorteo (D-192).
         // Orden alfabético por código, como la captura.
         public static IList<ToolGroup> ToolGroupsFor(int sessionId)
         {
             var random = new Random(sessionId);
-            int count  = random.Next(MinToolGroups, MaxToolGroups + 1);
             // ToList antes de ordenar: cada grupo saca su clave una sola vez, en el orden del pool.
             return Pool.Select(g => new { Group = g, Key = random.Next() })
                        .ToList()
                        .OrderBy(x => x.Key)
-                       .Take(count)
+                       .Take(ToolGroupCount)
                        .Select(x => new ToolGroup { Code = x.Group.Code, Description = x.Group.Description })
                        .OrderBy(g => g.Code, StringComparer.Ordinal)
                        .ToList();
@@ -81,11 +80,19 @@ namespace TrainingApp.BLL.Training
         [JsonProperty("shopOrder")]           public string ShopOrder { get; set; }
         [JsonProperty("tools")]               public List<CustomToolEntry> Tools { get; set; }
 
-        public bool HasToolNumber => Tools != null && Tools.Any(t => !string.IsNullOrWhiteSpace(t?.Value));
+        // Cada fila de la tabla con su Tool Number (D-201).
+        public bool AllToolNumbersFilled
+            => Tools != null && Tools.Count > 0 && Tools.All(t => !string.IsNullOrWhiteSpace(t?.Value));
+
+        // Formato que el control avisa sin intento (D-191): con la orden asociada, Shop Order
+        // numérica y un Tool Number en cada fila (D-201). Sin asociar no es formato: lo califica
+        // el validador.
+        public bool IsFormatValid
+            => !ShopOrderAssociated || (SimulatedOrder.IsValidShopOrder(ShopOrder?.Trim()) && AllToolNumbersFilled);
 
         // Invariantes del Save antes de calificarlo; violarlos es una manipulación, no un intento:
         // - el Save tiene que ser de la pantalla de la sesión (D-196);
-        // - con la orden asociada, Shop Order numérica y al menos un Tool Number, que el control
+        // - con la orden asociada, Shop Order numérica y un Tool Number por fila, que el control
         //   ya avisa como formato (D-191).
         // Devuelve el Save de Custom, o null si la sesión es Standard (lo sigue SubmitResourceSetup).
         public static CustomResourceSetupAnswer RequireForSession(ResourceSetupType sessionType, string json)
@@ -97,9 +104,8 @@ namespace TrainingApp.BLL.Training
 
             var answer = TryParse(json)
                 ?? throw new ArgumentException("El Save de Custom Resource Setup está mal formado.", nameof(json));
-            if (answer.ShopOrderAssociated &&
-                (!SimulatedOrder.IsValidShopOrder(answer.ShopOrder?.Trim()) || !answer.HasToolNumber))
-                throw new ArgumentException("La orden asociada debe ser numérica y llevar al menos un Tool Number.", nameof(json));
+            if (!answer.IsFormatValid)
+                throw new ArgumentException("La orden asociada debe ser numérica y llevar un Tool Number en cada fila.", nameof(json));
             return answer;
         }
 

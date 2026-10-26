@@ -102,12 +102,19 @@ namespace TrainingApp.Pages.Training
             "<rect class=\"sa-front\" x=\"5\" y=\"5\" width=\"9\" height=\"9\" />" +
             "</svg>";
 
+        // Pantalla de Resource Setup de la sesión (spec 020): la estándar o Custom RS.
+        private bool IsCustomResourceSetup => _ctx?.ResourceSetupType == ResourceSetupType.Custom;
+
+        private string ResourceSetupModalId
+            => IsCustomResourceSetup ? "modalCustomResourceSetup" : "modalResourceSetup";
+
         private IStepControl GetStepControl(StepType stepType)
         {
             if (StepTypes.IsLogNC(stepType)) return CtrlLogNC;
             switch (stepType)
             {
-                case StepType.ResourceSetup:  return CtrlResourceSetup;
+                case StepType.ResourceSetup:
+                    return IsCustomResourceSetup ? (IStepControl)CtrlCustomResourceSetup : CtrlResourceSetup;
                 case StepType.LineClearance:  return CtrlLineClearance;
                 case StepType.Search:         return CtrlSearch;
                 case StepType.Assembly:       return CtrlAssembly;
@@ -653,8 +660,12 @@ namespace TrainingApp.Pages.Training
             {
                 // Con el avance forzado, la BLL ya dejó la orden por defecto.
                 BindBrowseList(area, session);
-                if (accepted) CtrlResourceSetup.ShowSaveConfirmation();
-                ReopenModal("modalResourceSetup");
+                if (accepted)
+                {
+                    if (IsCustomResourceSetup) CtrlCustomResourceSetup.ShowSaveConfirmation();
+                    else CtrlResourceSetup.ShowSaveConfirmation();
+                }
+                ReopenModal(ResourceSetupModalId);
             }
             else if (step.StepType == StepType.LineClearance)
             {
@@ -836,11 +847,11 @@ namespace TrainingApp.Pages.Training
         // Modal donde el operador ingresa la respuesta de cada paso. LineClearance responde
         // en modalDCEntry, apilado sobre modalDCStandalone (que el control ya reabre).
         // LogNC no usa uno: su entrada es un panel de servidor que conserva su estado.
-        private static string GetAnswerModalId(StepType stepType)
+        private string GetAnswerModalId(StepType stepType)
         {
             switch (stepType)
             {
-                case StepType.ResourceSetup:  return "modalResourceSetup";
+                case StepType.ResourceSetup:  return ResourceSetupModalId;
                 case StepType.LineClearance:  return "modalDCEntry";
                 case StepType.Search:         return "modalSearch4";
                 case StepType.Assembly:       return "modalAssemble";
@@ -1038,7 +1049,7 @@ namespace TrainingApp.Pages.Training
             var (session, guide, area, step) = GetContext();
             if (session == null) return;
             if (HandleOutOfSequence(Pod.OpenResourceSetup(_ctx), session, guide, area, step)) return;
-            OpenStepControl(StepType.ResourceSetup, area, session, guide, "modalResourceSetup");
+            OpenStepControl(StepType.ResourceSetup, area, session, guide, ResourceSetupModalId);
         }
 
         protected void BtnActivities_ServerClick(object sender, EventArgs e)
@@ -1511,6 +1522,11 @@ namespace TrainingApp.Pages.Training
             {
                 case StepType.ResourceSetup:
                     vm.ExtraData["Preloaded"] = _ctx.State.PreloadedEquipment;
+                    if (IsCustomResourceSetup)
+                    {
+                        vm.ExtraData["CustomResourceSetup"] = _ctx.CustomResourceSetup;
+                        vm.ExtraData["Code1"] = Session[Constants.SessionKeys.Code1]?.ToString() ?? string.Empty;
+                    }
                     break;
 
                 case StepType.LineClearance:

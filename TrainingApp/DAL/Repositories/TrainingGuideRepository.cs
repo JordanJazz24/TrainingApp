@@ -44,14 +44,14 @@ namespace TrainingApp.DAL.Repositories
             return guides;
         }
 
-        public IList<GuideSummary> GetPublishedForAdmin()
+        public IList<PublishedGuide> GetPublishedForAdmin()
         {
-            var guides = new List<GuideSummary>();
+            var guides = new List<PublishedGuide>();
             using (var db = DatabaseFactory.Create())
             using (var reader = db.ExecuteReader("spTrainingGuideGetPublishedForAdmin"))
             {
                 while (reader.Read())
-                    guides.Add(new GuideSummary
+                    guides.Add(new PublishedGuide
                     {
                         Id                = Convert.ToInt32(reader["Id"]),
                         ProductName       = reader["ProductName"].ToString(),

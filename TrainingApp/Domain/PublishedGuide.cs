@@ -1,7 +1,7 @@
 namespace TrainingApp.Domain
 {
     // Guía publicada con su producto y área, para la página Guías de Admin (spec 020).
-    public class GuideSummary
+    public class PublishedGuide
     {
         public int Id { get; set; }
         public string ProductName { get; set; }

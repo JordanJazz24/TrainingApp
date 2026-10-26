@@ -10,8 +10,14 @@ namespace TrainingApp.Pages.Training
     // (enmienda 2, textos aprobados por el usuario).
     public static class StepHints
     {
+        // Custom RS (spec 020) tiene su propia secuencia (D-185).
+        public const string CustomResourceSetupHint =
+            "Presione Retrieve, verifique que Setup State esté en 'Set Up', escriba la ShopOrder, presione Associate New ShopOrder, registre un Tool Number en cada fila de la tabla, presione Save y confirme con Yes.";
+
         public static string For(PodContext ctx, StepType stepType)
-            => For(stepType, ctx.MesLogin, ctx.State.Logout);
+            => stepType == StepType.ResourceSetup && ctx.ResourceSetupType == ResourceSetupType.Custom
+                ? CustomResourceSetupHint
+                : For(stepType, ctx.MesLogin, ctx.State.Logout);
 
         public static string For(StepType stepType, MesLoginProgress mesLogin, LogoutProgress logout)
         {

@@ -1,10 +1,22 @@
 # Spec 020: Custom Resource Setup (R3)
 
-**Status:** Approved (2026-10-26, usuario) · plan `020-plan.md`, pendiente de aprobación
+**Status:** Approved (2026-10-26, usuario), enmendada 2026-10-26 (enmienda 1) · plan `020-plan.md`, pendiente de aprobación
 **Date:** 2026-10-26 · **Origen:** revisión con Ernesto (2026-10-22), R3 · **Sesión:** `Custom-RS`
 (híbrida de planeación e implementación solo para R3, por decisión del usuario 2026-10-26)
 **Decisiones:** D-180 a D-194, todas confirmadas por el usuario (rango reservado D-180 a D-199).
 Capturas: `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` (5).
+
+> **Enmienda 1 (2026-10-26, usuario, al probar la E3):** afecta D-182, D-184, D-191, el punto 4
+> de Scope y AC-7.
+>
+> - **D-200:** cada sesión recibe **siempre 2 Tool Groups** del pool de 8 (antes, de 2 a 4). El
+>   pool, el sorteo por sesión y el orden alfabético no cambian.
+> - **D-201:** con la orden asociada, **cada fila de la tabla necesita su Tool Number**, en
+>   Guided y en Assessment (antes, al menos uno). Una fila vacía es un aviso de formato sin
+>   intento, como D-191; el servidor lo rechaza igual si llega. Los Tool Numbers siguen siendo
+>   de captura libre y no se califican (D-182).
+> - Secuencia del punto 4: "Tool Number de al menos un grupo" pasa a "**un Tool Number por cada
+>   Tool Group**". AC-7: "una sesión de 2 Tool Groups".
 
 ## Problem
 

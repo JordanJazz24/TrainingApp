@@ -11,7 +11,7 @@
 >   (Arquitectura y Planeación y Desarrollo) sigue con **D-164 a D-179**; R3 (sesión
 >   `Custom-RS`) usa **D-180 a D-199**. Los bugs: la Fase 11 desde B-4, R3 desde **B-20**. Si un
 >   frente se queda sin números, pide el siguiente rango libre (D-200 en adelante). "Siguiente
->   D-n" es el de la Fase 11; R3 lleva el suyo en su spec (rango de R3 agotado: lo siguiente de R3 usa **D-200** en adelante).
+>   D-n" es el de la Fase 11; R3 lleva el suyo en su spec (R3 pasó a **D-200 en adelante**; siguiente: **D-202**).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
 > - **Estado:** vigente · enmendada (sigue, con cambios) · superada (la reemplazó otra) · sin
@@ -188,16 +188,16 @@
 | D-164 | 2026-10-26 | Fase 11, Resumen: se quitan del mockup "N sin iniciar" y el número de Seguimiento (serían datos nuevos); queda el enlace "Ver seguimiento" | specs/019-ui-ux-dashboard.md (ajuste del mockup) | vigente |
 | D-180 | 2026-10-26 | R3: existen los dos Resource Setup (Standard y Custom); el administrador elige por guía; Standard es la predeterminada | specs/020-custom-resource-setup.md | vigente |
 | D-181 | 2026-10-26 | R3: Custom RS es un modal del POD, mismo botón Resource Setup, con el diseño de las capturas | specs/020-custom-resource-setup.md | vigente |
-| D-182 | 2026-10-26 | R3: Tool Numbers de captura libre, al menos uno, sin catálogo; el ícono ⧉ es decorativo | specs/020-custom-resource-setup.md | vigente |
+| D-182 | 2026-10-26 | R3: Tool Numbers de captura libre, al menos uno, sin catálogo; el ícono ⧉ es decorativo | specs/020-custom-resource-setup.md | enmendada (D-200/D-201) |
 | D-183 | 2026-10-26 | R3: se califica secuencia + Setup State = Set Up; el Yes/No de la confirmación no se califica | specs/020-custom-resource-setup.md | vigente |
-| D-184 | 2026-10-26 | R3: Resource y Operation de los datos simulados; Tool Groups simulados, 2 a 4 de un pool de 8, mismos en la sesión; un proveedor único prevé las Operations | specs/020-custom-resource-setup.md | vigente |
+| D-184 | 2026-10-26 | R3: Resource y Operation de los datos simulados; Tool Groups simulados, 2 a 4 de un pool de 8, mismos en la sesión; un proveedor único prevé las Operations | specs/020-custom-resource-setup.md | enmendada (D-200/D-201) |
 | D-185 | 2026-10-26 | R3: secuencia Retrieve, Set Up, Shop Order, Associate (OK), Tool Numbers, Save, Yes, OK | specs/020-custom-resource-setup.md | vigente |
 | D-186 | 2026-10-26 | R3: Custom RS parte vacío, sin equipos precargados | specs/020-custom-resource-setup.md | vigente |
 | D-187 | 2026-10-26 | R3: el tipo se cambia en una página Guías de Admin (`CanManageGuides`) | specs/020-custom-resource-setup.md | vigente |
 | D-188 | 2026-10-26 | R3: la sesión copia el tipo de la guía al empezar; un cambio vale para sesiones nuevas | specs/020-custom-resource-setup.md | vigente |
 | D-189 | 2026-10-26 | R3: Associate y la confirmación en el cliente; un postback, el del Save; la orden se crea al guardar | specs/020-custom-resource-setup.md | vigente |
 | D-190 | 2026-10-26 | R3: Code1 arriba a la derecha; Setup State "Open" hasta Retrieve, luego Set Up por defecto; Success cierra el modal, sin "Record changed" | specs/020-custom-resource-setup.md | vigente |
-| D-191 | 2026-10-26 | R3: Associate sin orden numérica y Save sin Tool Number = formato sin intento; Save sin asociar = intento fallido | specs/020-custom-resource-setup.md | vigente |
+| D-191 | 2026-10-26 | R3: Associate sin orden numérica y Save sin Tool Number = formato sin intento; Save sin asociar = intento fallido | specs/020-custom-resource-setup.md | enmendada (D-200/D-201) |
 | D-192 | 2026-10-26 | R3: Clear vuelve al estado inicial; reasociar conserva los Tool Numbers; reiniciar la guía sortea otros Tool Groups | specs/020-custom-resource-setup.md | vigente |
 | D-193 | 2026-10-26 | R3: Save con "Open" falla y crea igual la orden, como la estándar | specs/020-custom-resource-setup.md | vigente |
 | D-194 | 2026-10-26 | R3: ninguna guía arranca en Custom; el piloto se marca desde Admin o un script de Ops | specs/020-custom-resource-setup.md | vigente |
@@ -206,6 +206,8 @@
 | D-197 | 2026-10-26 | R3, plan: status.md e history.md los escribe Desarrollo con el resumen de cada entrega | specs/020-plan.md | vigente |
 | D-198 | 2026-10-26 | R3, E1: la versión nueva de una guía (spTrainingGuideSync, D-56) hereda el ResourceSetupType de la que reemplaza | specs/020-plan.md | vigente |
 | D-199 | 2026-10-26 | R3, E1: la página Guías lista solo las guías publicadas | specs/020-plan.md | vigente |
+| D-200 | 2026-10-26 | R3, enmienda 1: siempre 2 Tool Groups por sesión (antes 2 a 4), del mismo pool de 8 | specs/020-custom-resource-setup.md (enmienda 1) | vigente |
+| D-201 | 2026-10-26 | R3, enmienda 1: con la orden asociada, cada fila de Tool Group necesita su Tool Number en todos los modos (formato sin intento) | specs/020-custom-resource-setup.md (enmienda 1) | vigente |
 
 ## Bugs que ya existían (B-n)
 

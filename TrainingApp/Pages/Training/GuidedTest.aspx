@@ -3,6 +3,7 @@
     Inherits="TrainingApp.Pages.Training.GuidedTest" %>
 
 <%@ Register Src="~/UI/Controls/Training/ResourceSetupControl.ascx"  TagPrefix="uc" TagName="ResourceSetupControl" %>
+<%@ Register Src="~/UI/Controls/Training/CustomResourceSetupControl.ascx" TagPrefix="uc" TagName="CustomResourceSetupControl" %>
 <%@ Register Src="~/UI/Controls/Training/LineClearanceControl.ascx"  TagPrefix="uc" TagName="LineClearanceControl" %>
 <%@ Register Src="~/UI/Controls/Training/SearchControl.ascx"         TagPrefix="uc" TagName="SearchControl" %>
 <%@ Register Src="~/UI/Controls/Training/SFCSplitControl.ascx"       TagPrefix="uc" TagName="SFCSplitControl" %>
@@ -484,6 +485,7 @@
     <%-- moves it to document.forms[0] for proper Bootstrap stacking.                --%>
     <asp:Panel ID="PnlModalHost" runat="server" Visible="false">
         <uc:ResourceSetupControl ID="CtrlResourceSetup" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
+        <uc:CustomResourceSetupControl ID="CtrlCustomResourceSetup" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
         <uc:LineClearanceControl ID="CtrlLineClearance" runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
         <uc:SearchControl        ID="CtrlSearch"        runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit" />
         <uc:SFCSplitControl      ID="CtrlSFCSplit"      runat="server" Visible="false" OnOnStepSubmit="HandleControlSubmit"

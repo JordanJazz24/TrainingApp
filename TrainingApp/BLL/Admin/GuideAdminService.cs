@@ -17,7 +17,7 @@ namespace TrainingApp.BLL.Admin
     public class GuideAdminService
     {
         private readonly IUserRepository _users;
-        private readonly Func<IList<GuideSummary>> _publishedGuides;
+        private readonly Func<IList<PublishedGuide>> _publishedGuides;
         private readonly Func<int, ResourceSetupType, bool> _setResourceSetupType;
 
         public GuideAdminService()
@@ -28,7 +28,7 @@ namespace TrainingApp.BLL.Admin
         }
 
         // Para los tests: el repositorio de guías se reemplaza.
-        public GuideAdminService(IUserRepository users, Func<IList<GuideSummary>> publishedGuides,
+        public GuideAdminService(IUserRepository users, Func<IList<PublishedGuide>> publishedGuides,
             Func<int, ResourceSetupType, bool> setResourceSetupType)
         {
             _users                = users ?? throw new ArgumentNullException(nameof(users));
@@ -37,7 +37,7 @@ namespace TrainingApp.BLL.Admin
         }
 
         // Solo las publicadas (D-199).
-        public IList<GuideSummary> GetPublishedGuides(int adminUserId)
+        public IList<PublishedGuide> GetPublishedGuides(int adminUserId)
         {
             RequireGuideManager(adminUserId);
             return _publishedGuides();

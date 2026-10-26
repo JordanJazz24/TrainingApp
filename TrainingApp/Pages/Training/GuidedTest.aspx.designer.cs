@@ -717,6 +717,15 @@ namespace TrainingApp.Pages.Training
         protected global::TrainingApp.UI.Controls.Training.ResourceSetupControl CtrlResourceSetup;
 
         /// <summary>
+        /// CtrlCustomResourceSetup control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::TrainingApp.UI.Controls.Training.CustomResourceSetupControl CtrlCustomResourceSetup;
+
+        /// <summary>
         /// CtrlLineClearance control.
         /// </summary>
         /// <remarks>

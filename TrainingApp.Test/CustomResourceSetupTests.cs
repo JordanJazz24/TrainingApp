@@ -25,14 +25,13 @@ namespace TrainingApp.Test
     public class CustomResourceSetupProviderTests
     {
         [Test]
-        public void ToolGroups_BetweenTwoAndFour_FromThePool_NoRepeats_Sorted()
+        public void ToolGroups_AlwaysTwo_FromThePool_NoRepeats_Sorted()
         {
             var pool = CustomResourceSetupProvider.Pool.Select(g => g.Code).ToList();
             for (int sessionId = 1; sessionId <= 500; sessionId++)
             {
                 var codes = CustomResourceSetupProvider.ToolGroupsFor(sessionId).Select(g => g.Code).ToList();
-                Assert.That(codes.Count, Is.InRange(CustomResourceSetupProvider.MinToolGroups,
-                                                    CustomResourceSetupProvider.MaxToolGroups));
+                Assert.That(codes.Count, Is.EqualTo(CustomResourceSetupProvider.ToolGroupCount));
                 Assert.That(codes, Is.SubsetOf(pool));
                 Assert.That(codes, Is.Unique);
                 Assert.That(codes, Is.EqualTo(codes.OrderBy(c => c, StringComparer.Ordinal).ToList()));
@@ -47,12 +46,12 @@ namespace TrainingApp.Test
             Assert.That(second, Is.EqualTo(first));
         }
 
-        // Con 500 sesiones salen las tres cantidades y casi todos los grupos del pool.
+        // Con 500 sesiones salen todos los grupos del pool, siempre de a 2 (D-200).
         [Test]
         public void ToolGroups_VaryAcrossSessions()
         {
             var sets = Enumerable.Range(1, 500).Select(CustomResourceSetupProvider.ToolGroupsFor).ToList();
-            Assert.That(sets.Select(s => s.Count).Distinct().OrderBy(c => c), Is.EqualTo(new[] { 2, 3, 4 }));
+            Assert.That(sets.Select(s => s.Count).Distinct().OrderBy(c => c), Is.EqualTo(new[] { 2 }));
             Assert.That(sets.SelectMany(s => s.Select(g => g.Code)).Distinct().Count(),
                 Is.EqualTo(CustomResourceSetupProvider.Pool.Count));
         }
@@ -142,6 +141,12 @@ namespace TrainingApp.Test
             => Throwing.Expect<ArgumentException>(() =>
                 CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Custom(shopOrder: shopOrder)));
 
+        // D-201: con la orden asociada, cada fila necesita su Tool Number.
+        [Test]
+        public void Require_Associated_OneToolNumberMissing_Throws()
+            => Throwing.Expect<ArgumentException>(() =>
+                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Custom(tools: new[] { "T-1", " " })));
+
         [Test]
         public void Require_Associated_NoToolNumber_Throws()
             => Throwing.Expect<ArgumentException>(() =>
@@ -214,14 +219,14 @@ namespace TrainingApp.Test
         private const int AdminId    = 1;
         private const int OperatorId = 2;
 
-        private readonly List<GuideSummary> _guides = new List<GuideSummary>();
+        private readonly List<PublishedGuide> _guides = new List<PublishedGuide>();
         private GuideAdminService _service;
 
         [SetUp]
         public void SetUp()
         {
             _guides.Clear();
-            _guides.Add(new GuideSummary { Id = 5, Title = "Guía A", IsPublished = true });
+            _guides.Add(new PublishedGuide { Id = 5, Title = "Guía A", IsPublished = true });
             var users = new UsersStub(
                 new User { Id = AdminId,    Role = UserRole.Administrator },
                 new User { Id = OperatorId, Role = UserRole.Operator });
