@@ -68,7 +68,7 @@ tutorial que se reutiliza tal cual se documenta; si cambia, se modela de nuevo e
 `TrainingApp/` (Web Forms): `Pages/` (Auth, Admin, Training) · `UI/Controls/Training/` (un
 UserControl por tipo de paso) · `BLL/` (Auth, Admin, Training, Scoring) · `DAL/` (un
 repositorio por tabla) · `Domain/` · `Shared/`. `TrainingApp.Test/` (NUnit 4) y `Database/`
-(`StoredProcedures/` 00-10, `Ops/`). Árbol con la responsabilidad de cada archivo:
+(`StoredProcedures/` 00-12, `Ops/`). Árbol con la responsabilidad de cada archivo:
 `docs/architecture.md`.
 
 **Regla de dependencias:** Pages → BLL → DAL → Domain. Ninguna capa referencia hacia arriba;
@@ -172,7 +172,7 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 
 - **Local:** abrir `TrainingApp.slnx` → crear `TrainingApp/connectionStrings.config` desde el
   `.example` (SQL Server local) → ejecutar los scripts de `Database/StoredProcedures/` en
-  orden numérico (`00`–`10`; o `Database/Ops/RunAllScripts.ps1`) → F5 con IIS Express.
+  orden numérico (`00`–`12`; o `Database/Ops/RunAllScripts.ps1`) → F5 con IIS Express.
 - **Tests:** unit tests de la BLL (servicios, scoring) con datos en memoria, sin BD. La
   integración del DAL, contra una BD de test dedicada (LocalDB); Testcontainers descartado.
   Las ASPX no se prueban.

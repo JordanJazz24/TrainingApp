@@ -14,6 +14,8 @@
 --   08_SensoresLoFloCatalog.sql  catálogo de Sensores / LoFlo (flags reales; NC, DC y BOM simulados)
 --   09_SensoresLoFloGuide.sql    guía de Sensores / LoFlo
 --   10_spDashboard.sql       SPs de solo lectura del dashboard (spec 018)
+--   11_WiresSubensamble1Catalog.sql  catálogo de Wires / Subensamble 1 (Serialized; NC, DC y BOM simulados)
+--   12_WiresSubensamble1Guide.sql    guía de Wires / Subensamble 1
 -- Todos se pueden volver a correr sobre una BD existente. Reglas para
 -- escribirlos (esquema, SPs, datos, áreas nuevas): docs/process.md →
 -- "Base de datos".

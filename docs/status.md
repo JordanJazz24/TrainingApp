@@ -75,6 +75,12 @@ rama `r1-r2` (worktree `.claude/worktrees/fase-10`) y se integra con la aprobaci
   2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`** (con brief de diseño; pedido del usuario al
      aprobar la E6).
   3. **R3 · Custom Resource Setup** (con spec).
+- **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
+  `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
+  Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en
+  LocalDB (limpia, re-ejecución y actualización desde el `05` anterior: el área conserva su
+  Id). **Pendiente del usuario:** correr `05`, `11` y `12` en su BD local y en la de
+  producción, y probar la guía en el navegador.
 - **Documentación ✅ (2026-10-21, sin spec):** optimización de los docs (ver
   `docs/history.md`).
 - **Para mostrar a negocio:**

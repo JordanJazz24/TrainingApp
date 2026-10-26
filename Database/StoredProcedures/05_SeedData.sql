@@ -10,9 +10,9 @@
 --   · Redefinity (Catéteres): Serialized con Assembly y DC, para probar
 --     ese camino de punta a punta (spec 008). Guía publicada, 3 códigos
 --     NC, 2 grupos DC obligatorios + 1 opcional y un BOM simulado.
---   · Subensamble 1 (Wires): solo el área, sin guía.
 --   LoFlo (Sensores) ya no está aquí: su catálogo y sus flags los
---   cargan 08 y 09 (Fase 7).
+--   cargan 08 y 09 (Fase 7). Subensamble 1 (Wires) tampoco: lo cargan
+--   11 y 12 (2026-10-26).
 --
 -- Requiere: 00–04.
 -- Re-ejecutable: sí. Las áreas solo se insertan si faltan; el
@@ -29,15 +29,14 @@ BEGIN TRANSACTION;
 -- ------------------------------------------------------------
 INSERT INTO dbo.Products (Name)
 SELECT s.Name
-FROM   (VALUES (1, N'Wires'), (2, N'Catéteres')) AS s (Seq, Name)
+FROM   (VALUES (1, N'Catéteres')) AS s (Seq, Name)
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.Products p WHERE p.Name = s.Name)
 ORDER  BY s.Seq;
 
 INSERT INTO dbo.Areas (ProductId, Name, SerializationType, RequiresAssembly,
                        RequiresDataCollection, RequiresStartChecklist)
 SELECT p.Id, s.Area, s.Ser, s.Asm, s.Dc, 0
-FROM   (VALUES (1, N'Catéteres', N'Redefinity',    0, 1, 1),   -- Serialized, Assembly, DC
-               (2, N'Wires',     N'Subensamble 1', 1, 1, 0))   -- NonSerialized, Assembly, sin DC
+FROM   (VALUES (1, N'Catéteres', N'Redefinity', 0, 1, 1))   -- Serialized, Assembly, DC
        AS s (Seq, Product, Area, Ser, Asm, Dc)
 JOIN   dbo.Products p ON p.Name = s.Product
 WHERE  NOT EXISTS (SELECT 1 FROM dbo.Areas a WHERE a.Name = s.Area)

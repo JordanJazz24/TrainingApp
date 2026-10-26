@@ -39,7 +39,7 @@ conocen al validarla con negocio). Áreas en BD y sus flags:
 | **Moldeo** (S&RC) | catálogo real (`06_RCMoldeoCatalog.sql`, guía en `07`) | NonSerialized · Assembly no · DC sí · checklist de Start sí |
 | **LoFlo** (Sensores) | `08_SensoresLoFloCatalog.sql`, guía en `09` (Fase 7) | Confirmado 2026-10-07 para **todas las áreas de Sensores**: Serialized · Assembly sí · DC sí · Component en NC: lo decide el método del código (spec 014) · checklist de Start no. DC Groups, parámetros, códigos NC y BOM: simulados por ahora |
 | **Redefinity** (Catéteres) | **datos de ejemplo** en `05` ("NO USAR EN PRODUCCIÓN"), para probar el camino Serialized en dev | Serialized · Assembly sí · DC sí (no son decisiones de negocio) |
-| **Subensamble 1** (Wires) | ejemplo en `05` | no son decisiones de negocio |
+| **Subensamble 1** (Wires) | `11_WiresSubensamble1Catalog.sql`, guía en `12` (2026-10-26, MVP para los trainers) | Serialized (usuario, 2026-10-26: el flujo es general y solo se divide en Serialized y NonSerialized; Subensamble 1 entrena el Serialized) · Assembly sí · DC sí · checklist de Start no, con la forma de LoFlo. DC Groups, parámetros, códigos NC de desecho y BOM: simulados |
 
 **Particularidades de Moldeo:**
 - El ID del molde (`DCGTM_ID_MOLDE/A`) es un **DataCollectionParameter**, no Assembly
