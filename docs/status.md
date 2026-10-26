@@ -7,9 +7,9 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; R1/R2 se trabaja en la
-rama `r1-r2` (worktree `.claude/worktrees/fase-10`) y se integra con la aprobación del usuario
-(`docs/process.md` §7) · **Último commit de código:** spec 018 E8 (Fase 10 ✅), probada por el usuario (`git log --oneline -10` para ver el estado real)
+**Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
+rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E1 (Bootstrap 5.3.8), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -63,17 +63,17 @@ rama `r1-r2` (worktree `.claude/worktrees/fase-10`) y se integra con la aprobaci
     Se borró al cerrar la E7.
 - **Lo que sigue después de la Fase 10** (orden del usuario, 2026-10-23; `docs/roadmap.md` →
   "Después de la Fase 10"):
-  1. **R1 y R2 de la revisión con Ernesto (2026-10-22), en curso:** plan
-     `docs/specs/r1-r2-plan.md` y spec 016 → enmienda 1, aprobados el 2026-10-26 (D-151,
-     D-152).
-     - R1: Hora a Hora sale del Ingreso a MES;
-     - R2: la guía no menciona acciones disciplinarias.
-
-     **E1 ✅ en la rama `r1-r2`**: build, 352 tests, `aspnet_compiler` y
-     `/code-review low` en verde; probada por el usuario (2026-10-26). **Falta integrarla
-     en `TrainingApp`** (`git merge --ff-only r1-r2` desde la carpeta real).
-  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`** (con brief de diseño; pedido del usuario al
-     aprobar la E6).
+  1. **R1 y R2 ✅** (2026-10-26, ver "Historial"): Hora a Hora fuera del Ingreso a MES y la guía
+     sin acciones disciplinarias (D-151, D-152).
+  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`, en curso:** brief
+     `docs/specs/019-ui-ux-dashboard.md` y plan `docs/specs/019-plan.md`, aprobados el
+     2026-10-26 (D-153 a D-160). Rama y worktree `fase-11`.
+     - **E1 ✅** (2026-10-26): Bootstrap 5.2.3 → 5.3.8 (D-155), sin cambios de diseño;
+       regresión completa del usuario en su navegador. Sigue la **E2** (sistema de diseño,
+       barra, login, cambio de contraseña y Usuarios).
+     - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
+       Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
+       defecto y el rol se cambia a mano para entrar como operador o admin.
   3. **R3 · Custom Resource Setup** (con spec).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
@@ -120,8 +120,8 @@ final (D-16) repasó esta lista.
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.
 - **Lo que quedó fuera de AUD-28/29** (☑ en la Fase 9, E2): la cabecera `Server` hasta que TI
-  confirme IIS 10 o superior (D-144), `requireSSL` hasta que confirme HTTPS, CSP, y Bootstrap
-  5.3.8, SweetAlert2 11.26 y CodeDom 4.x (D-131). El inventario de paquetes suma JsBarcode
+  confirme IIS 10 o superior (D-144), `requireSSL` hasta que confirme HTTPS, CSP,
+  SweetAlert2 11.26 y CodeDom 4.x (D-131). Bootstrap 5.3.8 entró en la Fase 11, E1 (D-155). El inventario de paquetes suma JsBarcode
   3.11.6 (spec 011), ClosedXML 0.105.1 y sus dependencias, y Chart.js 4.5.1 (spec 018).
 - **Contraseña por defecto versionada (D-18):** quien tenga acceso al repo la conoce y, con un
   Code1, puede activar la cuenta de un compañero que aún no entró ("reclamo de cuenta

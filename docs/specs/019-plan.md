@@ -46,12 +46,13 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 ## E1 · Bootstrap 5.3, primero verificado (D-155)
 
-- [ ] Actualizar el paquete NuGet `bootstrap` de 5.2.3 a la última 5.3.x (CSS y
-  `bootstrap.bundle`). Confirmar la versión al momento de actualizar.
-- [ ] Revisar lo que cambia de 5.2 a 5.3 contra los estilos propios (`pod.css`, `presap.css`,
+- [x] Actualizar el paquete NuGet `bootstrap` de 5.2.3 a la última 5.3.x (CSS y
+  `bootstrap.bundle`). Confirmar la versión al momento de actualizar. **5.3.8** (última en
+  NuGet el 2026-10-26; hash del `.nupkg` verificado contra el catálogo).
+- [x] Revisar lo que cambia de 5.2 a 5.3 contra los estilos propios (`pod.css`, `presap.css`,
   `pod-guide.css`, `admin.css`, `Site.css`) y los componentes que usa la app (modales,
   `form-control`, `btn`, tablas). Sin `data-bs-theme` todo queda en claro, como hoy.
-- [ ] **Regresión completa:**
+- [x] **Regresión completa** (usuario, 2026-10-26: "funciona"):
   - el login, el cambio de contraseña y Usuarios;
   - una sesión completa de **Guided, Práctica libre y Assessment**, entre las tres cubriendo
     Moldeo (NonSerialized), LoFlo (Serialized) y Redefinity: el Ingreso a MES, el POD con sus
@@ -59,12 +60,31 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
   - la guía de Guided con sus anclas;
   - las cinco vistas del dashboard y sus descargas;
   - SweetAlert2.
-- [ ] Capturas del POD de antes y después: se tienen que ver iguales.
-- [ ] **Si algo se rompe y no se arregla sin cambiar comportamiento: se para y decide el
-  usuario.**
-- [ ] AUD-29: el inventario suma Bootstrap 5.3.x.
-- [ ] `/code-review low` sobre los CSS tocados.
+- [x] Capturas del POD de antes y después: se tienen que ver iguales (comparadas por el
+  usuario en su navegador).
+- [x] **Si algo se rompe y no se arregla sin cambiar comportamiento: se para y decide el
+  usuario.** No se rompió nada.
+- [x] AUD-29: el inventario suma Bootstrap 5.3.x.
+- [x] `/code-review low` sobre los CSS tocados: no aplica, no se tocó ningún CSS propio (solo
+  los archivos de Bootstrap); la revisión es la comparación de reglas de abajo.
 - **Checklist del usuario:** la regresión de arriba en su navegador.
+
+> **Revisión de 5.2.3 → 5.3.8 (Desarrollo, 2026-10-26).** Reglas de Bootstrap de las 127
+> clases que usa la app, comparadas entre las dos versiones. **Nada que rompa el layout:**
+> - **Tablas:** en 5.3 `--bs-table-bg` es `var(--bs-body-bg)` (blanco) y no transparente. Las
+>   del POD están sobre blanco; `.pod-work-list` ya lo fijaba y la selección por
+>   `--bs-table-accent-bg` en el `tr` sigue funcionando (sin `table-hover` ni `table-striped`
+>   en el POD). Las del dashboard llevan `bg-white` o van en tarjetas.
+> - **`.modal-header`** pierde `justify-content: space-between`; los botones del MES
+>   (`.mes-titlebar-actions`) ya usan `margin-left: auto`.
+> - **Matices de color** (solo se notan de cerca): bordes de `form-control`, `form-select` e
+>   `input-group-text` de `#ced4da` a `#dee2e6`; radios y checks de `rgba(0,0,0,.25)` a
+>   `#dee2e6`; `.text-muted` y placeholders de `#6c757d` a `rgba(33,37,41,.75)`; texto de
+>   `.alert-danger` de `#842029` a `#58151c`; texto de tablas de `#212529` a `#000`; fondo de
+>   `input-group-text` de `#e9ecef` a `#f8f9fa`.
+> - Capturas de antes (5.2.3) del Ingreso a MES y del POD en Práctica libre y Assessment, del
+>   login y del dashboard: en el job de Desarrollo. La regresión y la comparación las hace el
+>   usuario en su navegador (usuario, 2026-10-26).
 
 ## E2 · Sistema de diseño, barra, login, cambio de contraseña y Usuarios
 

@@ -26,6 +26,10 @@ quedó en 0 warnings. **Los tests quedaron fuera** por decisión del usuario.
 
   Tenerlos en cuenta en la próxima revisión de paquetes. La descarga grande de sesiones no
   usa `System.IO.Packaging` (D-149).
+- **Enmienda (2026-10-26, Fase 11, E1 del plan 019, D-155):** Bootstrap pasa de 5.2.3 a
+  **5.3.8** (`packages.config`, `Content/bootstrap*.css` y `Scripts/bootstrap.bundle.min.js`,
+  solo los 6 archivos que dejó E5). Sin `data-bs-theme` la app queda en claro. SweetAlert2 y
+  CodeDom 4.x siguen pendientes.
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` (AUD-04; sigue
   en el historial de git) y actualizar `connectionStrings.config`.
 - AUD-27 quedó cerrado por decisión del usuario (D-6): la pregunta de Line Clearance se
