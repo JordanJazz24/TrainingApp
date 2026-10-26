@@ -14,5 +14,8 @@ namespace TrainingApp.BLL.Auth
         // Dashboard de Training (spec 018): hoy solo el administrador. Un rol Trainer futuro
         // tendría esta capacidad sin CanManageUsers.
         public static bool CanViewReports(UserRole role) => role == UserRole.Administrator;
+
+        // Configurar las guías, hoy su tipo de Resource Setup (spec 020).
+        public static bool CanManageGuides(UserRole role) => role == UserRole.Administrator;
     }
 }

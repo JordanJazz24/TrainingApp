@@ -118,7 +118,9 @@ namespace TrainingApp.BLL.Training
         // o completadas (auditoría AUD-41).
         public TrainingSession StartSession(int userId, int guideId, SessionMode mode)
         {
-            var session = _sessionService.Start(userId, guideId, mode);
+            var guide = _guideService.GetById(guideId)
+                ?? throw new ArgumentException("La guía no existe.", nameof(guideId));
+            var session = _sessionService.Start(userId, guide, mode);
             _store.RemoveAll();
             return session;
         }
@@ -132,8 +134,13 @@ namespace TrainingApp.BLL.Training
         // Califica la respuesta del paso actual (Line Clearance, y la base del resto). El paso lo
         // define el servidor, no la página: un paso viejo haría retroceder la sesión al avanzar
         // (auditoría AUD-05).
+        // Resource Setup entra solo por SubmitResourceSetup, que valida sus invariantes (spec 020).
         public StepSubmitResult SubmitStep(PodContext ctx, string submittedAnswer)
-            => SubmitStep(ctx, submittedAnswer, null);
+        {
+            if (ctx.CurrentStepOrDefault?.StepType == StepType.ResourceSetup)
+                throw new InvalidOperationException("Resource Setup se envía con SubmitResourceSetup.");
+            return SubmitStep(ctx, submittedAnswer, null);
+        }
 
         // selected: filas del POD seleccionadas al enviar (Log NC las califica, spec 014).
         private StepSubmitResult SubmitStep(PodContext ctx, string submittedAnswer,
@@ -272,7 +279,9 @@ namespace TrainingApp.BLL.Training
             var sequence = CheckSequence(ctx, StepType.ResourceSetup, AttemptActions.ResourceSetup);
             if (sequence != null) return sequence;
 
-            ctx.State.PreloadedEquipment = PreloadedEquipmentGenerator.Generate(new Random());
+            // Custom RS parte vacío (spec 020, D-186).
+            ctx.State.PreloadedEquipment = ctx.ResourceSetupType == ResourceSetupType.Custom
+                ? null : PreloadedEquipmentGenerator.Generate(new Random());
             SaveState(ctx);
             return new PodCommandResult();
         }
@@ -288,9 +297,15 @@ namespace TrainingApp.BLL.Training
         // Con un equipo precargado en las filas, el control no aplica el formato (D-26, spec
         // 015): la Shop Order puede faltar y el intento se registra igual. Sin una Shop Order
         // válida y propia (no la del lote anterior), la orden no se crea: el paso sigue pendiente.
+        // shopOrderInput es solo de la estándar: Custom RS trae su Shop Order en el Save (spec 020).
         public StepSubmitResult SubmitResourceSetup(PodContext ctx, string answer, string shopOrderInput)
         {
             EnsureCurrentStep(ctx, StepType.ResourceSetup);
+
+            var custom = CustomResourceSetupAnswer.RequireForSession(ctx.ResourceSetupType, answer);
+            if (custom != null)
+                return SubmitCustomResourceSetup(ctx, answer, custom);
+
             bool validShopOrder = SimulatedOrder.IsValidShopOrder(shopOrderInput) &&
                 ctx.State.PreloadedEquipment?.Contains(shopOrderInput) != true;
             // El control ya lo avisa como formato; si llega mal es una manipulación o un error
@@ -298,11 +313,24 @@ namespace TrainingApp.BLL.Training
             if (!validShopOrder && !BuildValidator(ctx, StepType.ResourceSetup).HasPreloadedValue(answer))
                 throw new ArgumentException("La Shop Order debe ser numérica.", nameof(shopOrderInput));
 
-            var result = SubmitStep(ctx, answer);
+            var result = SubmitStep(ctx, answer, null);
             if (result.Outcome == StepSubmitOutcome.FailedForced)
                 CreateOrder(ctx, PodDefaults.DefaultShopOrder);
             else if (validShopOrder)
                 CreateOrder(ctx, shopOrderInput);
+            return result;
+        }
+
+        // Custom RS (spec 020), ya validado por RequireForSession. Sin asociar es intento fallido
+        // y no hay orden; con la orden asociada se crea también en "Open" (D-193). El avance
+        // forzado usa la orden por defecto, como la estándar.
+        private StepSubmitResult SubmitCustomResourceSetup(PodContext ctx, string answer,
+            CustomResourceSetupAnswer parsed)
+        {
+            var result = SubmitStep(ctx, answer, null);
+            string shopOrder = CustomResourceSetupAnswer.ShopOrderToCreate(result.Outcome, parsed);
+            if (shopOrder != null)
+                CreateOrder(ctx, shopOrder);
             return result;
         }
 
@@ -1115,7 +1143,8 @@ namespace TrainingApp.BLL.Training
                 DataCollectionParams = stepType == StepType.DataCollection
                     ? ctx.DataCollectionParameters : new List<DataCollectionParameter>(),
                 PreloadedValues      = stepType == StepType.ResourceSetup
-                    ? ctx.State.PreloadedEquipment?.AllValues() : null
+                    ? ctx.State.PreloadedEquipment?.AllValues() : null,
+                ResourceSetupType    = ctx.ResourceSetupType
             });
         }
 

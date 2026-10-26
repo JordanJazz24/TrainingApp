@@ -171,6 +171,7 @@
     <Compile Include="LearningCurveTests.cs" />
     <Compile Include="StepRunsTests.cs" />
     <Compile Include="SummaryRulesTests.cs" />
+    <Compile Include="CustomResourceSetupTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

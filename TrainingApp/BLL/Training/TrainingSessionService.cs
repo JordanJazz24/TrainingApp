@@ -10,26 +10,33 @@ namespace TrainingApp.BLL.Training
     {
         private readonly TrainingSessionRepository _sessionRepo = new TrainingSessionRepository();
 
-        public TrainingSession Start(int userId, int guideId, SessionMode mode)
+        public TrainingSession Start(int userId, TrainingGuide guide, SessionMode mode)
         {
+            if (guide == null) throw new ArgumentNullException(nameof(guide));
+
             // Una sola sesión activa por operador (spec 009, D-9): la que quedó a medias, de
             // esta u otra guía, se marca Abandoned y conserva sus intentos para el instructor
             // (auditoría AUD-01, decisión D-4).
             AbandonAllActive(userId);
 
-            var session = new TrainingSession
-            {
-                UserId           = userId,
-                TrainingGuideId  = guideId,
-                Mode             = mode,
-                Status           = SessionStatus.InProgress,
-                CurrentStepOrder = 1,
-                FinalScore       = 0m,
-                StartedAt        = DateTime.UtcNow
-            };
+            var session = NewSession(userId, guide, mode, DateTime.UtcNow);
             session.Id = _sessionRepo.Insert(session);
             return session;
         }
+
+        // La sesión copia el tipo de Resource Setup de la guía al empezar (spec 020, D-188).
+        public static TrainingSession NewSession(int userId, TrainingGuide guide, SessionMode mode, DateTime startedAt)
+            => new TrainingSession
+            {
+                UserId            = userId,
+                TrainingGuideId   = guide.Id,
+                Mode              = mode,
+                Status            = SessionStatus.InProgress,
+                CurrentStepOrder  = 1,
+                FinalScore        = 0m,
+                StartedAt         = startedAt,
+                ResourceSetupType = guide.ResourceSetupType
+            };
 
         public void Abandon(int sessionId, int userId)
         {

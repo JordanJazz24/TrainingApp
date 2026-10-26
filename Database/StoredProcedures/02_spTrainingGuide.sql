@@ -64,7 +64,7 @@ GO
 
 -- spTrainingGuideSetResourceSetupType — el tipo de Resource Setup de una guía
 -- (spec 020). Vale para las sesiones que empiecen después (D-188). Devuelve las
--- filas afectadas (0 = la guía no existe).
+-- filas afectadas (0 = la guía no existe o no está publicada, D-199).
 CREATE OR ALTER PROCEDURE dbo.spTrainingGuideSetResourceSetupType
     @Id                INT,
     @ResourceSetupType TINYINT
@@ -73,7 +73,7 @@ BEGIN
     SET NOCOUNT ON;
     IF @ResourceSetupType NOT IN (0, 1)
         THROW 50020, N'spTrainingGuideSetResourceSetupType: el tipo tiene que ser 0 (Standard) o 1 (Custom).', 1;
-    UPDATE dbo.TrainingGuides SET ResourceSetupType = @ResourceSetupType WHERE Id = @Id;
+    UPDATE dbo.TrainingGuides SET ResourceSetupType = @ResourceSetupType WHERE Id = @Id AND IsPublished = 1;
     SELECT @@ROWCOUNT;
 END;
 GO

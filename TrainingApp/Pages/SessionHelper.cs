@@ -43,6 +43,9 @@ namespace TrainingApp.Pages
         public static bool CanViewReports()
             => CurrentRole() is UserRole role && AccessPolicy.CanViewReports(role);
 
+        public static bool CanManageGuides()
+            => CurrentRole() is UserRole role && AccessPolicy.CanManageGuides(role);
+
         /// <summary>
         /// Inicio del usuario según su capacidad: el módulo administrativo o la selección de
         /// entrenamiento.

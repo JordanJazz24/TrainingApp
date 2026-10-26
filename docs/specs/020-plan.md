@@ -82,6 +82,13 @@ markup si se tocó `.aspx`/`.ascx`/`.master`, tests, `/code-review` con nivel y 
 - [ ] `/code-review medium` sobre `BLL/Training` y `BLL/Scoring`: invariantes del servidor,
       respuesta manipulada, sesión Standard que recibe una respuesta Custom (y al revés).
 
+> **E2, resultado del `/code-review medium` (2026-10-26):** se aplicaron: `SubmitStep` público
+> rechaza Resource Setup (solo entra por `SubmitResourceSetup`); `spTrainingGuideSetResourceSetupType`
+> solo cambia guías publicadas; `shopOrderInput` es solo de la estándar; un solo parseo en
+> `TryParse`; `ShopOrderToCreate` como regla pura con tests. **No se aplican** (usuario): validar en el
+> servidor el grupo y los `<`/`>` de los Tool Numbers (no se califican ni se guardan), y **B-20**
+> (`StartSession` no revisa que la guía esté publicada; ya existía) queda anotado.
+
 **Hecho cuando:** tests verdes y el servidor rechaza o califica correctamente cualquier
 respuesta, sin que exista todavía la pantalla.
 
@@ -125,6 +132,9 @@ guía puesta en Custom con el script de Ops, y dice "funciona".
 - [ ] `Admin.Master`: una línea de menú "Guías" visible con la capacidad; `Web.config` ya protege
       `Pages/Admin` por rol.
 - [ ] Probar AC-8 (cambio con sesión en curso: no cambia; sesión nueva: sí) y AC-9 (Operator).
+- [ ] Antes de empezar, avisar a Desarrollo: si tiene una entrega abierta que toque `admin.css` o
+      `Admin.Master` (las E3 a E5 de la Fase 11 agregan clases), se espera su commit. Las clases
+      propias van en un bloque al final de `admin.css` con el comentario `Guías (spec 020)`.
 - [ ] Coordinar `TrainingApp.csproj` (y `admin.css` si hace falta) con Desarrollo: commit por
       rutas, y el segundo en llegar hace el merge.
 - [ ] `/code-review low` sobre la página y el servicio.

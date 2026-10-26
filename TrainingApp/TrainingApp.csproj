@@ -281,6 +281,7 @@
     <Compile Include="Domain\TrainingSessionStepAttempt.cs" />
     <Compile Include="Domain\ResourceSetupType.cs" />
     <Compile Include="Domain\GuideSummary.cs" />
+    <Compile Include="Domain\ToolGroup.cs" />
     <Compile Include="BLL\Auth\LoginResult.cs" />
     <Compile Include="BLL\Auth\AuthService.cs" />
     <Compile Include="BLL\Auth\ChangePasswordStatus.cs" />
@@ -317,6 +318,7 @@
     <Compile Include="BLL\Training\PodState.cs" />
     <Compile Include="BLL\Training\PodContext.cs" />
     <Compile Include="BLL\Training\PodService.cs" />
+    <Compile Include="BLL\Training\CustomResourceSetup.cs" />
     <Compile Include="BLL\Training\PodCommandResult.cs" />
     <Compile Include="Pages\Auth\Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
@@ -429,6 +431,7 @@
     <Compile Include="BLL\Auth\RoleCache.cs" />
     <Compile Include="BLL\Auth\LoginLockPolicy.cs" />
     <Compile Include="BLL\Admin\UserAdminService.cs" />
+    <Compile Include="BLL\Admin\GuideAdminService.cs" />
     <Compile Include="BLL\Reports\DashboardService.cs" />
     <Compile Include="BLL\Reports\ReadinessPolicy.cs" />
     <Compile Include="BLL\Reports\ReinforcementRule.cs" />

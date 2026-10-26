@@ -25,6 +25,7 @@ namespace TrainingApp.BLL.Training
         private bool                           _productLoaded;
         private readonly Func<string>          _code1Loader;
         private string                         _code1;
+        private CustomResourceSetupData        _customResourceSetup;
 
         internal PodContext(int userId, TrainingSession session, TrainingGuide guide, Area area,
             IList<TrainingSessionStepAttempt> attempts, PodState state, decimal score,
@@ -58,6 +59,14 @@ namespace TrainingApp.BLL.Training
 
         // Recurso del área: el del POD y el de la etiqueta de la estación en Recursos MES (D-70).
         public string ResourceName => PodDefaults.ResourceName(Area);
+
+        // Pantalla de Resource Setup de esta sesión (spec 020, D-188): la de la guía al empezar.
+        public ResourceSetupType ResourceSetupType => Session.ResourceSetupType;
+
+        // Datos de Custom RS de la sesión; solo tiene sentido con ResourceSetupType Custom.
+        public CustomResourceSetupData CustomResourceSetup
+            => _customResourceSetup ?? (_customResourceSetup = CustomResourceSetupProvider.For(this));
+
         public TrainingSession Session { get; }
         public ModePolicy Policy => ModePolicy.For(Session.Mode);
         public TrainingGuide Guide { get; }

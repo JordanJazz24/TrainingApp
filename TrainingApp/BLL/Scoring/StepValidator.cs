@@ -21,7 +21,9 @@ namespace TrainingApp.BLL.Scoring
         //   ResourceSetup                   : JSON {"setupState":"...","rows":[...]} — correct only with
         //                                     setupState "Set Up" and no preloaded equipment left in
         //                                     the rows (spec 015); the rest of the rows/Shop Order is
-        //                                     format, validated by the control
+        //                                     format, validated by the control. Custom RS (spec 020):
+        //                                     JSON de CustomResourceSetupAnswer — correcto solo con
+        //                                     "Set Up" y la orden asociada
         //   Search                          : áreas con RequiresStartChecklist: JSON de SearchControl — correcto
         //                                     solo si las respuestas LC Moldeo (verif*) y la verificación
         //                                     final son true. Sin checklist (Start directo, spec 008):
@@ -85,12 +87,23 @@ namespace TrainingApp.BLL.Scoring
 
         private bool ValidateResourceSetup(string submittedAnswer)
         {
+            if (_ctx.ResourceSetupType == ResourceSetupType.Custom)
+                return ValidateCustomResourceSetup(submittedAnswer);
+
             var answer = TryParseObject(submittedAnswer);
             object setupState;
             return answer != null
                 && answer.TryGetValue("setupState", out setupState)
                 && setupState as string == "Set Up"
                 && !HasPreloadedValue(submittedAnswer);
+        }
+
+        // Custom RS (spec 020, D-183, D-191): Set Up y la orden asociada; los Tool Numbers no se
+        // califican y no hay precargados (D-186).
+        private static bool ValidateCustomResourceSetup(string submittedAnswer)
+        {
+            var answer = CustomResourceSetupAnswer.TryParse(submittedAnswer);
+            return answer != null && answer.SetupState == "Set Up" && answer.ShopOrderAssociated;
         }
 
         // Spec 015: alguna fila del Save de Resource Setup trae un equipo precargado (por valor,
