@@ -455,7 +455,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 **Orden (usuario, 2026-10-23):**
 1. ✅ R1 y R2, cortos: corrigen lo que hoy se le enseña al operador (2026-10-26).
 2. Fase 11, UI/UX del dashboard.
-3. R3, Custom Resource Setup.
+3. R3, Custom Resource Setup. **Adelantado (usuario, 2026-10-26):** va en paralelo con la
+   Fase 11, en la sesión `Custom-RS` (spec 020).
 
 #### Revisión con Ernesto, MES (2026-10-22)
 Registrada por Reuniones y Dudas. No cambia el foco: la Fase 10 sigue con su orden.
@@ -465,7 +466,7 @@ Ernesto **aprobó el contenido del simulador**.
 |---|---|---|
 | R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | ✅ 2026-10-26 (`57df997`; spec 016 → enmienda 1, plan `r1-r2-plan.md`, D-151) |
 | R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | ✅ 2026-10-26 (`57df997`; plan `r1-r2-plan.md`, D-152) |
-| R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | Decidido por el usuario · **después de la Fase 10** · necesita spec |
+| R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | En curso, en paralelo con la Fase 11 · spec `020-custom-resource-setup.md` aprobada el 2026-10-26 (D-180 a D-194) · plan `020-plan.md` |
 
 - **Confirmado:** el Logout va seguido del script de limpieza (como está, spec 016).
 - **Pesos, el 70 % y la regla de aprobación:** los deja al equipo de training (no cambian).
