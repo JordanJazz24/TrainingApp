@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-153. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: D-160. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
@@ -169,6 +169,13 @@
 | D-150 | 2026-10-23 | Dashboard: la ficha del operador se imprime desde el navegador (estilos de impresión; PDF con "Guardar como PDF"), sin PDF en el servidor (DA-6) | specs/018-dashboard-training.md (DA-6), specs/018-plan.md (E8) | vigente |
 | D-151 | 2026-10-26 | Hora a Hora sale del Ingreso a MES (script → Repositorio → Recursos MES → login); la tarjeta (3.0) se ve y no hace nada; la guía no lo menciona; la pantalla se borra; Log On exige solo Recursos MES (sin él, inválido sin intento: el login no se abre) | specs/016-preparacion-antes-de-sap.md (enmienda 1), specs/r1-r2-plan.md | vigente |
 | D-152 | 2026-10-26 | La guía no menciona acciones disciplinarias: las alertas de Resource Setup y Log NC quedan en "CRÍTICO" | specs/r1-r2-plan.md | vigente |
+| D-153 | 2026-10-26 | Fase 11: el dashboard es para gerencia y trainers por igual (escritorio, proyector, tablet); el Resumen muestra primero quién está listo | specs/019-ui-ux-dashboard.md | vigente |
+| D-154 | 2026-10-26 | Fase 11: alcance = dashboard, Excel, login, cambio de contraseña y Usuarios (`Admin.Master`); el POD no cambia de diseño | specs/019-ui-ux-dashboard.md | vigente |
+| D-155 | 2026-10-26 | Bootstrap 5.3.x en una entrega propia, verificado primero con regresión completa; si rompe algo, decide el usuario | specs/019-ui-ux-dashboard.md | vigente |
+| D-156 | 2026-10-26 | Fase 11: estilo moderno neutro con tokens, fuente del sistema y Bootstrap Icons local; estados nunca solo por color | specs/019-ui-ux-dashboard.md | vigente |
+| D-157 | 2026-10-26 | Modo oscuro: sigue al sistema, interruptor recordado en el navegador; la ficha se imprime en claro | specs/019-ui-ux-dashboard.md | vigente |
+| D-158 | 2026-10-26 | Excel profesional (título con filtros y fecha, encabezados con color, filtros, primera fila fija, formatos, estados con color) | specs/019-ui-ux-dashboard.md | vigente |
+| D-159 | 2026-10-26 | Fase 11: mockup aprobado antes del plan; mockup e implementación con la skill `frontend-design`, dentro del brief | specs/019-ui-ux-dashboard.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
