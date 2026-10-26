@@ -549,8 +549,84 @@ body.mt-page {
 .mt-page .swal2-styled:focus,
 .mt-page .swal2-styled:focus-visible { box-shadow: 0 0 0 3px var(--mt-focus); }
 
-/* ── Gráficas del Resumen (spec 018) ───────────────────────── */
+/* ── Resumen (spec 018; mockup v1 de la Fase 11) ───────────── */
+/* ¿Quién está listo?: arriba, sin scroll, también proyectado y en tablet (AC-3). */
+.summary-ready { display: flex; flex-direction: column; gap: 22px; padding: 28px; margin-bottom: var(--mt-space-5); }
+.summary-ready-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--mt-space-4);
+}
+.summary-ready-title { margin: 0 0 var(--mt-space-1); font-size: 1.375rem; }
+.summary-alert-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    min-height: var(--mt-control-h);
+    padding: 0 14px;
+    border-radius: var(--mt-radius);
+    background: var(--mt-bad-soft);
+    color: var(--mt-bad);
+    font-weight: 600;
+    text-decoration: none;
+}
+.summary-alert-link:hover { color: var(--mt-bad); text-decoration: underline; }
+
+.summary-legend { display: flex; flex-wrap: wrap; gap: var(--mt-space-2) 20px; font-size: .875rem; }
+.summary-legend > span { display: inline-flex; align-items: center; gap: var(--mt-space-2); }
+.summary-legend-sm { gap: 6px var(--mt-space-4); font-size: var(--mt-fs-small); align-items: center; }
+.summary-dot { display: inline-block; flex: 0 0 auto; width: 10px; height: 10px; border-radius: 3px; }
+.summary-seg-ok   { background: var(--mt-ok); }
+.summary-seg-bad  { background: var(--mt-bad); }
+.summary-seg-warn { background: var(--mt-warn-bar); }
+.summary-mode-1 { background: var(--mt-m1); }
+.summary-mode-2 { background: var(--mt-m2); }
+.summary-mode-3 { background: var(--mt-m3); }
+
+.summary-guide {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mt-space-3) 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--mt-border);
+}
+.summary-guide-name { flex: 0 0 150px; display: flex; flex-direction: column; }
+.summary-guide-title { font-size: 1.125rem; font-weight: 600; }
+.summary-guide-states { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: var(--mt-space-2); }
+.summary-stack {
+    display: flex;
+    gap: 2px;
+    height: 22px;
+    border-radius: var(--mt-radius-sm);
+    overflow: hidden;
+    background: var(--mt-surface-2);
+}
+.summary-counts { display: flex; flex-wrap: wrap; gap: var(--mt-space-1) 18px; font-size: .875rem; }
+.summary-figures { flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: var(--mt-space-3) 28px; }
+.summary-figures .mt-stat { min-width: 110px; }
+.summary-figure { font-size: 2rem; font-weight: 600; line-height: 1.15; }
+.summary-note { margin: 0; color: var(--mt-muted); font-size: var(--mt-fs-small); }
+
+/* Actividad (7/12) y "Dónde se falla más" (5/12); se apilan en tablet. */
+.summary-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--mt-space-5); }
+.summary-block { display: flex; flex-direction: column; gap: var(--mt-space-4); min-width: 0; }
+.summary-block-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--mt-space-2); }
+.summary-block-title { margin: 0; font-size: 1.125rem; }
 .summary-chart { position: relative; height: 240px; }
+
+.summary-top { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.summary-top li { display: flex; align-items: flex-start; gap: var(--mt-space-3); }
+.summary-top-rank { width: 18px; padding-top: 1px; color: var(--mt-muted); font-weight: 600; font-size: .875rem; }
+.summary-top-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.summary-top-line { display: flex; justify-content: space-between; gap: var(--mt-space-3); font-size: .875rem; }
+.summary-more { align-self: flex-start; font-weight: 600; font-size: .875rem; }
+
+@media (max-width: 991.98px) {
+    .summary-grid { grid-template-columns: minmax(0, 1fr); }
+}
 
 /* ── Tablet (P-4): la barra se acomoda; las columnas secundarias se ocultan ── */
 @media (max-width: 991.98px) {

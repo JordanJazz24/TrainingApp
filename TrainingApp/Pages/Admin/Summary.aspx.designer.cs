@@ -13,6 +13,7 @@ namespace TrainingApp.Pages.Admin
 
     public partial class Summary
     {
+
         /// <summary>
         /// PnlFilters control.
         /// </summary>
@@ -68,6 +69,24 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Label LblExportSlow;
 
         /// <summary>
+        /// LitReadyPeriod control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitReadyPeriod;
+
+        /// <summary>
+        /// LnkFollowUp control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink LnkFollowUp;
+
+        /// <summary>
         /// PhStates control.
         /// </summary>
         /// <remarks>
@@ -77,13 +96,13 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.PlaceHolder PhStates;
 
         /// <summary>
-        /// RptStates control.
+        /// RptGuides control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptStates;
+        protected global::System.Web.UI.WebControls.Repeater RptGuides;
 
         /// <summary>
         /// LblNoStates control.
@@ -93,42 +112,6 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label LblNoStates;
-
-        /// <summary>
-        /// LitRatesPeriod control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal LitRatesPeriod;
-
-        /// <summary>
-        /// RptRates control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptRates;
-
-        /// <summary>
-        /// PhRates control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder PhRates;
-
-        /// <summary>
-        /// LblNoRates control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblNoRates;
 
         /// <summary>
         /// LitActivityPeriod control.
@@ -167,15 +150,6 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Label LblNoActivity;
 
         /// <summary>
-        /// LnkSteps control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HyperLink LnkSteps;
-
-        /// <summary>
         /// LitTopPeriod control.
         /// </summary>
         /// <remarks>
@@ -210,5 +184,14 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label LblNoTop;
+
+        /// <summary>
+        /// LnkSteps control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink LnkSteps;
     }
 }

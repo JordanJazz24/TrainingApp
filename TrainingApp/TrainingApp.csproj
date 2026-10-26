@@ -143,7 +143,6 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\Site.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
@@ -184,6 +183,7 @@
     <Content Include="UI\master\Admin.Master" />
     <Content Include="UI\master\admin.css" />
     <Content Include="UI\master\theme.js" />
+    <Content Include="UI\master\admin-charts.js" />
     <Content Include="Pages\Admin\Operator.aspx" />
     <Content Include="Pages\Admin\Operators.aspx" />
     <Content Include="Pages\Admin\Export.ashx" />

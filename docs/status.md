@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
 rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E2 (sistema de diseño), probada por el usuario (`git log --oneline -10` para ver el estado real)
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E3 (Resumen), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -73,12 +73,34 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E2 (si
      - **E2 ✅** (2026-10-26): sistema de diseño en `admin.css` (tokens del mockup en claro y
        oscuro, D-162 para el borde de los campos), Bootstrap Icons 1.13.2 local, tema con
        `theme.js` en `Admin.Master` y `Site.Master` (el POD no lo recibe), login, cambio de
-       contraseña, Usuarios e inicio del operador (D-163). Probada por el usuario. Sigue la
-       **E3** (Resumen).
+       contraseña, Usuarios e inicio del operador (D-163). Probada por el usuario.
+     - **E3 ✅** (2026-10-26): Resumen como el mockup ("¿Quién está listo?" con la barra
+       apilada por guía, Actividad en Chart.js y "Dónde se falla más"), `admin-charts.js` lee
+       los tokens y redibuja al cambiar de tema; mismas cifras de `GetSummary` sin tocar la
+       BLL; sin "N sin iniciar" ni número en Seguimiento (D-164); se borró `Site.css`, sin
+       uso. Probada por el usuario. **Falta medir** el rendimiento (AC-7) antes de cerrar la
+       fase. Sigue la **E4** (Operadores y Operador).
      - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
        Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
        defecto y el rol se cambia a mano para entrar como operador o admin.
-  3. **R3 · Custom Resource Setup** (con spec).
+  3. **R3 · Custom Resource Setup, en curso en paralelo con la Fase 11** (sesión `Custom-RS`,
+     en la rama `TrainingApp` de la carpeta principal): spec y plan `docs/specs/020-*.md`
+     (`42dafdf`), D-180 a D-199. Desarrollo escribe este archivo y `docs/history.md` con los
+     resúmenes que manda `Custom-RS` (D-197).
+     - **E1 ✅** (2026-10-26, `144d845`, datos y DAL): columna `ResourceSetupType` (0 =
+       Standard, 1 = Custom) en `TrainingGuides` y `TrainingSessions` (`ALTER` idempotente en
+       `00`); en `02`, `spTrainingGuideGetPublishedForAdmin` y
+       `spTrainingGuideSetResourceSetupType` (solo guías publicadas), y `spTrainingGuideSync`
+       hace que la versión nueva herede el tipo (D-198); en `03`, `Insert` (con
+       `@ResourceSetupType` obligatorio) y `GetById` lo manejan. `Database/Ops/SetGuideResourceSetupType.sql`
+       marca la guía del piloto; enum `Domain/ResourceSetupType` y `Domain/GuideSummary`. Todas
+       las guías quedan en Standard (D-194). Probada en LocalDB.
+     - **Pendiente del usuario:** correr `00`, `02` y `03` en cada BD donde se pruebe código
+       que ya trae la E1 (la Fase 11 después de rebasear, `TrainingApp_Fase11` incluida). El
+       código anterior con el `03` nuevo también falla al iniciar una sesión: van juntos.
+     - Siguen la E2 (BLL y tests), la E3 (control nuevo, `GuidedTest`, `GuideScriptBuilder`)
+       y la E4 (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá `admin.css`).
+     - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en

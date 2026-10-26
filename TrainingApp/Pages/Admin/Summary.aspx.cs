@@ -1,21 +1,25 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TrainingApp.BLL.Reports;
+using TrainingApp.Domain;
 using TrainingApp.Shared;
 
 namespace TrainingApp.Pages.Admin
 {
-    // Resumen (spec 018, AC-9 a AC-12), el inicio del administrador. Solo UI: los números los
-    // calcula DashboardService; la página arma las tablas y los datos de las gráficas. Los filtros
+    // Resumen (spec 018, AC-9 a AC-12; diseño de la Fase 11), el inicio del administrador. Solo
+    // UI: los números los calcula DashboardService; la página arma los textos y las semanas de
+    // la gráfica. Los filtros
     // viven en la URL (?period=all&guide=…): nada se guarda en Session.
     public partial class Summary : Page
     {
         private const string PageUrl  = "~/Pages/Admin/Summary.aspx";
         private const string StepsUrl = "~/Pages/Admin/Steps.aspx";
+        private const string FollowUpUrl = "~/Pages/Admin/FollowUp.aspx";
 
         private readonly DashboardService _dashboard = new DashboardService();
 
@@ -82,48 +86,35 @@ namespace TrainingApp.Pages.Admin
 
             // Cada bloque dice a qué período corresponde (AC-9).
             string period = ReportText.Period(applied.Period);
-            LitRatesPeriod.Text    = HttpUtility.HtmlEncode(period);
-            LitActivityPeriod.Text = HttpUtility.HtmlEncode(period);
-            LitTopPeriod.Text      = HttpUtility.HtmlEncode(period);
+            LitReadyPeriod.Text    = HttpUtility.HtmlEncode("Estado con todo el historial. Tasas y puntaje: " + period.ToLowerInvariant() + ".");
+            LitActivityPeriod.Text = HttpUtility.HtmlEncode(period.ToLowerInvariant());
+            LitTopPeriod.Text      = HttpUtility.HtmlEncode(period.ToLowerInvariant());
             // Pasos con el mismo período y guía, en Assessment: los mismos números (D-147).
-            LnkSteps.NavigateUrl = BuildUrl(StepsUrl, all, applied.GuideId);
+            LnkSteps.NavigateUrl    = BuildUrl(StepsUrl, all, applied.GuideId);
+            // Seguimiento solo filtra por guía (sus reglas no dependen del período).
+            LnkFollowUp.NavigateUrl = BuildUrl(FollowUpUrl, false, applied.GuideId);
             // Las sesiones con el período y la guía del Resumen (AC-22).
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewSessions, Request.QueryString);
             LblExportSlow.Visible = all;
 
             var guides = report.Guides.ToDictionary(g => g.Id);
-            var rows = report.GuideSummaries.Select(s => new SummaryGuideRow
-            {
-                GuideName        = guides[s.TrainingGuideId].AreaName,
-                GuideTitle       = guides[s.TrainingGuideId].Title,
-                Passed           = s.Passed,
-                Failed           = s.Failed,
-                InTraining       = s.InTraining,
-                Assessed         = s.AssessedOperators,
-                PassRateText     = ReportText.Percent(s.PassRate),
-                FirstAttemptText = ReportText.Percent(s.FirstAttemptRate),
-                AverageText      = ReportText.Score(s.AverageScore)
-            }).ToList();
+            var rows = report.GuideSummaries.Select(s => GuideRow(s, guides[s.TrainingGuideId])).ToList();
 
-            bool hasStates = rows.Any(r => r.Passed + r.Failed + r.InTraining > 0);
+            // Sin estados ni tasas no hay nada que mostrar en "¿Quién está listo?" (AC-11).
+            bool hasStates = report.GuideSummaries.Any(s =>
+                s.Passed + s.Failed + s.InTraining + s.AssessedOperators + s.FirstAttemptOperators > 0);
             PhStates.Visible    = hasStates;
             LblNoStates.Visible = !hasStates;
-            RptStates.DataSource = rows;
-            RptStates.DataBind();
-            // Sin Assessment completados en el período no hay tasa ni puntaje que mostrar (AC-11).
-            bool hasRates = report.GuideSummaries.Any(s => s.AssessedOperators + s.FirstAttemptOperators > 0);
-            PhRates.Visible    = hasRates;
-            LblNoRates.Visible = !hasRates;
-            RptRates.DataSource = rows;
-            RptRates.DataBind();
+            RptGuides.DataSource = rows;
+            RptGuides.DataBind();
 
             bool hasActivity = report.Weeks.Count > 0;
             PhActivity.Visible    = hasActivity;
             LblNoActivity.Visible = !hasActivity;
             if (hasActivity)
                 LitActivityTotals.Text = HttpUtility.HtmlEncode(string.Format(
-                    "En el período: {0} Guided · {1} Assessment · {2} Práctica libre",
-                    report.Weeks.Sum(w => w.Guided), report.Weeks.Sum(w => w.Assessment), report.Weeks.Sum(w => w.FreePractice)));
+                    "En el período: {0} Guided, {1} Práctica libre y {2} Assessment.",
+                    report.Weeks.Sum(w => w.Guided), report.Weeks.Sum(w => w.FreePractice), report.Weeks.Sum(w => w.Assessment)));
 
             bool hasTop = report.TopSteps.Count > 0;
             PhTop.Visible    = hasTop;
@@ -131,36 +122,59 @@ namespace TrainingApp.Pages.Admin
             RptTop.DataSource = report.TopSteps.Select(s => new SummaryTopRow
             {
                 StepName        = s.StepName,
-                Sessions        = s.Sessions,
-                FailureRateText = ReportText.Percent(s.FailureRate)
+                FailureRateText = ReportText.Percent(s.FailureRate),
+                FailureWidth    = Width((s.FailureRate ?? 0m) * 100m),
+                Detail          = s.SessionsWithFailure + " de " + s.Sessions + (s.Sessions == 1 ? " sesión" : " sesiones")
             }).ToList();
             RptTop.DataBind();
 
             ChartJson = new JavaScriptSerializer().Serialize(new
             {
-                states = hasStates ? new
-                {
-                    labels   = rows.Select(r => r.GuideName),
-                    passed   = rows.Select(r => r.Passed),
-                    failed   = rows.Select(r => r.Failed),
-                    training = rows.Select(r => r.InTraining)
-                } : null,
                 weeks = hasActivity ? new
                 {
                     // Con todo el historial las semanas pueden ser de años distintos.
                     labels     = report.Weeks.Select(w => w.WeekStart.ToString(all ? "dd/MM/yy" : "dd/MM")),
                     guided     = report.Weeks.Select(w => w.Guided),
-                    assessment = report.Weeks.Select(w => w.Assessment),
-                    practice   = report.Weeks.Select(w => w.FreePractice)
-                } : null,
-                top = hasTop ? new
-                {
-                    labels   = report.TopSteps.Select(s => s.StepName),
-                    rates    = report.TopSteps.Select(s => Math.Round((s.FailureRate ?? 0m) * 100m, 1)),
-                    sessions = report.TopSteps.Select(s => s.Sessions)
+                    practice   = report.Weeks.Select(w => w.FreePractice),
+                    assessment = report.Weeks.Select(w => w.Assessment)
                 } : null
             });
         }
+
+        // Una guía de "¿Quién está listo?": la barra apilada de estados y las tres cifras con su
+        // detalle ("22 de 28 con Assessment").
+        private static SummaryGuideRow GuideRow(GuideSummary s, DashboardGuide guide)
+        {
+            int total = s.Passed + s.Failed + s.InTraining;
+            return new SummaryGuideRow
+            {
+                GuideName          = guide.AreaName,
+                GuideTitle         = guide.Title,
+                Passed             = s.Passed,
+                Failed             = s.Failed,
+                InTraining         = s.InTraining,
+                TotalText          = total == 1 ? "1 operador" : total + " operadores",
+                PassedWidth        = Width(Share(s.Passed, total)),
+                FailedWidth        = Width(Share(s.Failed, total)),
+                InTrainingWidth    = Width(Share(s.InTraining, total)),
+                StatesAria         = string.Format("{0}: {1} aprobados, {2} reprobados, {3} en entrenamiento",
+                                         guide.AreaName, s.Passed, s.Failed, s.InTraining),
+                PassRateText       = ReportText.Percent(s.PassRate),
+                PassRateDetail     = s.AssessedOperators > 0
+                    ? s.PassedOperators + " de " + s.AssessedOperators + " con Assessment"
+                    : "Sin Assessment en el período",
+                FirstAttemptText   = ReportText.Percent(s.FirstAttemptRate),
+                FirstAttemptDetail = s.FirstAttemptOperators > 0
+                    ? s.FirstAttemptPassed + " de " + s.FirstAttemptOperators
+                    : "Sin primeros intentos",
+                AverageText        = ReportText.Score(s.AverageScore)
+            };
+        }
+
+        private static decimal Share(int part, int total) => total > 0 ? part * 100m / total : 0m;
+
+        private static string Width(decimal percent)
+            => Math.Round(percent, 1).ToString("0.#", CultureInfo.InvariantCulture);
 
         private string BuildUrl(string page, bool allPeriod, int? guideId)
         {
