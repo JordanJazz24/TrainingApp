@@ -179,14 +179,17 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 ## E5 · Pasos y Seguimiento
 
-- [ ] **Pasos** (D-160):
+- [x] **Pasos** (D-160):
   - la tabla con la barra de %, los conteos, la mediana y los saltos en Práctica libre;
-  - los 2 motivos más frecuentes, y "Ver todos" que despliega el resto en el cliente.
-- [ ] **Seguimiento** (D-160): una fila por operador y guía, con las reglas como chips con texto,
-  la última sesión y el enlace al detalle.
+  - los 2 motivos más frecuentes, y "Ver todos" que despliega el resto en el cliente
+    (`<details>`, sin JS).
+- [x] **Seguimiento** (D-160): una fila por operador y guía, con las reglas como chips con texto,
+  la última sesión y el enlace al detalle. El título de cada chip es la línea con su S-n, la
+  misma del Excel (`FollowUpLines`, sin cambios).
   - **Orden:** primero quien cumple más reglas. Es un orden de presentación: si hoy lo decide
-    `DashboardService`, se ajusta ahí sin cambiar qué reglas aplican.
-- **Checklist del usuario:**
+    `DashboardService`, se ajusta ahí sin cambiar qué reglas aplican. Hecho en
+    `GetFollowUp` (test `GetFollowUp_MoreRulesFirst`); el Excel sale en el mismo orden.
+- **Checklist del usuario** ✅ (2026-10-26, probado por el usuario):
   - Pasos con "Todas" (agrupado por tipo de paso, D-147) y con una guía;
   - Práctica libre con saltos;
   - Seguimiento con un operador que cumple 2 reglas.

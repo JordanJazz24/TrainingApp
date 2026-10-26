@@ -531,12 +531,16 @@ namespace TrainingApp.BLL.Reports
                 }
             }
 
+            // Primero quien cumple más reglas (Fase 11, D-160); a igual número, por guía y nombre.
+            // Solo orden: qué reglas aplican lo decide FollowUpRules.
             var order = shown.Select((g, i) => new { g.Id, i }).ToDictionary(x => x.Id, x => x.i);
             return new FollowUpReport
             {
                 Applied = new FollowUpFilter { GuideId = guideId },
                 Guides  = guides,
-                Rows    = rows.OrderBy(r => order[r.TrainingGuideId]).ThenBy(r => r.Name, StringComparer.CurrentCulture).ToList()
+                Rows    = rows.OrderByDescending(r => r.Reasons.Count)
+                              .ThenBy(r => order[r.TrainingGuideId])
+                              .ThenBy(r => r.Name, StringComparer.CurrentCulture).ToList()
             };
         }
 

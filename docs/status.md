@@ -9,7 +9,7 @@
 
 **Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
 rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E4 (Operadores y Operador), probada por el usuario (`git log --oneline -10` para ver el estado real)
+usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E5 (Pasos y Seguimiento), probada por el usuario (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -85,8 +85,13 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E4 (Op
        mejor y último puntaje por guía en su celda) y Operador (estado por guía con insignias
        grandes y los pasos a reforzar arriba, la curva con `admin-charts.js`, las sesiones en
        tabla, la ficha impresa en claro). `ReportText.StateCss`/`StateIcon` comparten la
-       insignia; Seguimiento recibe el ícono en la E5. Probada por el usuario. Sigue la **E5**
-       (Pasos y Seguimiento).
+       insignia. Probada por el usuario.
+     - **E5 ✅** (2026-10-26): Pasos (filtros arriba, un panel por guía, la barra de % con
+       "X de Y sesiones", los 2 motivos más frecuentes y "Ver todos" en el cliente, saltos solo
+       en Práctica libre) y Seguimiento (las reglas como chips con texto, la de reprobados en
+       rojo con alerta; insignia con ícono; primero quien cumple más reglas, ordenado en
+       `DashboardService.GetFollowUp` con su test; el Excel con el mismo texto, en ese orden).
+       Probada por el usuario. Sigue la **E6** (Excel).
      - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
        Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
        defecto y el rol se cambia a mano para entrar como operador o admin.

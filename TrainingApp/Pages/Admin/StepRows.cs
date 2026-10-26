@@ -12,15 +12,22 @@ namespace TrainingApp.Pages.Admin
 
     public class StepListRow
     {
+        public int Rank { get; set; }
         public string StepName { get; set; }
-        public int Sessions { get; set; }
         public string FailureRateText { get; set; }
+
+        // Barra de % (Fase 11, D-160) y su detalle ("3 de 8 sesiones").
+        public string FailureWidth { get; set; }
+        public string SessionsText { get; set; }
         public int FailedAttempts { get; set; }
         public int TimesWithoutSuccess { get; set; }
         public int Skips { get; set; }
         public string MedianText { get; set; }
 
-        // "Motivo · acción (veces)", del más repetido al menos.
-        public IList<string> Reasons { get; set; }
+        // "Motivo · acción (veces)", del más repetido al menos: los 2 primeros a la vista y el
+        // resto detrás de "Ver todos", en el cliente.
+        public IList<string> TopReasons { get; set; }
+        public IList<string> MoreReasons { get; set; }
+        public bool HasMoreReasons => MoreReasons.Count > 0;
     }
 }

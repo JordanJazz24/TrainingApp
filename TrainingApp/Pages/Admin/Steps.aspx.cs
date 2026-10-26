@@ -16,6 +16,9 @@ namespace TrainingApp.Pages.Admin
     {
         private const string PageUrl = "~/Pages/Admin/Steps.aspx";
 
+        // Los motivos que se ven debajo de cada paso; "Ver todos" muestra el resto (D-160).
+        private const int VisibleReasons = 2;
+
         private readonly DashboardService _dashboard = new DashboardService();
 
         // Usuario autenticado (Session escrita solo por el servidor tras el login).
@@ -81,7 +84,8 @@ namespace TrainingApp.Pages.Admin
             foreach (var g in report.Guides)
                 DdlGuide.Items.Add(new ListItem(g.AreaName, g.Id.ToString()) { Selected = g.Id == applied.GuideId });
 
-            LitScope.Text = HttpUtility.HtmlEncode(ReportText.Period(applied.Period) + " · " + ReportText.Mode(applied.Mode));
+            // "Qué pasos fallan más en Assessment, últimos 30 días."
+            LitScope.Text = HttpUtility.HtmlEncode(ReportText.Mode(applied.Mode) + ", " + ReportText.Period(applied.Period).ToLowerInvariant());
             ShowsSkips = report.ShowsSkips;
             PhSkipsNote.Visible = report.ShowsSkips;
             PhAllGuidesNote.Visible = !applied.GuideId.HasValue;
@@ -91,20 +95,28 @@ namespace TrainingApp.Pages.Admin
             {
                 GuideName  = r.TrainingGuideId.HasValue ? guides[r.TrainingGuideId.Value].AreaName : "Todas las guías",
                 GuideTitle = r.TrainingGuideId.HasValue ? guides[r.TrainingGuideId.Value].Title : string.Empty,
-                Rows       = r.Steps.Select(s => new StepListRow
+                Rows       = r.Steps.Select((s, i) =>
                 {
-                    StepName            = s.StepName,
-                    Sessions            = s.Sessions,
-                    FailureRateText     = ReportText.Percent(s.FailureRate),
-                    FailedAttempts      = s.FailedAttempts,
-                    TimesWithoutSuccess = s.TimesWithoutSuccess,
-                    Skips               = s.Skips,
-                    MedianText          = ReportText.Duration(s.MedianDuration),
-                    Reasons             = s.Reasons.Select(ReportText.ReasonCount).ToList()
+                    var reasons = s.Reasons.Select(ReportText.ReasonCount).ToList();
+                    return new StepListRow
+                    {
+                        Rank                = i + 1,
+                        StepName            = s.StepName,
+                        FailureRateText     = ReportText.Percent(s.FailureRate),
+                        FailureWidth        = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
+                        SessionsText        = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions),
+                        FailedAttempts      = s.FailedAttempts,
+                        TimesWithoutSuccess = s.TimesWithoutSuccess,
+                        Skips               = s.Skips,
+                        MedianText          = ReportText.Duration(s.MedianDuration),
+                        TopReasons          = reasons.Take(VisibleReasons).ToList(),
+                        MoreReasons         = reasons.Skip(VisibleReasons).ToList()
+                    };
                 }).ToList()
             }).ToList();
             RptGuides.DataBind();
-            LblEmpty.Visible = report.Rankings.Count == 0;
+            RptGuides.Visible = report.Rankings.Count > 0;
+            PnlEmpty.Visible  = report.Rankings.Count == 0;
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewSteps, Request.QueryString);
         }
 

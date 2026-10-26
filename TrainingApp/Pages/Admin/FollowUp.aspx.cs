@@ -83,17 +83,19 @@ namespace TrainingApp.Pages.Admin
                 GuideTitle       = guides[r.TrainingGuideId].Title,
                 StateText        = ReportText.State(r.State),
                 StateCss         = ReportText.StateCss(r.State),
+                StateIcon        = ReportText.StateIcon(r.State),
                 LastActivityText = ReportText.Date(r.LastActivity),
-                Reasons          = r.Reasons.SelectMany(ReportText.FollowUpLines).ToList(),
+                Chips            = r.Reasons.SelectMany(ReportText.FollowUpChips).ToList(),
                 DetailUrl        = detailUrl + r.UserId
             }).ToList();
             RptRows.DataBind();
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewFollowUp, Request.QueryString);
 
-            LblEmpty.Visible = report.Rows.Count == 0;
+            PhTable.Visible  = report.Rows.Count > 0;
+            PnlEmpty.Visible = report.Rows.Count == 0;
             int operators = report.Rows.Select(r => r.UserId).Distinct().Count();
             LitCount.Text = report.Rows.Count == 0 ? string.Empty : HttpUtility.HtmlEncode(string.Format(
-                "{0} operadores · {1} casos (operador y guía)", operators, report.Rows.Count));
+                "{0} operadores en {1} casos (operador y guía)", operators, report.Rows.Count));
         }
 
     }

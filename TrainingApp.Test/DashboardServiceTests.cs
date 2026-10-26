@@ -566,6 +566,22 @@ namespace TrainingApp.Test
             Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetFollowUp(OperatorId, new FollowUpFilter())));
         }
 
+        // Fase 11 (E5): primero quien cumple más reglas; a igual número, por guía y nombre.
+        [Test]
+        public void GetFollowUp_MoreRulesFirst()
+        {
+            Operator(100, "Ana");
+            Operator(101, "Beto");
+            Session(100, LoFlo, SessionMode.Guided, 1m, 0);           // S-2
+            Session(101, LoFlo, SessionMode.Assessment, 0.40m, 0);    // S-1 y S-2
+            Session(101, LoFlo, SessionMode.Assessment, 0.40m, 1);
+
+            var rows = _service.GetFollowUp(AdminId, new FollowUpFilter()).Rows;
+
+            Assert.That(rows.Select(r => r.Name), Is.EqualTo(new[] { "Beto", "Ana" }));
+            Assert.That(rows.Select(r => r.Reasons.Count), Is.EqualTo(new[] { 2, 1 }));
+        }
+
         // ---- Exportar (E6, DA-5) ----
 
         // La descarga de Operadores trae todas las filas con los mismos filtros, sin paginar.

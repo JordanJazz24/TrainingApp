@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Script.Serialization;
@@ -125,8 +124,8 @@ namespace TrainingApp.Pages.Admin
             {
                 StepName        = s.StepName,
                 FailureRateText = ReportText.Percent(s.FailureRate),
-                FailureWidth    = Width((s.FailureRate ?? 0m) * 100m),
-                Detail          = s.SessionsWithFailure + " de " + s.Sessions + (s.Sessions == 1 ? " sesión" : " sesiones")
+                FailureWidth    = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
+                Detail          = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions)
             }).ToList();
             RptTop.DataBind();
 
@@ -156,9 +155,9 @@ namespace TrainingApp.Pages.Admin
                 Failed             = s.Failed,
                 InTraining         = s.InTraining,
                 TotalText          = total == 1 ? "1 operador" : total + " operadores",
-                PassedWidth        = Width(Share(s.Passed, total)),
-                FailedWidth        = Width(Share(s.Failed, total)),
-                InTrainingWidth    = Width(Share(s.InTraining, total)),
+                PassedWidth        = ReportText.BarWidth(Share(s.Passed, total)),
+                FailedWidth        = ReportText.BarWidth(Share(s.Failed, total)),
+                InTrainingWidth    = ReportText.BarWidth(Share(s.InTraining, total)),
                 StatesAria         = string.Format("{0}: {1} aprobados, {2} reprobados, {3} en entrenamiento",
                                          guide.AreaName, s.Passed, s.Failed, s.InTraining),
                 PassRateText       = ReportText.Percent(s.PassRate),
@@ -174,9 +173,6 @@ namespace TrainingApp.Pages.Admin
         }
 
         private static decimal Share(int part, int total) => total > 0 ? part * 100m / total : 0m;
-
-        private static string Width(decimal percent)
-            => Math.Round(percent, 1).ToString("0.#", CultureInfo.InvariantCulture);
 
         private string BuildUrl(string page, bool allPeriod, int? guideId)
         {

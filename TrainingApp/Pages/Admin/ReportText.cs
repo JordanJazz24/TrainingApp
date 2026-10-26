@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using TrainingApp.BLL.Reports;
 using TrainingApp.Domain;
@@ -54,6 +55,15 @@ namespace TrainingApp.Pages.Admin
         // Una tasa de 0 a 1 ("45.0%"); "—" sin denominador (AC-11).
         public static string Percent(decimal? rate)
             => rate.HasValue ? (rate.Value * 100m).ToString("F1") + "%" : None;
+
+        // El ancho de una barra de % para el atributo style ("45.5"), con punto decimal en
+        // cualquier cultura.
+        public static string BarWidth(decimal percent)
+            => Math.Round(percent, 1).ToString("0.#", CultureInfo.InvariantCulture);
+
+        // "3 de 8 sesiones": las sesiones con fallo de un paso entre las que llegaron a él.
+        public static string SessionsWithFailure(int withFailure, int sessions)
+            => withFailure + " de " + sessions + (sessions == 1 ? " sesión" : " sesiones");
 
         // El período de una vista, para decir a qué corresponde cada bloque.
         public static string Period(ReportPeriod period)
@@ -140,6 +150,30 @@ namespace TrainingApp.Pages.Admin
                     throw new ArgumentOutOfRangeException(nameof(reason), reason.Rule, "Regla de seguimiento sin texto.");
             }
         }
+
+        // Una regla de Seguimiento como chip con texto (Fase 11, D-160); S-3, uno por paso. La de
+        // reprobados va en rojo con el ícono de alerta (P-2). El título lleva la línea completa
+        // con su S-n, la misma del Excel.
+        public static IEnumerable<FollowUpChip> FollowUpChips(FollowUpReason reason)
+        {
+            switch (reason.Rule)
+            {
+                case FollowUpRule.RepeatedFailures:
+                    return new[] { Chip(reason, 0, "mt-chip mt-chip-alert", "bi bi-exclamation-triangle",
+                        string.Format("Reprobó {0} Assessment", reason.FailedAssessments)) };
+                case FollowUpRule.Inactive:
+                    return new[] { Chip(reason, 0, "mt-chip", "bi bi-clock-history",
+                        string.Format("{0} días sin practicar", reason.DaysInactive)) };
+                case FollowUpRule.StuckStep:
+                    return reason.Steps.Select((s, i) => Chip(reason, i, "mt-chip", "bi bi-arrow-repeat",
+                        "Mismo paso sin acierto: " + s.StepName));
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(reason), reason.Rule, "Regla de seguimiento sin texto.");
+            }
+        }
+
+        private static FollowUpChip Chip(FollowUpReason reason, int line, string css, string icon, string text)
+            => new FollowUpChip { Css = css, Icon = icon, Text = text, Title = FollowUpLines(reason).ElementAt(line) };
 
         // "45 s", "25 min 13 s", "1 h 05 min"; "—" sin duración (sesión en curso).
         public static string Duration(TimeSpan? duration)

@@ -690,6 +690,47 @@ body.mt-page {
     .operator-curves { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ── Pasos (spec 018; D-160) ───────────────────────────────── */
+.steps-note { max-width: 90ch; margin: calc(-1 * var(--mt-space-2)) 0 var(--mt-space-4); }
+.steps-group { margin-bottom: var(--mt-space-5); }
+.steps-table td { vertical-align: top; }
+.steps-name { min-width: 240px; }
+/* La barra de %: el dato principal del ranking (como el top 5 del Resumen). */
+.steps-rate { min-width: 200px; }
+.steps-rate-line { display: flex; justify-content: space-between; align-items: baseline; gap: var(--mt-space-3); margin-bottom: 6px; }
+.steps-reasons {
+    margin: var(--mt-space-1) 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+}
+.steps-reasons li + li { margin-top: 2px; }
+.steps-more { margin-top: var(--mt-space-1); font-size: var(--mt-fs-small); }
+.steps-more > summary {
+    display: inline-block;
+    color: var(--mt-accent);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+}
+.steps-more > summary::-webkit-details-marker { display: none; }
+.steps-more > summary::after { content: " \25BE"; }
+.steps-more[open] > summary::after { content: " \25B4"; }
+.steps-more > summary:focus-visible { outline: 3px solid var(--mt-focus); outline-offset: 2px; border-radius: 2px; }
+
+/* ── Seguimiento (spec 018; D-160) ─────────────────────────── */
+.followup-rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mt-space-1) var(--mt-space-5);
+    margin: calc(-1 * var(--mt-space-2)) 0 var(--mt-space-4);
+    padding: 0;
+    list-style: none;
+}
+.followup-table td:first-child { min-width: 180px; }
+.followup-chips { display: flex; flex-wrap: wrap; gap: 6px; max-width: 520px; }
+
 /* ── Tablet (P-4): la barra se acomoda; las columnas secundarias se ocultan ── */
 @media (max-width: 991.98px) {
     .admin-bar { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
