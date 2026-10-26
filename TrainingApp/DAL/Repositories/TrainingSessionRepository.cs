@@ -19,6 +19,7 @@ namespace TrainingApp.DAL.Repositories
                     cmd.Parameters.AddWithValue("@Status",           (int)session.Status);
                     cmd.Parameters.AddWithValue("@CurrentStepOrder", session.CurrentStepOrder);
                     cmd.Parameters.AddWithValue("@StartedAt",        session.StartedAt);
+                    cmd.Parameters.AddWithValue("@ResourceSetupType", (int)session.ResourceSetupType);
                 });
                 return Convert.ToInt32(id);
             }
@@ -59,7 +60,8 @@ namespace TrainingApp.DAL.Repositories
             CurrentStepOrder= Convert.ToInt32(r["CurrentStepOrder"]),
             FinalScore      = Convert.ToDecimal(r["FinalScore"]),
             StartedAt       = Convert.ToDateTime(r["StartedAt"]),
-            CompletedAt     = r["CompletedAt"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["CompletedAt"])
+            CompletedAt     = r["CompletedAt"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["CompletedAt"]),
+            ResourceSetupType = (ResourceSetupType)Convert.ToInt32(r["ResourceSetupType"])
         };
     }
 }

@@ -279,6 +279,8 @@
     <Compile Include="Domain\AssemblyComponent.cs" />
     <Compile Include="Domain\Operation.cs" />
     <Compile Include="Domain\TrainingSessionStepAttempt.cs" />
+    <Compile Include="Domain\ResourceSetupType.cs" />
+    <Compile Include="Domain\GuideSummary.cs" />
     <Compile Include="BLL\Auth\LoginResult.cs" />
     <Compile Include="BLL\Auth\AuthService.cs" />
     <Compile Include="BLL\Auth\ChangePasswordStatus.cs" />

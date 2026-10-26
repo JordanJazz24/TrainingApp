@@ -16,5 +16,8 @@ namespace TrainingApp.Domain
         public decimal FinalScore { get; set; }
         public DateTime StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
+
+        // El de la guía al empezar (spec 020, D-188): un cambio del admin no la afecta.
+        public ResourceSetupType ResourceSetupType { get; set; }
     }
 }

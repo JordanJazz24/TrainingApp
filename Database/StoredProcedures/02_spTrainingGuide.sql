@@ -18,7 +18,7 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Result set 1: guide
-    SELECT Id, AreaId, OperationId, Title, IsPublished, CreatedAt
+    SELECT Id, AreaId, OperationId, Title, IsPublished, CreatedAt, ResourceSetupType
     FROM   dbo.TrainingGuides
     WHERE  Id = @Id;
 
@@ -38,11 +38,43 @@ CREATE OR ALTER PROCEDURE dbo.spTrainingGuideGetByArea
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, AreaId, OperationId, Title, IsPublished, CreatedAt
+    SELECT Id, AreaId, OperationId, Title, IsPublished, CreatedAt, ResourceSetupType
     FROM   dbo.TrainingGuides
     WHERE  AreaId      = @AreaId
     AND    IsPublished = 1
     ORDER  BY CreatedAt DESC;
+END;
+GO
+
+-- spTrainingGuideGetPublishedForAdmin — guías publicadas con su producto y área,
+-- para la página Guías de Admin (spec 020, D-199). Sin pasos.
+CREATE OR ALTER PROCEDURE dbo.spTrainingGuideGetPublishedForAdmin
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT g.Id, g.AreaId, g.OperationId, g.Title, g.IsPublished, g.CreatedAt, g.ResourceSetupType,
+           p.Name AS ProductName, a.Name AS AreaName
+    FROM   dbo.TrainingGuides g
+    JOIN   dbo.Areas    a ON a.Id = g.AreaId
+    JOIN   dbo.Products p ON p.Id = a.ProductId
+    WHERE  g.IsPublished = 1
+    ORDER  BY p.Name, a.Name, g.Title;
+END;
+GO
+
+-- spTrainingGuideSetResourceSetupType — el tipo de Resource Setup de una guía
+-- (spec 020). Vale para las sesiones que empiecen después (D-188). Devuelve las
+-- filas afectadas (0 = la guía no existe).
+CREATE OR ALTER PROCEDURE dbo.spTrainingGuideSetResourceSetupType
+    @Id                INT,
+    @ResourceSetupType TINYINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @ResourceSetupType NOT IN (0, 1)
+        THROW 50020, N'spTrainingGuideSetResourceSetupType: el tipo tiene que ser 0 (Standard) o 1 (Custom).', 1;
+    UPDATE dbo.TrainingGuides SET ResourceSetupType = @ResourceSetupType WHERE Id = @Id;
+    SELECT @@ROWCOUNT;
 END;
 GO
 
@@ -160,10 +192,11 @@ GO
 -- pasos de @Steps, un JSON [{"Order":1,"StepType":0,"Weight":0.20}, …]:
 --   · si no hay una guía publicada con ese título, la crea publicada con sus pasos;
 --   · si existe con la misma forma, actualiza el Weight de cada paso;
+--     (nunca cambia ResourceSetupType: lo elige el administrador, spec 020);
 --   · si cambió de forma (otro número de pasos, o un paso con otro StepType), la
 --     despublica y crea una guía nueva publicada con el mismo título (spec 014,
 --     D-56): las sesiones en curso y el historial siguen con la vieja, porque sus
---     intentos apuntan a esos pasos.
+--     intentos apuntan a esos pasos. La nueva hereda el ResourceSetupType (D-198).
 -- Aborta sin cambiar nada si los pesos no suman 1.00 (el puntaje no normaliza:
 -- docs/domain.md → "Ponderación de pasos") o si el orden no es 1..N.
 CREATE OR ALTER PROCEDURE dbo.spTrainingGuideSync
@@ -199,6 +232,7 @@ BEGIN
 
     -- La versión vigente: la publicada más nueva con ese título (las anteriores
     -- quedan despublicadas por D-56).
+    DECLARE @ResourceSetupType TINYINT = 0;
     DECLARE @GuideId INT = (SELECT TOP (1) Id FROM dbo.TrainingGuides WITH (UPDLOCK, HOLDLOCK)
                             WHERE AreaId = @AreaId AND Title = @Title AND IsPublished = 1
                             ORDER BY Id DESC);
@@ -212,14 +246,16 @@ BEGIN
     BEGIN
         -- D-56: cambió la forma. La vieja se despublica y queda para su historial.
         UPDATE dbo.TrainingGuides SET IsPublished = 0 WHERE Id = @GuideId;
+        -- D-198 (spec 020): la versión nueva conserva el tipo de Resource Setup que eligió el admin.
+        SELECT @ResourceSetupType = ResourceSetupType FROM dbo.TrainingGuides WHERE Id = @GuideId;
         PRINT CONCAT(N'Guía "', @Title, N'" (Id ', @GuideId, N'): cambió de forma; se despublica y se crea una versión nueva.');
         SET @GuideId = NULL;
     END;
 
     IF @GuideId IS NULL
     BEGIN
-        INSERT INTO dbo.TrainingGuides (AreaId, OperationId, Title, IsPublished, CreatedAt)
-        VALUES (@AreaId, NULL, @Title, 1, SYSUTCDATETIME());
+        INSERT INTO dbo.TrainingGuides (AreaId, OperationId, Title, IsPublished, CreatedAt, ResourceSetupType)
+        VALUES (@AreaId, NULL, @Title, 1, SYSUTCDATETIME(), @ResourceSetupType);
         SET @GuideId = SCOPE_IDENTITY();
     END;
 

@@ -8,20 +8,22 @@
 -- ============================================================
 
 -- spTrainingSessionInsert — crea la sesión. Devuelve el Id creado.
+-- @ResourceSetupType: el de la guía al empezar (spec 020, D-188).
 CREATE OR ALTER PROCEDURE dbo.spTrainingSessionInsert
     @UserId           INT,
     @TrainingGuideId  INT,
     @Mode             TINYINT,
     @Status           TINYINT,
     @CurrentStepOrder INT,
-    @StartedAt        DATETIME2
+    @StartedAt        DATETIME2,
+    @ResourceSetupType TINYINT
 AS
 BEGIN
     SET NOCOUNT ON;
     INSERT INTO dbo.TrainingSessions
-        (UserId, TrainingGuideId, Mode, Status, CurrentStepOrder, FinalScore, StartedAt)
+        (UserId, TrainingGuideId, Mode, Status, CurrentStepOrder, FinalScore, StartedAt, ResourceSetupType)
     VALUES
-        (@UserId, @TrainingGuideId, @Mode, @Status, @CurrentStepOrder, 0, @StartedAt);
+        (@UserId, @TrainingGuideId, @Mode, @Status, @CurrentStepOrder, 0, @StartedAt, @ResourceSetupType);
     SELECT SCOPE_IDENTITY();
 END;
 GO
@@ -33,7 +35,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT Id, UserId, TrainingGuideId, Mode, Status,
-           CurrentStepOrder, FinalScore, StartedAt, CompletedAt
+           CurrentStepOrder, FinalScore, StartedAt, CompletedAt, ResourceSetupType
     FROM   dbo.TrainingSessions
     WHERE  Id = @Id;
 END;

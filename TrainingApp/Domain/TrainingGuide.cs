@@ -11,6 +11,7 @@ namespace TrainingApp.Domain
         public string Title { get; set; }
         public bool IsPublished { get; set; }
         public DateTime CreatedAt { get; set; }
+        public ResourceSetupType ResourceSetupType { get; set; }
         public List<TrainingStep> Steps { get; set; }
     }
 }

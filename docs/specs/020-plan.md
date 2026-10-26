@@ -14,6 +14,8 @@ markup si se tocó `.aspx`/`.ascx`/`.master`, tests, `/code-review` con nivel y 
 | D-195 | Página Guías: un selector Estándar / Custom y un Guardar **por fila**, con aviso de confirmación |
 | D-196 | Un Save de la pantalla que no corresponde al tipo de la sesión (Standard ↔ Custom) es **excepción, sin intento**: invariante violado, como la Shop Order no numérica en el servidor |
 | D-197 | `docs/status.md` y `docs/history.md` los escribe **Desarrollo**: al cerrar cada entrega de R3 se le manda el resumen por mensaje |
+| D-198 | (E1) La versión nueva de una guía que crea `spTrainingGuideSync` al cambiar su forma (D-56) **hereda** el `ResourceSetupType` de la que reemplaza |
+| D-199 | (E1) La página Guías lista **solo las guías publicadas** (`spTrainingGuideGetPublishedForAdmin`) |
 
 ## Reglas de este plan
 

@@ -44,14 +44,49 @@ namespace TrainingApp.DAL.Repositories
             return guides;
         }
 
+        public IList<GuideSummary> GetPublishedForAdmin()
+        {
+            var guides = new List<GuideSummary>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spTrainingGuideGetPublishedForAdmin"))
+            {
+                while (reader.Read())
+                    guides.Add(new GuideSummary
+                    {
+                        Id                = Convert.ToInt32(reader["Id"]),
+                        ProductName       = reader["ProductName"].ToString(),
+                        AreaName          = reader["AreaName"].ToString(),
+                        Title             = reader["Title"].ToString(),
+                        IsPublished       = Convert.ToBoolean(reader["IsPublished"]),
+                        ResourceSetupType = (ResourceSetupType)Convert.ToInt32(reader["ResourceSetupType"])
+                    });
+            }
+            return guides;
+        }
+
+        // false si la guía no existe.
+        public bool SetResourceSetupType(int guideId, ResourceSetupType type)
+        {
+            using (var db = DatabaseFactory.Create())
+            {
+                var rows = db.ExecuteScalar("spTrainingGuideSetResourceSetupType", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@Id",                guideId);
+                    cmd.Parameters.AddWithValue("@ResourceSetupType", (int)type);
+                });
+                return Convert.ToInt32(rows) > 0;
+            }
+        }
+
         private static TrainingGuide MapGuide(SqlDataReader r) => new TrainingGuide
         {
-            Id          = Convert.ToInt32(r["Id"]),
-            AreaId      = Convert.ToInt32(r["AreaId"]),
-            OperationId = r["OperationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(r["OperationId"]),
-            Title       = r["Title"].ToString(),
-            IsPublished = Convert.ToBoolean(r["IsPublished"]),
-            CreatedAt   = Convert.ToDateTime(r["CreatedAt"])
+            Id                = Convert.ToInt32(r["Id"]),
+            AreaId            = Convert.ToInt32(r["AreaId"]),
+            OperationId       = r["OperationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(r["OperationId"]),
+            Title             = r["Title"].ToString(),
+            IsPublished       = Convert.ToBoolean(r["IsPublished"]),
+            CreatedAt         = Convert.ToDateTime(r["CreatedAt"]),
+            ResourceSetupType = (ResourceSetupType)Convert.ToInt32(r["ResourceSetupType"])
         };
 
         private static TrainingStep MapStep(SqlDataReader r) => new TrainingStep

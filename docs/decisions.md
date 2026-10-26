@@ -11,7 +11,7 @@
 >   (Arquitectura y Planeación y Desarrollo) sigue con **D-164 a D-179**; R3 (sesión
 >   `Custom-RS`) usa **D-180 a D-199**. Los bugs: la Fase 11 desde B-4, R3 desde **B-20**. Si un
 >   frente se queda sin números, pide el siguiente rango libre (D-200 en adelante). "Siguiente
->   D-n" es el de la Fase 11; R3 lleva el suyo en su spec (siguiente de R3: **D-198**).
+>   D-n" es el de la Fase 11; R3 lleva el suyo en su spec (rango de R3 agotado: lo siguiente de R3 usa **D-200** en adelante).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
 > - **Estado:** vigente · enmendada (sigue, con cambios) · superada (la reemplazó otra) · sin
@@ -204,6 +204,8 @@
 | D-195 | 2026-10-26 | R3, plan: página Guías con selector y Guardar por fila, con confirmación | specs/020-plan.md | vigente |
 | D-196 | 2026-10-26 | R3, plan: un Save del tipo de Resource Setup que no es el de la sesión es excepción, sin intento | specs/020-plan.md | vigente |
 | D-197 | 2026-10-26 | R3, plan: status.md e history.md los escribe Desarrollo con el resumen de cada entrega | specs/020-plan.md | vigente |
+| D-198 | 2026-10-26 | R3, E1: la versión nueva de una guía (spTrainingGuideSync, D-56) hereda el ResourceSetupType de la que reemplaza | specs/020-plan.md | vigente |
+| D-199 | 2026-10-26 | R3, E1: la página Guías lista solo las guías publicadas | specs/020-plan.md | vigente |
 
 ## Bugs que ya existían (B-n)
 

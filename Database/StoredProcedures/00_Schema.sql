@@ -86,16 +86,23 @@ CREATE TABLE dbo.Users (
 -- -------------------------------------------------------
 -- TrainingGuides
 -- OperationId nullable: previsto para el futuro, hoy siempre NULL.
+-- ResourceSetupType (spec 020): 0=Standard, 1=Custom. Lo elige el administrador.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingGuides', 'U') IS NULL
 CREATE TABLE dbo.TrainingGuides (
-    Id          INT IDENTITY(1,1) PRIMARY KEY,
-    AreaId      INT           NOT NULL REFERENCES dbo.Areas(Id),
-    OperationId INT           NULL     REFERENCES dbo.Operations(Id),
-    Title       NVARCHAR(200) NOT NULL,
-    IsPublished BIT           NOT NULL DEFAULT 0,
-    CreatedAt   DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME()
+    Id                INT IDENTITY(1,1) PRIMARY KEY,
+    AreaId            INT           NOT NULL REFERENCES dbo.Areas(Id),
+    OperationId       INT           NULL     REFERENCES dbo.Operations(Id),
+    Title             NVARCHAR(200) NOT NULL,
+    IsPublished       BIT           NOT NULL DEFAULT 0,
+    CreatedAt         DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
+    ResourceSetupType TINYINT       NOT NULL DEFAULT 0
 );
+
+-- BD anterior a la spec 020.
+IF COL_LENGTH('dbo.TrainingGuides', 'ResourceSetupType') IS NULL
+    ALTER TABLE dbo.TrainingGuides ADD ResourceSetupType TINYINT NOT NULL
+        CONSTRAINT DF_TrainingGuides_ResourceSetupType DEFAULT 0;
 
 -- -------------------------------------------------------
 -- TrainingSteps
@@ -118,19 +125,26 @@ CREATE TABLE dbo.TrainingSteps (
 -- TrainingSessions
 -- Mode:   0=Guided, 1=Assessment, 2=FreePractice
 -- Status: 0=InProgress, 1=Completed, 2=Abandoned
+-- ResourceSetupType (spec 020, D-188): el de la guía al empezar; no cambia después.
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.TrainingSessions', 'U') IS NULL
 CREATE TABLE dbo.TrainingSessions (
-    Id               INT IDENTITY(1,1) PRIMARY KEY,
-    UserId           INT          NOT NULL REFERENCES dbo.Users(Id),
-    TrainingGuideId  INT          NOT NULL REFERENCES dbo.TrainingGuides(Id),
-    Mode             TINYINT      NOT NULL,
-    Status           TINYINT      NOT NULL DEFAULT 0,
-    CurrentStepOrder INT          NOT NULL DEFAULT 1,
-    FinalScore       DECIMAL(5,2) NOT NULL DEFAULT 0,
-    StartedAt        DATETIME2    NOT NULL DEFAULT SYSUTCDATETIME(),
-    CompletedAt      DATETIME2    NULL
+    Id                INT IDENTITY(1,1) PRIMARY KEY,
+    UserId            INT          NOT NULL REFERENCES dbo.Users(Id),
+    TrainingGuideId   INT          NOT NULL REFERENCES dbo.TrainingGuides(Id),
+    Mode              TINYINT      NOT NULL,
+    Status            TINYINT      NOT NULL DEFAULT 0,
+    CurrentStepOrder  INT          NOT NULL DEFAULT 1,
+    FinalScore        DECIMAL(5,2) NOT NULL DEFAULT 0,
+    StartedAt         DATETIME2    NOT NULL DEFAULT SYSUTCDATETIME(),
+    CompletedAt       DATETIME2    NULL,
+    ResourceSetupType TINYINT      NOT NULL DEFAULT 0
 );
+
+-- BD anterior a la spec 020: las sesiones existentes quedan en Standard.
+IF COL_LENGTH('dbo.TrainingSessions', 'ResourceSetupType') IS NULL
+    ALTER TABLE dbo.TrainingSessions ADD ResourceSetupType TINYINT NOT NULL
+        CONSTRAINT DF_TrainingSessions_ResourceSetupType DEFAULT 0;
 
 -- Dashboard (spec 018): las sesiones de un operador y las de una guía y modo en un período.
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_TrainingSessions_User_Started'
