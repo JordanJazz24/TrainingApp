@@ -95,11 +95,26 @@ usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E3 (Re
        `@ResourceSetupType` obligatorio) y `GetById` lo manejan. `Database/Ops/SetGuideResourceSetupType.sql`
        marca la guía del piloto; enum `Domain/ResourceSetupType` y `Domain/GuideSummary`. Todas
        las guías quedan en Standard (D-194). Probada en LocalDB.
+     - **E2 ✅** (2026-10-26, `a0c7c77`, BLL): los datos de Custom salen solo de
+       `BLL/Training/CustomResourceSetup.cs` (2 a 4 Tool Groups de un pool de 8, fijos en la
+       sesión, D-184; lee el Save de Custom). La sesión copia el tipo de la guía al empezar
+       (D-188) y `PodService.StartSession` falla si la guía no existe. En Custom,
+       `OpenResourceSetup` no precarga equipos (D-186). `StepValidator`: el Save es correcto
+       solo con Set Up y la orden asociada; con "Open" falla pero la orden se crea (D-193).
+       Excepción sin intento: Save de la otra pantalla (D-196), orden asociada no numérica o
+       sin ningún Tool Number (D-191) y JSON mal formado. `SubmitStep` rechaza Resource Setup
+       (solo entra por `SubmitResourceSetup`). Admin: `AccessPolicy.CanManageGuides`,
+       `SessionHelper.CanManageGuides` y `BLL/Admin/GuideAdminService`. 35 tests nuevos
+       (`CustomResourceSetupTests.cs`); pasan los 387.
      - **Pendiente del usuario:** correr `00`, `02` y `03` en cada BD donde se pruebe código
        que ya trae la E1 (la Fase 11 después de rebasear, `TrainingApp_Fase11` incluida). El
-       código anterior con el `03` nuevo también falla al iniciar una sesión: van juntos.
-     - Siguen la E2 (BLL y tests), la E3 (control nuevo, `GuidedTest`, `GuideScriptBuilder`)
-       y la E4 (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá `admin.css`).
+       código anterior con el `03` nuevo también falla al iniciar una sesión: van juntos. El
+       `02` cambió otra vez en la E2 (`spTrainingGuideSetResourceSetupType`): correrlo de nuevo
+       donde ya se corrió el de la E1.
+     - **Choque de nombres al integrar con la Fase 11:** `Domain.GuideSummary` (R3) y
+       `BLL.Reports.GuideSummary` (dashboard); `Summary.aspx.cs` usa un alias.
+     - Siguen la E3 (control nuevo, `GuidedTest`, `GuideScriptBuilder`) y la E4
+       (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá `admin.css`).
      - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a

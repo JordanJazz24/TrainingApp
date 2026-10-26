@@ -8,6 +8,8 @@ using System.Web.UI.WebControls;
 using TrainingApp.BLL.Reports;
 using TrainingApp.Domain;
 using TrainingApp.Shared;
+// Domain.GuideSummary (spec 020) es otra cosa: la guía para administrarla, no sus cifras.
+using GuideSummary = TrainingApp.BLL.Reports.GuideSummary;
 
 namespace TrainingApp.Pages.Admin
 {
