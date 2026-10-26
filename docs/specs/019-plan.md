@@ -231,8 +231,10 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 - [ ] **Rendimiento (AC-7), al cerrar la fase:** Resumen, Operadores y Pasos con la BD de volumen
   (`DashboardPerformanceTests`), juntos (Planeación, 2026-10-26).
-- [ ] *Si sobra tiempo:* renombrar `BLL.Reports.GuideSummary` (por ejemplo `GuideSummaryRow`) y
-  quitar el alias de `Summary.aspx.cs` (choca con `Domain.GuideSummary` de la spec 020).
+- [x] *Si sobra tiempo:* renombrar `BLL.Reports.GuideSummary` (por ejemplo `GuideSummaryRow`) y
+  quitar el alias de `Summary.aspx.cs` (choca con `Domain.GuideSummary` de la spec 020). Resuelto
+  del otro lado: R3 renombró la suya a `Domain.PublishedGuide` (E3 de R3) y el alias se quitó al
+  rebasear.
 - **Desarrollo:**
   - `docs/architecture.md`: el sistema de diseño (`admin.css` y sus tokens), el tema (script,
     `localStorage`, impresión) y `admin-charts.js`;
