@@ -7,6 +7,11 @@
 >
 > - **Siguiente D-n: D-164. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
+> - **Rangos reservados mientras trabajan dos frentes en paralelo (2026-10-26):** la Fase 11
+>   (Arquitectura y Planeación y Desarrollo) sigue con **D-164 a D-179**; R3 (sesión
+>   `Custom-RS`) usa **D-180 a D-199**. Los bugs: la Fase 11 desde B-4, R3 desde **B-20**. Si un
+>   frente se queda sin números, pide el siguiente rango libre (D-200 en adelante). "Siguiente
+>   D-n" es el de la Fase 11; R3 lleva el suyo en su spec.
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
 > - **Estado:** vigente · enmendada (sigue, con cambios) · superada (la reemplazó otra) · sin
