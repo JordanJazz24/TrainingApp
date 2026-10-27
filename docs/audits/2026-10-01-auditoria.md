@@ -30,6 +30,14 @@ quedó en 0 warnings. **Los tests quedaron fuera** por decisión del usuario.
   **5.3.8** (`packages.config`, `Content/bootstrap*.css` y `Scripts/bootstrap.bundle.min.js`,
   solo los 6 archivos que dejó E5). Sin `data-bs-theme` la app queda en claro. SweetAlert2 y
   CodeDom 4.x siguen pendientes.
+- **Enmienda (2026-10-27, cierre de la Fase 11, plan 019):** el inventario de paquetes de
+  AUD-29 queda con:
+  - **Bootstrap 5.3.8** (E1, enmienda anterior);
+  - **Bootstrap Icons 1.13.2** (E2): local en `Content/bootstrap-icons-1.13.2` (CSS y
+    fuentes, sin CDN ni paquete NuGet), en `Admin.Master` y `Site.Master`.
+
+  `data-bs-theme` ahora lo pone `theme.js` en esas dos masters. Tener los dos en cuenta en la
+  próxima revisión de paquetes.
 - **Acción del usuario, en su momento (D-8):** rotar la contraseña de `sa` (AUD-04; sigue
   en el historial de git) y actualizar `connectionStrings.config`.
 - AUD-27 quedó cerrado por decisión del usuario (D-6): la pregunta de Line Clearance se

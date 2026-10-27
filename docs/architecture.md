@@ -47,7 +47,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
 │   │                                         + íconos + pod-guide.js/.css (motor de la guía,
 │   │                                         solo en Guided) + presap.css e imgs/presap
-│   │                                         (pantallas del Ingreso a MES, spec 016)
+│   │                                         (pantallas del Ingreso a MES, spec 016) +
+│   │                                         admin.css (sistema de diseño), theme.js (tema)
+│   │                                         y admin-charts.js (gráficas) de la Fase 11
 │   ├── BLL/                               ← lógica de negocio, sin referencias a UI ni DAL directo
 │   │   ├── Auth/
 │   │   │   ├── AuthService.cs             ← login único, bloqueo, último acceso, cambio de
@@ -589,9 +591,45 @@ Plan, enmiendas y mediciones: `docs/specs/018-plan.md`. Reglas de negocio:
   temporal del disco con `DeleteOnClose`. Sin `AdjustToContents` (carga las fuentes).
 - **Gráficas:** Chart.js local (`Scripts/chart-4.5.1.umd.min.js`, sin CDN), en el
   `ScriptContent` de `Admin.Master`; los datos van al `<script>` con `JavaScriptSerializer`.
+  Se dibujan con `admin-charts.js` (ver "Sistema de diseño y tema").
 - **Hora de la planta:** `Shared/PlantTime` (UTC-6), que usan `SessionHelper.ToLocal` y las
   semanas del Resumen.
 - **Ficha imprimible (D-150):** el detalle del Operador impreso desde el navegador; `@media
-  print` en `admin.css` y `d-print-none` ocultan el menú, los botones y la curva.
+  print` en `admin.css` y `d-print-none` ocultan el menú, los botones y la curva. Sale en
+  claro aunque el tema oscuro esté activo (D-157).
 - **Rendimiento (AC-24, E7):** medido con `DashboardPerformanceTests` (explícito) contra la BD
   del generador; las vistas y descargas en menos de 3 s, salvo las sesiones con "Todo" (D-148).
+
+## Sistema de diseño y tema (Fase 11, brief 019)
+
+Solo presentación: no cambia datos, reglas ni flujo. Lo usan `Admin.Master` (login, cambio de
+contraseña, Usuarios y el dashboard) y `Site.Master` (inicio del operador, D-163).
+`Training.Master` (el POD) no carga ni `admin.css` ni `theme.js` (D-154). Brief, mockup y
+decisiones: `docs/specs/019-ui-ux-dashboard.md` y `019-plan.md` (D-153 a D-164).
+
+- **`UI/master/admin.css`:** los tokens `--mt-*` (colores, tipografía del sistema, escala,
+  radios, alto táctil de 44 px), en claro (`:root`, `[data-bs-theme=light]`) y en oscuro
+  (`[data-bs-theme=dark]`). Carga después de Bootstrap 5.3.8 y le pasa los tokens a sus
+  variables `--bs-*`, así los componentes de Bootstrap toman el tema sin clases nuevas. Ningún
+  color suelto: todo sale de un token. Los campos tienen su propio borde, para pasar 3:1
+  (D-162). Íconos: Bootstrap Icons 1.13.2 local (`Content/bootstrap-icons-1.13.2`, sin CDN).
+- **Estados, nunca solo por color (D-156):** la insignia lleva un ícono y un texto.
+  `ReportText.StateCss` y `StateIcon` son la única fuente de la insignia de cada
+  `ReadinessState`. Las usan Operadores, Operador y Seguimiento.
+- **`UI/master/theme.js`** (D-157): carga en el `<head>`, sin `async` ni `defer`, y pone
+  `data-bs-theme` antes de pintar, así la página no parpadea. Usa la preferencia guardada en
+  `localStorage` (`mt-theme`) o, si no hay, la del sistema, y sigue sus cambios mientras no
+  haya preferencia guardada. El botón `#mtThemeToggle` la cambia. No va a `Session` ni al
+  servidor; sin `localStorage` sigue al sistema. Avisa con el evento `mt-theme`.
+- **Impresión en claro:** el `@media print` del final de `admin.css` vuelve a poner los
+  tokens claros dentro de `[data-bs-theme=dark]`. La ficha del Operador sale en claro con
+  cualquier tema.
+- **`UI/master/admin-charts.js`:** `mtCharts.create(canvas, build)` dibuja cada gráfica con
+  `build(tokens)` (los colores leídos de las variables `--mt-*`). Con el evento `mt-theme` la
+  vuelve a dibujar con los colores nuevos. Carga después de Chart.js, solo en las vistas con
+  gráficas (Resumen y Operador).
+- **Excel (D-158):** `XlsxColors` (en `XlsxStreamWriter.cs`) tiene los colores del tema claro
+  en ARGB, y los comparten `ExcelReports` (ClosedXML) y `XlsxStreamWriter` (la descarga de
+  sesiones en streaming). Las dos arman la fila 1 con el título (vista, filtros y fecha en la
+  hora de la planta) y la fila 2 con el encabezado con el acento, fijo y con autofiltro. El
+  Excel no tiene modo oscuro.

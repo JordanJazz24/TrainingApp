@@ -482,3 +482,38 @@ Plan `docs/specs/r1-r2-plan.md` y enmienda 1 de la spec 016, aprobados por el us
   sin la frase disciplinaria.
 - Sin cambios de BD, pesos ni versiones de guía. Los intentos guardados con
   `MES.HoraHora.Iniciar` se siguen viendo en el dashboard.
+
+## Fase 11 · UI/UX del dashboard y diseño de los `.xlsx` (brief 019) (2026-10-26 a 2026-10-27)
+Brief y plan aprobados por el usuario el 2026-10-26 (`docs/specs/019-ui-ux-dashboard.md`,
+`docs/specs/019-plan.md`; D-153 a D-164; mockup v1 aprobado antes del plan, D-159). Rama y
+worktree `fase-11`; cada entrega, probada por el usuario en su navegador; integrada en
+`TrainingApp` por fast-forward el 2026-10-27 (`a22eec1`, con las E1 a E3 de R3 debajo).
+Mecanismo: `docs/architecture.md` → "Sistema de diseño y tema". Sin cambios de BLL, BD ni
+puntaje, salvo el orden de Seguimiento (E5).
+- **E1 (`a474c7d`):** Bootstrap 5.2.3 → 5.3.8 (D-155), sin cambios de diseño y con regresión
+  completa.
+- **E2 (`840a208`):**
+  - el sistema de diseño en `admin.css`: los tokens del mockup en claro y en oscuro, y el borde
+    propio de los campos (D-162);
+  - Bootstrap Icons 1.13.2 local y el tema con `theme.js` en `Admin.Master` y `Site.Master`;
+    el POD no lo recibe;
+  - login, cambio de contraseña, Usuarios y el inicio del operador (D-163).
+- **E3 (`121947f`):** el Resumen como el mockup ("¿Quién está listo?", Actividad y "Dónde se
+  falla más") con `admin-charts.js`. Mismas cifras de `GetSummary`; sin "N sin iniciar" ni el
+  número de Seguimiento (D-164). Se borró `Site.css`, sin uso.
+- **E4 (`3786397`):** Operadores y Operador. La insignia con ícono por guía sale de
+  `ReportText.StateCss`/`StateIcon`. La ficha se imprime en claro (D-157).
+- **E5 (`6f7b0a2`):** Pasos (la barra de %, los 2 motivos más frecuentes y "Ver todos" en el
+  cliente) y Seguimiento (las reglas como chips con texto). Primero quien cumple más reglas,
+  con el orden en `DashboardService.GetFollowUp` y su test.
+- **E6 (`6bdbfea`):** los cuatro `.xlsx` con la fila de título (vista, filtros y fecha), el
+  encabezado con el acento, fijo y con autofiltro, y los estados con color (D-158); mismas
+  columnas y datos. La descarga de sesiones sigue en streaming y tarda lo mismo (3.9 → 3.7 s con
+  "Todo").
+- **Limpieza:** el alias de `GuideSummary` en el Resumen, que se necesitó al integrar R3
+  (`11982c1`), se quitó en `5e172f0` cuando R3 renombró la suya a `Domain.PublishedGuide`.
+  Tests: 390.
+- **Docs al cerrar (2026-10-27):** `architecture.md`, `CLAUDE.md` → "Sesión y seguridad", la
+  enmienda de AUD-29 en la auditoría `2026-10-01` y esta sección.
+- **Queda abierto:** AC-7, medir el rendimiento de Resumen, Operadores, Pasos y Seguimiento con
+  la BD de volumen antes de dar la fase por cerrada.

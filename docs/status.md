@@ -110,11 +110,9 @@ real)
           (`docs/process.md` §6). **Pedir el OK del usuario antes de crearla**: el 2026-10-26
           la detuvo al cerrar la sesión y no se creó nada. Si alguna vista pasa de 3 s, avisar
           a Planeación antes de tocar SPs o índices.
-       2. **Docs:** `architecture.md` (`admin.css` y los tokens, `theme.js` con `localStorage`
-          y la impresión en claro, solo en `Admin.Master` y `Site.Master`, y
-          `admin-charts.js`), `CLAUDE.md` → "Sesión y seguridad" (`Training.Master` sin tema),
-          la auditoría `2026-10-01` (Bootstrap 5.3.8 y Bootstrap Icons 1.13.2 en AUD-29) y
-          `history.md` (la Fase 11 completa).
+       2. **Docs ✅** (2026-10-27): `architecture.md` → "Sistema de diseño y tema", `CLAUDE.md`
+          → "Sesión y seguridad", la enmienda de AUD-29 en la auditoría `2026-10-01` y
+          `history.md` → "Fase 11" (con AC-7 abierto).
        3. **Limpieza:** hecha (`Site.css` se borró en la E3 y el alias de `GuideSummary` en
           `5bda389`).
 

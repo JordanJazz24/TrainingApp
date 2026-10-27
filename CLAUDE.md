@@ -136,7 +136,10 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 - `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
   no en `Web.config` ni hardcodeadas en páginas.
 - Toda página usa `Site.Master`, `Training.Master` o `Admin.Master` (diseño neutro: login,
-  cambio de contraseña y módulo administrativo); las tres heredan `AntiXsrfMasterPage` (anti-CSRF). Texto del servidor hacia un
+  cambio de contraseña y módulo administrativo); las tres heredan `AntiXsrfMasterPage` (anti-CSRF).
+  `Admin.Master` y `Site.Master` (inicio del operador) usan el sistema de diseño
+  (`admin.css`) y el tema claro/oscuro (`theme.js`); `Training.Master` (el POD) no los
+  carga (Fase 11; `docs/architecture.md` → "Sistema de diseño y tema"). Texto del servidor hacia un
   `<script>`: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; texto al HTML
   con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean
   como formato.
