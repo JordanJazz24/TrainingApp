@@ -125,6 +125,10 @@ app son de Chart.js con los mismos tokens.
 
 ## Pantallas sin mockup (usuario, 2026-10-26, D-160)
 
+> **Nota 2026-10-27 (vale al aprobar la spec 022):** D-160 queda reemplazada por la spec 022
+> (`022-mockups-por-pantalla.md`, D-202): cada pantalla lleva su propio mockup. También la
+> parte "sin mockup" de D-163.
+
 Se construyen con los componentes del mockup. El usuario eligió estas disposiciones entre dos
 opciones por pantalla:
 

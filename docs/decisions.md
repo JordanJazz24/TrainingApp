@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-202. Siguiente B-n: B-4** (B-20 ya se usó). La numeración es continua entre
+> - **Siguiente D-n: D-207. Siguiente B-n: B-4** (B-20 ya se usó). La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos paralelos (2026-10-26 a 2026-10-27), cerrados:** la Fase 11 usó D-153 a D-164, la
 >   spec 021 D-165 a D-179 y R3 D-180 a D-201 (y B-20). Desde el 2026-10-27 hay un solo
@@ -179,10 +179,10 @@
 | D-157 | 2026-10-26 | Modo oscuro: sigue al sistema, interruptor recordado en el navegador; la ficha se imprime en claro | specs/019-ui-ux-dashboard.md | vigente |
 | D-158 | 2026-10-26 | Excel profesional (título con filtros y fecha, encabezados con color, filtros, primera fila fija, formatos, estados con color) | specs/019-ui-ux-dashboard.md | vigente |
 | D-159 | 2026-10-26 | Fase 11: mockup aprobado antes del plan; mockup e implementación con la skill `frontend-design`, dentro del brief | specs/019-ui-ux-dashboard.md | cerrada (Fase 11 ✅, 2026-10-27) |
-| D-160 | 2026-10-26 | Fase 11: Operadores, Pasos, Seguimiento y Usuarios como tablas con los componentes del mockup (insignias por guía, barra de % y 2 motivos, chips de reglas con texto, insignias de rol y cuenta) | specs/019-ui-ux-dashboard.md | vigente |
+| D-160 | 2026-10-26 | Fase 11: Operadores, Pasos, Seguimiento y Usuarios como tablas con los componentes del mockup (insignias por guía, barra de % y 2 motivos, chips de reglas con texto, insignias de rol y cuenta) | specs/019-ui-ux-dashboard.md | vigente (la reemplaza D-202 al aprobar la spec 022) |
 | D-161 | 2026-10-26 | MVP: guía simulada de Wires / Subensamble 1, Serialized con la forma de LoFlo (Assembly, DC, sin checklist, mismos pesos), datos SIM, scripts `11` y `12`; para que los trainers prueben el flujo Serialized | `0f01f11` (plan directo; roadmap → tabla de fases) | vigente |
 | D-162 | 2026-10-26 | Fase 11: los campos (form-control, form-select, input-group) tienen un borde propio para pasar 3:1 (`#808B9B` en claro, `#627083` en oscuro); el borde del mockup queda para tablas, paneles y divisores | specs/019-ui-ux-dashboard.md (enmienda) | vigente |
-| D-163 | 2026-10-26 | Fase 11: la página de inicio del operador (`StartSession`, `Site.Master`) entra con el sistema de diseño y el tema; los modos como tarjetas; mismo flujo; sin mockup; va en la E2; el POD sigue fuera | specs/019-ui-ux-dashboard.md (enmienda) | vigente |
+| D-163 | 2026-10-26 | Fase 11: la página de inicio del operador (`StartSession`, `Site.Master`) entra con el sistema de diseño y el tema; los modos como tarjetas; mismo flujo; sin mockup; va en la E2; el POD sigue fuera | specs/019-ui-ux-dashboard.md (enmienda) | vigente (D-202 la enmienda al aprobar la spec 022: con mockup propio) |
 | D-164 | 2026-10-26 | Fase 11, Resumen: se quitan del mockup "N sin iniciar" y el número de Seguimiento (serían datos nuevos); queda el enlace "Ver seguimiento" | specs/019-ui-ux-dashboard.md (ajuste del mockup) | vigente |
 | D-165 | 2026-10-27 | Spec 021: una sola área por operador (`Users.AreaId` nullable) | specs/021-area-operador.md | vigente |
 | D-166 | 2026-10-27 | Spec 021: el operador elige su área al autorregistrarse; el admin la corrige en Usuarios | specs/021-area-operador.md | vigente |
@@ -221,6 +221,11 @@
 | D-199 | 2026-10-26 | R3, E1: la página Guías lista solo las guías publicadas | specs/020-plan.md | vigente |
 | D-200 | 2026-10-26 | R3, enmienda 1: siempre 2 Tool Groups por sesión (antes 2 a 4), del mismo pool de 8 | specs/020-custom-resource-setup.md (enmienda 1) | vigente |
 | D-201 | 2026-10-26 | R3, enmienda 1: con la orden asociada, cada fila de Tool Group necesita su Tool Number en todos los modos (formato sin intento) | specs/020-custom-resource-setup.md (enmienda 1) | vigente |
+| D-202 | 2026-10-27 | Spec 022: cada pantalla con su propio mockup en Claude Design (3 alternativas por estructura); la exportación aprobada en `specs/022-design/` es su criterio. Reemplaza D-160 y el "sin mockup" de D-163 | specs/022-mockups-por-pantalla.md | provisional (spec en Draft) |
+| D-203 | 2026-10-27 | Spec 022: pantallas Login, Cambio de contraseña, Operadores, Operador, Pasos, Seguimiento, Guías, Usuarios e Inicio del operador; fuera el Resumen (v1) y "Elige tu área" | specs/022-mockups-por-pantalla.md | provisional (spec en Draft) |
+| D-204 | 2026-10-27 | Spec 022: intención de UX (jerarquía en vez de tablas planas, guiar la decisión, identidad del login); la forma la proponen las alternativas | specs/022-mockups-por-pantalla.md | provisional (spec en Draft) |
+| D-205 | 2026-10-27 | Spec 022: métricas nuevas solo derivadas en la BLL con los datos que la vista ya carga, cada una con su D-n; las que piden datos nuevos van a otra spec | specs/022-mockups-por-pantalla.md | provisional (spec en Draft) |
+| D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | provisional (spec en Draft) |
 
 ## Bugs que ya existían (B-n)
 
