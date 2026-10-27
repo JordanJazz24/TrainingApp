@@ -57,7 +57,7 @@ namespace TrainingApp.Test
                 {
                     new OperatorRow
                     {
-                        Code1 = "C1", Name = "Ana",
+                        Code1 = "C1", Name = "Ana", AreaText = "Sensores · LoFlo",
                         Guides = new List<GuideReadiness> { new GuideReadiness { State = ReadinessState.Failed, BestScore = 0.6m } }
                     }
                 }
@@ -76,11 +76,15 @@ namespace TrainingApp.Test
                 Assert.That(sheet.SheetView.SplitRow, Is.EqualTo(2));
                 Assert.That(sheet.AutoFilter.Range.RangeAddress.FirstAddress.RowNumber, Is.EqualTo(2));
 
-                var state = sheet.Cell(3, 3);
+                // Spec 021 (D-175): el área después del nombre.
+                Assert.That(sheet.Cell(2, 3).GetString(), Is.EqualTo("Área"));
+                Assert.That(sheet.Cell(3, 3).GetString(), Is.EqualTo("Sensores · LoFlo"));
+
+                var state = sheet.Cell(3, 4);
                 Assert.That(state.GetString(), Is.EqualTo("Reprobado"));
                 Assert.That(state.Style.Fill.BackgroundColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFFFBE5E3))));
                 Assert.That(state.Style.Font.FontColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFFB93229))));
-                Assert.That(sheet.Cell(3, 4).GetDouble(), Is.EqualTo(0.6));
+                Assert.That(sheet.Cell(3, 5).GetDouble(), Is.EqualTo(0.6));
             }
         }
 

@@ -96,8 +96,9 @@ worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
        publicar este código; el `03` y el código van juntos (sin él, iniciar una sesión
        falla). La BD local `TrainingApp` ya los tiene. Para el piloto,
        `Database/Ops/SetGuideResourceSetupType.sql` o la página Guías.
-  4. **Spec 021 · Área asignada por operador** (en curso desde 2026-10-27; spec y plan
-     `docs/specs/021-*.md`, D-165 a D-179; cierra B-20 y B-3), rama `spec-021`:
+  4. **Spec 021 · Área asignada por operador ✅** (2026-10-27, ver "Historial"; spec y plan
+     `docs/specs/021-*.md`, D-165 a D-179 y D-208; cierra B-20, B-3 y B-4), rama `spec-021`,
+     lista para integrar en `TrainingApp` (fast-forward, lo hace el usuario):
      - **E1 · Datos y DAL:** `Users.AreaId` (FK a `Areas`), los SPs del usuario y de Operadores
        con el área, `spUserChooseArea`, `spUserSetArea` y `spAreaGetEligible`; Domain y DAL.
        Sin cambios visibles. Probada en LocalDB (limpia y sobre una BD anterior con usuarios,
@@ -115,9 +116,12 @@ worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
      - **E4 · Usuarios:** columna Área con un lápiz en filas de Operator que abre ahí el
        selector agrupado, con Guardar (`adminConfirm`) y Cancelar. Sin Quitar área, ni en la
        página ni en la BLL (enmienda 1, D-208). B-3 ya estaba corregido por la 018 (E2).
-     - Sigue la E5 (dashboard y cierre).
-     - **Pendiente del usuario:** correr `00`, `01`, `02`, `05` y `10` en su BD local antes
-       de probar la E3.
+     - **E5 · Dashboard:** el área en Operadores (lista y Excel) y en el encabezado del Operador
+       (también en la ficha impresa); filtros y números sin cambios (D-175). Docs de cierre.
+       Tests: 415.
+     - **Pendiente del usuario:** integrar `spec-021` en `TrainingApp` (fast-forward). Antes de
+       publicar, correr `00`, `01`, `02`, `05` y `10` en la BD de producción; avisar a los
+       trainers que todos los operadores elegirán su área en su próximo ingreso (D-170).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en

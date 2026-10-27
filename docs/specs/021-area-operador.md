@@ -1,6 +1,6 @@
 # Spec 021: Área asignada por operador
 
-**Status:** Approved 2026-10-27, enmendada 2026-10-27 (enmienda 1) · plan `021-plan.md`
+**Status:** Implemented 2026-10-27 (aprobada y enmendada el mismo día, enmienda 1) · plan `021-plan.md`
 **Date:** 2026-10-27 · **Origen:** negocio, 2026-10-27 (roadmap → "Después de la Fase 10") ·
 **Sesión:** Arquitectura y Planeación en la nube (`docs/process.md` → "Variante temporal: specs
 y planes en la nube"), rama `cloud/021-area-operador`

@@ -244,6 +244,17 @@ diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de e
    `IsFirstLogin`, las páginas del rol redirigen al cambio de contraseña (AUD-08). El usuario
    ve su **último acceso anterior** ("Primer acceso" si no hay): si no fue él, avisa al
    trainer (única detección del reclamo de cuenta ajena, D-20).
+6. **Elige tu área** (spec 021): un operador sin área va a `Pages/Training/ChooseArea.aspx` antes
+   de entrenar. Las páginas de Training redirigen en este orden: `EnsureUserSession` →
+   `CanTrain` → `MustChangePassword` → `MustChooseArea`. `MustChooseArea` lee la clave
+   `HasArea`, escrita solo en `SetUserSession`; una Session sin la clave cuenta como sin área.
+   "Elige tu área" guarda con `OperatorAreaService.ChooseOwnArea` (el SP solo guarda si sigue
+   sin área) y refresca la Session con `RefreshUserSession`; si la BD ya tiene un área (la
+   asignó un admin), refresca y manda al inicio, sin bucle. La Session solo decide la
+   redirección: el inicio (`TrainingGuideService.GetStartOptions`) y
+   `TrainingAccessRule.EnsureCanStart` leen el área de la BD, así que un cambio del admin vale
+   al instante para iniciar guías (P-3). El admin la cambia en Usuarios
+   (`UserAdminService.SetArea`).
 
 - **Rol en cada request:** `Global.Application_PostAuthenticateRequest` arma un
   `UserPrincipal` con el rol de `RoleCache` (2 min; un borrado o `CreateAdmin.sql` se ve al

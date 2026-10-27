@@ -9,6 +9,9 @@ namespace TrainingApp.Pages.Admin
         public int UserId { get; set; }
         public string Code1 { get; set; }
         public string Name { get; set; }
+
+        // "Producto · Área" o "Sin área" (spec 021, D-175).
+        public string AreaText { get; set; }
         public string LastActivityText { get; set; }
         public string DetailUrl { get; set; }
 

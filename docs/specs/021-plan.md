@@ -148,16 +148,16 @@ dice "funciona".
 
 ## E5 · Dashboard y cierre
 
-- [ ] Operadores: columna **Área** en la lista y en su Excel (`ExcelReports.Operators`), con el
+- [x] Operadores: columna **Área** en la lista y en su Excel (`ExcelReports.Operators`), con el
       formato de la Fase 11 (D-175, P-9).
-- [ ] Operador: el área en el encabezado y en la ficha imprimible.
-- [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler`; tests (`ExcelReportsTests` y
+- [x] Operador: el área en el encabezado y en la ficha imprimible.
+- [x] Verificación (Desarrollo): Rebuild; `aspnet_compiler`; tests (`ExcelReportsTests` y
       `DashboardServiceTests` siguen en verde; si comparan columnas, se actualizan).
-- [ ] Sin `/code-review` si solo es binding y markup (`process.md` → 3); si se toca
+- [x] Sin `/code-review` si solo es binding y markup (`process.md` → 3); si se toca
       `DashboardService`, `low` con foco en que filtros y números no cambian.
-- [ ] Checklist del navegador: AC-9 y AC-11 (lista, Excel abierto en Excel, detalle y ficha
+- [x] Checklist del navegador: AC-9 y AC-11 (lista, Excel abierto en Excel, detalle y ficha
       impresa; operador sin área = "Sin área").
-- [ ] Docs de cierre (Desarrollo, P-12): `docs/domain.md` (sección "Área del operador" y sin "NO
+- [x] Docs de cierre (Desarrollo, P-12): `docs/domain.md` (sección "Área del operador" y sin "NO
       USAR EN PRODUCCIÓN" en Redefinity), `docs/architecture.md` → "Roles, login y gestión de
       usuarios" (el paso "Elige tu área" y `MustChooseArea`), `CLAUDE.md` → "Sesión y
       seguridad" (el orden `EnsureUserSession` → `MustChangePassword` → `MustChooseArea` en

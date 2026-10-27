@@ -68,6 +68,11 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Literal LitCode1;
 
         /// <summary>
+        /// LitArea control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitArea;
+
+        /// <summary>
         /// RptGuides control.
         /// </summary>
         /// <remarks>
