@@ -458,6 +458,28 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
+### ⏸ Para retomar (Planeación, cierre del 2026-10-27)
+
+- **Spec 023 · Filtro de período en Pasos y Resumen: BORRADOR** (`docs/specs/023-filtro-periodo.md`).
+  Hechas tres rondas de preguntas; el usuario ya confirmó P-3, P-5, P-11 y P-13. **Falta su
+  "apruebo"**. Al aprobar:
+  1. agregar D-209 a D-217 (usuario) y D-218 (propuestas P-1 a P-15) a `docs/decisions.md`;
+  2. enmendar con fecha el punto 8 de la spec 018 ("Últimos 30 días / Todo" → spec 023);
+  3. escribir `023-plan.md` con 4 entregas (P-15) y pedir su aprobación;
+  4. avisar a la nube (`Diseño UI/UX`) que el mockup de Pasos (022, E4) espera la 023 (D-217);
+  5. registrarla en la tabla de fases.
+- **Fase 12 (022):** la nube diseña el Login en Claude Design. Se le pidió rebasear sobre
+  `origin/TrainingApp` y enmendar el plan y los briefs (E6 a E8 ya no esperan a la 021; Usuarios
+  sin "Quitar área", D-208). Cuando el usuario avise de su rama, revisarla, integrarla y registrarla.
+- **Numeración:** local D-208 a D-219 (siguiente D-209; la 023 usará D-209 a D-218) y B-5 a
+  B-19; nube D-220 a D-239 y B-30 a B-39.
+- **Desarrollo:** sin entrega asignada (la 021 cerró).
+- **Usuario:** push de `TrainingApp`; correr en producción `00`, `01`, `02`, `05` y `10` y
+  avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
+  `spec-021` y `fase-11`.
+- **Mensajes a la nube:** solo con Remote Control conectado (`/remote-control`), y van en un
+  solo sentido; las respuestas las trae el usuario.
+
 ### Fase 12 — Mockups por pantalla (spec 022)
 
 **Brief de diseño aprobado el 2026-10-27: `docs/specs/022-mockups-por-pantalla.md`**, con su
