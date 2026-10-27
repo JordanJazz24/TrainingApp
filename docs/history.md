@@ -519,3 +519,33 @@ puntaje, salvo el orden de Seguimiento (E5).
   vistas por debajo de 3 s y en línea con la Fase 10. La más lenta es el Resumen: 0,40 s con 30
   días y 0,98 s con Todo. Sin cambios de SPs ni índices; la BD de
   prueba se borró. Cifras: `019-plan.md` → "Docs al cerrar".
+
+## R3 · Custom Resource Setup (spec 020), en curso (desde el 2026-10-26)
+Spec y plan aprobados por el usuario el 2026-10-26 (`docs/specs/020-custom-resource-setup.md`,
+`docs/specs/020-plan.md`, `42dafdf`; D-180 a D-201). Sesión `Custom-RS`, directo en
+`TrainingApp`, en paralelo con la Fase 11; esta sección la escribe Desarrollo con sus
+resúmenes (D-197).
+- **E1 (`144d845`, datos y DAL):**
+  - la columna `ResourceSetupType` (Standard o Custom) en `TrainingGuides` y
+    `TrainingSessions`;
+  - los SPs del admin para listar las guías publicadas y cambiarles el tipo, y la versión
+    nueva de una guía hereda el tipo (D-198);
+  - `SetGuideResourceSetupType.sql` para el piloto. Todas las guías arrancan en Standard
+    (D-194).
+- **E2 (`a0c7c77`, BLL):**
+  - los datos de Custom salen de `BLL/Training/CustomResourceSetup.cs`;
+  - la sesión copia el tipo de la guía al empezar (D-188);
+  - las reglas del Save (D-193) y sus excepciones sin intento (D-191, D-196);
+  - `AccessPolicy.CanManageGuides` y `GuideAdminService`. 35 tests nuevos.
+- **E3 (`3a18960`, `82d000d`, UI):** el modal Custom Resource Setup en `GuidedTest`, con su
+  guion de Guided y su pista. La enmienda 1, al probar, dejó siempre 2 Tool Groups (D-200) y el
+  Tool Number en cada fila (D-201). `Domain.GuideSummary` pasó a `Domain.PublishedGuide`.
+- **E4 (`5d12e80`, Admin):**
+  - la página Guías (`Pages/Admin/Guides.aspx`): guías publicadas (D-199), un selector
+    Estándar/Custom por fila y la confirmación al guardar (D-195), que vale para las sesiones
+    nuevas;
+  - solo con `CanManageGuides`, verificado también en la BLL (B-3 al perder la capacidad);
+  - "Guías" en el menú de `Admin.Master`.
+  - Probada por el usuario. Tests: 390.
+- **Queda:** la E5, los docs de cierre de R3; B-20 (`StartSession` no revisa que la guía esté
+  publicada) sigue abierto.

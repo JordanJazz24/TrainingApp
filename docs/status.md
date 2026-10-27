@@ -83,10 +83,10 @@ real)
        carpeta principal con `git merge --ff-only fase-11`; después, `git worktree remove` del
        worktree `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
        `TrainingApp_Fase11` de LocalDB. Lo mismo con `fase-10` y `TrainingApp_Fase10`.
-  3. **R3 · Custom Resource Setup, en curso en paralelo con la Fase 11** (sesión `Custom-RS`,
-     en la rama `TrainingApp` de la carpeta principal): spec y plan `docs/specs/020-*.md`
-     (`42dafdf`), D-180 a D-199. Desarrollo escribe este archivo y `docs/history.md` con los
-     resúmenes que manda `Custom-RS` (D-197).
+  3. **R3 · Custom Resource Setup, en curso** (sesión `Custom-RS`, en la rama `TrainingApp` de
+     la carpeta principal): spec y plan `docs/specs/020-*.md` (`42dafdf`), D-180 a D-201.
+     Desarrollo escribe este archivo y `docs/history.md` → "R3" con los resúmenes que manda
+     `Custom-RS` (D-197).
      - **E1 ✅** (2026-10-26, `144d845`, datos y DAL): columna `ResourceSetupType` (0 =
        Standard, 1 = Custom) en `TrainingGuides` y `TrainingSessions` (`ALTER` idempotente en
        `00`); en `02`, `spTrainingGuideGetPublishedForAdmin` y
@@ -120,10 +120,17 @@ real)
        intento (D-201). `Domain.GuideSummary` pasa a `Domain.PublishedGuide`, y con eso se va el
        choque de nombres con `BLL.Reports.GuideSummary`. Probada por el usuario en Guided y
        Assessment.
-     - **E4, en curso** (desde el 2026-10-27, en `Custom-RS` sobre `TrainingApp` en `89d4e9c`,
-       que ya trae la Fase 11): `Pages/Admin/Guides.aspx`, el menú "Guías" en `Admin.Master`,
-       quizá un bloque "Guías (spec 020)" al final de `admin.css` y sus entradas en el csproj.
-       El cierre de la Fase 11 no toca esos archivos.
+     - **E4 ✅** (2026-10-27, `5d12e80`, Admin): página `Pages/Admin/Guides.aspx` (con
+       `GuideListRow`). Lista las guías publicadas (D-199) con producto, área, título y una
+       insignia con su Resource Setup. Cada fila tiene un selector Estándar/Custom y un
+       Guardar, que pide confirmación con SweetAlert (D-195); el cambio vale para las sesiones
+       nuevas (D-188). Solo con `CanManageGuides`: sin la capacidad, al inicio del rol, y
+       `GuideAdminService` vuelve a verificar (`UnauthorizedAccessException` redirige como en
+       Usuarios, B-3). "Guías" en el menú de `Admin.Master`, después de Usuarios. Sin cambios
+       en `admin.css`. Probada por el usuario; pasan los 390 tests.
+     - **Sigue la E5** (en `Custom-RS`): los docs de cierre de R3 (`domain.md`,
+       `architecture.md`, `CLAUDE.md` → "Auth", `inventario-pantallas.md`, `decisions.md` y la
+       fila R3 en el roadmap).
      - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
