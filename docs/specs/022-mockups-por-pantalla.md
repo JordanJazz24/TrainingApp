@@ -6,8 +6,8 @@
 **Date:** 2026-10-27 · dos rondas de preguntas con el usuario · **Sesión:** Arquitectura y
 Planeación en la nube (`docs/process.md` → "Variante temporal: specs y planes en la nube"),
 rama `cloud/022-mockups-por-pantalla`.
-**Decisiones:** D-202 a D-206 del usuario; las propuestas de Claude P-1 a P-9 (abajo) se
-confirman al aprobar. **Briefs por pantalla:** `022-briefs.md`. **Exportaciones aprobadas:**
+**Decisiones:** D-202 a D-206 del usuario; propuestas de Claude respondidas por el usuario el
+2026-10-27 (P-1 a P-9, abajo; quedan como D-207 al aprobar). **Briefs por pantalla:** `022-briefs.md`. **Exportaciones aprobadas:**
 `022-design/<pantalla>.html`.
 
 ## Problema
@@ -39,7 +39,7 @@ reemplazada por la spec 022".
 | Pantalla | Archivo | Quién | Implementar (orden con la 021) |
 |---|---|---|---|
 | Login | `Pages/Auth/Login.aspx` | los dos roles | libre |
-| Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` | los dos roles | el diseño, libre; la redirección final, después de la E3 de la 021 |
+| Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` | los dos roles | libre (la redirección final a "Elige tu área" la pone la E3 de la 021, no esta spec) |
 | Operadores | `Pages/Admin/Operators.aspx` | admin (gerencia y trainers) | después de la E5 de la 021 |
 | Operador (detalle y ficha) | `Pages/Admin/Operator.aspx` | admin | después de la E5 de la 021 |
 | Pasos | `Pages/Admin/Steps.aspx` | admin | libre |
@@ -53,8 +53,9 @@ reemplazada por la spec 022".
   tokens o componentes, el Resumen los hereda sin rediseño.
 - **"Elige tu área"** (spec 021, P-10): se hace con el sistema de diseño de `Site.Master`, sin
   mockup propio. Si los mockups del inicio del operador cambian ese lenguaje, la hereda.
-- **El POD** (`Training.Master`, D-154), los **Excel** (D-158) y la ficha impresa en claro
-  (D-157), que no cambian.
+- **El POD** (`Training.Master`, D-154) y los **Excel** (D-158), que no cambian.
+- La **ficha impresa** del Operador sí entra, solo en su disposición: sigue en claro y sin menú,
+  botones ni curva (D-157).
 
 ## Restricciones fijas (todas las pantallas)
 
@@ -100,7 +101,10 @@ reemplazada por la spec 022".
 1. El usuario pega su brief (`022-briefs.md`) en Claude Design, con los adjuntos.
 2. Claude Design devuelve 3 alternativas. El usuario elige una, o pide ajustes.
 3. La exportación aprobada se guarda en `022-design/<pantalla>.html` y se registra aquí, con
-   fecha, junto con las D-n de sus métricas y de sus cambios al sistema.
+   fecha, junto con las D-n de sus métricas y de sus cambios al sistema. Puede llegar por
+   cualquiera de dos caminos, a elección del usuario: se la pasa a la sesión de la nube (que
+   revisa que no cargue nada externo, la registra y hace commit en su rama `cloud/`), o la
+   guarda él en local y hace commit en `TrainingApp`, y después avisa para registrar las D-n.
 4. Las pantallas siguientes reciben esa exportación como adjunto: respetan los cambios ya
    aprobados y marcan solo los nuevos.
 
@@ -114,19 +118,21 @@ reemplazada por la spec 022".
 | D-205 | **Métricas nuevas, solo derivadas** en la BLL con datos que la vista ya carga; cada una aprobada es una D-n. Las que piden datos o SPs nuevos van a otra spec |
 | D-206 | **Tokens y componentes del v1 como base**; los cambios se marcan y cada uno aprobado es una D-n para todas las pantallas. **Aprobación pantalla por pantalla**: la primera aprobada fija los cambios del sistema |
 
-## Propuestas de Claude (a confirmar al aprobar)
+## Propuestas de Claude, respondidas por el usuario (2026-10-27)
 
-| # | Propuesta |
-|---|---|
-| P-1 | **Orden de diseño:** Operadores primero (es la más rica y fija tabla, insignias y la ayuda de arriba), después Operador, Seguimiento, Pasos, Usuarios, Guías, Inicio del operador, Login y Cambio de contraseña. El orden de implementación es otro (tabla de pantallas) |
-| P-2 | **Se diseña el estado de la 021**, no el actual: columna Área en Operadores y Usuarios (con Cambiar y Quitar área), área en el encabezado del Operador, y el inicio con "Producto · Área" como texto y solo el selector de guía (D-167; y el aviso sin área, D-168) |
-| P-3 | **Exportación:** un HTML autocontenido por pantalla (CSS y SVG inline, sin CDN), con el interruptor de tema funcionando y datos de ejemplo realistas (nombres, Code1, guías de Moldeo, LoFlo, Subensamble 1 y Redefinity). Al guardarlo en `022-design/` se revisa que no cargue nada externo |
-| P-4 | **Las 3 alternativas difieren en la estructura** (qué va arriba, cómo se agrupa, dónde está la acción principal), y cada una lleva una nota corta: qué decide el usuario con ella y qué cambia del v1 |
-| P-5 | **Ninguna alternativa quita datos que hoy se muestran** sin marcarlo; quitar o esconder algo detrás de un clic es una D-n |
-| P-6 | **Cambio de contraseña** usa el mismo lenguaje que el login aprobado (mismo brief de identidad); se diseña después del login. Su redirección final cambia con la E3 de la 021 (contraseña → "Elige tu área"), no con esta spec |
-| P-7 | **Plan por entregas**, una por pantalla o grupo, en el orden de implementación de la tabla. Cada entrega queda **bloqueada hasta que su mockup esté aprobado y guardado** en `022-design/`. La implementación empieza **al cerrar la 021**, salvo que el usuario decida otra cosa |
-| P-8 | **Los cambios del sistema** aprobados van en una entrega propia al inicio del plan (`admin.css` y, si hace falta, `admin-charts.js`), con la regresión visual del Resumen, antes de las pantallas |
-| P-9 | **"Candidatas para otra spec":** las métricas con datos nuevos que propongan las alternativas se anotan aquí con fecha, sin numerar, para que el usuario decida después si abre una spec |
+Quedan como **D-207** al aprobar. P-1, P-6 y P-7 cambiaron con la respuesta del usuario.
+
+| # | Propuesta | Respuesta |
+|---|---|---|
+| P-1 | **Orden de diseño:** Login → Cambio de contraseña → Guías → Pasos → Seguimiento → Operadores → Operador → Usuarios → Inicio del operador. **El Login es la primera pantalla aprobada y fija los cambios al sistema de diseño** (D-206); las pantallas libres van primero, como su implementación (P-7) | usuario: Login primero y después las libres (Claude proponía empezar por Operadores) |
+| P-2 | **Se diseña el estado de la 021**, no el actual: columna Área en Operadores y Usuarios (con Cambiar y Quitar área), área en el encabezado del Operador, y el inicio con "Producto · Área" como texto y solo el selector de guía (D-167; y el aviso sin área, D-168) | confirmada |
+| P-3 | **Exportación:** un HTML autocontenido por pantalla (CSS y SVG inline, sin CDN), con el interruptor de tema funcionando y datos de ejemplo realistas (nombres, Code1, guías de Moldeo, LoFlo, Subensamble 1 y Redefinity). Al guardarlo en `022-design/` se revisa que no cargue nada externo | confirmada |
+| P-4 | **Las 3 alternativas difieren en la estructura** (qué va arriba, cómo se agrupa, dónde está la acción principal), y cada una lleva una nota corta: qué decide el usuario con ella y qué cambia del v1 | confirmada |
+| P-5 | **Ninguna alternativa quita datos que hoy se muestran** sin marcarlo; quitar o esconder algo detrás de un clic es una D-n | confirmada |
+| P-6 | ~~El cambio de contraseña usa el mismo lenguaje que el login aprobado~~ | **descartada:** el cambio de contraseña tiene sus propias 3 alternativas; la coherencia con el login viene solo de los tokens y componentes aprobados |
+| P-7 | **Implementación en paralelo con la 021**, para las pantallas libres: Login, Cambio de contraseña, Guías, Pasos y Seguimiento pueden implementarse intercaladas con la 021, cuando el usuario se lo pida a Desarrollo. Operadores y Operador, después de la E5 de la 021; Usuarios, después de su E4; Inicio del operador, después de su E3. Cada entrega queda **bloqueada hasta que su mockup esté aprobado y guardado** en `022-design/` | usuario: en paralelo (Claude proponía empezar al cerrar la 021) |
+| P-8 | **Los cambios del sistema** aprobados van en una entrega propia al inicio del plan (`admin.css` y, si hace falta, `admin-charts.js`), con la regresión visual del Resumen, antes de las pantallas. Como va en paralelo con la 021, esa entrega se coordina con Desarrollo para no chocar en `admin.css` con las E3 a E5 de la 021 | confirmada |
+| P-9 | **"Candidatas para otra spec":** las métricas con datos nuevos que propongan las alternativas se anotan aquí con fecha, sin numerar, para que el usuario decida después si abre una spec | confirmada |
 
 ## Criterios de aceptación
 
@@ -150,16 +156,18 @@ reemplazada por la spec 022".
 - Las métricas derivadas que se aprueben (D-205).
 
 ### Out
-- El Resumen (más allá de heredar tokens), "Elige tu área", el POD, los Excel y la ficha impresa.
+- El Resumen (más allá de heredar tokens), "Elige tu área", el POD y los Excel.
 - Datos, SPs o columnas nuevos; cambios de reglas, filtros, estados o cálculos.
 - Comportamiento nuevo: acciones, filtros o descargas que hoy no existen.
 - React u otro framework, fuentes web, CDN, colores de marca corporativa.
 
 ## Coordinación con la spec 021
 
-Diseñar todo ya es solo documentación y no pisa nada. Desarrollo está con la 021: la
-implementación de la 022 empieza al cerrarla (P-7), y respeta el orden de la tabla de
-pantallas.
+Diseñar todo ya es solo documentación y no pisa nada. Desarrollo está con la 021: las
+pantallas libres de la 022 se pueden intercalar cuando el usuario lo pida; las demás esperan
+la entrega de la 021 que indica la tabla de pantallas (P-7). Riesgo: la 021 y la 022 tocan
+`admin.css` y `Users.aspx`; la entrega del sistema (P-8) y la de Usuarios se coordinan con
+Desarrollo.
 
 ## Candidatas para otra spec
 

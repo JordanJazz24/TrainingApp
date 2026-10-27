@@ -4,8 +4,9 @@
 Claude Design el **contexto común** y después el **brief de la pantalla**, con sus adjuntos.
 La exportación aprobada va a `022-design/<archivo>.html` (nombre en cada brief).
 
-Orden de diseño propuesto (P-1): Operadores → Operador → Seguimiento → Pasos → Usuarios →
-Guías → Inicio del operador → Login → Cambio de contraseña. Desde la segunda pantalla, se
+Orden de diseño (P-1): Login → Cambio de contraseña → Guías → Pasos → Seguimiento →
+Operadores → Operador → Usuarios → Inicio del operador. El Login fija los cambios al sistema
+de diseño. Desde la segunda pantalla, se
 adjuntan también las exportaciones ya aprobadas.
 
 ## Adjuntos comunes (todas las pantallas)
@@ -64,7 +65,126 @@ interruptor de tema funcionando.
 
 ---
 
-## 1. Operadores → `022-design/operadores.html`
+## 1. Login → `022-design/login.html`
+
+**Capturas:** el login actual en claro y oscuro, y un error (SweetAlert).
+
+```text
+Pantalla: LOGIN (único para los dos roles).
+Quién: operadores (a veces en tablet en planta) y administradores.
+Qué decide: entrar.
+Qué ve primero: dónde poner su código y su contraseña.
+
+Datos y acciones:
+- Código de empleado y Contraseña; botón Entrar (Enter también entra);
+- interruptor de tema;
+- los errores llegan del servidor (credenciales, cuenta bloqueada 15 minutos) y hoy se
+  muestran en un SweetAlert.
+El primer acceso de un empleado se hace con la contraseña por defecto, que luego lo lleva a
+cambiarla (no lo expliques con un enlace de "registrarse": no existe como pantalla).
+
+Lo que pido: IDENTIDAD. Hoy es una tarjeta centrada que se ve de plantilla. Explora
+estructuras distintas (por ejemplo, panel dividido con el nombre de la app y para qué sirve,
+una tarjeta con encabezado de marca, u otra idea), sin imágenes externas: solo CSS, SVG inline
+e íconos de Bootstrap Icons. Sin colores de marca corporativa (no hay guía de marca).
+
+Queda fuera: "olvidé mi contraseña" (lo resuelve un admin con un reset), recordarme,
+registro.
+```
+
+## 2. Cambio de contraseña → `022-design/cambio-contrasena.html`
+
+**Capturas:** la pantalla actual (primer acceso y cambio voluntario) y un error.
+
+```text
+Pantalla: CAMBIO DE CONTRASEÑA (la misma para los dos roles).
+Quién: un usuario en su primer acceso o tras un reset (obligatorio), o por gusto.
+Qué decide: su nueva contraseña.
+Qué ve primero: los tres campos y por qué está aquí (primer acceso o cambio).
+
+Datos y acciones:
+- Contraseña actual (siempre se pide; en el primer acceso es la por defecto), Nueva
+  contraseña y Confirmar; botones Guardar y Cancelar;
+- reglas que valida el servidor: la nueva no puede ser la por defecto y debe coincidir con la
+  confirmación; los errores llegan del servidor.
+Propón tus propias 3 estructuras: no tiene que copiar la del login. La coherencia viene de
+los tokens y componentes ya aprobados (te adjunto el login aprobado como referencia de
+sistema, no de estructura).
+
+Queda fuera: medidor de fuerza o reglas nuevas de contraseña, preguntas de seguridad.
+```
+
+## 3. Guías → `022-design/guias.html`
+
+**Capturas:** la lista de guías publicadas con una en Custom.
+
+```text
+Pantalla: GUÍAS (administración).
+Quién: administradores.
+Qué decide: qué tipo de Resource Setup usa cada guía para las sesiones nuevas.
+Qué ve primero: las guías publicadas y su tipo.
+
+Datos y acciones:
+- lista de guías publicadas: producto, área, título y su tipo como insignia
+  (Estándar / Custom);
+- por guía, un selector Estándar / Custom y Guardar, con confirmación (el cambio vale para
+  las sesiones nuevas; la que está en curso no cambia);
+- estado vacío: "No hay guías publicadas."
+
+Queda fuera: publicar o despublicar, editar pasos o pesos, crear guías.
+Es una pantalla corta (hoy 4 guías): no la infles; que se lea en un vistazo.
+```
+
+## 4. Pasos → `022-design/pasos.html`
+
+**Capturas:** una guía con su ranking en Assessment y en Práctica libre, con "Ver todos"
+abierto.
+
+```text
+Pantalla: PASOS (ranking de pasos difíciles).
+Quién: trainers.
+Qué decide: qué paso enseñar mejor, y por qué falla.
+Qué ve primero: el ranking con el % de sesiones con fallo como barra visual.
+
+Datos (agrupados por guía; un ranking por guía):
+- número en el ranking, nombre del paso;
+- % de sesiones con fallo (barra) y "N de M sesiones";
+- intentos fallidos, veces sin acierto, mediana de duración;
+- solo en Práctica libre: los saltos;
+- los 2 motivos de fallo más frecuentes, y "Ver todos" que despliega el resto SIN recargar.
+Filtros: período (Últimos 30 días, Todo), guía, modo (Assessment, Práctica libre), Filtrar;
+"Descargar" (Excel).
+
+Queda fuera: editar pasos o guías, comparar periodos, datos por operador (eso es Operador).
+```
+
+## 5. Seguimiento → `022-design/seguimiento.html`
+
+**Capturas:** con varias filas (operadores que cumplen 1, 2 y 3 reglas) y vacía.
+
+```text
+Pantalla: SEGUIMIENTO.
+Quién: trainers.
+Qué decide: a quién llamar y por qué; ir a su detalle.
+Qué ve primero: quién necesita atención y por qué regla.
+
+Datos (una fila por operador y guía; quien ya aprobó la guía no aparece en ella; sin
+período):
+- nombre y Code1 (enlace al detalle del operador), guía (nombre y título), insignia de
+  estado, última sesión;
+- las reglas que cumple, como chips con texto:
+  S-1 "Reprobó N Assessment" (2 o más sin aprobar ninguno),
+  S-2 "N días sin practicar" (14 o más sin sesiones de esa guía),
+  S-3 "Mismo paso sin acierto: <paso>" (el mismo paso sin acierto en 2 o más Assessment).
+Orden: primero quien cumple más reglas.
+Filtro: guía y Filtrar; "Descargar" (Excel).
+
+Queda fuera: registrar llamadas o notas, marcar como atendido, cambiar las reglas o umbrales.
+
+Ideas permitidas como métrica derivada: cuántos casos hay por regla, cuántos cumplen 2 o más.
+```
+
+## 6. Operadores → `022-design/operadores.html`
 
 **Capturas a adjuntar:** la lista con filtros vacíos, filtrada por "Reprobado" y una guía, en
 claro y oscuro; si se puede, a 768 px.
@@ -92,7 +212,7 @@ Ideas permitidas como métrica derivada (de esta misma lista): cuántos operador
 están en cada estado, quién está reprobado en alguna guía, quién no tiene actividad reciente.
 ```
 
-## 2. Operador (detalle y ficha) → `022-design/operador.html`
+## 7. Operador (detalle y ficha) → `022-design/operador.html`
 
 **Capturas:** un operador con varias guías y sesiones, en claro y oscuro, y la vista de
 impresión (ficha).
@@ -122,56 +242,7 @@ operadores, datos nuevos.
 Muestra también cómo se ve la ficha impresa de cada alternativa.
 ```
 
-## 3. Seguimiento → `022-design/seguimiento.html`
-
-**Capturas:** con varias filas (operadores que cumplen 1, 2 y 3 reglas) y vacía.
-
-```text
-Pantalla: SEGUIMIENTO.
-Quién: trainers.
-Qué decide: a quién llamar y por qué; ir a su detalle.
-Qué ve primero: quién necesita atención y por qué regla.
-
-Datos (una fila por operador y guía; quien ya aprobó la guía no aparece en ella; sin
-período):
-- nombre y Code1 (enlace al detalle del operador), guía (nombre y título), insignia de
-  estado, última sesión;
-- las reglas que cumple, como chips con texto:
-  S-1 "Reprobó N Assessment" (2 o más sin aprobar ninguno),
-  S-2 "N días sin practicar" (14 o más sin sesiones de esa guía),
-  S-3 "Mismo paso sin acierto: <paso>" (el mismo paso sin acierto en 2 o más Assessment).
-Orden: primero quien cumple más reglas.
-Filtro: guía y Filtrar; "Descargar" (Excel).
-
-Queda fuera: registrar llamadas o notas, marcar como atendido, cambiar las reglas o umbrales.
-
-Ideas permitidas como métrica derivada: cuántos casos hay por regla, cuántos cumplen 2 o más.
-```
-
-## 4. Pasos → `022-design/pasos.html`
-
-**Capturas:** una guía con su ranking en Assessment y en Práctica libre, con "Ver todos"
-abierto.
-
-```text
-Pantalla: PASOS (ranking de pasos difíciles).
-Quién: trainers.
-Qué decide: qué paso enseñar mejor, y por qué falla.
-Qué ve primero: el ranking con el % de sesiones con fallo como barra visual.
-
-Datos (agrupados por guía; un ranking por guía):
-- número en el ranking, nombre del paso;
-- % de sesiones con fallo (barra) y "N de M sesiones";
-- intentos fallidos, veces sin acierto, mediana de duración;
-- solo en Práctica libre: los saltos;
-- los 2 motivos de fallo más frecuentes, y "Ver todos" que despliega el resto SIN recargar.
-Filtros: período (Últimos 30 días, Todo), guía, modo (Assessment, Práctica libre), Filtrar;
-"Descargar" (Excel).
-
-Queda fuera: editar pasos o guías, comparar periodos, datos por operador (eso es Operador).
-```
-
-## 5. Usuarios → `022-design/usuarios.html`
+## 8. Usuarios → `022-design/usuarios.html`
 
 **Capturas:** la lista con operadores y admins (uno bloqueado, uno que debe cambiar la
 contraseña), y el formulario de crear. Como el Área llega con la 021, si aún no está en la
@@ -200,28 +271,7 @@ Queda fuera: editar nombre o Code1, cambiar el rol, filtrar por área, elegir el
 alta, historial de cambios.
 ```
 
-## 6. Guías → `022-design/guias.html`
-
-**Capturas:** la lista de guías publicadas con una en Custom.
-
-```text
-Pantalla: GUÍAS (administración).
-Quién: administradores.
-Qué decide: qué tipo de Resource Setup usa cada guía para las sesiones nuevas.
-Qué ve primero: las guías publicadas y su tipo.
-
-Datos y acciones:
-- lista de guías publicadas: producto, área, título y su tipo como insignia
-  (Estándar / Custom);
-- por guía, un selector Estándar / Custom y Guardar, con confirmación (el cambio vale para
-  las sesiones nuevas; la que está en curso no cambia);
-- estado vacío: "No hay guías publicadas."
-
-Queda fuera: publicar o despublicar, editar pasos o pesos, crear guías.
-Es una pantalla corta (hoy 4 guías): no la infles; que se lea en un vistazo.
-```
-
-## 7. Inicio del operador → `022-design/inicio-operador.html`
+## 9. Inicio del operador → `022-design/inicio-operador.html`
 
 **Capturas:** el inicio actual (con la cascada Producto, Área y Guía y las 3 tarjetas de
 modo), en claro y oscuro, y en tablet.
@@ -246,51 +296,4 @@ Estado sin área (red de seguridad, casi no se ve): aviso "Aún no tienes un ár
 sin selector ni Iniciar. Muéstralo también.
 
 Queda fuera: el simulador (POD) en sí, historial o puntajes del operador, elegir otra área.
-```
-
-## 8. Login → `022-design/login.html`
-
-**Capturas:** el login actual en claro y oscuro, y un error (SweetAlert).
-
-```text
-Pantalla: LOGIN (único para los dos roles).
-Quién: operadores (a veces en tablet en planta) y administradores.
-Qué decide: entrar.
-Qué ve primero: dónde poner su código y su contraseña.
-
-Datos y acciones:
-- Código de empleado y Contraseña; botón Entrar (Enter también entra);
-- interruptor de tema;
-- los errores llegan del servidor (credenciales, cuenta bloqueada 15 minutos) y hoy se
-  muestran en un SweetAlert.
-El primer acceso de un empleado se hace con la contraseña por defecto, que luego lo lleva a
-cambiarla (no lo expliques con un enlace de "registrarse": no existe como pantalla).
-
-Lo que pido: IDENTIDAD. Hoy es una tarjeta centrada que se ve de plantilla. Explora
-estructuras distintas (por ejemplo, panel dividido con el nombre de la app y para qué sirve,
-una tarjeta con encabezado de marca, u otra idea), sin imágenes externas: solo CSS, SVG inline
-e íconos de Bootstrap Icons. Sin colores de marca corporativa (no hay guía de marca).
-
-Queda fuera: "olvidé mi contraseña" (lo resuelve un admin con un reset), recordarme,
-registro.
-```
-
-## 9. Cambio de contraseña → `022-design/cambio-contrasena.html`
-
-**Capturas:** la pantalla actual (primer acceso y cambio voluntario) y un error.
-
-```text
-Pantalla: CAMBIO DE CONTRASEÑA (la misma para los dos roles).
-Quién: un usuario en su primer acceso o tras un reset (obligatorio), o por gusto.
-Qué decide: su nueva contraseña.
-Qué ve primero: los tres campos y por qué está aquí (primer acceso o cambio).
-
-Datos y acciones:
-- Contraseña actual (siempre se pide; en el primer acceso es la por defecto), Nueva
-  contraseña y Confirmar; botones Guardar y Cancelar;
-- reglas que valida el servidor: la nueva no puede ser la por defecto y debe coincidir con la
-  confirmación; los errores llegan del servidor.
-Usa el MISMO lenguaje visual que el login aprobado (te lo adjunto).
-
-Queda fuera: medidor de fuerza o reglas nuevas de contraseña, preguntas de seguridad.
 ```
