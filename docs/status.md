@@ -7,11 +7,11 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-26 · **Branch:** `TrainingApp`; la Fase 11 se trabaja en la
-rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación del
-usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Excel), probada por el usuario, en `fase-11`
-rebaseada sobre `TrainingApp`; falta el fast-forward del usuario (`git log --oneline -10` para
-ver el estado real)
+**Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; el cierre de la Fase 11 se
+hace en la rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación
+del usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Excel) y la
+limpieza (`5e172f0`), integradas en `TrainingApp` (`git log --oneline -10` para ver el estado
+real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -99,13 +99,11 @@ ver el estado real)
        y los estados con su color del tema claro; mismas columnas y datos. La descarga de
        sesiones sigue en streaming, con el esquema en 0 errores y el mismo tiempo (3.9 → 3.7 s
        con el volumen de "Todo"). Probada por el usuario en Excel.
-     - **Integración pendiente (2026-10-26):** `fase-11` está rebaseada sobre `TrainingApp`
-       (trae las E1 a E3 de R3 y el roadmap de Planeación) y pasan los 390 tests. **Pendiente
-       del usuario**, en este orden:
-       1. correr `00`, `02` y `03` en `TrainingApp_Fase11` (los pide R3; sin ellos, iniciar
-          una sesión falla);
-       2. en la carpeta principal, sobre la rama `TrainingApp`: `git merge --ff-only fase-11`.
-     - **Cierre de la fase, sin empezar** ("Docs al cerrar" de `019-plan.md`):
+     - **Integradas en `TrainingApp` ✅** (2026-10-27, fast-forward a `a22eec1`): las E1 a E6,
+       con las E1 a E3 de R3 debajo; pasan los 390 tests. `TrainingApp_Fase11` ya tiene `00`,
+       `02` y `03` de R3 (revisado el 2026-10-27: `ResourceSetupType` en las dos tablas y
+       sus SPs).
+     - **Cierre de la fase, en curso** ("Docs al cerrar" de `019-plan.md`):
        1. **AC-7:** crear la BD de volumen `TrainingApp_DashboardTest` en LocalDB (`00`–`12`,
           `GenerateDashboardData.sql` y un admin para medir), medir Resumen, Operadores, Pasos y
           Seguimiento con 30 días y con "Todo" (`DashboardPerformanceTests`) y borrarla
@@ -148,7 +146,7 @@ ver el estado real)
        `SessionHelper.CanManageGuides` y `BLL/Admin/GuideAdminService`. 35 tests nuevos
        (`CustomResourceSetupTests.cs`); pasan los 387.
      - **Pendiente del usuario:** correr `00`, `02` y `03` en cada BD donde se pruebe código
-       que ya trae la E1 (la Fase 11 después de rebasear, `TrainingApp_Fase11` incluida). El
+       que ya trae la E1 (`TrainingApp` local y `TrainingApp_Fase11` ya los tienen). El
        código anterior con el `03` nuevo también falla al iniciar una sesión: van juntos. El
        `02` cambió otra vez en la E2 (`spTrainingGuideSetResourceSetupType`): correrlo de nuevo
        donde ya se corrió el de la E1.
@@ -161,9 +159,10 @@ ver el estado real)
        intento (D-201). `Domain.GuideSummary` pasa a `Domain.PublishedGuide`, y con eso se va el
        choque de nombres con `BLL.Reports.GuideSummary`. Probada por el usuario en Guided y
        Assessment.
-     - Sigue la E4 (`Pages/Admin/Guides.aspx`, menú en `Admin.Master`, quizá un bloque al final
-       de `admin.css`). **Espera el fast-forward de `fase-11` en `TrainingApp`**: Desarrollo le
-       avisa a `Custom-RS` cuando el usuario lo haga.
+     - **E4, en curso** (desde el 2026-10-27, en `Custom-RS` sobre `TrainingApp` en `89d4e9c`,
+       que ya trae la Fase 11): `Pages/Admin/Guides.aspx`, el menú "Guías" en `Admin.Master`,
+       quizá un bloque "Guías (spec 020)" al final de `admin.css` y sus entradas en el csproj.
+       El cierre de la Fase 11 no toca esos archivos.
      - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
