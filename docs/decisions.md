@@ -176,11 +176,11 @@
 | D-152 | 2026-10-26 | La guía no menciona acciones disciplinarias: las alertas de Resource Setup y Log NC quedan en "CRÍTICO" | specs/r1-r2-plan.md | vigente |
 | D-153 | 2026-10-26 | Fase 11: el dashboard es para gerencia y trainers por igual (escritorio, proyector, tablet); el Resumen muestra primero quién está listo | specs/019-ui-ux-dashboard.md | vigente |
 | D-154 | 2026-10-26 | Fase 11: alcance = dashboard, Excel, login, cambio de contraseña y Usuarios (`Admin.Master`); el POD no cambia de diseño | specs/019-ui-ux-dashboard.md | vigente |
-| D-155 | 2026-10-26 | Bootstrap 5.3.x en una entrega propia, verificado primero con regresión completa; si rompe algo, decide el usuario | specs/019-ui-ux-dashboard.md | vigente |
+| D-155 | 2026-10-26 | Bootstrap 5.3.x en una entrega propia, verificado primero con regresión completa; si rompe algo, decide el usuario | specs/019-ui-ux-dashboard.md | cerrada (Fase 11 ✅, 2026-10-27) |
 | D-156 | 2026-10-26 | Fase 11: estilo moderno neutro con tokens, fuente del sistema y Bootstrap Icons local; estados nunca solo por color | specs/019-ui-ux-dashboard.md | vigente |
 | D-157 | 2026-10-26 | Modo oscuro: sigue al sistema, interruptor recordado en el navegador; la ficha se imprime en claro | specs/019-ui-ux-dashboard.md | vigente |
 | D-158 | 2026-10-26 | Excel profesional (título con filtros y fecha, encabezados con color, filtros, primera fila fija, formatos, estados con color) | specs/019-ui-ux-dashboard.md | vigente |
-| D-159 | 2026-10-26 | Fase 11: mockup aprobado antes del plan; mockup e implementación con la skill `frontend-design`, dentro del brief | specs/019-ui-ux-dashboard.md | vigente (mockup v1 aprobado el 2026-10-26) |
+| D-159 | 2026-10-26 | Fase 11: mockup aprobado antes del plan; mockup e implementación con la skill `frontend-design`, dentro del brief | specs/019-ui-ux-dashboard.md | cerrada (Fase 11 ✅, 2026-10-27) |
 | D-160 | 2026-10-26 | Fase 11: Operadores, Pasos, Seguimiento y Usuarios como tablas con los componentes del mockup (insignias por guía, barra de % y 2 motivos, chips de reglas con texto, insignias de rol y cuenta) | specs/019-ui-ux-dashboard.md | vigente |
 | D-161 | 2026-10-26 | MVP: guía simulada de Wires / Subensamble 1, Serialized con la forma de LoFlo (Assembly, DC, sin checklist, mismos pesos), datos SIM, scripts `11` y `12`; para que los trainers prueben el flujo Serialized | `0f01f11` (plan directo; roadmap → tabla de fases) | vigente |
 | D-162 | 2026-10-26 | Fase 11: los campos (form-control, form-select, input-group) tienen un borde propio para pasar 3:1 (`#808B9B` en claro, `#627083` en oscuro); el borde del mockup queda para tablas, paneles y divisores | specs/019-ui-ux-dashboard.md (enmienda) | vigente |

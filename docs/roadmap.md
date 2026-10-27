@@ -33,7 +33,7 @@
 | 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
-| **11 · UI/UX del dashboard y la administración** | ▶️ E1 a E6 ✅ (2026-10-26), integradas en `TrainingApp` (`a22eec1`, 2026-10-27); falta el cierre: AC-7 y los docs | | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
+| 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -417,7 +417,12 @@ que ya se guardan.
 
 **Si falta tiempo,** se recortan primero la curva y la ficha.
 
-### Fase 11 — UI/UX del dashboard
+### Fase 11 — UI/UX del dashboard ✅ (2026-10-27)
+
+**Cerrada el 2026-10-27** (`0888717`): las seis entregas, probadas por el usuario, y AC-7
+medido con la BD de volumen (todas las vistas por debajo de 3 s, sin tocar SPs ni índices;
+cifras en `019-plan.md`). Decisiones D-153 a D-164. Qué se hizo: `docs/history.md` → "Fase
+11". Lo que sigue: "Después de la Fase 10".
 
 **Pedido del usuario (2026-10-23, al aprobar la E6 de la spec 018):** la funcionalidad del
 dashboard es correcta, pero los diseños "son muy básicos y feos". Hay que "actualizar los
@@ -454,7 +459,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 
 **Orden (usuario, 2026-10-23):**
 1. ✅ R1 y R2, cortos: corrigen lo que hoy se le enseña al operador (2026-10-26).
-2. Fase 11, UI/UX del dashboard.
+2. ✅ Fase 11, UI/UX del dashboard (2026-10-27).
 3. R3, Custom Resource Setup. **Adelantado (usuario, 2026-10-26):** va en paralelo con la
    Fase 11, en la sesión `Custom-RS` (spec 020).
 
