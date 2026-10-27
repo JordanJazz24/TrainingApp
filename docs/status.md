@@ -67,59 +67,22 @@ real)
   "Después de la Fase 10"):
   1. **R1 y R2 ✅** (2026-10-26, ver "Historial"): Hora a Hora fuera del Ingreso a MES y la guía
      sin acciones disciplinarias (D-151, D-152).
-  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx`, en curso:** brief
-     `docs/specs/019-ui-ux-dashboard.md` y plan `docs/specs/019-plan.md`, aprobados el
-     2026-10-26 (D-153 a D-160). Rama y worktree `fase-11`.
-     - **E1 ✅** (2026-10-26): Bootstrap 5.2.3 → 5.3.8 (D-155), sin cambios de diseño;
-       regresión completa del usuario en su navegador.
-     - **E2 ✅** (2026-10-26): sistema de diseño en `admin.css` (tokens del mockup en claro y
-       oscuro, D-162 para el borde de los campos), Bootstrap Icons 1.13.2 local, tema con
-       `theme.js` en `Admin.Master` y `Site.Master` (el POD no lo recibe), login, cambio de
-       contraseña, Usuarios e inicio del operador (D-163). Probada por el usuario.
-     - **E3 ✅** (2026-10-26): Resumen como el mockup ("¿Quién está listo?" con la barra
-       apilada por guía, Actividad en Chart.js y "Dónde se falla más"), `admin-charts.js` lee
-       los tokens y redibuja al cambiar de tema; mismas cifras de `GetSummary` sin tocar la
-       BLL; sin "N sin iniciar" ni número en Seguimiento (D-164); se borró `Site.css`, sin
-       uso. Probada por el usuario. **Falta medir** el rendimiento (AC-7) antes de cerrar la
-       fase.
-     - **E4 ✅** (2026-10-26): Operadores (filtros y Descargar en el panel de la tabla, el
-       nombre como enlace al detalle, insignia con ícono por guía, también "Sin iniciar", y el
-       mejor y último puntaje por guía en su celda) y Operador (estado por guía con insignias
-       grandes y los pasos a reforzar arriba, la curva con `admin-charts.js`, las sesiones en
-       tabla, la ficha impresa en claro). `ReportText.StateCss`/`StateIcon` comparten la
-       insignia. Probada por el usuario.
-     - **E5 ✅** (2026-10-26): Pasos (filtros arriba, un panel por guía, la barra de % con
-       "X de Y sesiones", los 2 motivos más frecuentes y "Ver todos" en el cliente, saltos solo
-       en Práctica libre) y Seguimiento (las reglas como chips con texto, la de reprobados en
-       rojo con alerta; insignia con ícono; primero quien cumple más reglas, ordenado en
-       `DashboardService.GetFollowUp` con su test; el Excel con el mismo texto, en ese orden).
-       Probada por el usuario.
-     - **E6 ✅** (2026-10-26): los cuatro `.xlsx` con la fila de título (vista, filtros y fecha
-       de descarga en la hora de la planta), el encabezado con el acento, fijo y con autofiltro,
-       y los estados con su color del tema claro; mismas columnas y datos. La descarga de
-       sesiones sigue en streaming, con el esquema en 0 errores y el mismo tiempo (3.9 → 3.7 s
-       con el volumen de "Todo"). Probada por el usuario en Excel.
-     - **Integradas en `TrainingApp` ✅** (2026-10-27, fast-forward a `a22eec1`): las E1 a E6,
-       con las E1 a E3 de R3 debajo; pasan los 390 tests. `TrainingApp_Fase11` ya tiene `00`,
-       `02` y `03` de R3 (revisado el 2026-10-27: `ResourceSetupType` en las dos tablas y
-       sus SPs).
-     - **Cierre de la fase, en curso** ("Docs al cerrar" de `019-plan.md`):
-       1. **AC-7:** crear la BD de volumen `TrainingApp_DashboardTest` en LocalDB (`00`–`12`,
-          `GenerateDashboardData.sql` y un admin para medir), medir Resumen, Operadores, Pasos y
-          Seguimiento con 30 días y con "Todo" (`DashboardPerformanceTests`) y borrarla
-          (`docs/process.md` §6). **Pedir el OK del usuario antes de crearla**: el 2026-10-26
-          la detuvo al cerrar la sesión y no se creó nada. Si alguna vista pasa de 3 s, avisar
-          a Planeación antes de tocar SPs o índices.
-       2. **Docs ✅** (2026-10-27): `architecture.md` → "Sistema de diseño y tema", `CLAUDE.md`
-          → "Sesión y seguridad", la enmienda de AUD-29 en la auditoría `2026-10-01` y
-          `history.md` → "Fase 11" (con AC-7 abierto).
-       3. **Limpieza:** hecha (`Site.css` se borró en la E3 y el alias de `GuideSummary` en
-          `5bda389`).
+  2. **Fase 11 · UI/UX del dashboard y diseño de los `.xlsx` ✅** (2026-10-26 a 2026-10-27,
+     ver "Historial"; brief `docs/specs/019-ui-ux-dashboard.md` y plan `docs/specs/019-plan.md`,
+     D-153 a D-164): **E1 a E6**, probadas por el usuario e integradas en `TrainingApp`:
+     - Bootstrap 5.3.8 y el sistema de diseño con tema claro/oscuro en `Admin.Master` y
+       `Site.Master` (el POD no cambia);
+     - las cinco vistas del dashboard, login, cambio de contraseña, Usuarios e inicio del
+       operador;
+     - los cuatro `.xlsx`.
 
-       Al terminar, avisar a Planeación para marcar la Fase 11 ✅ y D-153 a D-164.
-     - Para probar, el worktree usa la BD `TrainingApp_Fase11` en LocalDB (copia de la de la
-       Fase 10, con el volumen generado). Ahí el Code1 del usuario tiene la contraseña por
-       defecto y el rol se cambia a mano para entrar como operador o admin.
+     AC-7 medido el 2026-10-27: todas las vistas por debajo de 3 s con la BD de volumen (cifras
+     en `019-plan.md` → "Docs al cerrar"); la BD de prueba se borró. Los "Docs al cerrar" están
+     hechos; Arquitectura y Planeación marca la fase en el roadmap.
+     - **Pendiente del usuario** (`docs/process.md` §7): integrar los commits del cierre en la
+       carpeta principal con `git merge --ff-only fase-11`; después, `git worktree remove` del
+       worktree `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
+       `TrainingApp_Fase11` de LocalDB. Lo mismo con `fase-10` y `TrainingApp_Fase10`.
   3. **R3 · Custom Resource Setup, en curso en paralelo con la Fase 11** (sesión `Custom-RS`,
      en la rama `TrainingApp` de la carpeta principal): spec y plan `docs/specs/020-*.md`
      (`42dafdf`), D-180 a D-199. Desarrollo escribe este archivo y `docs/history.md` con los
@@ -187,14 +150,6 @@ real)
 Solo lo abierto; lo resuelto queda en la auditoría o la spec que lo cerró. La auditoría
 final (D-16) repasó esta lista.
 
-- **UI/UX del dashboard (usuario, 2026-10-23, al aprobar la E6):** la funcionalidad de la
-  Fase 10 es correcta, pero el diseño es muy básico. Cubre:
-  - las vistas: Resumen, Operadores, Operador, Pasos y Seguimiento;
-  - las gráficas;
-  - el diseño de los `.xlsx`.
-
-  **Al cerrar la Fase 10 sigue una fase de mejora de UI/UX** de todo el dashboard y sus
-  módulos, Excel incluido. Arquitectura y Planeación la agrega al roadmap.
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).
   Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).

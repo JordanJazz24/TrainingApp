@@ -229,8 +229,23 @@ Se trabaja en una rama y un worktree propios, `fase-11` (§7).
 
 ## Docs al cerrar
 
-- [ ] **Rendimiento (AC-7), al cerrar la fase:** Resumen, Operadores y Pasos con la BD de volumen
+- [x] **Rendimiento (AC-7), al cerrar la fase:** Resumen, Operadores y Pasos con la BD de volumen
   (`DashboardPerformanceTests`), juntos (Planeación, 2026-10-26).
+  - **Medido el 2026-10-27** (`DashboardPerformanceTests.Views`): 1600 operadores, 22 165
+    sesiones y 289 215 intentos en 12 meses, con `00`–`12` y `GenerateDashboardData.sql`. Cifras
+    de la segunda vez (la primera incluye compilar el plan):
+
+    | Vista | 30 días | Todo |
+    |---|---|---|
+    | Resumen | 0,40 s (1,90 s la primera) | 0,98 s |
+    | Pasos, Assessment | 0,35 s | 0,74 s |
+    | Pasos, Práctica libre | 0,21 s | 0,63 s |
+    | Operadores | 0,08 s | — |
+    | Operador | 0,01 s | — |
+    | Seguimiento | 0,71 s | — |
+
+    Todas por debajo de 3 s y en línea con la Fase 10 (Resumen: 0,4 s y 0,7–1,2 s). Sin cambios
+    de SPs ni índices. La BD se borró al terminar.
 - [x] *Si sobra tiempo:* renombrar `BLL.Reports.GuideSummary` (por ejemplo `GuideSummaryRow`) y
   quitar el alias de `Summary.aspx.cs` (choca con `Domain.GuideSummary` de la spec 020). Resuelto
   del otro lado: R3 renombró la suya a `Domain.PublishedGuide` (E3 de R3) y el alias se quitó al

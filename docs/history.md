@@ -483,7 +483,7 @@ Plan `docs/specs/r1-r2-plan.md` y enmienda 1 de la spec 016, aprobados por el us
 - Sin cambios de BD, pesos ni versiones de guía. Los intentos guardados con
   `MES.HoraHora.Iniciar` se siguen viendo en el dashboard.
 
-## Fase 11 · UI/UX del dashboard y diseño de los `.xlsx` (brief 019) (2026-10-26 a 2026-10-27)
+## Fase 11 · UI/UX del dashboard y diseño de los `.xlsx` (brief 019) ✅ (2026-10-26 a 2026-10-27)
 Brief y plan aprobados por el usuario el 2026-10-26 (`docs/specs/019-ui-ux-dashboard.md`,
 `docs/specs/019-plan.md`; D-153 a D-164; mockup v1 aprobado antes del plan, D-159). Rama y
 worktree `fase-11`; cada entrega, probada por el usuario en su navegador; integrada en
@@ -515,5 +515,7 @@ puntaje, salvo el orden de Seguimiento (E5).
   Tests: 390.
 - **Docs al cerrar (2026-10-27):** `architecture.md`, `CLAUDE.md` → "Sesión y seguridad", la
   enmienda de AUD-29 en la auditoría `2026-10-01` y esta sección.
-- **Queda abierto:** AC-7, medir el rendimiento de Resumen, Operadores, Pasos y Seguimiento con
-  la BD de volumen antes de dar la fase por cerrada.
+- **AC-7 (2026-10-27):** con la BD de volumen (1600 operadores y un año de datos), todas las
+  vistas por debajo de 3 s y en línea con la Fase 10. La más lenta es el Resumen: 0,40 s con 30
+  días y 0,98 s con Todo. Sin cambios de SPs ni índices; la BD de
+  prueba se borró. Cifras: `019-plan.md` → "Docs al cerrar".
