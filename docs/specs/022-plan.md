@@ -154,12 +154,13 @@ columna Área ya existe).
 > cambia con un lápiz en su columna.
 
 **Bloqueada hasta:** E1, el mockup de Usuarios y la E4 de la 021 cerrada (columna Área con su
-lápiz, B-3).
+lápiz, B-3). **La E4 de la 021 quedó cerrada el 2026-10-27** (rama `spec-021`): este bloqueo
+ya se cumplió; quedan E1 y el mockup.
 
 - [ ] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
       `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext`; en la columna
       Área, el lápiz que abre ahí el selector agrupado con Guardar (`adminConfirm`) y Cancelar,
-      sin postback hasta Guardar; en Acciones, solo Resetear, Desbloquear y Borrar, con
+      sin postback hasta Guardar; las filas de admin muestran "—" y no tienen lápiz; en Acciones, solo Resetear, Desbloquear y Borrar, con
       `adminConfirm`.
 - [ ] `/code-review low --max-findings 5`. Foco: ids de fila, que las acciones de operador no
       salgan en filas de admin, B-3 intacto.

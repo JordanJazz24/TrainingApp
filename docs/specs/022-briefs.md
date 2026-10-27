@@ -273,7 +273,8 @@ Datos y acciones:
   Área", "Sin área" o "—" para un admin), fecha de alta y último acceso;
 - cambiar el área (solo operadores): en la columna Área, junto al texto, un lápiz que abre
   AHÍ MISMO el selector de áreas AGRUPADO POR PRODUCTO, con Guardar (con confirmación) y
-  Cancelar, sin recargar hasta Guardar. No hay "quitar área";
+  Cancelar, sin recargar hasta Guardar. No hay "quitar área". Las filas de administrador
+  muestran "—" y no tienen lápiz;
 - columna Acciones, cada una con confirmación: Resetear contraseña, Desbloquear (solo si está
   bloqueada) y Borrar (no sobre uno mismo; si tiene historial se avisa).
 
