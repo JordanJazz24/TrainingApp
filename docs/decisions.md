@@ -5,11 +5,17 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-208. Siguiente B-n: B-4** (B-20 ya se usó). La numeración es continua entre
->   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
-> - **Rangos paralelos (2026-10-26 a 2026-10-27), cerrados:** la Fase 11 usó D-153 a D-164, la
->   spec 021 D-165 a D-179 y R3 D-180 a D-201 (y B-20). Desde el 2026-10-27 hay un solo
->   contador; si vuelven a trabajar dos frentes en paralelo, se reserva un rango por frente.
+> - **Siguiente D-n: D-209 (local) · D-220 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+>   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
+>   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
+> - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
+>   Desarrollo: spec 021 y lo demás) usa **D-208 a D-219** y **B-5 a B-19**; la nube (spec 022,
+>   mockups) usa **D-220 a D-239** y **B-30 a B-39**. La 022 ya usó D-202 a D-207 y la enmienda
+>   de la E4 de la 021 es D-208 (las dos tomaron D-202 a la vez; se renumeró la de la 021, que no
+>   estaba commiteada). Si un frente se queda sin números, pide el siguiente rango libre
+>   (D-240 en adelante).
+> - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
+>   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
 > - **Estado:** vigente · enmendada (sigue, con cambios) · superada (la reemplazó otra) · sin

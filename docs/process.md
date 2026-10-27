@@ -107,6 +107,10 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   plan y el orden, y no duplica la spec.
 - **Enmiendas:** en la nube (el usuario le pega el problema) o en la sesión local, si la de la
   nube ya terminó.
+- **Sin diff antes de cada commit** (usuario, 2026-10-27): la nube no le muestra el diff de los
+  docs al usuario antes de commitear; la sesión local revisa la rama al integrarla.
+- **Numeración:** cada frente usa su rango de D-n y B-n (`docs/decisions.md` → encabezado). El
+  2026-10-27 la nube y la sesión local tomaron D-202 a la vez.
 
 ## 2. Cada entrega
 
