@@ -5,13 +5,11 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: el rango D-164 a D-179 se agotó; pedir el siguiente libre. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: D-202. Siguiente B-n: B-4** (B-20 ya se usó). La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
-> - **Rangos reservados mientras trabajan dos frentes en paralelo (2026-10-26):** la Fase 11
->   (Arquitectura y Planeación y Desarrollo) sigue con **D-164 a D-179**; R3 (sesión
->   `Custom-RS`) usa **D-180 a D-199**. Los bugs: la Fase 11 desde B-4, R3 desde **B-20**. Si un
->   frente se queda sin números, pide el siguiente rango libre (D-200 en adelante). "Siguiente
->   D-n" es el de la Fase 11; R3 lleva el suyo en su spec (R3 pasó a **D-200 en adelante**; siguiente: **D-202**).
+> - **Rangos paralelos (2026-10-26 a 2026-10-27), cerrados:** la Fase 11 usó D-153 a D-164, la
+>   spec 021 D-165 a D-179 y R3 D-180 a D-201 (y B-20). Desde el 2026-10-27 hay un solo
+>   contador; si vuelven a trabajar dos frentes en paralelo, se reserva un rango por frente.
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
 >   Cuando una enmienda cambia una decisión, se actualiza su estado aquí.
 > - **Estado:** vigente · enmendada (sigue, con cambios) · superada (la reemplazó otra) · sin

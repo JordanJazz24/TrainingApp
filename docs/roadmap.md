@@ -34,6 +34,7 @@
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
+| **— · Área asignada por operador** | ▶️ spec y plan aprobados el 2026-10-27 (en la nube, D-165 a D-179; cierra B-20 y B-3); E1 a E5 en Desarrollo | | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
@@ -465,9 +466,11 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
    paralelo con la Fase 11, en la sesión `Custom-RS` (spec 020).
 
 **Siguiente (negocio, 2026-10-27):** cada operador tiene un **área asignada** y solo ve las
-guías de esa área. Es funcionalidad nueva (fila 1): spec y plan en la nube (`docs/process.md` →
-"Variante temporal: specs y planes en la nube"), en una rama `cloud/NNN-slug`. Al llegar, se
-revisa el alcance contra el "No incluye" de la Fase 10 ("el área del operador, diferida").
+guías de esa área. Spec `021-area-operador.md` y plan `021-plan.md` (5 entregas), hechos en la
+nube (`cloud/021-area-operador`) y aprobados por el usuario el 2026-10-27; integrados en
+`TrainingApp` (`33158df`). **Levanta** "el área del operador (diferida)" del "No incluye" de la
+Fase 10; sigue fuera filtrar el dashboard por el área del operador (spec 021 → Out). Al publicar,
+todos los operadores existentes eligen su área en su próximo ingreso: avisar a los trainers.
 
 #### Revisión con Ernesto, MES (2026-10-22)
 Registrada por Reuniones y Dudas. No cambia el foco: la Fase 10 sigue con su orden.
