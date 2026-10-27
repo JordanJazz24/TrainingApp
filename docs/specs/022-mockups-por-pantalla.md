@@ -1,13 +1,13 @@
 # Brief de diseño 022: un mockup por pantalla (candidato a Fase 12)
 
-**Status:** Draft (hasta el "apruebo" del usuario) · **Tipo:** brief de diseño
+**Status:** **Approved 2026-10-27** (usuario) · plan `022-plan.md` · **Tipo:** brief de diseño
 (`docs/process.md` → "1. Clasificar el pedido", fila 3), con métricas derivadas opcionales
 (D-205).
 **Date:** 2026-10-27 · dos rondas de preguntas con el usuario · **Sesión:** Arquitectura y
 Planeación en la nube (`docs/process.md` → "Variante temporal: specs y planes en la nube"),
 rama `cloud/022-mockups-por-pantalla`.
 **Decisiones:** D-202 a D-206 del usuario; propuestas de Claude respondidas por el usuario el
-2026-10-27 (P-1 a P-9, abajo; quedan como D-207 al aprobar). **Briefs por pantalla:** `022-briefs.md`. **Exportaciones aprobadas:**
+2026-10-27 (P-1 a P-9, abajo: **D-207**). **Briefs por pantalla:** `022-briefs.md`. **Exportaciones aprobadas:**
 `022-design/<pantalla>.html`.
 
 ## Problema
@@ -120,7 +120,7 @@ reemplazada por la spec 022".
 
 ## Propuestas de Claude, respondidas por el usuario (2026-10-27)
 
-Quedan como **D-207** al aprobar. P-1, P-6 y P-7 cambiaron con la respuesta del usuario.
+Registradas como **D-207** al aprobar (2026-10-27). P-1, P-6 y P-7 cambiaron con la respuesta del usuario.
 
 | # | Propuesta | Respuesta |
 |---|---|---|
