@@ -134,6 +134,12 @@ Registradas como **D-207** al aprobar (2026-10-27). P-1, P-6 y P-7 cambiaron con
 | P-8 | **Los cambios del sistema** aprobados van en una entrega propia al inicio del plan (`admin.css` y, si hace falta, `admin-charts.js`), con la regresión visual del Resumen, antes de las pantallas. Como va en paralelo con la 021, esa entrega se coordina con Desarrollo para no chocar en `admin.css` con las E3 a E5 de la 021 | confirmada |
 | P-9 | **"Candidatas para otra spec":** las métricas con datos nuevos que propongan las alternativas se anotan aquí con fecha, sin numerar, para que el usuario decida después si abre una spec | confirmada |
 
+> **Enmienda 2026-10-27** (por la enmienda 1 de la spec 021, D-208): en P-2, "con Cambiar y
+> Quitar área" pasa a ser **el área con un lápiz que abre el selector agrupado en su columna,
+> con Guardar y Cancelar**; "Quitar área" ya no existe. El brief de Usuarios y la E7 del plan
+> están enmendados. **Rango de numeración de la 022:** D-220 a D-239 y B-30 a B-39
+> (`docs/decisions.md`).
+
 ## Criterios de aceptación
 
 - **AC-1** Cada pantalla de D-203 coincide con su exportación aprobada en `022-design/`, en claro

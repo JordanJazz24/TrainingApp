@@ -28,8 +28,9 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
   su D-n está aprobada (D-206).
 - El mockup manda en cómo se ve; esta spec y la 019 (lo vigente) mandan en qué datos y qué
   comportamiento. Si chocan, se para y decide el usuario (enmienda, `process.md` → 1).
-- Ninguna decisión nueva en este plan: las de cada mockup se numeran al aprobarlo, con el
-  contador de `docs/decisions.md`.
+- Ninguna decisión nueva en este plan: las de cada mockup se numeran al aprobarlo, dentro del
+  rango de la 022: **D-220 a D-239** y **B-30 a B-39** (encabezado de `docs/decisions.md`;
+  enmendado 2026-10-27, por el choque con la 021).
 
 ## Checklist común de cada entrega de pantalla
 
@@ -149,17 +150,21 @@ columna Área ya existe).
 
 ## E7 · Usuarios (después de la E4 de la 021)
 
-**Bloqueada hasta:** E1, el mockup de Usuarios y la E4 de la 021 cerrada (Área, Cambiar y Quitar
-área, B-3).
+> **Enmendada 2026-10-27** (enmienda 1 de la spec 021, D-208): sin "Quitar área"; el área se
+> cambia con un lápiz en su columna.
+
+**Bloqueada hasta:** E1, el mockup de Usuarios y la E4 de la 021 cerrada (columna Área con su
+lápiz, B-3).
 
 - [ ] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
-      `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext` y las acciones por
-      fila (Reset, Desbloquear, Eliminar, Cambiar área, Quitar área) con `adminConfirm`. El
-      selector agrupado de área sigue sin postback hasta Guardar.
+      `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext`; en la columna
+      Área, el lápiz que abre ahí el selector agrupado con Guardar (`adminConfirm`) y Cancelar,
+      sin postback hasta Guardar; en Acciones, solo Resetear, Desbloquear y Borrar, con
+      `adminConfirm`.
 - [ ] `/code-review low --max-findings 5`. Foco: ids de fila, que las acciones de operador no
       salgan en filas de admin, B-3 intacto.
-- [ ] Checklist común + crear, buscar, paginar, cada acción por fila, cambiar y quitar área, y
-      la fila propia.
+- [ ] Checklist común + crear, buscar, paginar, cada acción por fila, cambiar el área con el
+      lápiz (Guardar y Cancelar), y la fila propia.
 
 **Hecho cuando:** el usuario prueba cada acción y dice "funciona".
 

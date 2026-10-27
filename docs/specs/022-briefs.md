@@ -249,6 +249,10 @@ Muestra también cómo se ve la ficha impresa de cada alternativa.
 
 ## 8. Usuarios → `022-design/usuarios.html`
 
+> **Enmendado 2026-10-27** (enmienda 1 de la spec 021, D-208): ya no existe "Quitar área". El
+> área se cambia en su propia columna, con un lápiz; la columna Acciones tiene solo Resetear,
+> Desbloquear y Borrar. El texto de abajo ya lo refleja.
+
 **Capturas:** la lista con operadores y admins (uno bloqueado, uno que debe cambiar la
 contraseña), y el formulario de crear. Como el Área llega con la 021, si aún no está en la
 app, se diseña igual con los datos de abajo.
@@ -267,10 +271,11 @@ Datos y acciones:
 - lista paginada (Anterior / Siguiente): nombre y Code1, ROL como insignia, ESTADO de la
   cuenta como insignia (Activa, Bloqueada, Debe cambiar la contraseña), ÁREA ("Producto ·
   Área", "Sin área" o "—" para un admin), fecha de alta y último acceso;
-- acciones por fila, cada una con confirmación: Resetear contraseña, Desbloquear (solo si
-  está bloqueada), Eliminar (no sobre uno mismo; si tiene historial se avisa), y para
-  operadores: Cambiar área (selector de áreas AGRUPADO POR PRODUCTO, se abre en la fila o en
-  un modal sin recargar, y Guardar) y Quitar área.
+- cambiar el área (solo operadores): en la columna Área, junto al texto, un lápiz que abre
+  AHÍ MISMO el selector de áreas AGRUPADO POR PRODUCTO, con Guardar (con confirmación) y
+  Cancelar, sin recargar hasta Guardar. No hay "quitar área";
+- columna Acciones, cada una con confirmación: Resetear contraseña, Desbloquear (solo si está
+  bloqueada) y Borrar (no sobre uno mismo; si tiene historial se avisa).
 
 Queda fuera: editar nombre o Code1, cambiar el rol, filtrar por área, elegir el área en el
 alta, historial de cambios.
