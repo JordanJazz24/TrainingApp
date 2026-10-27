@@ -15,6 +15,7 @@ namespace TrainingApp.BLL.Training
         private readonly DataCollectionGroupRepository _dcGroupRepo;
         private readonly AssemblyComponentRepository _componentRepo;
         private readonly ProductRepository _productRepo;
+        private readonly UserRepository _userRepo;
 
         public TrainingGuideService()
         {
@@ -26,6 +27,7 @@ namespace TrainingApp.BLL.Training
             _dcGroupRepo   = new DataCollectionGroupRepository();
             _componentRepo = new AssemblyComponentRepository();
             _productRepo   = new ProductRepository();
+            _userRepo      = new UserRepository();
         }
 
         // DC Groups del área, en el orden de la Data Collection List (spec 008).
@@ -81,6 +83,27 @@ namespace TrainingApp.BLL.Training
         public IList<TrainingGuide> GetByArea(int areaId)
         {
             return _guideRepo.GetByArea(areaId);
+        }
+
+        // Áreas que un operador puede tener: con al menos una guía publicada (spec 021, D-176).
+        public IList<EligibleArea> GetEligibleAreas()
+        {
+            return _areaRepo.GetEligible();
+        }
+
+        // El inicio del operador (spec 021): su área de la BD en cada carga, no de la Session
+        // (P-3), y las guías publicadas de esa área.
+        public OperatorStartOptions GetStartOptions(int userId)
+        {
+            var user = _userRepo.GetById(userId);
+            if (user?.AreaId == null) return new OperatorStartOptions();
+
+            return new OperatorStartOptions
+            {
+                HasArea  = true,
+                AreaText = AreaLabel.Of(user.ProductName, user.AreaName),
+                Guides   = _guideRepo.GetByArea(user.AreaId.Value)
+            };
         }
     }
 }

@@ -132,8 +132,9 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 **Sesión y seguridad**
 - `Session` se escribe solo desde el servidor tras autenticarse, nunca desde JavaScript.
   Toda página con usuario autenticado llama `SessionHelper.EnsureUserSession()` al inicio de
-  `Page_Load` (false → Login) y después `MustChangePassword()` (true → ChangePassword). Las
-  claves nuevas del usuario se agregan solo en `SessionHelper.SetUserSession`.
+  `Page_Load` (false → Login) y después `MustChangePassword()` (true → ChangePassword). Las de
+  Training siguen con `MustChooseArea()` (true → ChooseArea; spec 021). Las claves nuevas del
+  usuario se agregan solo en `SessionHelper.SetUserSession`.
 - `Constants.DEFAULT_PASSWORD` y `Constants.EmployeeApiUrl` viven en `Shared/Constants.cs`:
   no en `Web.config` ni hardcodeadas en páginas.
 - Toda página usa `Site.Master`, `Training.Master` o `Admin.Master` (diseño neutro: login,

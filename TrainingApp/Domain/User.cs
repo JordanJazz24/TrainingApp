@@ -28,5 +28,11 @@ namespace TrainingApp.Domain
         // Logins fallidos seguidos y fin del bloqueo (UTC; null o en el pasado = no bloqueada).
         public int FailedLoginCount { get; set; }
         public DateTime? LockedUntil { get; set; }
+
+        // Área donde entrena (spec 021); solo la tiene un Operator. null = sin área (la elige
+        // en su próximo ingreso). ProductName y AreaName solo para mostrarla.
+        public int? AreaId { get; set; }
+        public string ProductName { get; set; }
+        public string AreaName { get; set; }
     }
 }

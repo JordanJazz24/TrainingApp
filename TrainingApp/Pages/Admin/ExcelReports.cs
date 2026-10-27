@@ -45,7 +45,11 @@ namespace TrainingApp.Pages.Admin
             filters.Add("Estado: " + (applied.State.HasValue ? ReportText.State(applied.State.Value).ToLowerInvariant() : "todos"));
             filters.Add("Guía: " + GuideText(page.Guides, applied.GuideId));
 
-            var columns = new List<XlsxColumn> { new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32) };
+            // Área del operador después del nombre (spec 021, D-175).
+            var columns = new List<XlsxColumn>
+            {
+                new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Área", 24)
+            };
             foreach (var g in page.Guides)
             {
                 columns.Add(new XlsxColumn(g.AreaName + " · Estado", 18, states: true));
@@ -56,7 +60,7 @@ namespace TrainingApp.Pages.Admin
 
             var rows = page.Rows.Select(r =>
             {
-                var cells = new List<object> { r.Code1, r.Name };
+                var cells = new List<object> { r.Code1, r.Name, r.AreaText };
                 foreach (var g in r.Guides)
                 {
                     cells.Add(ReportText.State(g.State));

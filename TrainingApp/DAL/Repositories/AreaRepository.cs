@@ -32,6 +32,25 @@ namespace TrainingApp.DAL.Repositories
             return list;
         }
 
+        // Áreas con al menos una guía publicada, por producto y área (spec 021, D-176).
+        public IList<EligibleArea> GetEligible()
+        {
+            var list = new List<EligibleArea>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spAreaGetEligible"))
+            {
+                while (reader.Read())
+                    list.Add(new EligibleArea
+                    {
+                        ProductId   = Convert.ToInt32(reader["ProductId"]),
+                        ProductName = reader["ProductName"].ToString(),
+                        AreaId      = Convert.ToInt32(reader["AreaId"]),
+                        AreaName    = reader["AreaName"].ToString()
+                    });
+            }
+            return list;
+        }
+
         private static Area MapArea(SqlDataReader r) => new Area
         {
             Id                     = Convert.ToInt32(r["Id"]),

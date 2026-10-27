@@ -10,5 +10,9 @@ namespace TrainingApp.Domain
         public string Code1 { get; set; }
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        // Su área, solo para mostrarla (spec 021, D-175); null si no tiene.
+        public string ProductName { get; set; }
+        public string AreaName { get; set; }
     }
 }

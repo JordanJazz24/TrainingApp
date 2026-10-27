@@ -61,6 +61,7 @@
                         <th scope="col">Estado</th>
                         <th scope="col" class="mt-col-secondary">Creada</th>
                         <th scope="col">Último acceso</th>
+                        <th scope="col">Área</th>
                         <th scope="col" class="text-end">Acciones</th>
                     </tr>
                 </thead>
@@ -74,6 +75,27 @@
                                 <td><span class='<%#: Eval("StateCss") %>'><i class='<%#: Eval("StateIcon") %>' aria-hidden="true"></i><%#: Eval("StateText") %></span></td>
                                 <td class="mt-col-secondary mt-muted"><%#: Eval("CreatedText") %></td>
                                 <td class="mt-muted text-nowrap"><%#: Eval("LastLoginText") %></td>
+                                <td>
+                                    <%-- Spec 021 (D-172, P-11): el área y, solo en filas de Operator (AC-10), el
+                                         lápiz que abre aquí el selector agrupado (sin postback); Guardar confirma. --%>
+                                    <div class="admin-area-cell">
+                                        <span class="admin-area-text"><%#: Eval("AreaText") %></span>
+                                        <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("IsOperator") %>'>
+                                            <button type="button" class="btn btn-secondary btn-sm admin-icon-btn" onclick="usersAreaOpen(this);"
+                                                data-area-id='<%#: Eval("AreaId") %>' title="Cambiar área"
+                                                aria-label='<%#: "Cambiar el área de " + Eval("Who") %>'><i class="bi bi-pencil" aria-hidden="true"></i></button>
+                                            <span class="admin-area-edit d-none">
+                                                <select name='area_<%#: Eval("Id") %>' class="form-select form-select-sm"
+                                                    aria-label='<%#: "Área de " + Eval("Who") %>'></select>
+                                                <asp:LinkButton ID="BtnSetArea" runat="server" CssClass="btn btn-primary btn-sm"
+                                                    CommandName="SetArea" CommandArgument='<%# Eval("Id") %>' CausesValidation="false"
+                                                    data-who='<%# Eval("Who") %>'
+                                                    OnClientClick="return usersAreaConfirm(this);"><i class="bi bi-check2" aria-hidden="true"></i>Guardar</asp:LinkButton>
+                                                <button type="button" class="btn btn-secondary btn-sm" onclick="usersAreaClose(this);">Cancelar</button>
+                                            </span>
+                                        </asp:PlaceHolder>
+                                    </div>
+                                </td>
                                 <td class="text-end">
                                     <div class="admin-row-actions">
                                         <asp:LinkButton ID="BtnReset" runat="server" CssClass="btn btn-secondary btn-sm"
@@ -105,6 +127,22 @@
         <asp:Label ID="LblEmpty" runat="server" CssClass="mt-empty" Visible="false"
             Text="No hay usuarios que coincidan con la búsqueda." />
 
+        <%-- Áreas que se pueden asignar (spec 021, D-176), agrupadas por producto: cada fila las
+             copia a su selector al abrir Cambiar área. --%>
+        <template id="usersAreaOptions">
+            <asp:Repeater ID="RptAreaGroups" runat="server" EnableViewState="false">
+                <ItemTemplate>
+                    <optgroup label="<%#: Eval("ProductName") %>">
+                        <asp:Repeater runat="server" DataSource='<%# Eval("Areas") %>'>
+                            <ItemTemplate>
+                                <option value="<%#: Eval("AreaId") %>" data-label="<%#: Eval("Label") %>"><%#: Eval("AreaName") %></option>
+                            </ItemTemplate>
+                        </asp:Repeater>
+                    </optgroup>
+                </ItemTemplate>
+            </asp:Repeater>
+        </template>
+
         <div class="mt-panel-body mt-pager">
             <asp:LinkButton ID="BtnPrev" runat="server" CssClass="btn btn-secondary btn-sm"
                 CausesValidation="false" OnClick="BtnPrev_Click"><i class="bi bi-chevron-left" aria-hidden="true"></i>Anterior</asp:LinkButton>
@@ -129,6 +167,43 @@
                 if (/[<>]/.test(input.value)) input.value = input.value.replace(/[<>]/g, '');
             });
         });
+
+        // Cambiar área (spec 021, P-11): copia las áreas a la fila, preselecciona la actual y
+        // cambia el texto y el lápiz por el selector, Guardar y Cancelar, sin postback.
+        function usersAreaOpen(button) {
+            var cell = button.closest('.admin-area-cell');
+            var edit = cell.querySelector('.admin-area-edit');
+            var select = edit.querySelector('select');
+            if (!select.options.length) {
+                select.appendChild(document.getElementById('usersAreaOptions').content.cloneNode(true));
+                if (button.getAttribute('data-area-id')) select.value = button.getAttribute('data-area-id');
+                // Su área actual ya no es elegible: la primera, para que Guardar haga algo.
+                if (select.selectedIndex < 0) select.selectedIndex = 0;
+            }
+            cell.querySelector('.admin-area-text').classList.add('d-none');
+            button.classList.add('d-none');
+            edit.classList.remove('d-none');
+            select.focus();
+        }
+
+        // Cancelar: vuelve al texto y el lápiz, sin postback.
+        function usersAreaClose(button) {
+            var cell = button.closest('.admin-area-cell');
+            cell.querySelector('.admin-area-edit').classList.add('d-none');
+            cell.querySelector('.admin-area-text').classList.remove('d-none');
+            cell.querySelector('.admin-icon-btn').classList.remove('d-none');
+        }
+
+        // Guardar: la confirmación de siempre, con el área elegida (texto, no HTML).
+        function usersAreaConfirm(link) {
+            if (link.getAttribute('data-confirmed') !== '1') {
+                var option = link.parentNode.querySelector('select').selectedOptions[0];
+                if (!option) return false;
+                link.setAttribute('data-confirm', '¿Cambiar el área de ' + link.getAttribute('data-who') +
+                    ' a ' + option.getAttribute('data-label') + '?');
+            }
+            return adminConfirm(link);
+        }
 
         // Confirmación con SweetAlert antes de una acción sobre un usuario: el texto viene del
         // servidor en data-confirm. Al confirmar se repite el click, que hace el postback.

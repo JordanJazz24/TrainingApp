@@ -116,6 +116,22 @@ BEGIN
 END;
 GO
 
+-- spAreaGetEligible — las áreas que un operador puede tener (spec 021, D-176):
+-- las que tienen al menos una guía publicada, con su producto, por producto y
+-- área.
+CREATE OR ALTER PROCEDURE dbo.spAreaGetEligible
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT p.Id AS ProductId, p.Name AS ProductName, a.Id AS AreaId, a.Name AS AreaName
+    FROM   dbo.Areas    a
+    JOIN   dbo.Products p ON p.Id = a.ProductId
+    WHERE  EXISTS (SELECT 1 FROM dbo.TrainingGuides g
+                   WHERE g.AreaId = a.Id AND g.IsPublished = 1)
+    ORDER  BY p.Name, a.Name;
+END;
+GO
+
 -- spNCCodeGetByArea
 CREATE OR ALTER PROCEDURE dbo.spNCCodeGetByArea
     @AreaId INT

@@ -18,7 +18,8 @@
     <div class="admin-page-head">
         <div>
             <h1 class="admin-page-title"><asp:Literal ID="LitName" runat="server" /></h1>
-            <p class="admin-page-lead">Código <asp:Literal ID="LitCode1" runat="server" /></p>
+            <%-- Su área (spec 021, D-175): también en la ficha impresa. --%>
+            <p class="admin-page-lead">Código <asp:Literal ID="LitCode1" runat="server" /> · Área <asp:Literal ID="LitArea" runat="server" /></p>
         </div>
         <button type="button" class="btn btn-secondary d-print-none" onclick="window.print();"><i class="bi bi-printer" aria-hidden="true"></i>Imprimir ficha</button>
     </div>

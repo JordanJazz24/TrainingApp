@@ -26,6 +26,10 @@ namespace TrainingApp.Shared
             // true mientras el operador no cambió la contraseña del primer acceso (AUD-08).
             public const string IsFirstLogin = "IsFirstLogin";
 
+            // true si el usuario tiene área (spec 021, P-3). Solo decide la redirección a
+            // "Elige tu área"; el inicio y la BLL leen el área de la BD.
+            public const string HasArea = "HasArea";
+
             // Estado del POD: orden simulada y avance de Assembly y DC (spec 009). Solo lo usa
             // SessionPodStateStore. Clave completa: PodStatePrefix + TrainingSession.Id
             public const string PodStatePrefix = "GDT_Pod_";

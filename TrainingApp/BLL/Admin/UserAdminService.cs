@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TrainingApp.BLL.Auth;
+using TrainingApp.BLL.Training;
 using TrainingApp.DAL.Repositories;
 using TrainingApp.Domain;
 using TrainingApp.Shared;
@@ -46,6 +47,7 @@ namespace TrainingApp.BLL.Admin
 
         private readonly IUserRepository _users;
         private readonly Func<string, Employee> _findEmployee;
+        private readonly Func<IList<EligibleArea>> _eligibleAreas;
 
         public UserAdminService()
             : this(new UserRepository(), code1 => new EmployeeRepository().GetByCode1(code1))
@@ -54,9 +56,17 @@ namespace TrainingApp.BLL.Admin
 
         // Para los tests (AC-5): la API de empleados se reemplaza.
         public UserAdminService(IUserRepository users, Func<string, Employee> findEmployee)
+            : this(users, findEmployee, () => new AreaRepository().GetEligible())
         {
-            _users        = users ?? throw new ArgumentNullException(nameof(users));
-            _findEmployee = findEmployee ?? throw new ArgumentNullException(nameof(findEmployee));
+        }
+
+        // Para los tests de SetArea (spec 021): también las áreas elegibles.
+        public UserAdminService(IUserRepository users, Func<string, Employee> findEmployee,
+            Func<IList<EligibleArea>> eligibleAreas)
+        {
+            _users         = users ?? throw new ArgumentNullException(nameof(users));
+            _findEmployee  = findEmployee ?? throw new ArgumentNullException(nameof(findEmployee));
+            _eligibleAreas = eligibleAreas ?? throw new ArgumentNullException(nameof(eligibleAreas));
         }
 
         public static UserAccountState StateOf(User user, DateTime nowUtc)
@@ -149,6 +159,25 @@ namespace TrainingApp.BLL.Admin
 
             RoleCache.Invalidate(user.Code1);
             return UserAdminResult.Ok;
+        }
+
+        // Cambia el área de un operador (spec 021, D-172, P-5). No la quita (enmienda 1, D-208):
+        // null es una excepción. Solo un Operator tiene área (P-2): una cuenta de administrador
+        // o un área no elegible es un envío manipulado, excepción. El SP vuelve a exigir
+        // Operator: si la cuenta se borró entretanto, no la encuentra. Sin registro de actividad.
+        public UserAdminResult SetArea(int adminUserId, int userId, int? areaId)
+        {
+            RequireAdmin(adminUserId);
+            if (!areaId.HasValue)
+                throw new ArgumentNullException(nameof(areaId), "El área no se quita, solo se cambia (D-208).");
+            var user = _users.GetById(userId);
+            if (user == null) return UserAdminResult.UserNotFound;
+            if (!AccessPolicy.CanTrain(user.Role))
+                throw new InvalidOperationException("Solo un operador tiene área.");
+            if (!TrainingAccessRule.IsEligible(areaId.Value, _eligibleAreas()))
+                throw new ArgumentException("El área no es elegible.", nameof(areaId));
+
+            return _users.SetArea(userId, areaId) ? UserAdminResult.Ok : UserAdminResult.UserNotFound;
         }
 
         private void RequireAdmin(int adminUserId)

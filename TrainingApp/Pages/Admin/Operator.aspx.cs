@@ -78,6 +78,7 @@ namespace TrainingApp.Pages.Admin
             LnkBack.NavigateUrl = OperatorsUrl;
             LitName.Text  = HttpUtility.HtmlEncode(detail.Name);
             LitCode1.Text = HttpUtility.HtmlEncode(detail.Code1);
+            LitArea.Text  = HttpUtility.HtmlEncode(detail.AreaText);
             LitPrinted.Text = HttpUtility.HtmlEncode(ReportText.Date(DateTime.UtcNow));
 
             var guideNames = detail.Guides.ToDictionary(g => g.Id, g => g.AreaName);

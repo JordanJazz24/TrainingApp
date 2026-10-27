@@ -8,9 +8,10 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; la Fase 11 y R3 están
-cerradas e integradas (`33afc98`); la rama `fase-11` (worktree `.claude/worktrees/fase-11`)
-ya no tiene nada sin integrar y queda hasta que el usuario la cierre (`docs/process.md` §7) · **Último commit de
-código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver el estado real)
+cerradas e integradas (`33afc98`). La spec 021 se trabaja en la rama `spec-021`, en el worktree
+`.claude/worktrees/fase-11` (la carpeta se reutilizó; la rama `fase-11` ya no está en ningún
+worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
+(`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -79,9 +80,10 @@ código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver
      en `019-plan.md` → "Docs al cerrar"); la BD de prueba se borró. Los "Docs al cerrar" están
      hechos; la fase está marcada ✅ en el roadmap (`7cd4691`).
      - **Pendiente del usuario** (`docs/process.md` §7): el cierre ya está integrado en
-       `TrainingApp` (`33afc98`, 2026-10-27). Falta `git worktree remove` del worktree
-       `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
-       `TrainingApp_Fase11` de LocalDB. Lo mismo con `fase-10` y `TrainingApp_Fase10`.
+       `TrainingApp` (`33afc98`, 2026-10-27). Falta `git branch -d fase-11` (su carpeta ahora
+       es el worktree de `spec-021`) y, si ya no se usa, borrar la BD `TrainingApp_Fase11` de
+       LocalDB. Con `fase-10`: `git worktree prune` (su carpeta ya no existe) y
+       `TrainingApp_Fase10`.
   3. **R3 · Custom Resource Setup ✅** (2026-10-26 a 2026-10-27, ver "Historial"; spec y plan
      `docs/specs/020-*.md`, D-180 a D-201): **E1 a E5**, probadas por el usuario, directo en
      `TrainingApp` (sesión `Custom-RS`):
@@ -94,6 +96,32 @@ código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver
        publicar este código; el `03` y el código van juntos (sin él, iniciar una sesión
        falla). La BD local `TrainingApp` ya los tiene. Para el piloto,
        `Database/Ops/SetGuideResourceSetupType.sql` o la página Guías.
+  4. **Spec 021 · Área asignada por operador ✅** (2026-10-27, ver "Historial"; spec y plan
+     `docs/specs/021-*.md`, D-165 a D-179 y D-208; cierra B-20, B-3 y B-4), rama `spec-021`,
+     lista para integrar en `TrainingApp` (fast-forward, lo hace el usuario):
+     - **E1 · Datos y DAL:** `Users.AreaId` (FK a `Areas`), los SPs del usuario y de Operadores
+       con el área, `spUserChooseArea`, `spUserSetArea` y `spAreaGetEligible`; Domain y DAL.
+       Sin cambios visibles. Probada en LocalDB (limpia y sobre una BD anterior con usuarios,
+       sesiones e intentos; dos corridas). Tests: 393.
+     - **E2 · BLL:** `TrainingAccessRule` (quién inicia qué guía; corrige B-20),
+       `StartSession` valida antes de abandonar la sesión en curso, `OperatorAreaService`
+       (elegir la propia), `UserAdminService.SetArea`, `TrainingGuideService.GetEligibleAreas` y
+       `GetStartOptions`, `AreaLabel` ("Producto · Área"); B-4 (modo no definido, enmienda 1).
+       Tests: 414. Hasta la E3, un operador
+       sin área no puede iniciar ninguna guía (página de error, esperado).
+     - **E3 · UI del operador:** `ChooseArea.aspx` (un selector agrupado por producto y la
+       confirmación Sí/No), `SessionHelper.MustChooseArea` (clave `HasArea`, escrita solo en
+       `SetUserSession`) y `RefreshUserSession`; `StartSession` muestra el área como texto y solo
+       sus guías (sin área: aviso D-168); `GuidedTest` redirige igual.
+     - **E4 · Usuarios:** columna Área con un lápiz en filas de Operator que abre ahí el
+       selector agrupado, con Guardar (`adminConfirm`) y Cancelar. Sin Quitar área, ni en la
+       página ni en la BLL (enmienda 1, D-208). B-3 ya estaba corregido por la 018 (E2).
+     - **E5 · Dashboard:** el área en Operadores (lista y Excel) y en el encabezado del Operador
+       (también en la ficha impresa); filtros y números sin cambios (D-175). Docs de cierre.
+       Tests: 415.
+     - **Pendiente del usuario:** integrar `spec-021` en `TrainingApp` (fast-forward). Antes de
+       publicar, correr `00`, `01`, `02`, `05` y `10` en la BD de producción; avisar a los
+       trainers que todos los operadores elegirán su área en su próximo ingreso (D-170).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en
@@ -128,7 +156,8 @@ final (D-16) repasó esta lista.
   parcial. `PodService` crea sus repositorios internamente, así que lo que hace alrededor
   del puntaje (registrar el intento, avance forzado, guardar `FinalScore`) no se puede probar
   sin BD; se probó en el navegador (spec 009, auditoría final). Cubrirlo sería otra fase
-  (interfaces de repositorio o integración contra LocalDB).
+  (interfaces de repositorio o integración contra LocalDB). Tampoco tiene test el orden
+  validar-antes-de-abandonar en `StartSession` (spec 021); la regla sí (`TrainingAccessRule`).
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.

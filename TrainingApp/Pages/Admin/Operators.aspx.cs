@@ -116,6 +116,7 @@ namespace TrainingApp.Pages.Admin
                 UserId           = row.UserId,
                 Code1            = row.Code1,
                 Name             = row.Name,
+                AreaText         = row.AreaText,
                 LastActivityText = ReportText.Date(row.LastActivity),
                 DetailUrl        = VirtualPathUtility.ToAbsolute("~/Pages/Admin/Operator.aspx") + "?id=" + row.UserId,
                 // "Sin iniciar" también es un estado con su insignia (P-2), no un "—".

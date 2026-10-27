@@ -16,6 +16,15 @@ namespace TrainingApp.Pages.Admin
         public string CreatedText { get; set; }
         public string LastLoginText { get; set; }
 
+        // Área (spec 021, P-9): "Producto · Área", "Sin área" o "—" para un administrador.
+        public string AreaText { get; set; }
+
+        // Solo un Operator tiene área: Cambiar área no sale en la fila de un admin (AC-10).
+        // AreaId: la actual, preseleccionada al cambiarla.
+        public bool IsOperator { get; set; }
+        public int? AreaId { get; set; }
+        public string Who { get; set; }
+
         public bool IsLocked { get; set; }
 
         // El admin autenticado: no puede borrarse a sí mismo (AC-13b).

@@ -116,10 +116,13 @@ namespace TrainingApp.BLL.Training
         // Inicia una guía: la BD abandona las otras sesiones en curso del operador (D-9) y aquí
         // se descarta el estado del POD de las sesiones anteriores de este login, abandonadas
         // o completadas (auditoría AUD-41).
+        // Valida antes de Start, que abandona las sesiones en curso (D-9): un inicio rechazado no
+        // las toca (spec 021, AC-8). Guía inexistente o no publicada (B-20), otra área u operador
+        // sin área o modo no definido (B-4): excepción, no intento.
         public TrainingSession StartSession(int userId, int guideId, SessionMode mode)
         {
-            var guide = _guideService.GetById(guideId)
-                ?? throw new ArgumentException("La guía no existe.", nameof(guideId));
+            var guide = _guideService.GetById(guideId);
+            TrainingAccessRule.EnsureCanStart(_userRepo.GetById(userId), guide, mode);
             var session = _sessionService.Start(userId, guide, mode);
             _store.RemoveAll();
             return session;

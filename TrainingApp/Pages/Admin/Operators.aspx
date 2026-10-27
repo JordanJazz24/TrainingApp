@@ -48,6 +48,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Operador</th>
+                            <th scope="col">Área</th>
                             <asp:Repeater ID="RptGuideHeaders" runat="server">
                                 <ItemTemplate>
                                     <th scope="col" title='<%#: Eval("Title") %>'><%#: Eval("AreaName") %></th>
@@ -64,6 +65,7 @@
                                         <a class="operators-name" href='<%#: Eval("DetailUrl") %>'><%#: Eval("Name") %></a>
                                         <span class="mt-muted mt-small d-block"><%#: Eval("Code1") %></span>
                                     </td>
+                                    <td class="text-nowrap"><%#: Eval("AreaText") %></td>
                                     <asp:Repeater runat="server" DataSource='<%# Eval("Guides") %>'>
                                         <ItemTemplate>
                                             <td>

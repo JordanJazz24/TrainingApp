@@ -5,16 +5,20 @@
 -- Requiere: 00_Schema.sql · Re-ejecutable: sí (CREATE OR ALTER).
 -- ============================================================
 
--- spUserGetByCode1 — usuario local por su código de empleado.
+-- spUserGetByCode1 — usuario local por su código de empleado, con su área
+-- (spec 021; NULL si no tiene).
 CREATE OR ALTER PROCEDURE dbo.spUserGetByCode1
     @Code1 NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, Code1, Name, PasswordHash, IsFirstLogin, CreatedAt,
-           Role, LastLoginAt, FailedLoginCount, LockedUntil
-    FROM   dbo.Users
-    WHERE  Code1 = @Code1;
+    SELECT u.Id, u.Code1, u.Name, u.PasswordHash, u.IsFirstLogin, u.CreatedAt,
+           u.Role, u.LastLoginAt, u.FailedLoginCount, u.LockedUntil,
+           u.AreaId, p.Name AS ProductName, a.Name AS AreaName
+    FROM   dbo.Users u
+    LEFT   JOIN dbo.Areas    a ON a.Id = u.AreaId
+    LEFT   JOIN dbo.Products p ON p.Id = a.ProductId
+    WHERE  u.Code1 = @Code1;
 END;
 GO
 
@@ -102,23 +106,27 @@ GO
 -- verifica antes que quien llama es administrador. ───────────────────────
 
 -- spUserGetById — usuario por Id (el admin autenticado y el usuario sobre
--- el que actúa).
+-- el que actúa), con su área (spec 021; NULL si no tiene).
 CREATE OR ALTER PROCEDURE dbo.spUserGetById
     @UserId INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, Code1, Name, PasswordHash, IsFirstLogin, CreatedAt,
-           Role, LastLoginAt, FailedLoginCount, LockedUntil
-    FROM   dbo.Users
-    WHERE  Id = @UserId;
+    SELECT u.Id, u.Code1, u.Name, u.PasswordHash, u.IsFirstLogin, u.CreatedAt,
+           u.Role, u.LastLoginAt, u.FailedLoginCount, u.LockedUntil,
+           u.AreaId, p.Name AS ProductName, a.Name AS AreaName
+    FROM   dbo.Users u
+    LEFT   JOIN dbo.Areas    a ON a.Id = u.AreaId
+    LEFT   JOIN dbo.Products p ON p.Id = a.ProductId
+    WHERE  u.Id = @UserId;
 END;
 GO
 
 -- spUserSearch — una página de la lista, ordenada por nombre. @Text vacío
 -- = todos; si no, el Code1 o el nombre lo contienen (los comodines de LIKE
 -- que escriba el admin se toman literales). Dos resultados: el total y las
--- filas de la página, cada una con su cantidad de sesiones de entrenamiento.
+-- filas de la página, cada una con su cantidad de sesiones de entrenamiento
+-- y su área (spec 021; NULL si no tiene).
 CREATE OR ALTER PROCEDURE dbo.spUserSearch
     @Text     NVARCHAR(200),
     @Offset   INT,
@@ -137,8 +145,11 @@ BEGIN
 
     SELECT u.Id, u.Code1, u.Name, u.PasswordHash, u.IsFirstLogin, u.CreatedAt,
            u.Role, u.LastLoginAt, u.FailedLoginCount, u.LockedUntil,
+           u.AreaId, p.Name AS ProductName, a.Name AS AreaName,
            (SELECT COUNT(*) FROM dbo.TrainingSessions s WHERE s.UserId = u.Id) AS SessionCount
     FROM   dbo.Users u
+    LEFT   JOIN dbo.Areas    a ON a.Id = u.AreaId
+    LEFT   JOIN dbo.Products p ON p.Id = a.ProductId
     WHERE  @Pattern IS NULL OR u.Code1 LIKE @Pattern OR u.Name LIKE @Pattern
     ORDER  BY u.Name, u.Code1
     OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
@@ -159,6 +170,43 @@ BEGIN
            FailedLoginCount = 0,
            LockedUntil      = NULL
     WHERE  Id = @UserId;
+END;
+GO
+
+-- spUserChooseArea — el operador elige su propia área (spec 021, P-4). Solo
+-- si la cuenta es Operator y aún no tiene área: dos pestañas no pisan una
+-- elección ya hecha. Que el área sea elegible lo verifica la BLL. Devuelve
+-- las filas afectadas (0 = ya tenía área, no es Operator o no existe).
+CREATE OR ALTER PROCEDURE dbo.spUserChooseArea
+    @UserId INT,
+    @AreaId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.Users
+    SET    AreaId = @AreaId
+    WHERE  Id = @UserId
+      AND  AreaId IS NULL
+      AND  Role = 1;
+    SELECT @@ROWCOUNT;
+END;
+GO
+
+-- spUserSetArea — un admin cambia o quita (@AreaId NULL) el área de un
+-- Operator (spec 021, P-5). Que quien llama sea admin y que el área sea
+-- elegible lo verifica la BLL. Devuelve las filas afectadas (0 = la cuenta
+-- no es Operator o no existe).
+CREATE OR ALTER PROCEDURE dbo.spUserSetArea
+    @UserId INT,
+    @AreaId INT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE dbo.Users
+    SET    AreaId = @AreaId
+    WHERE  Id = @UserId
+      AND  Role = 1;
+    SELECT @@ROWCOUNT;
 END;
 GO
 

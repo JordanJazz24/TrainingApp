@@ -35,21 +35,18 @@ namespace TrainingApp.Pages.Training
                 return;
             }
 
+            // Spec 021 (D-169): sin área, primero la elige.
+            if (SessionHelper.MustChooseArea())
+            {
+                Response.Redirect(SessionHelper.ChooseAreaUrl);
+                return;
+            }
+
             if (!IsPostBack)
             {
                 LblLastAccess.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
-                LoadProducts();
+                LoadStartOptions();
             }
-        }
-
-        protected void DdlProduct_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            LoadAreas();
-        }
-
-        protected void DdlArea_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            LoadGuides();
         }
 
         protected void BtnStart_Click(object sender, EventArgs e)
@@ -70,54 +67,18 @@ namespace TrainingApp.Pages.Training
             Response.Redirect("~/Pages/Training/GuidedTest.aspx?sessionId=" + session.Id);
         }
 
-        private void LoadProducts()
+        // Spec 021 (D-167, D-168): el área de la BD en cada carga (P-3) y solo sus guías publicadas.
+        private void LoadStartOptions()
         {
-            var products = _guideService.GetAllProducts();
-            DdlProduct.Items.Clear();
-            DdlProduct.Items.Add(new ListItem("-- Selecciona un producto --", "0"));
-            foreach (var p in products)
-                DdlProduct.Items.Add(new ListItem(p.Name, p.Id.ToString()));
-        }
+            var options = _guideService.GetStartOptions((int)Session[Constants.SessionKeys.UserId]);
+            LblNoArea.Visible = !options.HasArea;
+            PhStart.Visible   = options.HasArea;
+            if (!options.HasArea) return;
 
-        private void LoadAreas()
-        {
-            DdlArea.Items.Clear();
+            LblArea.Text = HttpUtility.HtmlEncode(options.AreaText);
             DdlGuide.Items.Clear();
-            LblNoGuides.Visible = false;
-
-            if (!int.TryParse(DdlProduct.SelectedValue, out int productId) || productId == 0)
-            {
-                DdlArea.Items.Add(new ListItem("-- Selecciona un producto primero --", "0"));
-                return;
-            }
-
-            var areas = _guideService.GetAreasByProduct(productId);
-            DdlArea.Items.Add(new ListItem("-- Selecciona un área --", "0"));
-            foreach (var a in areas)
-                DdlArea.Items.Add(new ListItem(a.Name, a.Id.ToString()));
-
-            LoadGuides();
-        }
-
-        private void LoadGuides()
-        {
-            DdlGuide.Items.Clear();
-            LblNoGuides.Visible = false;
-
-            if (!int.TryParse(DdlArea.SelectedValue, out int areaId) || areaId == 0)
-            {
-                DdlGuide.Items.Add(new ListItem("-- Selecciona un área primero --", "0"));
-                return;
-            }
-
-            var guides = _guideService.GetByArea(areaId);
-            if (guides.Count == 0)
-            {
-                LblNoGuides.Visible = true;
-                return;
-            }
-
-            foreach (var g in guides)
+            LblNoGuides.Visible = options.Guides.Count == 0;
+            foreach (var g in options.Guides)
                 DdlGuide.Items.Add(new ListItem(g.Title, g.Id.ToString()));
         }
 

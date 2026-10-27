@@ -1596,6 +1596,11 @@ namespace TrainingApp.Pages.Training
             if (SessionHelper.MustChangePassword())
                 return Leave(logoutClick, () => Response.Redirect(SessionHelper.ChangePasswordUrl));
 
+            // Spec 021 (D-169): sin área, primero la elige. Una sesión en curso de otra área
+            // (el admin cambió el área) sigue: esto solo mira si tiene alguna (D-174).
+            if (SessionHelper.MustChooseArea())
+                return Leave(logoutClick, () => Response.Redirect(SessionHelper.ChooseAreaUrl));
+
             // null: la sesión no existe, es de otro operador o ya no está en curso.
             var ctx = int.TryParse(Request.QueryString["sessionId"], out int sessionId)
                 ? Pod.LoadContext(sessionId, CurrentUserId) : null;

@@ -8,7 +8,7 @@
 --   02_spTrainingGuide.sql   SPs de guías y catálogos + spTrainingGuideSync
 --   03_spTrainingSession.sql SPs de sesiones
 --   04_spStepAttempt.sql     SPs de intentos por paso
---   05_SeedData.sql          DATOS DE EJEMPLO (solo desarrollo)
+--   05_SeedData.sql          DATOS DE EJEMPLO (Redefinity)
 --   06_RCMoldeoCatalog.sql   catálogo real de S&RC / Moldeo
 --   07_RCMoldeoGuide.sql     guía real de S&RC / Moldeo
 --   08_SensoresLoFloCatalog.sql  catálogo de Sensores / LoFlo (flags reales; NC, DC y BOM simulados)
@@ -67,6 +67,8 @@ CREATE TABLE dbo.Operations (
 -- Users  (cuenta local de un empleado de la API; antes Operators, D-17)
 -- Role: 1=Operator, 2=Administrator (spec 013; roles excluyentes)
 -- LastLoginAt / LockedUntil en UTC. FailedLoginCount: fallos seguidos.
+-- AreaId (spec 021, D-165): el área donde entrena; solo la usa el rol
+--   Operator. NULL = sin área (la elige en su próximo ingreso).
 -- -------------------------------------------------------
 IF OBJECT_ID('dbo.Users', 'U') IS NULL
 CREATE TABLE dbo.Users (
@@ -80,8 +82,14 @@ CREATE TABLE dbo.Users (
     LastLoginAt      DATETIME2     NULL,
     FailedLoginCount INT           NOT NULL DEFAULT 0,
     LockedUntil      DATETIME2     NULL,
+    AreaId           INT           NULL CONSTRAINT FK_Users_Areas REFERENCES dbo.Areas(Id),
     CONSTRAINT UQ_Users_Code1 UNIQUE (Code1)
 );
+
+-- BD anterior a la spec 021: los usuarios existentes quedan sin área.
+IF COL_LENGTH('dbo.Users', 'AreaId') IS NULL
+    ALTER TABLE dbo.Users ADD AreaId INT NULL
+        CONSTRAINT FK_Users_Areas REFERENCES dbo.Areas(Id);
 
 -- -------------------------------------------------------
 -- TrainingGuides

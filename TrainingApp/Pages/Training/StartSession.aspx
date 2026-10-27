@@ -16,17 +16,16 @@
             <asp:Label ID="LblError" runat="server" CssClass="alert alert-danger d-block mb-4"
                 Visible="false" />
 
-            <div class="start-fields">
-                <div class="mt-field">
-                    <asp:Label runat="server" AssociatedControlID="DdlProduct" CssClass="mt-field-label">Producto</asp:Label>
-                    <asp:DropDownList ID="DdlProduct" runat="server" CssClass="form-select"
-                        AutoPostBack="true" OnSelectedIndexChanged="DdlProduct_SelectedIndexChanged" />
-                </div>
+            <%-- Sin área (el admin la quitó durante la Session): aviso, sin guía ni Iniciar (D-168). --%>
+            <asp:Label ID="LblNoArea" runat="server" CssClass="alert alert-warning d-block mb-0" Visible="false"
+                Text="Aún no tienes un área asignada. Cierra sesión y vuelve a entrar para elegirla, o pide a tu trainer que te la asigne." />
 
+            <asp:PlaceHolder ID="PhStart" runat="server">
+            <div class="start-fields">
+                <%-- Spec 021 (D-167): el área es fija, como texto; solo se elige la guía. --%>
                 <div class="mt-field">
-                    <asp:Label runat="server" AssociatedControlID="DdlArea" CssClass="mt-field-label">Área</asp:Label>
-                    <asp:DropDownList ID="DdlArea" runat="server" CssClass="form-select"
-                        AutoPostBack="true" OnSelectedIndexChanged="DdlArea_SelectedIndexChanged" />
+                    <span class="mt-field-label">Área</span>
+                    <asp:Label ID="LblArea" runat="server" CssClass="fw-semibold" />
                 </div>
 
                 <div class="mt-field">
@@ -63,6 +62,7 @@
 
             <asp:Button ID="BtnStart" runat="server" Text="Iniciar"
                 CssClass="btn btn-primary w-100" OnClick="BtnStart_Click" />
+            </asp:PlaceHolder>
         </section>
     </div>
 </asp:Content>

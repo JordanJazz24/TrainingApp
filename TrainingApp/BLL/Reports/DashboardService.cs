@@ -32,6 +32,10 @@ namespace TrainingApp.BLL.Reports
         public int UserId { get; set; }
         public string Code1 { get; set; }
         public string Name { get; set; }
+
+        // "Producto · Área" o "Sin área" (spec 021, D-175, P-9): solo se muestra; filtros y
+        // estados siguen por la guía.
+        public string AreaText { get; set; }
         public IList<GuideReadiness> Guides { get; set; }
 
         // Sin iniciar: ninguna sesión en ninguna guía publicada.
@@ -80,6 +84,9 @@ namespace TrainingApp.BLL.Reports
         public int UserId { get; set; }
         public string Code1 { get; set; }
         public string Name { get; set; }
+
+        // "Producto · Área" o "Sin área" (spec 021, D-175): solo se muestra.
+        public string AreaText { get; set; }
         public IList<DashboardGuide> Guides { get; set; }
 
         // Una por guía publicada, en el orden de Guides.
@@ -291,10 +298,11 @@ namespace TrainingApp.BLL.Reports
             var rows = _dashboard.GetOperators(text)
                 .Select(o => new OperatorRow
                 {
-                    UserId = o.UserId,
-                    Code1  = o.Code1,
-                    Name   = o.Name,
-                    Guides = guides.Select(g => ReadinessPolicy.ForGuide(g.Id, sessionsByUser[o.UserId])).ToList()
+                    UserId   = o.UserId,
+                    Code1    = o.Code1,
+                    Name     = o.Name,
+                    AreaText = AreaLabel.Of(o.ProductName, o.AreaName) ?? AreaLabel.NoArea,
+                    Guides   = guides.Select(g => ReadinessPolicy.ForGuide(g.Id, sessionsByUser[o.UserId])).ToList()
                 })
                 .Where(r => Matches(r, state, guideId))
                 .ToList();
@@ -348,6 +356,7 @@ namespace TrainingApp.BLL.Reports
                 UserId    = user.Id,
                 Code1     = user.Code1,
                 Name      = user.Name,
+                AreaText  = AreaLabel.Of(user.ProductName, user.AreaName) ?? AreaLabel.NoArea,
                 Guides    = guides,
                 Readiness = guides.Select(g => ReadinessPolicy.ForGuide(g.Id, sessions)).ToList(),
                 Sessions  = sessions

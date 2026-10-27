@@ -1,11 +1,11 @@
 -- ============================================================
--- 05_SeedData.sql — DATOS DE EJEMPLO. NO USAR EN PRODUCCIÓN.
+-- 05_SeedData.sql — DATOS DE EJEMPLO.
 --
--- Solo para correr y probar el sistema en desarrollo. Las áreas son
--- reales (CLAUDE.md → "Jerarquía"), pero sus flags, la guía de
--- Redefinity y sus catálogos son aproximaciones y NO representan
--- decisiones de negocio. El catálogo real de cada área va en su
--- propio script (ej. 06_RCMoldeoCatalog.sql).
+-- Las áreas son reales (CLAUDE.md → "Jerarquía"), pero sus flags, la
+-- guía de Redefinity y sus catálogos son aproximaciones y NO representan
+-- decisiones de negocio. Aun así, Redefinity se ofrece a los operadores
+-- como cualquier área con guía publicada (spec 021, D-178). El catálogo
+-- real de cada área va en su propio script (ej. 06_RCMoldeoCatalog.sql).
 --
 --   · Redefinity (Catéteres): Serialized con Assembly y DC, para probar
 --     ese camino de punta a punta (spec 008). Guía publicada, 3 códigos

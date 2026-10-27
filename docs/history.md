@@ -564,3 +564,28 @@ resúmenes (D-197).
 - **Queda abierto:**
   - B-20: `StartSession` no revisa que la guía esté publicada;
   - correr `00`, `02` y `03` en la BD de producción antes de publicar (usuario).
+
+## Spec 021 · Área asignada por operador ✅ (2026-10-27)
+**Objetivo:** cada operador entrena en una sola área y solo inicia las guías publicadas de esa
+área (spec `docs/specs/021-area-operador.md`, plan `021-plan.md`, D-165 a D-179 y D-208). Rama
+`spec-021`, en el worktree `.claude/worktrees/fase-11`.
+- **E1 (`425e944`, datos y DAL):** `Users.AreaId` con FK a `Areas` (en el `CREATE` y con su
+  `ALTER` idempotente), el área en `spUserGetBy*`, `spUserSearch` y `spDashboardOperators`;
+  `spUserChooseArea`, `spUserSetArea` y `spAreaGetEligible`. Se quitó "NO USAR EN PRODUCCIÓN"
+  de `05` (D-178). Probada en LocalDB (limpia y sobre una BD anterior, dos corridas).
+- **E2 (`d6af08d`, BLL):** `TrainingAccessRule` y `StartSession` validando antes de abandonar
+  la sesión en curso (AC-8; corrige **B-20** y **B-4**, enmienda 1 del plan),
+  `OperatorAreaService.ChooseOwnArea`, `UserAdminService.SetArea`, `AreaLabel`. Tests: 414.
+- **E3 (`a483731`, operador):** "Elige tu área" (`ChooseArea.aspx`, selector agrupado por
+  producto y la confirmación), `SessionHelper.MustChooseArea` y `RefreshUserSession`; el inicio
+  con el área como texto y solo sus guías.
+- **E4 (`03cd8df`, Usuarios):** la columna Área con un lápiz que abre el selector en la fila.
+  Al probarla, el usuario quitó "Quitar área", también de la BLL (enmienda 1 de la spec,
+  D-208). **B-3** ya estaba corregido por la 018 (E2).
+- **E5 (dashboard y cierre):** el área en Operadores (lista y Excel) y en el encabezado y la
+  ficha del Operador; filtros y números sin cambios (D-175). Docs: `domain.md` ("Área del
+  operador"), `architecture.md` (paso 6 del login), `CLAUDE.md` (`MustChooseArea` en
+  "Sesión y seguridad"), `decisions.md` (B-20 corregido) y la spec en Implemented. Tests: 415.
+- Probada por el usuario entrega por entrega.
+- **Queda abierto:** correr `00`, `01`, `02`, `05` y `10` en la BD de producción antes de
+  publicar y avisar a los trainers (D-170).
