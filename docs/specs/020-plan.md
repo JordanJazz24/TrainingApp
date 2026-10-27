@@ -26,60 +26,60 @@ markup si se tocó `.aspx`/`.ascx`/`.master`, tests, `/code-review` con nivel y 
 - Sin ORM, sin SQL inline; la lógica en la BLL; el code-behind solo UI.
 - `GuidedTest.aspx(.cs)`: cambios mínimos (un control estático más, alternando `Visible`).
 
-## E1 · Datos y dominio
+## E1 · Datos y dominio ✅ (`144d845`)
 
-- [ ] `Domain/ResourceSetupType.cs`: enum `Standard = 0`, `Custom = 1`.
-- [ ] `00_Schema.sql`: `TrainingGuides.ResourceSetupType TINYINT NOT NULL DEFAULT 0` y
+- [x] `Domain/ResourceSetupType.cs`: enum `Standard = 0`, `Custom = 1`.
+- [x] `00_Schema.sql`: `TrainingGuides.ResourceSetupType TINYINT NOT NULL DEFAULT 0` y
       `TrainingSessions.ResourceSetupType TINYINT NOT NULL DEFAULT 0` (en el `CREATE` y un
       `IF COL_LENGTH(...) IS NULL ALTER TABLE ... ADD` para la BD existente). Comentario de
       los valores como en `Mode` y `Status`.
-- [ ] `02_spTrainingGuide.sql`: los SP de lectura devuelven `ResourceSetupType`; SP nuevo
+- [x] `02_spTrainingGuide.sql`: los SP de lectura devuelven `ResourceSetupType`; SP nuevo
       `spTrainingGuideSetResourceSetupType (@Id, @ResourceSetupType)`. `spTrainingGuideSync`
       **no** toca la columna.
-- [ ] `03_spTrainingSession.sql`: `spTrainingSessionInsert` guarda el tipo y
+- [x] `03_spTrainingSession.sql`: `spTrainingSessionInsert` guarda el tipo y
       `spTrainingSessionGetById` lo devuelve.
-- [ ] `Domain/TrainingGuide.cs` y `Domain/TrainingSession.cs`: propiedad `ResourceSetupType`.
-- [ ] `DAL/Repositories/TrainingGuideRepository.cs` y `TrainingSessionRepository.cs`: mapean la
+- [x] `Domain/TrainingGuide.cs` y `Domain/TrainingSession.cs`: propiedad `ResourceSetupType`.
+- [x] `DAL/Repositories/TrainingGuideRepository.cs` y `TrainingSessionRepository.cs`: mapean la
       columna; el repositorio de guías agrega `SetResourceSetupType`.
-- [ ] `Database/Ops/SetGuideResourceSetupType.sql`: pone el tipo de una guía por título o Id, con
+- [x] `Database/Ops/SetGuideResourceSetupType.sql`: pone el tipo de una guía por título o Id, con
       el SELECT previo y posterior. Es el camino del piloto hasta la E4 (D-194: todas Standard).
-- [ ] Verificación: scripts en una BD descartable de LocalDB (instalación limpia y re-ejecución
+- [x] Verificación: scripts en una BD descartable de LocalDB (instalación limpia y re-ejecución
       con sesiones e intentos); las sesiones existentes quedan en Standard.
-- [ ] `/code-review low` sobre `00`, `02`, `03` y el DAL: valores por defecto, `ALTER` idempotente.
+- [x] `/code-review low` sobre `00`, `02`, `03` y el DAL: valores por defecto, `ALTER` idempotente.
 
 **Hecho cuando:** compila, los scripts corren dos veces sin error y una guía/sesión nueva trae
 `Standard`.
 
-## E2 · BLL, calificación y tests
+## E2 · BLL, calificación y tests ✅ (`a0c7c77`)
 
-- [ ] `BLL/Training/CustomResourceSetupProvider.cs`: el único punto de acceso a los datos de
+- [x] `BLL/Training/CustomResourceSetupProvider.cs`: el único punto de acceso a los datos de
       Custom RS (D-184). `For(PodContext ctx)` devuelve `Site`, `Resource`
       (`ctx.ResourceName`), `Operation` (`ctx.CurrentOperationName`) y los **Tool Groups**: pool
       de 8 (código y descripción de la captura), de 2 a 4 sorteados con `new Random(session.Id)`,
       en orden alfabético por código. Sin tablas todavía; la costura hacia las Operations es el
       cambio de este archivo.
-- [ ] `TrainingSessionService.Start` copia `guide.ResourceSetupType` a la sesión (D-188).
-- [ ] `PodContext`: `ResourceSetupType` (de la sesión) y `CustomResourceSetup` (datos del
+- [x] `TrainingSessionService.Start` copia `guide.ResourceSetupType` a la sesión (D-188).
+- [x] `PodContext`: `ResourceSetupType` (de la sesión) y `CustomResourceSetup` (datos del
       proveedor, perezoso).
-- [ ] `PodService.OpenResourceSetup`: con Custom **no** genera equipos precargados (D-186) y
+- [x] `PodService.OpenResourceSetup`: con Custom **no** genera equipos precargados (D-186) y
       respeta la secuencia como hoy.
-- [ ] `StepValidator.ValidateResourceSetup`: el JSON de Custom es
+- [x] `StepValidator.ValidateResourceSetup`: el JSON de Custom es
       `{"setupState","shopOrderAssociated","shopOrder","tools":[{"group","value"}]}`. Correcto
       solo con `setupState = "Set Up"` y `shopOrderAssociated = true` (D-183, D-191). Los Tool
       Numbers no se califican.
-- [ ] `PodService.SubmitResourceSetup`: la orden se crea con la Shop Order de Custom (también
+- [x] `PodService.SubmitResourceSetup`: la orden se crea con la Shop Order de Custom (también
       en Open, D-193); sin asociar, intento fallido y sin orden (D-191); el avance forzado usa
       la orden por defecto. Valida en la BLL el formato que el cliente debería haber avisado:
       Shop Order numérica y al menos un Tool Number (violarlo es excepción, no intento).
-- [ ] `AccessPolicy.CanManageGuides` (solo Administrator) y su pareja en `SessionHelper`.
-- [ ] `BLL/Admin/GuideAdminService.cs`: lista guías con producto, área, título, publicada y tipo;
+- [x] `AccessPolicy.CanManageGuides` (solo Administrator) y su pareja en `SessionHelper`.
+- [x] `BLL/Admin/GuideAdminService.cs`: lista guías con producto, área, título, publicada y tipo;
       `SetResourceSetupType(adminUserId, guideId, type)` verifica `CanManageGuides` en la BLL.
-- [ ] Respuesta de un tipo que no es el de la sesión: `ArgumentException`, sin intento (D-196).
-- [ ] Tests (NUnit, en memoria): proveedor (cantidad 2 a 4, estable por sesión, orden, sin
+- [x] Respuesta de un tipo que no es el de la sesión: `ArgumentException`, sin intento (D-196).
+- [x] Tests (NUnit, en memoria): proveedor (cantidad 2 a 4, estable por sesión, orden, sin
       repetidos), validador de Custom (Set Up, Open, sin asociar, sin herramientas), sesión que
       copia el tipo, `AccessPolicy`, `GuideAdminService` (rol, guía inexistente).
-- [ ] `ScoreCalculatorTests` y el resto siguen en verde (AC-12).
-- [ ] `/code-review medium` sobre `BLL/Training` y `BLL/Scoring`: invariantes del servidor,
+- [x] `ScoreCalculatorTests` y el resto siguen en verde (AC-12).
+- [x] `/code-review medium` sobre `BLL/Training` y `BLL/Scoring`: invariantes del servidor,
       respuesta manipulada, sesión Standard que recibe una respuesta Custom (y al revés).
 
 > **E2, resultado del `/code-review medium` (2026-10-26):** se aplicaron: `SubmitStep` público
@@ -92,32 +92,32 @@ markup si se tocó `.aspx`/`.ascx`/`.master`, tests, `/code-review` con nivel y 
 **Hecho cuando:** tests verdes y el servidor rechaza o califica correctamente cualquier
 respuesta, sin que exista todavía la pantalla.
 
-## E3 · El modal, la guía de Guided y el cableado
+## E3 · El modal, la guía de Guided y el cableado ✅ (`3a18960`, `82d000d`; enmienda 1 de la spec: D-200, D-201)
 
-- [ ] `UI/Controls/Training/CustomResourceSetupControl.ascx(.cs)`: modal Bootstrap con el
+- [x] `UI/Controls/Training/CustomResourceSetupControl.ascx(.cs)`: modal Bootstrap con el
       diseño de las capturas (panel celeste, campos con etiqueta, botones Retrieve / Associate /
       Save / Clear con ícono, Code1 arriba a la derecha) y las tres ventanas Information,
       Confirmation y Success (D-190). Implementa `IStepControl`, estático.
-- [ ] Cliente (un postback, D-189): Retrieve habilita Setup State y Associate; Associate valida
+- [x] Cliente (un postback, D-189): Retrieve habilita Setup State y Associate; Associate valida
       la Shop Order numérica (aviso de formato, sin intento, D-191), muestra el Information y
       carga la tabla de Tool Groups; Save arma el JSON, valida `<`/`>` y que haya un Tool Number
       si la orden está asociada, y abre la Confirmation; Yes envía el postback; No no hace nada;
       Clear restaura el estado inicial (D-192). Volver a asociar conserva los Tool Numbers. El
       ícono ⧉ es decorativo (D-182).
-- [ ] CSS propio del modal en un archivo nuevo (`Content/custom-rs.css` o junto a `pod.css`,
+- [x] CSS propio del modal en un archivo nuevo (`Content/custom-rs.css` o junto a `pod.css`,
       según el patrón del POD), con clases estándar de Bootstrap 5.3.8. Sin tocar `admin.css`.
-- [ ] `GuidedTest.aspx`: `CtrlCustomResourceSetup` estático con `Visible`;
+- [x] `GuidedTest.aspx`: `CtrlCustomResourceSetup` estático con `Visible`;
       `GuidedTest.aspx.cs`: `StepControlFor`, `OpenStepControl`, `ReopenModal`, el nombre del
       modal y el `ViewModel` (datos del proveedor) eligen el control según
       `_ctx.ResourceSetupType`; el éxito abre el Success en vez de "Record changed" (D-190).
-- [ ] Guía visual (spec 010): anclas `data-guide="crs-*"` (nunca ids) y su guion en
+- [x] Guía visual (spec 010): anclas `data-guide="crs-*"` (nunca ids) y su guion en
       `GuideScriptBuilder` para la secuencia completa (Retrieve, Set Up, Shop Order, Associate,
       Tool Number, Save, Yes). Assessment y Práctica no reciben el guion. `StepHints` si aplica.
-- [ ] Probar: guía Standard sin cambios (AC-2); guía Custom en Guided, Assessment y Práctica
+- [x] Probar: guía Standard sin cambios (AC-2); guía Custom en Guided, Assessment y Práctica
       (AC-1, 3 a 6, 10); botón fuera de secuencia, avance forzado y reconstrucción del POD
       (AC-11); recarga de página en medio del modal (los mismos Tool Groups, AC-7); modo oscuro y
       claro (Fase 11).
-- [ ] Precompilar el markup (`aspnet_compiler`) y `/code-review medium` sobre el control, el
+- [x] Precompilar el markup (`aspnet_compiler`) y `/code-review medium` sobre el control, el
       cliente y el cableado de `GuidedTest`.
 
 **Hecho cuando:** el usuario recorre la secuencia completa en Guided y en Assessment con una
