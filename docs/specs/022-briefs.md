@@ -90,6 +90,11 @@ e íconos de Bootstrap Icons. Sin colores de marca corporativa (no hay guía de 
 
 Queda fuera: "olvidé mi contraseña" (lo resuelve un admin con un reset), recordarme,
 registro.
+
+Esta es la PRIMERA pantalla que se aprueba: los cambios de tokens y componentes que traiga la
+alternativa elegida valdrán para toda la app. Por eso, en cada alternativa, junto al login,
+muestra una muestra chica del sistema con esos cambios aplicados (botones, campos, una
+tarjeta, una tabla corta con insignias de estado), en claro y en oscuro.
 ```
 
 ## 2. Cambio de contraseña → `022-design/cambio-contrasena.html`
