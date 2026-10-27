@@ -93,9 +93,11 @@ namespace TrainingApp.BLL.Training
         // Invariantes del Save antes de calificarlo; violarlos es una manipulación, no un intento:
         // - el Save tiene que ser de la pantalla de la sesión (D-196);
         // - con la orden asociada, Shop Order numérica y un Tool Number por fila, que el control
-        //   ya avisa como formato (D-191).
+        //   ya avisa como formato (D-191, D-201); las filas son exactamente los Tool Groups de la
+        //   sesión: un Save que omite o cambia una fila no pasa.
         // Devuelve el Save de Custom, o null si la sesión es Standard (lo sigue SubmitResourceSetup).
-        public static CustomResourceSetupAnswer RequireForSession(ResourceSetupType sessionType, string json)
+        public static CustomResourceSetupAnswer RequireForSession(ResourceSetupType sessionType, string json,
+            IEnumerable<ToolGroup> sessionToolGroups)
         {
             bool custom = IsCustomShape(json);
             if (custom != (sessionType == ResourceSetupType.Custom))
@@ -104,9 +106,18 @@ namespace TrainingApp.BLL.Training
 
             var answer = TryParse(json)
                 ?? throw new ArgumentException("El Save de Custom Resource Setup está mal formado.", nameof(json));
-            if (!answer.IsFormatValid)
+            if (!answer.IsFormatValid || (answer.ShopOrderAssociated && !answer.MatchesGroups(sessionToolGroups)))
                 throw new ArgumentException("La orden asociada debe ser numérica y llevar un Tool Number en cada fila.", nameof(json));
             return answer;
+        }
+
+        // Una fila por cada Tool Group de la sesión, sin repetidos ni grupos de más.
+        private bool MatchesGroups(IEnumerable<ToolGroup> sessionToolGroups)
+        {
+            var expected = new HashSet<string>((sessionToolGroups ?? Enumerable.Empty<ToolGroup>()).Select(g => g.Code),
+                StringComparer.Ordinal);
+            var sent = Tools?.Select(t => t?.Group).ToList() ?? new List<string>();
+            return sent.Count == expected.Count && expected.SetEquals(sent);
         }
 
         // Shop Order con la que se crea la orden tras calificar el Save: la por defecto si el paso

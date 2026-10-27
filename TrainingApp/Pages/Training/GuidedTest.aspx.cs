@@ -616,6 +616,11 @@ namespace TrainingApp.Pages.Training
             // donde se respondió y solo se ve el SweetAlert con el hint (de ApplySubmitResult).
             if (outcome == StepSubmitOutcome.Incorrect)
             {
+                // Un Save fallido de Resource Setup puede crear la orden (Setup State "Open", spec
+                // 005 y D-193): el Browse Work List la muestra en esta misma respuesta.
+                if (step.StepType == StepType.ResourceSetup)
+                    BindBrowseList(area, session);
+
                 // Search tiene 4 modales: el control sabe cuál contiene la respuesta a corregir.
                 if (step.StepType == StepType.Search)
                 {
@@ -1525,7 +1530,7 @@ namespace TrainingApp.Pages.Training
                     if (IsCustomResourceSetup)
                     {
                         vm.ExtraData["CustomResourceSetup"] = _ctx.CustomResourceSetup;
-                        vm.ExtraData["Code1"] = Session[Constants.SessionKeys.Code1]?.ToString() ?? string.Empty;
+                        vm.ExtraData["Code1"] = _ctx.Code1;
                     }
                     break;
 

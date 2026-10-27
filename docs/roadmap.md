@@ -34,6 +34,7 @@
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
+| — · R3 Custom Resource Setup | ✅ (E1–E4: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -460,8 +461,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 **Orden (usuario, 2026-10-23):**
 1. ✅ R1 y R2, cortos: corrigen lo que hoy se le enseña al operador (2026-10-26).
 2. ✅ Fase 11, UI/UX del dashboard (2026-10-27).
-3. R3, Custom Resource Setup. **Adelantado (usuario, 2026-10-26):** va en paralelo con la
-   Fase 11, en la sesión `Custom-RS` (spec 020).
+3. ✅ R3, Custom Resource Setup (2026-10-27). **Adelantado (usuario, 2026-10-26):** fue en
+   paralelo con la Fase 11, en la sesión `Custom-RS` (spec 020).
 
 #### Revisión con Ernesto, MES (2026-10-22)
 Registrada por Reuniones y Dudas. No cambia el foco: la Fase 10 sigue con su orden.
@@ -471,7 +472,7 @@ Ernesto **aprobó el contenido del simulador**.
 |---|---|---|
 | R1 | **Quitar Hora a Hora del Ingreso a MES.** El flujo es Repositorio → Recursos MES → login de MES. Hora a Hora 3.0 es el conteo de producción, no MES; lo enseñan los trainers, pero no es parte del proceso de MES. Hoy el login califica "Log On sin Hora a Hora" como intento fallido (`MesLogin.cs`, unas 40 referencias; `docs/domain.md` → Ingreso a MES; D-72) | ✅ 2026-10-26 (`57df997`; spec 016 → enmienda 1, plan `r1-r2-plan.md`, D-151) |
 | R2 | **Quitar las "acciones disciplinarias" de los textos de la guía** ("no nos corresponde": lo dicen los trainers, no la app). Queda solo "CRÍTICO". `GuideScriptBuilder.cs`: alerta de Resource Setup y Log NC | ✅ 2026-10-26 (`57df997`; plan `r1-r2-plan.md`, D-152) |
-| R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | En curso, en paralelo con la Fase 11 · spec `020-custom-resource-setup.md` aprobada el 2026-10-26 (D-180 a D-194) · plan `020-plan.md` |
+| R3 | **Custom Resource Setup:** la pantalla del futuro (piloto en noviembre en un área, sin fecha segura). Un administrador elige la pantalla con un flag por guía; la estándar queda como predeterminada. Capturas en `docs/ui-reference/Screens SAP MES REAL/Custom Resourse Setup/` | ✅ 2026-10-27 · spec `020-custom-resource-setup.md` (D-180 a D-201, enmienda 1) · plan `020-plan.md`: E1 `144d845`, E2 `a0c7c77`, E3 `3a18960` y `82d000d`, E4 `5d12e80` |
 
 - **Confirmado:** el Logout va seguido del script de limpieza (como está, spec 016).
 - **Pesos, el 70 % y la regla de aprobación:** los deja al equipo de training (no cambian).

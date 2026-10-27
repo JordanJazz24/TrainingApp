@@ -42,8 +42,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Controls/Training/             ← un UserControl por tipo de paso (spec 006):
 │   │   │                                     ResourceSetup, LineClearance, Search (4 modales
 │   │   │                                     Moldeo), Assembly, DataCollection, SFCSplit,
-│   │   │                                     LogNC (los tres métodos, D-60), Complete y
+│   │   │                                     LogNC (los tres métodos, D-60), Complete,
 │   │   │                                     MesLogin (Ingreso a MES y limpieza, spec 016)
+│   │   │                                     y CustomResourceSetup (spec 020)
 │   │   └── master/                        ← MasterPages (heredan AntiXsrfMasterPage) + pod.css
 │   │                                         + íconos + pod-guide.js/.css (motor de la guía,
 │   │                                         solo en Guided) + presap.css e imgs/presap
@@ -55,13 +56,16 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── AuthService.cs             ← login único, bloqueo, último acceso, cambio de
 │   │   │   │                                 contraseña
 │   │   │   ├── AccessPolicy.cs            ← rol → capacidades (CanTrain, CanManageUsers,
-│   │   │   │                                 CanViewReports) (specs 013 y 018)
+│   │   │   │                                 CanViewReports, CanManageGuides) (specs 013,
+│   │   │   │                                 018 y 020)
 │   │   │   ├── RoleCache.cs               ← rol e Id de la cuenta por Code1, 2 min (Global.asax)
 │   │   │   ├── LoginLockPolicy.cs         ← 5 fallos → 15 min de bloqueo
 │   │   │   └── LoginResult.cs, ChangePasswordStatus.cs
 │   │   ├── Admin/
-│   │   │   └── UserAdminService.cs        ← gestión de usuarios: cada método verifica que
-│   │   │                                     quien llama es admin (spec 013)
+│   │   │   ├── UserAdminService.cs        ← gestión de usuarios: cada método verifica que
+│   │   │   │                                 quien llama es admin (spec 013)
+│   │   │   └── GuideAdminService.cs       ← tipo de Resource Setup de cada guía publicada;
+│   │   │                                     verifica CanManageGuides (spec 020)
 │   │   ├── Reports/                       ← dashboard de Training (spec 018), solo lectura
 │   │   │   ├── DashboardService.cs        ← cada vista y descarga; verifica CanViewReports
 │   │   │   ├── ReadinessPolicy.cs         ← Aprobado, Reprobado, En entrenamiento (D-136)
@@ -110,6 +114,10 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── AssembledComponent.cs      ← lo ensamblado por componente, con su Assembly Data
 │   │   │   ├── SerialSfcGenerator.cs      ← 4-5 piezas por orden Serialized
 │   │   │   ├── PreloadedEquipment.cs      ← equipos precargados de Resource Setup y su generador (spec 015)
+│   │   │   ├── CustomResourceSetup.cs     ← Custom RS (spec 020): CustomResourceSetupProvider
+│   │   │   │                                 (Site, Resource, Operation y Tool Groups; única
+│   │   │   │                                 fuente, costura hacia las Operations) y el Save
+│   │   │   │                                 (CustomResourceSetupAnswer y sus invariantes)
 │   │   │   ├── SplitSfcGenerator.cs       ← SFC nuevo de cada SFC Split (Fase 6.5)
 │   │   │   ├── AssemblyProgress.cs        ← avance de Assembly (en PodState)
 │   │   │   └── DataCollectionProgress.cs  ← avance de DC por pieza (en PodState)
@@ -142,6 +150,7 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   ├── Area.cs                        ← SerializationType + flags (Requires*)
 │   │   ├── TrainingGuide.cs, TrainingStep.cs (StepWeight)
 │   │   ├── TrainingSession.cs (SessionMode)
+│   │   ├── ResourceSetupType.cs, PublishedGuide.cs, ToolGroup.cs ← spec 020
 │   │   ├── TrainingSessionStepAttempt.cs  ← intento + AttemptReason y acción (spec 013)
 │   │   ├── Operation.cs                   ← hoy solo las operaciones SIM del banner de la
 │   │   │                                     extendida (D-58); nivel de las guías a futuro
@@ -165,7 +174,8 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │                                         · 08-09 LoFlo · 10 dashboard (spec 018)
 │   └── Ops/                               ← scripts manuales: CreateAdmin, ResetUserPassword,
 │                                             RunAllScripts, GenerateDashboardData (solo BD
-│                                             descartable TrainingApp_DashboardTest)
+│                                             descartable TrainingApp_DashboardTest),
+│                                             SetGuideResourceSetupType (spec 020)
 └── docs/                                  ← ver el mapa de documentos en CLAUDE.md
 ```
 
@@ -528,6 +538,21 @@ Decisiones cerradas: no reabrir sin spec.
   Save Draft de DC.
 - `CompleteControl` existe e implementa `IStepControl` pero no tiene UI: Complete se resuelve
   desde `BtnComplete`.
+- **Dos pantallas para Resource Setup (spec 020).** Excepción a "un `StepType` no tiene UIs
+  distintas": `ResourceSetup` tiene `ResourceSetupControl` (estándar) y
+  `CustomResourceSetupControl`, los dos estáticos. Elige el tipo de la **sesión**
+  (`TrainingSessions.ResourceSetupType`, copiado de la guía al empezar, D-188), no el de la
+  guía: un cambio del administrador no cambia una sesión en curso. En `GuidedTest`,
+  `IsCustomResourceSetup` decide `GetStepControl`, el id del modal (`ResourceSetupModalId`), el
+  aviso de éxito y los datos del `ViewModel`; `GuideScriptBuilder` y `StepHints` eligen su
+  guion y su pista con el mismo tipo. El Save de Custom es un JSON con `kind: "custom"`;
+  `CustomResourceSetupAnswer.RequireForSession` rechaza (excepción, sin intento) el de la
+  otra pantalla (D-196) y el formato que el control ya avisa, y `PodService.SubmitStep` no
+  acepta Resource Setup: solo entra por `SubmitResourceSetup`. Los Tool Groups (2, D-200) se
+  sortean con el Id de la sesión como semilla: no se guardan y son los mismos en cada
+  request. `spTrainingGuideSync` no toca el tipo; la versión nueva de una guía lo hereda
+  (D-198). Los `onclick` del control llaman `window.crsX()`: dentro de un manejador inline un
+  `id` del formulario con el mismo nombre tapa la función.
 
 ## Guía visual de Guided (spec 010)
 

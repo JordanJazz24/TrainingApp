@@ -89,10 +89,11 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 - **Roles excluyentes** (spec 013): **Operator** entrena; **Administrator** administra
   usuarios, ve el dashboard de Training (spec 018; su inicio es el Resumen) y **no** entrena.
   Qué puede cada rol vive solo en `AccessPolicy` (`CanTrain`, `CanManageUsers`,
-  `CanViewReports`): páginas y servicios preguntan por la capacidad, nunca por el nombre del
+  `CanViewReports`, `CanManageGuides`): páginas y servicios preguntan por la capacidad, nunca por el nombre del
   rol. `Web.config` protege `Pages/Admin` y `Pages/Training` por rol y las páginas lo
   revisan otra vez; sin la capacidad, al inicio del rol (`SessionHelper.RedirectHome`),
-  nunca al login. Cada método del dashboard verifica `CanViewReports` en la BLL.
+  nunca al login. Cada método del dashboard verifica `CanViewReports` en la BLL, y cada
+  cambio de la página Guías (tipo de Resource Setup, spec 020), `CanManageGuides`.
 - Un solo login y un solo cambio de contraseña, neutros, para los dos roles (`Pages/Auth`,
   D-62); el cambio pide siempre la contraseña actual (D-3). Cada método de gestión de
   usuarios verifica en la BLL que quien llama es admin.
@@ -141,7 +142,9 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
   (`admin.css`) y el tema claro/oscuro (`theme.js`); `Training.Master` (el POD) no los
   carga (Fase 11; `docs/architecture.md` → "Sistema de diseño y tema"). Texto del servidor hacia un
   `<script>`: `HttpUtility.JavaScriptStringEncode` o `JavaScriptSerializer`; texto al HTML
-  con `<%#: %>`. ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean
+  con `<%#: %>`, salvo en atributos de controles de servidor (`asp:LinkButton`,
+  `asp:DropDownList`…): ASP.NET ya los codifica y ahí va `<%# %>` (con `<%#: %>` salen
+  codificados dos veces, spec 020). ASP.NET rechaza postbacks con marcado (`<x`): los controles lo bloquean
   como formato.
 
 **POD y controles** (detalle y decisiones cerradas: `docs/architecture.md`)

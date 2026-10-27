@@ -141,19 +141,19 @@ guía puesta en Custom con el script de Ops, y dice "funciona".
 
 **Hecho cuando:** el administrador cambia el tipo desde la página y el usuario lo comprueba.
 
-## E5 · Cierre y documentación
+## E5 · Cierre y documentación ✅
 
-- [ ] `docs/domain.md` → Resource Setup: el tipo Custom, la secuencia y qué se califica.
-- [ ] `docs/architecture.md`: árbol (proveedor, control, página de Guías) y el mecanismo del
+- [x] `docs/domain.md` → Resource Setup: el tipo Custom, la secuencia y qué se califica.
+- [x] `docs/architecture.md`: árbol (proveedor, control, página de Guías) y el mecanismo del
       tipo por sesión.
-- [ ] `CLAUDE.md` → "Roles" (`CanManageGuides`) y "Guía visual" si el módulo de guion cambia el
+- [x] `CLAUDE.md` → "Roles" (`CanManageGuides`) y "Guía visual" si el módulo de guion cambia el
       contrato.
-- [ ] `docs/status.md` y `docs/history.md`: los escribe Desarrollo (D-197). Al cerrar **cada**
+- [x] `docs/status.md` y `docs/history.md`: los escribe Desarrollo (D-197). Al cerrar **cada**
       entrega se le manda el resumen por mensaje (commit, qué cambió, scripts que el usuario
       corrió en su BD).
-- [ ] `docs/ui-reference/inventario-pantallas.md`: la pantalla nueva con sus 5 capturas.
-- [ ] `docs/decisions.md`: estado de D-180 a D-194; `docs/roadmap.md`: R3 ✅.
-- [ ] `/code-review` final de todo R3 (`medium`) y la spec pasa a "Implemented" con los commits.
+- [x] `docs/ui-reference/inventario-pantallas.md`: la pantalla nueva con sus 5 capturas.
+- [x] `docs/decisions.md`: estado de D-180 a D-194; `docs/roadmap.md`: R3 ✅.
+- [x] `/code-review` final de todo R3 (`medium`, 5 de 10 hallazgos aplicados; B-20 sigue anotado) y la spec pasa a "Implemented" con los commits.
 
 ## Resumen de riesgos
 

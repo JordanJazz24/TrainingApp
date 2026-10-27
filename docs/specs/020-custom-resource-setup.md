@@ -1,6 +1,6 @@
 # Spec 020: Custom Resource Setup (R3)
 
-**Status:** Approved (2026-10-26, usuario), enmendada 2026-10-26 (enmienda 1) · plan `020-plan.md`, pendiente de aprobación
+**Status:** Implemented (2026-10-27: `144d845`, `a0c7c77`, `3a18960`, `82d000d`, `5d12e80`) · Approved 2026-10-26, enmendada 2026-10-26 (enmienda 1) · plan `020-plan.md`
 **Date:** 2026-10-26 · **Origen:** revisión con Ernesto (2026-10-22), R3 · **Sesión:** `Custom-RS`
 (híbrida de planeación e implementación solo para R3, por decisión del usuario 2026-10-26)
 **Decisiones:** D-180 a D-194, todas confirmadas por el usuario (rango reservado D-180 a D-199).

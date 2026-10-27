@@ -217,22 +217,23 @@ namespace TrainingApp.Pages.Training.Guide
                     B("Tool Number"), " por cada herramienta que usa en su estación."),
                 alert: H("Escanee las herramientas de su estación. No asuma que son las mismas del turno anterior; ",
                     "sin ese registro se pierde la trazabilidad de la operación."));
-            // D-200/D-201: siempre 2 filas y las dos llevan su Tool Number.
-            s.Add("tool", GuideMode.Capture, Anchor("crs-tool-number"), format: GuideFormat.Required,
-                html: H("Ingrese el Tool Number de la primera herramienta, por ejemplo ", B(ExampleToolNumber), "."));
-            s.Add("tool2", GuideMode.Capture, Anchor("crs-tool-number"), pickLast: true, format: GuideFormat.Required,
-                html: H("Ingrese el Tool Number de la segunda herramienta, por ejemplo ", B(ExampleBarcode), "."));
+            // D-201: un Tool Number por cada Tool Group de la sesión (hoy 2, D-200), en el orden
+            // de la tabla; cada subpaso resalta la fila de su grupo.
+            var groups = ctx.CustomResourceSetup.ToolGroups;
+            for (int i = 0; i < groups.Count; i++)
+                s.Add("tool" + (i + 1), GuideMode.Capture,
+                    Attr("data-group", groups[i].Code) + " " + Anchor("crs-tool-number"), format: GuideFormat.Required,
+                    html: H("Ingrese el Tool Number de la herramienta ", B(groups[i].Code), " (", groups[i].Description,
+                        "), por ejemplo ", B(i % 2 == 0 ? ExampleToolNumber : ExampleBarcode), "."));
             s.Add("save", GuideMode.Click, Anchor("crs-save"),
                 html: H("Presione ", B("Save"), " para guardar."));
             // Un aviso de formato del servidor vuelve a la captura de la orden.
             s.Add("confirm", GuideMode.Click, Anchor("crs-confirm-yes"), postback: true, retry: "shopOrder",
                 html: H("Confirme con ", B("Yes"), "."));
-            // Como "Record changed" en la estándar: el aviso solo aparece si el paso se aceptó; con
-            // el avance forzado la guía sigue en el cierre, que siempre está.
-            s.Add("success", GuideMode.Info, Anchor("crs-success"), hide: true,
-                html: H("Se muestra ", B("Resource setup saved successfully"), ": el cambio se aplicó."));
-            s.Add("close", GuideMode.Click, Anchor("crs-close"),
-                html: H("Cierre Custom Resource Setup con la ", B("X"), "."));
+            // D-190: el OK del aviso cierra la ventana, como el MES real. En Guided no hay avance
+            // forzado, así que el aviso siempre aparece cuando el paso se resuelve.
+            s.Add("success", GuideMode.Click, Anchor("crs-success-ok"),
+                html: H("Se muestra ", B("Resource setup saved successfully"), ": el cambio se aplicó. Presione ", B("OK"), "."));
             return s;
         }
 

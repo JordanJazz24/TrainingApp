@@ -75,11 +75,22 @@ namespace TrainingApp.Test
         internal static string Custom(string setupState = "Set Up", bool associated = true,
             string shopOrder = "303627317", params string[] tools)
         {
-            if (tools.Length == 0) tools = new[] { "T-1" };
-            string toolsJson = string.Join(",", tools.Select(t => "{\"group\":\"TG_RULER\",\"value\":\"" + t + "\"}"));
+            if (tools.Length == 0) tools = new[] { "T-1", "T-2" };
+            string toolsJson = string.Join(",", tools.Select((t, i) => "{\"group\":\"" + GroupCode(i) + "\",\"value\":\"" + t + "\"}"));
             return "{\"kind\":\"custom\",\"setupState\":\"" + setupState + "\",\"shopOrderAssociated\":" +
                    (associated ? "true" : "false") + ",\"shopOrder\":\"" + shopOrder + "\",\"tools\":[" + toolsJson + "]}";
         }
+
+        // Grupos de la sesión de prueba: la fila i del Save es del grupo i.
+        private static string GroupCode(int i) => i == 0 ? "TG_RULER" : i == 1 ? "TG_TIMER" : "TG_EXTRA_" + i;
+
+        private static readonly IList<ToolGroup> SessionGroups = new List<ToolGroup>
+        {
+            new ToolGroup { Code = "TG_RULER" }, new ToolGroup { Code = "TG_TIMER" }
+        };
+
+        private static CustomResourceSetupAnswer Require(ResourceSetupType type, string json)
+            => CustomResourceSetupAnswer.RequireForSession(type, json, type == ResourceSetupType.Custom ? SessionGroups : null);
 
         private const string Standard = "{\"setupState\":\"Set Up\",\"rows\":[{\"type\":\"Shop Order\",\"value\":\"1\"}]}";
 
@@ -113,18 +124,18 @@ namespace TrainingApp.Test
 
         [Test]
         public void Require_StandardSession_StandardAnswer_ReturnsNull()
-            => Assert.That(CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Standard, Standard), Is.Null);
+            => Assert.That(Require(ResourceSetupType.Standard, Standard), Is.Null);
 
         // D-196: el Save de la otra pantalla es una manipulación, no un intento.
         [Test]
         public void Require_StandardSession_CustomAnswer_Throws()
             => Throwing.Expect<ArgumentException>(() =>
-                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Standard, Custom()));
+                Require(ResourceSetupType.Standard, Custom()));
 
         [Test]
         public void Require_CustomSession_StandardAnswer_Throws()
             => Throwing.Expect<ArgumentException>(() =>
-                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Standard));
+                Require(ResourceSetupType.Custom, Standard));
 
         [TestCase("")]
         [TestCase("not json")]
@@ -132,31 +143,47 @@ namespace TrainingApp.Test
         [TestCase("{\"kind\":\"custom\",\"shopOrderAssociated\":\"si\"}")]
         public void Require_CustomSession_Malformed_Throws(string answer)
             => Throwing.Expect<ArgumentException>(() =>
-                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, answer));
+                Require(ResourceSetupType.Custom, answer));
 
         // D-191: formato que el control ya avisa; si llega, no se registra nada.
         [TestCase("")]
         [TestCase("30A")]
         public void Require_Associated_NonNumericShopOrder_Throws(string shopOrder)
             => Throwing.Expect<ArgumentException>(() =>
-                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Custom(shopOrder: shopOrder)));
+                Require(ResourceSetupType.Custom, Custom(shopOrder: shopOrder)));
 
         // D-201: con la orden asociada, cada fila necesita su Tool Number.
         [Test]
         public void Require_Associated_OneToolNumberMissing_Throws()
             => Throwing.Expect<ArgumentException>(() =>
-                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Custom(tools: new[] { "T-1", " " })));
+                Require(ResourceSetupType.Custom, Custom(tools: new[] { "T-1", " " })));
 
         [Test]
         public void Require_Associated_NoToolNumber_Throws()
             => Throwing.Expect<ArgumentException>(() =>
-                CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Custom(tools: new[] { " ", "" })));
+                Require(ResourceSetupType.Custom, Custom(tools: new[] { " ", "" })));
+
+        // D-201: las filas son exactamente los Tool Groups de la sesión; omitir o cambiar una no pasa.
+        [Test]
+        public void Require_Associated_RowOmitted_Throws()
+            => Throwing.Expect<ArgumentException>(() =>
+                Require(ResourceSetupType.Custom, Custom(tools: new[] { "T-1" })));
+
+        [Test]
+        public void Require_Associated_ExtraRow_Throws()
+            => Throwing.Expect<ArgumentException>(() =>
+                Require(ResourceSetupType.Custom, Custom(tools: new[] { "T-1", "T-2", "T-3" })));
+
+        [Test]
+        public void Require_Associated_UnknownGroup_Throws()
+            => Throwing.Expect<ArgumentException>(() => Require(ResourceSetupType.Custom,
+                Custom().Replace("TG_TIMER", "TG_FAKE")));
 
         // Sin asociar es un intento fallido (D-191), no formato: pasa al validador.
         [Test]
         public void Require_NotAssociated_IsAccepted()
         {
-            var answer = CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom,
+            var answer = Require(ResourceSetupType.Custom,
                 Custom(associated: false, shopOrder: "", tools: new[] { "" }));
             Assert.That(answer, Is.Not.Null);
             Assert.That(answer.ShopOrderAssociated, Is.False);
@@ -165,7 +192,7 @@ namespace TrainingApp.Test
         [Test]
         public void Require_Associated_Valid_ReturnsAnswer()
         {
-            var answer = CustomResourceSetupAnswer.RequireForSession(ResourceSetupType.Custom, Custom(setupState: "Open"));
+            var answer = Require(ResourceSetupType.Custom, Custom(setupState: "Open"));
             Assert.That(answer.ShopOrder, Is.EqualTo("303627317"));
             Assert.That(answer.SetupState, Is.EqualTo("Open"));
         }

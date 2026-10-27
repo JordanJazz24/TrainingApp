@@ -60,8 +60,9 @@ spec 014, #17-#23)._
 | 28 | Recursos MES | 0 | `Pre-SAPMES/login recursos mes ` | ✅ spec 016 (la estación, con etiqueta simulada, D-70) |
 | 29 | Login de MES (SAP NetWeaver) | 0 | `Login SAP NETWEAVER` | ✅ spec 016 |
 | 30 | You have logged off | 10 | `Pre-SAPMES/logout sap mes` | ✅ spec 016 |
+| 31 | Custom Resource Setup (con Information, Confirmation y Success) | 1 (guías en Custom) | `Custom Resourse Setup/ventana custom RS`, `…/tabal de heraemintas cargada`, `…/mensaje informacion al asociar orden`, `…/confirmacion al darle save `, `…/aviso de succes final` | ✅ spec 020 (*aceptada:* el ícono ⧉ del Tool Number es decorativo, D-182; siempre 2 Tool Groups simulados, D-200) |
 
-**Resumen:** ✅ 28 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). Las #24-#30 (Pre-SAP) entraron con la spec 016 (2026-10-19). Las #17-#23 (capturas
+**Resumen:** ✅ 29 · 🟡 0 · ⚪ 1 (#8) · no aplica 1 (#16, 2026-10-07). Las #24-#30 (Pre-SAP) entraron con la spec 016 (2026-10-19); la #31, con la spec 020 (2026-10-27). Las #17-#23 (capturas
 del 2026-10-15) pasaron a ✅ con la spec 014 (2026-10-19), probadas por el usuario. La captura `Split - Log
 NC/modal sfc split` que citan la #13 y `general-flow.md` no está en la carpeta. **Criterio de cierre cumplido (2026-10-01, tras la entrega 9):** todas las pantallas con captura están fieles; la #8 queda pendiente y no bloquea.
 

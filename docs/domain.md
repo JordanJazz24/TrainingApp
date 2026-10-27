@@ -96,6 +96,19 @@ Apertura
                         apertura. Guardar con alguno en la tabla (por valor, también
                         reescrito a mano) es decisión equivocada; vale cualquier forma de
                         quitarlos (Remove All o Remove Selected).
+                      · Dos pantallas (spec 020, D-180): cada guía usa la estándar (la de
+                        arriba, predeterminada) o **Custom Resource Setup**, el piloto de la
+                        planta; la elige el administrador por guía y la sesión copia la de
+                        la guía al empezar (D-188). Mismo paso, mismo peso. En Custom: Retrieve
+                        → Set Up → ShopOrder → Associate New ShopOrder (OK) → un Tool Number
+                        por cada uno de los 2 Tool Groups (D-200) → Save → Yes (D-185). Se
+                        califica SECUENCIA, Setup State = "Set Up" y la orden ASOCIADA (Save
+                        sin asociar es intento fallido; con "Open" falla y crea igual la
+                        orden, D-193). Formato sin intento: ShopOrder no numérica al asociar
+                        y, con la orden asociada, una fila sin Tool Number (D-191, D-201). Los
+                        Tool Numbers son de captura libre y no se califican (D-182). Sin
+                        equipos precargados (D-186). Resource y Operation son los simulados;
+                        los Tool Groups salen de un pool simulado de 8 (D-184).
   2. Line Clearance   Pregunta sí/no.
   3. Search/Start     Se califica por SECUENCIA. Aquí aparece la diferencia por
                       SerializationType:

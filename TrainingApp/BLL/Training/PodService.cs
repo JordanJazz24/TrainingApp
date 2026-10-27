@@ -302,7 +302,8 @@ namespace TrainingApp.BLL.Training
         {
             EnsureCurrentStep(ctx, StepType.ResourceSetup);
 
-            var custom = CustomResourceSetupAnswer.RequireForSession(ctx.ResourceSetupType, answer);
+            var custom = CustomResourceSetupAnswer.RequireForSession(ctx.ResourceSetupType, answer,
+                ctx.ResourceSetupType == ResourceSetupType.Custom ? ctx.CustomResourceSetup.ToolGroups : null);
             if (custom != null)
                 return SubmitCustomResourceSetup(ctx, answer, custom);
 
