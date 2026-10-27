@@ -34,7 +34,7 @@
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
-| — · R3 Custom Resource Setup | ✅ (E1–E4: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
+| — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
