@@ -34,8 +34,9 @@
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
-| **— · Área asignada por operador** | ▶️ spec y plan aprobados el 2026-10-27 (en la nube, D-165 a D-179; cierra B-20 y B-3); E1 a E5 en Desarrollo | | `021-area-operador.md`, `021-plan.md` |
+| **— · Área asignada por operador** | ▶️ spec y plan aprobados el 2026-10-27 (en la nube, D-165 a D-179 y D-208; cierra B-20, B-3 y B-4); E1 a E3 ✅ en `spec-021` (sin integrar), E4 en prueba | | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); diseñando los mockups, el Login primero | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -456,6 +457,40 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > con las pantallas sin mockup de D-160. El **plan `019-plan.md`** tiene 6 entregas
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
+
+### Fase 12 — Mockups por pantalla (spec 022)
+
+**Brief de diseño aprobado el 2026-10-27: `docs/specs/022-mockups-por-pantalla.md`**, con su
+plan `022-plan.md` (9 entregas) y los briefs para Claude Design en `022-briefs.md`. Se hizo en la
+nube (`cloud/022-mockups-por-pantalla`, D-202 a D-207) y se integró el 2026-10-27. Nace de que
+al usuario no le gustaron las pantallas sin mockup de la Fase 11: reemplaza D-160 y el "sin
+mockup" de D-163.
+
+**Objetivo:** que cada pantalla tenga su propio mockup aprobado en Claude Design (3 alternativas
+que difieren en la estructura) y se implemente contra la exportación guardada en
+`docs/specs/022-design/<pantalla>.html`, que es su criterio de aceptación.
+
+**Incluye:** Login, Cambio de contraseña, Guías, Pasos, Seguimiento, Operadores, Operador (con la
+ficha impresa), Usuarios e Inicio del operador; cambios al sistema de diseño (cada uno una D-n,
+para toda la app; el Login fija el sistema); métricas derivadas en la BLL con los datos que la
+vista ya carga, cada una con su D-n (D-205).
+
+**No incluye:**
+- el Resumen (más allá de heredar tokens), "Elige tu área", el POD y los Excel;
+- datos, SPs o columnas nuevos; cambios de reglas, filtros, estados o cálculos;
+- acciones, filtros o descargas que hoy no existen;
+- React u otro framework, fuentes web, CDN y colores de marca corporativa.
+
+**Orden, en paralelo con la 021 (D-207, P-7):** cada entrega espera su mockup aprobado. E1
+(sistema de diseño), E2 (Login y Cambio de contraseña), E3 (Guías), E4 (Pasos) y E5
+(Seguimiento) son libres y se intercalan con la 021 cuando el usuario se lo pida a Desarrollo,
+nunca a la mitad de una entrega de la 021. E6 (Operadores y Operador) va después de la E5 de la
+021; E7 (Usuarios), después de su E4, y E8 (Inicio del operador), después de su E3.
+- **Coordinación:** la 021 y la 022 tocan `admin.css` y `Users.aspx`. La 022 se implementa en su
+  propia rama (`spec-022`), y la E1 se coordina con Desarrollo para no pisar la 021.
+- **Enmienda pendiente en la nube:** la E7 y el brief de Usuarios todavía cuentan con "Quitar
+  área", que la enmienda 1 de la 021 quitó (D-208): el admin solo cambia el área, con un lápiz
+  en la columna Área.
 
 ### Después de la Fase 10
 
