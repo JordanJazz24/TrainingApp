@@ -4,6 +4,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using TrainingApp.BLL.Admin;
 using TrainingApp.BLL.Auth;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Shared;
 using TrainingApp.UI.Master;
@@ -18,6 +19,7 @@ namespace TrainingApp.Pages.Admin
         private const string SearchKey = "UsersSearch";
 
         private readonly UserAdminService _admin = new UserAdminService();
+        private readonly TrainingGuideService _guideService = new TrainingGuideService();
 
         private int CurrentPage
         {
@@ -37,7 +39,7 @@ namespace TrainingApp.Pages.Admin
         // Un admin al que otro le quitó el rol (en otro proceso, con RoleCache vigente) llega a
         // la BLL, que lanza UnauthorizedAccessException: vuelve a su inicio en vez de un error,
         // nunca al login (B-3, AC-2 de la spec 018). Con la caché invalidada, el request
-        // siguiente ya lleva su rol nuevo.
+        // siguiente ya lleva su rol nuevo. Cubre también Cambiar y Quitar área (spec 021, 12b).
         protected override void OnError(EventArgs e)
         {
             if (Server.GetLastError()?.GetBaseException() is UnauthorizedAccessException)
@@ -72,6 +74,7 @@ namespace TrainingApp.Pages.Admin
                 return;
             }
 
+            BindEligibleAreas();
             if (!IsPostBack)
                 BindUsers();
         }
@@ -147,8 +150,30 @@ namespace TrainingApp.Pages.Admin
                 case "Delete":
                     ShowResult(_admin.Delete(AdminUserId, userId), "Usuario borrado.");
                     break;
+
+                // Spec 021 (D-172): el área elegida viaja en el select de la fila (sin
+                // EventValidation); la BLL valida que sea elegible y que la cuenta sea Operator.
+                case "SetArea":
+                    if (int.TryParse(Request.Form["area_" + userId], out int areaId))
+                        ShowResult(_admin.SetArea(AdminUserId, userId, areaId), "Área cambiada.");
+                    break;
             }
             BindUsers();
+        }
+
+        // Las áreas que se pueden asignar (D-176), una sola vez en una <template> que copia
+        // cada fila al abrir Cambiar área (P-11). En cada carga: el Repeater no usa ViewState.
+        private void BindEligibleAreas()
+        {
+            RptAreaGroups.DataSource = _guideService.GetEligibleAreas()
+                .GroupBy(a => a.ProductName)
+                .Select(g => new
+                {
+                    ProductName = g.Key,
+                    Areas = g.Select(a => new { a.AreaId, a.AreaName, Label = AreaLabel.Of(a.ProductName, a.AreaName) })
+                })
+                .ToList();
+            RptAreaGroups.DataBind();
         }
 
         private void BindUsers()
@@ -185,6 +210,11 @@ namespace TrainingApp.Pages.Admin
                 CreatedText       = SessionHelper.ToLocal(u.CreatedAt).ToString("dd/MM/yyyy"),
                 LastLoginText     = u.LastLoginAt.HasValue
                     ? SessionHelper.ToLocal(u.LastLoginAt.Value).ToString("dd/MM/yyyy HH:mm") : "—",
+                AreaText          = u.Role != UserRole.Operator ? "—"
+                    : AreaLabel.Of(u.ProductName, u.AreaName) ?? AreaLabel.NoArea,
+                IsOperator        = u.Role == UserRole.Operator,
+                AreaId            = u.AreaId,
+                Who               = who,
                 IsLocked          = state == UserAccountState.Locked,
                 IsSelf            = u.Id == AdminUserId,
                 HasHistory        = u.SessionCount > 0,

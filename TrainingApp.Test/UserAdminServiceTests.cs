@@ -119,18 +119,23 @@ namespace TrainingApp.Test
             Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.Delete(AdminId, OperatorId)));
         }
 
-        // Spec 021 (D-172, P-5): el admin cambia el área de un operador o la quita.
+        // Spec 021 (D-172, P-5): el admin cambia el área de un operador.
         [Test]
-        public void SetArea_ChangesAndRemovesTheOperatorArea()
+        public void SetArea_ChangesTheOperatorArea()
         {
             Assert.That(_service.SetArea(AdminId, OperatorId, LoFloId), Is.EqualTo(UserAdminResult.Ok));
             Assert.That(_users.GetById(OperatorId).AreaId, Is.EqualTo(LoFloId));
 
             Assert.That(_service.SetArea(AdminId, OperatorId, MoldeoId), Is.EqualTo(UserAdminResult.Ok));
             Assert.That(_users.GetById(OperatorId).AreaId, Is.EqualTo(MoldeoId));
+        }
 
-            Assert.That(_service.SetArea(AdminId, OperatorId, null), Is.EqualTo(UserAdminResult.Ok));
-            Assert.That(_users.GetById(OperatorId).AreaId, Is.Null);
+        // Enmienda 1 (D-208): el área no se quita, solo se cambia.
+        [Test]
+        public void SetArea_Null_Throws()
+        {
+            Assert.Throws<ArgumentNullException>((Action)(() => _service.SetArea(AdminId, OperatorId, null)));
+            Assert.That(_users.Changes, Is.Empty);
         }
 
         // P-2: solo un Operator tiene área.

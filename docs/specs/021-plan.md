@@ -5,6 +5,7 @@ B-20 y B-3 · **Planeado en:** la nube (`cloud/021-area-operador`) · **Implemen
 en local.
 
 **Enmienda 1 (2026-10-27):** B-4 entra en la E2.
+**Enmienda 2 (2026-10-27):** la E4 sin Quitar área (en la página ni en la BLL) y Cambiar área en la columna Área (spec 021 → enmienda 1, D-208).
 
 Cada entrega sigue `docs/process.md` → "2. Cada entrega": implementar, verificar con los
 comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` con nivel y foco, el
@@ -78,14 +79,14 @@ quedan con `AreaId = NULL`. Sin cambios visibles en la app.
 - [x] `UserAdminService.SetArea(adminId, userId, int? areaId)`: verifica que quien llama es
       admin (`UnauthorizedAccessException`, como el resto), que la cuenta existe y es Operator y
       que el área es elegible; `null` la quita (D-172, P-2, P-5). Para leer las elegibles en los
-      tests, la misma costura que `findEmployee` (un `Func` o una interfaz pequeña).
+      tests, la misma costura que `findEmployee` (un `Func` o una interfaz pequeña) (enmienda 2: `null` → excepción; ya no la quita).
 - [x] Tests NUnit en memoria:
   - `TrainingAccessRuleTests`: guía inexistente, no publicada, otra área, operador sin área,
     administrador y el caso válido;
   - `OperatorAreaServiceTests`: elige bien, ya tenía área, área no elegible, administrador, carrera
     (el repositorio devuelve 0 filas);
   - `UserAdminServiceTests`: `SetArea` con quien no es admin, cuenta admin, cuenta inexistente, área
-    no elegible, quitar y cambiar.
+    no elegible, null (excepción) y cambiar.
 - [x] Verificación (Desarrollo): Rebuild de `TrainingApp` y `TrainingApp.Test`; `vstest.console`
       con todo en verde (`ScoreCalculatorTests` incluido).
 - [x] `/code-review medium` sobre los archivos de la BLL. Foco: validar antes de abandonar, que
@@ -131,18 +132,17 @@ dice "funciona".
 
 ## E4 · UI del admin: Usuarios y B-3
 
-- [ ] `Users.aspx`: columna **Área** ("Producto · Área", "Sin área", "—" para un admin; P-9).
-- [ ] Por fila de Operator: **Cambiar área** (el mismo selector agrupado; se abre en la fila o
-      en un modal, sin postback hasta Guardar) y **Quitar área**, las dos con `adminConfirm`
-      (D-172, P-11). Las filas de admin no las muestran (AC-10).
-- [ ] B-3: un `UnauthorizedAccessException` de la BLL (todas las acciones de la página,
+- [x] `Users.aspx`: columna **Área** ("Producto · Área", "Sin área", "—" para un admin; P-9).
+- [x] Por fila de Operator, en la columna Área: un botón de lápiz junto al texto que abre ahí el selector agrupado, con Guardar (`adminConfirm`) y Cancelar, sin postback hasta Guardar (D-172 enmendada por D-208, P-11). Sin Quitar área. Acciones queda con Resetear, Desbloquear y Borrar. Las filas de admin no muestran el lápiz (AC-10).
+- [x] B-3: un `UnauthorizedAccessException` de la BLL (todas las acciones de la página,
       Cambiar y Quitar área incluidas) manda a `SessionHelper.RedirectHome`, no al login
-      (AC-6b). Si B-3 ya se cerró por la E2 de la 018, se marca sin efecto.
-- [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler`; tests.
-- [ ] `/code-review low --max-findings 5` sobre `Users.aspx.cs`. Foco: ids de fila, B-3, que la
+      (AC-6b). Si B-3 ya se cerró por la E2 de la 018, se marca sin efecto. **Sin efecto:** ya
+      lo hacía el `OnError` de `Users.aspx.cs` (`RedirectHomeAfterRoleChange`, `33a6a9d`), que
+      cubre también Cambiar y Quitar área.
+- [x] Verificación (Desarrollo): Rebuild; `aspnet_compiler`; tests.
+- [x] `/code-review low --max-findings 5` sobre `Users.aspx.cs`. Foco: ids de fila, B-3, que la
       acción no salga para un admin.
-- [ ] Checklist del navegador: AC-6, AC-6b y AC-10 (cambiar, quitar y volver a elegir; la fila
-      de un admin), en claro y oscuro.
+- [x] Checklist del navegador: AC-6, AC-6b y AC-10 (cambiar el área y ver el efecto en su inicio; la fila de un admin sin lápiz), en claro y oscuro.
 
 **Hecho cuando:** el usuario cambia y quita el área de un operador y ve el efecto en su inicio.
 

@@ -112,7 +112,10 @@ worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
        confirmación Sí/No), `SessionHelper.MustChooseArea` (clave `HasArea`, escrita solo en
        `SetUserSession`) y `RefreshUserSession`; `StartSession` muestra el área como texto y solo
        sus guías (sin área: aviso D-168); `GuidedTest` redirige igual.
-     - Sigue la E4 (UI del admin: Usuarios y B-3).
+     - **E4 · Usuarios:** columna Área con un lápiz en filas de Operator que abre ahí el
+       selector agrupado, con Guardar (`adminConfirm`) y Cancelar. Sin Quitar área, ni en la
+       página ni en la BLL (enmienda 1, D-208). B-3 ya estaba corregido por la 018 (E2).
+     - Sigue la E5 (dashboard y cierre).
      - **Pendiente del usuario:** correr `00`, `01`, `02`, `05` y `10` en su BD local antes
        de probar la E3.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**

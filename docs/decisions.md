@@ -197,7 +197,7 @@
 | D-169 | 2026-10-27 | Spec 021: pantalla "Elige tu área" tras el cambio de contraseña; Training redirige ahí mientras no tenga área | specs/021-area-operador.md | vigente |
 | D-170 | 2026-10-27 | Spec 021: todo operador sin área (autorregistro, alta por admin y existentes) la elige en su próximo ingreso | specs/021-area-operador.md | vigente |
 | D-171 | 2026-10-27 | Spec 021: una vez elegida, solo un admin la cambia | specs/021-area-operador.md | vigente |
-| D-172 | 2026-10-27 | Spec 021: Usuarios con columna Área y acciones Cambiar área y Quitar área por fila | specs/021-area-operador.md | vigente |
+| D-172 | 2026-10-27 | Spec 021: Usuarios con columna Área y acciones Cambiar área y Quitar área por fila | specs/021-area-operador.md | enmendada (D-208) |
 | D-173 | 2026-10-27 | Spec 021: la BLL valida el área en `StartSession` (excepción, no intento) | specs/021-area-operador.md | vigente |
 | D-174 | 2026-10-27 | Spec 021: una sesión en curso de otra área se puede terminar | specs/021-area-operador.md | vigente |
 | D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | vigente |
@@ -233,6 +233,7 @@
 | D-205 | 2026-10-27 | Spec 022: métricas nuevas solo derivadas en la BLL con los datos que la vista ya carga, cada una con su D-n; las que piden datos nuevos van a otra spec | specs/022-mockups-por-pantalla.md | vigente |
 | D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | vigente |
 | D-207 | 2026-10-27 | Spec 022: propuestas de Claude respondidas (orden de diseño Login → Contraseña → libres → resto; se diseña el estado de la 021; HTML autocontenido; 3 alternativas por estructura con nota; quitar datos es una D-n; implementación en paralelo con la 021 para las libres; sistema en entrega propia; candidatas para otra spec). P-6 descartada | specs/022-mockups-por-pantalla.md | vigente |
+| D-208 | 2026-10-27 | Spec 021, enmienda 1: Usuarios sin Quitar área (en la página ni en la BLL: `SetArea` rechaza `null`); Cambiar área en la columna Área, con un lápiz | specs/021-area-operador.md (enmienda 1) | vigente |
 
 ## Bugs que ya existían (B-n)
 
@@ -245,6 +246,6 @@ es global.
 | B-2 (009) | 2026-10-05 | Log NC se puede acertar sin scrapear, solo manipulando el cliente | specs/009-plan.md (E4) | riesgo aceptado (D-16) |
 | B-1 (rendimiento) | 2026-10-07 | Una lista vacía de la API reemplazaba la última lista de empleados | history.md → "Arreglo de rendimiento del arranque" | corregido |
 | B-1 (011) | 2026-10-13 | Browse después del Start reescribía `TxtSFC` y la selección | specs/011-plan.md (E2) | corregido |
-| B-3 | 2026-10-22 | `Users.aspx` manda al login, y no al inicio del rol, cuando la BLL niega el acceso (spec 013) | specs/018-plan.md (enmienda 2, E2) | pendiente: entra en la spec 021 (punto 12b) |
+| B-3 | 2026-10-22 | `Users.aspx` manda al login, y no al inicio del rol, cuando la BLL niega el acceso (spec 013) | specs/018-plan.md (enmienda 2, E2) | corregido (018, E2, `33a6a9d`); la 021 (12b, E4) lo verificó con Cambiar y Quitar área |
 | B-4 | 2026-10-27 | `PodService.StartSession` acepta un modo de sesión no definido: abandona la sesión en curso y guarda una que falla al cargar (POST manipulado) | specs/021-plan.md (E2, enmienda 1) | corregido (021, E2) |
 | B-20 | 2026-10-26 | `PodService.StartSession` no revisa que la guía exista y esté publicada: solo protege la página (lista y EventValidation); un envío manipulado podría iniciar una versión despublicada (D-56) con sus pasos y pesos | specs/020-plan.md (E2, `/code-review`) | pendiente: entra en la spec 021 (punto 11) |

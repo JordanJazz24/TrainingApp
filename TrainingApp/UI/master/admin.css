@@ -451,6 +451,17 @@ body.mt-page {
     gap: var(--mt-space-2);
 }
 
+/* Área (spec 021): el texto con el lápiz; al cambiarla, el selector con Guardar y Cancelar. */
+.admin-area-cell,
+.admin-area-edit {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mt-space-2);
+}
+.admin-area-edit .form-select { width: auto; min-width: 12rem; }
+.admin-icon-btn { padding-inline: .5rem; }
+
 /* ── Inicio del operador: StartSession (D-163) ─────────────── */
 .start-wrap { max-width: 760px; margin: 0 auto; }
 .start-card { padding: 28px; display: flex; flex-direction: column; gap: var(--mt-space-5); }

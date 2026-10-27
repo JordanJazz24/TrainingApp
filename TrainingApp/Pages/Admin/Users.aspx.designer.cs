@@ -65,6 +65,11 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Label LblEmpty;
 
         /// <summary>
+        /// RptAreaGroups control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Repeater RptAreaGroups;
+
+        /// <summary>
         /// BtnPrev control.
         /// </summary>
         protected global::System.Web.UI.WebControls.LinkButton BtnPrev;

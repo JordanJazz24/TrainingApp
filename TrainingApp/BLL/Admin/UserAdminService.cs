@@ -161,19 +161,20 @@ namespace TrainingApp.BLL.Admin
             return UserAdminResult.Ok;
         }
 
-        // Cambia o quita (null) el área de un operador (spec 021, D-172, P-5); el operador sin
-        // área la vuelve a elegir en su próximo ingreso. Solo un Operator tiene área (P-2): una
-        // cuenta de administrador o un área no elegible es un envío manipulado, excepción. El SP
-        // vuelve a exigir Operator: si la cuenta se borró entretanto, no la encuentra. Sin
-        // registro de actividad.
+        // Cambia el área de un operador (spec 021, D-172, P-5). No la quita (enmienda 1, D-208):
+        // null es una excepción. Solo un Operator tiene área (P-2): una cuenta de administrador
+        // o un área no elegible es un envío manipulado, excepción. El SP vuelve a exigir
+        // Operator: si la cuenta se borró entretanto, no la encuentra. Sin registro de actividad.
         public UserAdminResult SetArea(int adminUserId, int userId, int? areaId)
         {
             RequireAdmin(adminUserId);
+            if (!areaId.HasValue)
+                throw new ArgumentNullException(nameof(areaId), "El área no se quita, solo se cambia (D-208).");
             var user = _users.GetById(userId);
             if (user == null) return UserAdminResult.UserNotFound;
             if (!AccessPolicy.CanTrain(user.Role))
                 throw new InvalidOperationException("Solo un operador tiene área.");
-            if (areaId.HasValue && !TrainingAccessRule.IsEligible(areaId.Value, _eligibleAreas()))
+            if (!TrainingAccessRule.IsEligible(areaId.Value, _eligibleAreas()))
                 throw new ArgumentException("El área no es elegible.", nameof(areaId));
 
             return _users.SetArea(userId, areaId) ? UserAdminResult.Ok : UserAdminResult.UserNotFound;

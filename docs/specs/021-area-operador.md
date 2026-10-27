@@ -1,6 +1,6 @@
 # Spec 021: Área asignada por operador
 
-**Status:** Approved 2026-10-27 · plan `021-plan.md`
+**Status:** Approved 2026-10-27, enmendada 2026-10-27 (enmienda 1) · plan `021-plan.md`
 **Date:** 2026-10-27 · **Origen:** negocio, 2026-10-27 (roadmap → "Después de la Fase 10") ·
 **Sesión:** Arquitectura y Planeación en la nube (`docs/process.md` → "Variante temporal: specs
 y planes en la nube"), rama `cloud/021-area-operador`
@@ -169,3 +169,12 @@ libre.
   ingreso (D-170). Avisar a los trainers antes.
 - **Datos de prueba:** el dashboard de volumen (Fase 11, AC-7) tiene operadores sin área; se
   verán como "Sin área".
+
+## Enmienda 1 (2026-10-27, usuario, al probar la E4)
+
+- **Sin "Quitar área"** (D-208, enmienda D-172): en Usuarios el admin solo **cambia** el área de un operador; no la quita. Un operador queda sin área solo si todavía no la eligió. La BLL tampoco la quita: `UserAdminService.SetArea` rechaza `null` con excepción. Cambian:
+  - el punto 8: se quita "También **Quitar área**…";
+  - AC-6: se quita "When la quita, Then el operador la vuelve a elegir en su próximo ingreso";
+  - P-5: "`null` la quita" ya no aplica.
+  El aviso de D-168 (punto 10) se queda como red de seguridad, por ejemplo para una Session sin la clave del área.
+- **Diseño de Usuarios** (presentación, sin D-n): "Cambiar área" pasa a la columna **Área**, con un botón de lápiz junto al texto que abre ahí el selector agrupado, con Guardar (`adminConfirm`) y Cancelar. Acciones queda con Resetear, Desbloquear y Borrar. Sigue sin postback hasta Guardar (P-11).
