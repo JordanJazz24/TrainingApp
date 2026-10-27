@@ -123,21 +123,21 @@ respuesta, sin que exista todavía la pantalla.
 **Hecho cuando:** el usuario recorre la secuencia completa en Guided y en Assessment con una
 guía puesta en Custom con el script de Ops, y dice "funciona".
 
-## E4 · Página de Guías en Admin
+## E4 · Página de Guías en Admin ✅ (sin cambios en `admin.css`: alcanzaron las clases de la Fase 11)
 
-- [ ] `Pages/Admin/Guides.aspx(.cs)` con el sistema de diseño de la Fase 11 (tokens de
+- [x] `Pages/Admin/Guides.aspx(.cs)` con el sistema de diseño de la Fase 11 (tokens de
       `admin.css`, Bootstrap Icons): tabla de guías (producto, área, título, publicada, tipo de
       Resource Setup) con un selector Estándar / Custom y Guardar por fila (D-195); confirma con
       un aviso; solo `CanManageGuides`, sin la capacidad al inicio del rol (nunca al login).
-- [ ] `Admin.Master`: una línea de menú "Guías" visible con la capacidad; `Web.config` ya protege
+- [x] `Admin.Master`: una línea de menú "Guías" visible con la capacidad; `Web.config` ya protege
       `Pages/Admin` por rol.
-- [ ] Probar AC-8 (cambio con sesión en curso: no cambia; sesión nueva: sí) y AC-9 (Operator).
-- [ ] Antes de empezar, avisar a Desarrollo: si tiene una entrega abierta que toque `admin.css` o
+- [x] Probar AC-8 (cambio con sesión en curso: no cambia; sesión nueva: sí) y AC-9 (Operator).
+- [x] Antes de empezar, avisar a Desarrollo: si tiene una entrega abierta que toque `admin.css` o
       `Admin.Master` (las E3 a E5 de la Fase 11 agregan clases), se espera su commit. Las clases
       propias van en un bloque al final de `admin.css` con el comentario `Guías (spec 020)`.
-- [ ] Coordinar `TrainingApp.csproj` (y `admin.css` si hace falta) con Desarrollo: commit por
+- [x] Coordinar `TrainingApp.csproj` (y `admin.css` si hace falta) con Desarrollo: commit por
       rutas, y el segundo en llegar hace el merge.
-- [ ] `/code-review low` sobre la página y el servicio.
+- [x] `/code-review low` sobre la página y el servicio.
 
 **Hecho cuando:** el administrador cambia el tipo desde la página y el usuario lo comprueba.
 

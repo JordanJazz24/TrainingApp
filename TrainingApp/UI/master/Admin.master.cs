@@ -25,12 +25,14 @@ namespace TrainingApp.UI.Master
             PhMenu.Visible = signedIn && SessionHelper.CanViewReports();
             if (PhMenu.Visible)
             {
-                LnkUsers.Visible = SessionHelper.CanManageUsers();
+                LnkUsers.Visible  = SessionHelper.CanManageUsers();
+                LnkGuides.Visible = SessionHelper.CanManageGuides();
                 MarkCurrent(LnkSummary, "~/Pages/Admin/Summary.aspx");
                 MarkCurrent(LnkOperators,"~/Pages/Admin/Operators.aspx", "~/Pages/Admin/Operator.aspx");
                 MarkCurrent(LnkSteps, "~/Pages/Admin/Steps.aspx");
                 MarkCurrent(LnkFollowUp, "~/Pages/Admin/FollowUp.aspx");
                 MarkCurrent(LnkUsers, "~/Pages/Admin/Users.aspx");
+                MarkCurrent(LnkGuides, "~/Pages/Admin/Guides.aspx");
             }
         }
 

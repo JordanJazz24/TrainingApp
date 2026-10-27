@@ -38,7 +38,7 @@
             <span class="admin-brand"><i class="bi bi-display" aria-hidden="true"></i>TrainingApp</span>
 
             <%-- Menú del dashboard (spec 018): Resumen · Operadores · Pasos · Seguimiento ·
-                 Usuarios. Solo con CanViewReports (este master también lo usan el login y el
+                 Usuarios · Guías (spec 020). Solo con CanViewReports (este master también lo usan el login y el
                  cambio de contraseña). --%>
             <asp:PlaceHolder ID="PhMenu" runat="server" Visible="false">
                 <nav aria-label="Administración">
@@ -53,6 +53,9 @@
                             NavigateUrl="~/Pages/Admin/FollowUp.aspx">Seguimiento</asp:HyperLink></li>
                         <li><asp:HyperLink ID="LnkUsers" runat="server"
                             NavigateUrl="~/Pages/Admin/Users.aspx">Usuarios</asp:HyperLink></li>
+                        <%-- Spec 020: el tipo de Resource Setup de cada guía. --%>
+                        <li><asp:HyperLink ID="LnkGuides" runat="server"
+                            NavigateUrl="~/Pages/Admin/Guides.aspx">Guías</asp:HyperLink></li>
                     </ul>
                 </nav>
             </asp:PlaceHolder>
