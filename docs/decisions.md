@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-179. Siguiente B-n: B-4.** La numeración es continua entre
+> - **Siguiente D-n: el rango D-164 a D-179 se agotó; pedir el siguiente libre. Siguiente B-n: B-4.** La numeración es continua entre
 >   auditorías, specs, planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos reservados mientras trabajan dos frentes en paralelo (2026-10-26):** la Fase 11
 >   (Arquitectura y Planeación y Desarrollo) sigue con **D-164 a D-179**; R3 (sesión
@@ -186,20 +186,21 @@
 | D-162 | 2026-10-26 | Fase 11: los campos (form-control, form-select, input-group) tienen un borde propio para pasar 3:1 (`#808B9B` en claro, `#627083` en oscuro); el borde del mockup queda para tablas, paneles y divisores | specs/019-ui-ux-dashboard.md (enmienda) | vigente |
 | D-163 | 2026-10-26 | Fase 11: la página de inicio del operador (`StartSession`, `Site.Master`) entra con el sistema de diseño y el tema; los modos como tarjetas; mismo flujo; sin mockup; va en la E2; el POD sigue fuera | specs/019-ui-ux-dashboard.md (enmienda) | vigente |
 | D-164 | 2026-10-26 | Fase 11, Resumen: se quitan del mockup "N sin iniciar" y el número de Seguimiento (serían datos nuevos); queda el enlace "Ver seguimiento" | specs/019-ui-ux-dashboard.md (ajuste del mockup) | vigente |
-| D-165 | 2026-10-27 | Spec 021: una sola área por operador (`Users.AreaId` nullable) | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-166 | 2026-10-27 | Spec 021: el operador elige su área al autorregistrarse; el admin la corrige en Usuarios | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-167 | 2026-10-27 | Spec 021: el inicio del operador muestra su área fija como texto y solo el selector de guía | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-168 | 2026-10-27 | Spec 021: operador sin área: aviso y no entrena | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-169 | 2026-10-27 | Spec 021: pantalla "Elige tu área" tras el cambio de contraseña; Training redirige ahí mientras no tenga área | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-170 | 2026-10-27 | Spec 021: todo operador sin área (autorregistro, alta por admin y existentes) la elige en su próximo ingreso | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-171 | 2026-10-27 | Spec 021: una vez elegida, solo un admin la cambia | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-172 | 2026-10-27 | Spec 021: Usuarios con columna Área y acciones Cambiar área y Quitar área por fila | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-173 | 2026-10-27 | Spec 021: la BLL valida el área en `StartSession` (excepción, no intento) | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-174 | 2026-10-27 | Spec 021: una sesión en curso de otra área se puede terminar | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-176 | 2026-10-27 | Spec 021: solo son elegibles las áreas con al menos una guía publicada | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-177 | 2026-10-27 | Spec 021: el operador confirma antes de guardar su área | specs/021-area-operador.md | pendiente (spec en Draft) |
-| D-178 | 2026-10-27 | Spec 021: Redefinity es elegible como las demás; se quita el aviso "NO USAR EN PRODUCCIÓN" de `05` y `domain.md` | specs/021-area-operador.md | pendiente (spec en Draft) |
+| D-165 | 2026-10-27 | Spec 021: una sola área por operador (`Users.AreaId` nullable) | specs/021-area-operador.md | vigente |
+| D-166 | 2026-10-27 | Spec 021: el operador elige su área al autorregistrarse; el admin la corrige en Usuarios | specs/021-area-operador.md | vigente |
+| D-167 | 2026-10-27 | Spec 021: el inicio del operador muestra su área fija como texto y solo el selector de guía | specs/021-area-operador.md | vigente |
+| D-168 | 2026-10-27 | Spec 021: operador sin área: aviso y no entrena | specs/021-area-operador.md | vigente |
+| D-169 | 2026-10-27 | Spec 021: pantalla "Elige tu área" tras el cambio de contraseña; Training redirige ahí mientras no tenga área | specs/021-area-operador.md | vigente |
+| D-170 | 2026-10-27 | Spec 021: todo operador sin área (autorregistro, alta por admin y existentes) la elige en su próximo ingreso | specs/021-area-operador.md | vigente |
+| D-171 | 2026-10-27 | Spec 021: una vez elegida, solo un admin la cambia | specs/021-area-operador.md | vigente |
+| D-172 | 2026-10-27 | Spec 021: Usuarios con columna Área y acciones Cambiar área y Quitar área por fila | specs/021-area-operador.md | vigente |
+| D-173 | 2026-10-27 | Spec 021: la BLL valida el área en `StartSession` (excepción, no intento) | specs/021-area-operador.md | vigente |
+| D-174 | 2026-10-27 | Spec 021: una sesión en curso de otra área se puede terminar | specs/021-area-operador.md | vigente |
+| D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | vigente |
+| D-176 | 2026-10-27 | Spec 021: solo son elegibles las áreas con al menos una guía publicada | specs/021-area-operador.md | vigente |
+| D-177 | 2026-10-27 | Spec 021: el operador confirma antes de guardar su área | specs/021-area-operador.md | vigente |
+| D-178 | 2026-10-27 | Spec 021: Redefinity es elegible como las demás; se quita el aviso "NO USAR EN PRODUCCIÓN" de `05` y `domain.md` | specs/021-area-operador.md | vigente |
+| D-179 | 2026-10-27 | Spec 021: propuestas de Claude P-1 a P-12 confirmadas (esquema, solo Operators, redirección por Session con la BLL como fuente, guardado propio solo sin área, elegibles por SP, errores de `StartSession` como excepción, tests en reglas puras, textos, pantallas y docs al cerrar) | specs/021-area-operador.md | vigente |
 | D-180 | 2026-10-26 | R3: existen los dos Resource Setup (Standard y Custom); el administrador elige por guía; Standard es la predeterminada | specs/020-custom-resource-setup.md | vigente |
 | D-181 | 2026-10-26 | R3: Custom RS es un modal del POD, mismo botón Resource Setup, con el diseño de las capturas | specs/020-custom-resource-setup.md | vigente |
 | D-182 | 2026-10-26 | R3: Tool Numbers de captura libre, al menos uno, sin catálogo; el ícono ⧉ es decorativo | specs/020-custom-resource-setup.md | enmendada (D-200/D-201) |

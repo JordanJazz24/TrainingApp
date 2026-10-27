@@ -1,11 +1,11 @@
 # Spec 021: Área asignada por operador
 
-**Status:** Draft (2026-10-27)
+**Status:** Approved 2026-10-27 · plan `021-plan.md`
 **Date:** 2026-10-27 · **Origen:** negocio, 2026-10-27 (roadmap → "Después de la Fase 10") ·
 **Sesión:** Arquitectura y Planeación en la nube (`docs/process.md` → "Variante temporal: specs
 y planes en la nube"), rama `cloud/021-area-operador`
-**Decisiones:** D-165 a D-178, del usuario. Las propuestas de Claude (P-1 a P-12) esperan
-confirmación antes de aprobar; al confirmarlas se agrupan en **D-179**. Cierra **B-20** y
+**Decisiones:** D-165 a D-178, del usuario; las propuestas de Claude P-1 a P-12, confirmadas
+el 2026-10-27, son **D-179**. Cierra **B-20** y
 **B-3**.
 
 ## Problem
@@ -109,11 +109,11 @@ cierran juntas.
 | B-20 | **Entra** en esta spec: `StartSession` rechaza una guía inexistente o no publicada (punto 11) |
 | B-3 | **Entra** en la entrega de Usuarios (punto 12b) |
 
-## Propuestas de Claude (a confirmar antes de aprobar)
+## Propuestas de Claude, confirmadas por el usuario (2026-10-27, D-179)
 
-No las preguntó Claude; el usuario las confirma o corrige. Al confirmarlas se registran juntas
-como **D-179** (usuario, 2.ª ronda). Si el plan necesita decisiones nuevas, se pide el siguiente
-rango libre.
+Claude las propuso y el usuario las confirmó todas juntas al aprobar; se registran como
+**D-179**. Si el plan o una enmienda necesitan decisiones nuevas, se pide el siguiente rango
+libre.
 
 | # | Propuesta |
 |---|---|
