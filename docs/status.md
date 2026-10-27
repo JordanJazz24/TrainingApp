@@ -7,11 +7,10 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; el cierre de la Fase 11 se
-hace en la rama `fase-11` (worktree `.claude/worktrees/fase-11`) y se integra con la aprobación
-del usuario (`docs/process.md` §7) · **Último commit de código:** Fase 11 E6 (Excel) y la
-limpieza (`5e172f0`), integradas en `TrainingApp` (`git log --oneline -10` para ver el estado
-real)
+**Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; la Fase 11 y R3 están
+cerradas e integradas; la rama `fase-11` (worktree `.claude/worktrees/fase-11`) solo queda para
+estos docs, hasta que el usuario la cierre (`docs/process.md` §7) · **Último commit de
+código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -83,55 +82,18 @@ real)
        carpeta principal con `git merge --ff-only fase-11`; después, `git worktree remove` del
        worktree `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
        `TrainingApp_Fase11` de LocalDB. Lo mismo con `fase-10` y `TrainingApp_Fase10`.
-  3. **R3 · Custom Resource Setup, en curso** (sesión `Custom-RS`, en la rama `TrainingApp` de
-     la carpeta principal): spec y plan `docs/specs/020-*.md` (`42dafdf`), D-180 a D-201.
-     Desarrollo escribe este archivo y `docs/history.md` → "R3" con los resúmenes que manda
-     `Custom-RS` (D-197).
-     - **E1 ✅** (2026-10-26, `144d845`, datos y DAL): columna `ResourceSetupType` (0 =
-       Standard, 1 = Custom) en `TrainingGuides` y `TrainingSessions` (`ALTER` idempotente en
-       `00`); en `02`, `spTrainingGuideGetPublishedForAdmin` y
-       `spTrainingGuideSetResourceSetupType` (solo guías publicadas), y `spTrainingGuideSync`
-       hace que la versión nueva herede el tipo (D-198); en `03`, `Insert` (con
-       `@ResourceSetupType` obligatorio) y `GetById` lo manejan. `Database/Ops/SetGuideResourceSetupType.sql`
-       marca la guía del piloto; enum `Domain/ResourceSetupType` y `Domain/GuideSummary`. Todas
-       las guías quedan en Standard (D-194). Probada en LocalDB.
-     - **E2 ✅** (2026-10-26, `a0c7c77`, BLL): los datos de Custom salen solo de
-       `BLL/Training/CustomResourceSetup.cs` (2 a 4 Tool Groups de un pool de 8, fijos en la
-       sesión, D-184; lee el Save de Custom). La sesión copia el tipo de la guía al empezar
-       (D-188) y `PodService.StartSession` falla si la guía no existe. En Custom,
-       `OpenResourceSetup` no precarga equipos (D-186). `StepValidator`: el Save es correcto
-       solo con Set Up y la orden asociada; con "Open" falla pero la orden se crea (D-193).
-       Excepción sin intento: Save de la otra pantalla (D-196), orden asociada no numérica o
-       sin ningún Tool Number (D-191) y JSON mal formado. `SubmitStep` rechaza Resource Setup
-       (solo entra por `SubmitResourceSetup`). Admin: `AccessPolicy.CanManageGuides`,
-       `SessionHelper.CanManageGuides` y `BLL/Admin/GuideAdminService`. 35 tests nuevos
-       (`CustomResourceSetupTests.cs`); pasan los 387.
-     - **Pendiente del usuario:** correr `00`, `02` y `03` en cada BD donde se pruebe código
-       que ya trae la E1 (`TrainingApp` local y `TrainingApp_Fase11` ya los tienen). El
-       código anterior con el `03` nuevo también falla al iniciar una sesión: van juntos. El
-       `02` cambió otra vez en la E2 (`spTrainingGuideSetResourceSetupType`): correrlo de nuevo
-       donde ya se corrió el de la E1.
-     - **E3 ✅** (2026-10-26, `3a18960` y `82d000d`, UI): el modal Custom Resource Setup
-       (`UI/Controls/Training/CustomResourceSetupControl.ascx`), cableado en `GuidedTest`: el
-       botón Resource Setup abre el estándar o el Custom según el tipo de la sesión. Guion de
-       Guided con anclas `crs-*` en `GuideScriptBuilder`, pista propia en `StepHints` y estilos
-       al final de `pod.css`. Enmienda 1 de la spec 020 (usuario, al probar): siempre 2 Tool
-       Groups (D-200) y cada fila con su Tool Number en todos los modos, como formato sin
-       intento (D-201). `Domain.GuideSummary` pasa a `Domain.PublishedGuide`, y con eso se va el
-       choque de nombres con `BLL.Reports.GuideSummary`. Probada por el usuario en Guided y
-       Assessment.
-     - **E4 ✅** (2026-10-27, `5d12e80`, Admin): página `Pages/Admin/Guides.aspx` (con
-       `GuideListRow`). Lista las guías publicadas (D-199) con producto, área, título y una
-       insignia con su Resource Setup. Cada fila tiene un selector Estándar/Custom y un
-       Guardar, que pide confirmación con SweetAlert (D-195); el cambio vale para las sesiones
-       nuevas (D-188). Solo con `CanManageGuides`: sin la capacidad, al inicio del rol, y
-       `GuideAdminService` vuelve a verificar (`UnauthorizedAccessException` redirige como en
-       Usuarios, B-3). "Guías" en el menú de `Admin.Master`, después de Usuarios. Sin cambios
-       en `admin.css`. Probada por el usuario; pasan los 390 tests.
-     - **Sigue la E5** (en `Custom-RS`): los docs de cierre de R3 (`domain.md`,
-       `architecture.md`, `CLAUDE.md` → "Auth", `inventario-pantallas.md`, `decisions.md` y la
-       fila R3 en el roadmap).
-     - **B-20 abierto:** `StartSession` no revisa que la guía esté publicada (ya existía).
+  3. **R3 · Custom Resource Setup ✅** (2026-10-26 a 2026-10-27, ver "Historial"; spec y plan
+     `docs/specs/020-*.md`, D-180 a D-201): **E1 a E5**, probadas por el usuario, directo en
+     `TrainingApp` (sesión `Custom-RS`):
+     - la columna `ResourceSetupType` por guía y por sesión;
+     - el modal Custom Resource Setup en el POD, con su guía de Guided;
+     - la página Guías del admin para elegir Estándar o Custom (`CanManageGuides`).
+
+     Todas las guías siguen en Standard hasta que se elija el piloto (D-194). Tests: 393.
+     - **Pendiente del usuario:** correr `00`, `02` y `03` en la BD de producción antes de
+       publicar este código; el `03` y el código van juntos (sin él, iniciar una sesión
+       falla). La BD local `TrainingApp` ya los tiene. Para el piloto,
+       `Database/Ops/SetGuideResourceSetupType.sql` o la página Guías.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en
@@ -157,6 +119,8 @@ real)
 Solo lo abierto; lo resuelto queda en la auditoría o la spec que lo cerró. La auditoría
 final (D-16) repasó esta lista.
 
+- **B-20:** `PodService.StartSession` no revisa que la guía esté publicada (ya existía antes de
+  R3; anotado por el usuario al cerrar R3, `docs/decisions.md`).
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).
   Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).

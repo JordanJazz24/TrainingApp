@@ -520,7 +520,7 @@ puntaje, salvo el orden de Seguimiento (E5).
   días y 0,98 s con Todo. Sin cambios de SPs ni índices; la BD de
   prueba se borró. Cifras: `019-plan.md` → "Docs al cerrar".
 
-## R3 · Custom Resource Setup (spec 020), en curso (desde el 2026-10-26)
+## R3 · Custom Resource Setup (spec 020) ✅ (2026-10-26 a 2026-10-27)
 Spec y plan aprobados por el usuario el 2026-10-26 (`docs/specs/020-custom-resource-setup.md`,
 `docs/specs/020-plan.md`, `42dafdf`; D-180 a D-201). Sesión `Custom-RS`, directo en
 `TrainingApp`, en paralelo con la Fase 11; esta sección la escribe Desarrollo con sus
@@ -547,5 +547,20 @@ resúmenes (D-197).
   - solo con `CanManageGuides`, verificado también en la BLL (B-3 al perder la capacidad);
   - "Guías" en el menú de `Admin.Master`.
   - Probada por el usuario. Tests: 390.
-- **Queda:** la E5, los docs de cierre de R3; B-20 (`StartSession` no revisa que la guía esté
-  publicada) sigue abierto.
+- **E5 (`3336221`, revisión final y docs de cierre):**
+  - el servidor exige que el Save traiga exactamente los Tool Groups de la sesión, todos con su
+    Tool Number (D-201). Antes, una respuesta editada a mano con una fila de menos se calificaba
+    como correcta;
+  - la guía de Guided arma un subpaso por cada Tool Group de la sesión, resalta su fila y
+    termina con el OK del Success (D-190);
+  - un Save fallido de Resource Setup crea la orden con Setup State "Open" (spec 005, D-193) y
+    ahora la muestra en el Browse Work List en esa misma respuesta, también en el estándar;
+  - el Code1 del modal sale de `ctx.Code1`.
+  - Docs: `domain.md` (Resource Setup con sus dos pantallas), `architecture.md` (el árbol y "Dos
+    pantallas para Resource Setup"), `CLAUDE.md` (`CanManageGuides` y `<%# %>` en atributos de
+    controles de servidor, aprobado por el usuario), `inventario-pantallas.md` (#31), el
+    roadmap, la spec 020 en Implemented y todas las casillas del plan.
+  - Probada por el usuario. Tests: 393.
+- **Queda abierto:**
+  - B-20: `StartSession` no revisa que la guía esté publicada;
+  - correr `00`, `02` y `03` en la BD de producción antes de publicar (usuario).
