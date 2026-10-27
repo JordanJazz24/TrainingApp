@@ -705,6 +705,8 @@ namespace TrainingApp.Test
             public void ResetPassword(int userId, string passwordHash) => throw new NotSupportedException();
             public void Unlock(int userId) => throw new NotSupportedException();
             public bool Delete(int callerId, int userId) => throw new NotSupportedException();
+            public bool ChooseArea(int userId, int areaId) => throw new NotSupportedException();
+            public bool SetArea(int userId, int? areaId) => throw new NotSupportedException();
         }
     }
 }

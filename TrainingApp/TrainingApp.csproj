@@ -283,6 +283,7 @@
     <Compile Include="Domain\TrainingSessionStepAttempt.cs" />
     <Compile Include="Domain\ResourceSetupType.cs" />
     <Compile Include="Domain\PublishedGuide.cs" />
+    <Compile Include="Domain\EligibleArea.cs" />
     <Compile Include="Domain\ToolGroup.cs" />
     <Compile Include="BLL\Auth\LoginResult.cs" />
     <Compile Include="BLL\Auth\AuthService.cs" />

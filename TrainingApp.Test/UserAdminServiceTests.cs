@@ -174,6 +174,9 @@ namespace TrainingApp.Test
                 Changes.Add("Delete");
                 return true;
             }
+
+            public bool ChooseArea(int userId, int areaId) => throw new NotSupportedException();
+            public bool SetArea(int userId, int? areaId) => throw new NotSupportedException();
         }
     }
 }

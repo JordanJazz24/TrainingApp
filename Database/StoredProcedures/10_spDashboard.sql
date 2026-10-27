@@ -28,7 +28,8 @@ GO
 -- spDashboardOperators — los operadores cuyo nombre o Code1 contiene
 -- @Text (vacío = todos), incluidos los que nunca entrenaron, por
 -- nombre. Sin paginar: el estado por guía, que también filtra, lo
--- calcula la BLL, y la BLL pagina después de filtrar.
+-- calcula la BLL, y la BLL pagina después de filtrar. Con su área
+-- solo para mostrarla (spec 021, D-175; NULL si no tiene).
 CREATE OR ALTER PROCEDURE dbo.spDashboardOperators
     @Text NVARCHAR(100) = NULL
 AS
@@ -39,8 +40,10 @@ BEGIN
         CASE WHEN NULLIF(LTRIM(RTRIM(@Text)), N'') IS NULL THEN NULL
              ELSE N'%' + REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(@Text)), N'[', N'[[]'), N'%', N'[%]'), N'_', N'[_]') + N'%' END;
 
-    SELECT u.Id, u.Code1, u.Name, u.CreatedAt
+    SELECT u.Id, u.Code1, u.Name, u.CreatedAt, p.Name AS ProductName, a.Name AS AreaName
     FROM dbo.Users u
+    LEFT JOIN dbo.Areas a    ON a.Id = u.AreaId
+    LEFT JOIN dbo.Products p ON p.Id = a.ProductId
     WHERE u.Role = 1
       AND (@Pattern IS NULL OR u.Name LIKE @Pattern OR u.Code1 LIKE @Pattern)
     ORDER BY u.Name, u.Code1;

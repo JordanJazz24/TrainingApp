@@ -38,10 +38,12 @@ namespace TrainingApp.DAL.Repositories
                 while (reader.Read())
                     operators.Add(new DashboardOperator
                     {
-                        UserId    = Convert.ToInt32(reader["Id"]),
-                        Code1     = reader["Code1"].ToString(),
-                        Name      = reader["Name"].ToString(),
-                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"])
+                        UserId      = Convert.ToInt32(reader["Id"]),
+                        Code1       = reader["Code1"].ToString(),
+                        Name        = reader["Name"].ToString(),
+                        CreatedAt   = Convert.ToDateTime(reader["CreatedAt"]),
+                        ProductName = reader["ProductName"] as string,
+                        AreaName    = reader["AreaName"] as string
                     });
             }
             return operators;

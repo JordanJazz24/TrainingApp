@@ -8,9 +8,10 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; la Fase 11 y R3 están
-cerradas e integradas (`33afc98`); la rama `fase-11` (worktree `.claude/worktrees/fase-11`)
-ya no tiene nada sin integrar y queda hasta que el usuario la cierre (`docs/process.md` §7) · **Último commit de
-código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver el estado real)
+cerradas e integradas (`33afc98`). La spec 021 se trabaja en la rama `spec-021`, en el worktree
+`.claude/worktrees/fase-11` (la carpeta se reutilizó; la rama `fase-11` ya no está en ningún
+worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
+(`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
   `docs/roadmap.md` → "Fase 8.5"). Cerradas: T1 (preparado; la prueba en el servidor real
@@ -79,9 +80,10 @@ código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver
      en `019-plan.md` → "Docs al cerrar"); la BD de prueba se borró. Los "Docs al cerrar" están
      hechos; la fase está marcada ✅ en el roadmap (`7cd4691`).
      - **Pendiente del usuario** (`docs/process.md` §7): el cierre ya está integrado en
-       `TrainingApp` (`33afc98`, 2026-10-27). Falta `git worktree remove` del worktree
-       `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
-       `TrainingApp_Fase11` de LocalDB. Lo mismo con `fase-10` y `TrainingApp_Fase10`.
+       `TrainingApp` (`33afc98`, 2026-10-27). Falta `git branch -d fase-11` (su carpeta ahora
+       es el worktree de `spec-021`) y, si ya no se usa, borrar la BD `TrainingApp_Fase11` de
+       LocalDB. Con `fase-10`: `git worktree prune` (su carpeta ya no existe) y
+       `TrainingApp_Fase10`.
   3. **R3 · Custom Resource Setup ✅** (2026-10-26 a 2026-10-27, ver "Historial"; spec y plan
      `docs/specs/020-*.md`, D-180 a D-201): **E1 a E5**, probadas por el usuario, directo en
      `TrainingApp` (sesión `Custom-RS`):
@@ -94,6 +96,15 @@ código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver
        publicar este código; el `03` y el código van juntos (sin él, iniciar una sesión
        falla). La BD local `TrainingApp` ya los tiene. Para el piloto,
        `Database/Ops/SetGuideResourceSetupType.sql` o la página Guías.
+  4. **Spec 021 · Área asignada por operador** (en curso desde 2026-10-27; spec y plan
+     `docs/specs/021-*.md`, D-165 a D-179; cierra B-20 y B-3), rama `spec-021`:
+     - **E1 · Datos y DAL:** `Users.AreaId` (FK a `Areas`), los SPs del usuario y de Operadores
+       con el área, `spUserChooseArea`, `spUserSetArea` y `spAreaGetEligible`; Domain y DAL.
+       Sin cambios visibles. Probada en LocalDB (limpia y sobre una BD anterior con usuarios,
+       sesiones e intentos; dos corridas). Tests: 393.
+     - Sigue la E2 (BLL, validación de `StartSession` y tests).
+     - **Pendiente del usuario:** correr `00`, `01`, `02`, `05` y `10` en su BD local antes
+       de probar la E3.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en

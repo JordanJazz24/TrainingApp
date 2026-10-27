@@ -25,5 +25,11 @@ namespace TrainingApp.DAL.Repositories
         // Borra la cuenta y su historial. Lo pide callerId; el SP vuelve a verificar, bajo su
         // lock, que siga siendo admin y que no se borre a sí mismo: false si no.
         bool Delete(int callerId, int userId);
+
+        // Área del operador (spec 021). ChooseArea: la propia, solo si es Operator y aún no
+        // tiene (false si no). SetArea: la cambia o la quita (null) un admin; false si la
+        // cuenta no es Operator. Que el área sea elegible lo verifica la BLL.
+        bool ChooseArea(int userId, int areaId);
+        bool SetArea(int userId, int? areaId);
     }
 }

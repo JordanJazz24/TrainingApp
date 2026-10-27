@@ -170,6 +170,36 @@ namespace TrainingApp.DAL.Repositories
             }
         }
 
+        // El operador elige su propia área (spec 021, P-4): solo si es Operator y aún no
+        // tiene. false si no se guardó (ya tenía área, no es Operator o no existe).
+        public bool ChooseArea(int userId, int areaId)
+        {
+            using (var db = DatabaseFactory.Create())
+            {
+                var rows = db.ExecuteScalar("spUserChooseArea", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@AreaId", areaId);
+                });
+                return Convert.ToInt32(rows) > 0;
+            }
+        }
+
+        // Un admin cambia o quita (null) el área de un Operator (spec 021, P-5). false si la
+        // cuenta no es Operator o no existe.
+        public bool SetArea(int userId, int? areaId)
+        {
+            using (var db = DatabaseFactory.Create())
+            {
+                var rows = db.ExecuteScalar("spUserSetArea", cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    cmd.Parameters.AddWithValue("@AreaId", (object)areaId ?? DBNull.Value);
+                });
+                return Convert.ToInt32(rows) > 0;
+            }
+        }
+
         private static User Map(SqlDataReader r)
         {
             var user = new User();
@@ -189,6 +219,9 @@ namespace TrainingApp.DAL.Repositories
             user.LastLoginAt      = NullableDate(r["LastLoginAt"]);
             user.FailedLoginCount = Convert.ToInt32(r["FailedLoginCount"]);
             user.LockedUntil      = NullableDate(r["LockedUntil"]);
+            user.AreaId           = r["AreaId"] == DBNull.Value ? (int?)null : Convert.ToInt32(r["AreaId"]);
+            user.ProductName      = r["ProductName"] as string;
+            user.AreaName         = r["AreaName"] as string;
         }
 
         private static DateTime? NullableDate(object value)

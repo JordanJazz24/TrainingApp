@@ -25,33 +25,33 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 
 ## E1 · Datos y DAL
 
-- [ ] `00_Schema.sql`: `Users.AreaId INT NULL` con FK a `Areas` (en el `CREATE` y un
+- [x] `00_Schema.sql`: `Users.AreaId INT NULL` con FK a `Areas` (en el `CREATE` y un
       `IF COL_LENGTH('dbo.Users','AreaId') IS NULL ALTER TABLE … ADD` para la BD existente),
       con comentario: solo Operator, `NULL` = sin área (D-165, D-179/P-1).
-- [ ] `01_spUser.sql`:
+- [x] `01_spUser.sql`:
   - `spUserGetByCode1`, `spUserGetById` y `spUserSearch` devuelven `AreaId` y el texto del
     área (`ProductName`, `AreaName`, con `LEFT JOIN`).
   - SP nuevo `spUserChooseArea (@UserId, @AreaId)`: actualiza **solo** `WHERE Id = @UserId AND
     AreaId IS NULL AND Role = 1` y devuelve las filas afectadas (P-4).
   - SP nuevo `spUserSetArea (@UserId, @AreaId NULL)`: cambia o quita el área de un Operator;
     devuelve las filas afectadas (P-5).
-- [ ] `02_spTrainingGuide.sql`: SP nuevo `spAreaGetEligible`: áreas con al menos una guía
+- [x] `02_spTrainingGuide.sql`: SP nuevo `spAreaGetEligible`: áreas con al menos una guía
       publicada, con `ProductId`, `ProductName`, `AreaId` y `AreaName`, ordenadas por producto y
       área (D-176, P-6).
-- [ ] `10_spDashboard.sql`: `spDashboardOperators` devuelve `ProductName` y `AreaName` del
+- [x] `10_spDashboard.sql`: `spDashboardOperators` devuelve `ProductName` y `AreaName` del
       operador (`LEFT JOIN`; sin tocar filtros ni cálculos, D-175).
-- [ ] `05_SeedData.sql`: quitar "NO USAR EN PRODUCCIÓN" del encabezado (D-178).
-- [ ] Domain: `User.AreaId` (`int?`), `ProductName` y `AreaName`; los mismos en `UserSummary` y
+- [x] `05_SeedData.sql`: quitar "NO USAR EN PRODUCCIÓN" del encabezado (D-178).
+- [x] Domain: `User.AreaId` (`int?`), `ProductName` y `AreaName`; los mismos en `UserSummary` y
       `DashboardOperator`; POCO nuevo `EligibleArea` (`ProductId`, `ProductName`, `AreaId`,
       `AreaName`).
-- [ ] DAL: `UserRepository` mapea las columnas y agrega `ChooseArea(userId, areaId)` (`bool`) y
+- [x] DAL: `UserRepository` mapea las columnas y agrega `ChooseArea(userId, areaId)` (`bool`) y
       `SetArea(userId, areaId?)` (`bool`), también en `IUserRepository`; `AreaRepository.GetEligible()`;
       `DashboardRepository` mapea el área.
-- [ ] Verificación (Desarrollo): Rebuild; scripts `00`–`12` en una BD descartable de LocalDB
+- [x] Verificación (Desarrollo): Rebuild; scripts `00`–`12` en una BD descartable de LocalDB
       (instalación limpia y re-ejecución sobre una con usuarios, sesiones e intentos):
       `spAreaGetEligible` devuelve Moldeo, LoFlo, Subensamble 1 y Redefinity;
       `spUserChooseArea` dos veces seguidas → la segunda afecta 0 filas; sobre un admin, 0.
-- [ ] `/code-review low --max-findings 5` sobre `00`, `01`, `02`, `10` y el DAL. Foco: `ALTER`
+- [x] `/code-review low --max-findings 5` sobre `00`, `01`, `02`, `10` y el DAL. Foco: `ALTER`
       idempotente, `WHERE AreaId IS NULL`, `LEFT JOIN` (un operador sin área sigue apareciendo).
 
 **Hecho cuando:** compila, los scripts corren dos veces sin error y los usuarios existentes
