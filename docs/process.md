@@ -83,6 +83,31 @@ planeación, "desarrollo").
   mismo archivo. Cuando Desarrollo cierra una fase, le avisa a Arquitectura y Planeación para
   que la marque ✅ en la tabla de fases.
 
+#### Variante temporal: specs y planes en la nube (usuario, 2026-10-27)
+
+**Temporal:** cuando el usuario lo pida, se vuelve al flujo normal (specs y planes en la
+sesión local de Arquitectura y Planeación) y esta subsección se quita.
+
+- **Remotes:** `azure` es el repo oficial (Azure DevOps, `SimulatorMES`); `origin` es GitHub
+  (`JordanJazz24/TrainingApp`, privado, con la Claude GitHub App), el puente que ve la nube.
+  La nube solo ve lo que está pusheado a `origin`.
+- **La nube hace de Arquitectura y Planeación** para las specs y los planes que el usuario le
+  asigne: `/spec` y plan por entregas, con las mismas reglas (sección 1). Trabaja en la rama
+  `cloud/NNN-slug` y hace push **solo a esa rama**, nunca a `TrainingApp` ni a `main`. No
+  compila ni prueba (VM Linux: sin .NET Framework, `aspnet_compiler`, vstest ni SQL Server):
+  a lo sumo propone cambios de BD o BLL con tests que corre el usuario.
+- **Integrar en local** (carpeta real, rama `TrainingApp`):
+  `git fetch origin` → `git merge origin/cloud/NNN-slug` → `git push azure TrainingApp` y
+  `git push origin TrainingApp`, para que la nube vea lo último.
+- **Avisos:** una sesión en la nube recibe mensajes pero no puede contestar ni avisar; el
+  usuario hace de mensajero. Cuando la spec o el plan entran en `TrainingApp`, el usuario le
+  pide a Desarrollo la E1, con su ciclo normal (sección 2).
+- **La sesión local de Arquitectura y Planeación sigue siendo dueña de `docs/roadmap.md`**:
+  revisa el alcance de lo que llega de la nube contra la fase en curso, registra la fase, el
+  plan y el orden, y no duplica la spec.
+- **Enmiendas:** en la nube (el usuario le pega el problema) o en la sesión local, si la de la
+  nube ya terminó.
+
 ## 2. Cada entrega
 
 1. Implementar.
@@ -202,7 +227,8 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
 - `TrainingApp` es la rama de desarrollo y la carpeta real
   (`…\MES Training Simulator`) siempre está en ella: ahí apuntan VS, IIS Express y la
   terminal del usuario. A `main` sube los cambios finales el usuario (D-5): no tocarla. El
-  usuario hace push cuando quiere.
+  usuario hace push cuando quiere. **Antes de commitear en la carpeta real, revisar la rama**
+  (`git branch --show-current`): el 2026-10-27 quedó en `main` y un commit de docs entró ahí.
 - **Se trabaja en una rama y su worktree, y se integra a `TrainingApp` cuando el usuario lo
   aprueba** (usuario, 2026-10-22: "primero trabajamos en la branch o worktree y luego de
   aprobado se integra"). Así la carpeta real queda libre para mostrar o probar otra cosa. Un

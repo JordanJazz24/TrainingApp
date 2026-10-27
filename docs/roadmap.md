@@ -464,6 +464,11 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 3. ✅ R3, Custom Resource Setup (2026-10-27). **Adelantado (usuario, 2026-10-26):** fue en
    paralelo con la Fase 11, en la sesión `Custom-RS` (spec 020).
 
+**Siguiente (negocio, 2026-10-27):** cada operador tiene un **área asignada** y solo ve las
+guías de esa área. Es funcionalidad nueva (fila 1): spec y plan en la nube (`docs/process.md` →
+"Variante temporal: specs y planes en la nube"), en una rama `cloud/NNN-slug`. Al llegar, se
+revisa el alcance contra el "No incluye" de la Fase 10 ("el área del operador, diferida").
+
 #### Revisión con Ernesto, MES (2026-10-22)
 Registrada por Reuniones y Dudas. No cambia el foco: la Fase 10 sigue con su orden.
 Ernesto **aprobó el contenido del simulador**.
