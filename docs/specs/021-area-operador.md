@@ -5,7 +5,8 @@
 **Sesión:** Arquitectura y Planeación en la nube (`docs/process.md` → "Variante temporal: specs
 y planes en la nube"), rama `cloud/021-area-operador`
 **Decisiones:** D-165 a D-178, del usuario. Las propuestas de Claude (P-1 a P-12) esperan
-confirmación antes de aprobar. Cierra **B-20**.
+confirmación antes de aprobar; al confirmarlas se agrupan en **D-179**. Cierra **B-20** y
+**B-3**.
 
 ## Problem
 
@@ -28,9 +29,9 @@ cierran juntas.
    el rol Operator la usa (P-2).
 
 **B. El operador elige su área una vez** (D-166, D-169, D-170, D-171, D-176, D-177)
-2. Pantalla nueva **"Elige tu área"** (Operator, `Site.Master`): selector de Producto y de
-   Área, y el botón Continuar. Solo aparecen las **áreas con al menos una guía publicada**,
-   y los productos que tienen alguna de esas áreas (D-176).
+2. Pantalla nueva **"Elige tu área"** (Operator, `Site.Master`): **un solo selector** con las
+   áreas **agrupadas por producto** (ej. Sensores › LoFlo), sin postback intermedio (D-169), y el
+   botón Continuar. Solo aparecen las **áreas con al menos una guía publicada** (D-176).
 3. Continuar abre una confirmación en el cliente: "¿Tu área es *Producto · Área*? Después solo
    tu trainer podrá cambiarla." (Sí / No). Con Sí, un postback guarda el área (D-177).
 4. Flujo: login → cambio de contraseña (si toca) → **Elige tu área** (si no tiene) → inicio.
@@ -43,8 +44,8 @@ cierran juntas.
 **C. El admin la corrige en Usuarios** (D-172, D-176)
 7. Columna **Área** en la lista de Usuarios ("Producto · Área", "Sin área" o "—" para un
    administrador).
-8. Por fila de operador, la acción **Cambiar área**: Producto/Área (mismas áreas elegibles que
-   el punto 2) y Guardar, con confirmación. También **Quitar área**: el operador la vuelve a
+8. Por fila de operador, la acción **Cambiar área**: el mismo selector agrupado y las mismas
+   áreas elegibles del punto 2, y Guardar, con confirmación. También **Quitar área**: el operador la vuelve a
    elegir en su próximo ingreso.
 
 **D. El inicio del operador** (D-167, D-168)
@@ -61,6 +62,11 @@ cierran juntas.
 12. El área solo decide qué guías se pueden **iniciar**. Una sesión en curso de otra área (porque
     el admin cambió o quitó el área) se puede terminar y cuenta como siempre (D-174).
 
+**E2. Usuarios: B-3**
+12b. `Users.aspx` manda al **inicio del rol** (`SessionHelper.RedirectHome`), no al login,
+    cuando la BLL niega el acceso (`UnauthorizedAccessException`), también en Cambiar y Quitar
+    área (B-3, CLAUDE.md → "Auth").
+
 **F. Dashboard: solo mostrar el área** (D-175)
 13. "Área" del operador en la lista de Operadores, en su Excel y en el encabezado del Operador
     (y su ficha). Filtros, estados y cálculos siguen por la guía, sin cambios.
@@ -72,7 +78,8 @@ cierran juntas.
 
 ### Out (no incluye)
 
-- Más de un área por operador.
+- Más de un área por operador. El **entrenamiento cruzado** se hace cambiando el área en
+  Usuarios y regresándola después; el historial de las dos áreas queda en el dashboard.
 - Filtrar el dashboard por el área del operador, "Sin iniciar" por área o "quién de cada área
   falta por entrenar" (el "por área después" de la spec 018).
 - Historial de cambios de área (solo se guarda la actual).
@@ -85,14 +92,14 @@ cierran juntas.
 
 | ID | Decisión |
 |---|---|
-| D-165 | **Una sola área** por operador (`Users.AreaId` nullable) |
+| D-165 | **Una sola área** por operador (`Users.AreaId` nullable). Entrenamiento cruzado: el admin le cambia el área y la regresa (usuario, 2.ª ronda) |
 | D-166 | El **operador** elige su área al autorregistrarse; el admin la corrige en Usuarios |
 | D-167 | Inicio del operador: **área fija como texto** y solo el selector de guía |
 | D-168 | Operador sin área: **aviso y no entrena** |
-| D-169 | La elige en una **pantalla propia tras el cambio de contraseña**; las páginas de Training redirigen ahí mientras no tenga área |
+| D-169 | La elige en una **pantalla propia tras el cambio de contraseña**; las páginas de Training redirigen ahí mientras no tenga área. Un **solo selector agrupado por producto** (usuario, 2.ª ronda) |
 | D-170 | **Todo operador sin área** (autorregistro, alta por admin y existentes) la elige en su próximo ingreso |
 | D-171 | Una vez elegida, **solo un admin** la cambia |
-| D-172 | Usuarios: **columna Área** y acciones **Cambiar área** y **Quitar área** por fila |
+| D-172 | Usuarios: **columna Área** y acciones **Cambiar área** y **Quitar área** por fila, con el mismo selector agrupado |
 | D-173 | La **BLL valida** el área en `StartSession` (excepción, no intento) |
 | D-174 | Una sesión en curso de otra área **se puede terminar** |
 | D-175 | Dashboard: **solo mostrar** el área del operador (Operadores y Operador); filtros y cálculos sin cambios |
@@ -100,11 +107,13 @@ cierran juntas.
 | D-177 | El operador **confirma** antes de guardar (aviso de que no podrá cambiarla) |
 | D-178 | Redefinity es elegible como las demás; se quita el aviso "NO USAR EN PRODUCCIÓN" (`05_SeedData.sql` y `docs/domain.md`) |
 | B-20 | **Entra** en esta spec: `StartSession` rechaza una guía inexistente o no publicada (punto 11) |
+| B-3 | **Entra** en la entrega de Usuarios (punto 12b) |
 
 ## Propuestas de Claude (a confirmar antes de aprobar)
 
-No las preguntó Claude; el usuario las confirma o corrige. Al confirmarlas reciben su número D-n
-(queda D-179 en el rango; si hacen falta más, se pide el siguiente rango libre).
+No las preguntó Claude; el usuario las confirma o corrige. Al confirmarlas se registran juntas
+como **D-179** (usuario, 2.ª ronda). Si el plan necesita decisiones nuevas, se pide el siguiente
+rango libre.
 
 | # | Propuesta |
 |---|---|
@@ -118,7 +127,7 @@ No las preguntó Claude; el usuario las confirma o corrige. Al confirmarlas reci
 | P-8 | **Tests:** las reglas nuevas en clases puras de la BLL con datos en memoria (`PodService` no admite repositorios inyectados, D-15): quién puede iniciar qué guía (inexistente, no publicada, otra área, sin área, válida), quién puede elegir o cambiar área y qué áreas son elegibles |
 | P-9 | **Texto del área:** "Producto · Área" en todas partes (inicio, Usuarios, dashboard y Excel). "Sin área" para un operador sin área; "—" para un administrador |
 | P-10 | **Pantalla "Elige tu área":** `Pages/Training/ChooseArea.aspx` con `Site.Master` (el sistema de diseño del inicio del operador, Fase 11). No muestra el último acceso (lo muestra el inicio después) |
-| P-11 | **Cambiar área en Usuarios:** el selector de Producto/Área se abre en la fila (o un modal de la página) sin postback hasta Guardar, con la confirmación `adminConfirm` que ya usan las demás acciones |
+| P-11 | **Cambiar área en Usuarios:** el selector agrupado se abre en la fila (o un modal de la página) sin postback hasta Guardar, con la confirmación `adminConfirm` que ya usan las demás acciones |
 | P-12 | **Docs al cerrar** (Desarrollo): la regla del área en `docs/domain.md` (sección nueva "Área del operador"), el flujo en `docs/architecture.md` → "Roles, login y gestión de usuarios", B-20 corregido en `docs/decisions.md` |
 
 ## Acceptance criteria
@@ -143,6 +152,8 @@ No las preguntó Claude; el usuario las confirma o corrige. Al confirmarlas reci
   curso **no** se abandona (tests de la BLL).
 - **AC-9** Given la lista de Operadores del dashboard, su Excel y el detalle del Operador, Then
   se ve el área del operador. Los estados, filtros y números no cambian.
+- **AC-6b** Given un admin cuya cuenta perdió el rol o fue borrada, When envía una acción de
+  Usuarios, Then va a su inicio (o al login si ya no tiene rol), no al login con sesión (B-3).
 - **AC-10** Given un administrador, Then no tiene área, no ve "Elige tu área" ni la acción
   Cambiar área sobre su propia fila o la de otro admin.
 - **AC-11** El puntaje y los tests existentes siguen en verde; `05_SeedData.sql` y
@@ -152,9 +163,8 @@ No las preguntó Claude; el usuario las confirma o corrige. Al confirmarlas reci
 
 - **Alcance:** levanta el "área del operador (diferida)" del "No incluye" de la Fase 10. La sesión
   local de Arquitectura y Planeación lo registra en el roadmap.
-- **Usuarios.aspx** tiene pendiente **B-3** (manda al login, no al inicio del rol, cuando la BLL
-  niega el acceso; E2 de la 018). Esta spec toca la misma página: si B-3 sigue abierto al
-  implementar, conviene cerrarlo en la misma entrega (decide el usuario en el plan).
+- **B-3** se cierra aquí (punto 12b). Si al implementar ya se cerró por la E2 de la 018, el
+  punto queda sin efecto.
 - **Operadores ya existentes:** al publicar, todos pasan por "Elige tu área" en su próximo
   ingreso (D-170). Avisar a los trainers antes.
 - **Datos de prueba:** el dashboard de volumen (Fase 11, AC-7) tiene operadores sin área; se
