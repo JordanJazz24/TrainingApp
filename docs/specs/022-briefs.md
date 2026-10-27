@@ -1,23 +1,55 @@
 # Briefs por pantalla para Claude Design (spec 022)
 
-**Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). **Uso:** por cada pantalla, pegar en
-Claude Design el **contexto común** y después el **brief de la pantalla**, con sus adjuntos.
-La exportación aprobada va a `022-design/<archivo>.html` (nombre en cada brief).
+**Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). La exportación aprobada va a
+`022-design/<archivo>.html` (nombre en cada brief).
 
 Orden de diseño (P-1): Login → Cambio de contraseña → Guías → Pasos → Seguimiento →
 Operadores → Operador → Usuarios → Inicio del operador. El Login fija los cambios al sistema
-de diseño. Desde la segunda pantalla, se
-adjuntan también las exportaciones ya aprobadas.
+de diseño.
 
-## Adjuntos comunes (todas las pantallas)
+## Cómo usarlos (enmendado 2026-10-27: Claude Design con el repo conectado)
 
-- `TrainingApp/UI/master/admin.css` (tokens `--mt-*` en claro y oscuro, y componentes).
-- El mockup v1: exportación o capturas del canvas "Mockup Fase 11 · Dashboard de Training"
-  (https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd): tableros Sistema de diseño, Resumen y
-  Resumen en oscuro.
-- Las exportaciones ya aprobadas de `022-design/`.
-- Capturas actuales de la pantalla en claro y en oscuro, que toma el usuario (las indica cada
-  brief).
+El usuario probó que Claude Design lee el repo (`JordanJazz24/TrainingApp`) y usa skills. Por
+eso ya no se pegan los briefs ni se adjunta `admin.css`:
+
+- **Rama a leer:** `TrainingApp` (cuando la sesión local integre la última versión de esta
+  rama); mientras tanto, `cloud/022-mockups-por-pantalla`.
+- **Solo lectura:** Claude Design no escribe en el repo. La exportación aprobada se la pasa el
+  usuario a la sesión de la nube, o la sube él en local (spec → "Aprobación").
+- **Prompt corto por pantalla** (cambiar N y el nombre):
+
+```text
+Lee del repo (rama TrainingApp, solo lectura) docs/specs/022-briefs.md: el "Contexto común"
+y el brief N (<pantalla>). Lee también los archivos del repo que ese brief indica, más
+TrainingApp/UI/master/admin.css y docs/specs/019-ui-ux-dashboard.md. Si ya hay exportaciones
+aprobadas en docs/specs/022-design/, respétalas. Usa la skill frontend-design, siempre dentro
+de las restricciones del brief. Entrégame primero la pantalla actual recreada (para comparar)
+y después las 3 alternativas.
+```
+
+- **Sigue adjuntándose a mano** (no está en el repo): el mockup v1 (exportación o capturas del
+  canvas "Mockup Fase 11 · Dashboard de Training",
+  https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd: Sistema de diseño, Resumen y Resumen en
+  oscuro) y las **capturas actuales** de la pantalla que indica cada brief (lo que se ve con la
+  app corriendo y datos reales).
+- **Sin repo conectado:** pegar el contexto común y el brief, y adjuntar `admin.css`.
+
+### Archivos del repo por pantalla (rutas bajo `TrainingApp/`)
+
+Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
+(`UI/master/Admin.Master` o `UI/master/Site.Master`, con su `.cs`).
+
+| # | Pantalla | Archivos (cada `.aspx` con su `.aspx.cs`) |
+|---|---|---|
+| 1 | Login | `Pages/Auth/Login.aspx` |
+| 2 | Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` |
+| 3 | Guías | `Pages/Admin/Guides.aspx`, `Pages/Admin/GuideListRow.cs` |
+| 4 | Pasos | `Pages/Admin/Steps.aspx`, `Pages/Admin/StepRows.cs` |
+| 5 | Seguimiento | `Pages/Admin/FollowUp.aspx`, `Pages/Admin/FollowUpListRow.cs`, `BLL/Reports/FollowUpRules.cs` |
+| 6 | Operadores | `Pages/Admin/Operators.aspx`, `Pages/Admin/OperatorListRow.cs`, `Pages/Admin/ReportText.cs` |
+| 7 | Operador | `Pages/Admin/Operator.aspx`, `Pages/Admin/OperatorDetailRows.cs`, `UI/master/admin-charts.js` |
+| 8 | Usuarios | `Pages/Admin/Users.aspx`, `Pages/Admin/UserListRow.cs` |
+| 9 | Inicio del operador | `Pages/Training/StartSession.aspx` |
 
 ---
 
@@ -61,6 +93,9 @@ Entrega cada alternativa en claro y en oscuro, con datos de ejemplo realistas (n
 español, Code1 de 5 a 6 dígitos, guías de Moldeo, LoFlo, Subensamble 1 y Redefinity). La
 exportación final: un HTML autocontenido (CSS y SVG inline, sin recursos externos) con el
 interruptor de tema funcionando.
+
+Si tienes la skill frontend-design, úsala, pero siempre dentro de estas restricciones: lo que
+proponga fuera de ellas (otra librería, fuentes web, animaciones pesadas) márcalo como cambio.
 ```
 
 ---
