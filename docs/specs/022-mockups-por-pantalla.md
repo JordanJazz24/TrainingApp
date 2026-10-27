@@ -139,6 +139,12 @@ Registradas como **D-207** al aprobar (2026-10-27). P-1, P-6 y P-7 cambiaron con
 > con Guardar y Cancelar**; "Quitar área" ya no existe. El brief de Usuarios y la E7 del plan
 > están enmendados. **Rango de numeración de la 022:** D-220 a D-239 y B-30 a B-39
 > (`docs/decisions.md`).
+>
+> **Enmienda 2026-10-27 (2):** la spec 021 quedó **cerrada e integrada** (`TrainingApp` en
+> `1edd2ca`). La columna "Implementar" de la tabla de pantallas y P-7 ya no bloquean nada:
+> cada entrega solo espera la E1 y su mockup aprobado. El área ya está en la app (Operadores,
+> Operador y su ficha, Usuarios con el lápiz, e Inicio con el área como texto), así que las
+> capturas actuales ya la muestran.
 
 ## Criterios de aceptación
 

@@ -202,7 +202,8 @@ Qué ve primero: el estado por guía de cada operador, sin leer texto.
 
 Datos (por operador, solo rol Operator):
 - nombre y Code1 (enlace a su detalle);
-- su ÁREA asignada como "Producto · Área" (ej. "Sensores · LoFlo"), o "Sin área";
+- su ÁREA asignada como "Producto · Área" (ej. "Sensores · LoFlo"), o "Sin área" si aún no
+  la eligió (hoy es la columna que sigue al nombre; puedes reubicarla);
 - por cada guía publicada (columnas dinámicas, hoy 4): insignia de estado (Aprobado,
   Reprobado, En entrenamiento, Sin iniciar) y sus puntajes de Assessment como texto;
 - su última actividad (fecha y hora de la planta).
@@ -229,8 +230,8 @@ Qué decide: si está listo en cada guía y qué tiene que reforzar.
 Qué ve primero: su estado por guía y los pasos a reforzar.
 
 Datos:
-- encabezado: nombre, Code1, su ÁREA ("Producto · Área" o "Sin área"); botones Volver e
-  Imprimir;
+- encabezado: nombre, Code1, su ÁREA ("Producto · Área" o "Sin área"), que también sale en
+  la ficha impresa; botones Volver e Imprimir;
 - Estado por guía (una tarjeta por guía): nombre y título de la guía, insignia de estado,
   mejor puntaje, último puntaje y última actividad;
 - Pasos a reforzar, agrupados por guía: paso, veces sin acierto, intentos fallidos y el motivo
@@ -254,8 +255,8 @@ Muestra también cómo se ve la ficha impresa de cada alternativa.
 > Desbloquear y Borrar. El texto de abajo ya lo refleja.
 
 **Capturas:** la lista con operadores y admins (uno bloqueado, uno que debe cambiar la
-contraseña), y el formulario de crear. Como el Área llega con la 021, si aún no está en la
-app, se diseña igual con los datos de abajo.
+contraseña), y el formulario de crear, más el selector de área abierto con el lápiz (la 021
+ya está en la app, 2026-10-27).
 
 ```text
 Pantalla: GESTIÓN DE USUARIOS (administración).
@@ -284,8 +285,8 @@ alta, historial de cambios.
 
 ## 9. Inicio del operador → `022-design/inicio-operador.html`
 
-**Capturas:** el inicio actual (con la cascada Producto, Área y Guía y las 3 tarjetas de
-modo), en claro y oscuro, y en tablet.
+**Capturas:** el inicio actual (con la 021: el área como texto, el selector de guía y las 3
+tarjetas de modo), en claro y oscuro, y en tablet; si puedes, también el aviso sin área.
 
 ```text
 Pantalla: INICIO DEL OPERADOR (antes de entrar al simulador).
