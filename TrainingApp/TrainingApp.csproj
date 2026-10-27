@@ -176,6 +176,9 @@
     <Content Include="Pages\Training\StartSession.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Pages\Training\ChooseArea.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Pages\Training\GuidedTest.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
@@ -347,6 +350,13 @@
     </Compile>
     <Compile Include="Pages\Training\StartSession.aspx.designer.cs">
       <DependentUpon>StartSession.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Training\ChooseArea.aspx.cs">
+      <DependentUpon>ChooseArea.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Training\ChooseArea.aspx.designer.cs">
+      <DependentUpon>ChooseArea.aspx</DependentUpon>
     </Compile>
     <Compile Include="Pages\Training\StepHints.cs" />
     <Compile Include="Pages\Training\GuidedTest.aspx.cs">

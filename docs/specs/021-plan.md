@@ -99,10 +99,10 @@ BD, solo inicia las guías de esa área. B-20 queda corregido.
 
 ## E3 · UI del operador: "Elige tu área" e inicio
 
-- [ ] `Shared/Constants.cs`: `SessionKeys.HasArea`. `SessionHelper`: `SetUserSession` la escribe
+- [x] `Shared/Constants.cs`: `SessionKeys.HasArea`. `SessionHelper`: `SetUserSession` la escribe
       (única escritura, P-3); `MustChooseArea()`; `ChooseAreaUrl`; `RefreshUserSession()` (relee el
       usuario y llama a `SetUserSession`).
-- [ ] `Pages/Training/ChooseArea.aspx` (`Site.Master`, P-10): `EnsureUserSession` →
+- [x] `Pages/Training/ChooseArea.aspx` (`Site.Master`, P-10): `EnsureUserSession` →
       `CanTrain` → `MustChangePassword`; con área, al inicio (AC-5).
   - Un **solo selector agrupado por producto** (D-169): un `<select>` con `<optgroup>` por
     producto, desde `GetEligibleAreas()`. `DropDownList` no tiene `optgroup`: la página lo
@@ -112,17 +112,17 @@ BD, solo inicia las guías de esa área. B-20 queda corregido.
     trainer podrá cambiarla.", Sí / No) con la pieza de confirmación del sistema de diseño. Si
     `Site.Master` no carga la de `Admin.Master`, se lleva a un JS común. Sí → un postback →
     `ChooseOwnArea` → `RefreshUserSession` → inicio (D-177, AC-3).
-- [ ] `StartSession.aspx`: tras `MustChangePassword`, `MustChooseArea` → `ChooseArea` (D-169).
+- [x] `StartSession.aspx`: tras `MustChangePassword`, `MustChooseArea` → `ChooseArea` (D-169).
       Con área: "*Producto · Área*" como texto y solo el selector de guía (y los modos); se quitan
       los selectores de Producto y Área (D-167). Sin área (el admin la quitó durante la Session):
       el aviso de D-168, sin selector ni Iniciar. Sin guías publicadas en su área: el mensaje
       actual (P-6).
-- [ ] `GuidedTest.aspx.cs`: la misma redirección tras `MustChangePassword` (D-169). La sesión en
+- [x] `GuidedTest.aspx.cs`: la misma redirección tras `MustChangePassword` (D-169). La sesión en
       curso de otra área sigue (D-174, AC-7).
-- [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler` (markup tocado); tests.
-- [ ] `/code-review low --max-findings 5` sobre `SessionHelper` y los code-behind. Foco: orden
+- [x] Verificación (Desarrollo): Rebuild; `aspnet_compiler` (markup tocado); tests.
+- [x] `/code-review low --max-findings 5` sobre `SessionHelper` y los code-behind. Foco: orden
       de las redirecciones, Session escrita solo en `SetUserSession`, nada de lógica en la página.
-- [ ] Checklist del navegador: AC-1 a AC-5, AC-7 (operador nuevo, operador existente sin área,
+- [x] Checklist del navegador: AC-1 a AC-5, AC-7 (operador nuevo, operador existente sin área,
       No en la confirmación, abrir `ChooseArea` con área, sesión en curso de otra área), en claro
       y oscuro.
 

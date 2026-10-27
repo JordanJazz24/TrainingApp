@@ -21,6 +21,8 @@ namespace TrainingApp.Pages
         public const string LoginUrl          = "~/Pages/Auth/Login.aspx";
         public const string ChangePasswordUrl = "~/Pages/Auth/ChangePassword.aspx";
         public const string TrainingHomeUrl   = "~/Pages/Training/StartSession.aspx";
+        // El operador sin área la elige aquí antes de entrenar (spec 021, D-169).
+        public const string ChooseAreaUrl     = "~/Pages/Training/ChooseArea.aspx";
         // El inicio del administrador es el Resumen del dashboard (spec 018, AC-1).
         public const string AdminHomeUrl      = "~/Pages/Admin/Summary.aspx";
 
@@ -176,6 +178,20 @@ namespace TrainingApp.Pages
             session[Constants.SessionKeys.Code1]        = user.Code1;
             session[Constants.SessionKeys.Name]         = user.Name;
             session[Constants.SessionKeys.IsFirstLogin] = user.IsFirstLogin;
+            session[Constants.SessionKeys.HasArea]      = user.AreaId.HasValue;
+        }
+
+        /// <summary>
+        /// Vuelve a llenar la Session desde la BD (spec 021, P-3): después de elegir el área, o
+        /// si la BD ya tiene una que la Session no conoce (la asignó un admin). False si la
+        /// cuenta ya no existe.
+        /// </summary>
+        public static bool RefreshUserSession()
+        {
+            var user = new AuthService().GetUserByCode1(HttpContext.Current.User.Identity.Name?.Trim());
+            if (user == null) return false;
+            SetUserSession(user);
+            return true;
         }
 
         /// <summary>
@@ -238,6 +254,17 @@ namespace TrainingApp.Pages
         {
             var session = HttpContext.Current.Session;
             return session != null && session[Constants.SessionKeys.IsFirstLogin] as bool? == true;
+        }
+
+        /// <summary>
+        /// True mientras el operador no tiene área (spec 021, D-169): las páginas de
+        /// entrenamiento lo mandan a ChooseArea, después de MustChangePassword. Una Session sin
+        /// la clave (anterior a la spec) también: ChooseArea la refresca desde la BD.
+        /// </summary>
+        public static bool MustChooseArea()
+        {
+            var session = HttpContext.Current.Session;
+            return session != null && session[Constants.SessionKeys.HasArea] as bool? != true;
         }
     }
 }

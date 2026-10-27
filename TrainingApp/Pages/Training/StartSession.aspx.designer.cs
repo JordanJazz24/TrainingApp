@@ -33,22 +33,31 @@ namespace TrainingApp.Pages.Training
         protected global::System.Web.UI.WebControls.Label LblError;
 
         /// <summary>
-        /// DdlProduct control.
+        /// LblNoArea control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DdlProduct;
+        protected global::System.Web.UI.WebControls.Label LblNoArea;
 
         /// <summary>
-        /// DdlArea control.
+        /// PhStart control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DdlArea;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhStart;
+
+        /// <summary>
+        /// LblArea control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label LblArea;
 
         /// <summary>
         /// DdlGuide control.
@@ -80,10 +89,6 @@ namespace TrainingApp.Pages.Training
         /// <summary>
         /// RbAssessment control.
         /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.WebControls.RadioButton RbAssessment;
 
         /// <summary>
