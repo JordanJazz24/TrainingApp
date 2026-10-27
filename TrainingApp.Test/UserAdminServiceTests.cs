@@ -45,6 +45,11 @@ namespace TrainingApp.Test
         private const int OperatorId = 2;
         private const int UnknownId  = 99;
 
+        // Áreas elegibles en memoria (spec 021): Moldeo y LoFlo; 7 existe pero no es elegible.
+        private const int MoldeoId      = 2;
+        private const int LoFloId       = 3;
+        private const int NotEligibleId = 7;
+
         private FakeUserRepository _users;
         private UserAdminService _service;
 
@@ -56,7 +61,12 @@ namespace TrainingApp.Test
             _users.Add(new User { Id = OperatorId, Code1 = "O1", Name = "Operador", Role = UserRole.Operator });
 
             _service = new UserAdminService(_users,
-                code1 => code1 == "NEW" ? new Employee { Code1 = "NEW", Nombre = "Nuevo", Apellidos = "Empleado" } : null);
+                code1 => code1 == "NEW" ? new Employee { Code1 = "NEW", Nombre = "Nuevo", Apellidos = "Empleado" } : null,
+                () => new List<EligibleArea>
+                {
+                    new EligibleArea { ProductId = 2, ProductName = "S&RC",     AreaId = MoldeoId, AreaName = "Moldeo" },
+                    new EligibleArea { ProductId = 3, ProductName = "Sensores", AreaId = LoFloId,  AreaName = "LoFlo" }
+                });
         }
 
         // AC-5: un operador (o un Id que no existe) no puede usar ningún método.
@@ -67,6 +77,7 @@ namespace TrainingApp.Test
             yield return new TestCaseData(new Action<UserAdminService, int>((s, caller) => s.ResetPassword(caller, AdminId))).SetName("ResetPassword");
             yield return new TestCaseData(new Action<UserAdminService, int>((s, caller) => s.Unlock(caller, AdminId))).SetName("Unlock");
             yield return new TestCaseData(new Action<UserAdminService, int>((s, caller) => s.Delete(caller, AdminId))).SetName("Delete");
+            yield return new TestCaseData(new Action<UserAdminService, int>((s, caller) => s.SetArea(caller, OperatorId, LoFloId))).SetName("SetArea");
         }
 
         [TestCaseSource(nameof(AdminActions))]
@@ -106,6 +117,43 @@ namespace TrainingApp.Test
             _users.RejectDeletes = true;
 
             Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.Delete(AdminId, OperatorId)));
+        }
+
+        // Spec 021 (D-172, P-5): el admin cambia el área de un operador o la quita.
+        [Test]
+        public void SetArea_ChangesAndRemovesTheOperatorArea()
+        {
+            Assert.That(_service.SetArea(AdminId, OperatorId, LoFloId), Is.EqualTo(UserAdminResult.Ok));
+            Assert.That(_users.GetById(OperatorId).AreaId, Is.EqualTo(LoFloId));
+
+            Assert.That(_service.SetArea(AdminId, OperatorId, MoldeoId), Is.EqualTo(UserAdminResult.Ok));
+            Assert.That(_users.GetById(OperatorId).AreaId, Is.EqualTo(MoldeoId));
+
+            Assert.That(_service.SetArea(AdminId, OperatorId, null), Is.EqualTo(UserAdminResult.Ok));
+            Assert.That(_users.GetById(OperatorId).AreaId, Is.Null);
+        }
+
+        // P-2: solo un Operator tiene área.
+        [Test]
+        public void SetArea_OnAnAdministrator_Throws()
+        {
+            Assert.Throws<InvalidOperationException>((Action)(() => _service.SetArea(AdminId, AdminId, LoFloId)));
+            Assert.That(_users.Changes, Is.Empty);
+        }
+
+        [Test]
+        public void SetArea_UnknownUser_IsNotFound()
+        {
+            Assert.That(_service.SetArea(AdminId, UnknownId, LoFloId), Is.EqualTo(UserAdminResult.UserNotFound));
+            Assert.That(_users.Changes, Is.Empty);
+        }
+
+        // D-176: solo las áreas con guía publicada.
+        [Test]
+        public void SetArea_NotEligibleArea_Throws()
+        {
+            Assert.Throws<ArgumentException>((Action)(() => _service.SetArea(AdminId, OperatorId, NotEligibleId)));
+            Assert.That(_users.Changes, Is.Empty);
         }
 
         [Test]
@@ -176,7 +224,16 @@ namespace TrainingApp.Test
             }
 
             public bool ChooseArea(int userId, int areaId) => throw new NotSupportedException();
-            public bool SetArea(int userId, int? areaId) => throw new NotSupportedException();
+
+            // Como spUserSetArea: solo guarda sobre un Operator.
+            public bool SetArea(int userId, int? areaId)
+            {
+                var user = _users.FirstOrDefault(u => u.Id == userId && u.Role == UserRole.Operator);
+                if (user == null) return false;
+                user.AreaId = areaId;
+                Changes.Add("SetArea");
+                return true;
+            }
         }
     }
 }

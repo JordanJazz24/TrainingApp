@@ -246,4 +246,5 @@ es global.
 | B-1 (rendimiento) | 2026-10-07 | Una lista vacía de la API reemplazaba la última lista de empleados | history.md → "Arreglo de rendimiento del arranque" | corregido |
 | B-1 (011) | 2026-10-13 | Browse después del Start reescribía `TxtSFC` y la selección | specs/011-plan.md (E2) | corregido |
 | B-3 | 2026-10-22 | `Users.aspx` manda al login, y no al inicio del rol, cuando la BLL niega el acceso (spec 013) | specs/018-plan.md (enmienda 2, E2) | pendiente: entra en la spec 021 (punto 12b) |
+| B-4 | 2026-10-27 | `PodService.StartSession` acepta un modo de sesión no definido: abandona la sesión en curso y guarda una que falla al cargar (POST manipulado) | specs/021-plan.md (E2, enmienda 1) | corregido (021, E2) |
 | B-20 | 2026-10-26 | `PodService.StartSession` no revisa que la guía exista y esté publicada: solo protege la página (lista y EventValidation); un envío manipulado podría iniciar una versión despublicada (D-56) con sus pasos y pesos | specs/020-plan.md (E2, `/code-review`) | pendiente: entra en la spec 021 (punto 11) |

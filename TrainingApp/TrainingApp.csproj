@@ -312,6 +312,10 @@
     <Compile Include="BLL\Training\DataCollectionProgress.cs" />
     <Compile Include="BLL\Scoring\DataCollectionCompletionRule.cs" />
     <Compile Include="BLL\Training\TrainingGuideService.cs" />
+    <Compile Include="BLL\Training\TrainingAccessRule.cs" />
+    <Compile Include="BLL\Training\OperatorAreaService.cs" />
+    <Compile Include="BLL\Training\OperatorStartOptions.cs" />
+    <Compile Include="BLL\Training\AreaLabel.cs" />
     <Compile Include="BLL\Training\TrainingSessionService.cs" />
     <Compile Include="BLL\Training\SimulatedOrder.cs" />
     <Compile Include="BLL\Training\SimulatedOrderRow.cs" />

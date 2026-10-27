@@ -4,6 +4,8 @@
 B-20 y B-3 · **Planeado en:** la nube (`cloud/021-area-operador`) · **Implementa:** Desarrollo,
 en local.
 
+**Enmienda 1 (2026-10-27):** B-4 entra en la E2.
+
 Cada entrega sigue `docs/process.md` → "2. Cada entrega": implementar, verificar con los
 comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` con nivel y foco, el
 "funciona" del usuario en el navegador **antes** del commit y commit solo con sus rutas
@@ -59,36 +61,37 @@ quedan con `AreaId = NULL`. Sin cambios visibles en la app.
 
 ## E2 · BLL, validación de `StartSession` y tests
 
-- [ ] `BLL/Training/TrainingAccessRule.cs` (pura, sin repositorios; P-8):
+- [x] `BLL/Training/TrainingAccessRule.cs` (pura, sin repositorios; P-8):
   - `EnsureCanStart(User user, TrainingGuide guide)`: excepción si la guía es `null` (B-20), no
     está publicada (B-20), el usuario no es Operator, no tiene área o la guía es de otra área
     (D-173).
   - `IsEligible(int areaId, IEnumerable<EligibleArea> eligible)`.
-- [ ] `PodService.StartSession(userId, guideId, mode)`: carga el usuario y la guía y llama a
+- [x] `PodService.StartSession(userId, guideId, mode)`: carga el usuario y la guía y llama a
       `TrainingAccessRule.EnsureCanStart` **antes** de `TrainingSessionService.Start` (que
       abandona las sesiones en curso, D-9): un inicio rechazado no toca la sesión en curso (AC-8).
       Excepción, no intento (P-7).
-- [ ] `TrainingGuideService`: `GetEligibleAreas()` y `GetStartOptions(userId)` (el texto
+- [x] `TrainingGuideService`: `GetEligibleAreas()` y `GetStartOptions(userId)` (el texto
       "Producto · Área" del operador y las guías publicadas de su área; vacío si no tiene).
-- [ ] `BLL/Training/OperatorAreaService.cs` (con `IUserRepository` inyectable, como
+- [x] `BLL/Training/OperatorAreaService.cs` (con `IUserRepository` inyectable, como
       `UserAdminService`): `ChooseOwnArea(userId, areaId)`: el usuario es Operator, no tiene área
       y el área es elegible; si `ChooseArea` afecta 0 filas, excepción (D-171, P-4).
-- [ ] `UserAdminService.SetArea(adminId, userId, int? areaId)`: verifica que quien llama es
+- [x] `UserAdminService.SetArea(adminId, userId, int? areaId)`: verifica que quien llama es
       admin (`UnauthorizedAccessException`, como el resto), que la cuenta existe y es Operator y
       que el área es elegible; `null` la quita (D-172, P-2, P-5). Para leer las elegibles en los
       tests, la misma costura que `findEmployee` (un `Func` o una interfaz pequeña).
-- [ ] Tests NUnit en memoria:
+- [x] Tests NUnit en memoria:
   - `TrainingAccessRuleTests`: guía inexistente, no publicada, otra área, operador sin área,
     administrador y el caso válido;
   - `OperatorAreaServiceTests`: elige bien, ya tenía área, área no elegible, administrador, carrera
     (el repositorio devuelve 0 filas);
   - `UserAdminServiceTests`: `SetArea` con quien no es admin, cuenta admin, cuenta inexistente, área
     no elegible, quitar y cambiar.
-- [ ] Verificación (Desarrollo): Rebuild de `TrainingApp` y `TrainingApp.Test`; `vstest.console`
+- [x] Verificación (Desarrollo): Rebuild de `TrainingApp` y `TrainingApp.Test`; `vstest.console`
       con todo en verde (`ScoreCalculatorTests` incluido).
-- [ ] `/code-review medium` sobre los archivos de la BLL. Foco: validar antes de abandonar, que
+- [x] `/code-review medium` sobre los archivos de la BLL. Foco: validar antes de abandonar, que
       ninguna regla confíe en la página, admin verificado en la BLL y lo que cruza usuarios
       (`SetArea` sobre otra cuenta).
+- [x] B-4 (enmienda 1, usuario 2026-10-27): `StartSession` rechaza con excepción un modo de sesión no definido antes de `Start`; antes abandonaba la sesión en curso y guardaba una sesión que fallaba al cargar (POST manipulado). Con su test.
 
 **Hecho cuando:** los tests pasan; desde la app (Rebuild + F5), un operador sin área ya no puede
 iniciar ninguna guía (la página de error, esperado hasta la E3); con un área puesta a mano en la

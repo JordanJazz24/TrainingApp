@@ -102,7 +102,13 @@ worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
        con el área, `spUserChooseArea`, `spUserSetArea` y `spAreaGetEligible`; Domain y DAL.
        Sin cambios visibles. Probada en LocalDB (limpia y sobre una BD anterior con usuarios,
        sesiones e intentos; dos corridas). Tests: 393.
-     - Sigue la E2 (BLL, validación de `StartSession` y tests).
+     - **E2 · BLL:** `TrainingAccessRule` (quién inicia qué guía; corrige B-20),
+       `StartSession` valida antes de abandonar la sesión en curso, `OperatorAreaService`
+       (elegir la propia), `UserAdminService.SetArea`, `TrainingGuideService.GetEligibleAreas` y
+       `GetStartOptions`, `AreaLabel` ("Producto · Área"); B-4 (modo no definido, enmienda 1).
+       Tests: 414. Hasta la E3, un operador
+       sin área no puede iniciar ninguna guía (página de error, esperado).
+     - Sigue la E3 (UI del operador: "Elige tu área" e inicio).
      - **Pendiente del usuario:** correr `00`, `01`, `02`, `05` y `10` en su BD local antes
        de probar la E3.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
@@ -139,7 +145,8 @@ final (D-16) repasó esta lista.
   parcial. `PodService` crea sus repositorios internamente, así que lo que hace alrededor
   del puntaje (registrar el intento, avance forzado, guardar `FinalScore`) no se puede probar
   sin BD; se probó en el navegador (spec 009, auditoría final). Cubrirlo sería otra fase
-  (interfaces de repositorio o integración contra LocalDB).
+  (interfaces de repositorio o integración contra LocalDB). Tampoco tiene test el orden
+  validar-antes-de-abandonar en `StartSession` (spec 021); la regla sí (`TrainingAccessRule`).
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
   (spec 007) hasta que lo pida un instructor o la Fase 8.

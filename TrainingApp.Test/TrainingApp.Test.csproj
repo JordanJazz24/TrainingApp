@@ -172,6 +172,7 @@
     <Compile Include="StepRunsTests.cs" />
     <Compile Include="SummaryRulesTests.cs" />
     <Compile Include="CustomResourceSetupTests.cs" />
+    <Compile Include="OperatorAreaTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
