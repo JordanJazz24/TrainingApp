@@ -34,7 +34,7 @@
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
-| **— · Área asignada por operador** | ▶️ spec y plan aprobados el 2026-10-27 (en la nube, D-165 a D-179 y D-208; cierra B-20, B-3 y B-4); E1 a E3 ✅ en `spec-021` (sin integrar), E4 en prueba | | `021-area-operador.md`, `021-plan.md` |
+| — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 | **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); diseñando los mockups, el Login primero | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
@@ -485,7 +485,8 @@ vista ya carga, cada una con su D-n (D-205).
 (sistema de diseño), E2 (Login y Cambio de contraseña), E3 (Guías), E4 (Pasos) y E5
 (Seguimiento) son libres y se intercalan con la 021 cuando el usuario se lo pida a Desarrollo,
 nunca a la mitad de una entrega de la 021. E6 (Operadores y Operador) va después de la E5 de la
-021; E7 (Usuarios), después de su E4, y E8 (Inicio del operador), después de su E3.
+021; E7 (Usuarios), después de su E4, y E8 (Inicio del operador), después de su E3. **La 021
+se cerró el 2026-10-27:** desde entonces ninguna entrega de la 022 espera a la 021, solo su mockup.
 - **Coordinación:** la 021 y la 022 tocan `admin.css` y `Users.aspx`. La 022 se implementa en su
   propia rama (`spec-022`), y la E1 se coordina con Desarrollo para no pisar la 021.
 - **Enmienda pendiente en la nube:** la E7 y el brief de Usuarios todavía cuentan con "Quitar
@@ -500,12 +501,14 @@ nunca a la mitad de una entrega de la 021. E6 (Operadores y Operador) va despué
 3. ✅ R3, Custom Resource Setup (2026-10-27). **Adelantado (usuario, 2026-10-26):** fue en
    paralelo con la Fase 11, en la sesión `Custom-RS` (spec 020).
 
-**Siguiente (negocio, 2026-10-27):** cada operador tiene un **área asignada** y solo ve las
+**✅ Área asignada por operador (negocio, 2026-10-27; cerrada el 2026-10-27, `b06a993`):** cada operador tiene un **área asignada** y solo ve las
 guías de esa área. Spec `021-area-operador.md` y plan `021-plan.md` (5 entregas), hechos en la
 nube (`cloud/021-area-operador`) y aprobados por el usuario el 2026-10-27; integrados en
 `TrainingApp` (`33158df`). **Levanta** "el área del operador (diferida)" del "No incluye" de la
 Fase 10; sigue fuera filtrar el dashboard por el área del operador (spec 021 → Out). Al publicar,
 todos los operadores existentes eligen su área en su próximo ingreso: avisar a los trainers.
+Qué se hizo: `docs/history.md`. Pendiente del usuario: correr `00`, `01`, `02`, `05` y `10` en la
+BD de producción antes de publicar (`docs/status.md`).
 
 #### Revisión con Ernesto, MES (2026-10-22)
 Registrada por Reuniones y Dudas. No cambia el foco: la Fase 10 sigue con su orden.
