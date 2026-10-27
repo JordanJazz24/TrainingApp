@@ -8,8 +8,8 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; la Fase 11 y R3 están
-cerradas e integradas; la rama `fase-11` (worktree `.claude/worktrees/fase-11`) solo queda para
-estos docs, hasta que el usuario la cierre (`docs/process.md` §7) · **Último commit de
+cerradas e integradas (`33afc98`); la rama `fase-11` (worktree `.claude/worktrees/fase-11`)
+ya no tiene nada sin integrar y queda hasta que el usuario la cierre (`docs/process.md` §7) · **Último commit de
 código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -77,10 +77,10 @@ código:** R3 E5 (`3336221`), en `TrainingApp` (`git log --oneline -10` para ver
 
      AC-7 medido el 2026-10-27: todas las vistas por debajo de 3 s con la BD de volumen (cifras
      en `019-plan.md` → "Docs al cerrar"); la BD de prueba se borró. Los "Docs al cerrar" están
-     hechos; Arquitectura y Planeación marca la fase en el roadmap.
-     - **Pendiente del usuario** (`docs/process.md` §7): integrar los commits del cierre en la
-       carpeta principal con `git merge --ff-only fase-11`; después, `git worktree remove` del
-       worktree `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
+     hechos; la fase está marcada ✅ en el roadmap (`7cd4691`).
+     - **Pendiente del usuario** (`docs/process.md` §7): el cierre ya está integrado en
+       `TrainingApp` (`33afc98`, 2026-10-27). Falta `git worktree remove` del worktree
+       `fase-11`, `git branch -d fase-11` y, si ya no se usa, borrar la BD
        `TrainingApp_Fase11` de LocalDB. Lo mismo con `fase-10` y `TrainingApp_Fase10`.
   3. **R3 · Custom Resource Setup ✅** (2026-10-26 a 2026-10-27, ver "Historial"; spec y plan
      `docs/specs/020-*.md`, D-180 a D-201): **E1 a E5**, probadas por el usuario, directo en
