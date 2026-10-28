@@ -296,6 +296,11 @@ Ideas permitidas como métrica derivada: cuántos casos hay por regla, cuántos 
 
 ## 6. Operadores → `022-design/operadores.html`
 
+> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
+> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
+> cambia el significado de "Sin iniciar". No se diseña hasta que la 024 esté
+> aprobada y los briefs 6 y 7 enmendados con ella.
+
 **Capturas a adjuntar:** la lista con filtros vacíos, filtrada por "Reprobado" y una guía, en
 claro y oscuro; si se puede, a 768 px.
 
@@ -324,6 +329,11 @@ están en cada estado, quién está reprobado en alguna guía, quién no tiene a
 ```
 
 ## 7. Operador (detalle y ficha) → `022-design/operador.html`
+
+> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
+> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
+> cambia el significado de "Sin iniciar". No se diseña hasta que la 024 esté
+> aprobada y los briefs 6 y 7 enmendados con ella.
 
 **Capturas:** un operador con varias guías y sesiones, en claro y oscuro, y la vista de
 impresión (ficha).
