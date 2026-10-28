@@ -36,8 +36,8 @@
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
-| — · Filtro de período en Pasos y Resumen | ▶️ spec y plan aprobados el 2026-10-28 (D-209 a D-218); va después de la E1 de la 022 (D-219) | | `023-filtro-periodo.md`, `023-plan.md` |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login aprobado el 2026-10-28 (3b, D-220 a D-227); E1 lista para Desarrollo (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| — · Filtro de período en Pasos y Resumen | ▶️ spec y plan aprobados el 2026-10-28 (D-209 a D-218); E1 en curso (después de la E1 de la 022, D-219) | | `023-filtro-periodo.md`, `023-plan.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login aprobado el 2026-10-28 (3b, D-220 a D-227); E1 ✅ (`0df7542`, rama `spec-022`); sigue la 023 (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -461,8 +461,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 
 ### ⏸ Para retomar (Planeación, 2026-10-28)
 
-- **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La siguiente
-  entrega es la **E1 de la 022** (Desarrollo avisado el 2026-10-28).
+- **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La E1 de la
+  022 se cerró el 2026-10-28 (`0df7542`); sigue la **E1 de la 023**.
 - **Spec 023:** spec y plan aprobados el 2026-10-28 (D-209 a D-218; punto 8 de la 018
   enmendado). El mockup de Pasos (022, E4) espera su cierre (D-217); Diseño UI/UX enmienda el
   brief de Pasos con el control nuevo cuando la ve en `origin`.
@@ -471,13 +471,13 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
   con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Sigue en Diseño:**
   el mockup del Cambio de contraseña; después, Guías y Seguimiento.
-  **Capturas (usuario, 2026-10-28):** las hace Desarrollo en cada entrega de pantalla (las del
-  Login 3b, en la E2a), salvo que su margen de contexto no alcance para las iteraciones
-  futuras: entonces las omite o busca una opción más barata, siempre preguntándole antes al
-  usuario.
-- **Desarrollo:** avisado el 2026-10-28 de empezar la **E1 de la 022**; el usuario sigue
-  diseñando en paralelo en Claude Design.
-- **Numeración:** local D-240 a D-259 (siguiente D-240; D-208 a D-219 agotado) y B-5 a B-19;
+  **Capturas (D-240, usuario 2026-10-28):** las hace Desarrollo, solo de la versión final
+  aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración; las del Login 3b, en
+  la E2a. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas.
+- **Desarrollo:** la **E1 de la 022 está cerrada** (`0df7542`, rama `spec-022`, probada por el
+  usuario; sin integrar en `TrainingApp`); sigue con la **E1 de la 023**. El usuario diseña en
+  paralelo en Claude Design.
+- **Numeración:** local D-240 a D-259 (siguiente D-241; D-208 a D-219 agotado) y B-5 a B-19;
   nube D-228 a D-239 y B-30 a B-39.
 - **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
   avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas

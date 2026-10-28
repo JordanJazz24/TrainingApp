@@ -119,7 +119,9 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   las D-n y enmienda la spec y el plan. **Desarrollo** trae la rama a su entrega como punto de
   partida, con el ciclo normal (sección 2): Rebuild, `aspnet_compiler`, `/code-review`, el
   "funciona" del usuario y el commit en `TrainingApp`. Nunca se integra tal cual. La sesión
-  local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`).
+  local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`). Las
+  capturas de `022-design/` las toma Desarrollo, solo de la versión final aprobada (claro,
+  oscuro y tablet); si su contexto no alcanza, pregunta antes al usuario (D-240).
 
 ## 2. Cada entrega
 
