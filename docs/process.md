@@ -111,6 +111,15 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   docs al usuario antes de commitear; la sesión local revisa la rama al integrarla.
 - **Numeración:** cada frente usa su rango de D-n y B-n (`docs/decisions.md` → encabezado). El
   2026-10-27 la nube y la sesión local tomaron D-202 a la vez.
+- **Handoff de Claude Design (spec 022, D-226; usuario, 2026-10-28):** el usuario aprueba un
+  mockup en Claude Design y lo manda, con el "Prompt de handoff" de `022-briefs.md`, a una
+  sesión de la nube que lo implementa en `cloud/022-<pantalla>`. El commit va marcado "no
+  verificada" y la rama trae `docs/specs/022-design/<pantalla>.md`. Esa sesión no numera
+  decisiones ni toca docs de estado. La nube de planeación de la 022 (`Diseño UI/UX`) registra
+  las D-n y enmienda la spec y el plan. **Desarrollo** trae la rama a su entrega como punto de
+  partida, con el ciclo normal (sección 2): Rebuild, `aspnet_compiler`, `/code-review`, el
+  "funciona" del usuario y el commit en `TrainingApp`. Nunca se integra tal cual. La sesión
+  local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`).
 
 ## 2. Cada entrega
 

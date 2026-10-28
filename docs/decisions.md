@@ -5,15 +5,16 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-219 (local; la spec 023 usó D-209 a D-218) · D-228 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-240 (local, rango D-240 a D-259) · D-228 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
 >   Desarrollo: spec 021 y lo demás) usa **D-208 a D-219** y **B-5 a B-19**; la nube (spec 022,
 >   mockups) usa **D-220 a D-239** y **B-30 a B-39**. La 022 ya usó D-202 a D-207 y la enmienda
 >   de la E4 de la 021 es D-208 (las dos tomaron D-202 a la vez; se renumeró la de la 021, que no
->   estaba commiteada). Si un frente se queda sin números, pide el siguiente rango libre
->   (D-240 en adelante).
+>   estaba commiteada). Si un frente se queda sin números, pide el siguiente rango libre.
+>   **2026-10-28:** la sesión local agotó D-208 a D-219 (la 023 y D-219) y toma **D-240 a
+>   D-259**; el siguiente libre es D-260.
 > - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
 >   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
@@ -244,6 +245,7 @@
 | D-216 | 2026-10-27 | Spec 023: fechas con el selector nativo del navegador, sin librería | specs/023-filtro-periodo.md | vigente |
 | D-217 | 2026-10-27 | Spec 023: va antes del mockup de Pasos de la 022, con el sistema de diseño actual | specs/023-filtro-periodo.md | vigente |
 | D-218 | 2026-10-28 | Spec 023: propuestas P-1 a P-16 confirmadas (inicio de la sesión; días de la planta, también en Últimos 30 días; 7 atajos; anterior por atajo; flecha, valor, referencia y base; Este mes ante un rango inválido; URL; `@To` y una sola lectura; granularidad 31/366 días; Excel; Sesiones del período; un UserControl; rendimiento; textos; 4 entregas) | specs/023-filtro-periodo.md | vigente |
+| D-219 | 2026-10-28 | Orden de Desarrollo entre la 022 y la 023: 022 E1 (tokens) → 023 E1 a E4 → 022 E2a (Login) y el resto de la 022 con sus mockups; la E2 de la 022 se parte en E2a (Login) y E2b (Cambio de contraseña, con su mockup) | roadmap.md (Spec 023 → Orden) | vigente |
 | D-220 | 2026-10-28 | Spec 022, Login: alternativa 3b, panel dividido (identidad + formulario; franja en tablet) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
 | D-221 | 2026-10-28 | Spec 022, Login: tokens nuevos `--mt-brand-bg`, `--mt-on-brand`, `--mt-on-brand-2`, `--mt-brand-line` (claro y oscuro); ninguno existente cambia | specs/022-mockups-por-pantalla.md | vigente |
 | D-222 | 2026-10-28 | Spec 022, Login: componentes `.auth-*` (solo login) y `.mt-status-line` (reutilizable) | specs/022-mockups-por-pantalla.md | vigente |

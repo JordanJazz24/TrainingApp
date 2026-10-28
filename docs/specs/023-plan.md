@@ -2,7 +2,8 @@
 
 **Spec:** `023-filtro-periodo.md` (aprobada 2026-10-28) · **Decisiones:** D-209 a D-218 ·
 **Planeado en:** Arquitectura y Planeación local · **Implementa:** Desarrollo, en local.
-**Status:** por aprobar (escrito el 2026-10-28) · **Enmienda:** el punto 8 de la spec 018
+**Status:** aprobado (2026-10-28, usuario: "apruebo el plan") · **Orden (D-219):** después de
+la E1 de la 022 (tokens) y antes del Login (022 E2a) · **Enmienda:** el punto 8 de la spec 018
 (período "Últimos 30 días / Todo").
 
 Cada entrega sigue `docs/process.md` → "2. Cada entrega": implementar, verificar con los
@@ -21,11 +22,11 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 - Sin tablas ni índices nuevos (P-8). Si la medición de la E4 no cumple P-13, se para y se avisa
   a Planeación antes de tocar SPs o índices.
 - **Coordinación con la 022:** el mockup de Pasos (022, E4) espera esta spec (D-217). Esta spec
-  usa el sistema de diseño actual (`admin.css`); si la E1 de la 022 está en curso, no se tocan
-  `admin.css` a la vez (la segunda espera el commit de la primera).
+  va después de la E1 de la 022 (D-219), así que sus estilos usan los tokens nuevos de D-221 y
+  `admin.css` no se toca a la vez.
 - Si algo de la spec no cierra al implementar: parar y pedir la enmienda (process.md → 1).
 - Ninguna decisión nueva en este plan. Si aparece una, la siguiente libre del rango local es
-  **D-219**; si hace falta más, se pide un rango (`docs/decisions.md` → encabezado).
+  **D-240** (rango D-240 a D-259, `docs/decisions.md` → encabezado).
 
 ## E1 · Datos y BLL del rango y la comparación, con tests
 

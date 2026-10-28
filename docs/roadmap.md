@@ -36,8 +36,8 @@
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
-| — · Filtro de período en Pasos y Resumen | ▶️ spec aprobada el 2026-10-28 (D-209 a D-218); plan por aprobar | | `023-filtro-periodo.md`, `023-plan.md` |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); diseñando los mockups, el Login primero | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| — · Filtro de período en Pasos y Resumen | ▶️ spec y plan aprobados el 2026-10-28 (D-209 a D-218); va después de la E1 de la 022 (D-219) | | `023-filtro-periodo.md`, `023-plan.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login aprobado el 2026-10-28 (3b, D-220 a D-227); E1 lista para Desarrollo (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -459,20 +459,21 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
-### ⏸ Para retomar (Planeación, cierre del 2026-10-27)
+### ⏸ Para retomar (Planeación, 2026-10-28)
 
-- **Spec 023 · Filtro de período: aprobada el 2026-10-28** (D-209 a D-218, punto 8 de la 018
-  enmendado). **Falta la aprobación de `023-plan.md`** (4 entregas); al aprobarlo, Desarrollo
-  puede empezar la E1. Aviso a la nube (D-217): el mockup de Pasos (022, E4) espera el cierre
-  de la 023; lo lleva el usuario.
-- **Fase 12 (022):** la nube diseña el Login en Claude Design. Sus enmiendas (la 021 cerrada,
-  Usuarios sin "Quitar área", briefs con el repo conectado) se revisaron e integraron el
-  2026-10-28 (`863f925`). Siguiente: el mockup del Login aprobado y su exportación en
-  `022-design/`.
-- **Numeración:** local D-208 a D-219 (siguiente D-219; la 023 usó D-209 a D-218) y B-5 a
-  B-19; nube D-220 a D-239 y B-30 a B-39. Al pasar de D-219, pedir el rango D-240 en adelante.
-- **Desarrollo:** sin entrega asignada (la 021 cerró).
-- **Usuario:** push de `TrainingApp`; correr en producción `00`, `01`, `02`, `05` y `10` y
+- **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La siguiente
+  entrega es la **E1 de la 022**; el usuario se la pide a Desarrollo.
+- **Spec 023:** spec y plan aprobados el 2026-10-28 (D-209 a D-218; punto 8 de la 018
+  enmendado). El mockup de Pasos (022, E4) espera su cierre (D-217); Diseño UI/UX enmienda el
+  brief de Pasos con el control nuevo cuando la ve en `origin`.
+- **Fase 12 (022):** Login aprobado (3b, D-220 a D-227; `022-design/login.md`), integrado el
+  2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. **Pendiente en
+  Diseño UI/UX:** enmendar el plan 022 con la E2 partida en E2a (Login) y E2b (Cambio de
+  contraseña) (D-219) y el brief de Pasos (D-217); diseñar el Cambio de contraseña.
+  **Pendiente del usuario:** las capturas del Login 3b (`022-design/login-claro/-oscuro/-tablet.png`).
+- **Numeración:** local D-240 a D-259 (siguiente D-240; D-208 a D-219 agotado) y B-5 a B-19;
+  nube D-228 a D-239 y B-30 a B-39.
+- **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
   avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
   `spec-021` y `fase-11`.
 - **Mensajes a la nube:** solo con Remote Control conectado (`/remote-control`), y van en un
@@ -481,7 +482,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 ### Spec 023 — Filtro de período en Pasos y Resumen
 
 **Spec aprobada el 2026-10-28: `docs/specs/023-filtro-periodo.md`** (D-209 a D-218), con su plan
-`023-plan.md` (4 entregas, por aprobar). Pedido del usuario (2026-10-27): un filtro de fechas
+`023-plan.md` (4 entregas, aprobado el 2026-10-28). Pedido del usuario (2026-10-27): un filtro de fechas
 en Pasos y Resumen con buena UX. Enmienda el punto 8 de la spec 018.
 
 **Objetivo:** que gerencia y trainers revisen un grupo o una capacitación en fechas concretas,
@@ -503,8 +504,10 @@ cambio y el rango en el título de los dos Excel.
 - guardar el último período entre visitas;
 - tablas o índices nuevos (salvo que la medición de la E4 lo pida, con aviso a Planeación).
 
-**Orden:** va **antes** del mockup de Pasos de la 022 (D-217), con el sistema de diseño actual.
-Si la E1 de la 022 está en curso, las dos se coordinan para no tocar `admin.css` a la vez.
+**Orden:** va **antes** del mockup de Pasos de la 022 (D-217). **D-219 (usuario, 2026-10-28):**
+**022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). Así la E2 de la 023 (estilos de la flecha) usa los tokens nuevos y `admin.css`
+no se toca a la vez. La E2 de la 022 se parte en E2a (Login) y E2b (Cambio de contraseña, con
+su mockup).
 
 ### Fase 12 — Mockups por pantalla (spec 022)
 
@@ -542,6 +545,15 @@ se cerró el 2026-10-27:** desde entonces ninguna entrega de la 022 espera a la 
   columna Área; rango D-220 a D-239 y B-30 a B-39; los briefs se usan con Claude Design leyendo
   el repo (rama `TrainingApp`) con un prompt corto por pantalla (`022-briefs.md` → "Cómo
   usarlos").
+- **Login aprobado (2026-10-28, `f197a85`):** alternativa 3b, panel dividido (D-220 a D-225):
+  tokens `--mt-brand-*` y `--mt-on-brand*` (D-221), `.auth-*` y `.mt-status-line` (D-222),
+  `Admin.Master` con `FullBleed` solo en el login (D-223), errores en la línea de estado en vez
+  de SweetAlert (D-224) y textos nuevos (D-225). El criterio pasa a ser capturas PNG y
+  `022-design/<pantalla>.md`, no el HTML exportado (D-227, excepción a P-3). Flujo con handoff
+  de Claude Design (D-226, `process.md` → "Variante temporal"): la rama `cloud/022-login-3b`
+  (`c7294ee`, "no verificada") es el punto de partida de la E1 y la E2a; no se integra tal cual.
+- **Orden con la 023 (D-219):** ver "Spec 023 → Orden". La E2 se parte en E2a (Login) y E2b
+  (Cambio de contraseña).
 
 ### Después de la Fase 10
 
