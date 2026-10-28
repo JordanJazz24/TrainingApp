@@ -1,23 +1,55 @@
 # Briefs por pantalla para Claude Design (spec 022)
 
-**Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). **Uso:** por cada pantalla, pegar en
-Claude Design el **contexto común** y después el **brief de la pantalla**, con sus adjuntos.
-La exportación aprobada va a `022-design/<archivo>.html` (nombre en cada brief).
+**Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). La exportación aprobada va a
+`022-design/<archivo>.html` (nombre en cada brief).
 
 Orden de diseño (P-1): Login → Cambio de contraseña → Guías → Pasos → Seguimiento →
 Operadores → Operador → Usuarios → Inicio del operador. El Login fija los cambios al sistema
-de diseño. Desde la segunda pantalla, se
-adjuntan también las exportaciones ya aprobadas.
+de diseño.
 
-## Adjuntos comunes (todas las pantallas)
+## Cómo usarlos (enmendado 2026-10-27: Claude Design con el repo conectado)
 
-- `TrainingApp/UI/master/admin.css` (tokens `--mt-*` en claro y oscuro, y componentes).
-- El mockup v1: exportación o capturas del canvas "Mockup Fase 11 · Dashboard de Training"
-  (https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd): tableros Sistema de diseño, Resumen y
-  Resumen en oscuro.
-- Las exportaciones ya aprobadas de `022-design/`.
-- Capturas actuales de la pantalla en claro y en oscuro, que toma el usuario (las indica cada
-  brief).
+El usuario probó que Claude Design lee el repo (`JordanJazz24/TrainingApp`) y usa skills. Por
+eso ya no se pegan los briefs ni se adjunta `admin.css`:
+
+- **Rama a leer:** `TrainingApp` (cuando la sesión local integre la última versión de esta
+  rama); mientras tanto, `cloud/022-mockups-por-pantalla`.
+- **Solo lectura:** Claude Design no escribe en el repo. La exportación aprobada se la pasa el
+  usuario a la sesión de la nube, o la sube él en local (spec → "Aprobación").
+- **Prompt corto por pantalla** (cambiar N y el nombre):
+
+```text
+Lee del repo (rama TrainingApp, solo lectura) docs/specs/022-briefs.md: el "Contexto común"
+y el brief N (<pantalla>). Lee también los archivos del repo que ese brief indica, más
+TrainingApp/UI/master/admin.css y docs/specs/019-ui-ux-dashboard.md. Si ya hay exportaciones
+aprobadas en docs/specs/022-design/, respétalas. Usa la skill frontend-design, siempre dentro
+de las restricciones del brief. Entrégame primero la pantalla actual recreada (para comparar)
+y después las 3 alternativas.
+```
+
+- **Sigue adjuntándose a mano** (no está en el repo): el mockup v1 (exportación o capturas del
+  canvas "Mockup Fase 11 · Dashboard de Training",
+  https://claude.ai/artifact/Uxqr9utFzd8w6uBgp3EYYd: Sistema de diseño, Resumen y Resumen en
+  oscuro) y las **capturas actuales** de la pantalla que indica cada brief (lo que se ve con la
+  app corriendo y datos reales).
+- **Sin repo conectado:** pegar el contexto común y el brief, y adjuntar `admin.css`.
+
+### Archivos del repo por pantalla (rutas bajo `TrainingApp/`)
+
+Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
+(`UI/master/Admin.Master` o `UI/master/Site.Master`, con su `.cs`).
+
+| # | Pantalla | Archivos (cada `.aspx` con su `.aspx.cs`) |
+|---|---|---|
+| 1 | Login | `Pages/Auth/Login.aspx` |
+| 2 | Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` |
+| 3 | Guías | `Pages/Admin/Guides.aspx`, `Pages/Admin/GuideListRow.cs` |
+| 4 | Pasos | `Pages/Admin/Steps.aspx`, `Pages/Admin/StepRows.cs` |
+| 5 | Seguimiento | `Pages/Admin/FollowUp.aspx`, `Pages/Admin/FollowUpListRow.cs`, `BLL/Reports/FollowUpRules.cs` |
+| 6 | Operadores | `Pages/Admin/Operators.aspx`, `Pages/Admin/OperatorListRow.cs`, `Pages/Admin/ReportText.cs` |
+| 7 | Operador | `Pages/Admin/Operator.aspx`, `Pages/Admin/OperatorDetailRows.cs`, `UI/master/admin-charts.js` |
+| 8 | Usuarios | `Pages/Admin/Users.aspx`, `Pages/Admin/UserListRow.cs` |
+| 9 | Inicio del operador | `Pages/Training/StartSession.aspx` |
 
 ---
 
@@ -61,6 +93,9 @@ Entrega cada alternativa en claro y en oscuro, con datos de ejemplo realistas (n
 español, Code1 de 5 a 6 dígitos, guías de Moldeo, LoFlo, Subensamble 1 y Redefinity). La
 exportación final: un HTML autocontenido (CSS y SVG inline, sin recursos externos) con el
 interruptor de tema funcionando.
+
+Si tienes la skill frontend-design, úsala, pero siempre dentro de estas restricciones: lo que
+proponga fuera de ellas (otra librería, fuentes web, animaciones pesadas) márcalo como cambio.
 ```
 
 ---
@@ -202,7 +237,8 @@ Qué ve primero: el estado por guía de cada operador, sin leer texto.
 
 Datos (por operador, solo rol Operator):
 - nombre y Code1 (enlace a su detalle);
-- su ÁREA asignada como "Producto · Área" (ej. "Sensores · LoFlo"), o "Sin área";
+- su ÁREA asignada como "Producto · Área" (ej. "Sensores · LoFlo"), o "Sin área" si aún no
+  la eligió (hoy es la columna que sigue al nombre; puedes reubicarla);
 - por cada guía publicada (columnas dinámicas, hoy 4): insignia de estado (Aprobado,
   Reprobado, En entrenamiento, Sin iniciar) y sus puntajes de Assessment como texto;
 - su última actividad (fecha y hora de la planta).
@@ -229,8 +265,8 @@ Qué decide: si está listo en cada guía y qué tiene que reforzar.
 Qué ve primero: su estado por guía y los pasos a reforzar.
 
 Datos:
-- encabezado: nombre, Code1, su ÁREA ("Producto · Área" o "Sin área"); botones Volver e
-  Imprimir;
+- encabezado: nombre, Code1, su ÁREA ("Producto · Área" o "Sin área"), que también sale en
+  la ficha impresa; botones Volver e Imprimir;
 - Estado por guía (una tarjeta por guía): nombre y título de la guía, insignia de estado,
   mejor puntaje, último puntaje y última actividad;
 - Pasos a reforzar, agrupados por guía: paso, veces sin acierto, intentos fallidos y el motivo
@@ -249,9 +285,13 @@ Muestra también cómo se ve la ficha impresa de cada alternativa.
 
 ## 8. Usuarios → `022-design/usuarios.html`
 
+> **Enmendado 2026-10-27** (enmienda 1 de la spec 021, D-208): ya no existe "Quitar área". El
+> área se cambia en su propia columna, con un lápiz; la columna Acciones tiene solo Resetear,
+> Desbloquear y Borrar. El texto de abajo ya lo refleja.
+
 **Capturas:** la lista con operadores y admins (uno bloqueado, uno que debe cambiar la
-contraseña), y el formulario de crear. Como el Área llega con la 021, si aún no está en la
-app, se diseña igual con los datos de abajo.
+contraseña), y el formulario de crear, más el selector de área abierto con el lápiz (la 021
+ya está en la app, 2026-10-27).
 
 ```text
 Pantalla: GESTIÓN DE USUARIOS (administración).
@@ -267,10 +307,12 @@ Datos y acciones:
 - lista paginada (Anterior / Siguiente): nombre y Code1, ROL como insignia, ESTADO de la
   cuenta como insignia (Activa, Bloqueada, Debe cambiar la contraseña), ÁREA ("Producto ·
   Área", "Sin área" o "—" para un admin), fecha de alta y último acceso;
-- acciones por fila, cada una con confirmación: Resetear contraseña, Desbloquear (solo si
-  está bloqueada), Eliminar (no sobre uno mismo; si tiene historial se avisa), y para
-  operadores: Cambiar área (selector de áreas AGRUPADO POR PRODUCTO, se abre en la fila o en
-  un modal sin recargar, y Guardar) y Quitar área.
+- cambiar el área (solo operadores): en la columna Área, junto al texto, un lápiz que abre
+  AHÍ MISMO el selector de áreas AGRUPADO POR PRODUCTO, con Guardar (con confirmación) y
+  Cancelar, sin recargar hasta Guardar. No hay "quitar área". Las filas de administrador
+  muestran "—" y no tienen lápiz;
+- columna Acciones, cada una con confirmación: Resetear contraseña, Desbloquear (solo si está
+  bloqueada) y Borrar (no sobre uno mismo; si tiene historial se avisa).
 
 Queda fuera: editar nombre o Code1, cambiar el rol, filtrar por área, elegir el área en el
 alta, historial de cambios.
@@ -278,8 +320,8 @@ alta, historial de cambios.
 
 ## 9. Inicio del operador → `022-design/inicio-operador.html`
 
-**Capturas:** el inicio actual (con la cascada Producto, Área y Guía y las 3 tarjetas de
-modo), en claro y oscuro, y en tablet.
+**Capturas:** el inicio actual (con la 021: el área como texto, el selector de guía y las 3
+tarjetas de modo), en claro y oscuro, y en tablet; si puedes, también el aviso sin área.
 
 ```text
 Pantalla: INICIO DEL OPERADOR (antes de entrar al simulador).

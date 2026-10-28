@@ -17,6 +17,9 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 - **Bloqueo por la 021 (P-7):** las entregas marcadas "después de la E*n* de la 021" esperan esa
   entrega cerrada. Las libres se intercalan con la 021 **cuando el usuario se lo pida** a
   Desarrollo; nunca a la mitad de una entrega de la 021.
+  > **Enmendado 2026-10-27:** la spec 021 está **cerrada e integrada** (`TrainingApp` en
+  > `1edd2ca`). Ninguna entrega de la 022 espera ya a la 021: cada una solo espera E1 y su
+  > mockup.
 - **Solo presentación:** markup, `admin.css` y, si hace falta, `admin-charts.js` o un JS de
   cliente. Mismos controles de servidor, ids, postbacks, filtros en la URL, `adminConfirm`,
   SweetAlert y anclas `data-guide` (spec → "Restricciones fijas"). El code-behind solo cambia
@@ -28,8 +31,9 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
   su D-n está aprobada (D-206).
 - El mockup manda en cómo se ve; esta spec y la 019 (lo vigente) mandan en qué datos y qué
   comportamiento. Si chocan, se para y decide el usuario (enmienda, `process.md` → 1).
-- Ninguna decisión nueva en este plan: las de cada mockup se numeran al aprobarlo, con el
-  contador de `docs/decisions.md`.
+- Ninguna decisión nueva en este plan: las de cada mockup se numeran al aprobarlo, dentro del
+  rango de la 022: **D-220 a D-239** y **B-30 a B-39** (encabezado de `docs/decisions.md`;
+  enmendado 2026-10-27, por el choque con la 021).
 
 ## Checklist común de cada entrega de pantalla
 
@@ -129,8 +133,9 @@ rotos, en claro y oscuro.
 
 ## E6 · Operadores y Operador (después de la E5 de la 021)
 
-**Bloqueada hasta:** E1, los mockups de Operadores y Operador, y la E5 de la 021 cerrada (la
-columna Área ya existe).
+**Bloqueada hasta:** E1 y los mockups de Operadores y Operador. (Enmendado 2026-10-27: la E5
+de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
+ficha ya existen.)
 
 - [ ] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
       insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
@@ -149,24 +154,28 @@ columna Área ya existe).
 
 ## E7 · Usuarios (después de la E4 de la 021)
 
-**Bloqueada hasta:** E1, el mockup de Usuarios y la E4 de la 021 cerrada (Área, Cambiar y Quitar
-área, B-3).
+> **Enmendada 2026-10-27** (enmienda 1 de la spec 021, D-208): sin "Quitar área"; el área se
+> cambia con un lápiz en su columna.
+
+**Bloqueada hasta:** E1 y el mockup de Usuarios. (Enmendado 2026-10-27: la E4 de la 021 ya
+está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.)
 
 - [ ] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
-      `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext` y las acciones por
-      fila (Reset, Desbloquear, Eliminar, Cambiar área, Quitar área) con `adminConfirm`. El
-      selector agrupado de área sigue sin postback hasta Guardar.
+      `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext`; en la columna
+      Área, el lápiz que abre ahí el selector agrupado con Guardar (`adminConfirm`) y Cancelar,
+      sin postback hasta Guardar; las filas de admin muestran "—" y no tienen lápiz; en
+      Acciones, solo Resetear, Desbloquear y Borrar, con `adminConfirm`.
 - [ ] `/code-review low --max-findings 5`. Foco: ids de fila, que las acciones de operador no
       salgan en filas de admin, B-3 intacto.
-- [ ] Checklist común + crear, buscar, paginar, cada acción por fila, cambiar y quitar área, y
-      la fila propia.
+- [ ] Checklist común + crear, buscar, paginar, cada acción por fila, cambiar el área con el
+      lápiz (Guardar y Cancelar), y la fila propia.
 
 **Hecho cuando:** el usuario prueba cada acción y dice "funciona".
 
 ## E8 · Inicio del operador (después de la E3 de la 021)
 
-**Bloqueada hasta:** E1, el mockup del Inicio y la E3 de la 021 cerrada (área como texto, solo
-el selector de guía).
+**Bloqueada hasta:** E1 y el mockup del Inicio. (Enmendado 2026-10-27: la E3 de la 021 ya
+está cerrada; el área como texto y solo el selector de guía ya existen.)
 
 - [ ] `Pages/Training/StartSession.aspx` (y `Site.Master` si la estructura lo pide): la
       disposición aprobada; mismos `DdlGuide`, `RbGuided`/`RbFreePractice`/`RbAssessment`,
