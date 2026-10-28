@@ -34,6 +34,37 @@ y después las 3 alternativas.
   app corriendo y datos reales).
 - **Sin repo conectado:** pegar el contexto común y el brief, y adjuntar `admin.css`.
 
+### Prompt de handoff (enmendado 2026-10-28, D-226)
+
+Cuando el usuario aprueba una alternativa, Claude Design puede mandarla a una sesión de la nube
+que la implementa. Pegar este prompt junto con el envío (cambiar `<pantalla>` y N):
+
+```text
+Contexto: proyecto MESTrainingSimulator (repo JordanJazz24/TrainingApp, ASP.NET Web Forms en
+.NET Framework 4.7.2, Bootstrap 5.3.8 e íconos locales). Este diseño es la pantalla <pantalla>
+de la spec 022 (docs/specs/022-mockups-por-pantalla.md, plan 022-plan.md, brief N en
+022-briefs.md). Lee CLAUDE.md y esa spec antes de tocar nada.
+
+Cómo trabajar:
+1. Crea la rama cloud/022-<pantalla> desde origin/TrainingApp. Haz push SOLO a esa rama; nunca
+   a TrainingApp ni a main.
+2. Implementa el diseño en Web Forms con los tokens --mt-* de TrainingApp/UI/master/admin.css.
+   Nada de React ni recursos externos; los mismos controles de servidor, ids, postbacks,
+   anclas data-guide y confirmaciones; sin lógica en el code-behind. Si el diseño pide cambiar
+   comportamiento (otro control, otro flujo de errores, datos nuevos), hazlo solo si es
+   presentación y anótalo en la lista de cambios.
+3. No puedes compilar ni probar: marca el commit como "no verificada". Lo verifica la sesión
+   Desarrollo en local (Rebuild, aspnet_compiler, /code-review) y el usuario lo prueba.
+4. Agrega en la misma rama docs/specs/022-design/<pantalla>.md con: la alternativa elegida,
+   los cambios frente al v1 (tokens nuevos o con otro valor en claro y oscuro, componentes
+   nuevos o modificados, estructura, comportamiento y textos) y lo que Desarrollo debe revisar
+   porque no se compiló. Si puedes, agrega capturas PNG en claro, oscuro y tablet
+   (022-design/<pantalla>-claro.png, -oscuro.png, -tablet.png). No subas el HTML exportado.
+5. No numeres decisiones (D-n) ni edites decisions.md, la spec, el plan, roadmap.md ni
+   status.md: eso lo hace la sesión de planeación de la 022.
+6. Al terminar, dile al usuario la rama, el commit y un resumen de la lista de cambios.
+```
+
 ### Archivos del repo por pantalla (rutas bajo `TrainingApp/`)
 
 Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
