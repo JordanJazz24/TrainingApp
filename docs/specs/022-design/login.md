@@ -49,8 +49,8 @@ Lista de cambios frente al v1, tal como la entregó la sesión del handoff (Clau
 - Aviso: "¿Primer acceso? Entra con la contraseña por defecto; enseguida te pedirá crear una
   nueva."
 
-## Capturas (pendientes)
+## Capturas
 
-`login-claro.png`, `login-oscuro.png` y `login-tablet.png`, de la versión final. Las toma
-Desarrollo en la E2a, antes de su commit (D-240). El HTML exportado no se guarda:
-carga React desde unpkg (D-227).
+`login-claro.png`, `login-oscuro.png` y `login-tablet.png`, de la versión final (E2a,
+2026-10-28, D-240): claro y oscuro con un viewport de 1249 × 667 px; tablet con 768 px de
+ancho. El HTML exportado no se guarda: carga React desde unpkg (D-227).

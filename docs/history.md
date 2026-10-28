@@ -590,6 +590,21 @@ resúmenes (D-197).
 - **Queda abierto:** correr `00`, `01`, `02`, `05` y `10` en la BD de producción antes de
   publicar y avisar a los trainers (D-170).
 
+## Spec 022 · Un mockup por pantalla (en curso, 2026-10-28)
+**Objetivo:** rediseñar cada pantalla de `Admin.Master` según su mockup aprobado (spec
+`docs/specs/022-mockups-por-pantalla.md`, plan `022-plan.md`). Rama `spec-022`, en el worktree
+`.claude/worktrees/fase-11`, en el orden de D-219.
+- **E1 (`642cacd`, sistema de diseño):** los tokens de D-221 y `.mt-status-line` (D-222) en
+  `admin.css`, sin cambio visible.
+- **E2a (Login):** el panel dividido 3b (D-220 a D-225) desde `cloud/022-login-3b`;
+  `BtnLogin` pasa a `LinkButton`, los errores van a `.mt-status-line` con `aria-live` y
+  `Admin.Master` gana el modo `FullBleed` (D-223). `/code-review low` sin hallazgos. Capturas en
+  `022-design/login-*.png` (D-240). Probada por el usuario.
+- **E2b (cambio de contraseña):** la 2a (D-228 a D-232) desde `cloud/022-cambio-contrasena`;
+  pantalla completa siempre (D-230), los 3 pasos del primer acceso, errores en
+  `.mt-status-line` y los botones como `LinkButton`. `/code-review low` sin hallazgos. Capturas
+  del handoff, sin reemplazar (decisión del usuario). Probada por el usuario.
+
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver
 cada número clave contra el período anterior, con su base (spec `docs/specs/023-filtro-periodo.md`,

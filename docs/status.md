@@ -10,7 +10,7 @@
 **Última actualización:** 2026-10-28 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
 021 están cerradas e integradas. Las specs 022 y 023 se trabajan en la rama `spec-022`, en el
 worktree `.claude/worktrees/fase-11` (la carpeta se reutilizó; `fase-11` y `spec-021` ya no
-están en ningún worktree) · **Último commit de código:** 023 E4 (cierre de la spec 023), en `spec-022`
+están en ningún worktree) · **Último commit de código:** 022 E2b (cambio de contraseña), en `spec-022`
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -129,6 +129,18 @@ están en ningún worktree) · **Último commit de código:** 023 E4 (cierre de 
        `.mt-status-line` (D-222), tomados de `cloud/022-login-3b`; los `.auth-*`, `FullBleed` y
        `Login.aspx` de esa rama quedan para la E2a. Todavía nada los usa: sin cambio visible.
        Probada por el usuario (Resumen y dashboard, claro y oscuro).
+     - **022 E2a · Login** (2026-10-28): el panel dividido 3b (D-220 a D-225) desde
+       `cloud/022-login-3b`: `Login.aspx` con `BtnLogin` como `LinkButton`, los errores en
+       `.mt-status-line` (ya no en SweetAlert), `Admin.Master` con `FullBleed` (D-223) y los
+       `.auth-*` en `admin.css`. Flujo de login, bloqueo y primer acceso sin cambios. Capturas en
+       `022-design/login-*.png`. Probada por el usuario.
+     - **022 E2b · Cambio de contraseña** (2026-10-28): la 2a (D-228 a D-232) desde
+       `cloud/022-cambio-contrasena`: pantalla completa siempre (D-230), los 3 pasos del primer
+       acceso (`PhSteps`), errores en `.mt-status-line`, `BtnSave` y `BtnCancel` como
+       `LinkButton`; los `.pw-*` y `.mt-steps` en `admin.css`. Reglas y redirección sin cambios.
+       Capturas: las del handoff (el usuario no quiso reemplazarlas). Probada por el usuario.
+       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E3 Guías, E4 Pasos, E5
+       Seguimiento, E7 Usuarios, E8 Inicio); la E6, bloqueada por la 024.
      - **Spec 023 · Filtro de período en Pasos y Resumen ✅** (2026-10-28, ver "Historial"; spec
        y plan `docs/specs/023-*.md`, D-209 a D-218): **E1 a E4** (`ca9980f`, `55cfd7e`,
        `388dd3a` y el cierre), probadas por el usuario, en `spec-022` (sin integrar en

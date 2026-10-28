@@ -108,12 +108,12 @@ rotos, en claro y oscuro.
 **Bloqueada hasta:** E1 y las 023 E1 a E4 (orden de D-219). El mockup ya está aprobado
 (D-220 a D-225; `022-design/login.md`).
 
-- [ ] `Pages/Auth/Login.aspx`: la estructura aprobada (3b, D-220); mismos `TxtCode1`,
+- [x] `Pages/Auth/Login.aspx`: la estructura aprobada (3b, D-220); mismos `TxtCode1`,
       `TxtPassword`, `BtnLogin` y `DefaultButton`. **Enmendado 2026-10-28 (D-224):** los errores
       van en `.mt-status-line`, no en SweetAlert, y `BtnLogin` pasa a `LinkButton`. Punto de
       partida: `cloud/022-login-3b` (`c7294ee`), que además trae `Admin.Master` con `FullBleed`
       (D-223) y los `.auth-*` (D-222).
-- [ ] Revisar en la rama del handoff (no se compiló):
+- [x] Revisar en la rama del handoff (no se compiló):
   - Enter en un campo dispara `BtnLogin` como `LinkButton` con el `DefaultButton` del panel;
   - un solo `#mtThemeToggle` en el HTML (la barra del master no se renderiza con
     `FullBleed`) y `theme.js` lo toma;
@@ -122,12 +122,12 @@ rotos, en claro y oscuro.
     `aria-live`;
   - `ChangePassword.aspx` y las páginas del dashboard siguen con la barra (sin
     `FullBleed`).
-- [ ] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png`, de la versión
+- [x] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png`, de la versión
       final, tomadas por Desarrollo (D-240; checklist común).
-- [ ] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados
+- [x] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados
       (`Login.aspx`, `Admin.Master`). Foco: que no cambie el flujo de login, primer acceso,
       bloqueo y anti-CSRF.
-- [ ] Checklist común + login correcto, contraseña incorrecta, cuenta bloqueada y primer acceso
+- [x] Checklist común + login correcto, contraseña incorrecta, cuenta bloqueada y primer acceso
       → cambio de contraseña, con los dos roles.
 
 **Hecho cuando:** el usuario entra con los dos roles y dice "funciona".
@@ -136,25 +136,26 @@ rotos, en claro y oscuro.
 
 **Bloqueada hasta:** E1 y el mockup del Cambio de contraseña (D-219).
 
-- [ ] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (2a, D-228 a D-232; propia, P-6
+- [x] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (2a, D-228 a D-232; propia, P-6
       descartada); mismos campos, `BtnSave` y `BtnCancel` (ahora `LinkButton`, D-231). Punto
       de partida: `cloud/022-cambio-contrasena` (`221297f`), que sale de `cloud/022-login-3b`:
       se trae **después** de la E2a. Pantalla completa siempre (D-230). La redirección final no cambia (la puso la 021: después
       de la contraseña, "Elige tu área" si no tiene).
-- [ ] Reutiliza `FullBleed` y `.mt-status-line` del Login (D-222, D-223), sin afectar las
+- [x] Reutiliza `FullBleed` y `.mt-status-line` del Login (D-222, D-223), sin afectar las
       páginas del dashboard.
-- [ ] Revisar en la rama del handoff (no se compiló):
+- [x] Revisar en la rama del handoff (no se compiló):
   - Enter guarda con `BtnSave` como `LinkButton` (`DefaultButton`) y con los validadores del
     cliente;
   - `PhSteps` y `PhFirstLogin` siguen visibles tras un postback con error;
   - no queda ningún `ShowMessage` en la página;
   - `ChangePassword.aspx.designer.cs` se editó a mano (`PhSteps`, `PhError`, `LitError`,
     `LinkButton`): regenerarlo si Visual Studio no coincide.
-- [ ] Capturas: la rama trae `cambio-contrasena-*.png` de la sesión del handoff; Desarrollo las
-      **reemplaza** por las de la versión final (D-240).
-- [ ] `/code-review low --max-findings 3`. Foco: que no cambie el cambio de contraseña (actual
+- [x] Capturas: la rama trae `cambio-contrasena-*.png` de la sesión del handoff; Desarrollo las
+      **reemplaza** por las de la versión final (D-240). *Hecho 2026-10-28: el usuario decidió
+      quedarse con las del handoff.*
+- [x] `/code-review low --max-findings 3`. Foco: que no cambie el cambio de contraseña (actual
       siempre pedida, D-3; la nueva no puede ser la por defecto) ni el anti-CSRF.
-- [ ] Checklist común + primer acceso, cambio voluntario, Cancelar, contraseña actual
+- [x] Checklist común + primer acceso, cambio voluntario, Cancelar, contraseña actual
       incorrecta y confirmación distinta, con los dos roles.
 
 **Hecho cuando:** el usuario cambia la contraseña con los dos roles y dice "funciona".

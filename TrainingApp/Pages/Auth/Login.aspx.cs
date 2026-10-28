@@ -11,6 +11,12 @@ namespace TrainingApp.Pages.Auth
     {
         private readonly AuthService _authService = new AuthService();
 
+        // Panel dividido a pantalla completa (brief 022, 3b): sin la barra del master.
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            ((AdminMaster)Master).FullBleed = true;
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (User.Identity.IsAuthenticated)
@@ -62,6 +68,11 @@ namespace TrainingApp.Pages.Auth
             }
         }
 
-        private void ShowError(string message) => ((AdminMaster)Master).ShowMessage("error", "Error", message);
+        // Error del servidor en la línea de estado sobre Entrar (brief 022, 3b); ya no en SweetAlert.
+        private void ShowError(string message)
+        {
+            LitError.Text = message;
+            PhError.Visible = true;
+        }
     }
 }
