@@ -154,8 +154,12 @@ están en ningún worktree) · **Último commit de código:** 022 E1, en `spec-0
        también en texto para lectores de pantalla, `ChangeView`), la gráfica por día, semana o
        mes con su título y el enlace a Pasos y la descarga con el período. El Excel de sesiones
        dice el rango. Estilos `.mt-period-*`, `.mt-change-*` y `.mt-alert-warn` con tokens. Probada por
-       el usuario. Tests:
-       458.
+       el usuario. Tests: 458.
+     - **023 E3 · Pasos y su Excel** (2026-10-28): el mismo `PeriodFilter` y el aviso de período
+       inválido; por paso, el cambio del % con fallo (flecha, valor, referencia y sesiones); el
+       Excel de Pasos con el rango en el título y las columnas "% con fallo (anterior)" y
+       "Cambio (pts)", vacías con Todo. `/code-review low`: sin hallazgos. Probada por el usuario.
+       Tests: 459.
      - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
        final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**

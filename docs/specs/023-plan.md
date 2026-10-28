@@ -22,8 +22,8 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 - Sin tablas ni índices nuevos (P-8). Si la medición de la E4 no cumple P-13, se para y se avisa
   a Planeación antes de tocar SPs o índices.
 - **Coordinación con la 022:** el mockup de Pasos (022, E4) espera esta spec (D-217). Esta spec
-  va después de la E1 de la 022 (D-219), así que sus estilos usan los tokens nuevos de D-221 y
-  `admin.css` no se toca a la vez.
+  va después de la E1 de la 022 (D-219), así `admin.css` no se toca a la vez; la flecha usa
+  `--mt-ok` y `--mt-bad`, y el aviso de período inválido, `.mt-alert-warn` con `--mt-warn`.
 - Si algo de la spec no cierra al implementar: parar y pedir la enmienda (process.md → 1).
 - Ninguna decisión nueva en este plan. Si aparece una, la siguiente libre del rango local es
   **D-240** (rango D-240 a D-259, `docs/decisions.md` → encabezado).
@@ -137,24 +137,24 @@ todavía, salvo que el período de inicio ya es Este mes.
 
 ## E3 · Pasos y su Excel
 
-- [ ] `Steps.aspx`: el mismo `PeriodFilter` en lugar de `DdlPeriod` (con Guía, Modo, Filtrar y
+- [x] `Steps.aspx`: el mismo `PeriodFilter` en lugar de `DdlPeriod` (con Guía, Modo, Filtrar y
       Descargar); el aviso de período inválido; por paso, el cambio del % de sesiones con fallo
       (en puntos) con flecha, valor, referencia y la base (sesiones) (P-5, P-16); con Todo, sin
       comparación. Con la guía en "Todas", la agrupación por tipo de paso (D-147) en los dos
       períodos.
-- [ ] Abrir Pasos desde el Top 5 del Resumen: mismo período, misma guía, mismos números
+- [x] Abrir Pasos desde el Top 5 del Resumen: mismo período, misma guía, mismos números
       (AC-7).
-- [ ] `ExcelReports.Steps`: el título con el rango ("Pasos · Assessment · Del 1 al 27 de oct. de
+- [x] `ExcelReports.Steps`: el título con el rango ("Pasos · Assessment · Del 1 al 27 de oct. de
       2026") y dos columnas por paso, **"% con fallo (anterior)"** y **"Cambio (pts)"**, vacías
       con Todo (P-10, D-213); el formato de la Fase 11. `ExcelReports.Sessions`: solo el rango en
       el título (sin comparación).
-- [ ] Tests: `ExcelReportsTests` con las columnas nuevas, vacías con Todo, y el título con el
+- [x] Tests: `ExcelReportsTests` con las columnas nuevas, vacías con Todo, y el título con el
       rango.
-- [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler`; tests.
-- [ ] `/code-review low --max-findings 5` sobre `Steps.aspx.cs` y `ExcelReports`. Foco: que la
+- [x] Verificación (Desarrollo): Rebuild; `aspnet_compiler`; tests.
+- [x] `/code-review low --max-findings 5` sobre `Steps.aspx.cs` y `ExcelReports`. Foco: que la
       pantalla y el Excel traigan lo mismo con los mismos filtros (DA-5), columnas vacías con
       Todo.
-- [ ] Checklist del navegador: AC-2 a AC-5, AC-7 y AC-8 en Pasos (cada atajo, Personalizado,
+- [x] Checklist del navegador: AC-2 a AC-5, AC-7 y AC-8 en Pasos (cada atajo, Personalizado,
       Assessment y Práctica libre, "Todas" y una guía), en claro y oscuro; el Excel abierto en
       Excel.
 
@@ -162,12 +162,25 @@ todavía, salvo que el período de inicio ya es Este mes.
 
 ## E4 · Rendimiento y cierre
 
-- [ ] Medir con la BD de volumen (`Database/Ops/GenerateDashboardData.sql` en
+- [x] Medir con la BD de volumen (`Database/Ops/GenerateDashboardData.sql` en
       `TrainingApp_DashboardTest`, como en la Fase 11, AC-7) y `DashboardPerformanceTests`:
       Resumen y Pasos en menos de 3 s con Este mes, con Todo y con un Personalizado de 12 meses
       (que lee 24 con el anterior); el Excel de Pasos en menos de 20 s con Todo (P-13, AC-10).
       Cifras en este plan. Si algo no cumple: parar y avisar a Planeación antes de tocar SPs o
       índices.
+
+  > **Medido 2026-10-28** (LocalDB, ~22 000 sesiones y 287 000 intentos; segunda corrida, con el
+  > plan en caché). Cumple P-13 sin tocar SPs ni índices.
+  >
+  > | Vista | Este mes | Todo | Personalizado 12 meses |
+  > |---|---|---|---|
+  > | Resumen | 0,32 s | 0,66 s | 0,63 s |
+  > | Pasos Assessment | 0,32 s | 0,55 s | 0,55 s |
+  > | Pasos Práctica libre | 0,23 s | 0,44 s | 0,52 s |
+  >
+  > Los demás atajos, entre 0,04 y 0,43 s. Excel de Pasos con Todo: 0,73 s. La primera carga
+  > del Resumen (compila el plan de SQL), 0,91 s. `DashboardPerformanceTests.Views` mide ahora
+  > los 7 períodos.
 - [ ] AC-9: Operadores, Operador (detalle, curva, ficha) y Seguimiento sin cambios.
 - [ ] Docs de cierre (Desarrollo): `docs/architecture.md` si describe el período del dashboard;
       `docs/status.md`, `docs/history.md`; la spec 023 a Implemented. Avisar a Arquitectura y

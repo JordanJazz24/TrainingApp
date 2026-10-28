@@ -1,12 +1,14 @@
 <%@ Page Title="Pasos" Language="C#" MasterPageFile="~/UI/master/Admin.Master"
     AutoEventWireup="true" CodeBehind="Steps.aspx.cs"
     Inherits="TrainingApp.Pages.Admin.Steps" %>
+<%@ Register Src="~/UI/Controls/Admin/PeriodFilter.ascx" TagPrefix="uc" TagName="PeriodFilter" %>
 
 <%-- Pasos (spec 018, AC-17 y AC-18; diseño de la Fase 11, D-160): el ranking de pasos por % de
      sesiones con fallo del período y el modo, de una guía o, con "Todas", un resumen con el
      mismo paso de cada guía junto (D-147), con intentos fallidos, veces sin acierto, saltos (solo
      Práctica libre), la mediana de duración y los motivos con su acción: los 2 más frecuentes a
-     la vista y "Ver todos" despliega el resto en el cliente (<details>, sin postback). Lo calcula
+     la vista y "Ver todos" despliega el resto en el cliente (<details>, sin postback). Cada paso,
+     con el cambio de su % con fallo contra el período anterior (spec 023). Lo calcula
      DashboardService con StepRuns (D-146). Filtros en la URL. Solo lectura. --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="admin-page-head">
@@ -15,13 +17,7 @@
             <p class="admin-page-lead">Qué pasos fallan más en <asp:Literal ID="LitScope" runat="server" />.</p>
         </div>
         <asp:Panel ID="PnlFilters" runat="server" CssClass="mt-filters" DefaultButton="BtnFilter">
-            <div class="mt-field">
-                <label class="mt-field-label" for="<%= DdlPeriod.ClientID %>">Período</label>
-                <asp:DropDownList ID="DdlPeriod" runat="server" CssClass="form-select">
-                    <asp:ListItem Value="" Text="Este mes" />
-                    <asp:ListItem Value="all" Text="Todo" />
-                </asp:DropDownList>
-            </div>
+            <uc:PeriodFilter ID="Period" runat="server" />
             <div class="mt-field">
                 <label class="mt-field-label" for="<%= DdlGuide.ClientID %>">Guía</label>
                 <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
@@ -39,6 +35,10 @@
                 ToolTip="El ranking con estos filtros, en Excel"><i class="bi bi-download" aria-hidden="true"></i>Descargar</asp:HyperLink>
         </asp:Panel>
     </div>
+
+    <%-- Un período inválido (también editando la URL) vale Este mes (P-6). --%>
+    <asp:Label ID="LblInvalidPeriod" runat="server" CssClass="mt-alert-warn d-block mb-3" Visible="false"
+        role="status" Text="El período pedido no es válido (falta una fecha, el Fin es anterior al Inicio o es posterior a hoy). Se muestra Este mes." />
 
     <p class="mt-muted mt-small steps-note">
         Ordenados por % de sesiones con fallo: entre las sesiones que llegaron al paso, las que tuvieron
@@ -98,6 +98,12 @@
                                                 <span class="mt-muted mt-small"><%#: Eval("SessionsText") %></span>
                                             </div>
                                             <div class="mt-track"><div class="mt-fill" style='width: <%#: Eval("FailureWidth") %>%'></div></div>
+                                            <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("FailureRateChange.Visible") %>'>
+                                                <div class="steps-change">
+                                                    <span class='mt-change <%#: Eval("FailureRateChange.Css") %>'><%#: Eval("FailureRateChange.Text") %><span class="visually-hidden"> <%#: Eval("FailureRateChange.Verdict") %></span></span>
+                                                    <span class="mt-change-ref"><%#: Eval("FailureRateChange.Reference") %> · <%#: Eval("FailureRateChange.Base") %></span>
+                                                </div>
+                                            </asp:PlaceHolder>
                                         </td>
                                         <td class="mt-num"><%#: Eval("FailedAttempts") %></td>
                                         <td class="mt-num"><%#: Eval("TimesWithoutSuccess") %></td>

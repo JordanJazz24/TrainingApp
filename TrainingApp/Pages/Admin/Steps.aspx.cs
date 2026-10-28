@@ -9,9 +9,9 @@ using TrainingApp.Shared;
 
 namespace TrainingApp.Pages.Admin
 {
-    // Pasos (spec 018, AC-17 y AC-18). Solo UI: el ranking lo arma DashboardService con
-    // StepRuns. Los filtros viven en la URL (?period=all&guide=…&mode=practice): nada se guarda
-    // en Session.
+    // Pasos (spec 018, AC-17 y AC-18). Solo UI: el ranking y el cambio de cada paso contra el
+    // período anterior los arma DashboardService con StepRuns. Los filtros viven en la URL
+    // (?period=…&from=…&to=…&guide=…&mode=practice, spec 023): nada se guarda en Session.
     public partial class Steps : Page
     {
         private const string PageUrl = "~/Pages/Admin/Steps.aspx";
@@ -67,7 +67,7 @@ namespace TrainingApp.Pages.Admin
         protected void BtnFilter_Click(object sender, EventArgs e)
         {
             int.TryParse(DdlGuide.SelectedValue, out int guideId);
-            Response.Redirect(BuildUrl(DdlPeriod.SelectedValue == ReportFilters.PeriodAll, guideId > 0 ? guideId : (int?)null,
+            Response.Redirect(BuildUrl(Period.Period, Period.From, Period.To, guideId > 0 ? guideId : (int?)null,
                 DdlMode.SelectedValue == ReportFilters.ModePractice));
         }
 
@@ -77,15 +77,17 @@ namespace TrainingApp.Pages.Admin
 
             // Los controles muestran los filtros que de verdad se aplicaron.
             var applied = report.Applied;
-            DdlPeriod.SelectedValue = applied.Period == ReportPeriod.All ? ReportFilters.PeriodAll : string.Empty;
+            var range   = report.Range;
+            Period.Bind(range);
+            LblInvalidPeriod.Visible = range.Invalid;
             DdlMode.SelectedValue   = applied.Mode == SessionMode.FreePractice ? ReportFilters.ModePractice : string.Empty;
             DdlGuide.Items.Clear();
             DdlGuide.Items.Add(new ListItem("Todas", string.Empty));
             foreach (var g in report.Guides)
                 DdlGuide.Items.Add(new ListItem(g.AreaName, g.Id.ToString()) { Selected = g.Id == applied.GuideId });
 
-            // "Qué pasos fallan más en Assessment, últimos 30 días."
-            LitScope.Text = HttpUtility.HtmlEncode(ReportText.Mode(applied.Mode) + ", " + ReportText.Period(applied.Period).ToLowerInvariant());
+            // "Qué pasos fallan más en Assessment, este mes."
+            LitScope.Text = HttpUtility.HtmlEncode(ReportText.Mode(applied.Mode) + ", " + ReportText.PeriodOf(range));
             ShowsSkips = report.ShowsSkips;
             PhSkipsNote.Visible = report.ShowsSkips;
             PhAllGuidesNote.Visible = !applied.GuideId.HasValue;
@@ -105,6 +107,7 @@ namespace TrainingApp.Pages.Admin
                         FailureRateText     = ReportText.Percent(s.FailureRate),
                         FailureWidth        = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
                         SessionsText        = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions),
+                        FailureRateChange   = ChangeView.Of(s.FailureRateChange, range, "sesión", "sesiones"),
                         FailedAttempts      = s.FailedAttempts,
                         TimesWithoutSuccess = s.TimesWithoutSuccess,
                         Skips               = s.Skips,
@@ -120,10 +123,10 @@ namespace TrainingApp.Pages.Admin
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewSteps, Request.QueryString);
         }
 
-        private string BuildUrl(bool allPeriod, int? guideId, bool practice)
+        private string BuildUrl(ReportPeriod period, DateTime? from, DateTime? to, int? guideId, bool practice)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
-            if (allPeriod) query["period"] = ReportFilters.PeriodAll;
+            ReportFilters.WritePeriod(query, period, from, to);
             if (guideId.HasValue) query["guide"] = guideId.Value.ToString();
             if (practice) query["mode"] = ReportFilters.ModePractice;
             var url = ResolveUrl(PageUrl);

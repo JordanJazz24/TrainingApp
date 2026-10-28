@@ -126,6 +126,51 @@ namespace TrainingApp.Test
             }
         }
 
+        // Spec 023 (AC-8, D-213): el título dice el rango y cada paso trae el % del período
+        // anterior y el cambio en puntos; con Todo, las dos columnas van vacías.
+        [Test]
+        public void Steps_PreviousPeriodColumns()
+        {
+            var now = new DateTime(2026, 10, 28, 18, 0, 0);
+            Func<ReportRange, StepReport> report = range => new StepReport
+            {
+                Guides = Guides, ShowsSkips = false, Range = range, Applied = new StepFilter { Period = range.Period },
+                Rankings = new List<GuideStepRanking>
+                {
+                    new GuideStepRanking
+                    {
+                        Steps = new List<StepStats>
+                        {
+                            new StepStats
+                            {
+                                StepName = "Resource Setup", Sessions = 4, SessionsWithFailure = 2, Reasons = new List<ReasonCount>(),
+                                FailureRateChange = ReportChange.Points(0.5m, 4, 0.25m, 4, higherIsBetter: false)
+                            }
+                        }
+                    }
+                }
+            };
+
+            using (var book = ExcelReports.Steps(report(ReportPeriods.Resolve(ReportPeriod.ThisMonth, null, null, now))))
+            {
+                var sheet = book.Worksheet("Pasos");
+                var headers = sheet.Row(2).CellsUsed().Select(c => c.GetString()).ToList();
+                Assert.That(sheet.Cell(1, 1).GetString(), Does.StartWith("Pasos. Período: del 1 al 28 de oct. de 2026. "));
+                Assert.That(sheet.Cell(3, headers.IndexOf("% con fallo (anterior)") + 1).GetDouble(), Is.EqualTo(0.25));
+                Assert.That(sheet.Cell(3, headers.IndexOf("Cambio (pts)") + 1).GetDouble(), Is.EqualTo(25));
+            }
+
+            var all = ReportPeriods.Resolve(ReportPeriod.All, null, null, now);
+            using (var book = ExcelReports.Steps(report(all)))
+            {
+                var sheet = book.Worksheet("Pasos");
+                var headers = sheet.Row(2).CellsUsed().Select(c => c.GetString()).ToList();
+                Assert.That(sheet.Cell(1, 1).GetString(), Does.StartWith("Pasos. Período: todo el historial. "));
+                Assert.That(sheet.Cell(3, headers.IndexOf("% con fallo (anterior)") + 1).IsEmpty(), Is.True);
+                Assert.That(sheet.Cell(3, headers.IndexOf("Cambio (pts)") + 1).IsEmpty(), Is.True);
+            }
+        }
+
         // AC-22: dos hojas; el puntaje solo cuando el modo lo muestra; el resultado de cada paso.
         [Test]
         public void Sessions_TwoSheets()

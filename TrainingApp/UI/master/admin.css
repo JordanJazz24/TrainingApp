@@ -685,6 +685,7 @@ body.mt-page {
 .mt-change-none { font-weight: 400; }
 .mt-change-ref { color: var(--mt-muted); font-size: var(--mt-fs-small); }
 .summary-sessions { align-items: flex-end; text-align: right; }
+.steps-change { display: flex; flex-wrap: wrap; gap: 0 var(--mt-space-2); margin-top: 6px; }
 
 /* Aviso de período inválido (P-6). */
 .mt-alert-warn {
