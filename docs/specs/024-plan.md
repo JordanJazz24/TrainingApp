@@ -92,17 +92,23 @@ columnas nuevas). Checklist: AC-1 a AC-6 en claro y oscuro (Área = una, Sin ár
 iniciar con un operador de entrenamiento cruzado, un `?area=abc` y un `?guide=` viejo, F5 y
 Atrás, el Excel abierto en Excel).
 
-## E3 · Operador y su ficha
+## E3 · Operador y su ficha — hecha en la nube, no verificada
 
-- [ ] `Operator.aspx`: "Estado por guía" pasa a **"Su área"** (sus guías, también Sin iniciar;
+- [x] `Operator.aspx`: "Estado por guía" pasa a **"Su área"** (sus guías, también Sin iniciar;
       "Sin área" o "Sin guía publicada" si aplica) y **"Otras áreas (entrenamiento cruzado)"** en
       un `<details>` nativo, cerrado, solo si hay; abierto si el operador no tiene área (D-269,
       P-8, P-9). Reforzar y curvas, en el orden de la BLL. Sesiones con columna **Área**.
-- [ ] Ficha impresa: "Otras áreas" no se imprime (`d-print-none`) y va la línea "También
+- [x] Ficha impresa: "Otras áreas" no se imprime (`d-print-none`) y va la línea "También
       entrenó: Producto · Área — Estado; …" (D-270, P-9); nada si no hay.
-- [ ] `Operator.aspx.cs`, `OperatorDetailRows.cs`: solo binding y textos.
-- [ ] `admin.css`: solo si hace falta (el `<details>`), en el bloque "Operadores / Operador".
-- [ ] Sin `/code-review` si es solo binding y markup (`process.md` → 3); `low` si se toca lógica.
+- [x] `Operator.aspx.cs`, `OperatorDetailRows.cs`: solo binding y textos.
+- [x] `admin.css`: solo si hace falta (el `<details>`), en el bloque "Operadores / Operador".
+- [x] Sin `/code-review` si es solo binding y markup (`process.md` → 3); `low` si se toca lógica.
+
+**Ajuste (nube):** en Sesiones, la columna "Guía" pasa a ser **"Área"** ("Producto · Área", con
+el título de la guía al pasar el mouse) en vez de agregar otra: hoy la guía es la de un área
+(D-268) y dos columnas dirían lo mismo. El desplegable es un `<details runat="server">`
+(`HtmlGenericControl`), abierto desde el servidor si no tiene área. Sin `/code-review` (binding y
+markup); entra en el de la E4.
 
 **Verifica Desarrollo:** Rebuild; `aspnet_compiler`. Checklist: AC-7 a AC-9 (un operador con
 entrenamiento cruzado, uno sin él y uno sin área; la ficha impresa en claro) y AC-11 (un

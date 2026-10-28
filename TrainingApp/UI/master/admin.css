@@ -897,6 +897,10 @@ body.mt-page {
 /* ── Operadores / Operador por área (spec 024) ─────────────── */
 /* Varias guías en su área (P-6, futuro): una debajo de otra. */
 .operators-area-guide + .operators-area-guide { margin-top: var(--mt-space-2); }
+/* Operador: "Otras áreas (entrenamiento cruzado)", un desplegable nativo (D-269, P-9). */
+.operator-other { margin-top: var(--mt-space-4); }
+.operator-other > summary { cursor: pointer; }
+.operator-other > .operator-guides { margin-top: var(--mt-space-3); }
 
 /* ── Operador (spec 018; D-160) ────────────────────────────── */
 /* Insignia grande: el estado de cada guía, lo primero que se ve. */

@@ -2,13 +2,15 @@
     AutoEventWireup="true" CodeBehind="Operator.aspx.cs"
     Inherits="TrainingApp.Pages.Admin.Operator" %>
 
-<%-- Detalle de un Operador (spec 018, AC-14; diseño de la Fase 11, D-160): estado por guía
-     (ReadinessPolicy), pasos a reforzar en sus Assessment, curva de aprendizaje (AC-15) y sus
+<%-- Detalle de un Operador (spec 018, AC-14; diseño de la Fase 11, D-160; por área, spec 024):
+     el estado en las guías de su área y, aparte, las de otras áreas que entrenó (D-269), pasos a
+     reforzar en sus Assessment, curva de aprendizaje (AC-15) y sus
      sesiones, con horas de la planta. Un id inexistente, de un administrador o manipulado vuelve
      a Operadores con un aviso, sin datos. Solo lectura.
      Ficha imprimible (AC-16, D-150): la misma página impresa desde el navegador ("Guardar como
      PDF" para el PDF), siempre en claro (D-157). Al imprimir se ocultan la barra, los botones y
-     la curva (d-print-none y admin.css → @media print), y aparece el encabezado de la ficha. --%>
+     la curva (d-print-none y admin.css → @media print), y aparece el encabezado de la ficha. Las
+     otras áreas van en una línea, no en su desplegable (D-270). --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <asp:HyperLink ID="LnkBack" runat="server" CssClass="btn btn-link btn-sm px-0 mb-2 d-print-none"><i class="bi bi-chevron-left" aria-hidden="true"></i>Operadores</asp:HyperLink>
     <p class="d-none d-print-block mt-small mt-muted mb-2">
@@ -18,15 +20,15 @@
     <div class="admin-page-head">
         <div>
             <h1 class="admin-page-title"><asp:Literal ID="LitName" runat="server" /></h1>
-            <%-- Su área (spec 021, D-175): también en la ficha impresa. --%>
+            <%-- Su área (spec 021): también en la ficha impresa. --%>
             <p class="admin-page-lead">Código <asp:Literal ID="LitCode1" runat="server" /> · Área <asp:Literal ID="LitArea" runat="server" /></p>
         </div>
         <button type="button" class="btn btn-secondary d-print-none" onclick="window.print();"><i class="bi bi-printer" aria-hidden="true"></i>Imprimir ficha</button>
     </div>
 
-    <%-- Arriba: si está listo en cada guía y qué reforzar. --%>
+    <%-- Arriba: si está listo en su área y qué reforzar (spec 024, D-269). --%>
     <section class="mt-hero operator-top" aria-labelledby="guidesTitle">
-        <h2 id="guidesTitle" class="mt-section-title">Estado por guía</h2>
+        <h2 id="guidesTitle" class="mt-section-title">Su área</h2>
         <div class="operator-guides">
             <asp:Repeater ID="RptGuides" runat="server">
                 <ItemTemplate>
@@ -41,7 +43,34 @@
                     </div>
                 </ItemTemplate>
             </asp:Repeater>
+            <%-- Sin área o sin guía publicada en su área (D-267, P-5, P-8). --%>
+            <asp:Label ID="LblAreaNote" runat="server" CssClass="mt-muted" Visible="false" />
         </div>
+
+        <%-- Otras áreas (entrenamiento cruzado, D-269): solo las guías con sesiones, en un
+             desplegable nativo cerrado; abierto si no tiene área (P-8, P-9). No se imprime: la
+             ficha lleva la línea de abajo (D-270). --%>
+        <asp:PlaceHolder ID="PhOtherGuides" runat="server">
+            <details id="DetOtherGuides" runat="server" class="operator-other d-print-none">
+                <summary class="mt-block-title">Otras áreas (entrenamiento cruzado)</summary>
+                <div class="operator-guides">
+                    <asp:Repeater ID="RptOtherGuides" runat="server">
+                        <ItemTemplate>
+                            <div class="operator-guide">
+                                <span class="operator-guide-name" title='<%#: Eval("GuideTitle") %>'><%#: Eval("GuideName") %></span>
+                                <span class='<%#: Eval("StateCss") %> mt-badge-lg'><i class='<%#: Eval("StateIcon") %>' aria-hidden="true"></i><%#: Eval("StateText") %></span>
+                                <dl class="operator-guide-data">
+                                    <div><dt>Mejor puntaje</dt><dd><%#: Eval("BestText") %></dd></div>
+                                    <div><dt>Último puntaje</dt><dd><%#: Eval("LastText") %></dd></div>
+                                    <div><dt>Última actividad</dt><dd><%#: Eval("LastActivityText") %></dd></div>
+                                </dl>
+                            </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </div>
+            </details>
+            <p class="d-none d-print-block mt-small mb-0"><asp:Literal ID="LitAlsoTrained" runat="server" /></p>
+        </asp:PlaceHolder>
 
         <div class="operator-reinforce">
             <div>
@@ -138,7 +167,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Inicio</th>
-                            <th scope="col">Guía</th>
+                            <th scope="col">Área</th>
                             <th scope="col">Modo</th>
                             <th scope="col">Estado</th>
                             <th scope="col" class="mt-num">Puntaje</th>
@@ -151,7 +180,7 @@
                             <ItemTemplate>
                                 <tr>
                                     <td class="text-nowrap"><%#: Eval("StartedText") %></td>
-                                    <td><%#: Eval("GuideName") %></td>
+                                    <td title='<%#: Eval("GuideTitle") %>'><%#: Eval("AreaText") %></td>
                                     <td><%#: Eval("ModeText") %></td>
                                     <td><%#: Eval("StatusText") %></td>
                                     <td class="mt-num fw-semibold"><%#: Eval("ScoreText") %></td>
