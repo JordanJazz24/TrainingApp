@@ -600,6 +600,10 @@ resúmenes (D-197).
   `BtnLogin` pasa a `LinkButton`, los errores van a `.mt-status-line` con `aria-live` y
   `Admin.Master` gana el modo `FullBleed` (D-223). `/code-review low` sin hallazgos. Capturas en
   `022-design/login-*.png` (D-240). Probada por el usuario.
+- **E2b (cambio de contraseña):** la 2a (D-228 a D-232) desde `cloud/022-cambio-contrasena`;
+  pantalla completa siempre (D-230), los 3 pasos del primer acceso, errores en
+  `.mt-status-line` y los botones como `LinkButton`. `/code-review low` sin hallazgos. Capturas
+  del handoff, sin reemplazar (decisión del usuario). Probada por el usuario.
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver

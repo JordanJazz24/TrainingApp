@@ -13,6 +13,13 @@ namespace TrainingApp.Pages.Auth
     {
         private readonly AuthService _authService = new AuthService();
 
+        // Pantalla completa (brief 022, 2a): sin la barra superior ni el menú para ningún rol
+        // hasta guardar; la página trae su propio interruptor de tema.
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            ((AdminMaster)Master).FullBleed = true;
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Re-hidrata la Session si se perdió con el login vigente (auditoría AUD-10).
@@ -23,7 +30,7 @@ namespace TrainingApp.Pages.Auth
             }
 
             if (!IsPostBack)
-                PhFirstLogin.Visible = SessionHelper.MustChangePassword();
+                PhFirstLogin.Visible = PhSteps.Visible = SessionHelper.MustChangePassword();
         }
 
         protected void BtnSave_Click(object sender, EventArgs e)
@@ -59,6 +66,11 @@ namespace TrainingApp.Pages.Auth
             SessionHelper.Logout();
         }
 
-        private void ShowError(string message) => ((AdminMaster)Master).ShowMessage("error", "Error", message);
+        // Error del servidor en la línea de estado sobre Guardar (brief 022, 2a); ya no en SweetAlert.
+        private void ShowError(string message)
+        {
+            LitError.Text = message;
+            PhError.Visible = true;
+        }
     }
 }

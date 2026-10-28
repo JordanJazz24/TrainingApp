@@ -671,8 +671,9 @@ decisiones: `docs/specs/019-ui-ux-dashboard.md` y `019-plan.md` (D-153 a D-164).
 - **Pantalla completa (`AdminMaster.FullBleed`, spec 022, D-223):** la página la pone en
   `Page_Init` y el master, en su `PreRender`, oculta la barra superior y cambia `.admin-main` por
   `.admin-main-bleed`. La página trae su propio `#mtThemeToggle`, el único del HTML porque la
-  barra no se renderiza. Hoy solo la usa el Login (panel dividido, `.auth-*`); el cambio de
-  contraseña y el dashboard siguen con la barra.
+  barra no se renderiza. La usan el Login (panel dividido, `.auth-*`) y el cambio de
+  contraseña, siempre y para los dos roles (franja con `.pw-*` y los pasos `.mt-steps` del
+  primer acceso, D-230); el dashboard y Usuarios siguen con la barra.
 - **Impresión en claro:** el `@media print` del final de `admin.css` vuelve a poner los
   tokens claros dentro de `[data-bs-theme=dark]`. La ficha del Operador sale en claro con
   cualquier tema.
