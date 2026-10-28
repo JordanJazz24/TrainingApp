@@ -82,16 +82,16 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
 **Bloqueada hasta:** el mockup del **Login** aprobado (fija los cambios al sistema, P-1). Libre
 respecto a la 021, pero se coordina con Desarrollo: la 021 también toca `admin.css` (E3 a E5).
 
-- [ ] `UI/master/admin.css`: los tokens y componentes nuevos o cambiados que aprobó el Login,
+- [x] `UI/master/admin.css`: los tokens y componentes nuevos o cambiados que aprobó el Login,
       cada uno con su D-n en un comentario, en claro y en oscuro. **Login aprobado (D-220 a
       D-225):** los tokens de D-221 y `.mt-status-line` (D-222); los componentes `.auth-*` y
       `FullBleed` van en la E2a. Punto de partida: `cloud/022-login-3b`. Sin tocar el POD
       (`Training.Master` no carga `admin.css`).
-- [ ] `admin-charts.js`, solo si los tokens de gráficas cambian.
-- [ ] Regresión visual del **Resumen** (AC-6) y de las pantallas aún no rediseñadas: siguen
+- [x] `admin-charts.js`, solo si los tokens de gráficas cambian (no cambian: sin tocar).
+- [x] Regresión visual del **Resumen** (AC-6) y de las pantallas aún no rediseñadas: siguen
       bien con los tokens nuevos, en claro y oscuro.
-- [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler` si se tocó un master.
-- [ ] Sin `/code-review` si solo es CSS (`process.md` → 3).
+- [x] Verificación (Desarrollo): Rebuild; `aspnet_compiler` si se tocó un master (no se tocó).
+- [x] Sin `/code-review` si solo es CSS (`process.md` → 3).
 
 **Hecho cuando:** el usuario confirma el Resumen y una pantalla del dashboard sin cambios
 rotos, en claro y oscuro.

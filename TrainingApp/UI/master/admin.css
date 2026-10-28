@@ -39,6 +39,10 @@
     --mt-m3: #1F55A5;      /* modo Assessment */
     --mt-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 2px 6px rgba(16, 24, 40, .06);
     --mt-backdrop: rgba(24, 33, 45, .45);
+    --mt-brand-bg: #16345F;      /* panel de marca (spec 022, D-221) */
+    --mt-on-brand: #FFFFFF;      /* texto sobre el panel de marca */
+    --mt-on-brand-2: #C3D2EA;    /* texto secundario sobre el panel de marca (AA) */
+    --mt-brand-line: rgba(255, 255, 255, .07);   /* retícula de 32 px del panel de marca */
 }
 
 /* ── Tokens: oscuro ────────────────────────────────────────── */
@@ -66,6 +70,10 @@
     --mt-m3: #9DBCF0;
     --mt-shadow: none;
     --mt-backdrop: rgba(0, 0, 0, .6);
+    --mt-brand-bg: #13233A;
+    --mt-on-brand: #E5EAF1;
+    --mt-on-brand-2: #A9B8CF;
+    --mt-brand-line: rgba(255, 255, 255, .05);
 }
 
 /* ── Escala (igual en los dos temas) ───────────────────────── */
@@ -538,6 +546,20 @@ body.mt-page {
 }
 .admin-card h1 { margin: 0 0 var(--mt-space-1); font-size: 1.375rem; }
 .admin-card-lead { margin: 0 0 var(--mt-space-5); color: var(--mt-muted); }
+
+/* ── Línea de estado (spec 022, D-222) ─────────────────────── */
+/* Mensaje de error del servidor encima del botón del formulario. El alto está reservado:
+   el botón no salta cuando aparece. */
+.mt-status-line {
+    display: flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    min-height: 28px;
+    margin: var(--mt-space-2) 0;
+    color: var(--mt-bad);
+    font-weight: 600;
+    font-size: .875rem;          /* 14 */
+}
 
 /* ── SweetAlert2 (11.7, sin opción de tema): toma los tokens ─ */
 .mt-page .swal2-container.swal2-backdrop-show { background: var(--mt-backdrop); }
