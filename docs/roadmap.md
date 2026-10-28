@@ -467,9 +467,10 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   enmendado). El mockup de Pasos (022, E4) espera su cierre (D-217); Diseño UI/UX enmienda el
   brief de Pasos con el control nuevo cuando la ve en `origin`.
 - **Fase 12 (022):** Login aprobado (3b, D-220 a D-227; `022-design/login.md`), integrado el
-  2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. **Pendiente en
-  Diseño UI/UX:** enmendar el plan 022 con la E2 partida en E2a (Login) y E2b (Cambio de
-  contraseña) (D-219) y el brief de Pasos (D-217); diseñar el Cambio de contraseña.
+  2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. Diseño UI/UX
+  enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
+  con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Sigue en Diseño:**
+  el mockup del Cambio de contraseña; después, Guías y Seguimiento.
   **Pendiente del usuario:** las capturas del Login 3b (`022-design/login-claro/-oscuro/-tablet.png`).
 - **Numeración:** local D-240 a D-259 (siguiente D-240; D-208 a D-219 agotado) y B-5 a B-19;
   nube D-228 a D-239 y B-30 a B-39.
