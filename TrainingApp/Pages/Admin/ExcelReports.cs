@@ -77,9 +77,14 @@ namespace TrainingApp.Pages.Admin
         public static XLWorkbook Steps(StepReport report)
         {
             var applied = report.Applied ?? new StepFilter();
+            // Con un período anterior, dos columnas más por paso (spec 023, D-213, P-10); con
+            // Todo, vacías.
+            bool compares = report.Range != null && report.Range.Compares;
             string title = Title("Pasos", new[]
             {
-                "Período: " + ReportText.Period(applied.Period).ToLowerInvariant(),
+                // El rango exacto (P-14).
+                "Período: " + (report.Range != null ? LowerFirst(ReportText.Range(report.Range))
+                                                    : ReportText.Period(applied.Period).ToLowerInvariant()),
                 "Guía: " + GuideText(report.Guides, applied.GuideId),
                 "Modo: " + ReportText.Mode(applied.Mode)
             });
@@ -87,7 +92,9 @@ namespace TrainingApp.Pages.Admin
             var columns = new List<XlsxColumn>
             {
                 new XlsxColumn("Guía", 18), new XlsxColumn("Paso", 30), new XlsxColumn("Sesiones", 10),
-                new XlsxColumn("% con fallo", 11, XlsxFormat.Percent), new XlsxColumn("Intentos fallidos", 12),
+                new XlsxColumn("% con fallo", 11, XlsxFormat.Percent),
+                new XlsxColumn("% con fallo (anterior)", 13, XlsxFormat.Percent), new XlsxColumn("Cambio (pts)", 10),
+                new XlsxColumn("Intentos fallidos", 12),
                 new XlsxColumn("Veces sin acierto", 12)
             };
             if (report.ShowsSkips) columns.Add(new XlsxColumn("Saltos", 9));
@@ -99,7 +106,10 @@ namespace TrainingApp.Pages.Admin
                 var cells = new List<object>
                 {
                     r.TrainingGuideId.HasValue ? guides[r.TrainingGuideId.Value].AreaName : "Todas las guías",
-                    s.StepName, s.Sessions, s.FailureRate, s.FailedAttempts, s.TimesWithoutSuccess
+                    s.StepName, s.Sessions, s.FailureRate,
+                    compares ? s.FailureRateChange?.Previous : null,
+                    compares ? s.FailureRateChange?.Change : null,
+                    s.FailedAttempts, s.TimesWithoutSuccess
                 };
                 if (report.ShowsSkips) cells.Add(s.Skips);
                 cells.Add(s.MedianDuration);
@@ -151,7 +161,9 @@ namespace TrainingApp.Pages.Admin
             var applied = export.Applied ?? new SummaryFilter();
             var filters = new[]
             {
-                "Período: " + ReportText.Period(applied.Period).ToLowerInvariant(),
+                // El rango exacto (spec 023, P-10 y P-14), sin comparación.
+                "Período: " + (export.Range != null ? LowerFirst(ReportText.Range(export.Range))
+                                                    : ReportText.Period(applied.Period).ToLowerInvariant()),
                 "Guía: " + GuideText(export.Guides, applied.GuideId)
             };
             var guides = export.Guides.ToDictionary(g => g.Id);
@@ -190,6 +202,9 @@ namespace TrainingApp.Pages.Admin
         private static string Title(string view, IEnumerable<string> filters)
             => view + ". " + string.Join(". ", filters) + ". Descargado el "
                + ReportText.Date(DateTime.UtcNow) + ".";
+
+        private static string LowerFirst(string text)
+            => string.IsNullOrEmpty(text) ? text : char.ToLowerInvariant(text[0]) + text.Substring(1);
 
         private static string GuideText(IEnumerable<DashboardGuide> guides, int? guideId)
             => guideId.HasValue ? guides.FirstOrDefault(g => g.Id == guideId.Value)?.AreaName ?? "todas" : "todas";

@@ -24,13 +24,13 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Panel PnlFilters;
 
         /// <summary>
-        /// DdlPeriod control.
+        /// Period control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DdlPeriod;
+        protected global::TrainingApp.UI.Controls.Admin.PeriodFilter Period;
 
         /// <summary>
         /// DdlGuide control.
@@ -58,6 +58,15 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HyperLink LnkExport;
+
+        /// <summary>
+        /// LblInvalidPeriod control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label LblInvalidPeriod;
 
         /// <summary>
         /// LblExportSlow control.
@@ -130,6 +139,15 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.PlaceHolder PhActivity;
+
+        /// <summary>
+        /// PhSessions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhSessions;
 
         /// <summary>
         /// LitActivityTotals control.

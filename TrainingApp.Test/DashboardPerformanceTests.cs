@@ -47,11 +47,15 @@ namespace TrainingApp.Test
         [Test]
         public void Views()
         {
-            foreach (var period in new[] { ReportPeriod.Last30Days, ReportPeriod.All })
+            // Los 7 períodos (spec 023, P-13); Personalizado, de 12 meses (lee 24 con el anterior).
+            var today = DateTime.UtcNow.Date;
+            foreach (var period in (ReportPeriod[])Enum.GetValues(typeof(ReportPeriod)))
             {
-                Measure("Resumen " + period, () => _service.GetSummary(_admin, new SummaryFilter { Period = period }));
-                Measure("Pasos Assessment " + period, () => _service.GetSteps(_admin, new StepFilter { Period = period }));
-                Measure("Pasos Práctica " + period, () => _service.GetSteps(_admin, new StepFilter { Period = period, Mode = SessionMode.FreePractice }));
+                DateTime? from = period == ReportPeriod.Custom ? today.AddMonths(-12) : (DateTime?)null;
+                DateTime? to   = period == ReportPeriod.Custom ? today.AddDays(-1) : (DateTime?)null;
+                Measure("Resumen " + period, () => _service.GetSummary(_admin, new SummaryFilter { Period = period, From = from, To = to }));
+                Measure("Pasos Assessment " + period, () => _service.GetSteps(_admin, new StepFilter { Period = period, From = from, To = to }));
+                Measure("Pasos Práctica " + period, () => _service.GetSteps(_admin, new StepFilter { Period = period, From = from, To = to, Mode = SessionMode.FreePractice }));
             }
             Measure("Operadores", () => _service.SearchOperators(_admin, new OperatorFilter()));
             Measure("Operador", () => _service.GetOperator(_admin, _operator));
@@ -65,7 +69,7 @@ namespace TrainingApp.Test
             Measure("Excel Operadores", () => Save(ExcelReports.Operators(_service.ExportOperators(_admin, new OperatorFilter()))));
             Measure("Excel Pasos (Todo)", () => Save(ExcelReports.Steps(_service.GetSteps(_admin, new StepFilter { Period = ReportPeriod.All }))));
             Measure("Excel Seguimiento", () => Save(ExcelReports.FollowUp(_service.GetFollowUp(_admin, new FollowUpFilter()))));
-            Measure("Excel Sesiones (30 días)", () => Stream(_service.GetSessionExport(_admin, new SummaryFilter())));
+            Measure("Excel Sesiones (Este mes)", () => Stream(_service.GetSessionExport(_admin, new SummaryFilter())));
         }
 
         // La descarga más pesada (D-148), sola para medir la memoria del proceso.

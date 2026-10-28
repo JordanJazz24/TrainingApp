@@ -30,6 +30,10 @@ namespace TrainingApp.BLL.Reports
         // % de sesiones con fallo, de 0 a 1; null sin sesiones ("—", nunca 0).
         public decimal? FailureRate => Sessions > 0 ? (decimal)SessionsWithFailure / Sessions : (decimal?)null;
 
+        // El cambio del % con fallo contra el período anterior, en puntos, con las sesiones de
+        // los dos (spec 023); null con Todo. Lo pone el servicio.
+        public ReportChange FailureRateChange { get; set; }
+
         public int FailedAttempts { get; set; }
         public int TimesWithoutSuccess { get; set; }
         public int Skips { get; set; }

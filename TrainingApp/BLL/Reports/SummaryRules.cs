@@ -22,6 +22,10 @@ namespace TrainingApp.BLL.Reports
         public int PassedOperators { get; set; }
         public decimal? PassRate => Rate(PassedOperators, AssessedOperators);
 
+        // El cambio de la tasa de aprobación contra el período anterior, en puntos, con los
+        // evaluados de los dos (spec 023); null con Todo. Lo pone el servicio.
+        public ReportChange PassRateChange { get; set; }
+
         // Operadores cuyo primer Assessment completado de la guía (en todo su historial) cae en
         // el período y, de ellos, los que lo aprobaron.
         public int FirstAttemptOperators { get; set; }
@@ -36,14 +40,31 @@ namespace TrainingApp.BLL.Reports
         private static decimal? Rate(int part, int total) => total > 0 ? (decimal)part / total : (decimal?)null;
     }
 
-    // Sesiones de una semana de la planta (de lunes a domingo), por modo.
-    public class WeekActivity
+    // Cómo se agrupa la gráfica de actividad, según el largo del período (spec 023, P-9).
+    public enum ActivityGrain
     {
-        // El lunes de la semana, en la hora de la planta.
-        public DateTime WeekStart { get; set; }
+        Day   = 0,
+        Week  = 1,      // de lunes a domingo
+        Month = 2
+    }
+
+    // Sesiones de un día, una semana o un mes de la planta, por modo.
+    public class ActivityBucket
+    {
+        // El día, el lunes de la semana o el día 1 del mes, en la hora de la planta.
+        public DateTime Start { get; set; }
         public int Guided { get; set; }
         public int Assessment { get; set; }
         public int FreePractice { get; set; }
+    }
+
+    // La gráfica de actividad del Resumen.
+    public class ActivityChart
+    {
+        public ActivityGrain Grain { get; set; }
+
+        // En orden, con los vacíos en 0; vacío sin sesiones en el período ("Sin datos").
+        public IList<ActivityBucket> Buckets { get; set; }
     }
 
     // Reglas del Resumen (spec 018 → Domain Model, "Tasa de aprobación"). Funciones puras: lo que
@@ -51,8 +72,9 @@ namespace TrainingApp.BLL.Reports
     public static class SummaryRules
     {
         // sessions: las de todos los operadores, con todo el historial (el estado y el primer
-        // Assessment lo necesitan); fromUtc: inicio del período, null = todo.
-        public static GuideSummary ForGuide(int trainingGuideId, IEnumerable<DashboardSession> sessions, DateTime? fromUtc)
+        // Assessment lo necesitan); fromUtc y toUtc (excluido): el período, null = sin límite.
+        public static GuideSummary ForGuide(int trainingGuideId, IEnumerable<DashboardSession> sessions,
+            DateTime? fromUtc, DateTime? toUtc = null)
         {
             var byUser = (sessions ?? Enumerable.Empty<DashboardSession>())
                 .Where(s => s.TrainingGuideId == trainingGuideId)
@@ -70,7 +92,7 @@ namespace TrainingApp.BLL.Reports
                 }
 
                 var assessments = user.Where(ReadinessPolicy.CountsAsAssessment).ToList();
-                var inPeriod = assessments.Where(s => InPeriod(s, fromUtc)).ToList();
+                var inPeriod = assessments.Where(s => InPeriod(s, fromUtc, toUtc)).ToList();
                 if (inPeriod.Count > 0)
                 {
                     summary.AssessedOperators++;
@@ -79,7 +101,7 @@ namespace TrainingApp.BLL.Reports
 
                 // El primero por inicio, la misma fecha con la que el período filtra.
                 var first = assessments.OrderBy(s => s.StartedAt).ThenBy(s => s.SessionId).FirstOrDefault();
-                if (first != null && InPeriod(first, fromUtc))
+                if (first != null && InPeriod(first, fromUtc, toUtc))
                 {
                     summary.FirstAttemptOperators++;
                     if (ReadinessPolicy.IsPassed(first)) summary.FirstAttemptPassed++;
@@ -87,7 +109,7 @@ namespace TrainingApp.BLL.Reports
             }
 
             var scores = byUser.SelectMany(u => u)
-                .Where(s => ReadinessPolicy.CountsAsAssessment(s) && InPeriod(s, fromUtc))
+                .Where(s => ReadinessPolicy.CountsAsAssessment(s) && InPeriod(s, fromUtc, toUtc))
                 .Select(s => s.FinalScore)
                 .ToList();
             summary.CompletedAssessments = scores.Count;
@@ -99,37 +121,72 @@ namespace TrainingApp.BLL.Reports
         public static DateTime WeekStart(DateTime local)
             => local.Date.AddDays(-(((int)local.DayOfWeek + 6) % 7));
 
-        // Sesiones por semana de la planta y por modo, de la semana de inicio del período (o de
-        // la primera sesión, con todo) hasta la de nowUtc, con las semanas vacías en 0. Sin
-        // sesiones en el período, vacío ("Sin datos").
-        public static IList<WeekActivity> Weeks(IEnumerable<DashboardSession> sessions, DateTime? fromUtc, DateTime nowUtc)
+        // Hasta cuántos días la gráfica va por día y por semana; más largo, por mes (P-9).
+        public const int MaxDailyDays  = 31;
+        public const int MaxWeeklyDays = 366;
+
+        public static ActivityGrain GrainFor(int days)
+            => days <= MaxDailyDays ? ActivityGrain.Day
+             : days <= MaxWeeklyDays ? ActivityGrain.Week : ActivityGrain.Month;
+
+        // Sesiones del período por día, semana o mes de la planta y por modo, del inicio del
+        // período (o de la primera sesión, con Todo) a su último día (o hoy), con los vacíos en
+        // 0. Con Todo, la granularidad sale del largo real desde la primera sesión (D-214).
+        public static ActivityChart Activity(IEnumerable<DashboardSession> sessions, ReportRange range, DateTime nowUtc)
         {
             var inPeriod = (sessions ?? Enumerable.Empty<DashboardSession>())
-                .Where(s => InPeriod(s, fromUtc))
+                .Where(s => range.Contains(s.StartedAt))
                 .ToList();
-            if (inPeriod.Count == 0) return new List<WeekActivity>();
 
-            var byWeek = inPeriod.ToLookup(s => WeekStart(PlantTime.ToLocal(s.StartedAt)));
-            var first = WeekStart(PlantTime.ToLocal(fromUtc ?? inPeriod.Min(s => s.StartedAt)));
-            var last  = WeekStart(PlantTime.ToLocal(nowUtc));
-            if (byWeek.Any()) last = new[] { last, byWeek.Max(g => g.Key) }.Max();
+            var firstDay = range.FromLocal ?? (inPeriod.Count > 0
+                ? PlantTime.ToLocal(inPeriod.Min(s => s.StartedAt)).Date
+                : PlantTime.Today(nowUtc));
+            var lastDay  = range.ToLocal ?? PlantTime.Today(nowUtc);
+            if (inPeriod.Count > 0)
+                lastDay = new[] { lastDay, PlantTime.ToLocal(inPeriod.Max(s => s.StartedAt)).Date }.Max();
 
-            var weeks = new List<WeekActivity>();
-            for (var week = first; week <= last; week = week.AddDays(7))
+            var grain = GrainFor(range.Days ?? (lastDay - firstDay).Days + 1);
+            var chart = new ActivityChart { Grain = grain, Buckets = new List<ActivityBucket>() };
+            if (inPeriod.Count == 0) return chart;
+
+            var byBucket = inPeriod.ToLookup(s => BucketStart(PlantTime.ToLocal(s.StartedAt), grain));
+            for (var start = BucketStart(firstDay, grain); start <= lastDay; start = Next(start, grain))
             {
-                var these = byWeek[week];
-                weeks.Add(new WeekActivity
+                var these = byBucket[start];
+                chart.Buckets.Add(new ActivityBucket
                 {
-                    WeekStart    = week,
+                    Start        = start,
                     Guided       = these.Count(s => s.Mode == SessionMode.Guided),
                     Assessment   = these.Count(s => s.Mode == SessionMode.Assessment),
                     FreePractice = these.Count(s => s.Mode == SessionMode.FreePractice)
                 });
             }
-            return weeks;
+            return chart;
         }
 
-        private static bool InPeriod(DashboardSession session, DateTime? fromUtc)
-            => !fromUtc.HasValue || session.StartedAt >= fromUtc.Value;
+        // El día, el lunes o el día 1 de una fecha local.
+        private static DateTime BucketStart(DateTime local, ActivityGrain grain)
+        {
+            switch (grain)
+            {
+                case ActivityGrain.Week:  return WeekStart(local);
+                case ActivityGrain.Month: return new DateTime(local.Year, local.Month, 1);
+                default:                  return local.Date;
+            }
+        }
+
+        private static DateTime Next(DateTime start, ActivityGrain grain)
+        {
+            switch (grain)
+            {
+                case ActivityGrain.Week:  return start.AddDays(7);
+                case ActivityGrain.Month: return start.AddMonths(1);
+                default:                  return start.AddDays(1);
+            }
+        }
+
+        private static bool InPeriod(DashboardSession session, DateTime? fromUtc, DateTime? toUtc)
+            => (!fromUtc.HasValue || session.StartedAt >= fromUtc.Value)
+               && (!toUtc.HasValue || session.StartedAt < toUtc.Value);
     }
 }

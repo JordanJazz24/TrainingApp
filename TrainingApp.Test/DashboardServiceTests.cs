@@ -18,6 +18,10 @@ namespace TrainingApp.Test
         private const int LoFlo      = 10;
         private const int Moldeo     = 20;
 
+        // Miércoles 28 de octubre de 2026, 12:00 en la planta: Este mes es del 1 al 28 de oct. y
+        // su anterior, del 1 al 28 de sep. (spec 023).
+        private static readonly DateTime Now = new DateTime(2026, 10, 28, 18, 0, 0);
+
         private FakeDashboardRepository _dashboard;
         private DashboardService _service;
 
@@ -31,7 +35,7 @@ namespace TrainingApp.Test
             var users = new FakeUsers();
             users.Add(new User { Id = AdminId,    Code1 = "A1", Role = UserRole.Administrator });
             users.Add(new User { Id = OperatorId, Code1 = "O1", Role = UserRole.Operator });
-            _service = new DashboardService(_dashboard, users);
+            _service = new DashboardService(_dashboard, users, () => Now);
         }
 
         private void Operator(int id, string name, string code1 = null)
@@ -306,11 +310,15 @@ namespace TrainingApp.Test
             params (int order, bool correct, AttemptReason reason, int second)[] attempts)
             => StepSessionIn(LoFlo, id, mode, status, attempts);
 
-        // Los pasos de LoFlo son 501, 502…; los de Moldeo, 601, 602…
+        // Los pasos de LoFlo son 501, 502…; los de Moldeo, 601, 602… Empieza el 1 de oct. (Este
+        // mes).
         private void StepSessionIn(int guideId, int id, SessionMode mode, SessionStatus status,
             params (int order, bool correct, AttemptReason reason, int second)[] attempts)
+            => StepSessionAt(guideId, id, new DateTime(2026, 10, 1, 14, 0, 0), mode, status, attempts);
+
+        private void StepSessionAt(int guideId, int id, DateTime start, SessionMode mode, SessionStatus status,
+            params (int order, bool correct, AttemptReason reason, int second)[] attempts)
         {
-            var start = new DateTime(2026, 10, 1, 14, 0, 0);
             int firstStepId = guideId == LoFlo ? 500 : 600;
             _dashboard.Sessions.Add(new DashboardSession
             {
@@ -463,8 +471,10 @@ namespace TrainingApp.Test
             Assert.That(steps.Single(s => s.StepOrder == 2).MedianDuration, Is.Null);
         }
 
-        // Filtros manipulados: Guided vale Assessment, una guía no publicada vale "todas", y el
-        // período llega al repositorio (30 días o todo). Sin la capacidad, excepción.
+        // Filtros manipulados: Guided vale Assessment, una guía no publicada vale "todas" y un
+        // período fuera de las opciones, Este mes con el aviso; una sola lectura llega al
+        // repositorio, del inicio del anterior (1 de sep.) al fin del período (29 de oct., 00:00
+        // de la planta, excluido). Sin la capacidad, excepción.
         [Test]
         public void GetSteps_ValidatesFilters()
         {
@@ -475,13 +485,18 @@ namespace TrainingApp.Test
 
             Assert.That(report.Applied.Mode, Is.EqualTo(SessionMode.Assessment));
             Assert.That(report.Applied.GuideId, Is.Null);
-            Assert.That(report.Applied.Period, Is.EqualTo(ReportPeriod.Last30Days));
+            Assert.That(report.Applied.Period, Is.EqualTo(ReportPeriod.ThisMonth));
+            Assert.That(report.Range.Invalid, Is.True);
             Assert.That(_dashboard.LastStepMode, Is.EqualTo(SessionMode.Assessment));
-            Assert.That(_dashboard.LastStepFrom, Is.EqualTo(DateTime.UtcNow.AddDays(-30)).Within(TimeSpan.FromMinutes(1)));
+            Assert.That(_dashboard.LastStepFrom, Is.EqualTo(new DateTime(2026, 9, 1, 6, 0, 0)));
+            Assert.That(_dashboard.LastStepTo, Is.EqualTo(new DateTime(2026, 10, 29, 6, 0, 0)));
             Assert.That(report.Rankings, Is.Empty);
+
+            Assert.That(_service.GetSteps(AdminId, new StepFilter()).Range.Invalid, Is.False);
 
             _service.GetSteps(AdminId, new StepFilter { Period = ReportPeriod.All, GuideId = Moldeo });
             Assert.That(_dashboard.LastStepFrom, Is.Null);
+            Assert.That(_dashboard.LastStepTo, Is.Null);
             Assert.That(_dashboard.LastStepGuide, Is.EqualTo(Moldeo));
 
             Assert.Throws<UnauthorizedAccessException>((Action)(() => _service.GetSteps(OperatorId, new StepFilter())));
@@ -501,14 +516,14 @@ namespace TrainingApp.Test
             _dashboard.Sessions.Add(new DashboardSession
             {
                 SessionId = 2, UserId = OperatorId, TrainingGuideId = Moldeo, Mode = SessionMode.Guided,
-                Status = SessionStatus.Completed, StartedAt = DateTime.UtcNow.AddDays(-1)
+                Status = SessionStatus.Completed, StartedAt = Now.AddDays(-1)
             });
 
             var summary = _service.GetSummary(AdminId, new SummaryFilter { GuideId = 999, Period = (ReportPeriod)9 });
             var steps   = _service.GetSteps(AdminId, new StepFilter()).Rankings.Single().Steps;
 
             Assert.That(summary.Applied.GuideId, Is.Null);
-            Assert.That(summary.Applied.Period, Is.EqualTo(ReportPeriod.Last30Days));
+            Assert.That(summary.Applied.Period, Is.EqualTo(ReportPeriod.ThisMonth));
             Assert.That(summary.GuideSummaries.Select(g => g.TrainingGuideId), Is.EqualTo(new[] { LoFlo, Moldeo }));
             // Solo los pasos con algún fallo: el paso 2 (0 %) está en Pasos pero no en el top 5.
             Assert.That(summary.TopSteps.Select(s => s.StepName), Is.EqualTo(new[] { "Resource Setup" }));
@@ -529,9 +544,128 @@ namespace TrainingApp.Test
         {
             var summary = _service.GetSummary(AdminId, new SummaryFilter());
 
-            Assert.That(summary.Weeks, Is.Empty);
+            Assert.That(summary.Activity.Buckets, Is.Empty);
             Assert.That(summary.TopSteps, Is.Empty);
             Assert.That(summary.GuideSummaries.All(g => g.PassRate == null && g.FirstAttemptRate == null), Is.True);
+        }
+
+        // ---- Período y comparación (spec 023) ----
+
+        private void AssessmentAt(int id, int userId, decimal score, DateTime startUtc, SessionMode mode = SessionMode.Assessment)
+            => _dashboard.Sessions.Add(new DashboardSession
+            {
+                SessionId = id, UserId = userId, TrainingGuideId = LoFlo, Mode = mode, Status = SessionStatus.Completed,
+                FinalScore = score, StartedAt = startUtc, CompletedAt = startUtc.AddMinutes(20)
+            });
+
+        // AC-4: la tasa de aprobación cambia en puntos con los evaluados de los dos períodos, y
+        // las sesiones del período (todos los modos) en %. Lo de antes del anterior no cuenta.
+        [Test]
+        public void GetSummary_ComparesWithPreviousPeriod()
+        {
+            AssessmentAt(1, 100, 0.5m, new DateTime(2026, 9, 10, 15, 0, 0));    // anterior, reprobó
+            AssessmentAt(2, 100, 1m,   new DateTime(2026, 10, 10, 15, 0, 0));   // período, aprobó
+            AssessmentAt(3, 101, 1m,   new DateTime(2026, 9, 12, 15, 0, 0));    // anterior, aprobó
+            AssessmentAt(4, 101, 0m,   new DateTime(2026, 10, 11, 15, 0, 0), SessionMode.Guided);
+            AssessmentAt(5, 101, 0m,   new DateTime(2026, 10, 12, 15, 0, 0), SessionMode.Guided);
+            AssessmentAt(6, 101, 0m,   new DateTime(2026, 8, 20, 15, 0, 0), SessionMode.Guided);  // fuera de los dos
+
+            var summary = _service.GetSummary(AdminId, new SummaryFilter());
+            var loflo   = summary.GuideSummaries.Single(g => g.TrainingGuideId == LoFlo);
+
+            Assert.That(loflo.PassRate, Is.EqualTo(1m));
+            Assert.That(loflo.PassRateChange.Change, Is.EqualTo(50m));
+            Assert.That(loflo.PassRateChange.IsImprovement, Is.True);
+            Assert.That((loflo.PassRateChange.CurrentBase, loflo.PassRateChange.PreviousBase), Is.EqualTo((1, 2)));
+            Assert.That(summary.Sessions, Is.EqualTo(3));
+            Assert.That(summary.SessionsChange.Change, Is.EqualTo(50m));
+            Assert.That((summary.SessionsChange.CurrentBase, summary.SessionsChange.PreviousBase), Is.EqualTo((3, 2)));
+            // Moldeo no tiene evaluados en ninguno: sin datos para comparar.
+            Assert.That(summary.GuideSummaries.Single(g => g.TrainingGuideId == Moldeo).PassRateChange.HasComparison, Is.False);
+        }
+
+        // AC-4: el % con fallo de cada paso, en puntos, con las sesiones de los dos períodos; igual
+        // con una guía y con todas (por nombre) y en el top 5 del Resumen. Subir es empeorar.
+        [Test]
+        public void GetSteps_FailureRateChange()
+        {
+            LoFloSteps();
+            StepSessionAt(LoFlo, 1, new DateTime(2026, 10, 2, 15, 0, 0), SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10), (1, true, AttemptReason.None, 20), (2, true, AttemptReason.None, 30));
+            StepSessionAt(LoFlo, 2, new DateTime(2026, 9, 5, 15, 0, 0), SessionMode.Assessment, SessionStatus.Completed,
+                (1, true, AttemptReason.None, 10), (2, true, AttemptReason.None, 20));
+            StepSessionAt(LoFlo, 3, new DateTime(2026, 9, 6, 15, 0, 0), SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10), (1, true, AttemptReason.None, 20), (2, true, AttemptReason.None, 30));
+            StepSessionAt(LoFlo, 4, new DateTime(2026, 8, 1, 15, 0, 0), SessionMode.Assessment, SessionStatus.Completed,
+                (1, false, AttemptReason.WrongDecision, 10));   // antes del anterior
+
+            foreach (var guide in new int?[] { LoFlo, null })
+            {
+                var steps = _service.GetSteps(AdminId, new StepFilter { GuideId = guide }).Rankings.Single().Steps;
+                var first = steps.Single(s => s.StepOrder == 1).FailureRateChange;
+
+                Assert.That(first.Change, Is.EqualTo(50m), "guía " + guide);
+                Assert.That(first.IsImprovement, Is.False);
+                Assert.That((first.CurrentBase, first.PreviousBase), Is.EqualTo((1, 2)));
+                Assert.That(steps.Single(s => s.StepOrder == 2).FailureRateChange.Direction, Is.EqualTo(ChangeDirection.Same));
+            }
+
+            var top = _service.GetSummary(AdminId, new SummaryFilter()).TopSteps.Single();
+            Assert.That(top.FailureRateChange.Change, Is.EqualTo(50m));
+        }
+
+        // AC-5: sin nada en el anterior, "sin datos para comparar".
+        [Test]
+        public void EmptyPreviousPeriod_HasNoComparison()
+        {
+            LoFloSteps();
+            StepSession(1, SessionMode.Assessment, SessionStatus.Completed, (1, false, AttemptReason.WrongDecision, 10));
+
+            var step = _service.GetSteps(AdminId, new StepFilter()).Rankings.Single().Steps.Single();
+            var summary = _service.GetSummary(AdminId, new SummaryFilter());
+
+            Assert.That(step.FailureRateChange.HasComparison, Is.False);
+            Assert.That(summary.SessionsChange.HasComparison, Is.False);
+            Assert.That(summary.Sessions, Is.EqualTo(1));
+        }
+
+        // AC-4: con Todo no hay comparación.
+        [Test]
+        public void All_HasNoComparison()
+        {
+            LoFloSteps();
+            StepSession(1, SessionMode.Assessment, SessionStatus.Completed, (1, false, AttemptReason.WrongDecision, 10));
+
+            var step = _service.GetSteps(AdminId, new StepFilter { Period = ReportPeriod.All }).Rankings.Single().Steps.Single();
+            var summary = _service.GetSummary(AdminId, new SummaryFilter { Period = ReportPeriod.All });
+
+            Assert.That(step.FailureRateChange, Is.Null);
+            Assert.That(summary.SessionsChange, Is.Null);
+            Assert.That(summary.GuideSummaries.All(g => g.PassRateChange == null), Is.True);
+        }
+
+        // Personalizado: el filtro aplicado conserva Inicio y Fin y la descarga trae solo ese
+        // rango; uno inválido vale Este mes, sin fechas y con el aviso (P-6).
+        [Test]
+        public void Custom_AppliedAndExport()
+        {
+            Operator(OperatorId, "Ana");
+            AssessmentAt(1, OperatorId, 1m, new DateTime(2026, 10, 3, 15, 0, 0));
+            AssessmentAt(2, OperatorId, 1m, new DateTime(2026, 10, 6, 15, 0, 0));
+            var custom = new SummaryFilter { Period = ReportPeriod.Custom, From = new DateTime(2026, 10, 5), To = new DateTime(2026, 10, 14) };
+
+            var export = _service.GetSessionExport(AdminId, custom);
+            var summary = _service.GetSummary(AdminId, custom);
+
+            Assert.That(export.Rows.Select(r => r.Session.SessionId), Is.EqualTo(new[] { 2 }));
+            Assert.That((summary.Applied.From, summary.Applied.To), Is.EqualTo(((DateTime?)new DateTime(2026, 10, 5), (DateTime?)new DateTime(2026, 10, 14))));
+            Assert.That(summary.Sessions, Is.EqualTo(1));
+
+            var invalid = _service.GetSummary(AdminId, new SummaryFilter { Period = ReportPeriod.Custom, From = new DateTime(2026, 10, 14), To = new DateTime(2026, 10, 5) });
+            Assert.That(invalid.Applied.Period, Is.EqualTo(ReportPeriod.ThisMonth));
+            Assert.That(invalid.Applied.From, Is.Null);
+            Assert.That(invalid.Range.Invalid, Is.True);
+            Assert.That(invalid.Sessions, Is.EqualTo(2));
         }
 
         // ---- Seguimiento (E5, AC-20) ----
@@ -613,9 +747,9 @@ namespace TrainingApp.Test
             _dashboard.Sessions.Add(new DashboardSession
             {
                 SessionId = 2, UserId = OperatorId, TrainingGuideId = LoFlo, Mode = SessionMode.Guided,
-                Status = SessionStatus.InProgress, StartedAt = DateTime.UtcNow.AddDays(-1)
+                Status = SessionStatus.InProgress, StartedAt = Now.AddDays(-1)
             });
-            foreach (var s in _dashboard.Sessions) s.StartedAt = DateTime.UtcNow.AddDays(-2);
+            foreach (var s in _dashboard.Sessions) s.StartedAt = Now.AddDays(-2);
 
             var export = _service.GetSessionExport(AdminId, new SummaryFilter());
 
@@ -667,22 +801,24 @@ namespace TrainingApp.Test
             }
 
             public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts,
-                DateTime? fromUtc = null, int? guideId = null)
+                DateTime? fromUtc = null, DateTime? toUtc = null, int? guideId = null)
                 => Sessions.Where(s => (!userId.HasValue || s.UserId == userId.Value)
-                                       && (!fromUtc.HasValue || s.StartedAt >= fromUtc.Value)
+                                       && InRange(s, fromUtc, toUtc)
                                        && (!guideId.HasValue || s.TrainingGuideId == guideId.Value)).ToList();
 
             public SessionMode? LastStepMode { get; private set; }
             public DateTime? LastStepFrom { get; private set; }
+            public DateTime? LastStepTo { get; private set; }
             public int? LastStepGuide { get; private set; }
 
-            // Como el SP: las sesiones del modo (null = todos), desde fromUtc y de la guía, con sus
-            // intentos. El período no se filtra: los tests de Pasos usan fechas fijas.
-            public DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, int? guideId)
+            // Como el SP: las sesiones del modo (null = todos), desde fromUtc, antes de toUtc y de
+            // la guía, con sus intentos.
+            public DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, DateTime? toUtc, int? guideId)
             {
-                LastStepMode = mode; LastStepFrom = fromUtc; LastStepGuide = guideId;
+                LastStepMode = mode; LastStepFrom = fromUtc; LastStepTo = toUtc; LastStepGuide = guideId;
                 var sessions = Sessions
-                    .Where(s => (!mode.HasValue || s.Mode == mode.Value) && (!guideId.HasValue || s.TrainingGuideId == guideId.Value))
+                    .Where(s => (!mode.HasValue || s.Mode == mode.Value) && InRange(s, fromUtc, toUtc)
+                                && (!guideId.HasValue || s.TrainingGuideId == guideId.Value))
                     .ToList();
                 var ids = new HashSet<int>(sessions.Select(s => s.SessionId));
                 return new DashboardAttemptSet
@@ -691,6 +827,9 @@ namespace TrainingApp.Test
                     Attempts = Attempts.Where(a => ids.Contains(a.SessionId)).ToList()
                 };
             }
+
+            private static bool InRange(DashboardSession s, DateTime? fromUtc, DateTime? toUtc)
+                => (!fromUtc.HasValue || s.StartedAt >= fromUtc.Value) && (!toUtc.HasValue || s.StartedAt < toUtc.Value);
         }
 
         private sealed class FakeUsers : IUserRepository

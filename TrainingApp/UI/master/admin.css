@@ -39,6 +39,10 @@
     --mt-m3: #1F55A5;      /* modo Assessment */
     --mt-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 2px 6px rgba(16, 24, 40, .06);
     --mt-backdrop: rgba(24, 33, 45, .45);
+    --mt-brand-bg: #16345F;      /* panel de marca (spec 022, D-221) */
+    --mt-on-brand: #FFFFFF;      /* texto sobre el panel de marca */
+    --mt-on-brand-2: #C3D2EA;    /* texto secundario sobre el panel de marca (AA) */
+    --mt-brand-line: rgba(255, 255, 255, .07);   /* retícula de 32 px del panel de marca */
 }
 
 /* ── Tokens: oscuro ────────────────────────────────────────── */
@@ -66,6 +70,10 @@
     --mt-m3: #9DBCF0;
     --mt-shadow: none;
     --mt-backdrop: rgba(0, 0, 0, .6);
+    --mt-brand-bg: #13233A;
+    --mt-on-brand: #E5EAF1;
+    --mt-on-brand-2: #A9B8CF;
+    --mt-brand-line: rgba(255, 255, 255, .05);
 }
 
 /* ── Escala (igual en los dos temas) ───────────────────────── */
@@ -539,6 +547,20 @@ body.mt-page {
 .admin-card h1 { margin: 0 0 var(--mt-space-1); font-size: 1.375rem; }
 .admin-card-lead { margin: 0 0 var(--mt-space-5); color: var(--mt-muted); }
 
+/* ── Línea de estado (spec 022, D-222) ─────────────────────── */
+/* Mensaje de error del servidor encima del botón del formulario. El alto está reservado:
+   el botón no salta cuando aparece. */
+.mt-status-line {
+    display: flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    min-height: 28px;
+    margin: var(--mt-space-2) 0;
+    color: var(--mt-bad);
+    font-weight: 600;
+    font-size: .875rem;          /* 14 */
+}
+
 /* ── SweetAlert2 (11.7, sin opción de tema): toma los tokens ─ */
 .mt-page .swal2-container.swal2-backdrop-show { background: var(--mt-backdrop); }
 .mt-page .swal2-popup {
@@ -637,6 +659,41 @@ body.mt-page {
 
 @media (max-width: 991.98px) {
     .summary-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Período y comparación (spec 023) ──────────────────────── */
+/* Inicio y Fin junto a la lista (solo con Personalizado); el rango aplicado, en su propia
+   línea al final de la barra de filtros. */
+.mt-period-custom { display: flex; gap: var(--mt-space-3); }
+.mt-period-custom[hidden] { display: none; }
+.mt-period-range {
+    order: 99;
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+    text-align: right;
+}
+
+/* El cambio contra el período anterior: la flecha y el valor dicen la dirección; el color, si
+   es mejora (P-5). Sin datos para comparar, en gris. */
+.mt-change { font-weight: 600; font-size: var(--mt-fs-small); white-space: nowrap; }
+.mt-change-good { color: var(--mt-ok); }
+.mt-change-bad { color: var(--mt-bad); }
+.mt-change-same,
+.mt-change-none { color: var(--mt-muted); }
+.mt-change-none { font-weight: 400; }
+.mt-change-ref { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.summary-sessions { align-items: flex-end; text-align: right; }
+.steps-change { display: flex; flex-wrap: wrap; gap: 0 var(--mt-space-2); margin-top: 6px; }
+
+/* Aviso de período inválido (P-6). */
+.mt-alert-warn {
+    padding: var(--mt-space-3) var(--mt-space-4);
+    border: 1px solid var(--mt-warn);
+    border-radius: var(--mt-radius);
+    background: var(--mt-warn-soft);
+    color: var(--mt-warn);
 }
 
 /* ── Operadores (spec 018; D-160) ──────────────────────────── */

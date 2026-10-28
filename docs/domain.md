@@ -421,8 +421,20 @@ Solo lectura; cambian lo que se **muestra**, nunca cómo se entrena o se calific
   - **En entrenamiento:** sesiones de la guía, pero ningún Assessment completado (Guided,
     Práctica libre, o Assessment en curso o abandonado).
   - **Sin iniciar** (estado general): ninguna sesión en ninguna guía publicada.
-- **Período** de las vistas: últimos 30 días o todo, por la fecha de **inicio** de la sesión.
-  El estado y Seguimiento lo ignoran.
+- **Período** de las vistas, por la fecha de **inicio** de la sesión. El estado y Seguimiento
+  lo ignoran. Operadores y Operador usan todo el historial. Pasos y Resumen (spec 023,
+  D-209 a D-218):
+  - **atajos:** Hoy, Esta semana (lunes a hoy), Este mes (al entrar), Mes anterior, Últimos 30
+    días (hoy y los 29 previos), Todo y Personalizado (Inicio y Fin; Fin ≥ Inicio y ≤ hoy; uno
+    inválido vale Este mes con un aviso). Cortan a medianoche de la planta y el día de Fin
+    entra completo;
+  - **comparación** con el período anterior (P-4): los mismos días antes (Este mes contra los
+    mismos días del mes pasado, hasta su último día si es más corto; Mes anterior contra el
+    previo). Con Todo, no hay. Muestran su cambio la tasa de aprobación (en puntos), las
+    sesiones del período (en %) y el % con fallo de cada paso (en puntos), siempre con la base
+    de los dos períodos;
+  - **gráfica de actividad:** por día hasta 31 días, por semana hasta 366 y por mes si es más
+    largo.
 - **Tasa de aprobación** (guía × período), sin denominador = "—", nunca 0 %:
   - **% aprobados:** de los operadores con algún Assessment completado en el período, los que
     aprobaron alguno en el período;

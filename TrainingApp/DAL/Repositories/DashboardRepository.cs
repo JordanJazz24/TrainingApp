@@ -50,7 +50,7 @@ namespace TrainingApp.DAL.Repositories
         }
 
         public IList<DashboardSession> GetSessions(int? userId, bool includeFailedAttempts,
-            DateTime? fromUtc = null, int? guideId = null)
+            DateTime? fromUtc = null, DateTime? toUtc = null, int? guideId = null)
         {
             var sessions = new List<DashboardSession>();
             using (var db = DatabaseFactory.Create())
@@ -58,7 +58,9 @@ namespace TrainingApp.DAL.Repositories
             {
                 cmd.Parameters.AddWithValue("@UserId",                (object)userId ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@IncludeFailedAttempts", includeFailedAttempts);
-                cmd.Parameters.AddWithValue("@From",                  (object)fromUtc ?? DBNull.Value);
+                // DATETIME2 como en el SP: el límite exclusivo, sin redondear a DATETIME.
+                cmd.Parameters.Add("@From",                  SqlDbType.DateTime2).Value = (object)fromUtc ?? DBNull.Value;
+                cmd.Parameters.Add("@To",                    SqlDbType.DateTime2).Value = (object)toUtc ?? DBNull.Value;
                 cmd.Parameters.AddWithValue("@GuideId",               (object)guideId ?? DBNull.Value);
             }))
             {
@@ -113,7 +115,7 @@ namespace TrainingApp.DAL.Repositories
             return attempts;
         }
 
-        public DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, int? guideId)
+        public DashboardAttemptSet GetStepAttempts(SessionMode? mode, DateTime? fromUtc, DateTime? toUtc, int? guideId)
         {
             var sessions = new Dictionary<int, DashboardSession>();
             var attempts = new List<DashboardAttempt>();
@@ -121,7 +123,9 @@ namespace TrainingApp.DAL.Repositories
             using (var reader = db.ExecuteReader("spDashboardStepAttempts", cmd =>
             {
                 cmd.Parameters.AddWithValue("@Mode",    mode.HasValue ? (object)(byte)mode.Value : DBNull.Value);
-                cmd.Parameters.AddWithValue("@From",    (object)fromUtc ?? DBNull.Value);
+                // DATETIME2 como en el SP: el límite exclusivo, sin redondear a DATETIME.
+                cmd.Parameters.Add("@From",    SqlDbType.DateTime2).Value = (object)fromUtc ?? DBNull.Value;
+                cmd.Parameters.Add("@To",      SqlDbType.DateTime2).Value = (object)toUtc ?? DBNull.Value;
                 cmd.Parameters.AddWithValue("@GuideId", (object)guideId ?? DBNull.Value);
             }))
             {

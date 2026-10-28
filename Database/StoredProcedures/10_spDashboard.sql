@@ -51,8 +51,9 @@ END;
 GO
 
 -- spDashboardSessions — las sesiones de las guías publicadas de los
--- operadores (de uno solo con @UserId; desde @From y de una guía con
--- @GuideId, la descarga de sesiones). Con @IncludeFailedAttempts = 1,
+-- operadores (de uno solo con @UserId; desde @From, antes de @To y de
+-- una guía con @GuideId: la descarga de sesiones; @To es exclusivo,
+-- spec 023). Con @IncludeFailedAttempts = 1,
 -- su conteo de intentos fallidos (IsCorrect = 0, sin contar los
 -- saltos); si no, NULL: contarlos recorre todos los intentos (~1 s con
 -- un año de datos) y el estado no los necesita.
@@ -60,7 +61,8 @@ CREATE OR ALTER PROCEDURE dbo.spDashboardSessions
     @UserId                INT = NULL,
     @IncludeFailedAttempts BIT = 0,
     @From                  DATETIME2 = NULL,
-    @GuideId               INT = NULL
+    @GuideId               INT = NULL,
+    @To                    DATETIME2 = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -75,6 +77,7 @@ BEGIN
     JOIN dbo.Users u          ON u.Id = s.UserId AND u.Role = 1
     WHERE (@UserId IS NULL OR s.UserId = @UserId)
       AND (@From IS NULL OR s.StartedAt >= @From)
+      AND (@To IS NULL OR s.StartedAt < @To)
       AND (@GuideId IS NULL OR s.TrainingGuideId = @GuideId)
     OPTION (RECOMPILE);
 END;
@@ -115,15 +118,17 @@ END;
 GO
 
 -- spDashboardStepAttempts — los intentos de las sesiones de un modo
--- (NULL = todos, la descarga de sesiones) que empezaron desde @From
--- (NULL = todo) en las guías publicadas (o
+-- (NULL = todos, la descarga de sesiones) que empezaron desde @From y
+-- antes de @To (exclusivo, spec 023; NULL = sin límite) en las guías
+-- publicadas (o
 -- en una con @GuideId), con su sesión (dueño, guía, estado e inicio). Pasos
 -- los agrega en la BLL (StepRuns, D-146): fallos, sin acierto, saltos,
 -- motivos y la mediana de duración.
 CREATE OR ALTER PROCEDURE dbo.spDashboardStepAttempts
     @Mode    TINYINT = NULL,
     @From    DATETIME2 = NULL,
-    @GuideId INT = NULL
+    @GuideId INT = NULL,
+    @To      DATETIME2 = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -137,6 +142,7 @@ BEGIN
     JOIN dbo.TrainingSteps st ON st.Id = a.StepId
     WHERE (@Mode IS NULL OR s.Mode = @Mode)
       AND (@From IS NULL OR s.StartedAt >= @From)
+      AND (@To IS NULL OR s.StartedAt < @To)
       AND (@GuideId IS NULL OR s.TrainingGuideId = @GuideId)
     -- Sin ORDER BY: la BLL agrupa por sesión y paso (ordenar ~100 000 filas no sirve de nada).
     OPTION (RECOMPILE);

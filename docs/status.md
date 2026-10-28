@@ -7,10 +7,10 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-27 · **Branch:** `TrainingApp`; la Fase 11 y R3 están
-cerradas e integradas (`33afc98`). La spec 021 se trabaja en la rama `spec-021`, en el worktree
-`.claude/worktrees/fase-11` (la carpeta se reutilizó; la rama `fase-11` ya no está en ningún
-worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
+**Última actualización:** 2026-10-28 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
+021 están cerradas e integradas. Las specs 022 y 023 se trabajan en la rama `spec-022`, en el
+worktree `.claude/worktrees/fase-11` (la carpeta se reutilizó; `fase-11` y `spec-021` ya no
+están en ningún worktree) · **Último commit de código:** 023 E4 (cierre de la spec 023), en `spec-022`
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -97,8 +97,8 @@ worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
        falla). La BD local `TrainingApp` ya los tiene. Para el piloto,
        `Database/Ops/SetGuideResourceSetupType.sql` o la página Guías.
   4. **Spec 021 · Área asignada por operador ✅** (2026-10-27, ver "Historial"; spec y plan
-     `docs/specs/021-*.md`, D-165 a D-179 y D-208; cierra B-20, B-3 y B-4), rama `spec-021`,
-     lista para integrar en `TrainingApp` (fast-forward, lo hace el usuario):
+     `docs/specs/021-*.md`, D-165 a D-179 y D-208; cierra B-20, B-3 y B-4), integrada en
+     `TrainingApp`:
      - **E1 · Datos y DAL:** `Users.AreaId` (FK a `Areas`), los SPs del usuario y de Operadores
        con el área, `spUserChooseArea`, `spUserSetArea` y `spAreaGetEligible`; Domain y DAL.
        Sin cambios visibles. Probada en LocalDB (limpia y sobre una BD anterior con usuarios,
@@ -119,9 +119,30 @@ worktree) · **Último commit de código:** R3 E5 (`3336221`), en `TrainingApp`
      - **E5 · Dashboard:** el área en Operadores (lista y Excel) y en el encabezado del Operador
        (también en la ficha impresa); filtros y números sin cambios (D-175). Docs de cierre.
        Tests: 415.
-     - **Pendiente del usuario:** integrar `spec-021` en `TrainingApp` (fast-forward). Antes de
-       publicar, correr `00`, `01`, `02`, `05` y `10` en la BD de producción; avisar a los
+     - **Pendiente del usuario:** `git branch -d spec-021`. Antes de publicar, correr `00`, `01`, `02`, `05` y `10` en la BD de producción; avisar a los
        trainers que todos los operadores elegirán su área en su próximo ingreso (D-170).
+  5. **Specs 022 (un mockup por pantalla) y 023 (filtro de período)**, rama `spec-022`, en el
+     orden de D-219 (`docs/specs/022-plan.md` → "Orden con la spec 023"): 022 E1 → 023 E1 a E4
+     → 022 E2a y el resto según sus mockups.
+     - **022 E1 · Sistema de diseño** (2026-10-28): en `admin.css`, los tokens de D-221
+       (`--mt-brand-bg`, `--mt-on-brand`, `--mt-on-brand-2`, `--mt-brand-line`, claro y oscuro) y
+       `.mt-status-line` (D-222), tomados de `cloud/022-login-3b`; los `.auth-*`, `FullBleed` y
+       `Login.aspx` de esa rama quedan para la E2a. Todavía nada los usa: sin cambio visible.
+       Probada por el usuario (Resumen y dashboard, claro y oscuro).
+     - **Spec 023 · Filtro de período en Pasos y Resumen ✅** (2026-10-28, ver "Historial"; spec
+       y plan `docs/specs/023-*.md`, D-209 a D-218): **E1 a E4** (`ca9980f`, `55cfd7e`,
+       `388dd3a` y el cierre), probadas por el usuario, en `spec-022` (sin integrar en
+       `TrainingApp`):
+       - los 7 períodos (Este mes al entrar), la comparación con el período anterior y su base,
+         y la gráfica por día, semana o mes;
+       - el control `PeriodFilter` en Pasos y Resumen, y el rango en los dos Excel.
+
+       P-13 cumplido sin tocar SPs ni índices (cifras en `023-plan.md` → E4); las BDs de prueba
+       de LocalDB se borraron. Tests: 459.
+       - **Pendiente del usuario:** correr `10_spDashboard.sql` en la BD de producción antes de
+         publicar (la local ya lo tiene).
+     - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
+       final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en

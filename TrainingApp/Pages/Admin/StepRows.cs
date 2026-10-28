@@ -19,6 +19,9 @@ namespace TrainingApp.Pages.Admin
         // Barra de % (Fase 11, D-160) y su detalle ("3 de 8 sesiones").
         public string FailureWidth { get; set; }
         public string SessionsText { get; set; }
+
+        // El cambio del % con fallo contra el período anterior (spec 023).
+        public ChangeView FailureRateChange { get; set; }
         public int FailedAttempts { get; set; }
         public int TimesWithoutSuccess { get; set; }
         public int Skips { get; set; }
