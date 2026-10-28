@@ -468,9 +468,10 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   3. escribir `023-plan.md` con 4 entregas (P-15) y pedir su aprobación;
   4. avisar a la nube (`Diseño UI/UX`) que el mockup de Pasos (022, E4) espera la 023 (D-217);
   5. registrarla en la tabla de fases.
-- **Fase 12 (022):** la nube diseña el Login en Claude Design. Se le pidió rebasear sobre
-  `origin/TrainingApp` y enmendar el plan y los briefs (E6 a E8 ya no esperan a la 021; Usuarios
-  sin "Quitar área", D-208). Cuando el usuario avise de su rama, revisarla, integrarla y registrarla.
+- **Fase 12 (022):** la nube diseña el Login en Claude Design. Sus enmiendas (la 021 cerrada,
+  Usuarios sin "Quitar área", briefs con el repo conectado) se revisaron e integraron el
+  2026-10-28 (`863f925`). Siguiente: el mockup del Login aprobado y su exportación en
+  `022-design/`.
 - **Numeración:** local D-208 a D-219 (siguiente D-209; la 023 usará D-209 a D-218) y B-5 a
   B-19; nube D-220 a D-239 y B-30 a B-39.
 - **Desarrollo:** sin entrega asignada (la 021 cerró).
@@ -511,9 +512,11 @@ nunca a la mitad de una entrega de la 021. E6 (Operadores y Operador) va despué
 se cerró el 2026-10-27:** desde entonces ninguna entrega de la 022 espera a la 021, solo su mockup.
 - **Coordinación:** la 021 y la 022 tocan `admin.css` y `Users.aspx`. La 022 se implementa en su
   propia rama (`spec-022`), y la E1 se coordina con Desarrollo para no pisar la 021.
-- **Enmienda pendiente en la nube:** la E7 y el brief de Usuarios todavía cuentan con "Quitar
-  área", que la enmienda 1 de la 021 quitó (D-208): el admin solo cambia el área, con un lápiz
-  en la columna Área.
+- **Enmiendas de la nube integradas (2026-10-28, `863f925`):** la 021 cerrada (ninguna entrega
+  la espera, solo la E1 y su mockup); Usuarios sin "Quitar área" (D-208), con el lápiz en la
+  columna Área; rango D-220 a D-239 y B-30 a B-39; los briefs se usan con Claude Design leyendo
+  el repo (rama `TrainingApp`) con un prompt corto por pantalla (`022-briefs.md` → "Cómo
+  usarlos").
 
 ### Después de la Fase 10
 
