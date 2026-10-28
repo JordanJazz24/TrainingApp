@@ -136,11 +136,22 @@ rotos, en claro y oscuro.
 
 **Bloqueada hasta:** E1 y el mockup del Cambio de contraseña (D-219).
 
-- [ ] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (propia, P-6 descartada); mismos
-      campos, `BtnSave` y `BtnCancel`. La redirección final no cambia (la puso la 021: después
+- [ ] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (2a, D-228 a D-232; propia, P-6
+      descartada); mismos campos, `BtnSave` y `BtnCancel` (ahora `LinkButton`, D-231). Punto
+      de partida: `cloud/022-cambio-contrasena` (`221297f`), que sale de `cloud/022-login-3b`:
+      se trae **después** de la E2a. Pantalla completa siempre (D-230). La redirección final no cambia (la puso la 021: después
       de la contraseña, "Elige tu área" si no tiene).
-- [ ] Si su mockup usa `FullBleed` o `.mt-status-line`, se reutilizan los del Login (D-222,
-      D-223), sin afectar las páginas del dashboard.
+- [ ] Reutiliza `FullBleed` y `.mt-status-line` del Login (D-222, D-223), sin afectar las
+      páginas del dashboard.
+- [ ] Revisar en la rama del handoff (no se compiló):
+  - Enter guarda con `BtnSave` como `LinkButton` (`DefaultButton`) y con los validadores del
+    cliente;
+  - `PhSteps` y `PhFirstLogin` siguen visibles tras un postback con error;
+  - no queda ningún `ShowMessage` en la página;
+  - `ChangePassword.aspx.designer.cs` se editó a mano (`PhSteps`, `PhError`, `LitError`,
+    `LinkButton`): regenerarlo si Visual Studio no coincide.
+- [ ] Capturas: la rama trae `cambio-contrasena-*.png` de la sesión del handoff; Desarrollo las
+      **reemplaza** por las de la versión final (D-240).
 - [ ] `/code-review low --max-findings 3`. Foco: que no cambie el cambio de contraseña (actual
       siempre pedida, D-3; la nueva no puede ser la por defecto) ni el anti-CSRF.
 - [ ] Checklist común + primer acceso, cambio voluntario, Cancelar, contraseña actual

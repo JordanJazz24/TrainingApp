@@ -147,6 +147,20 @@ Rama de partida: `cloud/022-login-3b` (`c7294ee`, "no verificada"). Criterio:
 | D-224 | **Errores del login en la línea de estado** sobre Entrar, ya no en un SweetAlert (mismos mensajes y flujo). Campos con íconos (`bi-person-badge`, `bi-key`) y Entrar con `bi-box-arrow-in-right`, por lo que `BtnLogin` pasa de `asp:Button` a `asp:LinkButton` |
 | D-225 | **Textos nuevos:** lead "Con tu código de empleado y tu contraseña."; en el panel, "Simulador de entrenamiento · SAP MES", "Entrena y evalúa los flujos de SAP MES de manufactura médica." y "Un solo acceso para operadores y administradores"; el aviso "¿Primer acceso? Entra con la contraseña por defecto; enseguida te pedirá crear una nueva." |
 
+### Cambio de contraseña (2026-10-28, alternativa 2a, D-228 a D-232)
+
+Rama de partida: `cloud/022-cambio-contrasena` (`221297f`, "no verificada"), que **sale de
+`cloud/022-login-3b`**. Criterio: `022-design/cambio-contrasena.md`. Sin tokens nuevos: usa los
+del Login (D-221).
+
+| D | Qué |
+|---|---|
+| D-228 | **Alternativa 2a:** franja de marca a pantalla completa (logo e interruptor de tema) y una tarjeta de 480 px montada 48 px sobre ella. En primer acceso o tras un reset, **3 pasos** con línea de progreso ("Entraste", "Contraseña personal", "Tu inicio"), con la misma condición que el aviso. Nueva y Confirmar lado a lado (apiladas bajo 576 px), y la lista fija de los 3 requisitos que ya valida la app |
+| D-229 | **Componentes nuevos:** `.pw-page`, `.pw-band`, `.pw-band-top`, `.pw-logo`, `.pw-logo-mark`, `.pw-card` (sobre `.admin-card`), `.pw-pair`, `.pw-rules` y `.pw-cancel`, solo de esta pantalla; **`.mt-steps` / `.mt-step`** (`is-done`, `is-current`, `is-todo`), reutilizable |
+| D-230 | **Pantalla completa siempre** (`FullBleed`, D-223), para los dos roles y también para quien llega por la URL sin estar obligado (usuario, 2026-10-28). Nadie ve el menú, su Code1 ni Cerrar sesión hasta guardar; el acceso ya lo bloqueaban las redirecciones a `ChangePasswordUrl` |
+| D-231 | **Errores del servidor en `.mt-status-line`** sobre Guardar, no en SweetAlert (como D-224); validadores sin cambio. `BtnSave` y `BtnCancel` pasan a `asp:LinkButton` con ícono; Cancelar queda como botón de texto bajo Guardar. Mismos `OnClick`, `CausesValidation="false"` en Cancelar, Enter = Guardar |
+| D-232 | **Textos nuevos:** los 3 pasos; los requisitos "Al menos 8 caracteres", "Distinta de la contraseña por defecto" e "Igual en Nueva y Confirmar"; "Guardar y continuar" (antes "Guardar") y "Cancelar y cerrar sesión" (antes "Cancelar") |
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |

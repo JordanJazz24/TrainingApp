@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-228 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-233 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -254,6 +254,11 @@
 | D-225 | 2026-10-28 | Spec 022, Login: textos nuevos (lead, panel de identidad y aviso de primer acceso) | specs/022-mockups-por-pantalla.md | vigente |
 | D-226 | 2026-10-28 | Spec 022: flujo con handoff — Claude Design manda el diseño a una sesión de la nube que implementa en `cloud/022-<pantalla>` ("no verificada"); la nube de planeación registra las D-n; Desarrollo verifica, el usuario prueba y se hace el commit en `TrainingApp` | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | vigente |
 | D-227 | 2026-10-28 | Spec 022: excepción a P-3 — en `022-design/` quedan capturas PNG y la lista de cambios (`<pantalla>.md`), no el HTML exportado (carga React) | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | enmendada (D-240: las capturas las hace Desarrollo) |
+| D-228 | 2026-10-28 | Spec 022, Cambio de contraseña: alternativa 2a (franja de marca, tarjeta montada, 3 pasos en primer acceso, Nueva y Confirmar lado a lado, requisitos fijos) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-229 | 2026-10-28 | Spec 022, Cambio de contraseña: componentes `.pw-*` (solo esta pantalla) y `.mt-steps` / `.mt-step` (reutilizable); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-230 | 2026-10-28 | Spec 022, Cambio de contraseña: pantalla completa (`FullBleed`) siempre, también al llegar por URL sin estar obligado | specs/022-mockups-por-pantalla.md | vigente |
+| D-231 | 2026-10-28 | Spec 022, Cambio de contraseña: errores en `.mt-status-line`, no SweetAlert; `BtnSave` y `BtnCancel` → `LinkButton`; Cancelar como botón de texto | specs/022-mockups-por-pantalla.md | vigente |
+| D-232 | 2026-10-28 | Spec 022, Cambio de contraseña: textos nuevos (pasos, requisitos, "Guardar y continuar", "Cancelar y cerrar sesión") | specs/022-mockups-por-pantalla.md | vigente |
 | D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | vigente |
 
 ## Bugs que ya existían (B-n)
