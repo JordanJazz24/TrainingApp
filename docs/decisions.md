@@ -203,7 +203,7 @@
 | D-172 | 2026-10-27 | Spec 021: Usuarios con columna Área y acciones Cambiar área y Quitar área por fila | specs/021-area-operador.md | enmendada (D-208) |
 | D-173 | 2026-10-27 | Spec 021: la BLL valida el área en `StartSession` (excepción, no intento) | specs/021-area-operador.md | vigente |
 | D-174 | 2026-10-27 | Spec 021: una sesión en curso de otra área se puede terminar | specs/021-area-operador.md | vigente |
-| D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | vigente |
+| D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | enmendada (spec 024: Operadores y Operador por área, D-260 a D-271) |
 | D-176 | 2026-10-27 | Spec 021: solo son elegibles las áreas con al menos una guía publicada | specs/021-area-operador.md | vigente |
 | D-177 | 2026-10-27 | Spec 021: el operador confirma antes de guardar su área | specs/021-area-operador.md | vigente |
 | D-178 | 2026-10-27 | Spec 021: Redefinity es elegible como las demás; se quita el aviso "NO USAR EN PRODUCCIÓN" de `05` y `domain.md` | specs/021-area-operador.md | vigente |

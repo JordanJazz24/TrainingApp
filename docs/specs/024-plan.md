@@ -114,17 +114,20 @@ markup); entra en el de la E4.
 entrenamiento cruzado, uno sin él y uno sin área; la ficha impresa en claro) y AC-11 (un
 operador que abre Operadores u Operador vuelve a su inicio).
 
-## E4 · Cierre
+## E4 · Cierre — hecha en la nube, no verificada
 
-- [ ] `docs/domain.md` → "Dashboard de Training": la nueva Sin iniciar (D-263), Operadores por
+- [x] `docs/domain.md` → "Dashboard de Training": la nueva Sin iniciar (D-263), Operadores por
       área y el detalle (su área / otras). → "Área del operador": el dashboard ya filtra por área
       (deja de decir "solo la muestra", D-175 enmendada por D-261 a D-270).
-- [ ] `docs/architecture.md` → "Dashboard de Training": `OperatorArea` y el filtro en la BLL.
-- [ ] `docs/decisions.md`: D-175 pasa a "enmendada (spec 024)".
-- [ ] Spec: "Status" a Implemented (no verificada) con los commits; casillas de este plan.
-- [ ] `/code-review low` de todo el diff de la rama, foco en consistencia con la spec.
-- [ ] Aviso al usuario (para Planeación): rama lista para la revisión local; Diseño UI/UX enmienda
+- [x] `docs/architecture.md` → "Dashboard de Training": `OperatorArea` y el filtro en la BLL.
+- [x] `docs/decisions.md`: D-175 pasa a "enmendada (spec 024)".
+- [x] Spec: "Status" a Implemented (no verificada) con los commits; casillas de este plan.
+- [x] `/code-review low` de todo el diff de la rama, foco en consistencia con la spec.
+- [x] Aviso al usuario (para Planeación): rama lista para la revisión local; Diseño UI/UX enmienda
       los briefs 6 y 7 (spec → "Qué cambia para la 022").
+
+**Review (nube):** `/code-review low` de toda la rama, sin hallazgos (la compilación queda para el
+Rebuild de Desarrollo).
 
 **Verifica Desarrollo:** al traer la rama, que los docs coinciden con lo implementado; después
 escribe `docs/status.md` y `docs/history.md`, y Planeación el roadmap.

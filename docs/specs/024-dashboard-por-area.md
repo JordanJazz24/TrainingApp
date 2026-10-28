@@ -1,6 +1,6 @@
 # Spec 024: Dashboard por área (Operadores y Operador)
 
-**Status:** Approved 2026-10-28 · plan `024-plan.md`
+**Status:** Implemented en la nube, **no verificada** (2026-10-28: E1 `091f62c`, E2 `edf946a`, E3 `f5b1d74`, E4 con este commit) · Approved 2026-10-28 · plan `024-plan.md`
 **Date:** 2026-10-28 · **Origen:** Arquitectura y Planeación (local), después de cerrar la 021 ·
 **Sesión:** `TrainingApp-Desarrollo` en la nube, de punta a punta (`docs/process.md` →
 "Variante temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`
