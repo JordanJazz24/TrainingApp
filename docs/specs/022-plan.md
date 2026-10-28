@@ -65,11 +65,15 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
     vista (AC-3);
   - a 768 px y proyectado, sin scroll horizontal de página (AC-4);
   - los números son los mismos que antes (AC-5).
-- [ ] Capturas de **después** en el registro de la entrega.
+- [ ] Capturas de **después** (enmendado 2026-10-28, D-240): las toma **Desarrollo**, solo de
+      la **versión final** aprobada de la pantalla (no de cada iteración), y las guarda como
+      `022-design/<pantalla>-claro.png`, `-oscuro.png` y `-tablet.png` en el commit de la
+      entrega. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o
+      abaratarlas.
 
-> **Enmienda 2026-10-28 (D-226, D-227):** el bloqueo por mockup se cumple con las capturas y la
-> lista de cambios en `022-design/` y las D-n registradas en la spec (ya no con un HTML
-> exportado). Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
+> **Enmienda 2026-10-28 (D-226, D-227; D-240):** el bloqueo por mockup se cumple con la lista
+> de cambios en `022-design/<pantalla>.md` y las D-n registradas en la spec (ya no con un HTML
+> exportado). Las capturas no bloquean: las toma Desarrollo al final de la entrega (D-240). Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
 > verificada"): es el punto de partida de su entrega; Desarrollo la trae, verifica y hace el
 > commit con el ciclo normal. Nunca se integra tal cual.
 
@@ -118,8 +122,8 @@ rotos, en claro y oscuro.
     `aria-live`;
   - `ChangePassword.aspx` y las páginas del dashboard siguen con la barra (sin
     `FullBleed`).
-- [ ] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png` (D-227), si el
-      usuario no las agregó antes.
+- [ ] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png`, de la versión
+      final, tomadas por Desarrollo (D-240; checklist común).
 - [ ] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados
       (`Login.aspx`, `Admin.Master`). Foco: que no cambie el flujo de login, primer acceso,
       bloqueo y anti-CSRF.

@@ -1,8 +1,9 @@
 # Briefs por pantalla para Claude Design (spec 022)
 
 **Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). Lo aprobado va a `022-design/` con el
-nombre de cada brief, pero como **`<archivo>.md` (lista de cambios) y capturas PNG**, no como
-`.html` (enmendado 2026-10-28, D-227).
+nombre de cada brief, pero como **`<archivo>.md` (lista de cambios)**, no como `.html`
+(enmendado 2026-10-28, D-227). Las capturas PNG de la versión final las agrega Desarrollo en la
+entrega (D-240).
 
 Orden de diseño (P-1): Login → Cambio de contraseña → Guías → Pasos → Seguimiento →
 Operadores → Operador → Usuarios → Inicio del operador. El Login fija los cambios al sistema
@@ -59,8 +60,8 @@ Cómo trabajar:
 4. Agrega en la misma rama docs/specs/022-design/<pantalla>.md con: la alternativa elegida,
    los cambios frente al v1 (tokens nuevos o con otro valor en claro y oscuro, componentes
    nuevos o modificados, estructura, comportamiento y textos) y lo que Desarrollo debe revisar
-   porque no se compiló. Si puedes, agrega capturas PNG en claro, oscuro y tablet
-   (022-design/<pantalla>-claro.png, -oscuro.png, -tablet.png). No subas el HTML exportado.
+   porque no se compiló. No agregues capturas (las toma Desarrollo de la versión final) ni
+   subas el HTML exportado.
 5. No numeres decisiones (D-n) ni edites decisions.md, la spec, el plan, roadmap.md ni
    status.md: eso lo hace la sesión de planeación de la 022.
 6. Al terminar, dile al usuario la rama, el commit y un resumen de la lista de cambios.

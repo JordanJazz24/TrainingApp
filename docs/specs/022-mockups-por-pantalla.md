@@ -115,7 +115,7 @@ reemplazada por la spec 022".
 >    el **prompt de handoff** de `022-briefs.md`.
 > 2. Esa sesión implementa en una rama `cloud/022-<pantalla>` desde `origin/TrainingApp`, con el
 >    commit marcado "no verificada" (la nube no compila ni prueba), y deja en la rama
->    `docs/specs/022-design/<pantalla>.md` con los cambios frente al v1 y las capturas.
+>    `docs/specs/022-design/<pantalla>.md` con los cambios frente al v1 (sin capturas, D-240).
 > 3. La nube de planeación (esta spec) registra las D-n y enmienda la spec y el plan.
 > 4. **Desarrollo** trae la rama a la entrega del plan: Rebuild, `aspnet_compiler`,
 >    `/code-review`, el "funciona" del usuario y el commit en `TrainingApp`. La rama del handoff
@@ -125,6 +125,11 @@ reemplazada por la spec 022".
 > React desde unpkg, así que no se guarda. En `022-design/` quedan **capturas PNG** de la
 > alternativa aprobada (claro, oscuro y tablet) y la **lista de cambios** (`<pantalla>.md`),
 > más las D-n de abajo.
+>
+> **Enmienda 2026-10-28 (D-240, enmienda D-227):** las capturas las toma **Desarrollo**, solo de
+> la **versión final** aprobada de cada pantalla (no de cada iteración), en la entrega del plan.
+> Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas. La sesión
+> del handoff ya no agrega capturas: solo la lista de cambios.
 
 ## Pantallas aprobadas
 

@@ -51,6 +51,6 @@ Lista de cambios frente al v1, tal como la entregó la sesión del handoff (Clau
 
 ## Capturas (pendientes)
 
-`login-claro.png`, `login-oscuro.png` y `login-tablet.png` de la 3b. Las agrega el usuario
-(desde Claude Design) o Desarrollo en la E2, antes de su commit. El HTML exportado no se guarda:
+`login-claro.png`, `login-oscuro.png` y `login-tablet.png`, de la versión final. Las toma
+Desarrollo en la E2a, antes de su commit (D-240). El HTML exportado no se guarda:
 carga React desde unpkg (D-227).
