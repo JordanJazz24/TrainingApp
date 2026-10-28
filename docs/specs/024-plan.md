@@ -21,13 +21,13 @@ temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`.
 - Si algo no cierra: parar y proponer la enmienda (`process.md` → 1). Decisiones nuevas desde
   D-272.
 
-## E1 · Datos y BLL, con tests
+## E1 · Datos y BLL, con tests — hecha en la nube, no verificada
 
-- [ ] `10_spDashboard.sql`: `spDashboardGuides` devuelve también `g.AreaId`; `spDashboardOperators`,
+- [x] `10_spDashboard.sql`: `spDashboardGuides` devuelve también `g.AreaId`; `spDashboardOperators`,
       `u.AreaId`. Sin parámetros nuevos (P-3).
-- [ ] Domain: `DashboardGuide.AreaId` (`int`) y `DashboardOperator.AreaId` (`int?`).
+- [x] Domain: `DashboardGuide.AreaId` (`int`) y `DashboardOperator.AreaId` (`int?`).
       `DashboardRepository` las mapea.
-- [ ] `BLL/Reports/OperatorArea.cs` (regla pura, P-10): con las guías publicadas, el `AreaId`
+- [x] `BLL/Reports/OperatorArea.cs` (regla pura, P-10): con las guías publicadas, el `AreaId`
       del operador y sus sesiones, separa **sus guías** (las publicadas de su área, también Sin
       iniciar) y **otras** (las de otras áreas con sesiones), y da su estado en el área:
       - `NoArea` (sin área), `NoPublishedGuide` (su área no tiene guía publicada, P-5) o el
@@ -35,7 +35,7 @@ temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`.
       - **Sin iniciar** = tiene área, su área tiene guía y no hay sesiones en ellas (D-263);
       - `Matches(state)`: Estado = X si alguna guía de su área está en X; `NoArea` y
         `NoPublishedGuide` solo salen con Estado = Todos (D-267, P-5).
-- [ ] `DashboardService`:
+- [x] `DashboardService`:
   - `OperatorFilter`: se quita `GuideId` y se agrega el filtro de área (Todas, un `AreaId` o Sin
     área). Un área que no tiene guía publicada vale Todas (P-4).
   - `OperatorRow`: `AreaGuides` (las de su área, en lugar de `Guides`), `AreaStatus` y
@@ -45,15 +45,20 @@ temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`.
   - `FindOperators` filtra por área y estado con `OperatorArea` antes de paginar (P-3).
   - `GetOperator`: `OperatorDetail` con `AreaGuides` (y su `Readiness`) y `OtherGuides` (y la
     suya); Reforzar y curvas, su área primero (D-269); cada sesión con el texto de su área.
-- [ ] Tests NUnit en memoria, **solo lo nuevo** (P-11): filtro Área (Todas, un área, Sin área,
+- [x] Tests NUnit en memoria, **solo lo nuevo** (P-11): filtro Área (Todas, un área, Sin área,
       inválido o sin guía publicada = Todas), Sin iniciar nueva (área sin sesiones; cruzado sin su
       área = Sin iniciar; sin área y sin guía publicada fuera de Sin iniciar), Aprobado solo en otra
       área no sale como Aprobado. Los tests existentes de `DashboardServiceTests` que usaban
       `GuideId` o `Guides` se ajustan, no se borran.
-- [ ] `/code-review medium` sobre `OperatorArea.cs` y `DashboardService.cs`. Foco: la regla de
+- [x] `/code-review medium` sobre `OperatorArea.cs` y `DashboardService.cs`. Foco: la regla de
       Sin iniciar, el filtro antes de paginar, `CanViewReports` en cada método, que los números de
       Resumen, Pasos y Seguimiento no cambien (AC-10), y rendimiento (lee todo el historial,
       `process.md` → 3).
+
+**Review (nube):** `/code-review medium`: aplicados el filtro de sesiones por las guías leídas,
+la comparación por `AreaId` en `OperatorArea` y una sola búsqueda del área por sesión. Descartados
+los tests del detalle y del Excel (P-11: se prueban en el navegador) y unir estado y guías en un
+solo parámetro (estilo). `ExcelReportsTests` se ajusta en la E2, con `ExcelReports.cs`.
 
 **Verifica Desarrollo:** Rebuild; scripts `10` sobre su BD; tests (todo en verde, también
 `ReadinessPolicyTests`, `SummaryRulesTests` y `ScoreCalculatorTests`). Sin cambios visibles

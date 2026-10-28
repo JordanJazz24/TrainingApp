@@ -6,6 +6,7 @@ namespace TrainingApp.Domain
     {
         public int Id { get; set; }
         public string Title { get; set; }
+        public int AreaId { get; set; }
         public string AreaName { get; set; }
         public string ProductName { get; set; }
     }

@@ -460,6 +460,7 @@
     <Compile Include="BLL\Admin\UserAdminService.cs" />
     <Compile Include="BLL\Admin\GuideAdminService.cs" />
     <Compile Include="BLL\Reports\DashboardService.cs" />
+    <Compile Include="BLL\Reports\OperatorArea.cs" />
     <Compile Include="BLL\Reports\ReadinessPolicy.cs" />
     <Compile Include="BLL\Reports\ReinforcementRule.cs" />
     <Compile Include="BLL\Reports\StepRuns.cs" />

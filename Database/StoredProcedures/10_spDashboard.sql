@@ -11,12 +11,13 @@
 -- 2 = Abandoned. Reason 6 = Skipped (no es un fallo).
 -- ============================================================
 
--- spDashboardGuides — las guías publicadas, con su producto y área.
+-- spDashboardGuides — las guías publicadas, con su producto y área (y el
+-- Id del área para separar la de cada operador, spec 024).
 CREATE OR ALTER PROCEDURE dbo.spDashboardGuides
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT g.Id, g.Title, a.Name AS AreaName, p.Name AS ProductName
+    SELECT g.Id, g.Title, g.AreaId, a.Name AS AreaName, p.Name AS ProductName
     FROM dbo.TrainingGuides g
     JOIN dbo.Areas a    ON a.Id = g.AreaId
     JOIN dbo.Products p ON p.Id = a.ProductId
@@ -29,7 +30,7 @@ GO
 -- @Text (vacío = todos), incluidos los que nunca entrenaron, por
 -- nombre. Sin paginar: el estado por guía, que también filtra, lo
 -- calcula la BLL, y la BLL pagina después de filtrar. Con su área
--- solo para mostrarla (spec 021, D-175; NULL si no tiene).
+-- (NULL si no tiene): la BLL la muestra y filtra por ella (spec 024, P-3).
 CREATE OR ALTER PROCEDURE dbo.spDashboardOperators
     @Text NVARCHAR(100) = NULL
 AS
@@ -40,7 +41,7 @@ BEGIN
         CASE WHEN NULLIF(LTRIM(RTRIM(@Text)), N'') IS NULL THEN NULL
              ELSE N'%' + REPLACE(REPLACE(REPLACE(LTRIM(RTRIM(@Text)), N'[', N'[[]'), N'%', N'[%]'), N'_', N'[_]') + N'%' END;
 
-    SELECT u.Id, u.Code1, u.Name, u.CreatedAt, p.Name AS ProductName, a.Name AS AreaName
+    SELECT u.Id, u.Code1, u.Name, u.CreatedAt, u.AreaId, p.Name AS ProductName, a.Name AS AreaName
     FROM dbo.Users u
     LEFT JOIN dbo.Areas a    ON a.Id = u.AreaId
     LEFT JOIN dbo.Products p ON p.Id = a.ProductId
