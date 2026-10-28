@@ -35,9 +35,22 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
   rango de la 022: **D-220 a D-239** y **B-30 a B-39** (encabezado de `docs/decisions.md`;
   enmendado 2026-10-27, por el choque con la 021).
 
+## Orden con la spec 023 (enmendado 2026-10-28, D-219)
+
+Decisión del usuario (roadmap → "Spec 023 → Orden"), para que la flecha de la 023 use los
+tokens nuevos y `admin.css` no se toque a la vez:
+
+1. **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`).
+2. **023 E1 a E4**, seguidas.
+3. **022 E2a** (Login) y el resto de la 022 según sus mockups. **E4 (Pasos)**, solo después de
+   cerrar la 023 (D-217).
+
+Reemplaza el "en paralelo" de P-7 para estas entregas: ninguna entrega de la 022, salvo la E1,
+se intercala con la 023.
+
 ## Checklist común de cada entrega de pantalla
 
-Se repite en E2 a E8; cada entrega agrega lo suyo.
+Se repite en E2a a E8; cada entrega agrega lo suyo.
 
 - [ ] Precondición: exportación aprobada en `022-design/` y registrada en la spec; la entrega
       de la 021 que la bloquea, cerrada.
@@ -68,7 +81,7 @@ respecto a la 021, pero se coordina con Desarrollo: la 021 también toca `admin.
 - [ ] `UI/master/admin.css`: los tokens y componentes nuevos o cambiados que aprobó el Login,
       cada uno con su D-n en un comentario, en claro y en oscuro. **Login aprobado (D-220 a
       D-225):** los tokens de D-221 y `.mt-status-line` (D-222); los componentes `.auth-*` y
-      `FullBleed` van en la E2. Punto de partida: `cloud/022-login-3b`. Sin tocar el POD
+      `FullBleed` van en la E2a. Punto de partida: `cloud/022-login-3b`. Sin tocar el POD
       (`Training.Master` no carga `admin.css`).
 - [ ] `admin-charts.js`, solo si los tokens de gráficas cambian.
 - [ ] Regresión visual del **Resumen** (AC-6) y de las pantallas aún no rediseñadas: siguen
@@ -82,9 +95,14 @@ rotos, en claro y oscuro.
 > Los cambios al sistema que aprueben mockups posteriores van **al inicio de la entrega de esa
 > pantalla**, con la misma regresión del Resumen.
 
-## E2 · Login y Cambio de contraseña (libre)
+## E2a · Login (libre)
 
-**Bloqueada hasta:** E1 y los mockups de Login y Cambio de contraseña.
+> **Enmendada 2026-10-28 (D-219, decisión del usuario):** la E2 se parte en **E2a (Login)** y
+> **E2b (Cambio de contraseña)**, porque solo el Login tiene mockup. La E2a va después de la 023
+> (ver "Orden con la spec 023").
+
+**Bloqueada hasta:** E1 y las 023 E1 a E4 (orden de D-219). El mockup ya está aprobado
+(D-220 a D-225; `022-design/login.md`).
 
 - [ ] `Pages/Auth/Login.aspx`: la estructura aprobada (3b, D-220); mismos `TxtCode1`,
       `TxtPassword`, `BtnLogin` y `DefaultButton`. **Enmendado 2026-10-28 (D-224):** los errores
@@ -100,17 +118,31 @@ rotos, en claro y oscuro.
     `aria-live`;
   - `ChangePassword.aspx` y las páginas del dashboard siguen con la barra (sin
     `FullBleed`).
-- [ ] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (propia, P-6 descartada); mismos
-      campos, `BtnSave` y `BtnCancel`. La redirección final no cambia aquí: la pone la E3 de la
-      021.
-- [ ] Si la identidad necesita piezas fuera de las páginas (un panel en `Admin.Master` solo para
-      Auth), se hacen sin afectar las páginas del dashboard.
-- [ ] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados. Foco: que
-      no cambie el flujo de login, primer acceso, bloqueo y anti-CSRF.
-- [ ] Checklist común + login correcto, contraseña incorrecta, cuenta bloqueada, primer acceso
-      → cambio de contraseña, cambio voluntario y Cancelar, con los dos roles.
+- [ ] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png` (D-227), si el
+      usuario no las agregó antes.
+- [ ] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados
+      (`Login.aspx`, `Admin.Master`). Foco: que no cambie el flujo de login, primer acceso,
+      bloqueo y anti-CSRF.
+- [ ] Checklist común + login correcto, contraseña incorrecta, cuenta bloqueada y primer acceso
+      → cambio de contraseña, con los dos roles.
 
 **Hecho cuando:** el usuario entra con los dos roles y dice "funciona".
+
+## E2b · Cambio de contraseña (libre)
+
+**Bloqueada hasta:** E1 y el mockup del Cambio de contraseña (D-219).
+
+- [ ] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (propia, P-6 descartada); mismos
+      campos, `BtnSave` y `BtnCancel`. La redirección final no cambia (la puso la 021: después
+      de la contraseña, "Elige tu área" si no tiene).
+- [ ] Si su mockup usa `FullBleed` o `.mt-status-line`, se reutilizan los del Login (D-222,
+      D-223), sin afectar las páginas del dashboard.
+- [ ] `/code-review low --max-findings 3`. Foco: que no cambie el cambio de contraseña (actual
+      siempre pedida, D-3; la nueva no puede ser la por defecto) ni el anti-CSRF.
+- [ ] Checklist común + primer acceso, cambio voluntario, Cancelar, contraseña actual
+      incorrecta y confirmación distinta, con los dos roles.
+
+**Hecho cuando:** el usuario cambia la contraseña con los dos roles y dice "funciona".
 
 ## E3 · Guías (libre)
 
@@ -129,8 +161,13 @@ rotos, en claro y oscuro.
 
 **Bloqueada hasta:** E1 y el mockup de Pasos.
 
+> **Enmendada 2026-10-28 (D-217, D-219):** además espera que la spec 023 esté cerrada. Su
+> mockup incluye el control de período, el rango en palabras y la comparación por paso de la
+> 023 (brief 4).
+
 - [ ] `Pages/Admin/Steps.aspx`: la estructura aprobada; mismos filtros (período, guía, modo) y
-      Descargar; "Ver todos" sigue en el cliente; los saltos solo en Práctica libre.
+      Descargar; "Ver todos" sigue en el cliente; los saltos solo en Práctica libre. El control
+      de período, el rango y la comparación son los de la 023 (mismo comportamiento, D-217).
 - [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test.
 - [ ] `/code-review low --max-findings 3`; `medium` si hay métricas. Foco: mismos números que
       `StepStatistics`, ninguna regla en la página.

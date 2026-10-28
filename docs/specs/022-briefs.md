@@ -1,7 +1,8 @@
 # Briefs por pantalla para Claude Design (spec 022)
 
-**Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). La exportación aprobada va a
-`022-design/<archivo>.html` (nombre en cada brief).
+**Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). Lo aprobado va a `022-design/` con el
+nombre de cada brief, pero como **`<archivo>.md` (lista de cambios) y capturas PNG**, no como
+`.html` (enmendado 2026-10-28, D-227).
 
 Orden de diseño (P-1): Login → Cambio de contraseña → Guías → Pasos → Seguimiento →
 Operadores → Operador → Usuarios → Inicio del operador. El Login fija los cambios al sistema
@@ -208,8 +209,13 @@ Es una pantalla corta (hoy 4 guías): no la infles; que se lea en un vistazo.
 
 ## 4. Pasos → `022-design/pasos.html`
 
+> **Enmendado 2026-10-28 (spec 023, D-217):** Pasos se diseña **cuando la 023 esté cerrada** y
+> recibe su control de período y la comparación por paso, ya implementados. El texto de abajo
+> ya lo refleja; ver `023-filtro-periodo.md` (puntos 1 a 6b, P-5, P-16).
+
 **Capturas:** una guía con su ranking en Assessment y en Práctica libre, con "Ver todos"
-abierto.
+abierto, con un período que tenga comparación y otro con "Todo"; y el control abierto en
+Personalizado….
 
 ```text
 Pantalla: PASOS (ranking de pasos difíciles).
@@ -222,11 +228,21 @@ Datos (agrupados por guía; un ranking por guía):
 - % de sesiones con fallo (barra) y "N de M sesiones";
 - intentos fallidos, veces sin acierto, mediana de duración;
 - solo en Práctica libre: los saltos;
-- los 2 motivos de fallo más frecuentes, y "Ver todos" que despliega el resto SIN recargar.
-Filtros: período (Últimos 30 días, Todo), guía, modo (Assessment, Práctica libre), Filtrar;
-"Descargar" (Excel).
+- los 2 motivos de fallo más frecuentes, y "Ver todos" que despliega el resto SIN recargar;
+- por paso, el CAMBIO del % con fallo contra el período anterior de igual largo: flecha ▲/▼,
+  valor en puntos, referencia y base de los dos períodos (ej. "▲ 6 pts · vs. 1–28 sep. · 12
+  vs. 9 sesiones"). Bajar es mejora; el color dice si mejora, pero nunca solo el color. Sin
+  datos en el anterior: "sin datos para comparar". Con "Todo" no hay comparación.
+Filtros: período, guía, modo (Assessment, Práctica libre), Filtrar; "Descargar" (Excel).
+El PERÍODO es un control de 7 opciones: Hoy, Esta semana, Este mes (el de entrada), Mes
+anterior, Últimos 30 días, Todo y Personalizado…; solo con Personalizado… aparecen Inicio y
+Fin (selector de fecha nativo) y Aplicar. Debajo, el rango aplicado en palabras ("Del 1 al 27
+de oct. de 2026").
+Puedes reacomodar el control, el rango y la comparación, pero NO cambiar su comportamiento
+(opciones, reglas de comparación, textos de base): ya están implementados (spec 023).
 
-Queda fuera: editar pasos o guías, comparar periodos, datos por operador (eso es Operador).
+Queda fuera: editar pasos o guías, otras comparaciones además de la del período anterior,
+datos por operador (eso es Operador).
 ```
 
 ## 5. Seguimiento → `022-design/seguimiento.html`
