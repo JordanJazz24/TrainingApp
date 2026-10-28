@@ -4,8 +4,9 @@
 **Date:** 2026-10-28 · **Origen:** Arquitectura y Planeación (local), después de cerrar la 021 ·
 **Sesión:** `TrainingApp-Desarrollo` en la nube, de punta a punta (`docs/process.md` →
 "Variante temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`
-**Decisiones:** D-260 a D-270, del usuario. Las propuestas de Claude (P-1 a P-12) esperan
-confirmación antes de aprobar; al confirmarlas se registran juntas como **D-271**. Rango de
+**Decisiones:** D-260 a D-270, del usuario. Las propuestas de Claude (P-1 a P-12), confirmadas
+por el usuario el 2026-10-28 (P-11 con menos tests), se registran juntas como **D-271** al
+aprobar. Rango de
 este frente: D-260 a D-279 y B-40 a B-49.
 
 ## Problem
@@ -89,10 +90,10 @@ entrenamiento cruzado (la 021 lo hace cambiando el área y regresándola, D-165)
 | D-269 | Operador: "Su área" con todas sus guías y **"Otras áreas" colapsada**, solo con guías con sesiones; Reforzar y curvas, su área primero; Sesiones completas con el área |
 | D-270 | Ficha: **su área completa** y las otras áreas **en una línea** |
 
-## Propuestas de Claude (a confirmar antes de aprobar)
+## Propuestas de Claude, confirmadas por el usuario (2026-10-28)
 
-No las preguntó Claude o el usuario no eligió; el usuario las confirma o corrige. Al
-confirmarlas se registran juntas como **D-271**.
+El usuario las confirmó una por una el 2026-10-28; solo cambió P-11 (menos tests). Se registran
+juntas como **D-271**.
 
 | # | Propuesta |
 |---|---|
@@ -106,7 +107,7 @@ confirmarlas se registran juntas como **D-271**.
 | P-8 | **Operador sin área:** "Su área" dice "Sin área" y sus guías con sesiones van en "Otras áreas", que en ese caso se muestra **abierta** (es todo lo que tiene). La ficha, igual: "Sin área" y la línea de otras |
 | P-9 | **"Otras áreas" colapsada:** un `<details>` nativo (sin JS ni estado guardado); en la ficha impresa no se imprime (va la línea de D-270). La línea: "También entrenó: Producto · Área — Estado" por cada guía, separadas por punto y coma |
 | P-10 | **Código:** la división "su área / otras" se calcula en la BLL (`DashboardService`, una regla pura con tests), no en la página. `ReadinessPolicy` no cambia. `OperatorRow.NotStarted` pasa a "ninguna sesión en las guías de su área" |
-| P-11 | **Tests** (NUnit, en memoria): el filtro Área (Todas, un área, Sin área, inválido), Estado con la nueva Sin iniciar (área sin sesiones, cruzado sin su área, sin área fuera), la división su área / otras del detalle y las columnas del Excel. Los tests existentes de Operadores y del Excel se actualizan a las columnas nuevas |
+| P-11 | **Tests, solo lo nuevo** (usuario: "menos tests"; NUnit, en memoria): el filtro Área (Todas, un área, Sin área, inválido) y Estado con la nueva Sin iniciar (área sin sesiones, cruzado sin su área, sin área y sin guía publicada fuera). El detalle del Operador y el Excel se prueban en el navegador. Los tests existentes que se rompan por las columnas nuevas se ajustan, no se borran |
 | P-12 | **Briefs de la 022:** Diseño UI/UX enmienda con fecha los briefs 6 y 7 de `022-briefs.md` antes de la E6 (ver "Qué cambia para la 022") |
 
 ## Acceptance criteria
