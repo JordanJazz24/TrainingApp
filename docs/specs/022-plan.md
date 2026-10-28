@@ -108,12 +108,12 @@ rotos, en claro y oscuro.
 **Bloqueada hasta:** E1 y las 023 E1 a E4 (orden de D-219). El mockup ya está aprobado
 (D-220 a D-225; `022-design/login.md`).
 
-- [ ] `Pages/Auth/Login.aspx`: la estructura aprobada (3b, D-220); mismos `TxtCode1`,
+- [x] `Pages/Auth/Login.aspx`: la estructura aprobada (3b, D-220); mismos `TxtCode1`,
       `TxtPassword`, `BtnLogin` y `DefaultButton`. **Enmendado 2026-10-28 (D-224):** los errores
       van en `.mt-status-line`, no en SweetAlert, y `BtnLogin` pasa a `LinkButton`. Punto de
       partida: `cloud/022-login-3b` (`c7294ee`), que además trae `Admin.Master` con `FullBleed`
       (D-223) y los `.auth-*` (D-222).
-- [ ] Revisar en la rama del handoff (no se compiló):
+- [x] Revisar en la rama del handoff (no se compiló):
   - Enter en un campo dispara `BtnLogin` como `LinkButton` con el `DefaultButton` del panel;
   - un solo `#mtThemeToggle` en el HTML (la barra del master no se renderiza con
     `FullBleed`) y `theme.js` lo toma;
@@ -122,12 +122,12 @@ rotos, en claro y oscuro.
     `aria-live`;
   - `ChangePassword.aspx` y las páginas del dashboard siguen con la barra (sin
     `FullBleed`).
-- [ ] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png`, de la versión
+- [x] Capturas `022-design/login-claro.png`, `-oscuro.png` y `-tablet.png`, de la versión
       final, tomadas por Desarrollo (D-240; checklist común).
-- [ ] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados
+- [x] `/code-review low --max-findings 3` sobre el markup y los code-behind tocados
       (`Login.aspx`, `Admin.Master`). Foco: que no cambie el flujo de login, primer acceso,
       bloqueo y anti-CSRF.
-- [ ] Checklist común + login correcto, contraseña incorrecta, cuenta bloqueada y primer acceso
+- [x] Checklist común + login correcto, contraseña incorrecta, cuenta bloqueada y primer acceso
       → cambio de contraseña, con los dos roles.
 
 **Hecho cuando:** el usuario entra con los dos roles y dice "funciona".

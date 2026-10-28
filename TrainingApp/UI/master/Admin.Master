@@ -34,7 +34,9 @@
             </Scripts>
         </asp:ScriptManager>
 
-        <header class="admin-bar">
+        <%-- El login (brief 022, 3b) va a pantalla completa: sin esta barra ni .admin-main
+             (FullBleed) y con su propio #mtThemeToggle. --%>
+        <header class="admin-bar" runat="server" id="AdminBar">
             <span class="admin-brand"><i class="bi bi-display" aria-hidden="true"></i>TrainingApp</span>
 
             <%-- Menú del dashboard (spec 018): Resumen · Operadores · Pasos · Seguimiento ·
@@ -78,7 +80,7 @@
             </div>
         </header>
 
-        <main class="admin-main">
+        <main class="admin-main" runat="server" id="AdminMain">
             <asp:ContentPlaceHolder ID="MainContent" runat="server" />
         </main>
     </form>
