@@ -86,7 +86,8 @@ namespace TrainingApp.Pages.Admin
             // Cada bloque dice a qué período corresponde (AC-9).
             string period = ReportText.Period(applied.Period);
             LitReadyPeriod.Text    = HttpUtility.HtmlEncode("Estado con todo el historial. Tasas y puntaje: " + period.ToLowerInvariant() + ".");
-            LitActivityPeriod.Text = HttpUtility.HtmlEncode(period.ToLowerInvariant());
+            LitActivityPeriod.Text = HttpUtility.HtmlEncode(
+                "Sesiones " + ReportText.Grain(report.Activity.Grain) + ", " + period.ToLowerInvariant());
             LitTopPeriod.Text      = HttpUtility.HtmlEncode(period.ToLowerInvariant());
             // Pasos con el mismo período y guía, en Assessment: los mismos números (D-147).
             LnkSteps.NavigateUrl    = BuildUrl(StepsUrl, all, applied.GuideId);
@@ -107,13 +108,14 @@ namespace TrainingApp.Pages.Admin
             RptGuides.DataSource = rows;
             RptGuides.DataBind();
 
-            bool hasActivity = report.Weeks.Count > 0;
+            var buckets = report.Activity.Buckets;
+            bool hasActivity = buckets.Count > 0;
             PhActivity.Visible    = hasActivity;
             LblNoActivity.Visible = !hasActivity;
             if (hasActivity)
                 LitActivityTotals.Text = HttpUtility.HtmlEncode(string.Format(
                     "En el período: {0} Guided, {1} Práctica libre y {2} Assessment.",
-                    report.Weeks.Sum(w => w.Guided), report.Weeks.Sum(w => w.FreePractice), report.Weeks.Sum(w => w.Assessment)));
+                    buckets.Sum(w => w.Guided), buckets.Sum(w => w.FreePractice), buckets.Sum(w => w.Assessment)));
 
             bool hasTop = report.TopSteps.Count > 0;
             PhTop.Visible    = hasTop;
@@ -131,11 +133,12 @@ namespace TrainingApp.Pages.Admin
             {
                 weeks = hasActivity ? new
                 {
-                    // Con todo el historial las semanas pueden ser de años distintos.
-                    labels     = report.Weeks.Select(w => w.WeekStart.ToString(all ? "dd/MM/yy" : "dd/MM")),
-                    guided     = report.Weeks.Select(w => w.Guided),
-                    practice   = report.Weeks.Select(w => w.FreePractice),
-                    assessment = report.Weeks.Select(w => w.Assessment)
+                    // Por mes, o con todo el historial, pueden ser de años distintos.
+                    labels     = buckets.Select(w => w.Start.ToString(
+                        report.Activity.Grain == ActivityGrain.Month ? "MM/yy" : all ? "dd/MM/yy" : "dd/MM")),
+                    guided     = buckets.Select(w => w.Guided),
+                    practice   = buckets.Select(w => w.FreePractice),
+                    assessment = buckets.Select(w => w.Assessment)
                 } : null
             });
         }

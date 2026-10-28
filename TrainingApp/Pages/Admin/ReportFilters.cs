@@ -12,7 +12,7 @@ namespace TrainingApp.Pages.Admin
     // pantalla (DA-5). Un valor inválido vale el de inicio; el servicio vuelve a validar.
     public static class ReportFilters
     {
-        // Valores de la URL; sin el parámetro, el de inicio (últimos 30 días, Assessment).
+        // Valores de la URL; sin el parámetro, el de inicio (Este mes, Assessment).
         public const string PeriodAll    = "all";
         public const string ModePractice = "practice";
 
@@ -74,7 +74,7 @@ namespace TrainingApp.Pages.Admin
         }
 
         private static ReportPeriod Period(NameValueCollection query)
-            => query["period"] == PeriodAll ? ReportPeriod.All : ReportPeriod.Last30Days;
+            => query["period"] == PeriodAll ? ReportPeriod.All : ReportPeriods.Default;
 
         private static int? Guide(NameValueCollection query)
             => int.TryParse(query["guide"], out int guideId) ? guideId : (int?)null;

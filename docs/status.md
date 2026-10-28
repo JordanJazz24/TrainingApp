@@ -129,6 +129,22 @@ están en ningún worktree) · **Último commit de código:** 022 E1, en `spec-0
        `.mt-status-line` (D-222), tomados de `cloud/022-login-3b`; los `.auth-*`, `FullBleed` y
        `Login.aspx` de esa rama quedan para la E2a. Todavía nada los usa: sin cambio visible.
        Probada por el usuario (Resumen y dashboard, claro y oscuro).
+     - **023 E1 · Datos y BLL del rango y la comparación** (2026-10-28): `@To` (exclusivo, UTC)
+       en `spDashboardSessions` y `spDashboardStepAttempts` y en el DAL; `ReportPeriod` con los 7
+       períodos (Este mes al entrar), `ReportRange` y `ReportPeriods.Resolve` (medianoche de la
+       planta, el anterior de P-4, Personalizado inválido → Este mes con `Invalid`; también un
+       valor fuera del enum), `ReportChange` (cambio con un decimal y la base de los dos);
+       `DashboardService` con la tasa de aprobación, las sesiones del período, el Top 5 y Pasos
+       con su cambio (una sola lectura de intentos, separada en memoria), la gráfica por día,
+       semana o mes (`SummaryRules.Activity`) y la descarga con el rango. Para los tests,
+       `DashboardService` acepta un "ahora" fijo. Las páginas, con lo mínimo hasta la E2: la
+       opción "Este mes" en lugar de "Últimos 30 días" y el subtítulo de la actividad con su
+       granularidad. Probado el `10` en LocalDB (`TrainingApp_Spec023`, dos corridas y `@To`
+       exclusivo). `/code-review medium`: corregidos un Inicio absurdo en la URL (antes de 2000 →
+       Este mes con aviso), Este mes como valor por defecto del enum y `@From`/`@To` como
+       `DATETIME2`. Tests: 452.
+       - **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local (y en
+         producción antes de publicar este código).
      - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
        final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**

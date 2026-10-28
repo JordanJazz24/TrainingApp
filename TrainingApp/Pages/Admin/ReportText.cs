@@ -67,7 +67,29 @@ namespace TrainingApp.Pages.Admin
 
         // El período de una vista, para decir a qué corresponde cada bloque.
         public static string Period(ReportPeriod period)
-            => period == ReportPeriod.All ? "Todo el historial" : "Últimos " + ReportPeriods.RecentDays + " días";
+        {
+            switch (period)
+            {
+                case ReportPeriod.Today:      return "Hoy";
+                case ReportPeriod.ThisWeek:   return "Esta semana";
+                case ReportPeriod.PrevMonth:  return "Mes anterior";
+                case ReportPeriod.Last30Days: return "Últimos 30 días";
+                case ReportPeriod.All:        return "Todo el historial";
+                case ReportPeriod.Custom:     return "Personalizado";
+                default:                      return "Este mes";
+            }
+        }
+
+        // Cómo va la gráfica de actividad ("por día").
+        public static string Grain(ActivityGrain grain)
+        {
+            switch (grain)
+            {
+                case ActivityGrain.Week:  return "por semana (de lunes a domingo)";
+                case ActivityGrain.Month: return "por mes";
+                default:                  return "por día";
+            }
+        }
 
         // Fecha UTC de la BD en la hora de la planta (DA-8).
         public static string Date(DateTime? utc)

@@ -30,16 +30,16 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 
 ## E1 · Datos y BLL del rango y la comparación, con tests
 
-- [ ] `10_spDashboard.sql`: `spDashboardSessions` y `spDashboardStepAttempts` suman
+- [x] `10_spDashboard.sql`: `spDashboardSessions` y `spDashboardStepAttempts` suman
       `@To DATETIME2 = NULL` (exclusivo, UTC; `NULL` = sin límite):
       `AND (@To IS NULL OR s.StartedAt < @To)`. Sin cambiar columnas ni el resto de los filtros
       (P-8).
-- [ ] DAL: `DashboardRepository.GetSessions(…, fromUtc, toUtc, guideId)` y
+- [x] DAL: `DashboardRepository.GetSessions(…, fromUtc, toUtc, guideId)` y
       `GetStepAttempts(mode, fromUtc, toUtc, guideId)` pasan `@To`; las llamadas actuales
       siguen igual con `toUtc = null`.
-- [ ] `BLL/Reports/ReportPeriod.cs`: el enum pasa a **Today, ThisWeek, ThisMonth, PrevMonth,
+- [x] `BLL/Reports/ReportPeriod.cs`: el enum pasa a **Today, ThisWeek, ThisMonth, PrevMonth,
       Last30Days, All, Custom** (P-3), con **ThisMonth** como el de inicio (D-215).
-- [ ] `ReportRange` (BLL, inmutable): período, `FromUtc`/`ToUtc` (`null` con Todo), el anterior
+- [x] `ReportRange` (BLL, inmutable): período, `FromUtc`/`ToUtc` (`null` con Todo), el anterior
       (`PrevFromUtc`/`PrevToUtc`, `null` con Todo), las fechas locales de los dos (para los
       textos) y el largo en días. `ReportPeriods.Resolve(period, DateTime? from, DateTime? to,
       DateTime nowUtc)`, **pura**:
@@ -53,11 +53,11 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
     **Este mes** y marca `Invalid` para el aviso (P-6).
   - `PlantTime` suma lo que haga falta (`FromLocal` o el "hoy" de la planta) sin cambiar
     `ToLocal`.
-- [ ] `ReportChange` (BLL): valor actual, anterior, cambio (puntos o %), dirección, si es
+- [x] `ReportChange` (BLL): valor actual, anterior, cambio (puntos o %), dirección, si es
       mejora (subir en aprobación y sesiones; bajar en % con fallo) y la base de los dos
       períodos (evaluados o sesiones; P-5, P-16). Sin datos en el anterior: "sin datos para
       comparar".
-- [ ] `DashboardService`:
+- [x] `DashboardService`:
   - `SummaryFilter`/`StepFilter` llevan `Period`, `From` y `To`; `ValidPeriod` se reemplaza
     por `ReportPeriods.Resolve` y el filtro aplicado devuelve el rango y el aviso;
   - **Resumen:** la tasa de aprobación por guía y las sesiones del período se calculan para
@@ -70,7 +70,7 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
     según el largo: día hasta 31 días, semana hasta 366, mes si es más largo; con Todo, el
     largo real desde la primera sesión (P-9, D-214);
   - **descarga de sesiones:** filtra por `FromUtc` y `ToUtc`.
-- [ ] Tests NUnit en memoria (AC-11):
+- [x] Tests NUnit en memoria (AC-11):
   - `ReportPeriodsTests` (nuevo): cada atajo y su anterior con un "ahora" fijo; bordes de mes
     (31 de oct. → 1–30 sep.; 31 de mar. → 1–28/29 feb.; enero → diciembre del año anterior) y de
     semana (lunes y domingo); medianoche de la planta (una sesión a las 23:30 locales cae en
@@ -82,10 +82,10 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
     período inválido cae en Este mes con aviso;
   - los existentes en verde (`ScoreCalculatorTests` incluido); los que asumían 30 días al
     entrar se ajustan a Este mes.
-- [ ] Verificación (Desarrollo): Rebuild de `TrainingApp` y `TrainingApp.Test`; `10` en una BD
+- [x] Verificación (Desarrollo): Rebuild de `TrainingApp` y `TrainingApp.Test`; `10` en una BD
       de LocalDB (dos corridas); `vstest.console` en verde. Las páginas compilan con lo mínimo
       (el período de la URL todavía de la forma vieja si hace falta) hasta la E2.
-- [ ] `/code-review medium` sobre `10_spDashboard.sql`, el DAL y `BLL/Reports`. Foco: la
+- [x] `/code-review medium` sobre `10_spDashboard.sql`, el DAL y `BLL/Reports`. Foco: la
       conversión local ↔ UTC y el `@To` exclusivo (que ninguna sesión caiga en dos períodos ni
       en ninguno), la validación en la BLL sin confiar en la página, y que Operadores,
       Operador y Seguimiento no cambien.

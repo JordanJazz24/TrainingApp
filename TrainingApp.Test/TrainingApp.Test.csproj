@@ -170,6 +170,7 @@
     <Compile Include="FollowUpRulesTests.cs" />
     <Compile Include="LearningCurveTests.cs" />
     <Compile Include="StepRunsTests.cs" />
+    <Compile Include="ReportPeriodsTests.cs" />
     <Compile Include="SummaryRulesTests.cs" />
     <Compile Include="CustomResourceSetupTests.cs" />
     <Compile Include="OperatorAreaTests.cs" />

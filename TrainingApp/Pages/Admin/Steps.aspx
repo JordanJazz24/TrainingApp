@@ -18,7 +18,7 @@
             <div class="mt-field">
                 <label class="mt-field-label" for="<%= DdlPeriod.ClientID %>">Período</label>
                 <asp:DropDownList ID="DdlPeriod" runat="server" CssClass="form-select">
-                    <asp:ListItem Value="" Text="Últimos 30 días" />
+                    <asp:ListItem Value="" Text="Este mes" />
                     <asp:ListItem Value="all" Text="Todo" />
                 </asp:DropDownList>
             </div>

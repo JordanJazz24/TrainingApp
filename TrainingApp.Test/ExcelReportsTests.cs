@@ -157,7 +157,7 @@ namespace TrainingApp.Test
                 {
                 Assert.That(book.Worksheets.Select(w => w.Name), Is.EqualTo(new[] { "Sesiones", "Intentos por paso" }));
                 var sessions = book.Worksheet("Sesiones");
-                Assert.That(sessions.Cell(1, 1).GetString(), Does.StartWith("Sesiones. Período: últimos 30 días. Guía: todas. Descargado el "));
+                Assert.That(sessions.Cell(1, 1).GetString(), Does.StartWith("Sesiones. Período: este mes. Guía: todas. Descargado el "));
                 Assert.That(sessions.Cell(2, 1).GetString(), Is.EqualTo("Sesión"));
                 Assert.That(sessions.Cell(2, 1).Style.Font.Bold, Is.True);
                 Assert.That(sessions.Cell(2, 1).Style.Fill.BackgroundColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFF1F55A5))));

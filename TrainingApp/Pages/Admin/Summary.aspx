@@ -17,7 +17,7 @@
             <div class="mt-field">
                 <label class="mt-field-label" for="<%= DdlPeriod.ClientID %>">Período</label>
                 <asp:DropDownList ID="DdlPeriod" runat="server" CssClass="form-select">
-                    <asp:ListItem Value="" Text="Últimos 30 días" />
+                    <asp:ListItem Value="" Text="Este mes" />
                     <asp:ListItem Value="all" Text="Todo" />
                 </asp:DropDownList>
             </div>
@@ -108,7 +108,7 @@
             <div class="summary-block-head">
                 <div>
                     <h2 id="activityTitle" class="summary-block-title">Actividad</h2>
-                    <p class="mt-muted mt-small mb-0">Sesiones por semana (de lunes a domingo), <asp:Literal ID="LitActivityPeriod" runat="server" /></p>
+                    <p class="mt-muted mt-small mb-0"><asp:Literal ID="LitActivityPeriod" runat="server" /></p>
                 </div>
                 <div class="summary-legend summary-legend-sm">
                     <span><span class="summary-dot summary-mode-1"></span>Guided</span>
