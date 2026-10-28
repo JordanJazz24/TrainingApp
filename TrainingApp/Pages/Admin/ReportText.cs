@@ -80,6 +80,47 @@ namespace TrainingApp.Pages.Admin
             }
         }
 
+        // Meses abreviados, sin depender de la cultura del servidor.
+        private static readonly string[] Months =
+            { "ene.", "feb.", "mar.", "abr.", "may.", "jun.", "jul.", "ago.", "sep.", "oct.", "nov.", "dic." };
+
+        private static string Month(DateTime day) => Months[day.Month - 1];
+
+        // El rango aplicado en palabras (P-14): "Del 1 al 28 de oct. de 2026", "Del 29 de sep. al
+        // 28 de oct. de 2026", "El 28 de oct. de 2026"; con Todo, "Todo el historial".
+        public static string Range(ReportRange range)
+        {
+            if (!range.FromLocal.HasValue || !range.ToLocal.HasValue) return Period(ReportPeriod.All);
+            DateTime from = range.FromLocal.Value, to = range.ToLocal.Value;
+            if (from == to) return "El " + from.Day + " de " + Month(from) + " de " + from.Year;
+            string start = from.Year != to.Year  ? from.Day + " de " + Month(from) + " de " + from.Year
+                         : from.Month != to.Month ? from.Day + " de " + Month(from)
+                         : from.Day.ToString(CultureInfo.InvariantCulture);
+            return "Del " + start + " al " + to.Day + " de " + Month(to) + " de " + to.Year;
+        }
+
+        // El período anterior, corto ("1–28 sep.", "30 ago.–28 sep.", "27 oct."; con el año si no
+        // es el del período): la referencia de cada cambio (P-5).
+        public static string PreviousRange(ReportRange range)
+        {
+            if (!range.PrevFromLocal.HasValue || !range.PrevToLocal.HasValue) return string.Empty;
+            DateTime from = range.PrevFromLocal.Value, to = range.PrevToLocal.Value;
+            string year = range.ToLocal.HasValue && to.Year != range.ToLocal.Value.Year ? " " + to.Year : string.Empty;
+            if (from == to) return from.Day + " " + Month(from) + year;
+            string start = from.Year != to.Year  ? from.Day + " " + Month(from) + " " + from.Year
+                         : from.Month != to.Month ? from.Day + " " + Month(from)
+                         : from.Day.ToString(CultureInfo.InvariantCulture);
+            return start + "–" + to.Day + " " + Month(to) + year;
+        }
+
+        // A qué período corresponde un bloque ("este mes", "del 5 al 14 de oct. de 2026"): el
+        // nombre del atajo o, con Personalizado, el rango.
+        public static string PeriodOf(ReportRange range)
+        {
+            string text = range.Period == ReportPeriod.Custom ? Range(range) : Period(range.Period);
+            return char.ToLowerInvariant(text[0]) + text.Substring(1);
+        }
+
         // Cómo va la gráfica de actividad ("por día").
         public static string Grain(ActivityGrain grain)
         {

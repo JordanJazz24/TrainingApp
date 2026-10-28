@@ -151,7 +151,9 @@ namespace TrainingApp.Pages.Admin
             var applied = export.Applied ?? new SummaryFilter();
             var filters = new[]
             {
-                "Período: " + ReportText.Period(applied.Period).ToLowerInvariant(),
+                // El rango exacto (spec 023, P-10 y P-14), sin comparación.
+                "Período: " + (export.Range != null ? LowerFirst(ReportText.Range(export.Range))
+                                                    : ReportText.Period(applied.Period).ToLowerInvariant()),
                 "Guía: " + GuideText(export.Guides, applied.GuideId)
             };
             var guides = export.Guides.ToDictionary(g => g.Id);
@@ -190,6 +192,9 @@ namespace TrainingApp.Pages.Admin
         private static string Title(string view, IEnumerable<string> filters)
             => view + ". " + string.Join(". ", filters) + ". Descargado el "
                + ReportText.Date(DateTime.UtcNow) + ".";
+
+        private static string LowerFirst(string text)
+            => string.IsNullOrEmpty(text) ? text : char.ToLowerInvariant(text[0]) + text.Substring(1);
 
         private static string GuideText(IEnumerable<DashboardGuide> guides, int? guideId)
             => guideId.HasValue ? guides.FirstOrDefault(g => g.Id == guideId.Value)?.AreaName ?? "todas" : "todas";

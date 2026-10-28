@@ -210,6 +210,7 @@
     <Content Include="UI\master\Training.Master" />
     <Content Include="UI\Controls\Training\LineClearanceControl.ascx" />
     <Content Include="UI\Controls\Training\CompleteControl.ascx" />
+    <Content Include="UI\Controls\Admin\PeriodFilter.ascx" />
     <Content Include="UI\Controls\Training\ResourceSetupControl.ascx" />
     <Content Include="UI\Controls\Training\CustomResourceSetupControl.ascx" />
     <Content Include="UI\Controls\Training\SearchControl.ascx" />
@@ -423,6 +424,7 @@
     <Compile Include="Pages\Admin\OperatorListRow.cs" />
     <Compile Include="Pages\Admin\ReportFilters.cs" />
     <Compile Include="Pages\Admin\ReportText.cs" />
+    <Compile Include="Pages\Admin\ChangeView.cs" />
     <Compile Include="Pages\Admin\XlsxStreamWriter.cs" />
     <Compile Include="Pages\Admin\ExcelReports.cs" />
     <Compile Include="Pages\Admin\Export.ashx.cs">
@@ -498,6 +500,13 @@
     <Compile Include="UI\Controls\Training\CompleteControl.ascx.cs">
       <DependentUpon>CompleteControl.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Admin\PeriodFilter.ascx.cs">
+      <DependentUpon>PeriodFilter.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\Controls\Admin\PeriodFilter.ascx.designer.cs">
+      <DependentUpon>PeriodFilter.ascx</DependentUpon>
     </Compile>
     <Compile Include="UI\Controls\Training\ResourceSetupControl.ascx.cs">
       <DependentUpon>ResourceSetupControl.ascx</DependentUpon>

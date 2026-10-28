@@ -145,6 +145,17 @@ están en ningún worktree) · **Último commit de código:** 022 E1, en `spec-0
        `DATETIME2`. Tests: 452.
        - **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local (y en
          producción antes de publicar este código).
+     - **023 E2 · Resumen** (2026-10-28): `UI/Controls/Admin/PeriodFilter.ascx` (los 7
+       períodos; Inicio y Fin con el selector nativo y `max` = hoy, sin postback; debajo, el
+       rango en palabras y el anterior); `ReportFilters` lee y escribe
+       `?period=…&from=…&to=…` (un valor desconocido llega a la BLL como inválido); en el
+       Resumen, el aviso de período inválido, el cambio de la tasa de aprobación, las
+       "Sesiones del período" y el Top 5 (flecha, valor, referencia y base; mejora o empeora
+       también en texto para lectores de pantalla, `ChangeView`), la gráfica por día, semana o
+       mes con su título y el enlace a Pasos y la descarga con el período. El Excel de sesiones
+       dice el rango. Estilos `.mt-period-*`, `.mt-change-*` y `.mt-alert-warn` con tokens. Probada por
+       el usuario. Tests:
+       458.
      - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
        final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**

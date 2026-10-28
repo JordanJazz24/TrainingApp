@@ -19,6 +19,9 @@ namespace TrainingApp.Pages.Admin
 
         public string PassRateText { get; set; }
         public string PassRateDetail { get; set; }
+
+        // El cambio de la tasa de aprobación contra el período anterior (spec 023).
+        public ChangeView PassRateChange { get; set; }
         public string FirstAttemptText { get; set; }
         public string FirstAttemptDetail { get; set; }
         public string AverageText { get; set; }
@@ -30,5 +33,8 @@ namespace TrainingApp.Pages.Admin
         public string FailureRateText { get; set; }
         public string FailureWidth { get; set; }
         public string Detail { get; set; }
+
+        // El cambio del % con fallo contra el período anterior (spec 023).
+        public ChangeView FailureRateChange { get; set; }
     }
 }

@@ -93,37 +93,42 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 **Hecho cuando:** los tests pasan y el SP corre dos veces sin error. Sin cambios visibles
 todavía, salvo que el período de inicio ya es Este mes.
 
+> **Nota 2026-10-28 (usuario):** dos casos más de período inválido, dentro de P-6, que salieron
+> al implementar la E1 (el primero, del `/code-review`): un Personalizado con Inicio anterior
+> al 2000-01-01 y un `ReportPeriod` fuera del enum (un `?period=` desconocido llega así a la
+> BLL). Los dos caen en Este mes con el aviso.
+
 ## E2 · Resumen: control, comparación, sesiones y gráfica
 
-- [ ] `UI/Controls/Admin/PeriodFilter.ascx` (nuevo, P-12): la lista **Período** con las 7
+- [x] `UI/Controls/Admin/PeriodFilter.ascx` (nuevo, P-12): la lista **Período** con las 7
       opciones (Hoy · Esta semana · Este mes · Mes anterior · Últimos 30 días · Todo ·
       Personalizado…, D-210 enmendada); al elegir Personalizado… aparecen **Inicio** y **Fin**
       (`<input type="date">`, `max` = hoy de la planta; D-216) sin postback; debajo, el rango
       aplicado en palabras ("Del 1 al 28 de oct. de 2026") y la referencia del anterior (P-14).
       Expone el período elegido y las fechas; no calcula rangos (eso es la BLL). Se declara
       estático en las dos páginas (sin `LoadControl`).
-- [ ] `ReportFilters`: lee y escribe `?period=today|week|month|prevmonth|30d|all|custom&from=AAAA-MM-DD&to=AAAA-MM-DD`;
+- [x] `ReportFilters`: lee y escribe `?period=today|week|month|prevmonth|30d|all|custom&from=AAAA-MM-DD&to=AAAA-MM-DD`;
       sin parámetro = Este mes; `period=all` sigue funcionando (P-7). Un valor desconocido
       vale Este mes; la BLL vuelve a validar.
-- [ ] `Summary.aspx`: el control en la barra de filtros (con Guía y Filtrar); el aviso de
+- [x] `Summary.aspx`: el control en la barra de filtros (con Guía y Filtrar); el aviso de
       período inválido (P-6); el cambio en la tasa de aprobación por guía (en puntos), en el
       nuevo **"Sesiones del período"** del encabezado de la tarjeta de actividad (en %; P-11) y
       en el % con fallo de cada paso del Top 5 (en puntos), cada uno con flecha ▲/▼, valor,
       referencia ("vs. 1–28 sep.") y la base ("1 vs. 2 evaluados"), nunca solo color
       (P-5, P-16, D-156); con Todo, sin comparación.
-- [ ] La gráfica de actividad con la granularidad de la BLL; el título dice "por día", "por
+- [x] La gráfica de actividad con la granularidad de la BLL; el título dice "por día", "por
       semana" o "por mes" (AC-6). `ChartJson` sigue saliendo de `JavaScriptSerializer`.
-- [ ] El enlace del Top 5 a Pasos y la descarga de sesiones llevan el período, también
+- [x] El enlace del Top 5 a Pasos y la descarga de sesiones llevan el período, también
       Personalizado (D-147, AC-7). La nota "con Todo la descarga puede tardar" (D-148) sigue.
-- [ ] `ReportText.Period` y los textos de los bloques ("Tasas y puntaje: …") dicen el nombre del
+- [x] `ReportText.Period` y los textos de los bloques ("Tasas y puntaje: …") dicen el nombre del
       atajo o el rango (P-14).
-- [ ] Estilos mínimos del cambio (flecha, mejora/empeora, base) en `admin.css` con los tokens
+- [x] Estilos mínimos del cambio (flecha, mejora/empeora, base) en `admin.css` con los tokens
       `--mt-*`, en claro y oscuro (coordinar con la E1 de la 022).
-- [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler` (markup tocado); tests.
-- [ ] `/code-review low --max-findings 5` sobre `PeriodFilter`, `ReportFilters` y
+- [x] Verificación (Desarrollo): Rebuild; `aspnet_compiler` (markup tocado); tests.
+- [x] `/code-review low --max-findings 5` sobre `PeriodFilter`, `ReportFilters` y
       `Summary.aspx.cs`. Foco: nada de cálculo en la página o el control, el texto al HTML
       codificado (`<%#: %>`), la URL leída en un solo lugar.
-- [ ] Checklist del navegador: AC-1 a AC-7 en el Resumen (cada atajo; Personalizado válido e
+- [x] Checklist del navegador: AC-1 a AC-7 en el Resumen (cada atajo; Personalizado válido e
       inválido, también editando la URL; Todo sin comparación; un anterior vacío; el enlace del
       Top 5), en claro y oscuro y en tablet; el Excel de sesiones abre en Excel con el rango en
       el título y solo las filas del rango.

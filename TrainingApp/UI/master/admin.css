@@ -661,6 +661,40 @@ body.mt-page {
     .summary-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ── Período y comparación (spec 023) ──────────────────────── */
+/* Inicio y Fin junto a la lista (solo con Personalizado); el rango aplicado, en su propia
+   línea al final de la barra de filtros. */
+.mt-period-custom { display: flex; gap: var(--mt-space-3); }
+.mt-period-custom[hidden] { display: none; }
+.mt-period-range {
+    order: 99;
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+    text-align: right;
+}
+
+/* El cambio contra el período anterior: la flecha y el valor dicen la dirección; el color, si
+   es mejora (P-5). Sin datos para comparar, en gris. */
+.mt-change { font-weight: 600; font-size: var(--mt-fs-small); white-space: nowrap; }
+.mt-change-good { color: var(--mt-ok); }
+.mt-change-bad { color: var(--mt-bad); }
+.mt-change-same,
+.mt-change-none { color: var(--mt-muted); }
+.mt-change-none { font-weight: 400; }
+.mt-change-ref { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.summary-sessions { align-items: flex-end; text-align: right; }
+
+/* Aviso de período inválido (P-6). */
+.mt-alert-warn {
+    padding: var(--mt-space-3) var(--mt-space-4);
+    border: 1px solid var(--mt-warn);
+    border-radius: var(--mt-radius);
+    background: var(--mt-warn-soft);
+    color: var(--mt-warn);
+}
+
 /* ── Operadores (spec 018; D-160) ──────────────────────────── */
 .operators-search { flex: 1 1 260px; max-width: 380px; }
 .operators-name { font-weight: 600; color: var(--mt-text); text-decoration: none; }
