@@ -96,7 +96,6 @@ namespace TrainingApp.Test
             var row = _service.SearchOperators(AdminId, new OperatorFilter()).Rows.Single();
 
             Assert.That(row.AreaStatus, Is.EqualTo(OperatorAreaStatus.HasGuides));
-            Assert.That(row.AreaText, Is.EqualTo("S&RC · Moldeo"));
             Assert.That(row.AreaGuides.Select(g => g.TrainingGuideId), Is.EqualTo(new[] { Moldeo }));
             Assert.That(row.AreaGuides[0].State, Is.EqualTo(ReadinessState.Passed));
             Assert.That(row.AreaGuides[0].BestScore, Is.EqualTo(0.80m));

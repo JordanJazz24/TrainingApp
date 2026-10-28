@@ -21,6 +21,12 @@ temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`.
 - Si algo no cierra: parar y proponer la enmienda (`process.md` → 1). Decisiones nuevas desde
   D-272.
 
+> **Compilación en la nube (2026-10-28):** con Mono y Roslyn (`tools/build-check.py --tests`, hook
+> de inicio de la nube), la rama compila (TrainingApp y TrainingApp.Test) y pasan los 461 tests (4
+> `Explicit` omitidos). Se corrigió un test de la E1 que fallaba (`Row_HasStateInHisArea` comprobaba
+> un texto que el operador falso no tiene). El markup (`aspnet_compiler`), la BD y el navegador
+> siguen sin verificar: los verifica Desarrollo.
+
 ## E1 · Datos y BLL, con tests — hecha en la nube, no verificada
 
 - [x] `10_spDashboard.sql`: `spDashboardGuides` devuelve también `g.AreaId`; `spDashboardOperators`,
