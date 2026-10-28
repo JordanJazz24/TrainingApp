@@ -15,6 +15,15 @@ namespace TrainingApp.UI.Master
     {
 
         /// <summary>
+        /// AdminBar control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl AdminBar;
+
+        /// <summary>
         /// PhMenu control.
         /// </summary>
         /// <remarks>
@@ -112,6 +121,15 @@ namespace TrainingApp.UI.Master
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton BtnLogout;
+
+        /// <summary>
+        /// AdminMain control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl AdminMain;
 
         /// <summary>
         /// MainContent control.

@@ -8,6 +8,8 @@ namespace TrainingApp.Pages.Auth
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvCode1;
         protected global::System.Web.UI.WebControls.TextBox TxtPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvPassword;
-        protected global::System.Web.UI.WebControls.Button BtnLogin;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhError;
+        protected global::System.Web.UI.WebControls.Literal LitError;
+        protected global::System.Web.UI.WebControls.LinkButton BtnLogin;
     }
 }
