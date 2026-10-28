@@ -4,6 +4,7 @@ namespace TrainingApp.Pages.Auth
     public partial class ChangePassword
     {
         protected global::System.Web.UI.WebControls.Panel PnlChangePassword;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhSteps;
         protected global::System.Web.UI.WebControls.PlaceHolder PhFirstLogin;
         protected global::System.Web.UI.WebControls.TextBox TxtCurrentPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvCurrentPassword;
@@ -13,7 +14,9 @@ namespace TrainingApp.Pages.Auth
         protected global::System.Web.UI.WebControls.TextBox TxtConfirmPassword;
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RfvConfirmPassword;
         protected global::System.Web.UI.WebControls.CompareValidator CvPasswords;
-        protected global::System.Web.UI.WebControls.Button BtnSave;
-        protected global::System.Web.UI.WebControls.Button BtnCancel;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhError;
+        protected global::System.Web.UI.WebControls.Literal LitError;
+        protected global::System.Web.UI.WebControls.LinkButton BtnSave;
+        protected global::System.Web.UI.WebControls.LinkButton BtnCancel;
     }
 }

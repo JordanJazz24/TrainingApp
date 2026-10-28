@@ -8,6 +8,10 @@ namespace TrainingApp.UI.Master
 {
     public partial class AdminMaster : AntiXsrfMasterPage
     {
+        // Login (brief 022, 3b): sin barra superior ni .admin-main; la página trae su propio
+        // interruptor de tema. La pone la página en Page_Init.
+        public bool FullBleed { get; set; }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             // Usuario y Cerrar sesión solo con un admin autenticado. La marca es siempre el
@@ -34,6 +38,13 @@ namespace TrainingApp.UI.Master
                 MarkCurrent(LnkUsers, "~/Pages/Admin/Users.aspx");
                 MarkCurrent(LnkGuides, "~/Pages/Admin/Guides.aspx");
             }
+        }
+
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            if (!FullBleed) return;
+            AdminBar.Visible = false;
+            AdminMain.Attributes["class"] = "admin-main-bleed";
         }
 
         // La vista actual (o su detalle) queda marcada en el menú. Se compara el archivo de la
