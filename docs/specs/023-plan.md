@@ -181,11 +181,11 @@ todavía, salvo que el período de inicio ya es Este mes.
   > Los demás atajos, entre 0,04 y 0,43 s. Excel de Pasos con Todo: 0,73 s. La primera carga
   > del Resumen (compila el plan de SQL), 0,91 s. `DashboardPerformanceTests.Views` mide ahora
   > los 7 períodos.
-- [ ] AC-9: Operadores, Operador (detalle, curva, ficha) y Seguimiento sin cambios.
-- [ ] Docs de cierre (Desarrollo): `docs/architecture.md` si describe el período del dashboard;
+- [x] AC-9: Operadores, Operador (detalle, curva, ficha) y Seguimiento sin cambios.
+- [x] Docs de cierre (Desarrollo): `docs/architecture.md` si describe el período del dashboard;
       `docs/status.md`, `docs/history.md`; la spec 023 a Implemented. Avisar a Arquitectura y
       Planeación (roadmap) y, por el usuario, a la nube: el mockup de Pasos de la 022 ya puede
       empezar (D-217).
-- [ ] Borrar la BD de volumen al terminar.
+- [x] Borrar la BD de volumen al terminar.
 
 **Hecho cuando:** las cifras cumplen P-13, el usuario confirma y la spec pasa a Implemented.

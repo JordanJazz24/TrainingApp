@@ -589,3 +589,28 @@ resúmenes (D-197).
 - Probada por el usuario entrega por entrega.
 - **Queda abierto:** correr `00`, `01`, `02`, `05` y `10` en la BD de producción antes de
   publicar y avisar a los trainers (D-170).
+
+## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
+**Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver
+cada número clave contra el período anterior, con su base (spec `docs/specs/023-filtro-periodo.md`,
+plan `023-plan.md`, D-209 a D-218; enmienda el punto 8 de la 018). Rama `spec-022`, en el
+worktree `.claude/worktrees/fase-11`, después de la 022 E1 (D-219).
+- **E1 (`ca9980f`, datos y BLL):** `@To` exclusivo (`DATETIME2`) en `spDashboardSessions` y
+  `spDashboardStepAttempts`; `ReportPeriod` con los 7 períodos (Este mes al entrar y como valor
+  por defecto), `ReportRange` y `ReportPeriods.Resolve` en hora de la planta, `ReportChange`;
+  `DashboardService` con el cambio de la tasa de aprobación, las sesiones, el Top 5 y Pasos (una
+  sola lectura de intentos) y `SummaryRules.Activity` por día, semana o mes. Nota del usuario en
+  el plan: un Inicio anterior a 2000 o un período fuera del enum también son inválidos.
+- **E2 (`55cfd7e`, Resumen):** `UI/Controls/Admin/PeriodFilter.ascx`, `ReportFilters` con
+  `?period=…&from=…&to=…`, el aviso de período inválido, `ChangeView` (flecha, valor,
+  referencia y base; mejora o empeora también en texto), "Sesiones del período", la gráfica
+  con su granularidad y el período en el enlace a Pasos y en el Excel de sesiones.
+- **E3 (`388dd3a`, Pasos):** el mismo control, el cambio por paso y el Excel de Pasos con el
+  rango y las columnas "% con fallo (anterior)" y "Cambio (pts)", vacías con Todo.
+- **E4 (rendimiento y cierre):** P-13 cumplido sin tocar SPs ni índices (Resumen 0,66 s y Pasos
+  0,55 s con Todo; Excel de Pasos 0,73 s; cifras en el plan); AC-9 sin cambios. Docs:
+  `domain.md` ("Período" de las vistas), `architecture.md` ("Período y comparación") y la spec
+  en Implemented. Tests: 459.
+- Probada por el usuario entrega por entrega. Un timeout de SQL pasajero en la BD local del
+  usuario durante la E2 no se repitió; la medición con volumen descartó el código.
+- **Queda abierto:** correr `10_spDashboard.sql` en la BD de producción antes de publicar.

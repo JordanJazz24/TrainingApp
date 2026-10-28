@@ -10,7 +10,7 @@
 **Última actualización:** 2026-10-28 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
 021 están cerradas e integradas. Las specs 022 y 023 se trabajan en la rama `spec-022`, en el
 worktree `.claude/worktrees/fase-11` (la carpeta se reutilizó; `fase-11` y `spec-021` ya no
-están en ningún worktree) · **Último commit de código:** 022 E1, en `spec-022`
+están en ningún worktree) · **Último commit de código:** 023 E4 (cierre de la spec 023), en `spec-022`
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -129,37 +129,18 @@ están en ningún worktree) · **Último commit de código:** 022 E1, en `spec-0
        `.mt-status-line` (D-222), tomados de `cloud/022-login-3b`; los `.auth-*`, `FullBleed` y
        `Login.aspx` de esa rama quedan para la E2a. Todavía nada los usa: sin cambio visible.
        Probada por el usuario (Resumen y dashboard, claro y oscuro).
-     - **023 E1 · Datos y BLL del rango y la comparación** (2026-10-28): `@To` (exclusivo, UTC)
-       en `spDashboardSessions` y `spDashboardStepAttempts` y en el DAL; `ReportPeriod` con los 7
-       períodos (Este mes al entrar), `ReportRange` y `ReportPeriods.Resolve` (medianoche de la
-       planta, el anterior de P-4, Personalizado inválido → Este mes con `Invalid`; también un
-       valor fuera del enum), `ReportChange` (cambio con un decimal y la base de los dos);
-       `DashboardService` con la tasa de aprobación, las sesiones del período, el Top 5 y Pasos
-       con su cambio (una sola lectura de intentos, separada en memoria), la gráfica por día,
-       semana o mes (`SummaryRules.Activity`) y la descarga con el rango. Para los tests,
-       `DashboardService` acepta un "ahora" fijo. Las páginas, con lo mínimo hasta la E2: la
-       opción "Este mes" en lugar de "Últimos 30 días" y el subtítulo de la actividad con su
-       granularidad. Probado el `10` en LocalDB (`TrainingApp_Spec023`, dos corridas y `@To`
-       exclusivo). `/code-review medium`: corregidos un Inicio absurdo en la URL (antes de 2000 →
-       Este mes con aviso), Este mes como valor por defecto del enum y `@From`/`@To` como
-       `DATETIME2`. Tests: 452.
-       - **Pendiente del usuario:** volver a correr `10_spDashboard.sql` en su BD local (y en
-         producción antes de publicar este código).
-     - **023 E2 · Resumen** (2026-10-28): `UI/Controls/Admin/PeriodFilter.ascx` (los 7
-       períodos; Inicio y Fin con el selector nativo y `max` = hoy, sin postback; debajo, el
-       rango en palabras y el anterior); `ReportFilters` lee y escribe
-       `?period=…&from=…&to=…` (un valor desconocido llega a la BLL como inválido); en el
-       Resumen, el aviso de período inválido, el cambio de la tasa de aprobación, las
-       "Sesiones del período" y el Top 5 (flecha, valor, referencia y base; mejora o empeora
-       también en texto para lectores de pantalla, `ChangeView`), la gráfica por día, semana o
-       mes con su título y el enlace a Pasos y la descarga con el período. El Excel de sesiones
-       dice el rango. Estilos `.mt-period-*`, `.mt-change-*` y `.mt-alert-warn` con tokens. Probada por
-       el usuario. Tests: 458.
-     - **023 E3 · Pasos y su Excel** (2026-10-28): el mismo `PeriodFilter` y el aviso de período
-       inválido; por paso, el cambio del % con fallo (flecha, valor, referencia y sesiones); el
-       Excel de Pasos con el rango en el título y las columnas "% con fallo (anterior)" y
-       "Cambio (pts)", vacías con Todo. `/code-review low`: sin hallazgos. Probada por el usuario.
-       Tests: 459.
+     - **Spec 023 · Filtro de período en Pasos y Resumen ✅** (2026-10-28, ver "Historial"; spec
+       y plan `docs/specs/023-*.md`, D-209 a D-218): **E1 a E4** (`ca9980f`, `55cfd7e`,
+       `388dd3a` y el cierre), probadas por el usuario, en `spec-022` (sin integrar en
+       `TrainingApp`):
+       - los 7 períodos (Este mes al entrar), la comparación con el período anterior y su base,
+         y la gráfica por día, semana o mes;
+       - el control `PeriodFilter` en Pasos y Resumen, y el rango en los dos Excel.
+
+       P-13 cumplido sin tocar SPs ni índices (cifras en `023-plan.md` → E4); las BDs de prueba
+       de LocalDB se borraron. Tests: 459.
+       - **Pendiente del usuario:** correr `10_spDashboard.sql` en la BD de producción antes de
+         publicar (la local ya lo tiene).
      - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
        final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**

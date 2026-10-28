@@ -73,10 +73,13 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 duración, fallos, saltos, sin acierto, resultado
 │   │   │   ├── StepStatistics.cs          ← ranking de Pasos (por paso o por nombre, D-147)
 │   │   │   ├── ReinforcementRule.cs       ← pasos a reforzar del detalle
-│   │   │   ├── SummaryRules.cs            ← tasas, puntaje promedio y semanas del Resumen
+│   │   │   ├── SummaryRules.cs            ← tasas, puntaje promedio y actividad del Resumen
+│   │   │   │                                 (por día, semana o mes, spec 023)
 │   │   │   ├── FollowUpRules.cs           ← Seguimiento: S-1, S-2, S-3 (D-141)
 │   │   │   ├── LearningCurve.cs           ← curva y práctica antes del primer aprobado
-│   │   │   └── ReportPeriod.cs            ← últimos 30 días o todo
+│   │   │   ├── ReportPeriod.cs            ← los 7 períodos, ReportRange y su anterior
+│   │   │   │                                 (ReportPeriods.Resolve, spec 023)
+│   │   │   └── ReportChange.cs            ← cambio contra el período anterior, con su base
 │   │   ├── Training/
 │   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products)
 │   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
@@ -628,8 +631,16 @@ Plan, enmiendas y mediciones: `docs/specs/018-plan.md`. Reglas de negocio:
 - **Gráficas:** Chart.js local (`Scripts/chart-4.5.1.umd.min.js`, sin CDN), en el
   `ScriptContent` de `Admin.Master`; los datos van al `<script>` con `JavaScriptSerializer`.
   Se dibujan con `admin-charts.js` (ver "Sistema de diseño y tema").
-- **Hora de la planta:** `Shared/PlantTime` (UTC-6), que usan `SessionHelper.ToLocal` y las
-  semanas del Resumen.
+- **Período y comparación (spec 023):** solo Pasos y Resumen. `ReportPeriods.Resolve` (pura)
+  convierte el período elegido en un `ReportRange`: límites en UTC con el inicio incluido y el
+  fin excluido (cortados a medianoche de la planta), el período anterior de P-4 y `Invalid`
+  si se pidió uno inválido (vale Este mes). Una sola lectura de intentos cubre el período y el
+  anterior (`@From` = inicio del anterior, `@To` = fin del período) y `DashboardService` los
+  separa en memoria; `ReportChange` da el cambio con la base de los dos. En la UI, el control
+  `UI/Controls/Admin/PeriodFilter.ascx` (estático en las dos páginas) y `ChangeView` solo
+  pintan lo que devuelve la BLL. Para los tests, `DashboardService` acepta un "ahora" fijo.
+- **Hora de la planta:** `Shared/PlantTime` (UTC-6), que usan `SessionHelper.ToLocal`, los
+  períodos y la actividad del Resumen.
 - **Ficha imprimible (D-150):** el detalle del Operador impreso desde el navegador; `@media
   print` en `admin.css` y `d-print-none` ocultan el menú, los botones y la curva. Sale en
   claro aunque el tema oscuro esté activo (D-157).
