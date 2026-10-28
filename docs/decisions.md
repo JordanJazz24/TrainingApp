@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-209 (local) · D-220 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-219 (local; la spec 023 usó D-209 a D-218) · D-220 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -234,6 +234,16 @@
 | D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | vigente |
 | D-207 | 2026-10-27 | Spec 022: propuestas de Claude respondidas (orden de diseño Login → Contraseña → libres → resto; se diseña el estado de la 021; HTML autocontenido; 3 alternativas por estructura con nota; quitar datos es una D-n; implementación en paralelo con la 021 para las libres; sistema en entrega propia; candidatas para otra spec). P-6 descartada | specs/022-mockups-por-pantalla.md | vigente |
 | D-208 | 2026-10-27 | Spec 021, enmienda 1: Usuarios sin Quitar área (en la página ni en la BLL: `SetArea` rechaza `null`); Cambiar área en la columna Área, con un lápiz | specs/021-area-operador.md (enmienda 1) | vigente |
+| D-209 | 2026-10-27 | Spec 023: filtro de período solo en Pasos y Resumen, para revisar un grupo o una capacitación, reportes periódicos, antes y después de un cambio y seguimiento diario | specs/023-filtro-periodo.md | vigente |
+| D-210 | 2026-10-27 | Spec 023: un solo control de período, atajos + Personalizado… (Inicio y Fin al elegirlo), con el rango aplicado en palabras debajo | specs/023-filtro-periodo.md | enmendada (2026-10-28: lista reducida a 7 opciones, P-3) |
+| D-211 | 2026-10-27 | Spec 023: comparación con el período anterior de igual largo; con un período en curso, contra los mismos días del anterior | specs/023-filtro-periodo.md | vigente |
+| D-212 | 2026-10-27 | Spec 023: muestran el cambio la tasa de aprobación, las sesiones y el Top 5 del Resumen, y el % con fallo por paso de Pasos | specs/023-filtro-periodo.md | vigente |
+| D-213 | 2026-10-27 | Spec 023: el Excel de Pasos lleva las columnas de cambio | specs/023-filtro-periodo.md | vigente |
+| D-214 | 2026-10-27 | Spec 023: la gráfica de actividad del Resumen con granularidad automática (día, semana o mes) | specs/023-filtro-periodo.md | vigente |
+| D-215 | 2026-10-27 | Spec 023: al entrar, Este mes (enmienda el "últimos 30 días" de la spec 018, punto 8) | specs/023-filtro-periodo.md | vigente |
+| D-216 | 2026-10-27 | Spec 023: fechas con el selector nativo del navegador, sin librería | specs/023-filtro-periodo.md | vigente |
+| D-217 | 2026-10-27 | Spec 023: va antes del mockup de Pasos de la 022, con el sistema de diseño actual | specs/023-filtro-periodo.md | vigente |
+| D-218 | 2026-10-28 | Spec 023: propuestas P-1 a P-16 confirmadas (inicio de la sesión; días de la planta, también en Últimos 30 días; 7 atajos; anterior por atajo; flecha, valor, referencia y base; Este mes ante un rango inválido; URL; `@To` y una sola lectura; granularidad 31/366 días; Excel; Sesiones del período; un UserControl; rendimiento; textos; 4 entregas) | specs/023-filtro-periodo.md | vigente |
 
 ## Bugs que ya existían (B-n)
 

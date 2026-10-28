@@ -113,7 +113,10 @@ escritorio: en un celular se ve, pero no se optimiza.
    inventario de AUD-29.
 8. **Filtros:**
    - **período**, con los últimos 30 días al entrar y la opción "Todo". Filtra por la fecha
-     de inicio de la sesión;
+     de inicio de la sesión; **enmendado 2026-10-28 (spec 023, D-209 a D-218):** en Pasos y
+     Resumen, atajos (Hoy, Esta semana, Este mes, Mes anterior, Últimos 30 días, Todo) y
+     Personalizado…, con **Este mes** al entrar, días de la planta y comparación con el
+     período anterior. Sigue filtrando por la fecha de inicio;
    - **guía**, con "Todas";
    - **modo**, solo en Pasos: **Assessment** (al entrar) o **Práctica libre**, uno a la vez.
      Guided no se ofrece porque casi no tiene fallos.

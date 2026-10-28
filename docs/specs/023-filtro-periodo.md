@@ -1,6 +1,6 @@
 # Spec 023: Filtro de período en Pasos y Resumen
 
-**Status:** Draft (2026-10-27)
+**Status:** Approved (2026-10-28, usuario: "apruebo") · plan `023-plan.md` (4 entregas)
 **Date:** 2026-10-27 · **Origen:** usuario, 2026-10-27 ("en Pasos y Resumen agregar filtro de
 fecha inicio y fin, o proponer un diseño que permita filtrar con mejor UX") · **Sesión:**
 Arquitectura y Planeación local (decisión del usuario)

@@ -36,6 +36,7 @@
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
+| — · Filtro de período en Pasos y Resumen | ▶️ spec aprobada el 2026-10-28 (D-209 a D-218); plan por aprobar | | `023-filtro-periodo.md`, `023-plan.md` |
 | **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); diseñando los mockups, el Login primero | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
@@ -460,26 +461,50 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 
 ### ⏸ Para retomar (Planeación, cierre del 2026-10-27)
 
-- **Spec 023 · Filtro de período en Pasos y Resumen: BORRADOR** (`docs/specs/023-filtro-periodo.md`).
-  Hechas tres rondas de preguntas; el usuario ya confirmó P-3, P-5, P-11 y P-13. **Falta su
-  "apruebo"**. Al aprobar:
-  1. agregar D-209 a D-217 (usuario) y D-218 (propuestas P-1 a P-15) a `docs/decisions.md`;
-  2. enmendar con fecha el punto 8 de la spec 018 ("Últimos 30 días / Todo" → spec 023);
-  3. escribir `023-plan.md` con 4 entregas (P-15) y pedir su aprobación;
-  4. avisar a la nube (`Diseño UI/UX`) que el mockup de Pasos (022, E4) espera la 023 (D-217);
-  5. registrarla en la tabla de fases.
+- **Spec 023 · Filtro de período: aprobada el 2026-10-28** (D-209 a D-218, punto 8 de la 018
+  enmendado). **Falta la aprobación de `023-plan.md`** (4 entregas); al aprobarlo, Desarrollo
+  puede empezar la E1. Aviso a la nube (D-217): el mockup de Pasos (022, E4) espera el cierre
+  de la 023; lo lleva el usuario.
 - **Fase 12 (022):** la nube diseña el Login en Claude Design. Sus enmiendas (la 021 cerrada,
   Usuarios sin "Quitar área", briefs con el repo conectado) se revisaron e integraron el
   2026-10-28 (`863f925`). Siguiente: el mockup del Login aprobado y su exportación en
   `022-design/`.
-- **Numeración:** local D-208 a D-219 (siguiente D-209; la 023 usará D-209 a D-218) y B-5 a
-  B-19; nube D-220 a D-239 y B-30 a B-39.
+- **Numeración:** local D-208 a D-219 (siguiente D-219; la 023 usó D-209 a D-218) y B-5 a
+  B-19; nube D-220 a D-239 y B-30 a B-39. Al pasar de D-219, pedir el rango D-240 en adelante.
 - **Desarrollo:** sin entrega asignada (la 021 cerró).
 - **Usuario:** push de `TrainingApp`; correr en producción `00`, `01`, `02`, `05` y `10` y
   avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
   `spec-021` y `fase-11`.
 - **Mensajes a la nube:** solo con Remote Control conectado (`/remote-control`), y van en un
   solo sentido; las respuestas las trae el usuario.
+
+### Spec 023 — Filtro de período en Pasos y Resumen
+
+**Spec aprobada el 2026-10-28: `docs/specs/023-filtro-periodo.md`** (D-209 a D-218), con su plan
+`023-plan.md` (4 entregas, por aprobar). Pedido del usuario (2026-10-27): un filtro de fechas
+en Pasos y Resumen con buena UX. Enmienda el punto 8 de la spec 018.
+
+**Objetivo:** que gerencia y trainers revisen un grupo o una capacitación en fechas concretas,
+saquen reportes periódicos, comparen antes y después de un cambio y sigan el día a día.
+
+**Incluye:** en Pasos y Resumen, un control de período con 7 opciones (Hoy, Esta semana, Este
+mes, Mes anterior, Últimos 30 días, Todo y Personalizado… con Inicio y Fin), Este mes al
+entrar y días de la planta; la comparación con el período anterior (flecha, valor, referencia y
+base) en la tasa de aprobación, las sesiones y el Top 5 del Resumen y en el % con fallo de
+Pasos; la gráfica de actividad por día, semana o mes; el Excel de Pasos con las columnas de
+cambio y el rango en el título de los dos Excel.
+
+**No incluye:**
+- el período en Operadores, Operador (detalle, curva y ficha) y Seguimiento;
+- que el estado "listo" use el período (sigue con todo el historial, DA-1);
+- comparar dos rangos libres lado a lado;
+- cambio en la tasa de primer intento y en el puntaje promedio;
+- una librería de calendario;
+- guardar el último período entre visitas;
+- tablas o índices nuevos (salvo que la medición de la E4 lo pida, con aviso a Planeación).
+
+**Orden:** va **antes** del mockup de Pasos de la 022 (D-217), con el sistema de diseño actual.
+Si la E1 de la 022 está en curso, las dos se coordinan para no tocar `admin.css` a la vez.
 
 ### Fase 12 — Mockups por pantalla (spec 022)
 
