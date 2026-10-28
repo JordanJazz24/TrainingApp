@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-219 (local; la spec 023 usó D-209 a D-218) · D-220 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-219 (local; la spec 023 usó D-209 a D-218) · D-228 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -244,6 +244,14 @@
 | D-216 | 2026-10-27 | Spec 023: fechas con el selector nativo del navegador, sin librería | specs/023-filtro-periodo.md | vigente |
 | D-217 | 2026-10-27 | Spec 023: va antes del mockup de Pasos de la 022, con el sistema de diseño actual | specs/023-filtro-periodo.md | vigente |
 | D-218 | 2026-10-28 | Spec 023: propuestas P-1 a P-16 confirmadas (inicio de la sesión; días de la planta, también en Últimos 30 días; 7 atajos; anterior por atajo; flecha, valor, referencia y base; Este mes ante un rango inválido; URL; `@To` y una sola lectura; granularidad 31/366 días; Excel; Sesiones del período; un UserControl; rendimiento; textos; 4 entregas) | specs/023-filtro-periodo.md | vigente |
+| D-220 | 2026-10-28 | Spec 022, Login: alternativa 3b, panel dividido (identidad + formulario; franja en tablet) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-221 | 2026-10-28 | Spec 022, Login: tokens nuevos `--mt-brand-bg`, `--mt-on-brand`, `--mt-on-brand-2`, `--mt-brand-line` (claro y oscuro); ninguno existente cambia | specs/022-mockups-por-pantalla.md | vigente |
+| D-222 | 2026-10-28 | Spec 022, Login: componentes `.auth-*` (solo login) y `.mt-status-line` (reutilizable) | specs/022-mockups-por-pantalla.md | vigente |
+| D-223 | 2026-10-28 | Spec 022, Login: `Admin.Master` con modo `FullBleed` (sin barra ni `.admin-main`), solo el login; el interruptor de tema va en la página | specs/022-mockups-por-pantalla.md | vigente |
+| D-224 | 2026-10-28 | Spec 022, Login: errores en la línea de estado, no en SweetAlert; íconos en campos y en Entrar (`BtnLogin` → `LinkButton`) | specs/022-mockups-por-pantalla.md | vigente |
+| D-225 | 2026-10-28 | Spec 022, Login: textos nuevos (lead, panel de identidad y aviso de primer acceso) | specs/022-mockups-por-pantalla.md | vigente |
+| D-226 | 2026-10-28 | Spec 022: flujo con handoff — Claude Design manda el diseño a una sesión de la nube que implementa en `cloud/022-<pantalla>` ("no verificada"); la nube de planeación registra las D-n; Desarrollo verifica, el usuario prueba y se hace el commit en `TrainingApp` | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | vigente |
+| D-227 | 2026-10-28 | Spec 022: excepción a P-3 — en `022-design/` quedan capturas PNG y la lista de cambios (`<pantalla>.md`), no el HTML exportado (carga React) | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | vigente |
 
 ## Bugs que ya existían (B-n)
 

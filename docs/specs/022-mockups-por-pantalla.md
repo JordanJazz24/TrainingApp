@@ -108,6 +108,40 @@ reemplazada por la spec 022".
 4. Las pantallas siguientes reciben esa exportación como adjunto: respetan los cambios ya
    aprobados y marcan solo los nuevos.
 
+> **Enmienda 2026-10-28 (D-226, D-227): flujo con handoff.** Claude Design puede mandar el
+> diseño aprobado a una sesión de la nube que lo implementa. Desde el Login, cada pantalla
+> sigue así:
+> 1. El usuario elige la alternativa en Claude Design y la manda a una sesión de la nube con
+>    el **prompt de handoff** de `022-briefs.md`.
+> 2. Esa sesión implementa en una rama `cloud/022-<pantalla>` desde `origin/TrainingApp`, con el
+>    commit marcado "no verificada" (la nube no compila ni prueba), y deja en la rama
+>    `docs/specs/022-design/<pantalla>.md` con los cambios frente al v1 y las capturas.
+> 3. La nube de planeación (esta spec) registra las D-n y enmienda la spec y el plan.
+> 4. **Desarrollo** trae la rama a la entrega del plan: Rebuild, `aspnet_compiler`,
+>    `/code-review`, el "funciona" del usuario y el commit en `TrainingApp`. La rama del handoff
+>    es un punto de partida, nunca se integra sin ese ciclo.
+>
+> **Criterio de aceptación (D-227, excepción a P-3):** la exportación de Claude Design carga
+> React desde unpkg, así que no se guarda. En `022-design/` quedan **capturas PNG** de la
+> alternativa aprobada (claro, oscuro y tablet) y la **lista de cambios** (`<pantalla>.md`),
+> más las D-n de abajo.
+
+## Pantallas aprobadas
+
+### Login (2026-10-28, alternativa 3b, D-220 a D-225)
+
+Rama de partida: `cloud/022-login-3b` (`c7294ee`, "no verificada"). Criterio:
+`022-design/login.md` y sus capturas.
+
+| D | Qué |
+|---|---|
+| D-220 | **Alternativa 3b: panel dividido.** A la izquierda, un panel de identidad (logo, frase, pie y un ícono `bi-display` de fondo); a la derecha, el formulario. En tablet (< 992 px) el panel queda como una franja con el logo, sin la frase, el pie ni el ícono de fondo |
+| D-221 | **Tokens nuevos** en `admin.css` (ninguno existente cambia): `--mt-brand-bg` `#16345F` / `#13233A` (fondo del panel), `--mt-on-brand` `#FFFFFF` / `#E5EAF1` (texto), `--mt-on-brand-2` `#C3D2EA` / `#A9B8CF` (texto secundario), `--mt-brand-line` `rgba(255,255,255,.07)` / `.05` (retícula de 32 px). Valen para toda la app |
+| D-222 | **Componentes nuevos:** `.auth-split` (columnas 5fr / 6fr, alto de pantalla), `.auth-brand`, `.auth-watermark`, `.auth-logo`, `.auth-pitch`, `.auth-eyebrow`, `.auth-headline` (34 px), `.auth-brand-foot`, `.auth-side`, `.auth-form` (380 px máx.) y `.auth-note`, solo del login. **`.mt-status-line`** (error del servidor en `--mt-bad`, 14 px semibold, alto reservado de 28 px) es el único pensado para reutilizarse |
+| D-223 | **`Admin.Master` en modo `FullBleed`:** la página puede ir a pantalla completa, sin la barra superior ni `.admin-main`; el interruptor de tema pasa a la página (arriba a la derecha del formulario). Solo lo usa el login; las demás pantallas no cambian |
+| D-224 | **Errores del login en la línea de estado** sobre Entrar, ya no en un SweetAlert (mismos mensajes y flujo). Campos con íconos (`bi-person-badge`, `bi-key`) y Entrar con `bi-box-arrow-in-right`, por lo que `BtnLogin` pasa de `asp:Button` a `asp:LinkButton` |
+| D-225 | **Textos nuevos:** lead "Con tu código de empleado y tu contraseña."; en el panel, "Simulador de entrenamiento · SAP MES", "Entrena y evalúa los flujos de SAP MES de manufactura médica." y "Un solo acceso para operadores y administradores"; el aviso "¿Primer acceso? Entra con la contraseña por defecto; enseguida te pedirá crear una nueva." |
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |

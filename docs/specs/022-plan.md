@@ -54,13 +54,21 @@ Se repite en E2 a E8; cada entrega agrega lo suyo.
   - los números son los mismos que antes (AC-5).
 - [ ] Capturas de **después** en el registro de la entrega.
 
+> **Enmienda 2026-10-28 (D-226, D-227):** el bloqueo por mockup se cumple con las capturas y la
+> lista de cambios en `022-design/` y las D-n registradas en la spec (ya no con un HTML
+> exportado). Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
+> verificada"): es el punto de partida de su entrega; Desarrollo la trae, verifica y hace el
+> commit con el ciclo normal. Nunca se integra tal cual.
+
 ## E1 · Sistema de diseño (P-8)
 
 **Bloqueada hasta:** el mockup del **Login** aprobado (fija los cambios al sistema, P-1). Libre
 respecto a la 021, pero se coordina con Desarrollo: la 021 también toca `admin.css` (E3 a E5).
 
 - [ ] `UI/master/admin.css`: los tokens y componentes nuevos o cambiados que aprobó el Login,
-      cada uno con su D-n en un comentario, en claro y en oscuro. Sin tocar el POD
+      cada uno con su D-n en un comentario, en claro y en oscuro. **Login aprobado (D-220 a
+      D-225):** los tokens de D-221 y `.mt-status-line` (D-222); los componentes `.auth-*` y
+      `FullBleed` van en la E2. Punto de partida: `cloud/022-login-3b`. Sin tocar el POD
       (`Training.Master` no carga `admin.css`).
 - [ ] `admin-charts.js`, solo si los tokens de gráficas cambian.
 - [ ] Regresión visual del **Resumen** (AC-6) y de las pantallas aún no rediseñadas: siguen
@@ -78,8 +86,20 @@ rotos, en claro y oscuro.
 
 **Bloqueada hasta:** E1 y los mockups de Login y Cambio de contraseña.
 
-- [ ] `Pages/Auth/Login.aspx`: la estructura aprobada; mismos `TxtCode1`, `TxtPassword`,
-      `BtnLogin` y `DefaultButton`; errores por SweetAlert como hoy.
+- [ ] `Pages/Auth/Login.aspx`: la estructura aprobada (3b, D-220); mismos `TxtCode1`,
+      `TxtPassword`, `BtnLogin` y `DefaultButton`. **Enmendado 2026-10-28 (D-224):** los errores
+      van en `.mt-status-line`, no en SweetAlert, y `BtnLogin` pasa a `LinkButton`. Punto de
+      partida: `cloud/022-login-3b` (`c7294ee`), que además trae `Admin.Master` con `FullBleed`
+      (D-223) y los `.auth-*` (D-222).
+- [ ] Revisar en la rama del handoff (no se compiló):
+  - Enter en un campo dispara `BtnLogin` como `LinkButton` con el `DefaultButton` del panel;
+  - un solo `#mtThemeToggle` en el HTML (la barra del master no se renderiza con
+    `FullBleed`) y `theme.js` lo toma;
+  - los validadores fuera del `input-group` se ven bien y el foco sigue al campo;
+  - el mensaje de bloqueo (15 min) y el de credenciales salen en la línea de estado, con
+    `aria-live`;
+  - `ChangePassword.aspx` y las páginas del dashboard siguen con la barra (sin
+    `FullBleed`).
 - [ ] `Pages/Auth/ChangePassword.aspx`: su estructura aprobada (propia, P-6 descartada); mismos
       campos, `BtnSave` y `BtnCancel`. La redirección final no cambia aquí: la pone la E3 de la
       021.
