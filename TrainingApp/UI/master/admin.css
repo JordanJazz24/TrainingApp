@@ -654,6 +654,102 @@ body.mt-page {
     .auth-side-body { align-items: flex-start; padding: var(--mt-space-6) var(--mt-space-5) 48px; }
 }
 
+/* ── Cambio de contraseña (brief 022, alternativa 2a) ─────────
+   Franja de marca a pantalla completa (FullBleed) con los pasos del
+   primer acceso, y la tarjeta montada 48 px sobre su borde. */
+.pw-page { min-height: 100vh; padding-bottom: 48px; background: var(--mt-bg); }
+.pw-band {
+    padding: 18px 28px 72px;            /* 72: espacio para montar la tarjeta */
+    background-color: var(--mt-brand-bg);
+    background-image:
+        linear-gradient(var(--mt-brand-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--mt-brand-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--mt-on-brand);
+}
+.pw-band-top { display: flex; align-items: center; justify-content: space-between; gap: var(--mt-space-4); }
+.pw-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: var(--mt-fs-block); }
+.pw-logo-mark {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: var(--mt-radius);
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .2);
+    font-size: 1.125rem;
+}
+
+/* Pasos: completo (✓), actual (relleno, número, 600) y pendiente (borde).
+   La línea que llega a cada paso: sólida si ya se alcanzó, punteada si no. */
+.mt-steps {
+    list-style: none;
+    max-width: 600px;
+    margin: var(--mt-space-1) auto 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    font-size: var(--mt-fs-small);
+}
+.mt-step {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    text-align: center;
+    color: var(--mt-on-brand-2);
+}
+.mt-step + .mt-step::before {
+    content: "";
+    position: absolute;
+    top: 13px;
+    right: calc(50% + 22px);
+    width: calc(100% - 44px);
+    border-top: 2px solid var(--mt-on-brand);
+}
+.mt-step.is-todo::before { border-top-style: dashed; border-top-color: rgba(255, 255, 255, .35); }
+.mt-step-mark {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+}
+.mt-step.is-done .mt-step-mark { background: rgba(255, 255, 255, .16); color: var(--mt-on-brand); font-size: 15px; }
+.mt-step.is-current { color: var(--mt-on-brand); font-weight: 600; }
+.mt-step.is-current .mt-step-mark { background: var(--mt-on-brand); color: var(--mt-brand-bg); font-weight: 700; }
+.mt-step.is-todo .mt-step-mark { border: 1px solid rgba(255, 255, 255, .4); }
+
+/* Tarjeta: .admin-card + .pw-card (más ancha y montada). */
+.pw-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 2 * var(--mt-space-5));
+    max-width: 480px;
+    margin: -48px auto 0;
+}
+.pw-card h1 { margin: 0 0 6px; font-size: 1.5rem; line-height: 1.2; }   /* 24 */
+.pw-card .admin-card-lead { margin-bottom: 20px; }
+.pw-card .input-group-text { justify-content: center; width: var(--mt-control-h); }
+.pw-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mt-space-3); align-items: start; }
+.pw-rules {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: var(--mt-space-1);
+    border-radius: var(--mt-radius);
+    background: var(--mt-surface-2);
+    font-size: var(--mt-fs-small);
+}
+.pw-rules li { display: flex; align-items: center; gap: var(--mt-space-2); }
+.pw-rules .bi { color: var(--mt-muted); font-size: 18px; line-height: 1; }
+.pw-cancel {
+    align-self: center;
+    margin-top: 6px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+@media (max-width: 575.98px) {
+    .pw-pair { grid-template-columns: minmax(0, 1fr); }
+    .pw-band { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
+}
+
 /* ── SweetAlert2 (11.7, sin opción de tema): toma los tokens ─ */
 .mt-page .swal2-container.swal2-backdrop-show { background: var(--mt-backdrop); }
 .mt-page .swal2-popup {
