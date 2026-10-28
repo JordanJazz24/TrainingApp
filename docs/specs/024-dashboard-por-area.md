@@ -1,12 +1,11 @@
 # Spec 024: Dashboard por área (Operadores y Operador)
 
-**Status:** Draft (2026-10-28)
+**Status:** Approved 2026-10-28 · plan `024-plan.md`
 **Date:** 2026-10-28 · **Origen:** Arquitectura y Planeación (local), después de cerrar la 021 ·
 **Sesión:** `TrainingApp-Desarrollo` en la nube, de punta a punta (`docs/process.md` →
 "Variante temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`
 **Decisiones:** D-260 a D-270, del usuario. Las propuestas de Claude (P-1 a P-12), confirmadas
-por el usuario el 2026-10-28 (P-11 con menos tests), se registran juntas como **D-271** al
-aprobar. Rango de
+por el usuario el 2026-10-28 (P-11 con menos tests), se registran juntas como **D-271**. Rango de
 este frente: D-260 a D-279 y B-40 a B-49.
 
 ## Problem

@@ -16,7 +16,7 @@
 >   **2026-10-28:** la sesión local agotó D-208 a D-219 (la 023 y D-219) y toma **D-240 a
 >   D-259**; el siguiente libre es D-260.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
->   **D-260 a D-279** y **B-40 a B-49**; siguiente: **D-271** (reservada para las propuestas P-1 a P-12 de la spec) · **B-40**.
+>   **D-260 a D-279** y **B-40 a B-49**; siguiente: **D-272** · **B-40**.
 > - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
 >   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
@@ -262,17 +262,18 @@
 | D-231 | 2026-10-28 | Spec 022, Cambio de contraseña: errores en `.mt-status-line`, no SweetAlert; `BtnSave` y `BtnCancel` → `LinkButton`; Cancelar como botón de texto | specs/022-mockups-por-pantalla.md | vigente |
 | D-232 | 2026-10-28 | Spec 022, Cambio de contraseña: textos nuevos (pasos, requisitos, "Guardar y continuar", "Cancelar y cerrar sesión") | specs/022-mockups-por-pantalla.md | vigente |
 | D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | vigente |
-| D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-263 | 2026-10-28 | Spec 024: Sin iniciar = ninguna sesión en las guías publicadas de su área (cambia domain.md) | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-264 | 2026-10-28 | Spec 024: se quita el filtro Guía de Operadores | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-265 | 2026-10-28 | Spec 024: la lista muestra a cada operador solo en su área | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-266 | 2026-10-28 | Spec 024: la lista no muestra nada de las guías de otras áreas | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-267 | 2026-10-28 | Spec 024: operador sin área = "Sin área", sin insignia, fuera de Sin iniciar; opción "Sin área" en el filtro | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-268 | 2026-10-28 | Spec 024: hoy un operador tiene una guía que entrenar, la de su área (copia por área si varias comparten contenido); guías distintas por área u operación, futuro | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-269 | 2026-10-28 | Spec 024: Operador con "Su área" y "Otras áreas" colapsada (solo guías con sesiones); Reforzar y curvas, su área primero; Sesiones con el área | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
-| D-270 | 2026-10-28 | Spec 024: la ficha lleva su área completa y las otras áreas en una línea | specs/024-dashboard-por-area.md | pendiente (spec en Draft) |
+| D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
+| D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
+| D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
+| D-263 | 2026-10-28 | Spec 024: Sin iniciar = ninguna sesión en las guías publicadas de su área (cambia domain.md) | specs/024-dashboard-por-area.md | vigente |
+| D-264 | 2026-10-28 | Spec 024: se quita el filtro Guía de Operadores | specs/024-dashboard-por-area.md | vigente |
+| D-265 | 2026-10-28 | Spec 024: la lista muestra a cada operador solo en su área | specs/024-dashboard-por-area.md | vigente |
+| D-266 | 2026-10-28 | Spec 024: la lista no muestra nada de las guías de otras áreas | specs/024-dashboard-por-area.md | vigente |
+| D-267 | 2026-10-28 | Spec 024: operador sin área = "Sin área", sin insignia, fuera de Sin iniciar; opción "Sin área" en el filtro | specs/024-dashboard-por-area.md | vigente |
+| D-268 | 2026-10-28 | Spec 024: hoy un operador tiene una guía que entrenar, la de su área (copia por área si varias comparten contenido); guías distintas por área u operación, futuro | specs/024-dashboard-por-area.md | vigente |
+| D-269 | 2026-10-28 | Spec 024: Operador con "Su área" y "Otras áreas" colapsada (solo guías con sesiones); Reforzar y curvas, su área primero; Sesiones con el área | specs/024-dashboard-por-area.md | vigente |
+| D-270 | 2026-10-28 | Spec 024: la ficha lleva su área completa y las otras áreas en una línea | specs/024-dashboard-por-area.md | vigente |
+| D-271 | 2026-10-28 | Spec 024: propuestas P-1 a P-12 confirmadas (área actual sin historial; Resumen, Pasos y Seguimiento fuera; filtro Área en la BLL; URL `?area=`; "Sin guía publicada"; una insignia por guía si hay varias; Excel como la pantalla; sin área con "Otras áreas" abierta; `<details>` y línea en la ficha; regla pura en la BLL; tests solo de lo nuevo; briefs 6 y 7 los enmienda Diseño UI/UX) | specs/024-dashboard-por-area.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
