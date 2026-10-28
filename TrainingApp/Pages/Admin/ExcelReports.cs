@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using ClosedXML.Excel;
 using TrainingApp.BLL.Reports;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
 namespace TrainingApp.Pages.Admin
@@ -42,33 +43,30 @@ namespace TrainingApp.Pages.Admin
             var applied = page.Applied ?? new OperatorFilter();
             var filters = new List<string>();
             if (!string.IsNullOrEmpty(applied.Text)) filters.Add("Búsqueda: \"" + applied.Text + "\"");
+            filters.Add("Área: " + AreaText(page.Areas, applied));
             filters.Add("Estado: " + (applied.State.HasValue ? ReportText.State(applied.State.Value).ToLowerInvariant() : "todos"));
-            filters.Add("Guía: " + GuideText(page.Guides, applied.GuideId));
 
-            // Área del operador después del nombre (spec 021, D-175).
+            // Como la pantalla (spec 024, P-7): el estado en la guía de su área, sin columnas por
+            // guía. Sin guías que entrenar, "Sin área" o "Sin guía publicada" en lugar del estado.
+            // Con varias guías en su área (P-6, futuro), los estados unidos y sin puntajes.
             var columns = new List<XlsxColumn>
             {
-                new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Área", 24)
+                new XlsxColumn("Código", 12), new XlsxColumn("Nombre", 32), new XlsxColumn("Área", 24),
+                new XlsxColumn("Estado en su área", 18, states: true),
+                new XlsxColumn("Mejor puntaje", 14, XlsxFormat.Percent),
+                new XlsxColumn("Último puntaje", 14, XlsxFormat.Percent),
+                new XlsxColumn("Última actividad", 17, XlsxFormat.Date)
             };
-            foreach (var g in page.Guides)
-            {
-                columns.Add(new XlsxColumn(g.AreaName + " · Estado", 18, states: true));
-                columns.Add(new XlsxColumn(g.AreaName + " · Mejor puntaje", 14, XlsxFormat.Percent));
-                columns.Add(new XlsxColumn(g.AreaName + " · Último puntaje", 14, XlsxFormat.Percent));
-            }
-            columns.Add(new XlsxColumn("Última actividad", 17, XlsxFormat.Date));
 
             var rows = page.Rows.Select(r =>
             {
-                var cells = new List<object> { r.Code1, r.Name, r.AreaText };
-                foreach (var g in r.Guides)
+                var single = r.AreaGuides.Count == 1 ? r.AreaGuides[0] : null;
+                var state  = ReportText.AreaNote(r.AreaStatus)
+                             ?? string.Join("; ", r.AreaGuides.Select(g => ReportText.State(g.State)));
+                return new object[]
                 {
-                    cells.Add(ReportText.State(g.State));
-                    cells.Add(g.BestScore);
-                    cells.Add(g.LastScore);
-                }
-                cells.Add(Local(r.LastActivity));
-                return cells.ToArray();
+                    r.Code1, r.Name, r.AreaText, state, single?.BestScore, single?.LastScore, Local(r.LastActivity)
+                };
             });
 
             return Book("Operadores", Title("Operadores", filters), columns, rows);
@@ -205,6 +203,14 @@ namespace TrainingApp.Pages.Admin
 
         private static string LowerFirst(string text)
             => string.IsNullOrEmpty(text) ? text : char.ToLowerInvariant(text[0]) + text.Substring(1);
+
+        // "Sensores · LoFlo", "sin área" o "todas" (spec 024).
+        private static string AreaText(IEnumerable<ReportArea> areas, OperatorFilter applied)
+        {
+            if (applied.WithoutArea) return "sin área";
+            var area = applied.AreaId.HasValue ? areas?.FirstOrDefault(a => a.AreaId == applied.AreaId.Value) : null;
+            return area != null ? AreaLabel.Of(area.ProductName, area.AreaName) : "todas";
+        }
 
         private static string GuideText(IEnumerable<DashboardGuide> guides, int? guideId)
             => guideId.HasValue ? guides.FirstOrDefault(g => g.Id == guideId.Value)?.AreaName ?? "todas" : "todas";

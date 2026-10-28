@@ -10,13 +10,16 @@ namespace TrainingApp.Pages.Admin
         public string Code1 { get; set; }
         public string Name { get; set; }
 
-        // "Producto · Área" o "Sin área" (spec 021, D-175).
+        // "Producto · Área" o "Sin área" (spec 021).
         public string AreaText { get; set; }
         public string LastActivityText { get; set; }
         public string DetailUrl { get; set; }
 
-        // Una celda por guía publicada, en el orden de las columnas.
-        public IList<OperatorGuideCell> Guides { get; set; }
+        // "Estado en su área" (spec 024, D-261): una insignia por guía de su área (hoy una, D-268)
+        // o, si no tiene guías que entrenar, el texto atenuado ("Sin área", "Sin guía publicada").
+        public IList<OperatorGuideCell> AreaGuides { get; set; }
+        public string AreaNote { get; set; }
+        public bool HasAreaNote => !string.IsNullOrEmpty(AreaNote);
     }
 
     public class OperatorGuideCell

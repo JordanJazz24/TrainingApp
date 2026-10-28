@@ -41,13 +41,13 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.DropDownList DdlState;
 
         /// <summary>
-        /// DdlGuide control.
+        /// RptAreaGroups control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DdlGuide;
+        protected global::System.Web.UI.WebControls.Repeater RptAreaGroups;
 
         /// <summary>
         /// BtnFilter control.
@@ -66,15 +66,6 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.HyperLink LnkExport;
-
-        /// <summary>
-        /// RptGuideHeaders control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptGuideHeaders;
 
         /// <summary>
         /// RptOperators control.

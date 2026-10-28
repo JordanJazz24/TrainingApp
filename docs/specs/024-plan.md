@@ -66,23 +66,26 @@ todavía: las páginas se ajustan a las firmas nuevas en la E2 y la E3, así que
 junto con ellas (si Desarrollo la trae sola, ajusta lo mínimo en `Operators.aspx.cs`,
 `Operator.aspx.cs` y `ExcelReports.cs` para compilar).
 
-## E2 · Operadores y su Excel
+## E2 · Operadores y su Excel — hecha en la nube, no verificada
 
-- [ ] `ReportFilters.Operators`: lee `?area=<Id>` o `?area=none`; ignora `?guide=` (P-4).
+- [x] `ReportFilters.Operators`: lee `?area=<Id>` o `?area=none`; ignora `?guide=` (P-4).
       `ExportUrl` sigue igual.
-- [ ] `Operators.aspx`: se quitan las columnas por guía y el filtro Guía (D-261, D-264). Filtros:
+- [x] `Operators.aspx`: se quitan las columnas por guía y el filtro Guía (D-261, D-264). Filtros:
       Buscar, **Área** (con `<optgroup>` por producto como "Elige tu área" de la 021, D-262;
       "Todas" y "Sin área" fuera de los grupos) y Estado. Columnas: Operador, Área, **Estado en su
       área** (una insignia por guía de su área con "Mejor · Último", o "Sin área" / "Sin guía
       publicada" atenuados, P-5) y Última actividad. "Ningún operador coincide" y la paginación,
       como hoy.
-- [ ] `Operators.aspx.cs`, `OperatorListRow.cs`, `ReportText.cs`: solo binding y textos.
-- [ ] `ExcelReports.Operators` (P-7): columnas Código, Nombre, Área, Estado en su área, Mejor,
+- [x] `Operators.aspx.cs`, `OperatorListRow.cs`, `ReportText.cs`: solo binding y textos.
+- [x] `ExcelReports.Operators` (P-7): columnas Código, Nombre, Área, Estado en su área, Mejor,
       Último y Última actividad; filtros del título: Búsqueda, Área y Estado. Con varias guías en
       un área (futuro), una fila por operador con los estados unidos por "; ".
-- [ ] `/code-review low --max-findings 5` sobre `ReportFilters.cs` y `Operators.aspx.cs`. Foco:
+- [x] `/code-review low --max-findings 5` sobre `ReportFilters.cs` y `Operators.aspx.cs`. Foco:
       `area` inválido, el `<optgroup>` sin EventValidation (la BLL valida), codificación (`<%#: %>`
       en HTML; `<%# %>` en atributos de controles de servidor).
+
+**Review (nube):** `/code-review low`, sin hallazgos. Estilo nuevo en `admin.css`, en el bloque
+"Operadores / Operador por área (spec 024)". `ExcelReportsTests` ajustado a las columnas nuevas.
 
 **Verifica Desarrollo:** Rebuild; `aspnet_compiler`; tests (`ExcelReportsTests` se ajusta a las
 columnas nuevas). Checklist: AC-1 a AC-6 en claro y oscuro (Área = una, Sin área, Estado = Sin

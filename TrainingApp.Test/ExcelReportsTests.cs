@@ -51,14 +51,14 @@ namespace TrainingApp.Test
         {
             var page = new OperatorPage
             {
-                Guides = Guides,
-                Applied = new OperatorFilter { Text = "ana", State = ReadinessState.Failed, GuideId = 10 },
+                Areas = new List<ReportArea> { new ReportArea { AreaId = 1, ProductName = "Sensores", AreaName = "LoFlo" } },
+                Applied = new OperatorFilter { Text = "ana", State = ReadinessState.Failed, AreaId = 1 },
                 Rows = new List<OperatorRow>
                 {
                     new OperatorRow
                     {
-                        Code1 = "C1", Name = "Ana", AreaText = "Sensores · LoFlo",
-                        Guides = new List<GuideReadiness> { new GuideReadiness { State = ReadinessState.Failed, BestScore = 0.6m } }
+                        Code1 = "C1", Name = "Ana", AreaText = "Sensores · LoFlo", AreaStatus = OperatorAreaStatus.HasGuides,
+                        AreaGuides = new List<GuideReadiness> { new GuideReadiness { State = ReadinessState.Failed, BestScore = 0.6m } }
                     }
                 }
             };
@@ -66,7 +66,7 @@ namespace TrainingApp.Test
             using (var book = ExcelReports.Operators(page))
             {
                 var sheet = book.Worksheet("Operadores");
-                Assert.That(sheet.Cell(1, 1).GetString(), Does.StartWith("Operadores. Búsqueda: \"ana\". Estado: reprobado. Guía: LoFlo. Descargado el "));
+                Assert.That(sheet.Cell(1, 1).GetString(), Does.StartWith("Operadores. Búsqueda: \"ana\". Área: Sensores · LoFlo. Estado: reprobado. Descargado el "));
                 Assert.That(sheet.Cell(1, 1).Style.Font.Bold, Is.True);
 
                 var header = sheet.Cell(2, 1).Style;
@@ -80,6 +80,8 @@ namespace TrainingApp.Test
                 Assert.That(sheet.Cell(2, 3).GetString(), Is.EqualTo("Área"));
                 Assert.That(sheet.Cell(3, 3).GetString(), Is.EqualTo("Sensores · LoFlo"));
 
+                // Spec 024 (P-7): una sola columna de estado, la de su área.
+                Assert.That(sheet.Cell(2, 4).GetString(), Is.EqualTo("Estado en su área"));
                 var state = sheet.Cell(3, 4);
                 Assert.That(state.GetString(), Is.EqualTo("Reprobado"));
                 Assert.That(state.Style.Fill.BackgroundColor, Is.EqualTo(XLColor.FromArgb(unchecked((int)0xFFFBE5E3))));

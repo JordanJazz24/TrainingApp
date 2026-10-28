@@ -890,9 +890,13 @@ body.mt-page {
 .operators-search { flex: 1 1 260px; max-width: 380px; }
 .operators-name { font-weight: 600; color: var(--mt-text); text-decoration: none; }
 .operators-name:hover { color: var(--mt-accent); text-decoration: underline; }
-/* Una columna por guía: la insignia y sus puntajes, sin partir la insignia. */
+/* Cada celda: la insignia y sus puntajes, sin partir la insignia. */
 .operators-table td { min-width: 150px; }
 .operators-table td:first-child { min-width: 200px; }
+
+/* ── Operadores / Operador por área (spec 024) ─────────────── */
+/* Varias guías en su área (P-6, futuro): una debajo de otra. */
+.operators-area-guide + .operators-area-guide { margin-top: var(--mt-space-2); }
 
 /* ── Operador (spec 018; D-160) ────────────────────────────── */
 /* Insignia grande: el estado de cada guía, lo primero que se ve. */
