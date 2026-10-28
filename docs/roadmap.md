@@ -37,6 +37,7 @@
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 | — · Filtro de período en Pasos y Resumen | ✅ (E1–E4: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`, en `spec-022`, integrada en `TrainingApp` en `f8aab65`; D-209 a D-218) | 2026-10-28 | `023-filtro-periodo.md`, `023-plan.md` |
+| — · Dashboard por área (Operadores y Operador) | ⏳ spec por hacer en la nube (`TrainingApp-Desarrollo`, D-260 a D-279); va antes de la E6 de la 022 | | `024-*` (por crear) |
 | **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a (Login) en curso (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
@@ -488,6 +489,9 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   aviso). El usuario diseña en paralelo en Claude Design.
 - **Numeración:** local D-240 a D-259 (siguiente D-241; D-208 a D-219 agotado) y B-5 a B-19;
   nube D-233 a D-239 y B-30 a B-39 (la 022 usó D-220 a D-232).
+- **Spec 024 · Dashboard por área (2026-10-28):** pedida por el usuario; la hace de punta a
+  punta la nube `TrainingApp-Desarrollo` (rango D-260 a D-279 y B-40 a B-49), con revisión final
+  en local. Va antes de la E6 de la 022. Contexto enviado a la nube el 2026-10-28.
 - **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
   avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
   `spec-021` y `fase-11`.
@@ -526,6 +530,41 @@ cambio y el rango en el título de los dos Excel.
 `--mt-ok` y `--mt-bad`, no los tokens de D-221, que son del panel de marca del Login; el aviso de
 período inválido suma `.mt-alert-warn` con `--mt-warn`.) La E2 de la 022 se parte en E2a (Login) y E2b (Cambio de contraseña, con
 su mockup).
+
+### Spec 024 — Dashboard por área (Operadores y Operador) ⏳
+
+**Pedido del usuario (2026-10-28, por la sesión "rediseño tabla operadores por área"):** hoy
+Operadores tiene una columna por cada guía publicada y todos los operadores salen "Sin iniciar"
+en las guías de otras áreas: es ruido e información falsa. **Levanta** lo que la 021 dejó fuera
+(021 → Out: filtrar el dashboard por área y "Sin iniciar" por área; D-175) y el "Queda fuera:
+filtrar por área" de los briefs 6 y 7 de la 022. Es una regla nueva, no solo diseño: va con
+`/spec`.
+
+**Propuesta de partida** (la spec la pregunta y la cierra con el usuario):
+- **Operadores:** sin columnas por guía; una columna "Estado en su área" (solo las guías
+  publicadas de su área), un filtro de Área y otro de Guía en cascada; las guías de otras áreas,
+  solo como "+N de otra área"; "Sin área" con su propio estado; el Excel igual a la pantalla.
+- **Operador:** "Su área" (todas sus guías) y "Otras áreas" colapsada, solo con las guías que
+  tienen sesiones; reforzar y curvas, su área primero; sesiones con el área; la ficha impresa
+  con su área completa y las otras en una línea.
+
+**Decisiones abiertas:**
+1. qué significa "Sin iniciar" (hoy, en `domain.md` → Dashboard: ninguna sesión en ninguna
+   guía publicada) y cómo afecta el filtro Estado;
+2. el Resumen, que cuenta "Sin iniciar" sobre todos los operadores;
+3. "su área" es siempre la actual, sin historial;
+4. filtrar por una guía de otra área;
+5. el valor por defecto del filtro de Área;
+6. un parámetro de área en el SP de operadores, porque la paginación es en SQL. Por eso va como
+   spec propia: la 022 no admite SPs nuevos.
+
+**Proceso (usuario, 2026-10-28):** de punta a punta en la nube (`process.md` → "Variante
+temporal" → "Spec 024") y revisión final en local contra la spec y el plan; después, el ciclo de
+Desarrollo.
+
+**Orden:** antes de la **E6 de la 022** (Operadores y Operador). Al aprobarse la 024, Diseño UI/UX
+enmienda con fecha los briefs 6 y 7 de `022-briefs.md` (columna única y filtro de Área) antes de
+mandar esas pantallas a Claude Design.
 
 ### Fase 12 — Mockups por pantalla (spec 022)
 

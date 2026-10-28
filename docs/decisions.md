@@ -15,6 +15,8 @@
 >   estaba commiteada). Si un frente se queda sin números, pide el siguiente rango libre.
 >   **2026-10-28:** la sesión local agotó D-208 a D-219 (la 023 y D-219) y toma **D-240 a
 >   D-259**; el siguiente libre es D-260.
+> - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
+>   **D-260 a D-279** y **B-40 a B-49**.
 > - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
 >   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.

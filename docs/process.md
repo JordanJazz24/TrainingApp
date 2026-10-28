@@ -111,6 +111,13 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   docs al usuario antes de commitear; la sesión local revisa la rama al integrarla.
 - **Numeración:** cada frente usa su rango de D-n y B-n (`docs/decisions.md` → encabezado). El
   2026-10-27 la nube y la sesión local tomaron D-202 a la vez.
+- **Spec 024, de punta a punta en la nube (usuario, 2026-10-28):** la sesión de la nube
+  `TrainingApp-Desarrollo` hace la spec (con las preguntas al usuario), el plan, la
+  implementación y el `/code-review` en `cloud/024-<slug>`, con el código marcado "no
+  verificada" (no compila ni prueba). Al final, la sesión local revisa la rama **contra la misma
+  spec y el mismo plan**. Después, Desarrollo la trae con su ciclo normal (Rebuild,
+  `aspnet_compiler`, tests, el "funciona" del usuario y commit en `TrainingApp`). Ese ciclo
+  local no se salta.
 - **Handoff de Claude Design (spec 022, D-226; usuario, 2026-10-28):** el usuario aprueba un
   mockup en Claude Design y lo manda, con el "Prompt de handoff" de `022-briefs.md`, a una
   sesión de la nube que lo implementa en `cloud/022-<pantalla>`. El commit va marcado "no
@@ -119,7 +126,8 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   las D-n y enmienda la spec y el plan. **Desarrollo** trae la rama a su entrega como punto de
   partida, con el ciclo normal (sección 2): Rebuild, `aspnet_compiler`, `/code-review`, el
   "funciona" del usuario y el commit en `TrainingApp`. Nunca se integra tal cual. La sesión
-  local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`). Las
+  local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`), salvo
+  la variante de la spec 024 (abajo). Las
   capturas de `022-design/` las toma Desarrollo, solo de la versión final aprobada (claro,
   oscuro y tablet); si su contexto no alcanza, pregunta antes al usuario (D-240).
 
