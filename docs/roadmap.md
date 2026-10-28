@@ -36,8 +36,8 @@
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
-| — · Filtro de período en Pasos y Resumen | ▶️ spec y plan aprobados el 2026-10-28 (D-209 a D-218); E1 a E3 ✅ (`ca9980f`, `55cfd7e`, `388dd3a`; rama `spec-022`); E4 medida (cumple P-13), falta el AC-9 del usuario | | `023-filtro-periodo.md`, `023-plan.md` |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`dbcfec1`, rama `spec-022`); sigue la 023 (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| — · Filtro de período en Pasos y Resumen | ✅ (E1–E4: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`, en `spec-022`, sin integrar en `TrainingApp`; D-209 a D-218) | 2026-10-28 | `023-filtro-periodo.md`, `023-plan.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, rama `spec-022`); E2a (Login) en curso (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -462,11 +462,13 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 ### ⏸ Para retomar (Planeación, 2026-10-28)
 
 - **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La E1 de la
-  022 (`dbcfec1`) y la E1 a E3 de la 023 (`ca9980f`, `55cfd7e`, `388dd3a`) se cerraron el
-  2026-10-28, en `spec-022`; la **E4 de la 023** está medida y espera el AC-9 del usuario.
-- **Spec 023:** spec y plan aprobados el 2026-10-28 (D-209 a D-218; punto 8 de la 018
-  enmendado). El mockup de Pasos (022, E4) espera su cierre (D-217); Diseño UI/UX enmienda el
-  brief de Pasos con el control nuevo cuando la ve en `origin`.
+  022 y la 023 completa se cerraron el 2026-10-28, en `spec-022` (`642cacd` (022 E1) · `2ffb614`, `869f99a`, `5359a5a`, `9c318df` (023 E1 a E4)); sigue
+  la **E2a de la 022** (Login).
+- **Spec 023 ✅ (2026-10-28):** cerrada con el AC-9 del usuario; docs de cierre de Desarrollo
+  (`domain.md` → "Período", `architecture.md` → "Período y comparación", `history.md`, spec
+  Implemented). Tests: 459. **Pendiente del usuario:** correr `10_spDashboard.sql` en producción
+  antes de publicar. Por D-217, **el mockup de Pasos (022) ya puede empezar** (Diseño UI/UX
+  avisado; su brief ya trae el control de la 023).
 - **Fase 12 (022):** Login aprobado (3b, D-220 a D-227; `022-design/login.md`), integrado el
   2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. Diseño UI/UX
   enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
@@ -477,16 +479,13 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   **Capturas (D-240, usuario 2026-10-28):** las hace Desarrollo, solo de la versión final
   aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración; las del Login 3b, en
   la E2a. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas.
-- **Desarrollo:** en la rama `spec-022` (rebasada sobre `90f6060`; sin integrar en
-  `TrainingApp`): la **E1 de la 022** (`dbcfec1`) y la **E1 y E2 de la 023** (`ca9980f`,
-  `55cfd7e`) y la **E3** (`388dd3a`) están cerradas y probadas por el usuario. **E4:** con la BD
-  de volumen (287k intentos) cumple P-13 sin tocar SPs ni índices (Resumen 0,66 s con Todo,
-  Pasos 0,55 s, Excel de Pasos 0,73 s; cifras en `023-plan.md`); falta el AC-9 del usuario
-  (Operadores, Operador y Seguimiento sin cambios) y el cierre (`docs/domain.md` → "Período",
-  history, spec Implemented). El usuario diseña en paralelo en
-  Claude Design. En la E1 de la 023 el usuario aceptó dos interpretaciones de P-6 como nota del
-  plan, sin D-n: un Inicio anterior al 2000-01-01 es inválido y un período fuera de la lista
-  también; los dos caen en Este mes con aviso.
+- **Desarrollo:** en la rama `spec-022` (rebasada sobre `3d021dc`; **sin integrar en
+  `TrainingApp`**): la E1 de la 022 y la 023 completa (`642cacd` (022 E1) · `2ffb614`, `869f99a`, `5359a5a`, `9c318df` (023 E1 a E4)), probadas por el usuario.
+  Sigue con la **E2a de la 022** (Login, desde `cloud/022-login-3b`). La E4 de la 023 cumplió
+  P-13 sin tocar SPs ni índices (Resumen 0,66 s con Todo, Pasos 0,55 s, Excel de Pasos 0,73 s).
+  En la E1 de la 023 el usuario aceptó dos interpretaciones de P-6 como nota del plan, sin D-n
+  (un Inicio anterior al 2000-01-01 y un período fuera de la lista son inválidos: Este mes con
+  aviso). El usuario diseña en paralelo en Claude Design.
 - **Numeración:** local D-240 a D-259 (siguiente D-241; D-208 a D-219 agotado) y B-5 a B-19;
   nube D-233 a D-239 y B-30 a B-39 (la 022 usó D-220 a D-232).
 - **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
@@ -495,7 +494,9 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - **Mensajes a la nube:** solo con Remote Control conectado (`/remote-control`), y van en un
   solo sentido; las respuestas las trae el usuario.
 
-### Spec 023 — Filtro de período en Pasos y Resumen
+### Spec 023 — Filtro de período en Pasos y Resumen ✅ (2026-10-28)
+
+**✅ Cerrada el 2026-10-28** (E1 a E4 en `spec-022`: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`; AC-9 del usuario; qué se hizo: `docs/history.md` → "Spec 023").
 
 **Spec aprobada el 2026-10-28: `docs/specs/023-filtro-periodo.md`** (D-209 a D-218), con su plan
 `023-plan.md` (4 entregas, aprobado el 2026-10-28). Pedido del usuario (2026-10-27): un filtro de fechas
