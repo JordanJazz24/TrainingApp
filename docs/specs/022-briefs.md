@@ -164,26 +164,45 @@ muestra una muestra chica del sistema con esos cambios aplicados (botones, campo
 tarjeta, una tabla corta con insignias de estado), en claro y en oscuro.
 ```
 
-## 2. Cambio de contraseña → `022-design/cambio-contrasena.html`
+## 2. Cambio de contraseña → `022-design/cambio-contrasena.md`
 
-**Capturas:** la pantalla actual (primer acceso y cambio voluntario) y un error.
+> **Enmendado 2026-10-28:** con el Login aprobado (3b, D-220 a D-225) y lo que hoy hace la
+> página (`ChangePassword.aspx` y su `.cs`, verificado en el código).
+
+**Capturas:** la pantalla actual en primer acceso (con el aviso), sin el aviso y con un error
+(SweetAlert), en claro y oscuro.
 
 ```text
 Pantalla: CAMBIO DE CONTRASEÑA (la misma para los dos roles).
-Quién: un usuario en su primer acceso o tras un reset (obligatorio), o por gusto.
+Quién: un usuario en su primer acceso o tras un reset de un admin (obligatorio: no puede usar
+la app hasta cambiarla). Hoy no hay ningún enlace a esta pantalla en la app: solo se llega
+obligado (o escribiendo la URL). No agregues un enlace: eso sería comportamiento nuevo.
 Qué decide: su nueva contraseña.
-Qué ve primero: los tres campos y por qué está aquí (primer acceso o cambio).
+Qué ve primero: por qué está aquí y los tres campos.
 
-Datos y acciones:
-- Contraseña actual (siempre se pide; en el primer acceso es la por defecto), Nueva
-  contraseña y Confirmar; botones Guardar y Cancelar;
-- reglas que valida el servidor: la nueva no puede ser la por defecto y debe coincidir con la
-  confirmación; los errores llegan del servidor.
-Propón tus propias 3 estructuras: no tiene que copiar la del login. La coherencia viene de
-los tokens y componentes ya aprobados (te adjunto el login aprobado como referencia de
-sistema, no de estructura).
+Datos y acciones (hoy):
+- aviso solo en primer acceso o tras un reset: "Por seguridad, debes establecer una
+  contraseña personal antes de continuar. Como contraseña actual, usa la misma con la que
+  entraste.";
+- Contraseña actual, Nueva contraseña y Confirmar contraseña (las tres obligatorias);
+- validación en la página: la nueva con al menos 8 caracteres y la confirmación igual a la
+  nueva (mensajes bajo cada campo);
+- errores del servidor: "La contraseña actual no es correcta." y "La nueva contraseña no
+  puede ser la contraseña por defecto." (hoy en un SweetAlert);
+- Guardar → va al inicio de su rol (un operador sin área pasa antes por "Elige tu área");
+  Cancelar → cierra la sesión y vuelve al login. Enter = Guardar.
 
-Queda fuera: medidor de fuerza o reglas nuevas de contraseña, preguntas de seguridad.
+Referencia de SISTEMA (no de estructura): el Login ya aprobado, alternativa 3b. Léelo en
+docs/specs/022-design/login.md (tokens, componentes y decisiones D-220 a D-225) y en la rama
+cloud/022-login-3b (TrainingApp/Pages/Auth/Login.aspx y el bloque "Login: panel dividido" de
+TrainingApp/UI/master/admin.css). Puedes reutilizar sus piezas: el modo de pantalla completa
+(FullBleed), el panel de marca, los campos con ícono y la línea de estado (.mt-status-line)
+para los errores del servidor. Propón 3 estructuras distintas; al menos una que NO sea el
+panel dividido. Marca lo que reutilizas del Login y lo que es nuevo.
+
+Queda fuera: medidor de fuerza, reglas nuevas de contraseña (más allá de 8 caracteres),
+mostrar u ocultar la contraseña, preguntas de seguridad, un enlace de "cambiar contraseña"
+en otras pantallas.
 ```
 
 ## 3. Guías → `022-design/guias.html`
