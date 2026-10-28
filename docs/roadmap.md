@@ -462,7 +462,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 ### ⏸ Para retomar (Planeación, 2026-10-28)
 
 - **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La siguiente
-  entrega es la **E1 de la 022**; el usuario se la pide a Desarrollo.
+  entrega es la **E1 de la 022** (Desarrollo avisado el 2026-10-28).
 - **Spec 023:** spec y plan aprobados el 2026-10-28 (D-209 a D-218; punto 8 de la 018
   enmendado). El mockup de Pasos (022, E4) espera su cierre (D-217); Diseño UI/UX enmienda el
   brief de Pasos con el control nuevo cuando la ve en `origin`.
@@ -471,7 +471,12 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
   con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Sigue en Diseño:**
   el mockup del Cambio de contraseña; después, Guías y Seguimiento.
-  **Pendiente del usuario:** las capturas del Login 3b (`022-design/login-claro/-oscuro/-tablet.png`).
+  **Capturas (usuario, 2026-10-28):** las hace Desarrollo en cada entrega de pantalla (las del
+  Login 3b, en la E2a), salvo que su margen de contexto no alcance para las iteraciones
+  futuras: entonces las omite o busca una opción más barata, siempre preguntándole antes al
+  usuario.
+- **Desarrollo:** avisado el 2026-10-28 de empezar la **E1 de la 022**; el usuario sigue
+  diseñando en paralelo en Claude Design.
 - **Numeración:** local D-240 a D-259 (siguiente D-240; D-208 a D-219 agotado) y B-5 a B-19;
   nube D-228 a D-239 y B-30 a B-39.
 - **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
