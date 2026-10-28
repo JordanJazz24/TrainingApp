@@ -460,44 +460,49 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
-### ⏸ Para retomar (Planeación, 2026-10-28)
+### ⏸ Para retomar (cierre de la jornada del 2026-10-28)
 
-- **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La E1 de la
-  022 y la 023 completa se cerraron el 2026-10-28, en `spec-022` (`642cacd` (022 E1) · `2ffb614`, `869f99a`, `5359a5a`, `9c318df` (023 E1 a E4)); la E2a
-  (Login, `53a9d52`) y la E2b (Cambio de contraseña, `8ccda11`) de la 022 también; sigue cada
-  pantalla de la 022 cuando tenga su mockup (la E6, después de la 024).
-- **Spec 023 ✅ (2026-10-28):** cerrada con el AC-9 del usuario; docs de cierre de Desarrollo
-  (`domain.md` → "Período", `architecture.md` → "Período y comparación", `history.md`, spec
-  Implemented). Tests: 459. **Pendiente del usuario:** correr `10_spDashboard.sql` en producción
-  antes de publicar. Por D-217, **el mockup de Pasos (022) ya puede empezar** (Diseño UI/UX
-  avisado; su brief ya trae el control de la 023).
-- **Fase 12 (022):** Login aprobado (3b, D-220 a D-227; `022-design/login.md`), integrado el
-  2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. Diseño UI/UX
-  enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
-  con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Cambio de
-  contraseña aprobado** (2a, D-228 a D-232; integrado en `2fd0e8b`); su rama de partida
-  `cloud/022-cambio-contrasena` (`221297f`) sale de `cloud/022-login-3b`, así que la E2b va
-  después de la E2a. **Sigue en Diseño:** Guías y Seguimiento.
-  **Capturas (D-240, usuario 2026-10-28):** las hace Desarrollo, solo de la versión final
-  aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración; las del Login 3b, en
-  la E2a. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas.
-- **Desarrollo:** la rama `spec-022` se integró en `TrainingApp` el 2026-10-28 (`f8aab65`,
-  decisión del usuario, para que Claude Design vea el `Steps.aspx` con el control de la 023): la E1 de la 022 y la 023 completa (`642cacd` (022 E1) · `2ffb614`, `869f99a`, `5359a5a`, `9c318df` (023 E1 a E4)), probadas por el usuario.
-  La **E2a de la 022** (Login) está cerrada (`53a9d52`; con la E2b, integrada en `TrainingApp` el 2026-10-28 en `07363e3`; capturas finales en `022-design/login-*.png`, D-240). La **E2b** (Cambio de contraseña) también está cerrada (`8ccda11`, desde `cloud/022-cambio-contrasena`; pantalla completa siempre, D-230). Sus capturas son las del handoff, sin reemplazar por las de la versión final: excepción a D-240 por decisión del usuario (2026-10-28, "me dan igual"; anotada en `022-design/cambio-contrasena.md`). Desarrollo queda libre para la siguiente pantalla de la 022 con mockup aprobado (E3, E4, E5, E7 y E8); la **E6 está bloqueada por la 024**. La E4 de la 023 cumplió
-  P-13 sin tocar SPs ni índices (Resumen 0,66 s con Todo, Pasos 0,55 s, Excel de Pasos 0,73 s).
-  En la E1 de la 023 el usuario aceptó dos interpretaciones de P-6 como nota del plan, sin D-n
-  (un Inicio anterior al 2000-01-01 y un período fuera de la lista son inválidos: Este mes con
-  aviso). El usuario diseña en paralelo en Claude Design.
-- **Numeración:** local D-240 a D-259 (siguiente D-241; D-208 a D-219 agotado) y B-5 a B-19;
-  nube D-233 a D-239 y B-30 a B-39 (la 022 usó D-220 a D-232).
-- **Spec 024 · Dashboard por área (2026-10-28):** pedida por el usuario; la hace de punta a
-  punta la nube `TrainingApp-Desarrollo` (rango D-260 a D-279 y B-40 a B-49), con revisión final
-  en local. Va antes de la E6 de la 022. Contexto enviado a la nube el 2026-10-28.
-- **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
-  avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
-  `spec-021` y `fase-11`.
-- **Mensajes a la nube:** solo con Remote Control conectado (`/remote-control`), y van en un
-  solo sentido; las respuestas las trae el usuario.
+**Estado al cierre** (`TrainingApp` en `origin` y `azure`):
+- ✅ **Spec 023** (filtro de período) cerrada e integrada. Tests: 459.
+- **Fase 12 (022):** integradas la E1 (tokens), la E2a (Login, `53a9d52`) y la E2b (Cambio de
+  contraseña, `8ccda11`) (merge `07363e3`). Las demás pantallas esperan su mockup. La **E6
+  (Operadores y Operador) está bloqueada por la 024**. Orden vigente: D-219.
+- ⏳ **Spec 024 · Dashboard por área:** contexto enviado a la nube `TrainingApp-Desarrollo`.
+  Al cierre no había rama `cloud/024-*` en `origin`: todavía no empezó, o no ha hecho push.
+
+**Mañana, por sesión:**
+- **Arquitectura y Planeación (local):**
+  1. Revisar e integrar la rama de Diseño `cloud/022-mockups-por-pantalla`, con dos commits de
+     docs sin integrar: `a9badec` (el brief 4 de Pasos con la 023 cerrada y `PeriodFilter`) y
+     `a4a1603` (la E6 y los briefs 6 y 7 bloqueados por la 024).
+  2. Cuando la nube de la 024 haga push de `cloud/024-dashboard-por-area`, revisar la spec y el
+     plan contra el alcance, registrarlos aquí y, al final, revisar el código contra la spec y el
+     plan (`process.md` → "Variante temporal" → "Spec 024").
+  3. Al aprobarse la 024, pedirle a Diseño que enmiende los briefs 6 y 7.
+- **Desarrollo (local, worktree `.claude/worktrees/fase-11`, rama `spec-022`):** libre. Toma la
+  siguiente pantalla de la 022 con mockup aprobado (E3 Guías, E4 Pasos, E5 Seguimiento, E7
+  Usuarios o E8 Inicio). No toca los archivos de la 024 (Operadores, Operador,
+  `DashboardService`, `ReportFilters`, `ExcelReports`, `DashboardRepository`, `10_spDashboard.sql`)
+  hasta que se integre.
+- **Diseño UI/UX (nube):** Guías, Seguimiento y Pasos en Claude Design. Usuarios e Inicio,
+  después. Operadores y Operador, solo después de la 024.
+- **TrainingApp-Desarrollo (nube):** la spec 024 de punta a punta. Te hará las preguntas de la
+  spec en esa sesión.
+
+**Pendientes del usuario:**
+- Antes de publicar en producción: correr los scripts que lista `docs/status.md` (`00`, `01`,
+  `02`, `03`, `05`, `10`, `11` y `12`) y avisar a los trainers que los operadores eligen su área
+  en el próximo ingreso (D-170).
+- Subir `TrainingApp` a `main` cuando lo decida (D-5).
+- Limpieza: `git worktree prune` (`fase-10`) y borrar la rama `spec-021`. No borrar
+  `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
+
+**Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-233 (hasta
+D-239) y B-30; la nube de la 024, D-260 a D-279 y B-40 a B-49.
+
+**Comunicación:** la nube recibe mensajes, pero no puede contestar. Su avance llega por su rama
+o lo trae el usuario. Desarrollo y "rediseño tabla operadores por área" son sesiones locales y sí
+contestan.
 
 ### Spec 023 — Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 
