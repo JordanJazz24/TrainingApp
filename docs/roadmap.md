@@ -37,7 +37,7 @@
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 | — · Filtro de período en Pasos y Resumen | ▶️ spec y plan aprobados el 2026-10-28 (D-209 a D-218); E1 ✅ (`ca9980f`, rama `spec-022`); E2 en curso | | `023-filtro-periodo.md`, `023-plan.md` |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login aprobado el 2026-10-28 (3b, D-220 a D-227); E1 ✅ (`dbcfec1`, rama `spec-022`); sigue la 023 (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`dbcfec1`, rama `spec-022`); sigue la 023 (D-219) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -470,8 +470,10 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - **Fase 12 (022):** Login aprobado (3b, D-220 a D-227; `022-design/login.md`), integrado el
   2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. Diseño UI/UX
   enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
-  con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Sigue en Diseño:**
-  el mockup del Cambio de contraseña; después, Guías y Seguimiento.
+  con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Cambio de
+  contraseña aprobado** (2a, D-228 a D-232; integrado en `2fd0e8b`); su rama de partida
+  `cloud/022-cambio-contrasena` (`221297f`) sale de `cloud/022-login-3b`, así que la E2b va
+  después de la E2a. **Sigue en Diseño:** Guías y Seguimiento.
   **Capturas (D-240, usuario 2026-10-28):** las hace Desarrollo, solo de la versión final
   aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración; las del Login 3b, en
   la E2a. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas.
@@ -482,7 +484,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   plan, sin D-n: un Inicio anterior al 2000-01-01 es inválido y un período fuera de la lista
   también; los dos caen en Este mes con aviso.
 - **Numeración:** local D-240 a D-259 (siguiente D-241; D-208 a D-219 agotado) y B-5 a B-19;
-  nube D-228 a D-239 y B-30 a B-39.
+  nube D-233 a D-239 y B-30 a B-39 (la 022 usó D-220 a D-232).
 - **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
   avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
   `spec-021` y `fase-11`.
@@ -564,6 +566,13 @@ se cerró el 2026-10-27:** desde entonces ninguna entrega de la 022 espera a la 
   (`c7294ee`, "no verificada") es el punto de partida de la E1 y la E2a; no se integra tal cual.
 - **Orden con la 023 (D-219):** ver "Spec 023 → Orden". La E2 se parte en E2a (Login) y E2b
   (Cambio de contraseña).
+- **Cambio de contraseña aprobado (2026-10-28, `2fd0e8b`):** alternativa 2a (D-228): franja de
+  marca y una tarjeta montada, 3 pasos en primer acceso, Nueva y Confirmar lado a lado y los
+  requisitos fijos; `.pw-*` y `.mt-steps` reutilizable, sin tokens nuevos (D-229); pantalla
+  completa siempre, también en el cambio voluntario (D-230); errores en `.mt-status-line` y
+  botones `LinkButton` (D-231); textos nuevos (D-232). "Cancelar y cerrar sesión" solo nombra lo
+  que ya hacía Cancelar (`SessionHelper.Logout`). Rama de partida `cloud/022-cambio-contrasena`
+  (`221297f`, sale de la del Login): la E2b va después de la E2a.
 
 ### Después de la Fase 10
 
