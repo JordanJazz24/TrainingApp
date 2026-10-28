@@ -77,7 +77,7 @@ Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
 | 1 | Login | `Pages/Auth/Login.aspx` |
 | 2 | Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` |
 | 3 | Guías | `Pages/Admin/Guides.aspx`, `Pages/Admin/GuideListRow.cs` |
-| 4 | Pasos | `Pages/Admin/Steps.aspx`, `Pages/Admin/StepRows.cs` |
+| 4 | Pasos | `Pages/Admin/Steps.aspx`, `Pages/Admin/StepRows.cs`, `UI/Controls/Admin/PeriodFilter.ascx` (control de período de la 023, reutilizable en Resumen) y en `admin.css` las clases `.mt-change*` (flecha de cambio con `--mt-ok` y `--mt-bad`) y `.mt-alert-warn` (período inválido) |
 | 5 | Seguimiento | `Pages/Admin/FollowUp.aspx`, `Pages/Admin/FollowUpListRow.cs`, `BLL/Reports/FollowUpRules.cs` |
 | 6 | Operadores | `Pages/Admin/Operators.aspx`, `Pages/Admin/OperatorListRow.cs`, `Pages/Admin/ReportText.cs` |
 | 7 | Operador | `Pages/Admin/Operator.aspx`, `Pages/Admin/OperatorDetailRows.cs`, `UI/master/admin-charts.js` |
@@ -229,6 +229,9 @@ Es una pantalla corta (hoy 4 guías): no la infles; que se lea en un vistazo.
 
 ## 4. Pasos → `022-design/pasos.html`
 
+> **2026-10-28: la spec 023 está cerrada** (en `TrainingApp`, `4818936`): Pasos ya se puede
+> diseñar con el código real.
+>
 > **Enmendado 2026-10-28 (spec 023, D-217):** Pasos se diseña **cuando la 023 esté cerrada** y
 > recibe su control de período y la comparación por paso, ya implementados. El texto de abajo
 > ya lo refleja; ver `023-filtro-periodo.md` (puntos 1 a 6b, P-5, P-16).
