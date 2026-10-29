@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-238 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-238 (nube, spec 022; después D-239 y D-280). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -15,8 +15,12 @@
 >   estaba commiteada). Si un frente se queda sin números, pide el siguiente rango libre.
 >   **2026-10-28:** la sesión local agotó D-208 a D-219 (la 023 y D-219) y toma **D-240 a
 >   D-259**; el siguiente libre es D-260.
+>   **2026-10-29:** a la nube de la 022 le quedan D-238 y D-239; al agotarlos sigue con **D-280 a
+>   D-299** (reservado por Arquitectura y Planeación a pedido de Diseño UI/UX). El siguiente
+>   bloque libre es D-300.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
->   **D-260 a D-279** y **B-40 a B-49**; siguiente: **D-275** · **B-40**.
+>   **D-260 a D-279** y **B-40 a B-49**. Cerrada el 2026-10-29: usó D-260 a D-274; D-275 a D-279
+>   y B-40 a B-49 quedan sin usar.
 > - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
 >   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
