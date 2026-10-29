@@ -468,24 +468,21 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   contraseña, `8ccda11`) (merge `07363e3`). Los docs de Diseño (`cloud/022-mockups-por-pantalla`:
   brief 4 con `PeriodFilter`; E6 y briefs 6 y 7 bloqueados por la 024) integrados el 2026-10-29
   (`97e1daf`). Las demás pantallas esperan su mockup. Orden vigente: D-219.
-- ⏳ **Spec 024 · Dashboard por área:** la nube hizo spec, plan y E1 a E4 ("no verificada").
-  **Revisada en local el 2026-10-29** contra la spec y el plan: sin desvíos de la regla ni bugs;
-  enmienda 1 (D-272 a D-274) en la rama local **`spec-024`** (`ef48efa`, worktree
-  `.claude/worktrees/spec-024`, desde `73a2829`, sin el hook de la nube). Detalle en "Spec 024".
+- ✅ **Spec 024 · Dashboard por área** (2026-10-29): hecha en la nube, revisada en local
+  (enmienda 1, D-272 a D-274) y verificada por Desarrollo en `spec-024` (Rebuild,
+  `aspnet_compiler`, 461 tests y el "funciona" del usuario; cierre `ab81231`). Integrada en
+  `TrainingApp` el 2026-10-29 (`e86a9f3`). Desbloquea la E6 de la 022.
 
 **Sigue, por sesión:**
-- **Desarrollo (local):** la **024** en `spec-024`: `git merge TrainingApp`, copiar
-  `connectionStrings.config` y la junction a `packages`, y después E1 a E4 con su ciclo (Rebuild,
-  `aspnet_compiler`, `10_spDashboard.sql` en su BD, tests y el "funciona" del usuario por
-  entrega; checklist de cada entrega en `024-plan.md`). Va antes de la E6 de la 022. En
-  paralelo o después, en `spec-022`, la **E3 de la 022 (Guías, lista)**: aprobada la 2b
-  (D-233 a D-236, integrada en `c8809ce`); punto de partida `cloud/022-guias` (`f715fe1`, "no
-  verificada"), con el conteo y el orden movidos a la BLL sin test (D-235) y el aviso que nombra
-  la guía (D-236); checklist en `022-plan.md` → E3. Sin tocar los archivos de la 024.
+- **Desarrollo (local, `spec-022`):** cerrar la **E3 de la 022 (Guías)**: implementada y con
+  el ajuste de la leyenda que pidió el usuario; falta su vistazo y el commit (2b, D-233 a D-236;
+  conteo y orden en la BLL sin test, D-235). Antes de la siguiente pantalla, `git merge
+  TrainingApp` en `spec-022` para traer la 024. Después, la **E6** (Operadores y Operador)
+  cuando Diseño apruebe sus mockups, sobre el código de la 024.
 - **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
   integrado el 2026-10-29 en `e3b9df3`) y Guías aprobada (2b, `2bf024c`, integrado en
-  `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La E6 se
-  implementa cuando la 024 esté en `TrainingApp`.
+  `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La 024 ya está en
+  `TrainingApp`: la E6 espera solo sus mockups.
 - **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
   ramas de handoff de la 022 que lleguen.
 
@@ -494,8 +491,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   `02`, `03`, `05`, `10`, `11` y `12`) y avisar a los trainers que los operadores eligen su área
   en el próximo ingreso (D-170).
 - Subir `TrainingApp` a `main` cuando lo decida (D-5).
-- Limpieza: `git worktree prune` (`fase-10`) y borrar la rama `spec-021`. No borrar
-  `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
+- Limpieza hecha el 2026-10-29 (`fase-10`, `spec-021`, `spec-024` y las ramas remotas de la
+  024). No borrar `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
 **Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-237 (hasta
 D-239) y B-30; la 024, D-275 (hasta D-279) y B-40 a B-49.
@@ -537,7 +534,7 @@ cambio y el rango en el título de los dos Excel.
 período inválido suma `.mt-alert-warn` con `--mt-warn`.) La E2 de la 022 se parte en E2a (Login) y E2b (Cambio de contraseña, con
 su mockup).
 
-### Spec 024 — Dashboard por área (Operadores y Operador) ⏳
+### Spec 024 — Dashboard por área (Operadores y Operador) ✅ (2026-10-29)
 
 **Pedido del usuario (2026-10-28, por la sesión "rediseño tabla operadores por área"):** hoy
 Operadores tiene una columna por cada guía publicada y todos los operadores salen "Sin iniciar"

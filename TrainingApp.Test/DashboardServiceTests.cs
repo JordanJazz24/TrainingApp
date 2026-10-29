@@ -9,7 +9,7 @@ using TrainingApp.Domain;
 namespace TrainingApp.Test
 {
     // Spec 018: lista de Operadores (AC-7, AC-13) con datos en memoria: búsqueda, filtros por
-    // estado y guía, 50 por página y la capacidad CanViewReports.
+    // estado y área (spec 024), 50 por página y la capacidad CanViewReports.
     [TestFixture]
     public class DashboardServiceTests
     {
@@ -17,6 +17,11 @@ namespace TrainingApp.Test
         private const int OperatorId = 2;
         private const int LoFlo      = 10;
         private const int Moldeo     = 20;
+
+        // Áreas de las dos guías (spec 024): los operadores de los tests están en LoFlo salvo que
+        // se diga otra cosa.
+        private const int LoFloArea  = 1;
+        private const int MoldeoArea = 2;
 
         // Miércoles 28 de octubre de 2026, 12:00 en la planta: Este mes es del 1 al 28 de oct. y
         // su anterior, del 1 al 28 de sep. (spec 023).
@@ -29,8 +34,8 @@ namespace TrainingApp.Test
         public void SetUp()
         {
             _dashboard = new FakeDashboardRepository();
-            _dashboard.Guides.Add(new DashboardGuide { Id = LoFlo,  Title = "LoFlo" });
-            _dashboard.Guides.Add(new DashboardGuide { Id = Moldeo, Title = "Moldeo" });
+            _dashboard.Guides.Add(new DashboardGuide { Id = LoFlo,  Title = "LoFlo",  AreaId = LoFloArea,  ProductName = "Sensores", AreaName = "LoFlo" });
+            _dashboard.Guides.Add(new DashboardGuide { Id = Moldeo, Title = "Moldeo", AreaId = MoldeoArea, ProductName = "S&RC",     AreaName = "Moldeo" });
 
             var users = new FakeUsers();
             users.Add(new User { Id = AdminId,    Code1 = "A1", Role = UserRole.Administrator });
@@ -38,8 +43,8 @@ namespace TrainingApp.Test
             _service = new DashboardService(_dashboard, users, () => Now);
         }
 
-        private void Operator(int id, string name, string code1 = null)
-            => _dashboard.Operators.Add(new DashboardOperator { UserId = id, Name = name, Code1 = code1 ?? "C" + id });
+        private void Operator(int id, string name, string code1 = null, int? areaId = LoFloArea)
+            => _dashboard.Operators.Add(new DashboardOperator { UserId = id, Name = name, Code1 = code1 ?? "C" + id, AreaId = areaId });
 
         private void Session(int userId, int guideId, SessionMode mode, decimal score, int day,
             SessionStatus status = SessionStatus.Completed)
@@ -78,61 +83,103 @@ namespace TrainingApp.Test
             Assert.That(Names(new OperatorFilter { State = ReadinessState.NotStarted }), Is.EqualTo(new[] { "Ana" }));
         }
 
-        // Estado por guía, en el orden de las guías, con mejor, último y última actividad.
+        // Spec 024: el estado de su área (aunque entrene otra), con mejor, último y la última
+        // actividad de cualquier guía.
         [Test]
-        public void Row_HasStatePerGuide()
+        public void Row_HasStateInHisArea()
         {
-            Operator(100, "Ana");
+            Operator(100, "Ana", areaId: MoldeoArea);
             Session(100, Moldeo, SessionMode.Assessment, 0.80m, 0);
             Session(100, Moldeo, SessionMode.Assessment, 0.60m, 2);
             Session(100, LoFlo, SessionMode.FreePractice, 0.90m, 5);
 
             var row = _service.SearchOperators(AdminId, new OperatorFilter()).Rows.Single();
 
-            Assert.That(row.Guides.Select(g => g.TrainingGuideId), Is.EqualTo(new[] { LoFlo, Moldeo }));
-            Assert.That(row.Guides[0].State, Is.EqualTo(ReadinessState.InTraining));
-            Assert.That(row.Guides[1].State, Is.EqualTo(ReadinessState.Passed));
-            Assert.That(row.Guides[1].BestScore, Is.EqualTo(0.80m));
-            Assert.That(row.Guides[1].LastScore, Is.EqualTo(0.60m));
+            Assert.That(row.AreaStatus, Is.EqualTo(OperatorAreaStatus.HasGuides));
+            Assert.That(row.AreaGuides.Select(g => g.TrainingGuideId), Is.EqualTo(new[] { Moldeo }));
+            Assert.That(row.AreaGuides[0].State, Is.EqualTo(ReadinessState.Passed));
+            Assert.That(row.AreaGuides[0].BestScore, Is.EqualTo(0.80m));
+            Assert.That(row.AreaGuides[0].LastScore, Is.EqualTo(0.60m));
             Assert.That(row.LastActivity, Is.EqualTo(new DateTime(2026, 10, 6)));
         }
 
-        // Filtros: estado en alguna guía, guía entrenada, y estado en una guía.
+        // Spec 024 (D-263, AC-3, AC-4): Estado se evalúa en la guía de su área. Sin iniciar incluye
+        // a quien solo entrenó otra área; aprobar otra área no lo hace Aprobado; sin área nunca es
+        // Sin iniciar.
         [Test]
-        public void Filters_ByStateAndGuide()
+        public void Filters_ByStateInHisArea()
         {
-            Operator(100, "Ana");     // LoFlo aprobado
-            Operator(101, "Beto");    // LoFlo reprobado, Moldeo aprobado
-            Operator(102, "Carla");   // solo Moldeo en entrenamiento
-            Operator(103, "Dani");    // sin iniciar
+            Operator(100, "Ana");                           // LoFlo aprobado
+            Operator(101, "Beto");                          // LoFlo reprobado, Moldeo aprobado (cruzado)
+            Operator(102, "Carla", areaId: MoldeoArea);     // Moldeo en entrenamiento
+            Operator(103, "Dani");                          // sin iniciar
+            Operator(104, "Eva",   areaId: MoldeoArea);     // solo LoFlo (cruzado): sin iniciar en Moldeo
+            Operator(105, "Fede",  areaId: null);           // sin área
             Session(100, LoFlo,  SessionMode.Assessment, 0.90m, 0);
             Session(101, LoFlo,  SessionMode.Assessment, 0.40m, 0);
             Session(101, Moldeo, SessionMode.Assessment, 0.75m, 1);
             Session(102, Moldeo, SessionMode.Guided,     1.00m, 0);
+            Session(104, LoFlo,  SessionMode.Assessment, 0.95m, 0);
+            Session(105, LoFlo,  SessionMode.Guided,     1.00m, 0);
 
-            Assert.That(Names(new OperatorFilter { State = ReadinessState.Passed }), Is.EqualTo(new[] { "Ana", "Beto" }));
-            Assert.That(Names(new OperatorFilter { GuideId = Moldeo }), Is.EqualTo(new[] { "Beto", "Carla" }));
-            Assert.That(Names(new OperatorFilter { GuideId = LoFlo, State = ReadinessState.Passed }), Is.EqualTo(new[] { "Ana" }));
-            Assert.That(Names(new OperatorFilter { GuideId = LoFlo, State = ReadinessState.Failed }), Is.EqualTo(new[] { "Beto" }));
-            Assert.That(Names(new OperatorFilter { GuideId = LoFlo, State = ReadinessState.NotStarted }), Is.EqualTo(new[] { "Carla", "Dani" }));
+            Assert.That(Names(new OperatorFilter { State = ReadinessState.Passed }), Is.EqualTo(new[] { "Ana" }));
+            Assert.That(Names(new OperatorFilter { State = ReadinessState.Failed }), Is.EqualTo(new[] { "Beto" }));
+            Assert.That(Names(new OperatorFilter { State = ReadinessState.InTraining }), Is.EqualTo(new[] { "Carla" }));
+            Assert.That(Names(new OperatorFilter { State = ReadinessState.NotStarted }), Is.EqualTo(new[] { "Dani", "Eva" }));
+            Assert.That(Names(new OperatorFilter()), Has.Member("Fede"));
         }
 
-        // Una guía no publicada o un estado inválido (URL manipulada) valen "todas" y "todos".
+        // Spec 024 (D-262, D-267, AC-2): el filtro Área, Sin área y combinado con Estado.
+        [Test]
+        public void Filters_ByArea()
+        {
+            Operator(100, "Ana");
+            Operator(101, "Beto",  areaId: MoldeoArea);
+            Operator(102, "Carla", areaId: null);
+            Session(101, Moldeo, SessionMode.Guided, 1m, 0);
+
+            Assert.That(Names(new OperatorFilter { AreaId = LoFloArea }), Is.EqualTo(new[] { "Ana" }));
+            Assert.That(Names(new OperatorFilter { AreaId = MoldeoArea }), Is.EqualTo(new[] { "Beto" }));
+            Assert.That(Names(new OperatorFilter { WithoutArea = true }), Is.EqualTo(new[] { "Carla" }));
+            Assert.That(Names(new OperatorFilter { WithoutArea = true, AreaId = LoFloArea }), Is.EqualTo(new[] { "Carla" }));
+            Assert.That(Names(new OperatorFilter { AreaId = MoldeoArea, State = ReadinessState.NotStarted }), Is.Empty);
+
+            var page = _service.SearchOperators(AdminId, new OperatorFilter());
+            Assert.That(page.Areas.Select(a => a.AreaId), Is.EqualTo(new[] { LoFloArea, MoldeoArea }));
+            Assert.That(page.Rows.Single(r => r.Name == "Carla").AreaStatus, Is.EqualTo(OperatorAreaStatus.NoArea));
+        }
+
+        // Spec 024 (P-5): un operador cuya área no tiene guía publicada no es Sin iniciar y solo
+        // sale con todos los estados.
+        [Test]
+        public void AreaWithoutPublishedGuide_IsNotNotStarted()
+        {
+            Operator(100, "Ana", areaId: 77);
+
+            var row = _service.SearchOperators(AdminId, new OperatorFilter()).Rows.Single();
+
+            Assert.That(row.AreaStatus, Is.EqualTo(OperatorAreaStatus.NoPublishedGuide));
+            Assert.That(row.NotStarted, Is.False);
+            Assert.That(row.AreaGuides, Is.Empty);
+            Assert.That(Names(new OperatorFilter { State = ReadinessState.NotStarted }), Is.Empty);
+        }
+
+        // Un área sin guía publicada o un estado inválido (URL manipulada) valen "todas" y "todos".
         [Test]
         public void InvalidFilters_FallBackToAll()
         {
             Operator(100, "Ana");
-            Operator(101, "Beto");
+            Operator(101, "Beto", areaId: MoldeoArea);
             Session(100, LoFlo, SessionMode.Guided, 1m, 0);
 
-            Assert.That(Names(new OperatorFilter { GuideId = 999 }), Is.EqualTo(new[] { "Ana", "Beto" }));
+            Assert.That(Names(new OperatorFilter { AreaId = 999 }), Is.EqualTo(new[] { "Ana", "Beto" }));
             Assert.That(Names(new OperatorFilter { State = (ReadinessState)42 }), Is.EqualTo(new[] { "Ana", "Beto" }));
 
             // La página muestra los filtros aplicados, no los que llegaron.
             var applied = _service.SearchOperators(AdminId,
-                new OperatorFilter { Text = "  an ", GuideId = 999, State = (ReadinessState)42, Page = 7 }).Applied;
+                new OperatorFilter { Text = "  an ", AreaId = 999, State = (ReadinessState)42, Page = 7 }).Applied;
             Assert.That(applied.Text, Is.EqualTo("an"));
-            Assert.That(applied.GuideId, Is.Null);
+            Assert.That(applied.AreaId, Is.Null);
             Assert.That(applied.State, Is.Null);
             Assert.That(applied.Page, Is.EqualTo(1));
         }
@@ -228,7 +275,11 @@ namespace TrainingApp.Test
 
             var detail = _service.GetOperator(AdminId, OperatorId);
 
-            Assert.That(detail.Readiness.Select(r => r.State), Is.EqualTo(new[] { ReadinessState.Passed, ReadinessState.NotStarted }));
+            // Sin área: lo que entrenó va en las otras áreas (P-8).
+            Assert.That(detail.AreaStatus, Is.EqualTo(OperatorAreaStatus.NoArea));
+            Assert.That(detail.AreaGuides, Is.Empty);
+            Assert.That(detail.OtherGuides.Select(r => (r.TrainingGuideId, r.State)), Is.EqualTo(new[] { (LoFlo, ReadinessState.Passed) }));
+            Assert.That(detail.Sessions[0].AreaText, Is.EqualTo("Sensores · LoFlo"));
             Assert.That(detail.Sessions.Select(s => s.Session.SessionId), Is.EqualTo(new[] { 2, 1 }));
             Assert.That(detail.Sessions[0].Duration, Is.Null);
             Assert.That(detail.Sessions[0].FailedAttempts, Is.EqualTo(0));

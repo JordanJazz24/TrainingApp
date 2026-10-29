@@ -6,6 +6,7 @@ using System.Web.UI;
 using TrainingApp.BLL.Auth;
 using TrainingApp.BLL.Reports;
 using TrainingApp.BLL.Scoring;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 using TrainingApp.Shared;
 
@@ -81,20 +82,26 @@ namespace TrainingApp.Pages.Admin
             LitArea.Text  = HttpUtility.HtmlEncode(detail.AreaText);
             LitPrinted.Text = HttpUtility.HtmlEncode(ReportText.Date(DateTime.UtcNow));
 
+            var guides     = detail.Guides.ToDictionary(g => g.Id);
             var guideNames = detail.Guides.ToDictionary(g => g.Id, g => g.AreaName);
 
-            RptGuides.DataSource = detail.Guides.Zip(detail.Readiness, (g, r) => new OperatorGuideCard
-            {
-                GuideName        = g.AreaName,
-                GuideTitle       = g.Title,
-                StateText        = ReportText.State(r.State),
-                StateCss         = ReportText.StateCss(r.State),
-                StateIcon        = ReportText.StateIcon(r.State),
-                BestText        = ReportText.Score(r.BestScore),
-                LastText         = ReportText.Score(r.LastScore),
-                LastActivityText = ReportText.Date(r.LastActivity)
-            }).ToList();
+            // Su área (spec 024, D-269): sus guías, también Sin iniciar; sin guías que entrenar,
+            // el texto atenuado (D-267, P-5).
+            RptGuides.DataSource = detail.AreaGuides.Select(r => Card(guides[r.TrainingGuideId], r)).ToList();
             RptGuides.DataBind();
+            LblAreaNote.Text    = HttpUtility.HtmlEncode(ReportText.AreaNote(detail.AreaStatus) ?? string.Empty);
+            LblAreaNote.Visible = detail.AreaGuides.Count == 0;
+
+            // Otras áreas (entrenamiento cruzado): en pantalla, un desplegable cerrado (abierto sin
+            // área, P-8); en la ficha, una línea (D-270, P-9).
+            PhOtherGuides.Visible = detail.OtherGuides.Count > 0;
+            if (detail.AreaStatus == OperatorAreaStatus.NoArea)
+                DetOtherGuides.Attributes["open"] = "open";
+            RptOtherGuides.DataSource = detail.OtherGuides.Select(r => Card(guides[r.TrainingGuideId], r)).ToList();
+            RptOtherGuides.DataBind();
+            LitAlsoTrained.Text = HttpUtility.HtmlEncode("También entrenó: " + string.Join("; ", detail.OtherGuides.Select(r =>
+                AreaLabel.Of(guides[r.TrainingGuideId].ProductName, guides[r.TrainingGuideId].AreaName)
+                + " — " + ReportText.State(r.State))) + ".");
 
             RptReinforcement.DataSource = detail.Reinforcement.Select(r => new OperatorReinforcementGroup
             {
@@ -113,7 +120,8 @@ namespace TrainingApp.Pages.Admin
             RptSessions.DataSource = detail.Sessions.Select(row => new OperatorSessionListRow
             {
                 StartedText    = ReportText.Date(row.Session.StartedAt),
-                GuideName      = guideNames[row.Session.TrainingGuideId],
+                AreaText       = row.AreaText,
+                GuideTitle     = guides[row.Session.TrainingGuideId].Title,
                 ModeText       = ReportText.Mode(row.Session.Mode),
                 StatusText     = ReportText.Status(row.Session.Status),
                 ScoreText      = ReportText.Score(row.Score),
@@ -125,6 +133,22 @@ namespace TrainingApp.Pages.Admin
             LblNoSessions.Visible = detail.Sessions.Count == 0;
 
             BindCurves(detail);
+        }
+
+        // La tarjeta de una guía (su área u otra).
+        private static OperatorGuideCard Card(DashboardGuide guide, GuideReadiness readiness)
+        {
+            return new OperatorGuideCard
+            {
+                GuideName        = guide.AreaName,
+                GuideTitle       = guide.Title,
+                StateText        = ReportText.State(readiness.State),
+                StateCss         = ReportText.StateCss(readiness.State),
+                StateIcon        = ReportText.StateIcon(readiness.State),
+                BestText         = ReportText.Score(readiness.BestScore),
+                LastText         = ReportText.Score(readiness.LastScore),
+                LastActivityText = ReportText.Date(readiness.LastActivity)
+            };
         }
 
         // Curva de aprendizaje (AC-15): una tarjeta por guía que entrenó, con su gráfica.

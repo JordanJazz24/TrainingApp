@@ -19,6 +19,9 @@ namespace TrainingApp.Pages.Admin
         public const string PeriodAll    = "all";
         public const string ModePractice = "practice";
 
+        // Filtro Área de Operadores (spec 024, P-4): ?area=<Id> o ?area=none (Sin área).
+        public const string AreaNone = "none";
+
         // Las descargas (Export.ashx?view=…).
         public const string ViewOperators = "operators";
         public const string ViewSteps     = "steps";
@@ -51,13 +54,18 @@ namespace TrainingApp.Pages.Admin
                 { "notstarted", ReadinessState.NotStarted }
             };
 
-        // ?q=…&state=…&guide=…&page=…
+        // ?q=…&state=…&area=…&page=… (spec 024). Ya no hay filtro de guía (D-264): un ?guide= de
+        // un enlace viejo se ignora (P-4).
         public static OperatorFilter Operators(NameValueCollection query)
         {
             var filter = new OperatorFilter { Text = query["q"] };
             if (StateValues.TryGetValue(query["state"] ?? string.Empty, out var state))
                 filter.State = state;
-            filter.GuideId = Guide(query);
+            var area = query["area"];
+            if (string.Equals(area, AreaNone, StringComparison.OrdinalIgnoreCase))
+                filter.WithoutArea = true;
+            else if (int.TryParse(area, out int areaId))
+                filter.AreaId = areaId;
             if (int.TryParse(query["page"], out int page))
                 filter.Page = page;
             return filter;

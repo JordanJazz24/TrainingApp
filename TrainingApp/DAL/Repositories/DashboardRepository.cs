@@ -21,6 +21,7 @@ namespace TrainingApp.DAL.Repositories
                     {
                         Id          = Convert.ToInt32(reader["Id"]),
                         Title       = reader["Title"].ToString(),
+                        AreaId      = Convert.ToInt32(reader["AreaId"]),
                         AreaName    = reader["AreaName"].ToString(),
                         ProductName = reader["ProductName"].ToString()
                     });
@@ -42,6 +43,7 @@ namespace TrainingApp.DAL.Repositories
                         Code1       = reader["Code1"].ToString(),
                         Name        = reader["Name"].ToString(),
                         CreatedAt   = Convert.ToDateTime(reader["CreatedAt"]),
+                        AreaId      = reader["AreaId"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["AreaId"]),
                         ProductName = reader["ProductName"] as string,
                         AreaName    = reader["AreaName"] as string
                     });

@@ -16,7 +16,7 @@
 >   **2026-10-28:** la sesión local agotó D-208 a D-219 (la 023 y D-219) y toma **D-240 a
 >   D-259**; el siguiente libre es D-260.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
->   **D-260 a D-279** y **B-40 a B-49**.
+>   **D-260 a D-279** y **B-40 a B-49**; siguiente: **D-275** · **B-40**.
 > - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
 >   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
@@ -203,7 +203,7 @@
 | D-172 | 2026-10-27 | Spec 021: Usuarios con columna Área y acciones Cambiar área y Quitar área por fila | specs/021-area-operador.md | enmendada (D-208) |
 | D-173 | 2026-10-27 | Spec 021: la BLL valida el área en `StartSession` (excepción, no intento) | specs/021-area-operador.md | vigente |
 | D-174 | 2026-10-27 | Spec 021: una sesión en curso de otra área se puede terminar | specs/021-area-operador.md | vigente |
-| D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | vigente |
+| D-175 | 2026-10-27 | Spec 021: el dashboard solo muestra el área del operador (Operadores y Operador); filtros y cálculos sin cambios | specs/021-area-operador.md | enmendada (spec 024: Operadores y Operador por área, D-260 a D-271) |
 | D-176 | 2026-10-27 | Spec 021: solo son elegibles las áreas con al menos una guía publicada | specs/021-area-operador.md | vigente |
 | D-177 | 2026-10-27 | Spec 021: el operador confirma antes de guardar su área | specs/021-area-operador.md | vigente |
 | D-178 | 2026-10-27 | Spec 021: Redefinity es elegible como las demás; se quita el aviso "NO USAR EN PRODUCCIÓN" de `05` y `domain.md` | specs/021-area-operador.md | vigente |
@@ -266,6 +266,21 @@
 | D-235 | 2026-10-29 | Spec 022, Guías: conteo por tipo y orden Custom primero en la BLL, sin test (excepción a D-205) | specs/022-mockups-por-pantalla.md | vigente |
 | D-236 | 2026-10-29 | Spec 022, Guías: el aviso de guardado nombra la guía | specs/022-mockups-por-pantalla.md | vigente |
 | D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | vigente |
+| D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
+| D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
+| D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
+| D-263 | 2026-10-28 | Spec 024: Sin iniciar = ninguna sesión en las guías publicadas de su área (cambia domain.md) | specs/024-dashboard-por-area.md | vigente |
+| D-264 | 2026-10-28 | Spec 024: se quita el filtro Guía de Operadores | specs/024-dashboard-por-area.md | vigente |
+| D-265 | 2026-10-28 | Spec 024: la lista muestra a cada operador solo en su área | specs/024-dashboard-por-area.md | vigente |
+| D-266 | 2026-10-28 | Spec 024: la lista no muestra nada de las guías de otras áreas | specs/024-dashboard-por-area.md | vigente |
+| D-267 | 2026-10-28 | Spec 024: operador sin área = "Sin área", sin insignia, fuera de Sin iniciar; opción "Sin área" en el filtro | specs/024-dashboard-por-area.md | vigente |
+| D-268 | 2026-10-28 | Spec 024: hoy un operador tiene una guía que entrenar, la de su área (copia por área si varias comparten contenido); guías distintas por área u operación, futuro | specs/024-dashboard-por-area.md | vigente |
+| D-269 | 2026-10-28 | Spec 024: Operador con "Su área" y "Otras áreas" colapsada (solo guías con sesiones); Reforzar y curvas, su área primero; Sesiones con el área | specs/024-dashboard-por-area.md | vigente |
+| D-270 | 2026-10-28 | Spec 024: la ficha lleva su área completa y las otras áreas en una línea | specs/024-dashboard-por-area.md | vigente |
+| D-271 | 2026-10-28 | Spec 024: propuestas P-1 a P-12 confirmadas (área actual sin historial; Resumen, Pasos y Seguimiento fuera; filtro Área en la BLL; URL `?area=`; "Sin guía publicada"; una insignia por guía si hay varias; Excel como la pantalla; sin área con "Otras áreas" abierta; `<details>` y línea en la ficha; regla pura en la BLL; tests solo de lo nuevo; briefs 6 y 7 los enmienda Diseño UI/UX) | specs/024-dashboard-por-area.md | vigente |
+| D-272 | 2026-10-29 | Spec 024 (enmienda 1): en Sesiones del Operador, la columna "Guía" pasa a "Área" (el título de la guía al pasar el mouse), en vez de agregar otra | specs/024-dashboard-por-area.md | vigente |
+| D-273 | 2026-10-29 | Spec 024 (enmienda 1): la ficha impresa lleva Pasos a reforzar y Sesiones completos (con otras áreas); solo las tarjetas de otras áreas van en la línea "También entrenó" | specs/024-dashboard-por-area.md | vigente |
+| D-274 | 2026-10-29 | Spec 024 (enmienda 1): el hook de inicio de la nube y `tools/` (`b95b27c`) no entran a `TrainingApp`; la rama local `spec-024` parte de `73a2829` | specs/024-dashboard-por-area.md | vigente |
 
 ## Bugs que ya existían (B-n)
 

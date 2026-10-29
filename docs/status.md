@@ -160,6 +160,15 @@ están en ningún worktree) · **Último commit de código:** 022 E3 (Guías), e
          publicar (la local ya lo tiene).
      - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
        final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
+  6. **Spec 024 · Dashboard por área ✅** (2026-10-29, ver "Historial"; spec y plan
+     `docs/specs/024-*.md`, D-260 a D-274): hecha en la nube (`cloud/024-dashboard-por-area`),
+     revisada por Planeación y traída en la rama local `spec-024` (worktree
+     `.claude/worktrees/spec-024`, con `TrainingApp` mergeada). Operadores con el filtro Área y
+     el "Estado en su área"; Operador con "Su área" y "Otras áreas"; Sin iniciar por área
+     (D-263); el Excel de Operadores con el área. Verificada en local: Rebuild, `aspnet_compiler`,
+     461 tests y `10_spDashboard.sql` en la BD del usuario; probada por el usuario.
+     - **Pendiente del usuario:** correr `10_spDashboard.sql` en la BD de producción antes de
+       publicar (trae `AreaId` en `spDashboardGuides` y `spDashboardOperators`).
 - **Guía de Subensamble 1 (2026-10-26, pedido del usuario para el MVP de los trainers):**
   `11_WiresSubensamble1Catalog.sql` y `12_WiresSubensamble1Guide.sql`. Subensamble 1 pasa a
   Serialized con Assembly y DC (la forma de LoFlo; catálogo SIM) y sale de `05`. Probados en

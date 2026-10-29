@@ -82,6 +82,51 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Repeater RptGuides;
 
         /// <summary>
+        /// LblAreaNote control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label LblAreaNote;
+
+        /// <summary>
+        /// PhOtherGuides control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhOtherGuides;
+
+        /// <summary>
+        /// DetOtherGuides control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl DetOtherGuides;
+
+        /// <summary>
+        /// RptOtherGuides control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptOtherGuides;
+
+        /// <summary>
+        /// LitAlsoTrained control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitAlsoTrained;
+
+        /// <summary>
         /// RptReinforcement control.
         /// </summary>
         /// <remarks>

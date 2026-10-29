@@ -19,7 +19,10 @@ namespace TrainingApp.Pages.Admin
     public class OperatorSessionListRow
     {
         public string StartedText { get; set; }
-        public string GuideName { get; set; }
+
+        // "Producto · Área" de la guía (spec 024, D-269); el título de la guía, al pasar el mouse.
+        public string AreaText { get; set; }
+        public string GuideTitle { get; set; }
         public string ModeText { get; set; }
         public string StatusText { get; set; }
         public string ScoreText { get; set; }
