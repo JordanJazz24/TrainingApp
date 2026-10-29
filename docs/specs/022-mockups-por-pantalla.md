@@ -161,6 +161,18 @@ del Login (D-221).
 | D-231 | **Errores del servidor en `.mt-status-line`** sobre Guardar, no en SweetAlert (como D-224); validadores sin cambio. `BtnSave` y `BtnCancel` pasan a `asp:LinkButton` con ícono; Cancelar queda como botón de texto bajo Guardar. Mismos `OnClick`, `CausesValidation="false"` en Cancelar, Enter = Guardar |
 | D-232 | **Textos nuevos:** los 3 pasos; los requisitos "Al menos 8 caracteres", "Distinta de la contraseña por defecto" e "Igual en Nueva y Confirmar"; "Guardar y continuar" (antes "Guardar") y "Cancelar y cerrar sesión" (antes "Cancelar") |
 
+### Guías (2026-10-29, alternativa 2b, D-233 a D-236)
+
+Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `TrainingApp`. Criterio:
+`022-design/guias.md`. Sin tokens nuevos.
+
+| D | Qué |
+|---|---|
+| D-233 | **Alternativa 2b:** la misma tabla, con dos chips de conteo en el encabezado del panel ("N Estándar", "N Custom"), las guías **Custom primero** (dentro de cada tipo, el orden de la BLL) y la nota al pie "Las guías con Custom van primero."; chips y nota se ocultan sin guías. Selector, Guardar y confirmación sin cambios |
+| D-234 | **Componentes nuevos:** `.guides-head`, `.guides-counts` y `.guides-note`, solo de esta pantalla; reutiliza `.mt-chip` y `.mt-panel-body` |
+| D-235 | **Métrica derivada (D-205): guías publicadas por tipo y el orden Custom primero, en la BLL** (no en el code-behind, como lo dejó el handoff), **sin test** por decisión del usuario (excepción a D-205: es contar y ordenar lo que la vista ya carga) |
+| D-236 | **El aviso de guardado nombra la guía** (ej. "Moldeo · Split quedó con el Resource Setup Custom"), porque la fila puede cambiar de grupo al guardar. Solo cambia el texto del aviso, no el flujo |
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |

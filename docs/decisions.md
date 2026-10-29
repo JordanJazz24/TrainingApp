@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-233 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-237 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -261,6 +261,10 @@
 | D-230 | 2026-10-28 | Spec 022, Cambio de contraseña: pantalla completa (`FullBleed`) siempre, también al llegar por URL sin estar obligado | specs/022-mockups-por-pantalla.md | vigente |
 | D-231 | 2026-10-28 | Spec 022, Cambio de contraseña: errores en `.mt-status-line`, no SweetAlert; `BtnSave` y `BtnCancel` → `LinkButton`; Cancelar como botón de texto | specs/022-mockups-por-pantalla.md | vigente |
 | D-232 | 2026-10-28 | Spec 022, Cambio de contraseña: textos nuevos (pasos, requisitos, "Guardar y continuar", "Cancelar y cerrar sesión") | specs/022-mockups-por-pantalla.md | vigente |
+| D-233 | 2026-10-29 | Spec 022, Guías: alternativa 2b (chips de conteo por tipo, Custom primero, nota al pie) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-234 | 2026-10-29 | Spec 022, Guías: componentes `.guides-head`, `.guides-counts`, `.guides-note`; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-235 | 2026-10-29 | Spec 022, Guías: conteo por tipo y orden Custom primero en la BLL, sin test (excepción a D-205) | specs/022-mockups-por-pantalla.md | vigente |
+| D-236 | 2026-10-29 | Spec 022, Guías: el aviso de guardado nombra la guía | specs/022-mockups-por-pantalla.md | vigente |
 | D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | vigente |
 
 ## Bugs que ya existían (B-n)
