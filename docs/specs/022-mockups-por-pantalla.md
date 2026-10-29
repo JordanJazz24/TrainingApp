@@ -190,6 +190,19 @@ Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `Training
 > 0 de `022-briefs.md`; entrega **E1b** del plan. Las pantallas ya hechas y Pasos la heredan
 > por el master; las que faltan se diseñan con ella.
 
+### Pasos (2026-10-29, alternativa 4a con el encabezado H4, D-239 y D-280 a D-283)
+
+Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `TrainingApp`. Criterio:
+`022-design/pasos.md`, **con el cambio de D-280** (la rama trae la paleta índigo que se quita).
+
+| D | Qué |
+|---|---|
+| D-239 | **Alternativa 4a, "mesa de enseñanza":** una franja de lado a lado bajo la barra (etiqueta, título y rango a la izquierda; Período, Guía, Modo, Filtrar y Descargar a la derecha; en tablet bajan); **una columna por paso** (HTML/CSS) con su %, "#n", nombre y cambio; el **panel del paso elegido** (el #1 al cargar) con los 2 motivos, "Ver todos", los números, el cambio con Mejora / Empeora y Anterior vs. Este período; y el **ranking completo** abajo. Elegir un paso se resuelve en el cliente, sin postback. Lo que antes se veía de todos los pasos a la vez (2.º motivo, conteos, mediana, saltos y referencia del cambio) queda a un clic, en el panel del elegido |
+| D-280 | **Sin paleta propia (usuario):** se quita el acento índigo y todos los valores de `--mt-*` que la rama redefine para `body.steps-4a`; Pasos usa los **tokens originales** de la app. **Sin tokens nuevos:** la franja usa los del Login (`--mt-ink` → `--mt-brand-bg`, `--mt-on-ink` → `--mt-on-brand`, `--mt-on-ink-2` → `--mt-on-brand-2`, `--mt-on-ink-line` → `--mt-brand-line`) y las barras del período anterior (`--mt-bar-2`) un token existente con contraste suficiente (lo elige Desarrollo y lo revisa en claro y oscuro). La barra superior de Pasos no se tiñe |
+| D-281 | **Piezas compartidas:** `Admin.Master` suma `WideMain` (contenido de lado a lado con la barra visible), solo para Pasos; `PageCss` y `<body runat="server">` solo si siguen haciendo falta sin la paleta (D-280). `PeriodFilter` suma `ShowsRange` (por defecto `true`; Resumen no cambia). Componentes nuevos `.steps-*`, solo de Pasos |
+| D-282 | **Modo** pasa de `DdlMode` (lista) a `RblMode` (control segmentado), con los mismos valores y la misma URL: el comportamiento de la 023 no cambia (D-217) |
+| D-283 | **Textos y métrica derivada:** los textos nuevos de `pasos.md` (título "Qué pasos fallan más en…", "Mesa de enseñanza"…). La **parte de cada motivo** sobre los registrados en el paso ("6 veces · 54.5%") va **en la BLL, sin test**, como D-235; la rama la calcula en el code-behind |
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |
