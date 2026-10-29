@@ -10,7 +10,7 @@
 **Última actualización:** 2026-10-28 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
 021 están cerradas e integradas. Las specs 022 y 023 se trabajan en la rama `spec-022`, en el
 worktree `.claude/worktrees/fase-11` (la carpeta se reutilizó; `fase-11` y `spec-021` ya no
-están en ningún worktree) · **Último commit de código:** 022 E3 (Guías), en `spec-022`
+están en ningún worktree) · **Último commit de código:** 022 E4 (Pasos), en `spec-022`
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -144,8 +144,13 @@ están en ningún worktree) · **Último commit de código:** 022 E3 (Guías), e
        BLL (`GuideAdminService` → `PublishedGuideList`, D-235, sin test) y el aviso de guardado
        nombra la guía (D-236). Ajuste del usuario: la leyenda debajo del título. Sin capturas
        (la app no estaba corriendo; al usuario le dan igual). Probada por el usuario.
-       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E4 Pasos, E5 Seguimiento, E6
-       Operadores y Operador, E7 Usuarios, E8 Inicio).
+     - **022 E4 · Pasos** (2026-10-29): la 4a "mesa de enseñanza" (D-239, D-280 a D-283) desde
+       `cloud/022-pasos`, **sin la paleta índigo** (tokens de la app; la franja con `--mt-brand-*`);
+       `Admin.Master` con `WideMain`; la parte de cada motivo en `ReasonCount.Share` (sin test);
+       Modo como control segmentado. Ajuste del usuario: el ranking completo, plegado (D-241).
+       Sin capturas. Tests: 461. Probada por el usuario.
+       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E1b barra superior, E5
+       Seguimiento, E6 Operadores y Operador, E7 Usuarios, E8 Inicio).
      - **Spec 023 · Filtro de período en Pasos y Resumen ✅** (2026-10-28, ver "Historial"; spec
        y plan `docs/specs/023-*.md`, D-209 a D-218): **E1 a E4** (`ca9980f`, `55cfd7e`,
        `388dd3a` y el cierre), probadas por el usuario, en `spec-022` (sin integrar en

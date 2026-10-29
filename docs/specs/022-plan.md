@@ -208,31 +208,34 @@ orden de `admin.css` con Desarrollo.
 > mockup incluye el control de período, el rango en palabras y la comparación por paso de la
 > 023 (brief 4).
 
-- [ ] **Punto de partida:** `cloud/022-pasos` (`209383c`, "no verificada"; sale de `TrainingApp`).
+- [x] **Punto de partida:** `cloud/022-pasos` (`209383c`, "no verificada"; sale de `TrainingApp`).
       Estructura aprobada: 4a (D-239). **Antes de la barra superior (E1b):** las dos tocan
       `Admin.Master`.
-- [ ] **Quitar la paleta índigo (D-280):** fuera los valores de `--mt-*` redefinidos para
+- [x] **Quitar la paleta índigo (D-280):** fuera los valores de `--mt-*` redefinidos para
       `body.steps-4a` y su entrada en la regla que conecta tokens con Bootstrap; la franja con
       `--mt-brand-*` y las barras del anterior con un token existente; sin tokens nuevos.
       Quitar `PageCss` y `<body runat="server">` de `Admin.Master` si ya no hacen falta; queda
       `WideMain` (D-281).
-- [ ] La parte de cada motivo, a la BLL, sin test (D-283).
-- [ ] Revisar en la rama (no se compiló): el designer de `Steps.aspx` (`RblMode`, `LitRange`,
+- [x] La parte de cada motivo, a la BLL, sin test (D-283).
+- [x] Revisar en la rama (no se compiló): el designer de `Steps.aspx` (`RblMode`, `LitRange`,
       `LitPrevRange`, `PhRanking`, `RptColumns`, `RptLabels`, `RptDetails`, `RptList`; sin
       `DdlMode` ni `RptGuides`), `PhRange` de `PeriodFilter`, `StepGuideGroup` quitado; que
       `RblMode` publique `""` para Assessment y arme la misma URL (D-282); elegir columnas y
       "Ver paso" con mouse y teclado (`aria-pressed`, foco visible en la franja); muchos pasos,
       "Todas", Práctica libre, "Todo", sin datos en el anterior, Personalizado… e inválido; que
       Login, Cambio de contraseña y Resumen sigan iguales.
-- [ ] `Pages/Admin/Steps.aspx`: la estructura aprobada; mismos filtros (período, guía, modo) y
+- [x] `Pages/Admin/Steps.aspx`: la estructura aprobada; mismos filtros (período, guía, modo) y
       Descargar; "Ver todos" sigue en el cliente; los saltos solo en Práctica libre. El control
       de período, el rango y la comparación son los de la 023 (mismo comportamiento, D-217).
-- [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test.
-- [ ] `/code-review low --max-findings 3`; `medium` si hay métricas. Foco: mismos números que
+- [x] Métricas derivadas aprobadas (si hay): regla en la BLL con su test.
+- [x] `/code-review low --max-findings 3`; `medium` si hay métricas. Foco: mismos números que
       `StepStatistics`, ninguna regla en la página.
-- [ ] Checklist común + Assessment y Práctica libre, "Ver todos", Descargar.
+- [x] Checklist común + Assessment y Práctica libre, "Ver todos", Descargar.
 
-**Hecho cuando:** el usuario confirma el ranking de una guía en los dos modos.
+> **Cerrada 2026-10-29 (Desarrollo):** D-241 (el ranking completo, plegado). Sin `/code-review`
+> sobre el markup; el de la BLL y el code-behind, `low`, sin hallazgos. Sin capturas.
+
+**Hecho cuando:** el usuario confirma el ranking de una guía en los dos modos. ✅ Probada por el usuario.
 
 ## E5 · Seguimiento (libre)
 

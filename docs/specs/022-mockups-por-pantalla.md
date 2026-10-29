@@ -203,6 +203,11 @@ Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `Training
 | D-282 | **Modo** pasa de `DdlMode` (lista) a `RblMode` (control segmentado), con los mismos valores y la misma URL: el comportamiento de la 023 no cambia (D-217) |
 | D-283 | **Textos y métrica derivada:** los textos nuevos de `pasos.md` (título "Qué pasos fallan más en…", "Mesa de enseñanza"…). La **parte de cada motivo** sobre los registrados en el paso ("6 veces · 54.5%") va **en la BLL, sin test**, como D-235; la rama la calcula en el code-behind |
 
+> **Enmienda 2026-10-29 (D-241, usuario, Desarrollo):** al probar Pasos, el usuario vio que el
+> ranking completo repite las columnas y el panel del elegido. Se mantiene, pero **plegado**
+> (`<details>`, cerrado al cargar, "Mostrar / Ocultar"); no se quita (opción C de tres). "Ver
+> paso" y la nota de orden siguen dentro. Enmienda D-239.
+
 > **Enmienda 2026-10-29 (D-284, usuario):** en las sesiones de diseño de la nube, una **vuelta de
 > crítica** con la skill `design:design-critique` sobre las 3 alternativas, antes de que el
 > usuario elija: con los criterios del brief, un orden y al menos un riesgo por alternativa; se

@@ -41,13 +41,13 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.DropDownList DdlGuide;
 
         /// <summary>
-        /// DdlMode control.
+        /// RblMode control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DdlMode;
+        protected global::System.Web.UI.WebControls.RadioButtonList RblMode;
 
         /// <summary>
         /// BtnFilter control.
@@ -86,6 +86,24 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Literal LitScope;
 
         /// <summary>
+        /// LitRange control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitRange;
+
+        /// <summary>
+        /// LitPrevRange control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitPrevRange;
+
+        /// <summary>
         /// PhAllGuidesNote control.
         /// </summary>
         /// <remarks>
@@ -104,13 +122,49 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.PlaceHolder PhSkipsNote;
 
         /// <summary>
-        /// RptGuides control.
+        /// PhRanking control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptGuides;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhRanking;
+
+        /// <summary>
+        /// RptColumns control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptColumns;
+
+        /// <summary>
+        /// RptLabels control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptLabels;
+
+        /// <summary>
+        /// RptDetails control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptDetails;
+
+        /// <summary>
+        /// RptList control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptList;
 
         /// <summary>
         /// PnlEmpty control.

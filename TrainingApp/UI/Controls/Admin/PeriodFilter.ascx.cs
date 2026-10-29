@@ -21,6 +21,9 @@ namespace TrainingApp.UI.Controls.Admin
         public DateTime? From => Period == ReportPeriod.Custom ? ReportFilters.Date(TxtFrom.Text) : null;
         public DateTime? To   => Period == ReportPeriod.Custom ? ReportFilters.Date(TxtTo.Text) : null;
 
+        // false: la página pinta el rango aplicado en otro lugar (Pasos, brief 022, 4a).
+        public bool ShowsRange { get; set; } = true;
+
         // El período aplicado (ya validado por la BLL), el rango en palabras y el anterior.
         public void Bind(ReportRange range)
         {
@@ -40,6 +43,7 @@ namespace TrainingApp.UI.Controls.Admin
             string text = ReportText.Range(range);
             if (range.Compares) text += " · se compara con " + ReportText.PreviousRange(range);
             LitRange.Text = HttpUtility.HtmlEncode(text);
+            PhRange.Visible = ShowsRange;
         }
 
         private static string Day(DateTime? day)

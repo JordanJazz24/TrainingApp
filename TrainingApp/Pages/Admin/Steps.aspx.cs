@@ -6,12 +6,14 @@ using System.Web.UI.WebControls;
 using TrainingApp.BLL.Reports;
 using TrainingApp.Domain;
 using TrainingApp.Shared;
+using TrainingApp.UI.Master;
 
 namespace TrainingApp.Pages.Admin
 {
-    // Pasos (spec 018, AC-17 y AC-18). Solo UI: el ranking y el cambio de cada paso contra el
-    // período anterior los arma DashboardService con StepRuns. Los filtros viven en la URL
-    // (?period=…&from=…&to=…&guide=…&mode=practice, spec 023): nada se guarda en Session.
+    // Pasos (spec 018, AC-17 y AC-18; brief 022, alternativa 4a). Solo UI: el ranking y el
+    // cambio de cada paso contra el período anterior los arma DashboardService con StepRuns. Los
+    // filtros viven en la URL (?period=…&from=…&to=…&guide=…&mode=practice, spec 023): nada se
+    // guarda en Session.
     public partial class Steps : Page
     {
         private const string PageUrl = "~/Pages/Admin/Steps.aspx";
@@ -24,8 +26,20 @@ namespace TrainingApp.Pages.Admin
         // Usuario autenticado (Session escrita solo por el servidor tras el login).
         private int UserId => (int)Session[Constants.SessionKeys.UserId];
 
-        // La columna de saltos (AC-18), para el markup.
+        // Los saltos (AC-18), para el markup.
         protected bool ShowsSkips { get; private set; }
+
+        // El ranking a la vista: su guía (o "Todas las guías"), el título de la guía y cuántos
+        // pasos tiene (las columnas).
+        protected string GroupName { get; private set; }
+        protected string GroupTitle { get; private set; }
+        protected int StepCount { get; private set; }
+
+        // Franja de lado a lado bajo la barra superior (brief 022, 4a, D-281).
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            ((AdminMaster)Master).WideMain = true;
+        }
 
         // Quien perdió la capacidad con el RoleCache vigente vuelve a su inicio, nunca al login
         // (AC-2), como en Operadores.
@@ -68,7 +82,7 @@ namespace TrainingApp.Pages.Admin
         {
             int.TryParse(DdlGuide.SelectedValue, out int guideId);
             Response.Redirect(BuildUrl(Period.Period, Period.From, Period.To, guideId > 0 ? guideId : (int?)null,
-                DdlMode.SelectedValue == ReportFilters.ModePractice));
+                RblMode.SelectedValue == ReportFilters.ModePractice));
         }
 
         private void Bind(StepFilter filter)
@@ -80,47 +94,81 @@ namespace TrainingApp.Pages.Admin
             var range   = report.Range;
             Period.Bind(range);
             LblInvalidPeriod.Visible = range.Invalid;
-            DdlMode.SelectedValue   = applied.Mode == SessionMode.FreePractice ? ReportFilters.ModePractice : string.Empty;
+            RblMode.SelectedValue   = applied.Mode == SessionMode.FreePractice ? ReportFilters.ModePractice : string.Empty;
             DdlGuide.Items.Clear();
             DdlGuide.Items.Add(new ListItem("Todas", string.Empty));
             foreach (var g in report.Guides)
                 DdlGuide.Items.Add(new ListItem(g.AreaName, g.Id.ToString()) { Selected = g.Id == applied.GuideId });
 
-            // "Qué pasos fallan más en Assessment, este mes."
-            LitScope.Text = HttpUtility.HtmlEncode(ReportText.Mode(applied.Mode) + ", " + ReportText.PeriodOf(range));
+            // "Qué pasos fallan más en Moldeo, en Assessment." y, debajo, el rango aplicado y el
+            // anterior (el control de período no lo pinta aquí).
+            var guide = applied.GuideId.HasValue ? report.Guides.FirstOrDefault(g => g.Id == applied.GuideId.Value) : null;
+            LitScope.Text     = HttpUtility.HtmlEncode((guide?.AreaName ?? "todas las guías") + ", en " + ReportText.Mode(applied.Mode));
+            LitRange.Text     = HttpUtility.HtmlEncode(ReportText.Range(range));
+            LitPrevRange.Text = range.Compares
+                ? HttpUtility.HtmlEncode(" · se compara con " + ReportText.PreviousRange(range))
+                : string.Empty;
             ShowsSkips = report.ShowsSkips;
             PhSkipsNote.Visible = report.ShowsSkips;
             PhAllGuidesNote.Visible = !applied.GuideId.HasValue;
 
-            var guides = report.Guides.ToDictionary(g => g.Id);
-            RptGuides.DataSource = report.Rankings.Select(r => new StepGuideGroup
+            // Con una guía, su ranking; con todas, un solo resumen (nunca más de uno).
+            var ranking = report.Rankings.FirstOrDefault();
+            PhRanking.Visible = ranking != null;
+            PnlEmpty.Visible  = ranking == null;
+            if (ranking != null)
             {
-                GuideName  = r.TrainingGuideId.HasValue ? guides[r.TrainingGuideId.Value].AreaName : "Todas las guías",
-                GuideTitle = r.TrainingGuideId.HasValue ? guides[r.TrainingGuideId.Value].Title : string.Empty,
-                Rows       = r.Steps.Select((s, i) =>
+                var named  = ranking.TrainingGuideId.HasValue ? report.Guides.First(g => g.Id == ranking.TrainingGuideId.Value) : null;
+                GroupName  = named?.AreaName ?? "Todas las guías";
+                GroupTitle = named?.Title ?? string.Empty;
+                var rows   = ranking.Steps.Select((s, i) => Row(s, i + 1, range)).ToList();
+                StepCount  = rows.Count;
+                foreach (var repeater in new[] { RptColumns, RptLabels, RptDetails, RptList })
                 {
-                    var reasons = s.Reasons.Select(ReportText.ReasonCount).ToList();
-                    return new StepListRow
-                    {
-                        Rank                = i + 1,
-                        StepName            = s.StepName,
-                        FailureRateText     = ReportText.Percent(s.FailureRate),
-                        FailureWidth        = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
-                        SessionsText        = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions),
-                        FailureRateChange   = ChangeView.Of(s.FailureRateChange, range, "sesión", "sesiones"),
-                        FailedAttempts      = s.FailedAttempts,
-                        TimesWithoutSuccess = s.TimesWithoutSuccess,
-                        Skips               = s.Skips,
-                        MedianText          = ReportText.Duration(s.MedianDuration),
-                        TopReasons          = reasons.Take(VisibleReasons).ToList(),
-                        MoreReasons         = reasons.Skip(VisibleReasons).ToList()
-                    };
-                }).ToList()
-            }).ToList();
-            RptGuides.DataBind();
-            RptGuides.Visible = report.Rankings.Count > 0;
-            PnlEmpty.Visible  = report.Rankings.Count == 0;
+                    repeater.DataSource = rows;
+                    repeater.DataBind();
+                }
+            }
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewSteps, Request.QueryString);
+        }
+
+        private static StepListRow Row(StepStats s, int rank, ReportRange range)
+        {
+            var change = s.FailureRateChange;
+            var view   = ChangeView.Of(change, range, "sesión", "sesiones");
+            bool hasPrevious = change != null && change.HasComparison && change.Previous.HasValue;
+
+            // La barra de cada motivo, contra el más repetido; su parte del total la trae la BLL
+            // (ReasonCount.Share, D-283).
+            int most = s.Reasons.Count > 0 ? s.Reasons.Max(r => r.Count) : 0;
+            return new StepListRow
+            {
+                Rank                = rank,
+                StepName            = s.StepName,
+                FailureRateText     = ReportText.Percent(s.FailureRate),
+                FailureWidth        = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
+                SessionsText        = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions),
+                FailureRateChange   = view,
+                ChangeVerdict       = string.IsNullOrEmpty(view.Verdict) ? string.Empty
+                                      : char.ToUpperInvariant(view.Verdict[0]) + view.Verdict.Substring(1),
+                HasPrevious         = hasPrevious,
+                PreviousRateText    = hasPrevious ? ReportText.Percent(change.Previous) : string.Empty,
+                PreviousWidth       = hasPrevious ? ReportText.BarWidth(change.Previous.Value * 100m) : "0",
+                FailedAttempts      = s.FailedAttempts,
+                TimesWithoutSuccess = s.TimesWithoutSuccess,
+                Skips               = s.Skips,
+                MedianText          = ReportText.Duration(s.MedianDuration),
+                TopReasons          = s.Reasons.Take(VisibleReasons).Select(r => new StepReasonView
+                {
+                    Reason    = ReportText.Reason(r.Reason),
+                    Action    = r.Action ?? ReportText.None,
+                    CountText = r.Count + (r.Count == 1 ? " vez" : " veces"),
+                    ShareText = ReportText.Percent(r.Share),
+                    Width     = ReportText.BarWidth(100m * r.Count / most)
+                }).ToList(),
+                MoreReasons         = s.Reasons.Skip(VisibleReasons).Select(ReportText.ReasonCount).ToList(),
+                FirstReason         = s.Reasons.Select(ReportText.ReasonCount).FirstOrDefault() ?? string.Empty
+            };
         }
 
         private string BuildUrl(ReportPeriod period, DateTime? from, DateTime? to, int? guideId, bool practice)
