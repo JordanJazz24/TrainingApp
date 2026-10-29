@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-284 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-285 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -292,6 +292,7 @@
 | D-281 | 2026-10-29 | Spec 022, Pasos: `Admin.Master` con `WideMain` (y `PageCss` / `body runat` solo si siguen haciendo falta); `PeriodFilter.ShowsRange`; componentes `.steps-*` | specs/022-mockups-por-pantalla.md | vigente |
 | D-282 | 2026-10-29 | Spec 022, Pasos: Modo como control segmentado (`RblMode`), mismos valores y URL | specs/022-mockups-por-pantalla.md | vigente |
 | D-283 | 2026-10-29 | Spec 022, Pasos: textos nuevos; la parte de cada motivo en la BLL, sin test (como D-235) | specs/022-mockups-por-pantalla.md | vigente |
+| D-284 | 2026-10-29 | Spec 022: las sesiones de diseño de la nube hacen una vuelta de crítica con `design:design-critique` antes de que el usuario elija (una corrección, resumen en el artifact); sin revisión de accesibilidad ni textos con skills aparte | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 
 ## Bugs que ya existían (B-n)
 

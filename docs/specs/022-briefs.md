@@ -67,6 +67,49 @@ Cómo trabajar:
 6. Al terminar, dile al usuario la rama, el commit y un resumen de la lista de cambios.
 ```
 
+### Prompt de sesión de diseño en la nube (agregado 2026-10-29, D-284)
+
+Cuando Claude Design no está disponible, una sesión de la nube diseña e implementa una pantalla.
+Cambiar `<PANTALLA>`, N, `<archivo>` y la fila de archivos. Incluye una **vuelta de crítica**
+con `design:design-critique` antes de que el usuario elija (D-284).
+
+```text
+Eres una sesión de DISEÑO e IMPLEMENTACIÓN de una pantalla de la spec 022 (un mockup por pantalla) del proyecto
+MESTrainingSimulator, repo JordanJazz24/TrainingApp (ASP.NET Web Forms, .NET Framework 4.7.2, Bootstrap 5.3.8 e
+íconos locales). La planeación de la 022 la lleva otra sesión ("Diseño UI/UX"): tú no numeras decisiones ni editas
+la spec, el plan, decisions.md, roadmap.md ni status.md.
+
+PANTALLA: <PANTALLA> (brief N).
+
+1. LEE (solo lectura), en la rama TrainingApp: CLAUDE.md; docs/specs/022-briefs.md ("Contexto común", con
+   "ATRÉVETE" D-237, el brief N y su fila de "Archivos del repo por pantalla"); docs/specs/022-mockups-por-pantalla.md
+   ("Restricciones fijas" y "Pantallas aprobadas"); docs/specs/022-design/; TrainingApp/UI/master/admin.css,
+   Admin.Master y theme.js. Usa la skill frontend-design (o la de Claude Design) dentro de las restricciones fijas.
+
+2. DISEÑA y publícalo como UN artifact privado (HTML y CSS puros con los tokens --mt-*, sin React ni recursos
+   externos, con el interruptor de tema funcionando): la pantalla actual recreada y 3 alternativas que difieran en la
+   ESTRUCTURA (al menos una rompe con el v1 en estructura y en lo visual, D-237), cada una en claro, oscuro y tablet
+   (768 px), con datos de ejemplo realistas. Por alternativa: qué decide el usuario con ella, qué cambia frente al
+   v1, QUÉ CONLLEVA (tokens y si afectan pantallas ya hechas, componentes, masters, esfuerzo) y las métricas
+   derivadas que propone.
+
+3. CRITICA antes de mostrarlas (D-284): usa la skill design:design-critique sobre las 3 alternativas, con los
+   criterios del brief (quién la usa, qué decide, qué ve primero), la jerarquía, la coherencia con las pantallas
+   aprobadas y si la alternativa atrevida de verdad rompe con el v1. Ordénalas por cuál resuelve mejor la decisión de
+   la pantalla y nombra al menos un riesgo por alternativa. Corrige lo grave UNA sola vez y agrega al artifact, por
+   alternativa, un resumen de su crítica (fortalezas, riesgos y qué corregiste). Después ESPERA a que el usuario
+   elija o pida ajustes. No implementes antes.
+
+4. CUANDO EL USUARIO APRUEBE: crea la rama cloud/022-<archivo> desde origin/TrainingApp y haz push SOLO a esa rama;
+   implementa en Web Forms con los mismos controles de servidor, ids, postbacks, filtros en la URL y anclas
+   data-guide; sin lógica en el code-behind (una métrica derivada va en la BLL); si agregas controles, actualiza el
+   .designer.cs. No puedes compilar ni probar: el commit va "no verificada". Agrega docs/specs/022-design/<archivo>.md
+   con la alternativa elegida, el resumen de su crítica, los cambios frente al v1 y lo que Desarrollo debe revisar.
+   Sin capturas (D-240) ni el HTML del artifact.
+
+5. AL TERMINAR, dile al usuario la rama, el commit, el link del artifact y un resumen de la lista de cambios.
+```
+
 ### Archivos del repo por pantalla (rutas bajo `TrainingApp/`)
 
 Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla

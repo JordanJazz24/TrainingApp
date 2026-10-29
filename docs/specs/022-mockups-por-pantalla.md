@@ -203,6 +203,13 @@ Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `Training
 | D-282 | **Modo** pasa de `DdlMode` (lista) a `RblMode` (control segmentado), con los mismos valores y la misma URL: el comportamiento de la 023 no cambia (D-217) |
 | D-283 | **Textos y métrica derivada:** los textos nuevos de `pasos.md` (título "Qué pasos fallan más en…", "Mesa de enseñanza"…). La **parte de cada motivo** sobre los registrados en el paso ("6 veces · 54.5%") va **en la BLL, sin test**, como D-235; la rama la calcula en el code-behind |
 
+> **Enmienda 2026-10-29 (D-284, usuario):** en las sesiones de diseño de la nube, una **vuelta de
+> crítica** con la skill `design:design-critique` sobre las 3 alternativas, antes de que el
+> usuario elija: con los criterios del brief, un orden y al menos un riesgo por alternativa; se
+> corrige lo grave una sola vez y el artifact muestra el resumen de la crítica. Sin revisión de
+> accesibilidad ni de textos con skills aparte (el usuario la descartó; la accesibilidad la sigue
+> revisando Desarrollo). Plantilla: `022-briefs.md` → "Prompt de sesión de diseño en la nube".
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |
