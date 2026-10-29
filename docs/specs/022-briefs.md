@@ -120,15 +120,31 @@ no salta a la vista), no dicen qué hacer (muestran datos pero no guían la deci
 login se ve de plantilla.
 
 Pido 3 ALTERNATIVAS que difieran en la ESTRUCTURA (qué va arriba, cómo se agrupa, dónde está
-la acción principal), no solo en el color. Cada una con: una nota corta de qué decide el
+la acción principal), no solo en el color.
+
+ATRÉVETE (usuario, 2026-10-29, D-237): el v1 y las pantallas ya aprobadas son REFERENCIA, no
+molde. No te limites a reacomodar la tabla del v1 con sus colores:
+- al menos UNA alternativa debe romper con el v1 en estructura (otra forma de mostrar los
+  datos: tarjetas, agrupaciones, vista de foco, paneles, lo que sirva mejor a la decisión) Y
+  en lo visual (otra paleta de acento, otra densidad, otra jerarquía tipográfica, otras
+  superficies);
+- otra puede ser intermedia, y solo una puede quedarse cerca del v1.
+Lo que NO se mueve son las "Restricciones fijas" de arriba (Web Forms + Bootstrap 5.3 e
+íconos locales, sin React ni recursos externos, claro y oscuro con AA, solo los datos
+indicados, mismo comportamiento).
+Por cada cambio que se salga del v1, marca QUÉ CONLLEVA: tokens nuevos o con otro valor (y
+si cambian el resto de la app ya hecha: Login, Cambio de contraseña, Guías, Resumen),
+componentes nuevos, si toca Admin.Master o pantallas ya implementadas, y el esfuerzo
+aproximado de implementarlo (bajo, medio, alto). Cada una con: una nota corta de qué decide el
 usuario con ella, la lista de cambios respecto al v1 y las métricas derivadas que proponga.
 Entrega cada alternativa en claro y en oscuro, con datos de ejemplo realistas (nombres en
 español, Code1 de 5 a 6 dígitos, guías de Moldeo, LoFlo, Subensamble 1 y Redefinity). La
 exportación final: un HTML autocontenido (CSS y SVG inline, sin recursos externos) con el
 interruptor de tema funcionando.
 
-Si tienes la skill frontend-design, úsala, pero siempre dentro de estas restricciones: lo que
-proponga fuera de ellas (otra librería, fuentes web, animaciones pesadas) márcalo como cambio.
+Si tienes la skill frontend-design, úsala con libertad para explorar, siempre dentro de las
+restricciones fijas: lo que proponga fuera de ellas (otra librería, fuentes web, animaciones
+pesadas) márcalo como cambio y dime qué conlleva.
 ```
 
 ---
