@@ -78,9 +78,21 @@ namespace TrainingApp.Pages.Admin
         private void BindGuides()
         {
             var guides = _admin.GetPublishedGuides(AdminUserId);
-            RptGuides.DataSource = guides.Select(ToRow).ToList();
+            // Custom primero (brief 022, 2b). OrderBy es estable: dentro de cada tipo queda el orden de la BLL.
+            RptGuides.DataSource = guides
+                .OrderBy(g => g.ResourceSetupType == ResourceSetupType.Custom ? 0 : 1)
+                .Select(ToRow)
+                .ToList();
             RptGuides.DataBind();
-            LblEmpty.Visible = guides.Count == 0;
+
+            // Todo valor que no sea Custom cuenta como Estándar, igual que ToRow (TypeValue).
+            int custom = guides.Count(g => g.ResourceSetupType == ResourceSetupType.Custom);
+            LitCountCustom.Text   = custom.ToString();
+            LitCountStandard.Text = (guides.Count - custom).ToString();
+
+            bool any = guides.Count > 0;
+            LblEmpty.Visible = !any;
+            PhCounts.Visible = PhOrderNote.Visible = any;
         }
 
         private static GuideListRow ToRow(PublishedGuide g)

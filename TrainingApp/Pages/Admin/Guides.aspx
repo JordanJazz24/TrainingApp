@@ -17,8 +17,15 @@
     </div>
 
     <section class="mt-panel" aria-labelledby="guidesTitle">
-        <div class="mt-panel-body">
+        <div class="mt-panel-body guides-head">
             <h2 id="guidesTitle" class="mt-block-title">Guías publicadas</h2>
+            <%-- Conteo por tipo (brief 022, 2b); se oculta si no hay guías. --%>
+            <asp:PlaceHolder ID="PhCounts" runat="server">
+                <div class="guides-counts">
+                    <span class="mt-chip"><i class="bi bi-gear" aria-hidden="true"></i><b><asp:Literal ID="LitCountStandard" runat="server" /></b> Estándar</span>
+                    <span class="mt-chip"><i class="bi bi-stars" aria-hidden="true"></i><b><asp:Literal ID="LitCountCustom" runat="server" /></b> Custom</span>
+                </div>
+            </asp:PlaceHolder>
         </div>
 
         <div class="mt-table-wrap">
@@ -63,6 +70,10 @@
 
         <asp:Label ID="LblEmpty" runat="server" CssClass="mt-empty" Visible="false"
             Text="No hay guías publicadas." />
+
+        <asp:PlaceHolder ID="PhOrderNote" runat="server">
+            <p class="guides-note"><i class="bi bi-info-circle" aria-hidden="true"></i>Las guías con Custom van primero.</p>
+        </asp:PlaceHolder>
     </section>
 
     <script>

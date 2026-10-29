@@ -15,6 +15,21 @@ namespace TrainingApp.Pages.Admin
     {
 
         /// <summary>
+        /// PhCounts control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhCounts;
+
+        /// <summary>
+        /// LitCountStandard control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitCountStandard;
+
+        /// <summary>
+        /// LitCountCustom control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitCountCustom;
+
+        /// <summary>
         /// RptGuides control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Repeater RptGuides;
@@ -23,5 +38,10 @@ namespace TrainingApp.Pages.Admin
         /// LblEmpty control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Label LblEmpty;
+
+        /// <summary>
+        /// PhOrderNote control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhOrderNote;
     }
 }

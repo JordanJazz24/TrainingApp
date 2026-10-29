@@ -470,6 +470,27 @@ body.mt-page {
 .admin-area-edit .form-select { width: auto; min-width: 12rem; }
 .admin-icon-btn { padding-inline: .5rem; }
 
+/* ── Guías (brief 022, alternativa 2b) ─────────────────────────
+   Encabezado del panel con el conteo por tipo y nota al pie del orden. */
+.guides-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--mt-space-3);
+}
+.guides-counts { display: flex; flex-wrap: wrap; gap: var(--mt-space-2); }
+.guides-counts .mt-chip b { font-weight: 600; }
+.guides-note {
+    display: flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    margin: 0;
+    padding: 14px var(--mt-space-5);
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+}
+
 /* ── Inicio del operador: StartSession (D-163) ─────────────── */
 .start-wrap { max-width: 760px; margin: 0 auto; }
 .start-card { padding: 28px; display: flex; flex-direction: column; gap: var(--mt-space-5); }
