@@ -469,16 +469,21 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   2026-10-29 por fast-forward hasta `b8cacc5`)**: orden Custom primero y conteo por tipo en
   `GuideAdminService` (D-235), aviso con la guía (D-236); sin capturas por decisión del usuario
   (como la E2b). Los briefs 4, 6 y 7 y la aprobación de Guías de Diseño, integrados el
-  2026-10-29. Las demás pantallas esperan su mockup. Orden vigente: D-219.
+  2026-10-29. **E4 (Pasos, 4a "mesa de enseñanza", `5a2ad7a`, integrada el 2026-10-29)** desde
+  `cloud/022-pasos`: sin paleta propia (D-280), `Admin.Master` solo con `WideMain` (D-281), Modo
+  segmentado (D-282), la parte de cada motivo en la BLL sin test (D-283) y el ranking completo
+  plegado (D-241, pedido del usuario al probar); sin capturas (D-240, decisión del usuario).
+  Pendientes: la **E1b (barra superior, D-238)**, bloqueada hasta el mockup del brief 0, va
+  antes de la E5; E5 a E8 esperan sus mockups. Orden vigente: D-219.
 - ✅ **Spec 024 · Dashboard por área** (2026-10-29): hecha en la nube, revisada en local
   (enmienda 1, D-272 a D-274) y verificada por Desarrollo en `spec-024` (Rebuild,
   `aspnet_compiler`, 461 tests y el "funciona" del usuario; cierre `ab81231`). Integrada en
   `TrainingApp` el 2026-10-29 (`e86a9f3`). Desbloquea la E6 de la 022.
 
 **Sigue, por sesión:**
-- **Desarrollo (local, `spec-022`, ya con la 024):** libre. Toma la siguiente pantalla de la
-  022 con mockup aprobado (E4 Pasos, E5 Seguimiento, E6 Operadores y Operador, E7 Usuarios o E8
-  Inicio).
+- **Desarrollo (local, `spec-022`):** sin entrega en curso. Sigue la **E1b (barra superior)**
+  cuando Diseño apruebe el mockup del brief 0; después E5 Seguimiento, E6 Operadores y Operador,
+  E7 Usuarios o E8 Inicio, según se aprueben sus mockups.
 - **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
   integrado el 2026-10-29 en `e3b9df3`) y Guías aprobada (2b, `2bf024c`, integrado en
   `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La 024 ya está en
@@ -494,8 +499,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - Limpieza hecha el 2026-10-29 (`fase-10`, `spec-021`, `spec-024` y las ramas remotas de la
   024). No borrar `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
-**Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-238 (hasta
-D-239 y después D-280 a D-299, reservado el 2026-10-29) y B-30; la 024, cerrada (D-260 a D-274).
+**Numeración vigente:** local D-242 (rango D-240 a D-259) y B-5; Diseño (022) D-284 (hasta
+D-299, reservado el 2026-10-29; ya usó D-238, D-239 y D-280 a D-283) y B-30; la 024, cerrada (D-260 a D-274).
 Siguiente bloque libre: D-300.
 
 **Comunicación:** la nube recibe mensajes, pero no puede contestar. Su avance llega por su rama
