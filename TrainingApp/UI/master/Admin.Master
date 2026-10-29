@@ -21,7 +21,8 @@
     <%-- SweetAlert2 en <head> para que los mensajes de RegisterStartupScript lo encuentren --%>
     <script src="<%=ResolveUrl("~/Scripts/sweetalert2.all.min.js")%>"></script>
 </head>
-<body class="mt-page">
+<%-- PageCss: la clase de una pantalla con su propia paleta (Pasos, brief 022, 4a). --%>
+<body class="mt-page" runat="server" id="AdminBody">
     <form runat="server">
         <asp:ScriptManager runat="server">
             <Scripts>
