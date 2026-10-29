@@ -28,7 +28,10 @@
         <asp:TextBox ID="TxtTo" runat="server" TextMode="Date" CssClass="form-control" />
     </div>
 </asp:Panel>
-<p class="mt-period-range" aria-live="polite"><asp:Literal ID="LitRange" runat="server" /></p>
+<%-- Pasos (brief 022, 4a) lo pinta en su franja, junto al título (ShowsRange = false). --%>
+<asp:PlaceHolder ID="PhRange" runat="server">
+    <p class="mt-period-range" aria-live="polite"><asp:Literal ID="LitRange" runat="server" /></p>
+</asp:PlaceHolder>
 <script>
     // Inicio y Fin solo con Personalizado, sin postback.
     (function () {

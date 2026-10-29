@@ -99,10 +99,12 @@
 }
 
 /* ── Bootstrap 5.3 toma los tokens ─────────────────────────── */
-/* Después del [data-bs-theme=dark] de Bootstrap (este archivo carga después): gana. */
+/* Después del [data-bs-theme=dark] de Bootstrap (este archivo carga después): gana. Pasos
+   redefine los tokens en <body> (paleta 4a): ahí se vuelven a conectar. */
 :root,
 [data-bs-theme=light],
-[data-bs-theme=dark] {
+[data-bs-theme=dark],
+body.steps-4a {
     --bs-body-font-family: var(--mt-font);
     --bs-body-font-size: var(--mt-fs-body);
     --bs-body-bg: var(--mt-surface);           /* tarjetas, campos y tablas; la página usa --mt-bg */
@@ -896,7 +898,6 @@ body.mt-page {
 .mt-change-none { font-weight: 400; }
 .mt-change-ref { color: var(--mt-muted); font-size: var(--mt-fs-small); }
 .summary-sessions { align-items: flex-end; text-align: right; }
-.steps-change { display: flex; flex-wrap: wrap; gap: 0 var(--mt-space-2); margin-top: 6px; }
 
 /* Aviso de período inválido (P-6). */
 .mt-alert-warn {
@@ -977,14 +978,347 @@ body.mt-page {
     .operator-curves { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* ── Pasos (spec 018; D-160) ───────────────────────────────── */
-.steps-note { max-width: 90ch; margin: calc(-1 * var(--mt-space-2)) 0 var(--mt-space-4); }
-.steps-group { margin-bottom: var(--mt-space-5); }
-.steps-table td { vertical-align: top; }
-.steps-name { min-width: 240px; }
-/* La barra de %: el dato principal del ranking (como el top 5 del Resumen). */
-.steps-rate { min-width: 200px; }
-.steps-rate-line { display: flex; justify-content: space-between; align-items: baseline; gap: var(--mt-space-3); margin-bottom: 6px; }
+/* ── Pasos (spec 018; brief 022, alternativa 4a "Mesa de enseñanza", encabezado H4) ── */
+/* Paleta propia, solo en Pasos (AdminMaster.PageCss = "steps-4a"): fondo cálido y acento
+   índigo; los estados (verde, rojo, ámbar, gris) no cambian. Cambian de valor bg, surface-2,
+   border, field-border, text, muted y accent (con rgb, hover, soft, on-accent y focus). Son
+   nuevos --mt-ink (la franja), --mt-on-ink y --mt-on-ink-2 (texto sobre ella),
+   --mt-on-ink-line (su divisor) y --mt-bar-2 (columnas no elegidas y el período anterior). */
+body.steps-4a {
+    --mt-bg: #F5F3EE;
+    --mt-surface: #FFFFFF;
+    --mt-surface-2: #EEEBE4;
+    --mt-border: #DDD8CE;
+    --mt-field-border: #857F74;
+    --mt-text: #1B1A1F;
+    --mt-muted: #5A5650;
+    --mt-accent: #4B3BC4;
+    --mt-accent-rgb: 75, 59, 196;
+    --mt-accent-hover: #3E30A6;
+    --mt-accent-soft: #ECE9FB;
+    --mt-on-accent: #FFFFFF;
+    --mt-focus: #4B3BC4;
+    --mt-ink: #1B1A1F;
+    --mt-on-ink: #F5F3EE;
+    --mt-on-ink-2: #BDB8AE;
+    --mt-on-ink-line: rgba(255, 255, 255, .14);
+    --mt-bar-2: #C4BDF0;
+}
+[data-bs-theme=dark] body.steps-4a {
+    --mt-bg: #111114;
+    --mt-surface: #1A1A1F;
+    --mt-surface-2: #24242B;
+    --mt-border: #33333C;
+    --mt-field-border: #6E6E7A;
+    --mt-text: #ECEAE4;
+    --mt-muted: #A8A49C;
+    --mt-accent: #A99BFF;
+    --mt-accent-rgb: 169, 155, 255;
+    --mt-accent-hover: #C0B6FF;
+    --mt-accent-soft: #2A2550;
+    --mt-on-accent: #111114;
+    --mt-focus: #C0B6FF;
+    --mt-ink: #0A0A0C;
+    --mt-on-ink: #ECEAE4;
+    --mt-on-ink-2: #A8A49C;
+    --mt-on-ink-line: rgba(255, 255, 255, .14);
+    --mt-bar-2: #4A4290;
+}
+
+/* La franja: título y rango a la izquierda, filtros a la derecha tras un divisor (H4). Siempre
+   oscura, en los dos temas: el foco y la flecha de las listas van en claro. */
+.steps-band { --mt-focus: var(--mt-on-ink); background: var(--mt-ink); color: var(--mt-on-ink); }
+.steps-band-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    gap: var(--mt-space-5) 40px;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px var(--mt-space-6);
+}
+.steps-band-head { display: flex; flex-direction: column; gap: 14px; }
+.steps-eyebrow {
+    color: var(--mt-on-ink-2);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.mt-page .steps-title {
+    margin: 0;
+    color: var(--mt-on-ink);
+    font-size: 2.125rem;         /* 34 */
+    line-height: 1.15;
+    text-wrap: pretty;
+}
+.steps-range { display: flex; align-items: baseline; gap: var(--mt-space-2); margin: 0; color: var(--mt-on-ink-2); font-size: .875rem; }
+.steps-range b { color: var(--mt-on-ink); }
+.steps-band-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 28px;
+    border-left: 1px solid var(--mt-on-ink-line);
+}
+.steps-band-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--mt-space-3); }
+.steps-band .mt-field { gap: 6px; }
+.steps-band .mt-field-label { margin-bottom: 0; color: var(--mt-on-ink-2); }
+.steps-band .form-select,
+.steps-band .form-control {
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23BDB8AE' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    align-self: flex-start;
+    width: auto;
+    min-height: 40px;
+    border-color: var(--mt-on-ink-2);
+    border-radius: 999px;
+    background-color: var(--mt-ink);
+    color: var(--mt-on-ink);
+    font-size: .875rem;
+    color-scheme: dark;
+}
+.steps-band .form-select { padding-right: 36px; }
+.steps-band .form-select:focus,
+.steps-band .form-control:focus { border-color: var(--mt-on-ink); }
+.steps-band .form-select option { background: var(--mt-surface); color: var(--mt-text); }
+
+/* Modo: dos opciones en un control segmentado (radios nativos, mismo valor en el postback). */
+.steps-seg {
+    position: relative;
+    display: inline-flex;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--mt-on-ink-2);
+    border-radius: 999px;
+}
+.steps-seg input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.steps-seg label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    margin: 0;
+    padding: 0 14px;
+    border-radius: 999px;
+    color: var(--mt-on-ink);
+    font-size: .875rem;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.steps-seg input:checked + label { background: var(--mt-on-ink); color: var(--mt-ink); font-weight: 600; }
+.steps-seg input:focus-visible + label { outline: 3px solid var(--mt-focus); outline-offset: 2px; }
+
+.steps-band-actions { display: flex; gap: var(--mt-space-2); margin-left: auto; }
+.steps-band .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    min-height: var(--mt-control-h);
+    padding: 0 18px;
+    border-radius: 999px;
+    font-size: var(--mt-fs-body);
+    font-weight: 600;
+}
+.steps-btn-ghost {
+    --bs-btn-color: var(--mt-on-ink);
+    --bs-btn-border-color: var(--mt-on-ink-2);
+    --bs-btn-bg: transparent;
+    --bs-btn-hover-color: var(--mt-on-ink);
+    --bs-btn-hover-border-color: var(--mt-on-ink);
+    --bs-btn-hover-bg: transparent;
+    --bs-btn-active-color: var(--mt-on-ink);
+    --bs-btn-active-border-color: var(--mt-on-ink);
+    --bs-btn-active-bg: transparent;
+}
+.steps-btn-ink {
+    --bs-btn-color: var(--mt-ink);
+    --bs-btn-border-color: var(--mt-on-ink);
+    --bs-btn-bg: var(--mt-on-ink);
+    --bs-btn-hover-color: var(--mt-ink);
+    --bs-btn-hover-border-color: var(--mt-on-ink-2);
+    --bs-btn-hover-bg: var(--mt-on-ink-2);
+    --bs-btn-active-color: var(--mt-ink);
+    --bs-btn-active-border-color: var(--mt-on-ink-2);
+    --bs-btn-active-bg: var(--mt-on-ink-2);
+}
+
+/* Debajo de la franja, el ancho de .admin-main (WideMain). */
+.steps-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mt-space-5);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px var(--mt-space-6) 48px;
+}
+.steps-card {
+    overflow: hidden;
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: 16px;
+}
+.steps-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--mt-space-2) var(--mt-space-5);
+    margin-bottom: 18px;
+}
+.mt-page .steps-kicker {
+    margin: 0;
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.mt-page .steps-card-head .steps-kicker { font-size: var(--mt-fs-small); letter-spacing: .1em; }
+.mt-page .steps-kicker-accent { color: var(--mt-accent); }
+
+/* Una columna por paso (en HTML, no Chart.js: cada columna es un botón). Con muchos pasos, las
+   columnas se desplazan dentro de la tarjeta. */
+.steps-chart { padding: var(--mt-space-5) 28px 20px; }
+.steps-chart-scroll { overflow-x: auto; }
+.steps-cols,
+.steps-labels {
+    display: grid;
+    grid-template-columns: repeat(var(--steps-n, 6), minmax(88px, 1fr));
+    gap: var(--mt-space-4);
+}
+.steps-cols {
+    align-items: end;
+    height: 250px;
+    border-bottom: 1px solid var(--mt-border);
+    background-image: linear-gradient(var(--mt-border) 1px, transparent 1px);
+    background-size: 100% 62.5px;
+    background-position: 0 -1px;
+}
+.steps-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+.steps-col-value { margin-bottom: 6px; font-size: 1.25rem; font-weight: 600; text-align: center; }
+.steps-col-bar {
+    display: block;
+    height: calc((100% - 36px) * var(--h, 0) / 100);
+    min-height: 4px;
+    border-radius: 10px 10px 0 0;
+    background: var(--mt-bar-2);
+}
+.steps-col:hover .steps-col-bar,
+.steps-col.is-selected .steps-col-bar { background: var(--mt-accent); }
+.steps-labels { margin-top: 10px; }
+.steps-label { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.steps-label-rank { color: var(--mt-muted); font-size: var(--mt-fs-small); font-weight: 600; }
+.steps-label-sel { display: none; }
+.steps-label .mt-change { white-space: normal; }
+.steps-label.is-selected .steps-label-rank { color: var(--mt-accent); font-weight: 700; }
+.steps-label.is-selected .steps-label-sel { display: inline; }
+.steps-label.is-selected .steps-label-name { font-weight: 700; border-bottom: 3px solid var(--mt-accent); }
+
+/* El paso elegido: por qué falla, sus números y el cambio contra el período anterior. */
+.steps-detail-anchor { scroll-margin-top: var(--mt-space-4); }
+.steps-detail { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr); }
+.steps-detail[hidden] { display: none; }
+.steps-detail > div { display: flex; flex-direction: column; gap: 14px; padding: 28px; }
+.steps-detail > .steps-detail-numbers { gap: 18px; background: var(--mt-surface-2); }
+.steps-detail-change { border-left: 1px solid var(--mt-border); }
+.mt-page .steps-detail-name { margin: 0; font-size: 2.25rem; line-height: 1.1; }
+.steps-why { display: flex; flex-direction: column; gap: 14px; margin: var(--mt-space-1) 0 0; padding: 0; list-style: none; }
+.steps-why li { display: flex; flex-direction: column; gap: 6px; }
+.steps-why-line { display: flex; justify-content: space-between; align-items: baseline; gap: var(--mt-space-3); }
+.steps-why-reason { font-size: var(--mt-fs-block); font-weight: 600; }
+.steps-why-track { height: 6px; border-radius: 3px; background: var(--mt-surface-2); overflow: hidden; }
+.steps-why-fill { height: 100%; border-radius: 3px; background: var(--mt-accent); }
+.steps-why-action { display: flex; align-items: center; gap: 6px; color: var(--mt-muted); }
+.steps-detail .steps-more { margin-top: 0; font-size: .875rem; }
+.steps-detail-rate { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.steps-figure { font-size: 3.5rem; font-weight: 600; line-height: 1; }
+.steps-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; margin: 0; }
+.steps-stats dt { color: var(--mt-muted); font-size: var(--mt-fs-small); font-weight: 600; }
+.steps-stats dd { margin: 0; font-size: 1.5rem; font-weight: 600; white-space: nowrap; }
+.steps-change-big { display: flex; flex-direction: column; font-weight: 600; }
+.steps-change-value { font-size: 2rem; line-height: 1.1; }
+.steps-change-big.mt-change-none .steps-change-value { font-size: var(--mt-fs-block); }
+.steps-vs {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+    gap: var(--mt-space-2);
+    align-items: center;
+    font-size: var(--mt-fs-small);
+}
+.steps-vs-track { height: 10px; border-radius: 5px; background: var(--mt-surface-2); overflow: hidden; }
+.steps-vs-fill { height: 100%; background: var(--mt-accent); }
+.steps-vs-prev { background: var(--mt-bar-2); }
+
+/* El ranking completo: se desplaza dentro de su tarjeta en tablet (P-4). */
+.steps-list-head { margin: 0; padding: 18px var(--mt-space-5); border-bottom: 1px solid var(--mt-border); }
+.steps-list-note { max-width: 80ch; }
+.steps-list-wrap { overflow-x: auto; }
+.steps-list { min-width: 720px; margin: 0; padding: 0; list-style: none; }
+.steps-row {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 2fr) minmax(0, 2fr) minmax(0, 3fr) 96px;
+    gap: var(--mt-space-4);
+    align-items: center;
+    padding: var(--mt-space-3) var(--mt-space-5);
+    border-bottom: 1px solid var(--mt-border);
+}
+.steps-row:last-child { border-bottom: 0; }
+.steps-row.is-selected { background: var(--mt-accent-soft); }
+.steps-row-rank { color: var(--mt-muted); font-size: 1.125rem; font-weight: 600; }
+.steps-row-rate { display: flex; align-items: center; gap: 10px; }
+.steps-row-rate > span { min-width: 52px; }
+.steps-row-rate > .steps-why-track { flex: 1 1 auto; }
+.steps-see {
+    justify-self: end;
+    min-height: 36px;
+    padding: 0 var(--mt-space-3);
+    border: 1px solid var(--mt-border);
+    border-radius: 999px;
+    background: var(--mt-surface);
+    color: var(--mt-accent);
+    font-size: var(--mt-fs-small);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.steps-see:hover { border-color: var(--mt-accent); }
+.steps-up {
+    display: none;
+    justify-self: end;
+    align-items: center;
+    gap: 6px;
+    color: var(--mt-accent);
+    font-size: var(--mt-fs-small);
+    font-weight: 700;
+}
+.steps-row.is-selected .steps-see { display: none; }
+.steps-row.is-selected .steps-up { display: inline-flex; }
+
+@media (max-width: 991.98px) {
+    .steps-band-inner,
+    .steps-wrap { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
+    .mt-page .steps-title { font-size: var(--mt-fs-page); }
+    .steps-band-filters { padding-left: 0; border-left: 0; }
+    /* Tablet: por qué falla arriba; los números y el cambio, lado a lado debajo. */
+    .steps-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .steps-detail-why { grid-column: 1 / -1; }
+}
+@media (max-width: 575.98px) {
+    .steps-detail { grid-template-columns: minmax(0, 1fr); }
+    .steps-detail-change { border-left: 0; border-top: 1px solid var(--mt-border); }
+}
+
+/* "Ver todos" del paso elegido: el resto de motivos, en el cliente. */
 .steps-reasons {
     margin: var(--mt-space-1) 0 0;
     padding: 0;

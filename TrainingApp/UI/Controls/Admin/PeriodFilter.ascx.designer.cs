@@ -51,6 +51,15 @@ namespace TrainingApp.UI.Controls.Admin
         protected global::System.Web.UI.WebControls.TextBox TxtTo;
 
         /// <summary>
+        /// PhRange control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhRange;
+
+        /// <summary>
         /// LitRange control.
         /// </summary>
         /// <remarks>
