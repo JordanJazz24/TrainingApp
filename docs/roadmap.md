@@ -460,44 +460,46 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
-### ⏸ Para retomar (Planeación, 2026-10-28)
+### ⏸ Para retomar (Planeación, 2026-10-29)
 
-- **Orden de Desarrollo (D-219, usuario 2026-10-28):** **022 E1** (tokens de D-221 y `.mt-status-line`, desde `cloud/022-login-3b`) → **023 E1 a E4** → **022 E2a** (Login) y el resto de la 022 según sus mockups (Pasos, después de cerrar la 023). La E1 de la
-  022 y la 023 completa se cerraron el 2026-10-28, en `spec-022` (`642cacd` (022 E1) · `2ffb614`, `869f99a`, `5359a5a`, `9c318df` (023 E1 a E4)); la E2a
-  (Login, `53a9d52`) y la E2b (Cambio de contraseña, `8ccda11`) de la 022 también; sigue cada
-  pantalla de la 022 cuando tenga su mockup (la E6, después de la 024).
-- **Spec 023 ✅ (2026-10-28):** cerrada con el AC-9 del usuario; docs de cierre de Desarrollo
-  (`domain.md` → "Período", `architecture.md` → "Período y comparación", `history.md`, spec
-  Implemented). Tests: 459. **Pendiente del usuario:** correr `10_spDashboard.sql` en producción
-  antes de publicar. Por D-217, **el mockup de Pasos (022) ya puede empezar** (Diseño UI/UX
-  avisado; su brief ya trae el control de la 023).
-- **Fase 12 (022):** Login aprobado (3b, D-220 a D-227; `022-design/login.md`), integrado el
-  2026-10-28 (`f197a85`); el flujo con handoff (D-226) quedó en `process.md`. Diseño UI/UX
-  enmendó el plan 022 (E2a Login y E2b Cambio de contraseña, orden de D-219) y el brief de Pasos
-  con el período de la 023 (D-217), integrados el 2026-10-28 (`4098908`). **Cambio de
-  contraseña aprobado** (2a, D-228 a D-232; integrado en `2fd0e8b`); su rama de partida
-  `cloud/022-cambio-contrasena` (`221297f`) sale de `cloud/022-login-3b`, así que la E2b va
-  después de la E2a. **Sigue en Diseño:** Guías y Seguimiento.
-  **Capturas (D-240, usuario 2026-10-28):** las hace Desarrollo, solo de la versión final
-  aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración; las del Login 3b, en
-  la E2a. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas.
-- **Desarrollo:** la rama `spec-022` se integró en `TrainingApp` el 2026-10-28 (`f8aab65`,
-  decisión del usuario, para que Claude Design vea el `Steps.aspx` con el control de la 023): la E1 de la 022 y la 023 completa (`642cacd` (022 E1) · `2ffb614`, `869f99a`, `5359a5a`, `9c318df` (023 E1 a E4)), probadas por el usuario.
-  La **E2a de la 022** (Login) está cerrada (`53a9d52`; con la E2b, integrada en `TrainingApp` el 2026-10-28 en `07363e3`; capturas finales en `022-design/login-*.png`, D-240). La **E2b** (Cambio de contraseña) también está cerrada (`8ccda11`, desde `cloud/022-cambio-contrasena`; pantalla completa siempre, D-230). Sus capturas son las del handoff, sin reemplazar por las de la versión final: excepción a D-240 por decisión del usuario (2026-10-28, "me dan igual"; anotada en `022-design/cambio-contrasena.md`). Desarrollo queda libre para la siguiente pantalla de la 022 con mockup aprobado (E3, E4, E5, E7 y E8); la **E6 está bloqueada por la 024**. La E4 de la 023 cumplió
-  P-13 sin tocar SPs ni índices (Resumen 0,66 s con Todo, Pasos 0,55 s, Excel de Pasos 0,73 s).
-  En la E1 de la 023 el usuario aceptó dos interpretaciones de P-6 como nota del plan, sin D-n
-  (un Inicio anterior al 2000-01-01 y un período fuera de la lista son inválidos: Este mes con
-  aviso). El usuario diseña en paralelo en Claude Design.
-- **Numeración:** local D-240 a D-259 (siguiente D-241; D-208 a D-219 agotado) y B-5 a B-19;
-  nube D-233 a D-239 y B-30 a B-39 (la 022 usó D-220 a D-232).
-- **Spec 024 · Dashboard por área (2026-10-28):** pedida por el usuario; la hace de punta a
-  punta la nube `TrainingApp-Desarrollo` (rango D-260 a D-279 y B-40 a B-49), con revisión final
-  en local. Va antes de la E6 de la 022. Contexto enviado a la nube el 2026-10-28.
-- **Usuario:** correr en producción `00`, `01`, `02`, `05` y `10` y
-  avisar a los trainers (D-170); cerrar los worktrees `fase-10` y `fase-11` y las ramas
-  `spec-021` y `fase-11`.
-- **Mensajes a la nube:** solo con Remote Control conectado (`/remote-control`), y van en un
-  solo sentido; las respuestas las trae el usuario.
+**Estado:**
+- ✅ **Spec 023** (filtro de período) cerrada e integrada. Tests: 459.
+- **Fase 12 (022):** integradas la E1 (tokens), la E2a (Login, `53a9d52`) y la E2b (Cambio de
+  contraseña, `8ccda11`) (merge `07363e3`). Los docs de Diseño (`cloud/022-mockups-por-pantalla`:
+  brief 4 con `PeriodFilter`; E6 y briefs 6 y 7 bloqueados por la 024) integrados el 2026-10-29
+  (`97e1daf`). Las demás pantallas esperan su mockup. Orden vigente: D-219.
+- ⏳ **Spec 024 · Dashboard por área:** la nube hizo spec, plan y E1 a E4 ("no verificada").
+  **Revisada en local el 2026-10-29** contra la spec y el plan: sin desvíos de la regla ni bugs;
+  enmienda 1 (D-272 a D-274) en la rama local **`spec-024`** (`ef48efa`, worktree
+  `.claude/worktrees/spec-024`, desde `73a2829`, sin el hook de la nube). Detalle en "Spec 024".
+
+**Sigue, por sesión:**
+- **Desarrollo (local):** la **024** en `spec-024`: `git merge TrainingApp`, copiar
+  `connectionStrings.config` y la junction a `packages`, y después E1 a E4 con su ciclo (Rebuild,
+  `aspnet_compiler`, `10_spDashboard.sql` en su BD, tests y el "funciona" del usuario por
+  entrega; checklist de cada entrega en `024-plan.md`). Va antes de la E6 de la 022. En
+  paralelo o después, la siguiente pantalla de la 022 con mockup aprobado en `spec-022` (E3
+  Guías, E4 Pasos, E5 Seguimiento, E7 Usuarios o E8 Inicio), sin tocar los archivos de la 024.
+- **Diseño UI/UX (nube):** enmendar con fecha los briefs 6 y 7 con la 024 (spec 024 → "Qué
+  cambia para la 022" y D-272/D-273); avisada el 2026-10-29. Sigue con Guías, Seguimiento
+  y Pasos en Claude Design.
+- **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
+  ramas de handoff de la 022 que lleguen.
+
+**Pendientes del usuario:**
+- Antes de publicar en producción: correr los scripts que lista `docs/status.md` (`00`, `01`,
+  `02`, `03`, `05`, `10`, `11` y `12`) y avisar a los trainers que los operadores eligen su área
+  en el próximo ingreso (D-170).
+- Subir `TrainingApp` a `main` cuando lo decida (D-5).
+- Limpieza: `git worktree prune` (`fase-10`) y borrar la rama `spec-021`. No borrar
+  `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
+
+**Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-233 (hasta
+D-239) y B-30; la 024, D-275 (hasta D-279) y B-40 a B-49.
+
+**Comunicación:** la nube recibe mensajes, pero no puede contestar. Su avance llega por su rama
+o lo trae el usuario. Desarrollo y "rediseño tabla operadores por área" son sesiones locales y sí
+contestan.
 
 ### Spec 023 — Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 
@@ -562,6 +564,16 @@ filtrar por área" de los briefs 6 y 7 de la 022. Es una regla nueva, no solo di
 **Proceso (usuario, 2026-10-28):** de punta a punta en la nube (`process.md` → "Variante
 temporal" → "Spec 024") y revisión final en local contra la spec y el plan; después, el ciclo de
 Desarrollo.
+
+**Revisión local (Arquitectura y Planeación, 2026-10-29):** la nube cerró la spec (D-260 a
+D-271), el plan y E1 a E4 en `cloud/024-dashboard-por-area` (marcadas "no verificada"; con Mono
+compiló y pasaron 461 tests). La spec responde las seis dudas de arriba (la 2 y la 6, con P-2 y
+P-3: el filtro va en la BLL, sin parámetro nuevo en el SP). El código coincide con la spec y el
+plan, sin bugs: `OperatorArea` es la única regla; el filtro se aplica antes de paginar;
+`CanViewReports` sigue en cada método. **Enmienda 1** (usuario): D-272 (Sesiones con columna
+Área en lugar de Guía), D-273 (la ficha imprime Reforzar y Sesiones completos) y D-274 (el hook de
+inicio y `tools/` de `b95b27c` no entran). Desarrollo la trae desde la rama local `spec-024`
+(`ef48efa`), no desde la de la nube.
 
 **Orden:** antes de la **E6 de la 022** (Operadores y Operador). Al aprobarse la 024, Diseño UI/UX
 enmienda con fecha los briefs 6 y 7 de `022-briefs.md` (columna única y filtro de Área) antes de
