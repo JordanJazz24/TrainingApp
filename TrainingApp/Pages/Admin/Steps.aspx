@@ -11,7 +11,7 @@
      cambio contra el período anterior, spec 023) y el ranking completo. Elegir un paso se
      resuelve en el cliente, sin postback; "Ver todos" despliega el resto de motivos
      (<details>). Lo calcula DashboardService con StepRuns (D-146). Filtros en la URL. Solo
-     lectura. Paleta propia (body.steps-4a en admin.css). --%>
+     lectura. Tokens de la app (D-280). --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="steps-band">
         <div class="steps-band-inner">
@@ -168,15 +168,17 @@
                 </asp:Repeater>
             </div>
 
-            <%-- El ranking completo: cada paso con su % y su motivo más frecuente. --%>
-            <section class="steps-card" aria-label="Ranking completo">
-                <div class="steps-card-head steps-list-head">
+            <%-- El ranking completo: cada paso con su % y su motivo más frecuente. Plegado: repite
+                 lo de las columnas y el panel (usuario, 2026-10-29, enmienda a D-239). --%>
+            <details class="steps-card steps-ranking">
+                <summary class="steps-list-head">
                     <h2 class="steps-kicker">Ranking completo</h2>
-                    <span class="mt-muted mt-small steps-list-note">Ordenados por % de sesiones con fallo: entre las sesiones que
-                        llegaron al paso, las que tuvieron algún intento fallido.
-                        <asp:PlaceHolder ID="PhAllGuidesNote" runat="server">Con todas las guías, el mismo paso de cada guía se
-                            suma en un solo renglón; elija una guía para ver solo sus pasos.</asp:PlaceHolder></span>
-                </div>
+                    <span class="steps-ranking-toggle"></span>
+                </summary>
+                <p class="mt-muted mt-small steps-list-note">Ordenados por % de sesiones con fallo: entre las sesiones que
+                    llegaron al paso, las que tuvieron algún intento fallido.
+                    <asp:PlaceHolder ID="PhAllGuidesNote" runat="server">Con todas las guías, el mismo paso de cada guía se
+                        suma en un solo renglón; elija una guía para ver solo sus pasos.</asp:PlaceHolder></p>
                 <div class="steps-list-wrap">
                     <ol class="steps-list">
                         <asp:Repeater ID="RptList" runat="server">
@@ -196,7 +198,7 @@
                         </asp:Repeater>
                     </ol>
                 </div>
-            </section>
+            </details>
         </asp:PlaceHolder>
 
         <asp:Panel ID="PnlEmpty" runat="server" CssClass="mt-panel mt-empty" Visible="false">

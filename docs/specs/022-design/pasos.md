@@ -104,3 +104,17 @@ abajo, con fondo cálido, acento índigo y una franja oscura para el título y l
 - Contraste AA en claro y oscuro de la paleta 4a (índigo sobre `--mt-accent-soft` en la fila elegida).
 - Capturas `pasos-claro.png`, `pasos-oscuro.png` y `pasos-tablet.png`: las toma Desarrollo de la versión
   final (D-240).
+
+## Cierre en Desarrollo (2026-10-29, E4)
+- **D-280:** se quitó la paleta índigo: fuera `body.steps-4a` y sus tokens (también en la regla que
+  conecta tokens con Bootstrap). La franja usa `--mt-brand-bg`, `--mt-on-brand`, `--mt-on-brand-2`
+  y `--mt-brand-line`; las barras del período anterior y las columnas no elegidas, `--mt-m2`. Sin
+  tokens nuevos. La flecha de los selectores de la franja pasó a `#C3D2EA`.
+- **D-281:** `Admin.Master` conserva solo `WideMain`; se quitaron `PageCss` y `<body runat="server">`
+  (`AdminBody`).
+- **D-283:** la parte de cada motivo es `ReasonCount.Share` (`StepStatistics`), sin test.
+- **D-241 (usuario):** el ranking completo va plegado (`<details>`, cerrado al cargar).
+- Verificado: Rebuild, `aspnet_compiler`, 461 tests. `/code-review low` sin hallazgos (cubrió la BLL
+  y el code-behind; `RblMode` y `ShowsRange` se revisaron leyendo el código).
+- Capturas `pasos-claro.png`, `pasos-oscuro.png` y `pasos-tablet.png`: no se tomaron (decisión del
+  usuario, como en las E2b y E3).

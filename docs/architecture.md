@@ -73,7 +73,7 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── ReadinessPolicy.cs         ← Aprobado, Reprobado, En entrenamiento (D-136)
 │   │   │   ├── StepRuns.cs                ← cada paso de una sesión desde sus intentos:
 │   │   │   │                                 duración, fallos, saltos, sin acierto, resultado
-│   │   │   ├── StepStatistics.cs          ← ranking de Pasos (por paso o por nombre, D-147)
+│   │   │   ├── StepStatistics.cs          ← ranking de Pasos (por paso o por nombre, D-147); cada motivo con su parte (Share, D-283)
 │   │   │   ├── ReinforcementRule.cs       ← pasos a reforzar del detalle
 │   │   │   ├── SummaryRules.cs            ← tasas, puntaje promedio y actividad del Resumen
 │   │   │   │                                 (por día, semana o mes, spec 023)

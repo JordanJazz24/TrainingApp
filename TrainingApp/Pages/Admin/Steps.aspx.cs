@@ -35,12 +35,10 @@ namespace TrainingApp.Pages.Admin
         protected string GroupTitle { get; private set; }
         protected int StepCount { get; private set; }
 
-        // Franja de lado a lado bajo la barra superior y paleta propia (brief 022, 4a).
+        // Franja de lado a lado bajo la barra superior (brief 022, 4a, D-281).
         protected void Page_Init(object sender, EventArgs e)
         {
-            var master = (AdminMaster)Master;
-            master.WideMain = true;
-            master.PageCss  = "steps-4a";
+            ((AdminMaster)Master).WideMain = true;
         }
 
         // Quien perdió la capacidad con el RoleCache vigente vuelve a su inicio, nunca al login
@@ -140,10 +138,9 @@ namespace TrainingApp.Pages.Admin
             var view   = ChangeView.Of(change, range, "sesión", "sesiones");
             bool hasPrevious = change != null && change.HasComparison && change.Previous.HasValue;
 
-            // La parte de cada motivo, de todos los registrados en el paso; su barra, contra el
-            // más repetido (métrica derivada, brief 022).
-            int total = s.Reasons.Sum(r => r.Count);
-            int most  = s.Reasons.Count > 0 ? s.Reasons.Max(r => r.Count) : 0;
+            // La barra de cada motivo, contra el más repetido; su parte del total la trae la BLL
+            // (ReasonCount.Share, D-283).
+            int most = s.Reasons.Count > 0 ? s.Reasons.Max(r => r.Count) : 0;
             return new StepListRow
             {
                 Rank                = rank,
@@ -166,7 +163,7 @@ namespace TrainingApp.Pages.Admin
                     Reason    = ReportText.Reason(r.Reason),
                     Action    = r.Action ?? ReportText.None,
                     CountText = r.Count + (r.Count == 1 ? " vez" : " veces"),
-                    ShareText = ReportText.Percent((decimal)r.Count / total),
+                    ShareText = ReportText.Percent(r.Share),
                     Width     = ReportText.BarWidth(100m * r.Count / most)
                 }).ToList(),
                 MoreReasons         = s.Reasons.Skip(VisibleReasons).Select(ReportText.ReasonCount).ToList(),

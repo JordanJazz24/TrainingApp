@@ -12,11 +12,10 @@ namespace TrainingApp.UI.Master
         // interruptor de tema. La pone la página en Page_Init.
         public bool FullBleed { get; set; }
 
-        // Pasos (brief 022, 4a): con la barra superior, pero sin el ancho de .admin-main (la
-        // página trae su franja de lado a lado y su propio contenedor) y con la clase de su
-        // paleta en <body>. Los pone la página en Page_Init.
+        // Pasos (brief 022, 4a, D-281): con la barra superior, pero sin el ancho de .admin-main
+        // (la página trae su franja de lado a lado y su propio contenedor). La pone la página en
+        // Page_Init.
         public bool WideMain { get; set; }
-        public string PageCss { get; set; }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -48,7 +47,6 @@ namespace TrainingApp.UI.Master
 
         protected void Page_PreRender(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(PageCss)) AdminBody.Attributes["class"] = "mt-page " + PageCss;
             if (WideMain) AdminMain.Attributes["class"] = "admin-main-bleed";
             if (!FullBleed) return;
             AdminBar.Visible = false;

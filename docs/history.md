@@ -629,6 +629,11 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   (`PublishedGuideList`, D-235, sin test); el aviso de guardado nombra la guía (D-236); la
   leyenda, debajo del título (ajuste del usuario). `/code-review low` sin hallazgos. Sin
   capturas. Probada por el usuario.
+- **E4 (Pasos):** la 4a (D-239, D-280 a D-283) desde `cloud/022-pasos`, sin la paleta índigo
+  (tokens de la app y franja con `--mt-brand-*`); `Admin.Master` solo con `WideMain`; la parte de
+  cada motivo en `ReasonCount.Share` (D-283, sin test); el ranking completo, plegado (D-241,
+  pedido del usuario al probar). `/code-review low` sin hallazgos. Sin capturas. Probada por el
+  usuario.
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver

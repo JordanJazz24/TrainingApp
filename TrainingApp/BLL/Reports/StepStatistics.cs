@@ -12,6 +12,10 @@ namespace TrainingApp.BLL.Reports
         public AttemptReason? Reason { get; set; }
         public string Action { get; set; }
         public int Count { get; set; }
+
+        // Su parte de todos los motivos registrados en el paso, de 0 a 1 (Pasos, brief 022 4a,
+        // D-283; sin test).
+        public decimal Share { get; set; }
     }
 
     // Un paso en el ranking de Pasos (spec 018, AC-17 y AC-18). Con todas las guías, el renglón
@@ -81,17 +85,27 @@ namespace TrainingApp.BLL.Reports
                     // Un salto o el paso a medias de una sesión en curso o abandonada no
                     // terminaron el paso: su duración bajaría la mediana.
                     MedianDuration      = Median(g.Where(r => r.Resolved && !r.Skipped).Select(r => r.Duration)),
-                    Reasons             = g.SelectMany(r => r.Failures ?? Enumerable.Empty<DashboardAttempt>())
-                        .GroupBy(a => new { a.Reason, a.Action })
-                        .Select(x => new ReasonCount { Reason = x.Key.Reason, Action = x.Key.Action, Count = x.Count() })
-                        .OrderByDescending(x => x.Count).ThenBy(x => x.Reason).ThenBy(x => x.Action, StringComparer.Ordinal)
-                        .ToList()
+                    Reasons             = CountReasons(g.SelectMany(r => r.Failures ?? Enumerable.Empty<DashboardAttempt>()).ToList())
                 })
                 .OrderByDescending(s => s.FailureRate)
                 .ThenByDescending(s => s.FailedAttempts)
                 .ThenBy(s => s.StepOrder)
                 .ToList();
         }
+
+        // Los motivos del paso, de la más repetida a la menos, cada uno con su parte del total.
+        private static IList<ReasonCount> CountReasons(IList<DashboardAttempt> failures)
+            => failures
+                .GroupBy(a => new { a.Reason, a.Action })
+                .Select(x => new ReasonCount
+                {
+                    Reason = x.Key.Reason,
+                    Action = x.Key.Action,
+                    Count  = x.Count(),
+                    Share  = (decimal)x.Count() / failures.Count
+                })
+                .OrderByDescending(x => x.Count).ThenBy(x => x.Reason).ThenBy(x => x.Action, StringComparer.Ordinal)
+                .ToList();
 
         // La mediana: con un número par de valores, el promedio de los dos del medio. Sin
         // valores, null.
