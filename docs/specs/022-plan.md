@@ -210,6 +210,11 @@ rotos, en claro y oscuro.
 > D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
 > cambia el significado de "Sin iniciar". No se diseña ni se implementa hasta que la 024 esté
 > aprobada y los briefs 6 y 7 enmendados con ella.
+>
+> **2026-10-29:** la 024 está aprobada y los briefs 6 y 7 ya están enmendados con ella (con su
+> enmienda 1, D-272 y D-273), así que ya se pueden diseñar. La implementación sigue esperando a
+> que Desarrollo integre la 024 en `TrainingApp`: el diseño reacomoda su estructura, no la
+> cambia.
 
 **Bloqueada hasta:** E1 y los mockups de Operadores y Operador. (Enmendado 2026-10-27: la E5
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
