@@ -294,71 +294,81 @@ Queda fuera: registrar llamadas o notas, marcar como atendido, cambiar las regla
 Ideas permitidas como métrica derivada: cuántos casos hay por regla, cuántos cumplen 2 o más.
 ```
 
-## 6. Operadores → `022-design/operadores.html`
+## 6. Operadores → `022-design/operadores.md`
 
-> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
-> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
-> cambia el significado de "Sin iniciar". No se diseña hasta que la 024 esté
-> aprobada y los briefs 6 y 7 enmendados con ella.
+> **Enmendado 2026-10-29 con la spec 024 "Dashboard por área"** (aprobada; D-260 a D-273;
+> `024-dashboard-por-area.md` → "Qué cambia para la 022"): ya no hay columnas por guía; una
+> columna "Estado en su área"; filtro de Área nuevo; sin filtro de Guía. **Se diseña sobre el
+> código de la 024**: la E6 del plan espera a que esté integrada en `TrainingApp`.
 
-**Capturas a adjuntar:** la lista con filtros vacíos, filtrada por "Reprobado" y una guía, en
-claro y oscuro; si se puede, a 768 px.
+**Capturas:** la lista con filtros vacíos y con Área = una y Estado = Sin iniciar, en claro y
+oscuro; si se puede, a 768 px.
 
 ```text
 Pantalla: OPERADORES (lista del dashboard).
-Quién: gerencia y trainers, en el trabajo diario.
-Qué decide: a quién abrir en detalle; quién está listo y quién no, por guía.
-Qué ve primero: el estado por guía de cada operador, sin leer texto.
+Quién: el trainer o el gerente de un área, en el trabajo diario.
+Qué decide: a quién de SU área entrenar o evaluar, y a quién abrir en detalle.
+Qué ve primero: el estado de cada operador en su área, sin leer texto.
 
 Datos (por operador, solo rol Operator):
 - nombre y Code1 (enlace a su detalle);
-- su ÁREA asignada como "Producto · Área" (ej. "Sensores · LoFlo"), o "Sin área" si aún no
-  la eligió (hoy es la columna que sigue al nombre; puedes reubicarla);
-- por cada guía publicada (columnas dinámicas, hoy 4): insignia de estado (Aprobado,
-  Reprobado, En entrenamiento, Sin iniciar) y sus puntajes de Assessment como texto;
+- su ÁREA como "Producto · Área" (ej. "Sensores · LoFlo"), o "Sin área" si aún no la eligió;
+- UNA columna "Estado en su área": la insignia de estado de la guía publicada de su área
+  (Aprobado, Reprobado, En entrenamiento, Sin iniciar) con sus puntajes de Assessment (mejor y
+  último) como texto. Hoy cada área tiene una guía. Un operador "Sin área" muestra "Sin área",
+  sin insignia (no cuenta como Sin iniciar). Las guías de OTRAS áreas no aparecen en la lista;
 - su última actividad (fecha y hora de la planta).
-Filtros (barra de arriba): búsqueda por nombre o Code1, estado (Todos, Aprobado, Reprobado,
-En entrenamiento, Sin iniciar), guía, y el botón Filtrar; además "Descargar" (Excel).
-Paginación de 50 al pie. Los filtros viven en la URL.
+Filtros (barra de arriba): búsqueda por nombre o Code1; ÁREA (Todas —la de entrada—, cada área
+con guía publicada AGRUPADA POR PRODUCTO, y Sin área; no hay "producto completo"); estado
+(Todos, Aprobado, Reprobado, En entrenamiento, Sin iniciar; se evalúa en la guía de su área;
+"Sin iniciar" = tiene área y ninguna sesión en las guías de su área), y el botón Filtrar;
+además "Descargar" (Excel). Ya NO hay filtro de Guía. Paginación de 50 al pie. Los filtros
+viven en la URL.
 
-Queda fuera: filtrar por área, "sin iniciar por área", acciones sobre el operador (no hay:
-es solo lectura), gráficas nuevas.
+Queda fuera: filtrar por producto completo, período (Operadores muestra todo el historial),
+acciones sobre el operador (no hay: es solo lectura), gráficas nuevas, alcance por área según
+quién mira.
 
 Ideas permitidas como métrica derivada (de esta misma lista): cuántos operadores de la vista
-están en cada estado, quién está reprobado en alguna guía, quién no tiene actividad reciente.
+están en cada estado, quién no tiene actividad reciente.
 ```
 
-## 7. Operador (detalle y ficha) → `022-design/operador.html`
+## 7. Operador (detalle y ficha) → `022-design/operador.md`
 
-> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
-> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
-> cambia el significado de "Sin iniciar". No se diseña hasta que la 024 esté
-> aprobada y los briefs 6 y 7 enmendados con ella.
+> **Enmendado 2026-10-29 con la spec 024** (aprobada, con su enmienda 1: D-272 y D-273): su
+> área primero, las otras áreas en una sección colapsada, Sesiones con columna Área y la ficha
+> con "También entrenó". **Se diseña sobre el código de la 024**: la E6 del plan espera a que
+> esté integrada en `TrainingApp`.
 
-**Capturas:** un operador con varias guías y sesiones, en claro y oscuro, y la vista de
-impresión (ficha).
+**Capturas:** un operador con entrenamiento cruzado (sesiones en otra área) y uno sin área, en
+claro y oscuro, y la vista de impresión (ficha).
 
 ```text
 Pantalla: OPERADOR (detalle de una persona).
 Quién: trainers (y gerencia en reuniones); se imprime como ficha.
-Qué decide: si está listo en cada guía y qué tiene que reforzar.
-Qué ve primero: su estado por guía y los pasos a reforzar.
+Qué decide: si está listo en su área y qué tiene que reforzar.
+Qué ve primero: su estado en su área y los pasos a reforzar.
 
 Datos:
 - encabezado: nombre, Code1, su ÁREA ("Producto · Área" o "Sin área"), que también sale en
   la ficha impresa; botones Volver e Imprimir;
-- Estado por guía (una tarjeta por guía): nombre y título de la guía, insignia de estado,
-  mejor puntaje, último puntaje y última actividad;
-- Pasos a reforzar, agrupados por guía: paso, veces sin acierto, intentos fallidos y el motivo
-  principal;
-- Curva de aprendizaje por guía (Chart.js): sus puntajes de Assessment en el tiempo, más un
-  texto de su práctica; "sin puntos" si no tiene;
-- Sesiones (tabla): fecha de inicio, guía, modo, estado, puntaje, duración e intentos
-  fallidos.
-La ficha impresa sale SIEMPRE en claro, sin menú, botones ni curva.
+- SU ÁREA (una tarjeta por guía publicada de su área, también las Sin iniciar): nombre y
+  título de la guía, insignia de estado, mejor puntaje, último puntaje y última actividad;
+- OTRAS ÁREAS (entrenamiento cruzado): sección COLAPSADA, solo con las guías de otras áreas
+  en las que tiene sesiones, con las mismas tarjetas; no aparece si no hay;
+- Pasos a reforzar, agrupados por guía, PRIMERO su área y después las otras: paso, veces sin
+  acierto, intentos fallidos y el motivo principal;
+- Curva de aprendizaje por guía (Chart.js), PRIMERO su área: sus puntajes de Assessment en el
+  tiempo, más un texto de su práctica; "sin puntos" si no tiene;
+- Sesiones (tabla completa, todas las áreas): fecha de inicio, ÁREA ("Producto · Área", con el
+  título de la guía al pasar el mouse; ya no hay columna Guía), modo, estado, puntaje,
+  duración e intentos fallidos.
+Ficha impresa: SIEMPRE en claro, sin menú, botones ni curva. Lleva su área completa, Pasos a
+reforzar y Sesiones COMPLETOS (también los de otras áreas); solo las TARJETAS de otras áreas
+se resumen en una línea "También entrenó: …".
 
 Queda fuera: editar al operador o cambiarle el área (eso es Usuarios), comparar con otros
-operadores, datos nuevos.
+operadores, período, historial de cambios de área, datos nuevos.
 
 Muestra también cómo se ve la ficha impresa de cada alternativa.
 ```
