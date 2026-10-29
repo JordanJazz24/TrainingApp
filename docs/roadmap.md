@@ -491,10 +491,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   `02`, `03`, `05`, `10`, `11` y `12`) y avisar a los trainers que los operadores eligen su área
   en el próximo ingreso (D-170).
 - Subir `TrainingApp` a `main` cuando lo decida (D-5).
-- Limpieza: `git worktree prune` (`fase-10`) y borrar la rama `spec-021`. La 024 ya está
-  integrada: `git worktree remove .claude/worktrees/spec-024`, `git branch -d spec-024` y borrar
-  `origin/spec-024` y `origin/cloud/024-dashboard-por-area`. No borrar
-  `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
+- Limpieza hecha el 2026-10-29 (`fase-10`, `spec-021`, `spec-024` y las ramas remotas de la
+  024). No borrar `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
 **Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-237 (hasta
 D-239) y B-30; la 024, D-275 (hasta D-279) y B-40 a B-49.
