@@ -478,12 +478,14 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   `connectionStrings.config` y la junction a `packages`, y después E1 a E4 con su ciclo (Rebuild,
   `aspnet_compiler`, `10_spDashboard.sql` en su BD, tests y el "funciona" del usuario por
   entrega; checklist de cada entrega en `024-plan.md`). Va antes de la E6 de la 022. En
-  paralelo o después, la siguiente pantalla de la 022 con mockup aprobado en `spec-022` (E3
-  Guías, E4 Pasos, E5 Seguimiento, E7 Usuarios o E8 Inicio), sin tocar los archivos de la 024.
+  paralelo o después, en `spec-022`, la **E3 de la 022 (Guías, lista)**: aprobada la 2b
+  (D-233 a D-236, integrada en `c8809ce`); punto de partida `cloud/022-guias` (`f715fe1`, "no
+  verificada"), con el conteo y el orden movidos a la BLL sin test (D-235) y el aviso que nombra
+  la guía (D-236); checklist en `022-plan.md` → E3. Sin tocar los archivos de la 024.
 - **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
-  integrado el 2026-10-29 en `e3b9df3`): Operadores y Operador ya se pueden diseñar en Claude
-  Design, junto con Guías, Seguimiento y Pasos. La E6 se implementa cuando la 024 esté en
-  `TrainingApp`.
+  integrado el 2026-10-29 en `e3b9df3`) y Guías aprobada (2b, `2bf024c`, integrado en
+  `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La E6 se
+  implementa cuando la 024 esté en `TrainingApp`.
 - **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
   ramas de handoff de la 022 que lleguen.
 
@@ -495,7 +497,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - Limpieza: `git worktree prune` (`fase-10`) y borrar la rama `spec-021`. No borrar
   `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
-**Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-233 (hasta
+**Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-237 (hasta
 D-239) y B-30; la 024, D-275 (hasta D-279) y B-40 a B-49.
 
 **Comunicación:** la nube recibe mensajes, pero no puede contestar. Su avance llega por su rama
