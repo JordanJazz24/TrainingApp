@@ -480,9 +480,10 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   entrega; checklist de cada entrega en `024-plan.md`). Va antes de la E6 de la 022. En
   paralelo o después, la siguiente pantalla de la 022 con mockup aprobado en `spec-022` (E3
   Guías, E4 Pasos, E5 Seguimiento, E7 Usuarios o E8 Inicio), sin tocar los archivos de la 024.
-- **Diseño UI/UX (nube):** enmendar con fecha los briefs 6 y 7 con la 024 (spec 024 → "Qué
-  cambia para la 022" y D-272/D-273); avisada el 2026-10-29. Sigue con Guías, Seguimiento
-  y Pasos en Claude Design.
+- **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
+  integrado el 2026-10-29 en `e3b9df3`): Operadores y Operador ya se pueden diseñar en Claude
+  Design, junto con Guías, Seguimiento y Pasos. La E6 se implementa cuando la 024 esté en
+  `TrainingApp`.
 - **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
   ramas de handoff de la 022 que lleguen.
 
