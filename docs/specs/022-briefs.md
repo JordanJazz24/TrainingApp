@@ -88,8 +88,8 @@ PANTALLA: <PANTALLA> (brief N).
 
 2. DISEÑA y publícalo como UN artifact privado (HTML y CSS puros con los tokens --mt-*, sin React ni recursos
    externos, con el interruptor de tema funcionando): la pantalla actual recreada y 3 alternativas que difieran en la
-   ESTRUCTURA (al menos una rompe con el v1 en estructura y en lo visual, D-237), cada una en claro, oscuro y tablet
-   (768 px), con datos de ejemplo realistas. Por alternativa: qué decide el usuario con ella, qué cambia frente al
+   ESTRUCTURA (al menos una rompe con el v1 en estructura y en lo visual, D-237), cada una como UNA página responsive
+   con el interruptor de tema (sin copias en claro, oscuro ni tablet, D-285), con datos de ejemplo realistas. Por alternativa: qué decide el usuario con ella, qué cambia frente al
    v1, QUÉ CONLLEVA (tokens y si afectan pantallas ya hechas, componentes, masters, esfuerzo) y las métricas
    derivadas que propone.
 
@@ -181,7 +181,9 @@ si cambian el resto de la app ya hecha: Login, Cambio de contraseña, Guías, Re
 componentes nuevos, si toca Admin.Master o pantallas ya implementadas, y el esfuerzo
 aproximado de implementarlo (bajo, medio, alto). Cada una con: una nota corta de qué decide el
 usuario con ella, la lista de cambios respecto al v1 y las métricas derivadas que proponga.
-Entrega cada alternativa en claro y en oscuro, con datos de ejemplo realistas (nombres en
+Cada alternativa es UNA sola página RESPONSIVE con el interruptor de tema: no dibujes copias
+en claro, en oscuro ni en tablet (D-285); el usuario cambia el tema con el interruptor y achica
+la ventana para ver tablet. Datos de ejemplo realistas (nombres en
 español, Code1 de 5 a 6 dígitos, guías de Moldeo, LoFlo, Subensamble 1 y Redefinity). La
 exportación final: un HTML autocontenido (CSS y SVG inline, sin recursos externos) con el
 interruptor de tema funcionando.
