@@ -190,6 +190,20 @@ Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `Training
 > 0 de `022-briefs.md`; entrega **E1b** del plan. Las pantallas ya hechas y Pasos la heredan
 > por el master; las que faltan se diseñan con ella.
 
+### Barra superior (2026-10-29, propuesta 1 de la cuarta ronda, D-286 a D-290)
+
+Rama de partida: `cloud/022-barra-superior` (desde `TrainingApp`, "no verificada"); implementada y
+probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criterio:
+`022-design/barra-superior.md` (entra con `spec-022`). Se descartaron tres rondas antes (A a G).
+
+| D | Qué |
+|---|---|
+| D-286 | **Propuesta 1, "banda de marca con menú agrupado":** una fila en el azul del Login 3b (`--mt-brand-bg` con su retícula), un componente para `Admin.Master` y `Site.Master`. Marca: baldosa `bi-display` y "TrainingApp" (D-238). **Admin:** las 6 vistas en dos grupos con nombre, "Dashboard" (Resumen, Operadores, Pasos, Seguimiento) y "Administración" (Usuarios, Guías), como pastillas; la vista actual rellena en `--mt-on-brand` y en negrita, no solo color. **Operador:** sin menú, con "Tu área · Producto · Área" junto a la marca. **Cuenta:** iniciales, nombre y, debajo, el último acceso (admin) o "Code1 n" (operador); después tema y Cerrar sesión |
+| D-287 | **Tokens nuevos** (valen para toda la app; ninguno existente cambia): `--mt-brand-raise` `rgba(255,255,255,.10)` / `.07` (pastillas, baldosa y botones sobre la marca) y `--mt-brand-edge` `rgba(255,255,255,.22)` / `.16` (bordes, divisores y hover). El Login puede pasar a ellos sin cambio visible (no se tocó) |
+| D-288 | **Componente `.mt-topbar`**, que reemplaza a `.admin-bar` (se borran `.admin-brand`, `.admin-nav-links`, `.admin-bar-end` y `.admin-user*`). Los masters suman controles de presentación (`LitCurrent`, `PhAdminGroup`, `UserAccount`, `LitInitials`; en `Site.Master` `PhArea`, `LitArea` y `ShowArea`, que llama `StartSession`) y `UI/master/TopBar.cs` (iniciales y título, solo presentación); `theme.js` abre y cierra el menú plegado sin postback. **Responsive:** bajo 1400 px el último acceso pasa al `title`; bajo 1200 px el menú se pliega en "Menú · <vista>"; a 991 px o menos, iniciales y botones con ícono; a 575 px o menos, la baldosa sola. La impresión la oculta |
+| D-289 | **Cambio a una pantalla cerrada (Pasos, E4):** la franja de Pasos pasa a ser una **tarjeta** (margen, esquinas de 16 px, sombra, al ancho de `.steps-wrap`), para no tener dos bandas azules seguidas bajo la barra. Precisa D-239 |
+| D-290 | **Textos:** `Site.Master` dice "TrainingApp" en la marca y el `<title>` (antes "Simulador de entrenamiento MES"); el admin ve su **nombre** (antes su Code1; si no hay nombre, el Code1); el operador "Code1 n" y "Tu área"; nuevos "Dashboard", "Administración" y "Menú" |
+
 ### Pasos (2026-10-29, alternativa 4a con el encabezado H4, D-239 y D-280 a D-283)
 
 Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `TrainingApp`. Criterio:

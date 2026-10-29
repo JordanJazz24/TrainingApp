@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-242 (local, rango D-240 a D-259) · D-286 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-242 (local, rango D-240 a D-259) · D-291 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -271,7 +271,7 @@
 | D-236 | 2026-10-29 | Spec 022, Guías: el aviso de guardado nombra la guía | specs/022-mockups-por-pantalla.md | vigente |
 | D-237 | 2026-10-29 | Spec 022: el v1 es referencia, no molde: al menos una alternativa por pantalla rompe con el v1 en estructura y en lo visual; cada cambio marca qué conlleva (tokens, pantallas ya hechas, componentes, esfuerzo). Precisa D-206 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-238 | 2026-10-29 | Spec 022: la barra superior (navbar horizontal, Admin.Master y Site.Master) entra como pantalla 0 con mockup propio y entrega E1b, antes de Seguimiento; marca siempre "TrainingApp"; la del operador la propone el diseño con datos existentes | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
-| D-239 | 2026-10-29 | Spec 022, Pasos: alternativa 4a "mesa de enseñanza" (franja con filtros, una columna por paso, panel del paso elegido sin postback, ranking completo abajo) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | enmendada (D-241: el ranking completo, plegado) |
+| D-239 | 2026-10-29 | Spec 022, Pasos: alternativa 4a "mesa de enseñanza" (franja con filtros, una columna por paso, panel del paso elegido sin postback, ranking completo abajo) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | enmendada (D-241: el ranking completo, plegado; D-289: la franja como tarjeta) |
 | D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | enmendada (D-285: sin captura de tablet) |
 | D-241 | 2026-10-29 | Spec 022, Pasos: el ranking completo va plegado (`<details>`, "Mostrar / Ocultar"), porque repite las columnas y el panel del elegido; la lista no se quita. Enmienda D-239 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
@@ -295,6 +295,11 @@
 | D-283 | 2026-10-29 | Spec 022, Pasos: textos nuevos; la parte de cada motivo en la BLL, sin test (como D-235) | specs/022-mockups-por-pantalla.md | vigente |
 | D-284 | 2026-10-29 | Spec 022: las sesiones de diseño de la nube hacen una vuelta de crítica con `design:design-critique` antes de que el usuario elija (una corrección, resumen en el artifact); sin revisión de accesibilidad ni textos con skills aparte | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-285 | 2026-10-29 | Spec 022: cada alternativa del mockup es una página responsive con el interruptor de tema, sin copias en claro, oscuro ni tablet; las capturas finales de Desarrollo quedan en claro y oscuro (sin tablet). Enmienda D-240 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
+| D-286 | 2026-10-29 | Spec 022, Barra superior: propuesta 1, banda de marca azul con el menú del admin en dos grupos ("Dashboard" y "Administración"), el área del operador y la cuenta con iniciales | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-287 | 2026-10-29 | Spec 022, Barra superior: tokens nuevos `--mt-brand-raise` y `--mt-brand-edge` (toda la app; ninguno existente cambia) | specs/022-mockups-por-pantalla.md | vigente |
+| D-288 | 2026-10-29 | Spec 022, Barra superior: componente `.mt-topbar` en lugar de `.admin-bar`, controles de presentación en los masters, `TopBar.cs`, menú plegado en `theme.js` y su responsive | specs/022-mockups-por-pantalla.md | vigente |
+| D-289 | 2026-10-29 | Spec 022: la franja de Pasos pasa a tarjeta, para no tener dos bandas azules (precisa D-239) | specs/022-mockups-por-pantalla.md | vigente |
+| D-290 | 2026-10-29 | Spec 022, Barra superior: textos ("TrainingApp" en `Site.Master`, el nombre del admin en vez de su Code1, "Tu área", "Dashboard", "Administración", "Menú") | specs/022-mockups-por-pantalla.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
