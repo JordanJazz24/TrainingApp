@@ -473,17 +473,21 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   `cloud/022-pasos`: sin paleta propia (D-280), `Admin.Master` solo con `WideMain` (D-281), Modo
   segmentado (D-282), la parte de cada motivo en la BLL sin test (D-283) y el ranking completo
   plegado (D-241, pedido del usuario al probar); sin capturas (D-240, decisión del usuario).
-  Pendientes: la **E1b (barra superior, D-238)**, bloqueada hasta el mockup del brief 0, va
-  antes de la E5; E5 a E8 esperan sus mockups. Orden vigente: D-219.
+  **E1b (barra superior, D-238) cerrada en `spec-022` el 2026-10-29, sin integrar todavía en
+  `TrainingApp`** (`b34eafb` desde `cloud/022-barra-superior` tal cual y el cierre `feb1f4f`):
+  propuesta 1, banda de marca con menú agrupado (`022-design/barra-superior.md`), probada por el
+  usuario con los dos roles; sin capturas (D-240). **Falta su D-n** (aprobación, tokens nuevos
+  `--mt-brand-raise` y `--mt-brand-edge`, y la franja de Pasos como tarjeta): la registra Diseño
+  UI/UX en su rango (D-286). E5 a E8 esperan sus mockups. Orden vigente: D-219.
 - ✅ **Spec 024 · Dashboard por área** (2026-10-29): hecha en la nube, revisada en local
   (enmienda 1, D-272 a D-274) y verificada por Desarrollo en `spec-024` (Rebuild,
   `aspnet_compiler`, 461 tests y el "funciona" del usuario; cierre `ab81231`). Integrada en
   `TrainingApp` el 2026-10-29 (`e86a9f3`). Desbloquea la E6 de la 022.
 
 **Sigue, por sesión:**
-- **Desarrollo (local, `spec-022`):** sin entrega en curso. Sigue la **E1b (barra superior)**
-  cuando Diseño apruebe el mockup del brief 0; después E5 Seguimiento, E6 Operadores y Operador,
-  E7 Usuarios o E8 Inicio, según se aprueben sus mockups.
+- **Desarrollo (local, `spec-022`):** E1b cerrada; integrarla en `TrainingApp` cuando el usuario
+  lo apruebe. Después E5 Seguimiento, E6 Operadores y Operador, E7 Usuarios o E8 Inicio, según
+  se aprueben sus mockups.
 - **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
   integrado el 2026-10-29 en `e3b9df3`) y Guías aprobada (2b, `2bf024c`, integrado en
   `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La 024 ya está en
