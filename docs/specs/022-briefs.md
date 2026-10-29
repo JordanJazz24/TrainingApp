@@ -298,8 +298,7 @@ Ideas permitidas como métrica derivada: cuántos casos hay por regla, cuántos 
 
 > **Enmendado 2026-10-29 con la spec 024 "Dashboard por área"** (aprobada; D-260 a D-273;
 > `024-dashboard-por-area.md` → "Qué cambia para la 022"): ya no hay columnas por guía; una
-> columna "Estado en su área"; filtro de Área nuevo; sin filtro de Guía. **Se diseña sobre el
-> código de la 024**: la E6 del plan espera a que esté integrada en `TrainingApp`.
+> columna "Estado en su área"; filtro de Área nuevo; sin filtro de Guía. **Se diseña sobre el código de la 024**, ya integrado en `TrainingApp` (`e86a9f3`, 2026-10-29).
 
 **Capturas:** la lista con filtros vacíos y con Área = una y Estado = Sin iniciar, en claro y
 oscuro; si se puede, a 768 px.
@@ -337,8 +336,7 @@ están en cada estado, quién no tiene actividad reciente.
 
 > **Enmendado 2026-10-29 con la spec 024** (aprobada, con su enmienda 1: D-272 y D-273): su
 > área primero, las otras áreas en una sección colapsada, Sesiones con columna Área y la ficha
-> con "También entrenó". **Se diseña sobre el código de la 024**: la E6 del plan espera a que
-> esté integrada en `TrainingApp`.
+> con "También entrenó". **Se diseña sobre el código de la 024**, ya integrado en `TrainingApp` (`e86a9f3`, 2026-10-29).
 
 **Capturas:** un operador con entrenamiento cruzado (sesiones en otra área) y uno sin área, en
 claro y oscuro, y la vista de impresión (ficha).
