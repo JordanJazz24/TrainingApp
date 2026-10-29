@@ -1,6 +1,6 @@
 # Spec 024: Dashboard por área (Operadores y Operador)
 
-**Status:** Implemented en la nube, **no verificada** (2026-10-28: E1 `091f62c`, E2 `edf946a`, E3 `f5b1d74`, E4 `bc473e9`) · Approved 2026-10-28 · **enmendada 2026-10-29** (enmienda 1: D-272 a D-274) · plan `024-plan.md`
+**Status:** Implemented, **verificada en local** (2026-10-29, Desarrollo; probada por el usuario) · hecha en la nube (2026-10-28: E1 `091f62c`, E2 `edf946a`, E3 `f5b1d74`, E4 `bc473e9`) · Approved 2026-10-28 · **enmendada 2026-10-29** (enmienda 1: D-272 a D-274) · plan `024-plan.md`
 **Date:** 2026-10-28 · **Origen:** Arquitectura y Planeación (local), después de cerrar la 021 ·
 **Sesión:** `TrainingApp-Desarrollo` en la nube, de punta a punta (`docs/process.md` →
 "Variante temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`
