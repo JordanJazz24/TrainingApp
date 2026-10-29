@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using TrainingApp.BLL.Reports;
+using TrainingApp.BLL.Training;
 using TrainingApp.Domain;
 
 namespace TrainingApp.Pages.Admin
@@ -47,6 +48,24 @@ namespace TrainingApp.Pages.Admin
                 default:                        return "bi bi-dash-circle";
             }
         }
+
+        // El estado de un operador que no tiene guías que entrenar en su área (spec 024, D-267,
+        // P-5); null si las tiene (entonces van sus insignias).
+        public static string AreaNote(OperatorAreaStatus status)
+        {
+            switch (status)
+            {
+                case OperatorAreaStatus.NoArea:           return AreaLabel.NoArea;
+                case OperatorAreaStatus.NoPublishedGuide: return "Sin guía publicada";
+                default:                                  return null;
+            }
+        }
+
+        // "Mejor 85.0% · Último 60.0%"; vacío sin Assessment completados.
+        public static string Scores(GuideReadiness readiness)
+            => readiness.BestScore.HasValue
+                ? "Mejor " + Score(readiness.BestScore) + " · Último " + Score(readiness.LastScore)
+                : string.Empty;
 
         // Puntaje de 0 a 1 como en el resumen final del operador ("85.0%").
         public static string Score(decimal? score)

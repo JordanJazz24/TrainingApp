@@ -11,7 +11,9 @@ namespace TrainingApp.Domain
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        // Su área, solo para mostrarla (spec 021, D-175); null si no tiene.
+        // Su área (spec 021); null si no la eligió. El dashboard la muestra y filtra por ella
+        // (spec 024).
+        public int? AreaId { get; set; }
         public string ProductName { get; set; }
         public string AreaName { get; set; }
     }

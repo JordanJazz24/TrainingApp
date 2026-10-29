@@ -2,15 +2,15 @@
     AutoEventWireup="true" CodeBehind="Operators.aspx.cs"
     Inherits="TrainingApp.Pages.Admin.Operators" %>
 
-<%-- Operadores (spec 018, AC-7 y AC-13; diseño de la Fase 11, D-160): estado por guía
-     (ReadinessPolicy), mejor y último puntaje de Assessment y última actividad, con búsqueda y
-     filtros en la URL (un enlace, F5 o Atrás conservan la vista) y 50 por página en el
-     servidor. Solo lectura. --%>
+<%-- Operadores (spec 018, AC-7 y AC-13; diseño de la Fase 11, D-160; por área, spec 024): el
+     estado en las guías de su área (OperatorArea, D-261), mejor y último puntaje de Assessment y
+     última actividad, con búsqueda y filtros Área y Estado en la URL (un enlace, F5 o Atrás
+     conservan la vista) y 50 por página en el servidor. Solo lectura. --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="admin-page-head">
         <div>
             <h1 class="admin-page-title">Operadores</h1>
-            <p class="admin-page-lead">El estado de cada operador en cada guía.</p>
+            <p class="admin-page-lead">El estado de cada operador en la guía de su área.</p>
         </div>
     </div>
 
@@ -33,8 +33,24 @@
                 </asp:DropDownList>
             </div>
             <div class="mt-field">
-                <label class="mt-field-label" for="<%= DdlGuide.ClientID %>">Guía</label>
-                <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
+                <%-- Área (D-262): un <select> nativo agrupado por producto, como "Elige tu área"
+                     (DropDownList no tiene optgroup); la BLL valida el valor (P-4). --%>
+                <label class="mt-field-label" for="operatorsArea">Área</label>
+                <select id="operatorsArea" name="area" class="form-select">
+                    <option value=""<%= AreaAllSelected ? " selected" : "" %>>Todas</option>
+                    <asp:Repeater ID="RptAreaGroups" runat="server" EnableViewState="false">
+                        <ItemTemplate>
+                            <optgroup label="<%#: Eval("ProductName") %>">
+                                <asp:Repeater runat="server" DataSource='<%# Eval("Areas") %>'>
+                                    <ItemTemplate>
+                                        <option value="<%#: Eval("AreaId") %>"<%# (bool)Eval("Selected") ? " selected" : "" %>><%#: Eval("AreaName") %></option>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </optgroup>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                    <option value="none"<%= AreaNoneSelected ? " selected" : "" %>>Sin área</option>
+                </select>
             </div>
             <asp:Button ID="BtnFilter" runat="server" Text="Filtrar" CssClass="btn btn-secondary"
                 OnClick="BtnFilter_Click" />
@@ -49,11 +65,7 @@
                         <tr>
                             <th scope="col">Operador</th>
                             <th scope="col">Área</th>
-                            <asp:Repeater ID="RptGuideHeaders" runat="server">
-                                <ItemTemplate>
-                                    <th scope="col" title='<%#: Eval("Title") %>'><%#: Eval("AreaName") %></th>
-                                </ItemTemplate>
-                            </asp:Repeater>
+                            <th scope="col">Estado en su área</th>
                             <th scope="col" class="mt-col-secondary">Última actividad</th>
                         </tr>
                     </thead>
@@ -66,14 +78,19 @@
                                         <span class="mt-muted mt-small d-block"><%#: Eval("Code1") %></span>
                                     </td>
                                     <td class="text-nowrap"><%#: Eval("AreaText") %></td>
-                                    <asp:Repeater runat="server" DataSource='<%# Eval("Guides") %>'>
-                                        <ItemTemplate>
-                                            <td>
-                                                <span class='<%#: Eval("StateCss") %>'><i class='<%#: Eval("StateIcon") %>' aria-hidden="true"></i><%#: Eval("StateText") %></span>
-                                                <span class="mt-muted mt-small d-block mt-1"><%#: Eval("ScoresText") %></span>
-                                            </td>
-                                        </ItemTemplate>
-                                    </asp:Repeater>
+                                    <td>
+                                        <asp:PlaceHolder runat="server" Visible='<%# (bool)Eval("HasAreaNote") %>'>
+                                            <span class="mt-muted"><%#: Eval("AreaNote") %></span>
+                                        </asp:PlaceHolder>
+                                        <asp:Repeater runat="server" DataSource='<%# Eval("AreaGuides") %>'>
+                                            <ItemTemplate>
+                                                <div class="operators-area-guide">
+                                                    <span class='<%#: Eval("StateCss") %>'><i class='<%#: Eval("StateIcon") %>' aria-hidden="true"></i><%#: Eval("StateText") %></span>
+                                                    <span class="mt-muted mt-small d-block mt-1"><%#: Eval("ScoresText") %></span>
+                                                </div>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </td>
                                     <td class="mt-col-secondary mt-muted text-nowrap"><%#: Eval("LastActivityText") %></td>
                                 </tr>
                             </ItemTemplate>

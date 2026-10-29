@@ -12,7 +12,7 @@ namespace TrainingApp.Pages.Admin
 {
     // Operadores (spec 018, AC-7 y AC-13). Solo UI: el estado lo decide ReadinessPolicy y la
     // búsqueda, los filtros y la paginación DashboardService. Los filtros viven en la URL
-    // (?q=…&state=…&guide=…&page=…): nada se guarda en Session.
+    // (?q=…&state=…&area=…&page=…; spec 024): nada se guarda en Session.
     public partial class Operators : Page
     {
         private const string PageUrl = "~/Pages/Admin/Operators.aspx";
@@ -68,12 +68,12 @@ namespace TrainingApp.Pages.Admin
             }
         }
 
-        // Filtrar vuelve a la página 1 con los filtros en la URL.
+        // Filtrar vuelve a la página 1 con los filtros en la URL. El área llega del <select> nativo
+        // (agrupado por producto, sin EventValidation): la BLL vuelve a validarla (P-4).
         protected void BtnFilter_Click(object sender, EventArgs e)
         {
-            int.TryParse(DdlGuide.SelectedValue, out int guideId);
             Response.Redirect(BuildUrl(TxtSearch.Text.Trim(), DdlState.SelectedValue,
-                guideId > 0 ? guideId : (int?)null, 1));
+                (Request.Form["area"] ?? string.Empty).Trim(), 1));
         }
 
         private void Bind(OperatorFilter filter)
@@ -84,16 +84,24 @@ namespace TrainingApp.Pages.Admin
             var applied = result.Applied;
             string stateValue = applied.State.HasValue
                 ? ReportFilters.StateValues.First(kv => kv.Value == applied.State.Value).Key : string.Empty;
-            int? guideId = applied.GuideId;
+            string areaValue = applied.WithoutArea ? ReportFilters.AreaNone
+                : applied.AreaId.HasValue ? applied.AreaId.Value.ToString() : string.Empty;
             TxtSearch.Text = applied.Text;
             DdlState.SelectedValue = stateValue;
-            DdlGuide.Items.Clear();
-            DdlGuide.Items.Add(new ListItem("Todas", string.Empty));
-            foreach (var g in result.Guides)
-                DdlGuide.Items.Add(new ListItem(g.AreaName, g.Id.ToString()) { Selected = g.Id == guideId });
 
-            RptGuideHeaders.DataSource = result.Guides;
-            RptGuideHeaders.DataBind();
+            // Área (D-262): Todas, las áreas con guía publicada agrupadas por producto y Sin área.
+            AreaAllSelected  = areaValue.Length == 0;
+            AreaNoneSelected = applied.WithoutArea;
+            RptAreaGroups.DataSource = result.Areas
+                .GroupBy(a => a.ProductName)
+                .Select(g => new
+                {
+                    ProductName = g.Key,
+                    Areas = g.Select(a => new { a.AreaId, a.AreaName, Selected = applied.AreaId == a.AreaId }).ToList()
+                })
+                .ToList();
+            RptAreaGroups.DataBind();
+
             RptOperators.DataSource = result.Rows.Select(ToRow).ToList();
             RptOperators.DataBind();
 
@@ -104,8 +112,8 @@ namespace TrainingApp.Pages.Admin
             LitPageInfo.Text = string.Format("Página {0} de {1} · {2} operadores", result.Page, result.PageCount, result.Total);
             LnkPrev.Visible = result.Page > 1;
             LnkNext.Visible = result.Page < result.PageCount;
-            LnkPrev.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, guideId, result.Page - 1);
-            LnkNext.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, guideId, result.Page + 1);
+            LnkPrev.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, areaValue, result.Page - 1);
+            LnkNext.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, areaValue, result.Page + 1);
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewOperators, Request.QueryString);
         }
 
@@ -119,25 +127,29 @@ namespace TrainingApp.Pages.Admin
                 AreaText         = row.AreaText,
                 LastActivityText = ReportText.Date(row.LastActivity),
                 DetailUrl        = VirtualPathUtility.ToAbsolute("~/Pages/Admin/Operator.aspx") + "?id=" + row.UserId,
-                // "Sin iniciar" también es un estado con su insignia (P-2), no un "—".
-                Guides           = row.Guides.Select(g => new OperatorGuideCell
+                // "Sin iniciar" también es un estado con su insignia (P-2), no un "—"; sin guías que
+                // entrenar en su área, el texto atenuado (spec 024, D-267, P-5).
+                AreaNote         = ReportText.AreaNote(row.AreaStatus),
+                AreaGuides       = row.AreaGuides.Select(g => new OperatorGuideCell
                 {
                     StateText   = ReportText.State(g.State),
                     StateCss    = ReportText.StateCss(g.State),
                     StateIcon   = ReportText.StateIcon(g.State),
-                    ScoresText  = g.BestScore.HasValue
-                        ? "Mejor " + ReportText.Score(g.BestScore) + " · Último " + ReportText.Score(g.LastScore)
-                        : string.Empty
+                    ScoresText  = ReportText.Scores(g)
                 }).ToList()
             };
         }
 
-        private string BuildUrl(string text, string state, int? guideId, int page)
+        // El <option> de Todas o Sin área seleccionado (el de cada área lo marca su fila).
+        protected bool AreaAllSelected { get; private set; }
+        protected bool AreaNoneSelected { get; private set; }
+
+        private string BuildUrl(string text, string state, string area, int page)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (!string.IsNullOrWhiteSpace(text)) query["q"] = text.Trim();
             if (!string.IsNullOrEmpty(state)) query["state"] = state;
-            if (guideId.HasValue) query["guide"] = guideId.Value.ToString();
+            if (!string.IsNullOrEmpty(area)) query["area"] = area;
             if (page > 1) query["page"] = page.ToString();
             var url = ResolveUrl(PageUrl);
             return query.Count == 0 ? url : url + "?" + query;

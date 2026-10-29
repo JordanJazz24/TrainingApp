@@ -617,6 +617,12 @@ Plan, enmiendas y mediciones: `docs/specs/018-plan.md`. Reglas de negocio:
   inicio del rol con `SessionHelper.RedirectHomeAfterRoleChange`, B-3).
 - **`ReadinessPolicy`** es la única regla de estado (Aprobado, Reprobado, En entrenamiento);
   tasas, seguimiento, curva, Excel y ficha le preguntan.
+- **`OperatorArea`** (spec 024) es la única regla de "su área" en Operadores y Operador: con
+  las guías publicadas, el `AreaId` actual del operador y sus sesiones, separa sus guías (las de
+  su área, también Sin iniciar) de las otras con sesiones, da su estado (`NoArea`,
+  `NoPublishedGuide` o con guías) y decide Sin iniciar y el filtro Estado. Usa `ReadinessPolicy`
+  por guía. El filtro Área se aplica en `DashboardService`, antes de paginar (los SPs solo
+  devuelven `AreaId`, P-3).
 - **`StepRuns`** arma cada paso de una sesión desde sus intentos (duración DA-2, fallos sin
   saltos, sin acierto, resultado) y es la misma regla para el detalle, Pasos, el top 5,
   Seguimiento (S-3) y el Excel (D-146).
@@ -643,7 +649,8 @@ Plan, enmiendas y mediciones: `docs/specs/018-plan.md`. Reglas de negocio:
   períodos y la actividad del Resumen.
 - **Ficha imprimible (D-150):** el detalle del Operador impreso desde el navegador; `@media
   print` en `admin.css` y `d-print-none` ocultan el menú, los botones y la curva. Sale en
-  claro aunque el tema oscuro esté activo (D-157).
+  claro aunque el tema oscuro esté activo (D-157). "Otras áreas" (un `<details>` nativo) no se
+  imprime: va la línea "También entrenó" (spec 024, D-270).
 - **Rendimiento (AC-24, E7):** medido con `DashboardPerformanceTests` (explícito) contra la BD
   del generador; las vistas y descargas en menos de 3 s, salvo las sesiones con "Todo" (D-148).
 

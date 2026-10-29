@@ -404,8 +404,10 @@ cargada crea una versión nueva (D-56, `docs/architecture.md` → "Versión de l
   intento (D-173, B-20). Una sesión en curso de otra área (el admin cambió el área) se termina y
   cuenta como siempre (D-174).
 - **Texto:** "Producto · Área" en todas partes; "Sin área" para un operador sin área y "—" para
-  un administrador (P-9). El dashboard solo la **muestra**: filtros, estados y cálculos siguen
-  por la guía (D-175).
+  un administrador (P-9).
+- **En el dashboard** (spec 024; enmienda D-175): Operadores y Operador se miran por **su área
+  actual**, sin historial de cambios (D-271/P-1); Resumen, Pasos y Seguimiento siguen por la
+  guía. Reglas: "Dashboard de Training" → "Operadores y Operador por área".
 
 ## Dashboard de Training (spec 018)
 
@@ -420,7 +422,9 @@ Solo lectura; cambian lo que se **muestra**, nunca cómo se entrena o se calific
   - **Reprobado:** Assessment completados de la guía y ninguno aprobado.
   - **En entrenamiento:** sesiones de la guía, pero ningún Assessment completado (Guided,
     Práctica libre, o Assessment en curso o abandonado).
-  - **Sin iniciar** (estado general): ninguna sesión en ninguna guía publicada.
+  - **Sin iniciar** (estado general, spec 024, D-263): el operador tiene área, su área tiene guía
+    publicada y no tiene ninguna sesión en las guías publicadas **de su área** (aunque haya
+    entrenado otra). Un operador sin área o con su área sin guía publicada no es Sin iniciar.
 - **Período** de las vistas, por la fecha de **inicio** de la sesión. El estado y Seguimiento
   lo ignoran. Operadores y Operador usan todo el historial. Pasos y Resumen (spec 023,
   D-209 a D-218):
@@ -455,6 +459,19 @@ Solo lectura; cambian lo que se **muestra**, nunca cómo se entrena o se calific
     salto. Duración de la sesión: `CompletedAt − StartedAt` ("—" en curso).
   - **top 5 del Resumen:** los primeros de Pasos en Assessment con el mismo período y guía,
     solo pasos con algún fallo.
+- **Operadores y Operador por área** (spec 024, D-260 a D-271). Hoy cada operador tiene **una
+  guía que entrenar**: la publicada de su área; las áreas de un producto que comparten contenido
+  se cargan con una copia por área (D-268).
+  - **Operadores:** una columna "Estado en su área" (sin columnas por guía, D-261); filtros
+    Buscar, **Área** (Todas, las áreas con guía publicada agrupadas por producto, y Sin área;
+    D-262, D-267) y Estado, evaluado en las guías de su área (con varias, "alguna", P-6). Sin
+    filtro de guía (D-264); las guías de otras áreas no salen en la lista (D-265, D-266). "Sin
+    área" y "Sin guía publicada" no tienen insignia y solo salen con Estado = Todos (D-267, P-5).
+    El Excel, igual que la pantalla (P-7).
+  - **Operador:** "Su área" (sus guías, también Sin iniciar) y "Otras áreas (entrenamiento
+    cruzado)" con las guías de otras áreas que tienen sesiones, cerrada (abierta si no tiene
+    área); Reforzar y curvas, su área primero; Sesiones de todas las áreas con su área (D-269,
+    P-8). En la ficha, las otras áreas en una línea (D-270).
 - **Pasos a reforzar** (detalle del Operador): en sus Assessment de cada guía, los pasos que
   terminaron sin acierto o con 2 o más intentos fallidos en una sesión; por veces sin acierto
   y después por intentos fallidos, hasta 5 por guía, con el motivo más frecuente.

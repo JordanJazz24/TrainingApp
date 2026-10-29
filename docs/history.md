@@ -590,6 +590,26 @@ resúmenes (D-197).
 - **Queda abierto:** correr `00`, `01`, `02`, `05` y `10` en la BD de producción antes de
   publicar y avisar a los trainers (D-170).
 
+## Spec 024 · Dashboard por área ✅ (2026-10-29)
+**Objetivo:** mirar Operadores y Operador por el área de cada operador (spec
+`docs/specs/024-dashboard-por-area.md`, plan `024-plan.md`, D-260 a D-274; enmienda D-175).
+Hecha de punta a punta en la nube (variante temporal de `process.md`), revisada en local por
+Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spec-024`.
+- **E1 (`091f62c`, datos y BLL):** `AreaId` en `spDashboardGuides` y `spDashboardOperators`;
+  `BLL/Reports/OperatorArea.cs` (sus guías y las de otras áreas, estado en su área, Sin iniciar
+  nueva, D-263); `DashboardService` filtra por área y estado antes de paginar.
+- **E2 (`edf946a`, Operadores):** filtro Área agrupado por producto (D-262), columnas Área,
+  Estado en su área y Última actividad; `?guide=` viejo e `?area=` inválido valen Todas; el
+  Excel con las columnas nuevas.
+- **E3 (`f5b1d74`, Operador):** "Su área" y "Otras áreas (entrenamiento cruzado)" en un
+  `<details>`; Sesiones con columna Área (D-272); la ficha con "También entrenó" y Reforzar y
+  Sesiones completos (D-270, D-273).
+- **E4 (`bc473e9`, cierre en la nube):** `domain.md`, `architecture.md` y `decisions.md` (D-175
+  enmendada). El hook y `tools/` de la nube no entraron (D-274).
+- **Verificación local (Desarrollo):** merge de `TrainingApp`, Rebuild, `aspnet_compiler`, 461
+  tests en verde y `10_spDashboard.sql` en la BD del usuario. Probada por el usuario.
+- **Queda abierto:** correr `10_spDashboard.sql` en la BD de producción antes de publicar.
+
 ## Spec 022 · Un mockup por pantalla (en curso, 2026-10-28)
 **Objetivo:** rediseñar cada pantalla de `Admin.Master` según su mockup aprobado (spec
 `docs/specs/022-mockups-por-pantalla.md`, plan `022-plan.md`). Rama `spec-022`, en el worktree
