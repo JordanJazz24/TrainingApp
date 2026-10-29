@@ -164,19 +164,19 @@ rotos, en claro y oscuro.
 
 **Bloqueada hasta:** E1 y el mockup de Guías.
 
-- [ ] `Pages/Admin/Guides.aspx`: la estructura aprobada (2b, D-233, D-234); mismos `RptGuides`,
+- [x] `Pages/Admin/Guides.aspx`: la estructura aprobada (2b, D-233, D-234); mismos `RptGuides`,
       `DdlType` y `BtnSave` por fila, con su confirmación. Estado vacío. Punto de partida:
       `cloud/022-guias` (`f715fe1`, "no verificada"; sale de `TrainingApp`).
-- [ ] **Mover a la BLL** el conteo por tipo y el orden Custom primero (D-235): el handoff los
+- [x] **Mover a la BLL** el conteo por tipo y el orden Custom primero (D-235): el handoff los
       dejó en `BindGuides()` del code-behind. La página solo enlaza lo que devuelve la BLL.
       Sin test (D-235).
-- [ ] El aviso de guardado nombra la guía (D-236).
-- [ ] Revisar en la rama del handoff (no se compiló): los 4 controles nuevos en
+- [x] El aviso de guardado nombra la guía (D-236).
+- [x] Revisar en la rama del handoff (no se compiló): los 4 controles nuevos en
       `Guides.aspx.designer.cs` (`PhCounts`, `LitCountStandard`, `LitCountCustom`,
       `PhOrderNote`); orden y conteos con 0, 1 y varias guías de cada tipo.
-- [ ] Sin `/code-review` si solo es markup; si se toca el code-behind, `low --max-findings 3`
+- [x] Sin `/code-review` si solo es markup; si se toca el code-behind, `low --max-findings 3`
       con foco en `CanManageGuides` y en los ids de fila.
-- [ ] Checklist común + cambiar una guía a Custom y volver a Estándar; la sesión en curso no
+- [x] Checklist común + cambiar una guía a Custom y volver a Estándar; la sesión en curso no
       cambia (spec 020).
 
 **Hecho cuando:** el usuario cambia el tipo de una guía y dice "funciona".

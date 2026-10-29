@@ -9,16 +9,26 @@
      cambio lo verifica otra vez GuideAdminService. --%>
 <asp:Content ID="Content1" ContentPlaceHolderID="MainContent" runat="server">
     <div class="admin-page-head">
-        <h1 class="admin-page-title">Guías</h1>
-        <p class="admin-page-lead">
-            Elija la pantalla de Resource Setup de cada guía. El cambio vale para las sesiones que
-            empiecen desde ahora; las que están en curso siguen con la suya.
-        </p>
+        <%-- Título y leyenda juntos: la leyenda va debajo del título, como en las demás vistas. --%>
+        <div>
+            <h1 class="admin-page-title">Guías</h1>
+            <p class="admin-page-lead">
+                Elija la pantalla de Resource Setup de cada guía. El cambio vale para las sesiones que
+                empiecen desde ahora; las que están en curso siguen con la suya.
+            </p>
+        </div>
     </div>
 
     <section class="mt-panel" aria-labelledby="guidesTitle">
-        <div class="mt-panel-body">
+        <div class="mt-panel-body guides-head">
             <h2 id="guidesTitle" class="mt-block-title">Guías publicadas</h2>
+            <%-- Conteo por tipo (brief 022, 2b); se oculta si no hay guías. --%>
+            <asp:PlaceHolder ID="PhCounts" runat="server">
+                <div class="guides-counts">
+                    <span class="mt-chip"><i class="bi bi-gear" aria-hidden="true"></i><b><asp:Literal ID="LitCountStandard" runat="server" /></b> Estándar</span>
+                    <span class="mt-chip"><i class="bi bi-stars" aria-hidden="true"></i><b><asp:Literal ID="LitCountCustom" runat="server" /></b> Custom</span>
+                </div>
+            </asp:PlaceHolder>
         </div>
 
         <div class="mt-table-wrap">
@@ -63,6 +73,10 @@
 
         <asp:Label ID="LblEmpty" runat="server" CssClass="mt-empty" Visible="false"
             Text="No hay guías publicadas." />
+
+        <asp:PlaceHolder ID="PhOrderNote" runat="server">
+            <p class="guides-note"><i class="bi bi-info-circle" aria-hidden="true"></i>Las guías con Custom van primero.</p>
+        </asp:PlaceHolder>
     </section>
 
     <script>
