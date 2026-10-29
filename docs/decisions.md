@@ -16,7 +16,7 @@
 >   **2026-10-28:** la sesión local agotó D-208 a D-219 (la 023 y D-219) y toma **D-240 a
 >   D-259**; el siguiente libre es D-260.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
->   **D-260 a D-279** y **B-40 a B-49**; siguiente: **D-272** · **B-40**.
+>   **D-260 a D-279** y **B-40 a B-49**; siguiente: **D-275** · **B-40**.
 > - **Rangos anteriores, cerrados:** la Fase 11 usó D-153 a D-164, la spec 021 D-165 a D-179 y
 >   R3 D-180 a D-201 (y B-20).
 > - Quien numera una decisión o un bug agrega su fila **en el mismo commit** que la fuente.
@@ -274,6 +274,9 @@
 | D-269 | 2026-10-28 | Spec 024: Operador con "Su área" y "Otras áreas" colapsada (solo guías con sesiones); Reforzar y curvas, su área primero; Sesiones con el área | specs/024-dashboard-por-area.md | vigente |
 | D-270 | 2026-10-28 | Spec 024: la ficha lleva su área completa y las otras áreas en una línea | specs/024-dashboard-por-area.md | vigente |
 | D-271 | 2026-10-28 | Spec 024: propuestas P-1 a P-12 confirmadas (área actual sin historial; Resumen, Pasos y Seguimiento fuera; filtro Área en la BLL; URL `?area=`; "Sin guía publicada"; una insignia por guía si hay varias; Excel como la pantalla; sin área con "Otras áreas" abierta; `<details>` y línea en la ficha; regla pura en la BLL; tests solo de lo nuevo; briefs 6 y 7 los enmienda Diseño UI/UX) | specs/024-dashboard-por-area.md | vigente |
+| D-272 | 2026-10-29 | Spec 024 (enmienda 1): en Sesiones del Operador, la columna "Guía" pasa a "Área" (el título de la guía al pasar el mouse), en vez de agregar otra | specs/024-dashboard-por-area.md | vigente |
+| D-273 | 2026-10-29 | Spec 024 (enmienda 1): la ficha impresa lleva Pasos a reforzar y Sesiones completos (con otras áreas); solo las tarjetas de otras áreas van en la línea "También entrenó" | specs/024-dashboard-por-area.md | vigente |
+| D-274 | 2026-10-29 | Spec 024 (enmienda 1): el hook de inicio de la nube y `tools/` (`b95b27c`) no entran a `TrainingApp`; la rama local `spec-024` parte de `73a2829` | specs/024-dashboard-por-area.md | vigente |
 
 ## Bugs que ya existían (B-n)
 

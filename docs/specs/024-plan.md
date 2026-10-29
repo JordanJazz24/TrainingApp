@@ -26,6 +26,13 @@ temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`.
 > `Explicit` omitidos). Se corrigió un test de la E1 que fallaba (`Row_HasStateInHisArea` comprobaba
 > un texto que el operador falso no tiene). El markup (`aspnet_compiler`), la BD y el navegador
 > siguen sin verificar: los verifica Desarrollo.
+>
+> **Revisión local (Arquitectura y Planeación, 2026-10-29):** E1 a E4 coinciden con la spec y
+> este plan, sin bugs. Enmienda 1 de la spec: D-272 (Sesiones con columna Área), D-273 (la ficha
+> imprime Reforzar y Sesiones completos) y D-274 (el hook y `tools/` de `b95b27c` no entran).
+> **Desarrollo trabaja en la rama local `spec-024`** (worktree `.claude/worktrees/spec-024`,
+> desde `73a2829`), no en `cloud/024-dashboard-por-area`: primero `git merge TrainingApp` y
+> después el ciclo de cada entrega. La compilación con Mono de arriba no aplica en local.
 
 ## E1 · Datos y BLL, con tests — hecha en la nube, no verificada
 

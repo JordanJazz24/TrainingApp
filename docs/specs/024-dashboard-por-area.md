@@ -1,6 +1,6 @@
 # Spec 024: Dashboard por área (Operadores y Operador)
 
-**Status:** Implemented en la nube, **no verificada** (2026-10-28: E1 `091f62c`, E2 `edf946a`, E3 `f5b1d74`, E4 con este commit) · Approved 2026-10-28 · plan `024-plan.md`
+**Status:** Implemented en la nube, **no verificada** (2026-10-28: E1 `091f62c`, E2 `edf946a`, E3 `f5b1d74`, E4 `bc473e9`) · Approved 2026-10-28 · **enmendada 2026-10-29** (enmienda 1: D-272 a D-274) · plan `024-plan.md`
 **Date:** 2026-10-28 · **Origen:** Arquitectura y Planeación (local), después de cerrar la 021 ·
 **Sesión:** `TrainingApp-Desarrollo` en la nube, de punta a punta (`docs/process.md` →
 "Variante temporal" → "Spec 024"), rama `cloud/024-dashboard-por-area`
@@ -108,6 +108,17 @@ juntas como **D-271**.
 | P-10 | **Código:** la división "su área / otras" se calcula en la BLL (`DashboardService`, una regla pura con tests), no en la página. `ReadinessPolicy` no cambia. `OperatorRow.NotStarted` pasa a "ninguna sesión en las guías de su área" |
 | P-11 | **Tests, solo lo nuevo** (usuario: "menos tests"; NUnit, en memoria): el filtro Área (Todas, un área, Sin área, inválido) y Estado con la nueva Sin iniciar (área sin sesiones, cruzado sin su área, sin área y sin guía publicada fuera). El detalle del Operador y el Excel se prueban en el navegador. Los tests existentes que se rompan por las columnas nuevas se ajustan, no se borran |
 | P-12 | **Briefs de la 022:** Diseño UI/UX enmienda con fecha los briefs 6 y 7 de `022-briefs.md` antes de la E6 (ver "Qué cambia para la 022") |
+
+## Enmienda 1 (2026-10-29, revisión local de Arquitectura y Planeación)
+
+La revisión de la rama contra esta spec y el plan no encontró desvíos de la regla ni bugs.
+Lo que la nube decidió sin preguntar, o que la spec no decía, lo confirmó el usuario:
+
+| ID | Decisión |
+|---|---|
+| D-272 | **Sesiones** del Operador: la columna "Guía" pasa a ser **"Área"** ("Producto · Área", el título de la guía al pasar el mouse) en vez de agregar otra; hoy cada área tiene una guía (D-268). Acepta el ajuste de la nube en la E3 (punto 12) |
+| D-273 | **Ficha impresa:** solo las tarjetas de "Otras áreas" van en la línea "También entrenó" (D-270); **Pasos a reforzar** (su área primero) y **Sesiones** se imprimen completos, con las otras áreas |
+| D-274 | El hook de inicio de la nube y `tools/build-check.py` / `tools/restore-packages.py` (`b95b27c`) **no entran** a `TrainingApp`: la rama local `spec-024` parte de `73a2829`, sin ese commit |
 
 ## Acceptance criteria
 
