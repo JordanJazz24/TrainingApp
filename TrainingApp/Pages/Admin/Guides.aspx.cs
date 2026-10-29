@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -67,20 +68,35 @@ namespace TrainingApp.Pages.Admin
                 return;
 
             var type = (ResourceSetupType)value;
-            if (_admin.SetResourceSetupType(AdminUserId, guideId, type) == GuideAdminResult.Ok)
-                ShowMessage("success", "Listo", "La guía quedó con el Resource Setup " + TypeText(type) +
+            var result = _admin.SetResourceSetupType(AdminUserId, guideId, type);
+            var guides = BindGuides();
+
+            // La fila puede cambiar de grupo al guardar: el aviso nombra la guía (D-236).
+            if (result == GuideAdminResult.Ok)
+            {
+                var saved = guides.FirstOrDefault(g => g.Id == guideId);
+                string name = saved != null ? saved.ProductName + " · " + saved.AreaName : "La guía";
+                ShowMessage("success", "Listo", name + " quedó con el Resource Setup " + TypeText(type) +
                     ". Vale para las sesiones que empiecen desde ahora.");
+            }
             else
                 ShowMessage("warning", "Aviso", "La guía ya no está publicada.");
-            BindGuides();
         }
 
-        private void BindGuides()
+        // El orden (Custom primero) y el conteo por tipo los da la BLL (D-235).
+        private IList<PublishedGuide> BindGuides()
         {
-            var guides = _admin.GetPublishedGuides(AdminUserId);
-            RptGuides.DataSource = guides.Select(ToRow).ToList();
+            var list = _admin.GetPublishedGuides(AdminUserId);
+            RptGuides.DataSource = list.Guides.Select(ToRow).ToList();
             RptGuides.DataBind();
-            LblEmpty.Visible = guides.Count == 0;
+
+            LitCountStandard.Text = list.StandardCount.ToString();
+            LitCountCustom.Text   = list.CustomCount.ToString();
+
+            bool any = list.Guides.Count > 0;
+            LblEmpty.Visible = !any;
+            PhCounts.Visible = PhOrderNote.Visible = any;
+            return list.Guides;
         }
 
         private static GuideListRow ToRow(PublishedGuide g)

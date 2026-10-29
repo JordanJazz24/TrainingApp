@@ -270,7 +270,7 @@ namespace TrainingApp.Test
         [Test]
         public void Admin_ListsAndSetsType()
         {
-            Assert.That(_service.GetPublishedGuides(AdminId), Has.Count.EqualTo(1));
+            Assert.That(_service.GetPublishedGuides(AdminId).Guides, Has.Count.EqualTo(1));
             Assert.That(_service.SetResourceSetupType(AdminId, 5, ResourceSetupType.Custom), Is.EqualTo(GuideAdminResult.Ok));
             Assert.That(_guides[0].ResourceSetupType, Is.EqualTo(ResourceSetupType.Custom));
         }

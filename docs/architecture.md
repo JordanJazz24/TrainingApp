@@ -65,7 +65,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── UserAdminService.cs        ← gestión de usuarios: cada método verifica que
 │   │   │   │                                 quien llama es admin (spec 013)
 │   │   │   └── GuideAdminService.cs       ← tipo de Resource Setup de cada guía publicada;
-│   │   │                                     verifica CanManageGuides (spec 020)
+│   │   │                                     verifica CanManageGuides (spec 020); la lista
+│   │   │                                     va con las Custom primero y el conteo por tipo
+│   │   │                                     (PublishedGuideList, spec 022, D-235)
 │   │   ├── Reports/                       ← dashboard de Training (spec 018), solo lectura
 │   │   │   ├── DashboardService.cs        ← cada vista y descarga; verifica CanViewReports
 │   │   │   ├── ReadinessPolicy.cs         ← Aprobado, Reprobado, En entrenamiento (D-136)

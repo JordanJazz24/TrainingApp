@@ -624,6 +624,11 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   pantalla completa siempre (D-230), los 3 pasos del primer acceso, errores en
   `.mt-status-line` y los botones como `LinkButton`. `/code-review low` sin hallazgos. Capturas
   del handoff, sin reemplazar (decisión del usuario). Probada por el usuario.
+- **E3 (Guías):** la 2b (D-233 a D-236) desde `cloud/022-guias`; el orden Custom primero y el
+  conteo por tipo pasan del code-behind del handoff a `GuideAdminService.GetPublishedGuides`
+  (`PublishedGuideList`, D-235, sin test); el aviso de guardado nombra la guía (D-236); la
+  leyenda, debajo del título (ajuste del usuario). `/code-review low` sin hallazgos. Sin
+  capturas. Probada por el usuario.
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver

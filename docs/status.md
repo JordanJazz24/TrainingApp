@@ -10,7 +10,7 @@
 **Última actualización:** 2026-10-28 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
 021 están cerradas e integradas. Las specs 022 y 023 se trabajan en la rama `spec-022`, en el
 worktree `.claude/worktrees/fase-11` (la carpeta se reutilizó; `fase-11` y `spec-021` ya no
-están en ningún worktree) · **Último commit de código:** 022 E2b (cambio de contraseña), en `spec-022`
+están en ningún worktree) · **Último commit de código:** 022 E3 (Guías), en `spec-022`
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -139,8 +139,13 @@ están en ningún worktree) · **Último commit de código:** 022 E2b (cambio de
        acceso (`PhSteps`), errores en `.mt-status-line`, `BtnSave` y `BtnCancel` como
        `LinkButton`; los `.pw-*` y `.mt-steps` en `admin.css`. Reglas y redirección sin cambios.
        Capturas: las del handoff (el usuario no quiso reemplazarlas). Probada por el usuario.
-       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E3 Guías, E4 Pasos, E5
-       Seguimiento, E7 Usuarios, E8 Inicio); la E6, bloqueada por la 024.
+     - **022 E3 · Guías** (2026-10-29): la 2b (D-233 a D-236) desde `cloud/022-guias`: chips
+       "N Estándar / N Custom", las Custom primero y la nota al pie; el orden y el conteo en la
+       BLL (`GuideAdminService` → `PublishedGuideList`, D-235, sin test) y el aviso de guardado
+       nombra la guía (D-236). Ajuste del usuario: la leyenda debajo del título. Sin capturas
+       (la app no estaba corriendo; al usuario le dan igual). Probada por el usuario.
+       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E4 Pasos, E5 Seguimiento, E6
+       Operadores y Operador, E7 Usuarios, E8 Inicio).
      - **Spec 023 · Filtro de período en Pasos y Resumen ✅** (2026-10-28, ver "Historial"; spec
        y plan `docs/specs/023-*.md`, D-209 a D-218): **E1 a E4** (`ca9980f`, `55cfd7e`,
        `388dd3a` y el cierre), probadas por el usuario, en `spec-022` (sin integrar en
