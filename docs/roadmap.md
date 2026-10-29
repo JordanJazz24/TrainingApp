@@ -476,9 +476,10 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   **E1b (barra superior, D-238) cerrada e integrada en `TrainingApp` el 2026-10-29**
   (`3544e69`; `b34eafb` desde `cloud/022-barra-superior` tal cual y el cierre `feb1f4f`):
   propuesta 1, banda de marca con menú agrupado (`022-design/barra-superior.md`), probada por el
-  usuario con los dos roles; sin capturas (D-240). **Falta su D-n** (aprobación, tokens nuevos
-  `--mt-brand-raise` y `--mt-brand-edge`, y la franja de Pasos como tarjeta): la registra Diseño
-  UI/UX en su rango (D-286). E5 a E8 esperan sus mockups. Orden vigente: D-219.
+  usuario con los dos roles; sin capturas (D-240). Sus decisiones, D-286 a D-290 (propuesta 1,
+  tokens `--mt-brand-raise` y `--mt-brand-edge`, `.mt-topbar`, la franja de Pasos como tarjeta
+  que enmienda D-239, y textos), integradas en `71739ce`. E5 a E8 esperan sus mockups. Orden
+  vigente: D-219.
 - ✅ **Spec 024 · Dashboard por área** (2026-10-29): hecha en la nube, revisada en local
   (enmienda 1, D-272 a D-274) y verificada por Desarrollo en `spec-024` (Rebuild,
   `aspnet_compiler`, 461 tests y el "funciona" del usuario; cierre `ab81231`). Integrada en
@@ -502,9 +503,8 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - Limpieza hecha el 2026-10-29 (`fase-10`, `spec-021`, `spec-024` y las ramas remotas de la
   024). No borrar `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
-**Numeración vigente:** local D-242 (rango D-240 a D-259) y B-5; Diseño (022) D-286 (hasta
-D-299, reservado el 2026-10-29; ya usó D-238, D-239 y D-280 a D-285; D-284 vuelta de crítica y
-D-285 capturas sin tablet, que enmienda D-240, integradas en `99ebd3b`) y B-30; la 024, cerrada (D-260 a D-274).
+**Numeración vigente:** local D-242 (rango D-240 a D-259) y B-5; Diseño (022) D-291 (hasta
+D-299, reservado el 2026-10-29; ya usó D-238, D-239 y D-280 a D-290) y B-30; la 024, cerrada (D-260 a D-274).
 Siguiente bloque libre: D-300.
 
 **Comunicación:** la nube recibe mensajes, pero no puede contestar. Su avance llega por su rama
