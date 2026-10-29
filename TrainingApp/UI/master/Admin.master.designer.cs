@@ -33,6 +33,15 @@ namespace TrainingApp.UI.Master
         protected global::System.Web.UI.WebControls.PlaceHolder PhMenu;
 
         /// <summary>
+        /// LitCurrent control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitCurrent;
+
+        /// <summary>
         /// LnkSummary control.
         /// </summary>
         /// <remarks>
@@ -69,6 +78,15 @@ namespace TrainingApp.UI.Master
         protected global::System.Web.UI.WebControls.HyperLink LnkFollowUp;
 
         /// <summary>
+        /// PhAdminGroup control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhAdminGroup;
+
+        /// <summary>
         /// LnkUsers control.
         /// </summary>
         /// <remarks>
@@ -94,6 +112,24 @@ namespace TrainingApp.UI.Master
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.PlaceHolder PhUser;
+
+        /// <summary>
+        /// UserAccount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl UserAccount;
+
+        /// <summary>
+        /// LitInitials control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitInitials;
 
         /// <summary>
         /// LitUser control.

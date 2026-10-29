@@ -43,6 +43,8 @@
     --mt-on-brand: #FFFFFF;      /* texto sobre el panel de marca */
     --mt-on-brand-2: #C3D2EA;    /* texto secundario sobre el panel de marca (AA) */
     --mt-brand-line: rgba(255, 255, 255, .07);   /* retícula de 32 px del panel de marca */
+    --mt-brand-raise: rgba(255, 255, 255, .10);  /* pastillas y botones sobre la marca (barra, spec 022) */
+    --mt-brand-edge: rgba(255, 255, 255, .22);   /* su borde y divisores sobre la marca */
 }
 
 /* ── Tokens: oscuro ────────────────────────────────────────── */
@@ -74,6 +76,8 @@
     --mt-on-brand: #E5EAF1;
     --mt-on-brand-2: #A9B8CF;
     --mt-brand-line: rgba(255, 255, 255, .05);
+    --mt-brand-raise: rgba(255, 255, 255, .07);
+    --mt-brand-edge: rgba(255, 255, 255, .16);
 }
 
 /* ── Escala (igual en los dos temas) ───────────────────────── */
@@ -159,57 +163,200 @@ body.mt-page {
     box-shadow: none;
 }
 
-/* ── Barra superior ────────────────────────────────────────── */
-.admin-bar {
+/* ── Barra superior (spec 022, brief 0, propuesta 1) ─────────── */
+/* Una sola fila en el azul del Login (D-221) con su retícula: la marca, el menú del admin en
+   dos grupos con nombre (Dashboard · Administración) como pastillas, y la cuenta con el tema y
+   Cerrar sesión. La vista actual va rellena en --mt-on-brand y en negrita (no solo color), como
+   el control Modo de Pasos. Debajo de 1200 px el menú se pliega en "Menú · <vista>"
+   (theme.js abre y cierra el panel en el cliente). La barra es la única banda azul de lado a
+   lado: la franja de Pasos va en tarjeta (ver "Pasos"). */
+.mt-topbar {
+    --mt-focus: var(--mt-on-brand);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--mt-space-2) var(--mt-space-5);
-    min-height: 64px;
-    padding: var(--mt-space-2) var(--mt-space-6);
-    background: var(--mt-surface);
-    border-bottom: 1px solid var(--mt-border);
+    gap: 0 var(--mt-space-5);
+    min-height: 72px;
+    padding: 0 28px;
+    background-color: var(--mt-brand-bg);
+    background-image:
+        linear-gradient(var(--mt-brand-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--mt-brand-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--mt-on-brand);
 }
-.admin-brand {
+.mt-topbar-brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--mt-space-3);
+    color: var(--mt-on-brand);
+    font-size: 1.0625rem;          /* 17 */
     font-weight: 700;
-    font-size: var(--mt-fs-block);
-    color: var(--mt-text);
+    text-decoration: none;
+    white-space: nowrap;
 }
-.admin-brand .bi { font-size: 1.375rem; color: var(--mt-accent); }
-
-.admin-nav-links {
+.mt-topbar-brand:hover { color: var(--mt-on-brand); }
+.mt-topbar-mark {
     display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    flex: 1 1 auto;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-brand-raise);
+    border: 1px solid var(--mt-brand-edge);
+    font-size: 1.25rem;
 }
-.admin-nav-links a {
-    display: inline-block;
-    padding: 10px 12px;
-    border-radius: var(--mt-radius);
-    color: var(--mt-muted);
+
+/* Menú del admin: dos grupos con su nombre arriba. */
+.mt-topbar-nav {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    align-self: stretch;
+    padding: var(--mt-space-2) 0 10px var(--mt-space-5);
+    border-left: 1px solid var(--mt-brand-edge);
+}
+.mt-topbar-group { display: flex; flex-direction: column; gap: 3px; }
+.mt-topbar-gk {
+    padding-left: var(--mt-space-2);
+    color: var(--mt-on-brand-2);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+.mt-topbar-seg {
+    display: flex;
+    gap: 2px;
+    margin: 0;
+    padding: 3px;
+    list-style: none;
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-brand-raise);
+    border: 1px solid var(--mt-brand-edge);
+}
+.mt-topbar-seg a {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 13px;
+    border-radius: 7px;
+    color: var(--mt-on-brand-2);
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
 }
-.admin-nav-links a:hover { color: var(--mt-text); background: var(--mt-surface-2); }
-.admin-nav-links a.active { color: var(--mt-text); background: var(--mt-accent-soft); }
+.mt-topbar-seg a:hover { color: var(--mt-on-brand); background: var(--mt-brand-edge); }
+.mt-topbar-seg a.active { color: var(--mt-brand-bg); background: var(--mt-on-brand); font-weight: 700; }
 
-.admin-bar-end {
+/* Área del operador (Site.Master, spec 021). */
+.mt-topbar-area {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--mt-space-3);
-    margin-left: auto;
+    gap: 10px;
+    padding-left: var(--mt-space-5);
+    border-left: 1px solid var(--mt-brand-edge);
 }
-.admin-user { display: flex; flex-direction: column; line-height: 1.25; }
-.admin-user-code { font-weight: 600; }
-.admin-user-last { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.mt-topbar-area .bi { color: var(--mt-on-brand-2); font-size: 1.125rem; }
+.mt-topbar-area-text { display: flex; flex-direction: column; line-height: 1.25; }
+.mt-topbar-area-k {
+    color: var(--mt-on-brand-2);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+.mt-topbar-area-v { font-weight: 600; white-space: nowrap; }
+
+.mt-topbar-end { display: flex; align-items: center; gap: var(--mt-space-3); margin-left: auto; }
+.mt-topbar-account { display: flex; align-items: center; gap: 10px; order: -1; }
+.mt-topbar-avatar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--mt-on-brand);
+    color: var(--mt-brand-bg);
+    font-size: var(--mt-fs-small);
+    font-weight: 700;
+}
+.mt-topbar-who { display: flex; flex-direction: column; line-height: 1.2; }
+.mt-topbar-name { font-size: .875rem; font-weight: 600; white-space: nowrap; }
+.mt-topbar-sub { color: var(--mt-on-brand-2); font-size: .75rem; white-space: nowrap; }
+
+/* Botones sobre el azul: tema, Cerrar sesión y el de Menú. */
+.mt-topbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mt-space-2);
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0 var(--mt-space-3);
+    border: 1px solid var(--mt-brand-edge);
+    border-radius: var(--mt-radius-sm);
+    background: var(--mt-brand-raise);
+    color: var(--mt-on-brand);
+    font-family: inherit;
+    font-size: var(--mt-fs-small);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.mt-topbar-btn:hover { background: var(--mt-brand-edge); color: var(--mt-on-brand); }
+.mt-topbar-menu { display: none; }
+.mt-topbar-current { font-weight: 700; }
+.mt-topbar-current:not(:empty)::before { content: "· "; font-weight: 600; }
+
+/* Debajo de 1400 px el último acceso queda en el title de la cuenta. */
+@media (max-width: 1399.98px) {
+    .mt-topbar-sub { display: none; }
+}
+/* Debajo de 1200 px el menú se pliega; abierto, los grupos bajan como listas en la banda. */
+@media (max-width: 1199.98px) {
+    .mt-topbar-menu { display: inline-flex; }
+    .mt-topbar-nav { display: none; }
+    .mt-topbar.is-open .mt-topbar-nav {
+        display: grid;
+        flex: 1 0 100%;
+        order: 3;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--mt-space-4);
+        padding: var(--mt-space-1) 0 18px;
+        border-left: 0;
+    }
+    .mt-topbar.is-open .mt-topbar-seg { flex-direction: column; margin-top: 3px; padding: var(--mt-space-1); }
+    .mt-topbar.is-open .mt-topbar-seg a { min-height: var(--mt-control-h); padding: 0 var(--mt-space-3); color: var(--mt-on-brand); }
+    .mt-topbar.is-open .mt-topbar-seg a.active { color: var(--mt-brand-bg); }
+}
+/* Tablet: el admin queda con sus iniciales (nombre en el title); tema y salir, con ícono. */
+@media (max-width: 991.98px) {
+    .mt-topbar { gap: 0 var(--mt-space-3); min-height: 64px; padding: 0 var(--mt-space-4); }
+    .mt-topbar.is-admin .mt-topbar-who { display: none; }
+    .mt-topbar-area { padding-left: var(--mt-space-3); }
+    .mt-topbar-end .mt-topbar-btn { padding: 0; }
+    .mt-topbar-end .mt-topbar-btn > span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+}
+@media (max-width: 575.98px) {
+    .mt-topbar.is-open .mt-topbar-nav { grid-template-columns: minmax(0, 1fr); }
+    .mt-topbar-brand-text,
+    .mt-topbar-area-k,
+    .mt-topbar-avatar,
+    .mt-topbar-menu-k { display: none; }
+    .mt-topbar-current:not(:empty)::before { content: none; }
+}
 
 /* ── Contenido ─────────────────────────────────────────────── */
 .admin-main {
@@ -979,7 +1126,18 @@ body.mt-page {
 /* ── Pasos (spec 018; brief 022, alternativa 4a "Mesa de enseñanza", encabezado H4; tokens de la app, D-280) ── */
 /* La franja: título y rango a la izquierda, filtros a la derecha tras un divisor (H4). Siempre
    oscura, en los dos temas: el foco y la flecha de las listas van en claro. */
-.steps-band { --mt-focus: var(--mt-on-brand); background: var(--mt-brand-bg); color: var(--mt-on-brand); }
+/* En tarjeta, al ancho de .steps-wrap (barra superior, spec 022 brief 0): la barra es la única
+   banda azul de lado a lado y la franja se lee como el encabezado de la página. */
+.steps-band {
+    --mt-focus: var(--mt-on-brand);
+    width: calc(100% - 2 * var(--mt-space-6));
+    max-width: calc(1200px - 2 * var(--mt-space-6));
+    margin: var(--mt-space-5) auto 0;
+    border-radius: 16px;
+    box-shadow: var(--mt-shadow);
+    background: var(--mt-brand-bg);
+    color: var(--mt-on-brand);
+}
 .steps-band-inner {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
@@ -1271,6 +1429,7 @@ body.mt-page {
 .steps-row.is-selected .steps-up { display: inline-flex; }
 
 @media (max-width: 991.98px) {
+    .steps-band { width: calc(100% - 2 * var(--mt-space-4)); margin-top: var(--mt-space-4); }
     .steps-band-inner,
     .steps-wrap { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
     .mt-page .steps-title { font-size: var(--mt-fs-page); }
@@ -1320,7 +1479,6 @@ body.mt-page {
 
 /* ── Tablet (P-4): la barra se acomoda; las columnas secundarias se ocultan ── */
 @media (max-width: 991.98px) {
-    .admin-bar { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
     .admin-main { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }
     .mt-col-secondary { display: none; }
 }
@@ -1351,7 +1509,7 @@ body.mt-page {
         --mt-shadow: none;
         color-scheme: light;
     }
-    .admin-bar { display: none !important; }
+    .mt-topbar { display: none !important; }
     body.mt-page { background: #FFFFFF; }
     .admin-main { padding-top: 0; padding-bottom: 0; max-width: none; }
     .card, .mt-panel, .mt-hero { break-inside: avoid; box-shadow: none; }

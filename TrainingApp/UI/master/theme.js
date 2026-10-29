@@ -6,6 +6,7 @@
 // presentación: no va a Session ni al servidor. Sin localStorage (bloqueado o modo privado)
 // sigue al sistema. El botón #mtThemeToggle de la barra lo cambia; su texto dice a qué modo
 // cambia. Avisa con el evento "mt-theme" (las gráficas se redibujan con los colores del tema).
+// También abre y cierra el menú plegado de la barra superior (wireMenu).
 var mtTheme = (function () {
     var KEY = 'mt-theme';
     var root = document.documentElement;
@@ -50,10 +51,27 @@ var mtTheme = (function () {
         else if (media.addListener) media.addListener(follow);
     }
 
+    // Barra superior plegada (spec 022, brief 0; Admin.Master): el botón Menú abre y cierra
+    // los dos grupos en el cliente, sin postback. Escape la cierra y devuelve el foco al botón.
+    function wireMenu() {
+        var menu = document.getElementById('mtTopbarMenu');
+        var bar = menu && menu.closest('.mt-topbar');
+        if (!bar) return;
+        function set(open) {
+            bar.classList.toggle('is-open', open);
+            menu.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        menu.addEventListener('click', function () { set(!bar.classList.contains('is-open')); });
+        bar.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && bar.classList.contains('is-open')) { set(false); menu.focus(); }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         var button = document.getElementById('mtThemeToggle');
         if (button) button.addEventListener('click', toggle);
         paint();
+        wireMenu();
     });
 
     return { toggle: toggle, current: current };

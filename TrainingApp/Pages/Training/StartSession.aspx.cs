@@ -76,6 +76,8 @@ namespace TrainingApp.Pages.Training
             if (!options.HasArea) return;
 
             LblArea.Text = HttpUtility.HtmlEncode(options.AreaText);
+            // También en la barra superior ("Tu área", spec 022 brief 0).
+            (Master as SiteMaster)?.ShowArea(options.AreaText);
             DdlGuide.Items.Clear();
             LblNoGuides.Visible = options.Guides.Count == 0;
             foreach (var g in options.Guides)

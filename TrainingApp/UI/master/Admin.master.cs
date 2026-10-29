@@ -20,14 +20,21 @@ namespace TrainingApp.UI.Master
         protected void Page_Load(object sender, EventArgs e)
         {
             // Usuario y Cerrar sesión solo con un admin autenticado. La marca es siempre el
-            // nombre neutro de la app (spec 016, D-80; mockup de la Fase 11).
+            // nombre neutro de la app (spec 016, D-80; barra de la spec 022, brief 0).
             bool signedIn = Context.User.Identity.IsAuthenticated && SessionHelper.CanManageUsers()
                 && Session[Constants.SessionKeys.Code1] != null;
             PhUser.Visible = signedIn;
             if (signedIn)
             {
-                LitUser.Text      = HttpUtility.HtmlEncode(Session[Constants.SessionKeys.Code1].ToString());
-                LitLastLogin.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
+                // Nombre (o el Code1 si no hay) con sus iniciales y el último acceso.
+                string code1      = Session[Constants.SessionKeys.Code1].ToString();
+                string name       = Session[Constants.SessionKeys.Name] as string;
+                string shown      = string.IsNullOrWhiteSpace(name) ? code1 : name;
+                string lastAccess = SessionHelper.LastAccessText() ?? string.Empty;
+                LitUser.Text      = HttpUtility.HtmlEncode(shown);
+                LitInitials.Text  = HttpUtility.HtmlEncode(TopBar.Initials(shown));
+                LitLastLogin.Text = HttpUtility.HtmlEncode(lastAccess);
+                UserAccount.Attributes["title"] = TopBar.AccountTitle(shown, lastAccess);
             }
 
             // Menú del dashboard (spec 018): solo con la capacidad de ver reportes.
@@ -36,6 +43,7 @@ namespace TrainingApp.UI.Master
             {
                 LnkUsers.Visible  = SessionHelper.CanManageUsers();
                 LnkGuides.Visible = SessionHelper.CanManageGuides();
+                PhAdminGroup.Visible = LnkUsers.Visible || LnkGuides.Visible;
                 MarkCurrent(LnkSummary, "~/Pages/Admin/Summary.aspx");
                 MarkCurrent(LnkOperators,"~/Pages/Admin/Operators.aspx", "~/Pages/Admin/Operator.aspx");
                 MarkCurrent(LnkSteps, "~/Pages/Admin/Steps.aspx");
@@ -53,8 +61,9 @@ namespace TrainingApp.UI.Master
             AdminMain.Attributes["class"] = "admin-main-bleed";
         }
 
-        // La vista actual (o su detalle) queda marcada en el menú. Se compara el archivo de la
-        // página: con FriendlyUrls la URL del request no lleva ".aspx".
+        // La vista actual (o su detalle) queda marcada en el menú, y su nombre va en el botón
+        // Menú de la barra plegada. Se compara el archivo de la página: con FriendlyUrls la URL
+        // del request no lleva ".aspx".
         private void MarkCurrent(HyperLink link, params string[] pages)
         {
             var current = Page.AppRelativeVirtualPath;
@@ -63,6 +72,7 @@ namespace TrainingApp.UI.Master
                 {
                     link.CssClass = "active";
                     link.Attributes["aria-current"] = "page";
+                    LitCurrent.Text = HttpUtility.HtmlEncode(link.Text);
                 }
         }
 

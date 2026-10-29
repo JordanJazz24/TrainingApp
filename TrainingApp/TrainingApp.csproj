@@ -381,6 +381,7 @@
     <Compile Include="Pages\Training\Guide\GuideScriptBuilder.cs" />
     <Compile Include="Pages\Training\Guide\MesErrorNotes.cs" />
     <Compile Include="Pages\Training\Guide\GuideSubstep.cs" />
+    <Compile Include="UI\master\TopBar.cs" />
     <Compile Include="UI\master\AntiXsrfMasterPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
