@@ -481,7 +481,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   paralelo o después, la siguiente pantalla de la 022 con mockup aprobado en `spec-022` (E3
   Guías, E4 Pasos, E5 Seguimiento, E7 Usuarios o E8 Inicio), sin tocar los archivos de la 024.
 - **Diseño UI/UX (nube):** enmendar con fecha los briefs 6 y 7 con la 024 (spec 024 → "Qué
-  cambia para la 022" y D-272/D-273); mensaje pendiente de mandar. Sigue con Guías, Seguimiento
+  cambia para la 022" y D-272/D-273); avisada el 2026-10-29. Sigue con Guías, Seguimiento
   y Pasos en Claude Design.
 - **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
   ramas de handoff de la 022 que lleguen.
