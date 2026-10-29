@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-237 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-241 (local, rango D-240 a D-259) · D-238 (nube, spec 022). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -234,7 +234,7 @@
 | D-203 | 2026-10-27 | Spec 022: pantallas Login, Cambio de contraseña, Operadores, Operador, Pasos, Seguimiento, Guías, Usuarios e Inicio del operador; fuera el Resumen (v1) y "Elige tu área" | specs/022-mockups-por-pantalla.md | vigente |
 | D-204 | 2026-10-27 | Spec 022: intención de UX (jerarquía en vez de tablas planas, guiar la decisión, identidad del login); la forma la proponen las alternativas | specs/022-mockups-por-pantalla.md | vigente |
 | D-205 | 2026-10-27 | Spec 022: métricas nuevas solo derivadas en la BLL con los datos que la vista ya carga, cada una con su D-n; las que piden datos nuevos van a otra spec | specs/022-mockups-por-pantalla.md | vigente |
-| D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | vigente |
+| D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | enmendada (D-237: el v1 es referencia, no molde) |
 | D-207 | 2026-10-27 | Spec 022: propuestas de Claude respondidas (orden de diseño Login → Contraseña → libres → resto; se diseña el estado de la 021; HTML autocontenido; 3 alternativas por estructura con nota; quitar datos es una D-n; implementación en paralelo con la 021 para las libres; sistema en entrega propia; candidatas para otra spec). P-6 descartada | specs/022-mockups-por-pantalla.md | vigente |
 | D-208 | 2026-10-27 | Spec 021, enmienda 1: Usuarios sin Quitar área (en la página ni en la BLL: `SetArea` rechaza `null`); Cambiar área en la columna Área, con un lápiz | specs/021-area-operador.md (enmienda 1) | vigente |
 | D-209 | 2026-10-27 | Spec 023: filtro de período solo en Pasos y Resumen, para revisar un grupo o una capacitación, reportes periódicos, antes y después de un cambio y seguimiento diario | specs/023-filtro-periodo.md | vigente |
@@ -265,6 +265,7 @@
 | D-234 | 2026-10-29 | Spec 022, Guías: componentes `.guides-head`, `.guides-counts`, `.guides-note`; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-235 | 2026-10-29 | Spec 022, Guías: conteo por tipo y orden Custom primero en la BLL, sin test (excepción a D-205) | specs/022-mockups-por-pantalla.md | vigente |
 | D-236 | 2026-10-29 | Spec 022, Guías: el aviso de guardado nombra la guía | specs/022-mockups-por-pantalla.md | vigente |
+| D-237 | 2026-10-29 | Spec 022: el v1 es referencia, no molde: al menos una alternativa por pantalla rompe con el v1 en estructura y en lo visual; cada cambio marca qué conlleva (tokens, pantallas ya hechas, componentes, esfuerzo). Precisa D-206 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |

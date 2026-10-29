@@ -223,6 +223,9 @@ rotos, en claro y oscuro.
 > enmienda 1, D-272 y D-273), así que ya se pueden diseñar. La implementación sigue esperando a
 > que Desarrollo integre la 024 en `TrainingApp`: el diseño reacomoda su estructura, no la
 > cambia.
+>
+> **2026-10-29 (2):** la 024 está **cerrada e integrada** en `TrainingApp` (`e86a9f3`). La E6 ya
+> solo espera sus mockups, que se diseñan sobre ese código.
 
 **Bloqueada hasta:** E1 y los mockups de Operadores y Operador. (Enmendado 2026-10-27: la E5
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la

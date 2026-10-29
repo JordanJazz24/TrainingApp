@@ -173,6 +173,14 @@ Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `Training
 | D-235 | **Métrica derivada (D-205): guías publicadas por tipo y el orden Custom primero, en la BLL** (no en el code-behind, como lo dejó el handoff), **sin test** por decisión del usuario (excepción a D-205: es contar y ordenar lo que la vista ya carga) |
 | D-236 | **El aviso de guardado nombra la guía** (ej. "Moldeo · Split quedó con el Resource Setup Custom"), porque la fila puede cambiar de grupo al guardar. Solo cambia el texto del aviso, no el flujo |
 
+> **Enmienda 2026-10-29 (D-237, usuario):** Claude Design respetaba demasiado la estructura y
+> los colores del v1. El v1 y las pantallas aprobadas son **referencia, no molde**: en cada
+> pantalla, al menos una alternativa rompe con el v1 en estructura y en lo visual, otra puede
+> ser intermedia y solo una se queda cerca. Las "Restricciones fijas" no cambian. Cada cambio
+> marca qué conlleva: tokens (y si afectan pantallas ya hechas), componentes, si toca
+> `Admin.Master` o pantallas implementadas, y el esfuerzo. Precisa D-206 (el v1 como base). En
+> el "Contexto común" de `022-briefs.md`.
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |
