@@ -634,6 +634,11 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   cada motivo en `ReasonCount.Share` (D-283, sin test); el ranking completo, plegado (D-241,
   pedido del usuario al probar). `/code-review low` sin hallazgos. Sin capturas. Probada por el
   usuario.
+- **E1b (Barra superior):** la propuesta 1 (banda de marca con menú agrupado, D-238) desde
+  `cloud/022-barra-superior` (`b34eafb`), tal cual salió de la nube: `.mt-topbar` en
+  `Admin.Master` y `Site.Master`, `TopBar.cs`, `wireMenu` en `theme.js` y la franja de Pasos en
+  tarjeta. Sin cambios de Desarrollo. `/code-review low` sin hallazgos. Sin capturas. Probada
+  por el usuario.
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver

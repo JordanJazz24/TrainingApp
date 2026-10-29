@@ -103,3 +103,7 @@ estos tokens sin cambio visible (no se tocó).
    impresa sin barra), Usuarios, Guías, Seguimiento, Inicio del operador (un postback con error
    conserva "Tu área") y "Elige tu área".
 8. Capturas finales en claro y oscuro (D-240, D-285).
+
+## Cierre en Desarrollo (2026-10-29, E1b)
+- Rebuild, `aspnet_compiler` y 461 tests sin errores; sin cambios al código de la rama. Probada por el
+  usuario con los dos roles. Sin capturas (decisión del usuario, D-240, como en las E2b, E3 y E4).

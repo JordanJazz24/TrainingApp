@@ -105,18 +105,22 @@ rotos, en claro y oscuro.
 (Seguimiento) y de las demás pantallas que faltan; si coincide con Pasos (E4), se coordina el
 orden de `admin.css` con Desarrollo.
 
-- [ ] `UI/master/Admin.Master` y `Site.Master` (y sus `.cs`): la estructura aprobada, un solo
+- [x] `UI/master/Admin.Master` y `Site.Master` (y sus `.cs`): la estructura aprobada, un solo
       componente; mismos `HyperLink` y URLs, `MarkCurrent`, `#mtThemeToggle`, `BtnLogout` y
       `PhMenu` / `PhUser`. Marca "TrainingApp" en los dos (D-238).
-- [ ] `admin.css`: el bloque de la barra con los tokens aprobados; el `@media print` la sigue
+- [x] `admin.css`: el bloque de la barra con los tokens aprobados; el `@media print` la sigue
       ocultando.
-- [ ] Revisar que `FullBleed` (Login y Cambio de contraseña) siga ocultándola.
-- [ ] `/code-review low --max-findings 3` sobre los masters. Foco: menú solo con
+- [x] Revisar que `FullBleed` (Login y Cambio de contraseña) siga ocultándola.
+- [x] `/code-review low --max-findings 3` sobre los masters. Foco: menú solo con
       `CanViewReports`, Cerrar sesión (D-13), anti-CSRF del master.
-- [ ] Checklist común en cada vista del admin y en el inicio y "Elige tu área" del operador, en
+- [x] Checklist común en cada vista del admin y en el inicio y "Elige tu área" del operador, en
       claro, oscuro y tablet; impresión de la ficha sin barra.
 
-**Hecho cuando:** el usuario navega todas las vistas con los dos roles y dice "funciona".
+> **Cerrada 2026-10-29 (Desarrollo):** propuesta 1 (banda de marca con menú agrupado) desde
+> `cloud/022-barra-superior` (`b34eafb`). `/code-review low` sin hallazgos (no informó qué
+> leyó; los puntos del foco se revisaron leyendo el código). Sin capturas.
+
+**Hecho cuando:** el usuario navega todas las vistas con los dos roles y dice "funciona". ✅ Probada por el usuario.
 
 ## E2a · Login (libre)
 

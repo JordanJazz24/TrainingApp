@@ -683,6 +683,14 @@ decisiones: `docs/specs/019-ui-ux-dashboard.md` y `019-plan.md` (D-153 a D-164).
   barra no se renderiza. La usan el Login (panel dividido, `.auth-*`) y el cambio de
   contraseña, siempre y para los dos roles (franja con `.pw-*` y los pasos `.mt-steps` del
   primer acceso, D-230); el dashboard y Usuarios siguen con la barra.
+- **Barra superior (`.mt-topbar`, spec 022, brief 0, D-238):** un solo componente para
+  `Admin.Master` y `Site.Master`, en el azul del Login (`--mt-brand-*` con sus dos tokens
+  `--mt-brand-raise` y `--mt-brand-edge`). Marca "TrainingApp" para los dos roles. El admin ve
+  el menú en dos grupos (Dashboard · Administración) y, debajo de 1200 px, un botón "Menú ·
+  <vista>" que `theme.js` (`wireMenu`) abre y cierra en el cliente; el operador no tiene menú y
+  ve "Tu área" (`SiteMaster.ShowArea`, la llama `StartSession`). La cuenta muestra iniciales y
+  nombre (`TopBar.Initials` y `AccountTitle`, solo presentación). El menú sigue con
+  `CanViewReports` y `FullBleed` sigue ocultando la barra. La franja de Pasos es una tarjeta.
 - **Impresión en claro:** el `@media print` del final de `admin.css` vuelve a poner los
   tokens claros dentro de `[data-bs-theme=dark]`. La ficha del Operador sale en claro con
   cualquier tema.
