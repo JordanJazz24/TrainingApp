@@ -67,8 +67,8 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
   - los números son los mismos que antes (AC-5).
 - [ ] Capturas de **después** (enmendado 2026-10-28, D-240): las toma **Desarrollo**, solo de
       la **versión final** aprobada de la pantalla (no de cada iteración), y las guarda como
-      `022-design/<pantalla>-claro.png`, `-oscuro.png` y `-tablet.png` en el commit de la
-      entrega. Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o
+      `022-design/<pantalla>-claro.png` y `-oscuro.png` en el commit de la entrega (sin la de
+      tablet desde el 2026-10-29, D-285; la regla de los 768 px se sigue probando). Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o
       abaratarlas.
 
 > **Enmienda 2026-10-28 (D-226, D-227; D-240):** el bloqueo por mockup se cumple con la lista

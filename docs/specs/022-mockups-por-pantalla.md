@@ -208,6 +208,18 @@ Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `Training
 > (`<details>`, cerrado al cargar, "Mostrar / Ocultar"); no se quita (opción C de tres). "Ver
 > paso" y la nota de orden siguen dentro. Enmienda D-239.
 
+> **Enmienda 2026-10-29 (D-284, usuario):** en las sesiones de diseño de la nube, una **vuelta de
+> crítica** con la skill `design:design-critique` sobre las 3 alternativas, antes de que el
+> usuario elija: con los criterios del brief, un orden y al menos un riesgo por alternativa; se
+> corrige lo grave una sola vez y el artifact muestra el resumen de la crítica. Sin revisión de
+> accesibilidad ni de textos con skills aparte (el usuario la descartó; la accesibilidad la sigue
+> revisando Desarrollo). Plantilla: `022-briefs.md` → "Prompt de sesión de diseño en la nube".
+
+> **Enmienda 2026-10-29 (D-285, usuario):** cada alternativa del mockup es **una sola página
+> responsive con el interruptor de tema**, sin copias aparte en claro, oscuro ni tablet. La
+> regla de 768 px sin scroll horizontal (AC-4) no cambia. Las capturas finales de Desarrollo
+> (D-240) quedan en **claro y oscuro**, sin la de tablet.
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |
