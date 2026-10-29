@@ -460,34 +460,31 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
-### ⏸ Para retomar (cierre de la jornada del 2026-10-28)
+### ⏸ Para retomar (Planeación, 2026-10-29)
 
-**Estado al cierre** (`TrainingApp` en `origin` y `azure`):
+**Estado:**
 - ✅ **Spec 023** (filtro de período) cerrada e integrada. Tests: 459.
 - **Fase 12 (022):** integradas la E1 (tokens), la E2a (Login, `53a9d52`) y la E2b (Cambio de
-  contraseña, `8ccda11`) (merge `07363e3`). Las demás pantallas esperan su mockup. La **E6
-  (Operadores y Operador) está bloqueada por la 024**. Orden vigente: D-219.
-- ⏳ **Spec 024 · Dashboard por área:** contexto enviado a la nube `TrainingApp-Desarrollo`.
-  Al cierre no había rama `cloud/024-*` en `origin`: todavía no empezó, o no ha hecho push.
+  contraseña, `8ccda11`) (merge `07363e3`). Los docs de Diseño (`cloud/022-mockups-por-pantalla`:
+  brief 4 con `PeriodFilter`; E6 y briefs 6 y 7 bloqueados por la 024) integrados el 2026-10-29
+  (`97e1daf`). Las demás pantallas esperan su mockup. Orden vigente: D-219.
+- ⏳ **Spec 024 · Dashboard por área:** la nube hizo spec, plan y E1 a E4 ("no verificada").
+  **Revisada en local el 2026-10-29** contra la spec y el plan: sin desvíos de la regla ni bugs;
+  enmienda 1 (D-272 a D-274) en la rama local **`spec-024`** (`ef48efa`, worktree
+  `.claude/worktrees/spec-024`, desde `73a2829`, sin el hook de la nube). Detalle en "Spec 024".
 
-**Mañana, por sesión:**
-- **Arquitectura y Planeación (local):**
-  1. Revisar e integrar la rama de Diseño `cloud/022-mockups-por-pantalla`, con dos commits de
-     docs sin integrar: `a9badec` (el brief 4 de Pasos con la 023 cerrada y `PeriodFilter`) y
-     `a4a1603` (la E6 y los briefs 6 y 7 bloqueados por la 024).
-  2. Cuando la nube de la 024 haga push de `cloud/024-dashboard-por-area`, revisar la spec y el
-     plan contra el alcance, registrarlos aquí y, al final, revisar el código contra la spec y el
-     plan (`process.md` → "Variante temporal" → "Spec 024").
-  3. Al aprobarse la 024, pedirle a Diseño que enmiende los briefs 6 y 7.
-- **Desarrollo (local, worktree `.claude/worktrees/fase-11`, rama `spec-022`):** libre. Toma la
-  siguiente pantalla de la 022 con mockup aprobado (E3 Guías, E4 Pasos, E5 Seguimiento, E7
-  Usuarios o E8 Inicio). No toca los archivos de la 024 (Operadores, Operador,
-  `DashboardService`, `ReportFilters`, `ExcelReports`, `DashboardRepository`, `10_spDashboard.sql`)
-  hasta que se integre.
-- **Diseño UI/UX (nube):** Guías, Seguimiento y Pasos en Claude Design. Usuarios e Inicio,
-  después. Operadores y Operador, solo después de la 024.
-- **TrainingApp-Desarrollo (nube):** la spec 024 de punta a punta. Te hará las preguntas de la
-  spec en esa sesión.
+**Sigue, por sesión:**
+- **Desarrollo (local):** la **024** en `spec-024`: `git merge TrainingApp`, copiar
+  `connectionStrings.config` y la junction a `packages`, y después E1 a E4 con su ciclo (Rebuild,
+  `aspnet_compiler`, `10_spDashboard.sql` en su BD, tests y el "funciona" del usuario por
+  entrega; checklist de cada entrega en `024-plan.md`). Va antes de la E6 de la 022. En
+  paralelo o después, la siguiente pantalla de la 022 con mockup aprobado en `spec-022` (E3
+  Guías, E4 Pasos, E5 Seguimiento, E7 Usuarios o E8 Inicio), sin tocar los archivos de la 024.
+- **Diseño UI/UX (nube):** enmendar con fecha los briefs 6 y 7 con la 024 (spec 024 → "Qué
+  cambia para la 022" y D-272/D-273); mensaje pendiente de mandar. Sigue con Guías, Seguimiento
+  y Pasos en Claude Design.
+- **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
+  ramas de handoff de la 022 que lleguen.
 
 **Pendientes del usuario:**
 - Antes de publicar en producción: correr los scripts que lista `docs/status.md` (`00`, `01`,
@@ -498,7 +495,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
 **Numeración vigente:** local D-241 (rango D-240 a D-259) y B-5; Diseño (022) D-233 (hasta
-D-239) y B-30; la nube de la 024, D-260 a D-279 y B-40 a B-49.
+D-239) y B-30; la 024, D-275 (hasta D-279) y B-40 a B-49.
 
 **Comunicación:** la nube recibe mensajes, pero no puede contestar. Su avance llega por su rama
 o lo trae el usuario. Desarrollo y "rediseño tabla operadores por área" son sesiones locales y sí
@@ -567,6 +564,16 @@ filtrar por área" de los briefs 6 y 7 de la 022. Es una regla nueva, no solo di
 **Proceso (usuario, 2026-10-28):** de punta a punta en la nube (`process.md` → "Variante
 temporal" → "Spec 024") y revisión final en local contra la spec y el plan; después, el ciclo de
 Desarrollo.
+
+**Revisión local (Arquitectura y Planeación, 2026-10-29):** la nube cerró la spec (D-260 a
+D-271), el plan y E1 a E4 en `cloud/024-dashboard-por-area` (marcadas "no verificada"; con Mono
+compiló y pasaron 461 tests). La spec responde las seis dudas de arriba (la 2 y la 6, con P-2 y
+P-3: el filtro va en la BLL, sin parámetro nuevo en el SP). El código coincide con la spec y el
+plan, sin bugs: `OperatorArea` es la única regla; el filtro se aplica antes de paginar;
+`CanViewReports` sigue en cada método. **Enmienda 1** (usuario): D-272 (Sesiones con columna
+Área en lugar de Guía), D-273 (la ficha imprime Reforzar y Sesiones completos) y D-274 (el hook de
+inicio y `tools/` de `b95b27c` no entran). Desarrollo la trae desde la rama local `spec-024`
+(`ef48efa`), no desde la de la nube.
 
 **Orden:** antes de la **E6 de la 022** (Operadores y Operador). Al aprobarse la 024, Diseño UI/UX
 enmienda con fecha los briefs 6 y 7 de `022-briefs.md` (columna única y filtro de Área) antes de
