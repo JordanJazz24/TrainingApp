@@ -38,6 +38,7 @@ reemplazada por la spec 022".
 
 | Pantalla | Archivo | Quién | Implementar (orden con la 021) |
 |---|---|---|---|
+| Barra superior (agregada 2026-10-29, D-238) | `UI/master/Admin.Master` y `Site.Master` | los dos roles | E1b, antes de Seguimiento |
 | Login | `Pages/Auth/Login.aspx` | los dos roles | libre |
 | Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` | los dos roles | libre (la redirección final a "Elige tu área" la pone la E3 de la 021, no esta spec) |
 | Operadores | `Pages/Admin/Operators.aspx` | admin (gerencia y trainers) | después de la E5 de la 021 |
@@ -180,6 +181,14 @@ Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `Training
 > marca qué conlleva: tokens (y si afectan pantallas ya hechas), componentes, si toca
 > `Admin.Master` o pantallas implementadas, y el esfuerzo. Precisa D-206 (el v1 como base). En
 > el "Contexto común" de `022-briefs.md`.
+
+> **Enmienda 2026-10-29 (D-238, usuario): la barra superior entra en la 022** como "pantalla
+> 0", antes de seguir con Seguimiento. Un solo componente horizontal para `Admin.Master` y
+> `Site.Master` (no el Login, el Cambio de contraseña ni el POD). Problema: se ve plana y
+> genérica, y el menú del admin no tiene orden. La marca es siempre **"TrainingApp"** para los
+> dos roles. Qué lleva la del operador lo propone el diseño, solo con datos que ya existen. Brief
+> 0 de `022-briefs.md`; entrega **E1b** del plan. Las pantallas ya hechas y Pasos la heredan
+> por el master; las que faltan se diseñan con ella.
 
 ## Decisiones del usuario (2026-10-27)
 

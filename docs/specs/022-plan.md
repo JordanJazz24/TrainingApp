@@ -99,6 +99,25 @@ rotos, en claro y oscuro.
 > Los cambios al sistema que aprueben mockups posteriores van **al inicio de la entrega de esa
 > pantalla**, con la misma regresión del Resumen.
 
+## E1b · Barra superior (agregada 2026-10-29, D-238)
+
+**Bloqueada hasta:** el mockup de la barra superior (brief 0) aprobado. Va **antes** de la E5
+(Seguimiento) y de las demás pantallas que faltan; si coincide con Pasos (E4), se coordina el
+orden de `admin.css` con Desarrollo.
+
+- [ ] `UI/master/Admin.Master` y `Site.Master` (y sus `.cs`): la estructura aprobada, un solo
+      componente; mismos `HyperLink` y URLs, `MarkCurrent`, `#mtThemeToggle`, `BtnLogout` y
+      `PhMenu` / `PhUser`. Marca "TrainingApp" en los dos (D-238).
+- [ ] `admin.css`: el bloque de la barra con los tokens aprobados; el `@media print` la sigue
+      ocultando.
+- [ ] Revisar que `FullBleed` (Login y Cambio de contraseña) siga ocultándola.
+- [ ] `/code-review low --max-findings 3` sobre los masters. Foco: menú solo con
+      `CanViewReports`, Cerrar sesión (D-13), anti-CSRF del master.
+- [ ] Checklist común en cada vista del admin y en el inicio y "Elige tu área" del operador, en
+      claro, oscuro y tablet; impresión de la ficha sin barra.
+
+**Hecho cuando:** el usuario navega todas las vistas con los dos roles y dice "funciona".
+
 ## E2a · Login (libre)
 
 > **Enmendada 2026-10-28 (D-219, decisión del usuario):** la E2 se parte en **E2a (Login)** y

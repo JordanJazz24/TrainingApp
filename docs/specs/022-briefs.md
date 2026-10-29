@@ -74,6 +74,7 @@ Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
 
 | # | Pantalla | Archivos (cada `.aspx` con su `.aspx.cs`) |
 |---|---|---|
+| 0 | Barra superior | `UI/master/Admin.Master` y `Site.Master` (con su `.cs`), `UI/master/theme.js` y en `admin.css` el bloque de `.admin-bar` |
 | 1 | Login | `Pages/Auth/Login.aspx` |
 | 2 | Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` |
 | 3 | Guías | `Pages/Admin/Guides.aspx`, `Pages/Admin/GuideListRow.cs` |
@@ -148,6 +149,50 @@ pesadas) márcalo como cambio y dime qué conlleva.
 ```
 
 ---
+
+## 0. Barra superior (Admin.Master y Site.Master) → `022-design/barra-superior.md`
+
+> **Agregada 2026-10-29 (D-238, usuario):** se define antes de seguir con las demás pantallas,
+> porque vive en los masters y la heredan todas.
+
+**Capturas:** la barra del admin (en Resumen, con una vista marcada) y la del operador (en su
+inicio), en claro, oscuro y tablet.
+
+```text
+Pantalla: BARRA SUPERIOR (navbar horizontal), un solo componente para los dos roles.
+Dónde: Admin.Master (dashboard, Usuarios y Guías) y Site.Master (inicio del operador y "Elige tu
+área"). NO aparece en el Login ni en el Cambio de contraseña (van a pantalla completa, FullBleed,
+D-223 y D-230) ni en el simulador (POD, Training.Master, que queda fuera).
+Quién: administradores (gerencia y trainers) y operadores.
+Qué decide: a dónde ir, en qué vista está, con qué cuenta está y salir.
+Qué ve primero: dónde está y cómo ir a lo demás.
+
+Lo que no convence hoy (usuario): se ve plana y genérica (no tiene la identidad del Login 3b,
+su panel de marca azul con --mt-brand-*), y el menú del admin va en una fila sin orden.
+
+Datos y acciones (hoy):
+- marca: SIEMPRE "TrainingApp" con el logo del Login (D-238), para los dos roles (hoy el
+  operador dice "Simulador de entrenamiento MES": se unifica);
+- ADMIN: 6 enlaces — Resumen, Operadores, Pasos y Seguimiento (dashboard) y Usuarios y Guías
+  (administración) —, con la vista actual marcada (también en su detalle: Operador marca
+  Operadores). Agrúpalos o jerarquízalos como mejor sirva;
+- OPERADOR: hoy sin enlaces (solo tiene su inicio; el POD no lleva barra). Qué más lleva lo
+  propone el diseño, SOLO con datos que ya existen: su nombre, su Code1, su área ("Producto ·
+  Área", spec 021) y su último acceso. Sin enlaces a páginas nuevas;
+- interruptor de tema (claro/oscuro, #mtThemeToggle, theme.js);
+- el usuario (admin: nombre y último acceso; operador: nombre y Code1) y Cerrar sesión (cierra
+  la sesión de la app, D-13: PC compartida).
+El componente es UNO (mismas clases para los dos masters); el menú solo aparece para el admin.
+
+Restricciones propias: horizontal (no lateral); en tablet (768 px) no puede perder enlaces ni
+desbordar la página (colapsar, desplazar o agrupar: lo propone el diseño); los enlaces son
+HyperLink de servidor (mismas URLs); la impresión (ficha del Operador) oculta la barra.
+Marca en cada alternativa qué conlleva (D-237): tokens nuevos o con otro valor (y si cambian
+pantallas ya hechas), cambios a Admin.Master y Site.Master, y el esfuerzo.
+
+Queda fuera: menú lateral, buscador global, notificaciones, perfil o ajustes de cuenta,
+enlaces a páginas nuevas, la barra del POD.
+```
 
 ## 1. Login → `022-design/login.html`
 
