@@ -464,21 +464,21 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 
 **Estado:**
 - ✅ **Spec 023** (filtro de período) cerrada e integrada. Tests: 459.
-- **Fase 12 (022):** integradas la E1 (tokens), la E2a (Login, `53a9d52`) y la E2b (Cambio de
-  contraseña, `8ccda11`) (merge `07363e3`). Los docs de Diseño (`cloud/022-mockups-por-pantalla`:
-  brief 4 con `PeriodFilter`; E6 y briefs 6 y 7 bloqueados por la 024) integrados el 2026-10-29
-  (`97e1daf`). Las demás pantallas esperan su mockup. Orden vigente: D-219.
+- **Fase 12 (022):** integradas la E1 (tokens), la E2a (Login, `53a9d52`), la E2b (Cambio de
+  contraseña, `8ccda11`) (merge `07363e3`) y la **E3 (Guías, 2b, `bb3c444`; integrada el
+  2026-10-29 por fast-forward hasta `b8cacc5`)**: orden Custom primero y conteo por tipo en
+  `GuideAdminService` (D-235), aviso con la guía (D-236); sin capturas por decisión del usuario
+  (como la E2b). Los briefs 4, 6 y 7 y la aprobación de Guías de Diseño, integrados el
+  2026-10-29. Las demás pantallas esperan su mockup. Orden vigente: D-219.
 - ✅ **Spec 024 · Dashboard por área** (2026-10-29): hecha en la nube, revisada en local
   (enmienda 1, D-272 a D-274) y verificada por Desarrollo en `spec-024` (Rebuild,
   `aspnet_compiler`, 461 tests y el "funciona" del usuario; cierre `ab81231`). Integrada en
   `TrainingApp` el 2026-10-29 (`e86a9f3`). Desbloquea la E6 de la 022.
 
 **Sigue, por sesión:**
-- **Desarrollo (local, `spec-022`):** cerrar la **E3 de la 022 (Guías)**: implementada y con
-  el ajuste de la leyenda que pidió el usuario; falta su vistazo y el commit (2b, D-233 a D-236;
-  conteo y orden en la BLL sin test, D-235). Antes de la siguiente pantalla, `git merge
-  TrainingApp` en `spec-022` para traer la 024. Después, la **E6** (Operadores y Operador)
-  cuando Diseño apruebe sus mockups, sobre el código de la 024.
+- **Desarrollo (local, `spec-022`, ya con la 024):** libre. Toma la siguiente pantalla de la
+  022 con mockup aprobado (E4 Pasos, E5 Seguimiento, E6 Operadores y Operador, E7 Usuarios o E8
+  Inicio).
 - **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
   integrado el 2026-10-29 en `e3b9df3`) y Guías aprobada (2b, `2bf024c`, integrado en
   `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La 024 ya está en
