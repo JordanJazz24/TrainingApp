@@ -77,7 +77,7 @@ Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
 | 1 | Login | `Pages/Auth/Login.aspx` |
 | 2 | Cambio de contraseña | `Pages/Auth/ChangePassword.aspx` |
 | 3 | Guías | `Pages/Admin/Guides.aspx`, `Pages/Admin/GuideListRow.cs` |
-| 4 | Pasos | `Pages/Admin/Steps.aspx`, `Pages/Admin/StepRows.cs` |
+| 4 | Pasos | `Pages/Admin/Steps.aspx`, `Pages/Admin/StepRows.cs`, `UI/Controls/Admin/PeriodFilter.ascx` (control de período de la 023, reutilizable en Resumen) y en `admin.css` las clases `.mt-change*` (flecha de cambio con `--mt-ok` y `--mt-bad`) y `.mt-alert-warn` (período inválido) |
 | 5 | Seguimiento | `Pages/Admin/FollowUp.aspx`, `Pages/Admin/FollowUpListRow.cs`, `BLL/Reports/FollowUpRules.cs` |
 | 6 | Operadores | `Pages/Admin/Operators.aspx`, `Pages/Admin/OperatorListRow.cs`, `Pages/Admin/ReportText.cs` |
 | 7 | Operador | `Pages/Admin/Operator.aspx`, `Pages/Admin/OperatorDetailRows.cs`, `UI/master/admin-charts.js` |
@@ -229,6 +229,9 @@ Es una pantalla corta (hoy 4 guías): no la infles; que se lea en un vistazo.
 
 ## 4. Pasos → `022-design/pasos.html`
 
+> **2026-10-28: la spec 023 está cerrada** (en `TrainingApp`, `4818936`): Pasos ya se puede
+> diseñar con el código real.
+>
 > **Enmendado 2026-10-28 (spec 023, D-217):** Pasos se diseña **cuando la 023 esté cerrada** y
 > recibe su control de período y la comparación por paso, ya implementados. El texto de abajo
 > ya lo refleja; ver `023-filtro-periodo.md` (puntos 1 a 6b, P-5, P-16).
@@ -293,6 +296,11 @@ Ideas permitidas como métrica derivada: cuántos casos hay por regla, cuántos 
 
 ## 6. Operadores → `022-design/operadores.html`
 
+> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
+> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
+> cambia el significado de "Sin iniciar". No se diseña hasta que la 024 esté
+> aprobada y los briefs 6 y 7 enmendados con ella.
+
 **Capturas a adjuntar:** la lista con filtros vacíos, filtrada por "Reprobado" y una guía, en
 claro y oscuro; si se puede, a 768 px.
 
@@ -321,6 +329,11 @@ están en cada estado, quién está reprobado en alguna guía, quién no tiene a
 ```
 
 ## 7. Operador (detalle y ficha) → `022-design/operador.html`
+
+> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
+> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
+> cambia el significado de "Sin iniciar". No se diseña hasta que la 024 esté
+> aprobada y los briefs 6 y 7 enmendados con ella.
 
 **Capturas:** un operador con varias guías y sesiones, en claro y oscuro, y la vista de
 impresión (ficha).

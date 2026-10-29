@@ -206,6 +206,11 @@ rotos, en claro y oscuro.
 
 ## E6 · Operadores y Operador (después de la E5 de la 021)
 
+> **Bloqueada 2026-10-28 por la spec 024 "Dashboard por área"** (nube TrainingApp-Desarrollo,
+> D-260 a D-279; roadmap → "Spec 024"): quita las columnas por guía, agrega un filtro de Área y
+> cambia el significado de "Sin iniciar". No se diseña ni se implementa hasta que la 024 esté
+> aprobada y los briefs 6 y 7 enmendados con ella.
+
 **Bloqueada hasta:** E1 y los mockups de Operadores y Operador. (Enmendado 2026-10-27: la E5
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
 ficha ya existen.)
