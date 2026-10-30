@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-299 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-306 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -320,6 +320,13 @@
 | D-296 | 2026-10-30 | Spec 022, Operadores: componentes `.operators-*`; % y ancho de los tramos en el code-behind; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-297 | 2026-10-30 | Spec 022, Operadores: `OperatorSummary` en la BLL, sin test (conteos por estado, Sin área, inactivos con el umbral de S-2; no es regla nueva) | specs/022-mockups-por-pantalla.md | vigente |
 | D-298 | 2026-10-30 | Spec 022, Operadores: textos nuevos (antetítulo, barra, inactivos, "hace N días", "Ver detalle", líneas de qué hacer, que valida negocio) | specs/022-mockups-por-pantalla.md | vigente |
+| D-299 | 2026-10-30 | Spec 022, Operador: alternativa H "tres preguntas con historial por guía" (¿Está listo?, ¿Qué le falla?, ¿Qué ha hecho? e historial con un `<details>` por guía) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-300 | 2026-10-30 | Spec 022, Operador: se aparta del brief 7, en pantalla las sesiones van por guía sin columna Área; la ficha impresa conserva la tabla única con Área | specs/022-mockups-por-pantalla.md | vigente |
+| D-301 | 2026-10-30 | Spec 022, Operador: curva en dos paneles (puntaje con el mínimo arriba, intentos fallidos abajo), `mtCharts.valueLabels`, medidor y "Mejor" en la tabla | specs/022-mockups-por-pantalla.md | vigente |
+| D-302 | 2026-10-30 | Spec 022, Operador: componentes `.operator-*` nuevos (se borran los del v1); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-303 | 2026-10-30 | Spec 022, Operador: ficha impresa con las tres preguntas apiladas, todos los pasos, "También entrenó" y la tabla única de Sesiones (precisa D-157 y D-270) | specs/022-mockups-por-pantalla.md | vigente |
+| D-304 | 2026-10-30 | Spec 022, Operador: `OperatorActivity` en la BLL, sin test (por modo y por guía; no es regla nueva) | specs/022-mockups-por-pantalla.md | vigente |
+| D-305 | 2026-10-30 | Spec 022, Operador: textos nuevos (tres preguntas, historial, lectura de la curva, "Aprobó / Sin aprobar"); la línea de qué hacer es la de D-298 | specs/022-mockups-por-pantalla.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
