@@ -37,8 +37,8 @@
 | — · Área asignada por operador | ✅ (E1–E5: `425e944`, `d6af08d`, `a483731`, `03cd8df`, `b06a993`; D-165 a D-179 y D-208; cierra B-20, B-3 y B-4) | 2026-10-27 | `021-area-operador.md`, `021-plan.md` |
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 | — · Filtro de período en Pasos y Resumen | ✅ (E1–E4: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`, en `spec-022`, integrada en `TrainingApp` en `f8aab65`; D-209 a D-218) | 2026-10-28 | `023-filtro-periodo.md`, `023-plan.md` |
-| — · Dashboard por área (Operadores y Operador) | ⏳ spec por hacer en la nube (`TrainingApp-Desarrollo`, D-260 a D-279); va antes de la E6 de la 022 | | `024-*` (por crear) |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); siguen E3, E4, E5, E7 y E8 según sus mockups; E6 bloqueada por la 024 | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| — · Dashboard por área (Operadores y Operador) | ✅ (E1–E4 en la nube, revisada en local y verificada por Desarrollo en `spec-024`, cierre `ab81231`, integrada en `e86a9f3`; D-260 a D-274) | 2026-10-29 | `024-dashboard-por-area.md`, `024-plan.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) en `spec-022`, sin integrar; siguen E6, E7 y E8 según sus mockups; sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 
 ### Fase 7 — Catálogo de LoFlo (segunda área) ✅
 **Objetivo:** script SQL con el catálogo de LoFlo (Sensores). Solo carga de datos, cero
@@ -460,7 +460,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 > (Bootstrap 5.3 verificado, sistema de diseño y administración, Resumen, Operadores y
 > Operador, Pasos y Seguimiento, Excel) y se aprobó el 2026-10-26.
 
-### ⏸ Para retomar (Planeación, 2026-10-29)
+### ⏸ Para retomar (Planeación, 2026-10-30)
 
 **Estado:**
 - ✅ **Spec 023** (filtro de período) cerrada e integrada. Tests: 459.
@@ -480,20 +480,27 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
   tokens `--mt-brand-raise` y `--mt-brand-edge`, `.mt-topbar`, la franja de Pasos como tarjeta
   que enmienda D-239, y textos), integradas en `71739ce`. E5 a E8 esperan sus mockups. Orden
   vigente: D-219.
+  **E5 (Seguimiento) cerrada en `spec-022` el 2026-10-30** (`11d4173`, cierre `2f29a62`; sin
+  integrar en `TrainingApp`) desde `cloud/022-seguimiento` (`6f9042f`): alternativa B "cola de
+  llamadas" con el encabezado P1; `FollowUpSummary` en la BLL sin test (desvío aceptado por el
+  usuario, como D-283); la columna lateral con la cola vacía y el formato de Code1 quedan como en
+  el mockup. Sus D-n las numera Diseño UI/UX (nube, desde D-291). **D-242 (usuario, 2026-10-30):**
+  la 022 va sin capturas (deja sin efecto D-240).
 - ✅ **Spec 024 · Dashboard por área** (2026-10-29): hecha en la nube, revisada en local
   (enmienda 1, D-272 a D-274) y verificada por Desarrollo en `spec-024` (Rebuild,
   `aspnet_compiler`, 461 tests y el "funciona" del usuario; cierre `ab81231`). Integrada en
   `TrainingApp` el 2026-10-29 (`e86a9f3`). Desbloquea la E6 de la 022.
 
 **Sigue, por sesión:**
-- **Desarrollo (local, `spec-022`):** sin entrega en curso. Siguen E5 Seguimiento, E6 Operadores
-  y Operador, E7 Usuarios o E8 Inicio, según se aprueben sus mockups.
+- **Desarrollo (local, `spec-022`):** sin entrega en curso. Siguen E6 Operadores y Operador, E7
+  Usuarios o E8 Inicio, según se aprueben sus mockups. Integrar la E5 en `TrainingApp` cuando lo
+  pida el usuario.
 - **Diseño UI/UX (nube):** briefs 6 y 7 enmendados con la 024 y D-272/D-273 (`51e7cb2`,
   integrado el 2026-10-29 en `e3b9df3`) y Guías aprobada (2b, `2bf024c`, integrado en
   `c8809ce`). Siguen en Claude Design Seguimiento, Pasos, Operadores y Operador. La 024 ya está en
   `TrainingApp`: la E6 espera solo sus mockups.
-- **Arquitectura y Planeación:** al cerrar Desarrollo la 024, marcarla ✅ aquí; revisar las
-  ramas de handoff de la 022 que lleguen.
+- **Arquitectura y Planeación:** integrar la rama de Diseño UI/UX con las D-n de Seguimiento
+  cuando llegue; revisar las ramas de handoff de la 022 que lleguen.
 
 **Pendientes del usuario:**
 - Antes de publicar en producción: correr los scripts que lista `docs/status.md` (`00`, `01`,
@@ -503,7 +510,7 @@ Empieza **después de la Fase 10 y de R1/R2** (orden más abajo, en "Después de
 - Limpieza hecha el 2026-10-29 (`fase-10`, `spec-021`, `spec-024` y las ramas remotas de la
   024). No borrar `.claude/worktrees/fase-11`: ahí trabaja Desarrollo en `spec-022`.
 
-**Numeración vigente:** local D-242 (rango D-240 a D-259) y B-5; Diseño (022) D-291 (hasta
+**Numeración vigente:** local D-243 (rango D-240 a D-259) y B-5; Diseño (022) D-291 (hasta
 D-299, reservado el 2026-10-29; ya usó D-238, D-239 y D-280 a D-290) y B-30; la 024, cerrada (D-260 a D-274).
 Siguiente bloque libre: D-300.
 

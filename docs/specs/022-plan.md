@@ -54,7 +54,8 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
 
 - [ ] Precondición: exportación aprobada en `022-design/` y registrada en la spec; la entrega
       de la 021 que la bloquea, cerrada.
-- [ ] Capturas de **antes** (claro y oscuro) guardadas por el usuario, para comparar.
+- [ ] ~~Capturas de **antes** (claro y oscuro) guardadas por el usuario, para comparar.~~
+      Sin efecto desde el 2026-10-30 (D-242).
 - [ ] Implementar según la exportación, con los tokens y componentes vigentes.
 - [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler` (markup tocado); tests si cambió la
       BLL (métricas derivadas).
@@ -65,15 +66,13 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
     vista (AC-3);
   - a 768 px y proyectado, sin scroll horizontal de página (AC-4);
   - los números son los mismos que antes (AC-5).
-- [ ] Capturas de **después** (enmendado 2026-10-28, D-240): las toma **Desarrollo**, solo de
-      la **versión final** aprobada de la pantalla (no de cada iteración), y las guarda como
-      `022-design/<pantalla>-claro.png` y `-oscuro.png` en el commit de la entrega (sin la de
-      tablet desde el 2026-10-29, D-285; la regla de los 768 px se sigue probando). Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o
-      abaratarlas.
+- [ ] ~~Capturas de **después**~~ (D-240, D-285): **sin efecto desde el 2026-10-30 (D-242,
+      usuario)**. Ni Desarrollo las toma ni las pregunta; el criterio es la lista de cambios, el
+      canvas aprobado y el "funciona" del usuario (claro, oscuro y 768 px).
 
 > **Enmienda 2026-10-28 (D-226, D-227; D-240):** el bloqueo por mockup se cumple con la lista
 > de cambios en `022-design/<pantalla>.md` y las D-n registradas en la spec (ya no con un HTML
-> exportado). Las capturas no bloquean: las toma Desarrollo al final de la entrega (D-240). Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
+> exportado). Las capturas no bloquean: las toma Desarrollo al final de la entrega (D-240). (Sin capturas desde el 2026-10-30, D-242.) Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
 > verificada"): es el punto de partida de su entrega; Desarrollo la trae, verifica y hace el
 > commit con el ciclo normal. Nunca se integra tal cual.
 

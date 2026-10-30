@@ -25,8 +25,9 @@ y **gana la primera que aplica**:
   qué tiene que ver primero; referencias visuales y restricciones (Bootstrap, marca, uso en
   planta); **primero el sistema de diseño** (tokens de color, tipografía y espaciado, y
   componentes compartidos en un CSS común) y después las pantallas; y criterios de aceptación
-  verificables (capturas de antes y después, contraste accesible, anclas `data-guide` y
-  postbacks intactos, los `.xlsx` abren bien en Excel).
+  verificables (contraste accesible, anclas `data-guide` y postbacks intactos, los `.xlsx`
+  abren bien en Excel), sin capturas de antes y después (D-242): el "funciona" del usuario en
+  el navegador las reemplaza.
 - Ante la duda, preguntarse si una spec es sobreingeniería para un simulador interno, y
   decirle al usuario en una línea qué camino se propone y por qué. Él suele pedir "considera
   si realmente necesita spec".
@@ -127,9 +128,8 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   partida, con el ciclo normal (sección 2): Rebuild, `aspnet_compiler`, `/code-review`, el
   "funciona" del usuario y el commit en `TrainingApp`. Nunca se integra tal cual. La sesión
   local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`), salvo
-  la variante de la spec 024 (abajo). Las
-  capturas de `022-design/` las toma Desarrollo, solo de la versión final aprobada (claro,
-  oscuro y tablet); si su contexto no alcanza, pregunta antes al usuario (D-240).
+  la variante de la spec 024 (abajo). La 022 va
+  sin capturas: ni Desarrollo las toma ni se le piden al usuario (D-242, que deja sin efecto D-240).
 
 ## 2. Cada entrega
 

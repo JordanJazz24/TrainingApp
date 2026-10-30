@@ -234,6 +234,16 @@ Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `Training
 > regla de 768 px sin scroll horizontal (AC-4) no cambia. Las capturas finales de Desarrollo
 > (D-240) quedan en **claro y oscuro**, sin la de tablet.
 
+> **Enmienda 2026-10-30 (D-242, usuario: "quita esa regla, no pidas capturas"):** la 022 va
+> **sin capturas**. Desarrollo no las toma ni las pregunta, y al usuario no se le piden las de
+> antes. El criterio de cada pantalla es la lista de cambios `022-design/<pantalla>.md`, el
+> canvas aprobado en Claude Design y el "funciona" del usuario en el navegador, en claro, oscuro
+> y a 768 px. Deja sin efecto D-240 y la parte de capturas de D-285, y enmienda D-227 y AC-1 ("capturas
+> de antes y después en el plan"). Las capturas de `login-*.png` y `cambio-contrasena-*.png` que
+> ya están en `022-design/` se quedan. No cambia lo que el usuario adjunta a Claude Design como
+> entrada de cada brief ("Capturas:" en `022-briefs.md`). La regla general de los briefs de diseño (`process.md` →
+> "Clasificar el pedido") también queda sin capturas de antes y después.
+
 ## Decisiones del usuario (2026-10-27)
 
 | D | Decisión |

@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-242 (local, rango D-240 a D-259) · D-291 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-243 (local, rango D-240 a D-259) · D-291 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -259,7 +259,7 @@
 | D-224 | 2026-10-28 | Spec 022, Login: errores en la línea de estado, no en SweetAlert; íconos en campos y en Entrar (`BtnLogin` → `LinkButton`) | specs/022-mockups-por-pantalla.md | vigente |
 | D-225 | 2026-10-28 | Spec 022, Login: textos nuevos (lead, panel de identidad y aviso de primer acceso) | specs/022-mockups-por-pantalla.md | vigente |
 | D-226 | 2026-10-28 | Spec 022: flujo con handoff — Claude Design manda el diseño a una sesión de la nube que implementa en `cloud/022-<pantalla>` ("no verificada"); la nube de planeación registra las D-n; Desarrollo verifica, el usuario prueba y se hace el commit en `TrainingApp` | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | vigente |
-| D-227 | 2026-10-28 | Spec 022: excepción a P-3 — en `022-design/` quedan capturas PNG y la lista de cambios (`<pantalla>.md`), no el HTML exportado (carga React) | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | enmendada (D-240: las capturas las hace Desarrollo) |
+| D-227 | 2026-10-28 | Spec 022: excepción a P-3 — en `022-design/` quedan capturas PNG y la lista de cambios (`<pantalla>.md`), no el HTML exportado (carga React) | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | enmendada (D-240; D-242: sin capturas, queda la lista de cambios) |
 | D-228 | 2026-10-28 | Spec 022, Cambio de contraseña: alternativa 2a (franja de marca, tarjeta montada, 3 pasos en primer acceso, Nueva y Confirmar lado a lado, requisitos fijos) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
 | D-229 | 2026-10-28 | Spec 022, Cambio de contraseña: componentes `.pw-*` (solo esta pantalla) y `.mt-steps` / `.mt-step` (reutilizable); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-230 | 2026-10-28 | Spec 022, Cambio de contraseña: pantalla completa (`FullBleed`) siempre, también al llegar por URL sin estar obligado | specs/022-mockups-por-pantalla.md | vigente |
@@ -272,8 +272,9 @@
 | D-237 | 2026-10-29 | Spec 022: el v1 es referencia, no molde: al menos una alternativa por pantalla rompe con el v1 en estructura y en lo visual; cada cambio marca qué conlleva (tokens, pantallas ya hechas, componentes, esfuerzo). Precisa D-206 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-238 | 2026-10-29 | Spec 022: la barra superior (navbar horizontal, Admin.Master y Site.Master) entra como pantalla 0 con mockup propio y entrega E1b, antes de Seguimiento; marca siempre "TrainingApp"; la del operador la propone el diseño con datos existentes | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-239 | 2026-10-29 | Spec 022, Pasos: alternativa 4a "mesa de enseñanza" (franja con filtros, una columna por paso, panel del paso elegido sin postback, ranking completo abajo) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | enmendada (D-241: el ranking completo, plegado; D-289: la franja como tarjeta) |
-| D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | enmendada (D-285: sin captura de tablet) |
+| D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | sin efecto (D-242) |
 | D-241 | 2026-10-29 | Spec 022, Pasos: el ranking completo va plegado (`<details>`, "Mostrar / Ocultar"), porque repite las columnas y el panel del elegido; la lista no se quita. Enmienda D-239 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
+| D-242 | 2026-10-30 | Sin capturas en la 022 ni en los briefs de diseño que vengan (`process.md` → "Clasificar el pedido"); ni Desarrollo las toma ni se le piden al usuario (antes y después). El criterio es la lista de cambios `022-design/<pantalla>.md`, el canvas aprobado y el "funciona" del usuario en el navegador. Deja sin efecto D-240 y la parte de capturas de D-285; enmienda D-227 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-30) | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
@@ -294,7 +295,7 @@
 | D-282 | 2026-10-29 | Spec 022, Pasos: Modo como control segmentado (`RblMode`), mismos valores y URL | specs/022-mockups-por-pantalla.md | vigente |
 | D-283 | 2026-10-29 | Spec 022, Pasos: textos nuevos; la parte de cada motivo en la BLL, sin test (como D-235) | specs/022-mockups-por-pantalla.md | vigente |
 | D-284 | 2026-10-29 | Spec 022: las sesiones de diseño de la nube hacen una vuelta de crítica con `design:design-critique` antes de que el usuario elija (una corrección, resumen en el artifact); sin revisión de accesibilidad ni textos con skills aparte | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
-| D-285 | 2026-10-29 | Spec 022: cada alternativa del mockup es una página responsive con el interruptor de tema, sin copias en claro, oscuro ni tablet; las capturas finales de Desarrollo quedan en claro y oscuro (sin tablet). Enmienda D-240 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
+| D-285 | 2026-10-29 | Spec 022: cada alternativa del mockup es una página responsive con el interruptor de tema, sin copias en claro, oscuro ni tablet; las capturas finales de Desarrollo quedan en claro y oscuro (sin tablet). Enmienda D-240 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | enmendada (D-242: sin capturas finales) |
 | D-286 | 2026-10-29 | Spec 022, Barra superior: propuesta 1, banda de marca azul con el menú del admin en dos grupos ("Dashboard" y "Administración"), el área del operador y la cuenta con iniciales | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
 | D-287 | 2026-10-29 | Spec 022, Barra superior: tokens nuevos `--mt-brand-raise` y `--mt-brand-edge` (toda la app; ninguno existente cambia) | specs/022-mockups-por-pantalla.md | vigente |
 | D-288 | 2026-10-29 | Spec 022, Barra superior: componente `.mt-topbar` en lugar de `.admin-bar`, controles de presentación en los masters, `TopBar.cs`, menú plegado en `theme.js` y su responsive | specs/022-mockups-por-pantalla.md | vigente |

@@ -2,8 +2,8 @@
 
 **Spec:** `022-mockups-por-pantalla.md` (D-202 a D-206). Lo aprobado va a `022-design/` con el
 nombre de cada brief, pero como **`<archivo>.md` (lista de cambios)**, no como `.html`
-(enmendado 2026-10-28, D-227). Las capturas PNG de la versión final las agrega Desarrollo en la
-entrega (D-240).
+(enmendado 2026-10-28, D-227). Sin capturas de la versión final (enmendado 2026-10-30, D-242;
+antes las agregaba Desarrollo, D-240).
 
 Orden de diseño (P-1): Login → Cambio de contraseña → Guías → Pasos → Seguimiento →
 Operadores → Operador → Usuarios → Inicio del operador. El Login fija los cambios al sistema
@@ -60,7 +60,7 @@ Cómo trabajar:
 4. Agrega en la misma rama docs/specs/022-design/<pantalla>.md con: la alternativa elegida,
    los cambios frente al v1 (tokens nuevos o con otro valor en claro y oscuro, componentes
    nuevos o modificados, estructura, comportamiento y textos) y lo que Desarrollo debe revisar
-   porque no se compiló. No agregues capturas (las toma Desarrollo de la versión final) ni
+   porque no se compiló. No agregues capturas (D-242) ni
    subas el HTML exportado.
 5. No numeres decisiones (D-n) ni edites decisions.md, la spec, el plan, roadmap.md ni
    status.md: eso lo hace la sesión de planeación de la 022.
@@ -105,7 +105,7 @@ PANTALLA: <PANTALLA> (brief N).
    data-guide; sin lógica en el code-behind (una métrica derivada va en la BLL); si agregas controles, actualiza el
    .designer.cs. No puedes compilar ni probar: el commit va "no verificada". Agrega docs/specs/022-design/<archivo>.md
    con la alternativa elegida, el resumen de su crítica, los cambios frente al v1 y lo que Desarrollo debe revisar.
-   Sin capturas (D-240) ni el HTML del artifact.
+   Sin capturas (D-242) ni el HTML del artifact.
 
 5. AL TERMINAR, dile al usuario la rama, el commit, el link del artifact y un resumen de la lista de cambios.
 ```
