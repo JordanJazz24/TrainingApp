@@ -17,6 +17,9 @@ namespace TrainingApp.BLL.Reports
 
         // El puntaje si se muestra (completada y de un modo que lo muestra, D-90); si no, null.
         public decimal? Score { get; set; }
+
+        // Un Assessment completado con el puntaje mínimo (ReadinessPolicy.IsPassed).
+        public bool Passed { get; set; }
     }
 
     // La curva de aprendizaje de un operador en una guía (spec 018, AC-15).
@@ -62,7 +65,8 @@ namespace TrainingApp.BLL.Reports
                         StartedAt      = s.StartedAt,
                         Mode           = s.Mode,
                         FailedAttempts = failedAttempts(s),
-                        Score          = score(s)
+                        Score          = score(s),
+                        Passed         = ReadinessPolicy.IsPassed(s)
                     })
                     .ToList(),
                 PracticeBeforeFirstPass = firstPass == null ? (int?)null

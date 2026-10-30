@@ -295,14 +295,14 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
 - [x] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
       insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
       50.
-- [ ] **Punto de partida del detalle:** `cloud/022-operador` (`bfdad5c`, "no verificada"; sale de
+- [x] **Punto de partida del detalle:** `cloud/022-operador` (`bfdad5c`, "no verificada"; sale de
       `TrainingApp` con Seguimiento y Operadores; se integra sin conflictos). Estructura
       aprobada: H "tres preguntas con historial por guía" (D-299 a D-302); se aparta del brief
       en las Sesiones (D-300).
-- [ ] `Pages/Admin/Operator.aspx`: la estructura aprobada; estado por guía, pasos a reforzar,
+- [x] `Pages/Admin/Operator.aspx`: la estructura aprobada; estado por guía, pasos a reforzar,
       curva (Chart.js con `admin-charts.js`), sesiones y el área en el encabezado. Mismo `?id=`
       y regreso con `?missing=1`, sin postbacks.
-- [ ] Revisar en la rama (no se compiló, `operador.md` → "Para revisar en Desarrollo"; su renglón
+- [x] Revisar en la rama (no se compiló, `operador.md` → "Para revisar en Desarrollo"; su renglón
       de capturas no aplica, D-242): el `.designer.cs` escrito a mano (`<%# %>` en atributos de
       etiquetas literales, `<%= %>`/`<%: %>` en `PhOtherSteps` y `PhMix`, el repeater anidado
       en `RptHistory`); `DashboardServiceTests` y `DashboardPerformanceTests` en verde (cambió
@@ -312,15 +312,15 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
       entrenamiento cruzado, Sin área, área sin guía publicada, Sin iniciar, sin sesiones y un
       Assessment abandonado o en curso; claro, oscuro y 768 px; contraste de "Aprobó" y "Sin
       aprobar".
-- [ ] **Ficha impresa:** la disposición aprobada en el `@media print` de `admin.css`; sigue en
+- [x] **Ficha impresa:** la disposición aprobada en el `@media print` de `admin.css`; sigue en
       claro, sin menú, botones ni curva (D-157), con las tres preguntas, todos los pasos y la
       tabla única de Sesiones (D-303).
-- [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test. *Enmendado
+- [x] Métricas derivadas aprobadas (si hay): regla en la BLL con su test. *Enmendado
       2026-10-30: `OperatorActivity` va sin test, como D-235/D-283 (D-304; confirmado por el usuario a
       Planeación el mismo día).*
-- [ ] `/code-review low --max-findings 5`; `medium` si hay métricas. Foco: insignias de una sola
+- [x] `/code-review low --max-findings 5`; `medium` si hay métricas. Foco: insignias de una sola
       fuente, mismos estados de `ReadinessPolicy`, ficha en claro.
-- [ ] Checklist común + filtros por estado y guía, paginación, la ficha impresa (vista previa
+- [x] Checklist común + filtros por estado y guía, paginación, la ficha impresa (vista previa
       de impresión con tema oscuro activo) y la curva en los dos temas.
 
 > **Operadores (lista) cerrada 2026-10-30 (Desarrollo, `1afe5ed`):** alternativa D con el
@@ -332,7 +332,15 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
 > `GenerateDashboardData.sql` pasa a 100 operadores con perfiles fijos. Sin capturas (D-242).
 > **Falta:** `Operator.aspx` (detalle), la ficha impresa y su `/code-review`; esperan su mockup.
 
-**Hecho cuando:** el usuario confirma la lista, el detalle y la ficha impresa. *(La lista ✅.)*
+**Hecho cuando:** el usuario confirma la lista, el detalle y la ficha impresa. *(La lista ✅; el detalle y la ficha ✅.)*
+
+> **Operador (detalle y ficha) cerrada 2026-10-30 (Desarrollo, `b34e721`):** alternativa H desde
+> `cloud/022-operador` (`bfdad5c`), integrada en `spec-022` con `TrainingApp` (`fce7abb`); sin
+> conflictos. `/revisar medium`: 5 hallazgos, 1 aplicado (la curva toma `Passed` de
+> `ReadinessPolicy` vía `CurvePoint.Passed`, ya no `ScoreCalculator` en el code-behind), 4
+> descartados. Rebuild, `aspnet_compiler` y 461 tests en verde. Probada por el usuario.
+> **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250). **Falta:** que
+> negocio valide los textos de qué hacer (D-298/D-305).
 
 ## E7 · Usuarios (después de la E4 de la 021)
 

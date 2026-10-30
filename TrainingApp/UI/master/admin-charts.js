@@ -69,6 +69,36 @@ var mtCharts = (function () {
         };
     }
 
+    // Rótulos sobre los puntos y las barras, para leer la gráfica sin pasar el mouse (Operador,
+    // spec 022 brief 7): cada dataset los trae en mtLabels, un texto por dato (vacío: ninguno).
+    function valueLabels(t) {
+        return {
+            id: 'mtValueLabels',
+            afterDatasetsDraw: function (chart) {
+                var ctx = chart.ctx;
+                ctx.save();
+                ctx.font = '600 12px ' + t.font;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.lineJoin = 'round';
+                chart.data.datasets.forEach(function (dataset, i) {
+                    if (!dataset.mtLabels || !chart.isDatasetVisible(i)) return;
+                    chart.getDatasetMeta(i).data.forEach(function (element, k) {
+                        var text = dataset.mtLabels[k];
+                        if (!text || element.skip || isNaN(element.y)) return;
+                        var y = element.y - (dataset.type === 'line' ? 10 : 4);
+                        ctx.lineWidth = 4;
+                        ctx.strokeStyle = t.surface;
+                        ctx.strokeText(text, element.x, y);
+                        ctx.fillStyle = t.text;
+                        ctx.fillText(text, element.x, y);
+                    });
+                });
+                ctx.restore();
+            }
+        };
+    }
+
     function draw(entry) {
         if (entry.chart) entry.chart.destroy();
         var t = tokens();
@@ -86,5 +116,5 @@ var mtCharts = (function () {
 
     document.addEventListener('mt-theme', function () { charts.forEach(draw); });
 
-    return { create: create, axes: axes, bars: bars };
+    return { create: create, axes: axes, bars: bars, valueLabels: valueLabels };
 })();
