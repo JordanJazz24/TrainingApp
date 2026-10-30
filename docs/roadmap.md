@@ -43,22 +43,20 @@
 | — · Filtro de período en Pasos y Resumen | ✅ (E1–E4: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`, en `spec-022`, integrada en `TrainingApp` en `f8aab65`; D-209 a D-218) | 2026-10-28 | `023-filtro-periodo.md`, `023-plan.md` |
 | — · Dashboard por área (Operadores y Operador) | ✅ (E1–E4 en la nube, revisada en local y verificada por Desarrollo en `spec-024`, cierre `ab81231`, integrada en `e86a9f3`; D-260 a D-274) | 2026-10-29 | `024-dashboard-por-area.md`, `024-plan.md` |
 | **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y E6 parcial: Operadores ✅ (`1afe5ed`, cierre `866d80a`), en `spec-022` sin integrar; faltan Operador y su ficha (E6), E7 y E8 según sus mockups; sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
-| — · Flujo de trabajo eficiente | ▶️ plan directo aprobado el 2026-10-30 (D-243 a D-249); E1 ✅ (`88b1ca3`), E2 ✅ (`5ff7e13`, en `spec-022`), E3 hecha (`4bdb449`), falta que el usuario vea el hook | | `proceso-eficiente-plan.md` |
+| — · Flujo de trabajo eficiente | ✅ (E1 `88b1ca3`, E2 `5ff7e13` en `spec-022`, E3 `4bdb449` + `cb103ff`; D-243 a D-249) | 2026-10-30 | `proceso-eficiente-plan.md` |
 
 ### ▶️ Siguiente (Planeación, 2026-10-30)
 
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **Flujo eficiente** (`proceso-eficiente-plan.md`): E1 a E3 hechas; para cerrarlo, el usuario ve
-   el hook rechazar un `git add -A` de prueba y Desarrollo escribe su entrada en `history.md`.
-2. **022 (Fase 12):** E5 y la lista de Operadores de la E6 cerradas en `spec-022`, sin integrar:
+1. **022 (Fase 12):** E5 y la lista de Operadores de la E6 cerradas en `spec-022`, sin integrar:
    integrarlas cuando lo pida el usuario. Siguen Operador y su ficha (resto de la E6), E7 Usuarios y
    E8 Inicio, cada una al aprobarse su mockup; Desarrollo en Sonnet desde la siguiente (D-246). Al
    cerrar la E8 termina la variante de la nube (D-249).
-3. **Diseño UI/UX (nube):** numerar las D-n de Seguimiento y de Operadores desde D-291 (el usuario le
+2. **Diseño UI/UX (nube):** numerar las D-n de Seguimiento y de Operadores desde D-291 (el usuario le
    reenvía la sincronización); Planeación integra su rama.
-4. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
+3. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
 

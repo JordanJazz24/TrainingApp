@@ -97,7 +97,9 @@ movidas, actualizadas (11).
 - [x] `.gitignore`: la carpeta suelta `_users_*_git/` que aparece en los worktrees.
 - [x] Rebuild no hace falta (no toca código de la app). Commit solo de esas rutas.
 
-**Hecho cuando:** el usuario ve el hook rechazar un `git add -A` de prueba. ⏳ Falta esa prueba.
+**Hecho cuando:** el usuario ve el hook rechazar un `git add -A` de prueba. ✅ Visto por el usuario el 2026-10-30 (el hook rechazó un `git add -A -n` en la sesión de
+Desarrollo). Falso positivo con heredocs corregido en `cb103ff`. **Plan cerrado el 2026-10-30**
+(`docs/history.md`, `9b13069`).
 
 > **Hecha 2026-10-30 (Desarrollo, `4bdb449` en `TrainingApp`):** subagentes en Sonnet; hook
 > `.claude/hooks/git-guard.ps1` (rechaza con exit 2 los cuatro casos; probado en un repo temporal;
