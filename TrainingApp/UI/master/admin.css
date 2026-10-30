@@ -1060,6 +1060,157 @@ body.mt-page {
 /* Cada celda: la insignia y sus puntajes, sin partir la insignia. */
 .operators-table td { min-width: 150px; }
 .operators-table td:first-child { min-width: 200px; }
+.operators-table td:last-child { min-width: 0; }
+
+/* ── Operadores: encabezado con la barra por estado (spec 022, brief 6) ── */
+/* Todo el encabezado en una tarjeta: título y filtros arriba; la barra por estado (un tramo por
+   estado y Sin área, un enlace cada uno; su ancho es cuántos hay) y, al pie, la línea de qué
+   hacer con el grupo elegido. El estado nunca solo por color: número, ícono y nombre. Sin tokens
+   nuevos. */
+.operators-head {
+    margin-bottom: var(--mt-space-5);
+    padding: var(--mt-space-5) 28px 0;
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-xl);
+    box-shadow: var(--mt-shadow);
+}
+.operators-head-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--mt-space-4) var(--mt-space-6);
+    margin-bottom: 22px;
+}
+.operators-eyebrow {
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.operators-title {
+    margin: 6px 0 0;
+    font-size: 2.125rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+}
+/* Los campos del encabezado no se estiran y su etiqueta no suma margen al hueco del campo
+   (alinean con los botones por el pie). */
+.operators-head .operators-search { flex: 0 0 auto; max-width: none; }
+.operators-head .mt-field-label { margin-bottom: 0; }
+.operators-meter-k {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--mt-space-2);
+    margin-bottom: var(--mt-space-2);
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+}
+.mt-page .operators-all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    min-height: 40px;
+    padding: 0 6px 0 var(--mt-space-3);
+    border: 1px solid var(--mt-border);
+    border-radius: 999px;
+    background: var(--mt-surface);
+    color: var(--mt-text);
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+.mt-page .operators-all:hover { background: var(--mt-surface-2); color: var(--mt-text); text-decoration: none; }
+.mt-page .operators-all.is-selected { border-color: var(--mt-accent); box-shadow: 0 0 0 2px var(--mt-accent); }
+.operators-all b { padding: 2px var(--mt-space-2); border-radius: 999px; background: var(--mt-surface-2); }
+.operators-meter { display: flex; gap: var(--mt-space-1); min-height: 96px; }
+.mt-page .operators-seg {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 2px;
+    min-width: 118px;
+    padding: var(--mt-space-3) 14px;
+    border: 2px solid transparent;
+    border-radius: var(--mt-radius-xl);
+    text-decoration: none;
+    transition: transform .12s;
+}
+.mt-page .operators-seg:hover { transform: translateY(-2px); text-decoration: none; }
+.operators-seg-n { font-size: 1.875rem; font-weight: 700; line-height: 1; }
+.operators-seg-l { display: inline-flex; align-items: center; gap: 5px; font-size: var(--mt-fs-small); font-weight: 600; white-space: nowrap; }
+.operators-seg-p { font-size: .75rem; opacity: .85; }
+.mt-page .operators-seg-bad  { background: var(--mt-bad-soft);  color: var(--mt-bad); }
+.mt-page .operators-seg-idle { background: var(--mt-idle-soft); color: var(--mt-idle); }
+.mt-page .operators-seg-warn { background: var(--mt-warn-soft); color: var(--mt-warn); }
+.mt-page .operators-seg-ok   { background: var(--mt-ok-soft);   color: var(--mt-ok); }
+.mt-page .operators-seg-none { background: var(--mt-surface); color: var(--mt-muted); border: 2px dashed var(--mt-field-border); }
+.mt-page .operators-seg-bad:hover  { color: var(--mt-bad); }
+.mt-page .operators-seg-idle:hover { color: var(--mt-idle); }
+.mt-page .operators-seg-warn:hover { color: var(--mt-warn); }
+.mt-page .operators-seg-ok:hover   { color: var(--mt-ok); }
+.mt-page .operators-seg-none:hover { color: var(--mt-muted); }
+/* El tramo elegido sube y lleva un borde en su color (además de aria-current). */
+.mt-page .operators-seg.is-selected { border-style: solid; border-color: currentColor; box-shadow: var(--mt-shadow); transform: translateY(-4px); }
+.operators-callout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mt-space-2) var(--mt-space-3);
+    margin: 20px -28px 0;
+    padding: 14px 28px;
+    border-top: 1px solid var(--mt-border);
+    border-radius: 0 0 var(--mt-radius-xl) var(--mt-radius-xl);
+    background: var(--mt-surface-2);
+    font-size: .9375rem;
+}
+.operators-callout > .bi { font-size: 1.25rem; }
+.operators-callout b { font-weight: 700; }
+.operators-tone-bad  { color: var(--mt-bad); }
+.operators-tone-idle { color: var(--mt-idle); }
+.operators-tone-warn { color: var(--mt-warn); }
+.operators-tone-ok   { color: var(--mt-ok); }
+.operators-tone-none { color: var(--mt-muted); }
+.operators-tone-all  { color: var(--mt-accent); }
+.operators-inactive-count,
+.operators-ago.is-inactive { display: inline-flex; align-items: center; gap: var(--mt-space-1); color: var(--mt-warn); font-weight: 600; }
+.operators-inactive-count { margin-left: auto; font-size: .875rem; }
+.operators-ago { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+/* "Ver detalle": el `.go` del canvas, texto en el acento (no en --mt-text del btn-secondary) y
+   fondo suave al pasar el mouse. */
+.mt-page .operators-go {
+    --bs-btn-color: var(--mt-accent);
+    --bs-btn-hover-color: var(--mt-accent);
+    --bs-btn-hover-bg: var(--mt-accent-soft);
+    --bs-btn-active-color: var(--mt-accent);
+    --bs-btn-active-bg: var(--mt-accent-soft);
+    --bs-btn-border-radius: var(--mt-radius);
+    min-height: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 4px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+@media (max-width: 991.98px) {
+    .operators-head { padding: 20px var(--mt-space-4) 0; }
+    .operators-title { font-size: 1.75rem; }
+    .operators-callout { margin: var(--mt-space-4) calc(-1 * var(--mt-space-4)) 0; padding: var(--mt-space-3) var(--mt-space-4); }
+    .operators-inactive-count { margin-left: 0; }
+}
+@media (max-width: 767.98px) {
+    .operators-meter { flex-wrap: wrap; }
+    .mt-page .operators-seg { flex: 1 1 40% !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .mt-page .operators-seg { transition: none; }
+}
 
 /* ── Operadores / Operador por área (spec 024) ─────────────── */
 /* Varias guías en su área (P-6, futuro): una debajo de otra. */
