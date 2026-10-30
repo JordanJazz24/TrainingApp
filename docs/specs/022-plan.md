@@ -312,7 +312,8 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
       claro, sin menú, botones ni curva (D-157), con las tres preguntas, todos los pasos y la
       tabla única de Sesiones (D-303).
 - [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test. *Enmendado
-      2026-10-30: `OperatorActivity` va sin test, como D-235/D-283 (D-304).*
+      2026-10-30: `OperatorActivity` va sin test, como D-235/D-283 (D-304; confirmado por el usuario a
+      Planeación el mismo día).*
 - [ ] `/code-review low --max-findings 5`; `medium` si hay métricas. Foco: insignias de una sola
       fuente, mismos estados de `ReadinessPolicy`, ficha en claro.
 - [ ] Checklist común + filtros por estado y guía, paginación, la ficha impresa (vista previa
