@@ -7,10 +7,10 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-28 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
+**Última actualización:** 2026-10-30 · **Branch:** `TrainingApp`; la Fase 11, R3 y la spec
 021 están cerradas e integradas. Las specs 022 y 023 se trabajan en la rama `spec-022`, en el
 worktree `.claude/worktrees/fase-11` (la carpeta se reutilizó; `fase-11` y `spec-021` ya no
-están en ningún worktree) · **Último commit de código:** 022 E1b (Barra superior), en `spec-022`
+están en ningún worktree) · **Último commit de código:** 022 E5 (Seguimiento, `11d4173`), en `spec-022`
 (`git log --oneline -10` para ver el estado real)
 
 - **Fase 8.5 · Entrega de noviembre** (2.ª semana de noviembre; plan y orden en
@@ -153,8 +153,13 @@ están en ningún worktree) · **Último commit de código:** 022 E1b (Barra sup
        `cloud/022-barra-superior` (`b34eafb`), sin cambios: `.mt-topbar` en los dos masters (menú
        del admin en dos grupos, "Tu área" del operador), `TopBar.cs`, `wireMenu` en `theme.js` y
        la franja de Pasos en tarjeta. Sin capturas. Tests: 461. Probada por el usuario.
-       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E5 Seguimiento, E6 Operadores
-       y Operador, E7 Usuarios, E8 Inicio).
+     - **022 E5 · Seguimiento** (2026-10-30, `11d4173`): el mockup B ("cola de llamadas") con
+       el encabezado P1 desde `cloud/022-seguimiento` (`6f9042f`); el resumen de la cola en
+       `FollowUpSummary` (BLL, sin test, como D-235/D-283); `ReportText.Operators` del
+       code-review. D-n pendientes (Diseño UI/UX). Sin capturas. Tests: 461. Probada por el
+       usuario.
+       **Sigue:** cada pantalla de la 022 cuando tenga su mockup (E6 Operadores y Operador, E7
+       Usuarios, E8 Inicio).
      - **Spec 023 · Filtro de período en Pasos y Resumen ✅** (2026-10-28, ver "Historial"; spec
        y plan `docs/specs/023-*.md`, D-209 a D-218): **E1 a E4** (`ca9980f`, `55cfd7e`,
        `388dd3a` y el cierre), probadas por el usuario, en `spec-022` (sin integrar en

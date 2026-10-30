@@ -245,14 +245,22 @@ orden de `admin.css` con Desarrollo.
 
 **Bloqueada hasta:** E1 y el mockup de Seguimiento.
 
-- [ ] `Pages/Admin/FollowUp.aspx`: la estructura aprobada; chips con texto (S-1 a S-3), orden
+- [x] `Pages/Admin/FollowUp.aspx`: la estructura aprobada; chips con texto (S-1 a S-3), orden
       por número de reglas, filtro por guía y Descargar.
-- [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test; las reglas de
-      `FollowUpRules` no cambian.
-- [ ] `/code-review low --max-findings 3`; `medium` si hay métricas.
-- [ ] Checklist común + filas con 1, 2 y 3 reglas, vacío y enlace al detalle.
+- [x] Métricas derivadas aprobadas (si hay): regla en la BLL con su test; las reglas de
+      `FollowUpRules` no cambian. *Desvío aceptado por el usuario: `FollowUpSummary` va sin
+      test, como D-235/D-283.*
+- [x] `/code-review low --max-findings 3`; `medium` si hay métricas.
+- [x] Checklist común + filas con 1, 2 y 3 reglas, vacío y enlace al detalle.
 
-**Hecho cuando:** el usuario confirma la lista y dice "funciona".
+> **Cerrada 2026-10-30 (Desarrollo):** mockup B ("cola de llamadas") con el encabezado P1, desde
+> `cloud/022-seguimiento` (`6f9042f`); el resumen de la cola, a la BLL (`FollowUpSummary`, sin
+> test). D-n pendientes (Diseño UI/UX). `/code-review medium` sin bugs; se aplicó
+> `ReportText.Operators`. Por decisión del usuario quedan como en el mockup la columna "En la
+> cola" con la cola vacía y el formato de Code1 ("· Code1 123" en la tarjeta, "· 123" en
+> "Después"). Queda sin uso `.mt-chip-alert` en `admin.css`. Sin capturas.
+
+**Hecho cuando:** el usuario confirma la lista y dice "funciona". ✅ Probada por el usuario.
 
 ## E6 · Operadores y Operador (después de la E5 de la 021)
 

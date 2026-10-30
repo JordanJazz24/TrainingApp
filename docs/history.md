@@ -639,6 +639,12 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   `Admin.Master` y `Site.Master`, `TopBar.cs`, `wireMenu` en `theme.js` y la franja de Pasos en
   tarjeta. Sin cambios de Desarrollo. `/code-review low` sin hallazgos. Sin capturas. Probada
   por el usuario.
+- **E5 (Seguimiento, 2026-10-30, `11d4173`):** el mockup B ("cola de llamadas") con el
+  encabezado P1 desde `cloud/022-seguimiento` (`6f9042f`); el resumen de la cola en la BLL
+  (`FollowUpSummary`, sin test por decisión del usuario, como D-235/D-283); D-n pendientes
+  (Diseño UI/UX). `/code-review medium` sin bugs; se aplicó `ReportText.Operators`. El usuario
+  dejó como en el mockup la columna "En la cola" con la cola vacía y el formato de Code1. Sin
+  capturas. Probada por el usuario.
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver
