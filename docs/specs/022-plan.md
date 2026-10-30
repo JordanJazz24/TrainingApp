@@ -355,23 +355,33 @@ está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.) *En
 de Diseño UI/UX), que el usuario le pasa a Desarrollo; Desarrollo lo trae con el MCP
 `claude_design`, sin rama de la nube.
 
-- [ ] Antes de implementar: guardar la lista de cambios del handoff como `022-design/usuarios.md`.
+- [x] Antes de implementar: guardar la lista de cambios del handoff como `022-design/usuarios.md`.
       Si hay un desvío de alcance (`process.md` → "Handoff local de Claude Design"), parar y
       avisar a Planeación.
 
 **Esfuerzo (D-250):** `medium`; `high` si toca la BLL de gestión de usuarios o SQL.
 
-- [ ] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
+- [x] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
       `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext`; en la columna
       Área, el lápiz que abre ahí el selector agrupado con Guardar (`adminConfirm`) y Cancelar,
       sin postback hasta Guardar; las filas de admin muestran "—" y no tienen lápiz; en
       Acciones, solo Resetear, Desbloquear y Borrar, con `adminConfirm`.
-- [ ] `/code-review low --max-findings 5`. Foco: ids de fila, que las acciones de operador no
+- [x] `/code-review low --max-findings 5`. Foco: ids de fila, que las acciones de operador no
       salgan en filas de admin, B-3 intacto.
-- [ ] Checklist común + crear, buscar, paginar, cada acción por fila, cambiar el área con el
+- [x] Checklist común + crear, buscar, paginar, cada acción por fila, cambiar el área con el
       lápiz (Guardar y Cancelar), y la fila propia.
 
 **Hecho cuando:** el usuario prueba cada acción y dice "funciona".
+
+> **Usuarios cerrada 2026-10-30 (Desarrollo, `8a9664c`):** alternativa CD-3 "Consola de cuentas"
+> desde el handoff local de Claude Design (D-251), lista de cambios en
+> `022-design/usuarios.md`. Sin desvío de alcance: `UserPageSummary` es una métrica de
+> presentación sin test. `/revisar low`: 0 hallazgos (el subagente no listó lo leído). Rebuild,
+> `aspnet_compiler` y 461 tests en verde. Probada por el usuario. **Rondas de corrección tras la
+> primera prueba: 1** (espacio bajo el buscador por `flex: 0 1 380px` de `.admin-search` y
+> "Volver a la lista" visible en escritorio: `.btn` le ganaba a `.users-back`; piloto de Sonnet,
+> D-250). **Falta:** que negocio valide los textos de "qué pasa" y de las acciones, y las D-n
+> pendientes (Diseño UI/UX).
 
 ## E8 · Inicio del operador (después de la E3 de la 021)
 
