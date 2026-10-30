@@ -285,16 +285,34 @@ de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en 
 ficha ya existen.)
 
 **Esfuerzo (D-250):** `medium` para el detalle y la ficha; `high` si el mockup aprobado agrega
-una métrica derivada en la BLL (como `OperatorSummary` en la lista).
+una métrica derivada en la BLL (como `OperatorSummary` en la lista). *Enmendado 2026-10-30: el
+detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
 
 - [x] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
       insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
       50.
+- [ ] **Punto de partida del detalle:** `cloud/022-operador` (`bfdad5c`, "no verificada"; sale de
+      `TrainingApp` con Seguimiento y Operadores; se integra sin conflictos). Estructura
+      aprobada: H "tres preguntas con historial por guía" (D-299 a D-302); se aparta del brief
+      en las Sesiones (D-300).
 - [ ] `Pages/Admin/Operator.aspx`: la estructura aprobada; estado por guía, pasos a reforzar,
-      curva (Chart.js con `admin-charts.js`), sesiones y el área en el encabezado.
+      curva (Chart.js con `admin-charts.js`), sesiones y el área en el encabezado. Mismo `?id=`
+      y regreso con `?missing=1`, sin postbacks.
+- [ ] Revisar en la rama (no se compiló, `operador.md` → "Para revisar en Desarrollo"; su renglón
+      de capturas no aplica, D-242): el `.designer.cs` escrito a mano (`<%# %>` en atributos de
+      etiquetas literales, `<%= %>`/`<%: %>` en `PhOtherSteps` y `PhMix`, el repeater anidado
+      en `RptHistory`); `DashboardServiceTests` y `DashboardPerformanceTests` en verde (cambió
+      el armado de `GetOperator`); la curva, con el puntaje arriba (orden de los ejes apilados,
+      no verificado), rótulos sin cortar, una guía solo con Práctica libre y una solo con Guided;
+      que `mtCharts.valueLabels` no cambie las demás gráficas (Resumen, Pasos); casos con
+      entrenamiento cruzado, Sin área, área sin guía publicada, Sin iniciar, sin sesiones y un
+      Assessment abandonado o en curso; claro, oscuro y 768 px; contraste de "Aprobó" y "Sin
+      aprobar".
 - [ ] **Ficha impresa:** la disposición aprobada en el `@media print` de `admin.css`; sigue en
-      claro, sin menú, botones ni curva (D-157).
-- [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test.
+      claro, sin menú, botones ni curva (D-157), con las tres preguntas, todos los pasos y la
+      tabla única de Sesiones (D-303).
+- [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test. *Enmendado
+      2026-10-30: `OperatorActivity` va sin test, como D-235/D-283 (D-304).*
 - [ ] `/code-review low --max-findings 5`; `medium` si hay métricas. Foco: insignias de una sola
       fuente, mismos estados de `ReadinessPolicy`, ficha en claro.
 - [ ] Checklist común + filtros por estado y guía, paginación, la ficha impresa (vista previa
