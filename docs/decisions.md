@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-252 (local, rango D-240 a D-259) · D-306 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-252 (local, rango D-240 a D-259) · D-315 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -243,7 +243,7 @@
 | D-205 | 2026-10-27 | Spec 022: métricas nuevas solo derivadas en la BLL con los datos que la vista ya carga, cada una con su D-n; las que piden datos nuevos van a otra spec | specs/022-mockups-por-pantalla.md | vigente |
 | D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | enmendada (D-237: el v1 es referencia, no molde) |
 | D-207 | 2026-10-27 | Spec 022: propuestas de Claude respondidas (orden de diseño Login → Contraseña → libres → resto; se diseña el estado de la 021; HTML autocontenido; 3 alternativas por estructura con nota; quitar datos es una D-n; implementación en paralelo con la 021 para las libres; sistema en entrega propia; candidatas para otra spec). P-6 descartada | specs/022-mockups-por-pantalla.md | vigente |
-| D-208 | 2026-10-27 | Spec 021, enmienda 1: Usuarios sin Quitar área (en la página ni en la BLL: `SetArea` rechaza `null`); Cambiar área en la columna Área, con un lápiz | specs/021-area-operador.md (enmienda 1) | vigente |
+| D-208 | 2026-10-27 | Spec 021, enmienda 1: Usuarios sin Quitar área (en la página ni en la BLL: `SetArea` rechaza `null`); Cambiar área en la columna Área, con un lápiz | specs/021-area-operador.md (enmienda 1) | enmendada (D-307: el área se cambia en la ficha de Usuarios, no en una columna; sigue sin Quitar área) |
 | D-209 | 2026-10-27 | Spec 023: filtro de período solo en Pasos y Resumen, para revisar un grupo o una capacitación, reportes periódicos, antes y después de un cambio y seguimiento diario | specs/023-filtro-periodo.md | vigente |
 | D-210 | 2026-10-27 | Spec 023: un solo control de período, atajos + Personalizado… (Inicio y Fin al elegirlo), con el rango aplicado en palabras debajo | specs/023-filtro-periodo.md | enmendada (2026-10-28: lista reducida a 7 opciones, P-3) |
 | D-211 | 2026-10-27 | Spec 023: comparación con el período anterior de igual largo; con un período en curso, contra los mismos días del anterior | specs/023-filtro-periodo.md | vigente |
@@ -328,6 +328,15 @@
 | D-303 | 2026-10-30 | Spec 022, Operador: ficha impresa con las tres preguntas apiladas, todos los pasos, "También entrenó" y la tabla única de Sesiones (precisa D-157 y D-270) | specs/022-mockups-por-pantalla.md | vigente |
 | D-304 | 2026-10-30 | Spec 022, Operador: `OperatorActivity` en la BLL, sin test (por modo y por guía; no es regla nueva) | specs/022-mockups-por-pantalla.md | vigente |
 | D-305 | 2026-10-30 | Spec 022, Operador: textos nuevos (tres preguntas, historial, lectura de la curva, "Aprobó / Sin aprobar"); la línea de qué hacer es la de D-298 | specs/022-mockups-por-pantalla.md | vigente |
+| D-306 | 2026-10-30 | Spec 022, Usuarios: alternativa CD-3 "consola de cuentas" (directorio + ficha de la cuenta elegida; Crear en lugar de la ficha) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-307 | 2026-10-30 | Spec 022, Usuarios: el área se cambia en la ficha con radios agrupados (sin columna Área) y, en Sin área, sin preselección. Enmienda D-208 | specs/022-mockups-por-pantalla.md | vigente |
+| D-308 | 2026-10-30 | Spec 022, Usuarios: rol del operador, alta y último acceso pasan a la ficha (P-5); ningún dato se quita | specs/022-mockups-por-pantalla.md | vigente |
+| D-309 | 2026-10-30 | Spec 022, Usuarios: Borrar sobre uno mismo, deshabilitado con el motivo | specs/022-mockups-por-pantalla.md | vigente |
+| D-310 | 2026-10-30 | Spec 022, Usuarios: dos repeaters (`RptDirectory` y `RptUsers` con las fichas) y `HfSelected` | specs/022-mockups-por-pantalla.md | vigente |
+| D-311 | 2026-10-30 | Spec 022, Usuarios: se conserva `DdlNewRole`; `BtnSearch` y `BtnCreate` como `LinkButton` con ícono; Crear sin saltar de página | specs/022-mockups-por-pantalla.md | vigente |
+| D-312 | 2026-10-30 | Spec 022, Usuarios: componentes `.users-*` (se borran `.admin-users` y afines); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-313 | 2026-10-30 | Spec 022, Usuarios: `UserPageSummary` en la BLL, sin test (solo la página abierta) | specs/022-mockups-por-pantalla.md | vigente |
+| D-314 | 2026-10-30 | Spec 022, Usuarios: textos nuevos (resumen, Acceso, Área, Cuenta, Borrar, Crear); los de "qué pasa" y las acciones los valida negocio | specs/022-mockups-por-pantalla.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
