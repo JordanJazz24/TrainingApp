@@ -12,10 +12,12 @@ se trabajan en `spec-022` (worktree `.claude/worktrees/fase-11`), sin integrar. 
 está en los planes (`docs/specs/`), `docs/history.md` y `git log`; aquí solo lo vivo.
 
 **En curso (spec 022, un mockup por pantalla; plan `docs/specs/022-plan.md`)**
-- Hechas: E1 a E5 y E6 completa (lista `1afe5ed`; Operador y ficha `b34e721`). Sin capturas
-  (D-242). Tests: 461. Falta que negocio valide los textos de qué hacer (D-298/D-305).
-- Siguiente entrega mía: **E7 Usuarios** y después **E8 Inicio**, cada una cuando tenga su
-  mockup. `/rol desarrollo` al iniciar y `/cerrar-entrega <plan> <entrega>` al cerrar.
+- Hechas: E1 a E5, E6 completa (`1afe5ed`, `b34e721`) y E7 Usuarios (`8a9664c`). Sin capturas
+  (D-242). Tests: 461. Falta que negocio valide los textos de qué hacer (D-298/D-305) y los de
+  Usuarios; las D-n de la E7 están pendientes (Diseño UI/UX).
+- Siguiente entrega mía: **E8 Inicio**, cuando el usuario me pase su handoff de Claude Design
+  (MCP `claude_design`, D-251). `/rol desarrollo` al iniciar y
+  `/cerrar-entrega <plan> <entrega>` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).

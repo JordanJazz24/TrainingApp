@@ -33,6 +33,9 @@ namespace TrainingApp.BLL.Admin
         public int Total { get; set; }
         public int Page { get; set; }        // desde 1
         public int PageCount { get; set; }
+
+        // Cifras de las cuentas de esta página (spec 022, brief 8).
+        public UserPageSummary Summary { get; set; }
     }
 
     // Gestión de usuarios (spec 013). Cada método recibe el userId del admin autenticado y
@@ -91,7 +94,11 @@ namespace TrainingApp.BLL.Admin
                 users = _users.Search(text, (pageNumber - 1) * PageSize, PageSize, out total);
             }
 
-            return new UserSearchPage { Users = users, Total = total, Page = pageNumber, PageCount = pageCount };
+            return new UserSearchPage
+            {
+                Users = users, Total = total, Page = pageNumber, PageCount = pageCount,
+                Summary = UserPageSummary.Of(users, DateTime.UtcNow)
+            };
         }
 
         // Crea la cuenta de un empleado de la API con la contraseña por defecto y el cambio

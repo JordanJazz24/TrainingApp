@@ -459,6 +459,7 @@
     <Compile Include="BLL\Auth\RoleCache.cs" />
     <Compile Include="BLL\Auth\LoginLockPolicy.cs" />
     <Compile Include="BLL\Admin\UserAdminService.cs" />
+    <Compile Include="BLL\Admin\UserPageSummary.cs" />
     <Compile Include="BLL\Admin\GuideAdminService.cs" />
     <Compile Include="BLL\Reports\DashboardService.cs" />
     <Compile Include="BLL\Reports\OperatorArea.cs" />
