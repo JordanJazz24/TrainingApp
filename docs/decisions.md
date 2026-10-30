@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-299 (nube, spec 022; rango D-280 a D-299; después, el bloque que asigne Planeación desde D-300). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-299 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -18,6 +18,9 @@
 >   **2026-10-29:** a la nube de la 022 le quedan D-238 y D-239; al agotarlos sigue con **D-280 a
 >   D-299** (reservado por Arquitectura y Planeación a pedido de Diseño UI/UX). El siguiente
 >   bloque libre es D-300.
+>   **2026-10-30:** a la nube de la 022 le queda D-299; al agotarlo sigue con **D-300 a D-319**
+>   (Operador, Usuarios e Inicio del operador; reservado por Planeación a pedido de Diseño UI/UX).
+>   El siguiente bloque libre es D-320.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
 >   **D-260 a D-279** y **B-40 a B-49**. Cerrada el 2026-10-29: usó D-260 a D-274; D-275 a D-279
 >   y B-40 a B-49 quedan sin usar.

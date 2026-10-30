@@ -444,8 +444,8 @@ están en cada estado, quién no tiene actividad reciente.
 > área primero, las otras áreas en una sección colapsada, Sesiones con columna Área y la ficha
 > con "También entrenó". **Se diseña sobre el código de la 024**, ya integrado en `TrainingApp` (`e86a9f3`, 2026-10-29).
 
-**Capturas:** un operador con entrenamiento cruzado (sesiones en otra área) y uno sin área, en
-claro y oscuro, y la vista de impresión (ficha).
+**Capturas:** ninguna (enmendado 2026-10-30, D-242). Diseña sobre el código: un operador con
+entrenamiento cruzado (sesiones en otra área), uno sin área y la vista de impresión (ficha).
 
 ```text
 Pantalla: OPERADOR (detalle de una persona).
@@ -483,9 +483,9 @@ Muestra también cómo se ve la ficha impresa de cada alternativa.
 > área se cambia en su propia columna, con un lápiz; la columna Acciones tiene solo Resetear,
 > Desbloquear y Borrar. El texto de abajo ya lo refleja.
 
-**Capturas:** la lista con operadores y admins (uno bloqueado, uno que debe cambiar la
-contraseña), y el formulario de crear, más el selector de área abierto con el lápiz (la 021
-ya está en la app, 2026-10-27).
+**Capturas:** ninguna (enmendado 2026-10-30, D-242). Diseña sobre el código: la lista con
+operadores y admins (uno bloqueado, uno que debe cambiar la contraseña), el formulario de
+crear y el selector de área abierto con el lápiz (la 021 ya está en la app, 2026-10-27).
 
 ```text
 Pantalla: GESTIÓN DE USUARIOS (administración).
@@ -514,8 +514,9 @@ alta, historial de cambios.
 
 ## 9. Inicio del operador → `022-design/inicio-operador.html`
 
-**Capturas:** el inicio actual (con la 021: el área como texto, el selector de guía y las 3
-tarjetas de modo), en claro y oscuro, y en tablet; si puedes, también el aviso sin área.
+**Capturas:** ninguna (enmendado 2026-10-30, D-242). Diseña sobre el código: el inicio actual
+(con la 021: el área como texto, el selector de guía y las 3 tarjetas de modo), también en
+tablet, y el aviso sin área.
 
 ```text
 Pantalla: INICIO DEL OPERADOR (antes de entrar al simulador).

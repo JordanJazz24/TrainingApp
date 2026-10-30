@@ -54,8 +54,8 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
    Siguen Operador y su ficha (resto de la E6), E7 Usuarios y
    E8 Inicio, cada una al aprobarse su mockup; Desarrollo en Sonnet desde la siguiente (D-246). Al
    cerrar la E8 termina la variante de la nube (D-249).
-2. **Diseño UI/UX (nube):** numerar las D-n de Seguimiento y de Operadores desde D-291 (el usuario le
-   reenvía la sincronización); Planeación integra su rama.
+2. **Negocio:** validar los textos de "qué hacer" de Operadores (D-298) antes de cerrar la E6.
+   Diseño UI/UX (nube) sigue con D-299 y D-300 a D-319; Planeación integra su rama.
 3. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
