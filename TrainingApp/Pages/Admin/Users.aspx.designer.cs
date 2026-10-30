@@ -15,6 +15,61 @@ namespace TrainingApp.Pages.Admin
     {
 
         /// <summary>
+        /// PnlSearch control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Panel PnlSearch;
+
+        /// <summary>
+        /// TxtSearch control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.TextBox TxtSearch;
+
+        /// <summary>
+        /// BtnSearch control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.LinkButton BtnSearch;
+
+        /// <summary>
+        /// LitCountLocked control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitCountLocked;
+
+        /// <summary>
+        /// LitCountPending control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitCountPending;
+
+        /// <summary>
+        /// LitCountNoArea control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitCountNoArea;
+
+        /// <summary>
+        /// RptDirectory control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Repeater RptDirectory;
+
+        /// <summary>
+        /// LblEmpty control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Label LblEmpty;
+
+        /// <summary>
+        /// BtnPrev control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.LinkButton BtnPrev;
+
+        /// <summary>
+        /// LitPageInfo control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.Literal LitPageInfo;
+
+        /// <summary>
+        /// BtnNext control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.LinkButton BtnNext;
+
+        /// <summary>
         /// PnlCreate control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Panel PnlCreate;
@@ -37,22 +92,12 @@ namespace TrainingApp.Pages.Admin
         /// <summary>
         /// BtnCreate control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Button BtnCreate;
+        protected global::System.Web.UI.WebControls.LinkButton BtnCreate;
 
         /// <summary>
-        /// PnlSearch control.
+        /// HfSelected control.
         /// </summary>
-        protected global::System.Web.UI.WebControls.Panel PnlSearch;
-
-        /// <summary>
-        /// TxtSearch control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.TextBox TxtSearch;
-
-        /// <summary>
-        /// BtnSearch control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Button BtnSearch;
+        protected global::System.Web.UI.WebControls.HiddenField HfSelected;
 
         /// <summary>
         /// RptUsers control.
@@ -60,28 +105,8 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Repeater RptUsers;
 
         /// <summary>
-        /// LblEmpty control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Label LblEmpty;
-
-        /// <summary>
         /// RptAreaGroups control.
         /// </summary>
         protected global::System.Web.UI.WebControls.Repeater RptAreaGroups;
-
-        /// <summary>
-        /// BtnPrev control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.LinkButton BtnPrev;
-
-        /// <summary>
-        /// LitPageInfo control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.Literal LitPageInfo;
-
-        /// <summary>
-        /// BtnNext control.
-        /// </summary>
-        protected global::System.Web.UI.WebControls.LinkButton BtnNext;
     }
 }

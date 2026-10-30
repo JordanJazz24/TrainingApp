@@ -84,18 +84,21 @@ namespace TrainingApp.Pages.Admin
             if (!Page.IsValid) return;
             SearchText  = TxtSearch.Text.Trim();
             CurrentPage = 1;
+            HfSelected.Value = string.Empty;
             BindUsers();
         }
 
         protected void BtnPrev_Click(object sender, EventArgs e)
         {
             CurrentPage = Math.Max(1, CurrentPage - 1);
+            HfSelected.Value = string.Empty;
             BindUsers();
         }
 
         protected void BtnNext_Click(object sender, EventArgs e)
         {
             CurrentPage = CurrentPage + 1;
+            HfSelected.Value = string.Empty;
             BindUsers();
         }
 
@@ -182,8 +185,24 @@ namespace TrainingApp.Pages.Admin
             CurrentPage = page.Page;
 
             var now = DateTime.UtcNow;
-            RptUsers.DataSource = page.Users.Select(u => ToRow(u, now)).ToList();
+            var rows = page.Users.Select(u => ToRow(u, now)).ToList();
+
+            // La ficha abierta es la elegida (HfSelected); si ya no está en la página, la primera
+            // cuenta con problema y, si no hay, la primera.
+            var selected = rows.FirstOrDefault(r => r.Id.ToString() == HfSelected.Value)
+                ?? rows.FirstOrDefault(r => r.IsProblem)
+                ?? rows.FirstOrDefault();
+            foreach (var row in rows) row.IsSelected = row == selected;
+            HfSelected.Value = selected?.Id.ToString() ?? string.Empty;
+
+            RptDirectory.DataSource = rows;
+            RptDirectory.DataBind();
+            RptUsers.DataSource = rows;
             RptUsers.DataBind();
+
+            LitCountLocked.Text  = page.Summary.Locked.ToString();
+            LitCountPending.Text = page.Summary.PendingFirstLogin.ToString();
+            LitCountNoArea.Text  = page.Summary.NoArea.ToString();
 
             LblEmpty.Visible  = page.Total == 0;
             LitPageInfo.Text  = page.Total == 0 ? string.Empty :
@@ -196,6 +215,9 @@ namespace TrainingApp.Pages.Admin
         {
             var state = UserAdminService.StateOf(u, nowUtc);
             string who = u.Code1 + " (" + u.Name + ")";
+            bool isOperator = u.Role == UserRole.Operator;
+            string areaText = !isOperator ? "—"
+                : AreaLabel.Of(u.ProductName, u.AreaName) ?? AreaLabel.NoArea;
             return new UserListRow
             {
                 Id                = u.Id,
@@ -210,9 +232,8 @@ namespace TrainingApp.Pages.Admin
                 CreatedText       = SessionHelper.ToLocal(u.CreatedAt).ToString("dd/MM/yyyy"),
                 LastLoginText     = u.LastLoginAt.HasValue
                     ? SessionHelper.ToLocal(u.LastLoginAt.Value).ToString("dd/MM/yyyy HH:mm") : "—",
-                AreaText          = u.Role != UserRole.Operator ? "—"
-                    : AreaLabel.Of(u.ProductName, u.AreaName) ?? AreaLabel.NoArea,
-                IsOperator        = u.Role == UserRole.Operator,
+                AreaText          = areaText,
+                IsOperator        = isOperator,
                 AreaId            = u.AreaId,
                 Who               = who,
                 IsLocked          = state == UserAccountState.Locked,
@@ -224,8 +245,82 @@ namespace TrainingApp.Pages.Admin
                     ? "¿Borrar a " + who + "? Tiene " + u.SessionCount + (u.SessionCount == 1 ? " sesión" : " sesiones") +
                       " de entrenamiento: se borrarán su historial y sus puntajes y no se pueden recuperar." +
                       " Los indicadores del dashboard cambian." // spec 018, D-142 (AC-23)
-                    : "¿Borrar a " + who + "?"
+                    : "¿Borrar a " + who + "?",
+                Initials          = Initials(u.Name),
+                IsAdmin           = !isOperator,
+                IsProblem         = state != UserAccountState.Active,
+                StateShort        = StateShort(state),
+                NoArea            = isOperator && u.AreaId == null,
+                AreaShort         = isOperator ? areaText : RoleText(u.Role),
+                AreaNote          = isOperator && u.AreaId == null
+                    ? "Aún no eligió su área: no cuenta como «Sin iniciar» en Operadores."
+                    : "Producto · Área. Se puede corregir aquí.",
+                HintIcon          = HintIcon(state),
+                LongHint          = LongHint(state, u, nowUtc),
+                LastAgoText       = u.LastLoginAt.HasValue
+                    ? ReportText.DaysAgo((SessionHelper.ToLocal(nowUtc).Date - SessionHelper.ToLocal(u.LastLoginAt.Value).Date).Days)
+                    : "Nunca ha entrado",
+                SessionsText      = !isOperator ? "No entrena (administrador)" : SessionsText(u.SessionCount),
+                DeleteNote        = u.Id == AdminUserId
+                    ? "Es tu cuenta: nadie se borra a sí mismo. Pídele a otro administrador que lo haga."
+                    : u.SessionCount > 0
+                        ? "Tiene " + SessionsText(u.SessionCount) + " de entrenamiento: se borrarán su historial y sus puntajes y no se pueden recuperar. Los indicadores del dashboard cambian."
+                        : "No tiene historial de entrenamiento. La cuenta se borra y no se puede recuperar."
             };
+        }
+
+        private static string Initials(string name)
+        {
+            var words = (name ?? string.Empty).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length == 0) return "?";
+            return (words[0].Substring(0, 1) + (words.Length > 1 ? words[1].Substring(0, 1) : string.Empty)).ToUpperInvariant();
+        }
+
+        private static string SessionsText(int count)
+            => count == 0 ? "Ninguna" : count + (count == 1 ? " sesión" : " sesiones");
+
+        private static string StateShort(UserAccountState state)
+        {
+            switch (state)
+            {
+                case UserAccountState.Locked:            return "Bloqueada";
+                case UserAccountState.PendingFirstLogin: return "Debe cambiar";
+                default:                                 return "Activa";
+            }
+        }
+
+        private static string HintIcon(UserAccountState state)
+        {
+            switch (state)
+            {
+                case UserAccountState.Locked:            return "bi bi-hourglass-split";
+                case UserAccountState.PendingFirstLogin: return "bi bi-key";
+                default:                                 return "bi bi-check-circle";
+            }
+        }
+
+        // Qué pasa con el acceso de la cuenta (brief 8). El número de intentos sale de la política.
+        private static string LongHint(UserAccountState state, User u, DateTime nowUtc)
+        {
+            switch (state)
+            {
+                case UserAccountState.Locked:
+                    int minutes = (int)Math.Ceiling((u.LockedUntil.Value - nowUtc).TotalMinutes);
+                    return CountWord(LoginLockPolicy.MaxFailedLogins) + " intentos fallidos seguidos. Se desbloquea sola a las " +
+                        SessionHelper.ToLocal(u.LockedUntil.Value).ToString("HH:mm") + " (en " + minutes + " min); puedes desbloquearla ya.";
+                case UserAccountState.PendingFirstLogin:
+                    return u.LastLoginAt.HasValue
+                        ? "Su contraseña fue restablecida: entra con la contraseña por defecto y debe cambiarla."
+                        : "Todavía no entra. Su contraseña es la que viene por defecto y debe cambiarla antes de usar la app.";
+                default:
+                    return "Entra con su contraseña personal.";
+            }
+        }
+
+        private static string CountWord(int n)
+        {
+            string[] words = { "Cero", "Un", "Dos", "Tres", "Cuatro", "Cinco", "Seis", "Siete", "Ocho", "Nueve", "Diez" };
+            return n >= 0 && n < words.Length ? words[n] : n.ToString();
         }
 
         private static string RoleText(UserRole role)

@@ -606,16 +606,261 @@ body.mt-page {
     gap: var(--mt-space-2);
 }
 
-/* Área (spec 021): el texto con el lápiz; al cambiarla, el selector con Guardar y Cancelar. */
-.admin-area-cell,
-.admin-area-edit {
+/* ── Usuarios: consola de cuentas (spec 022, brief 8, CD-3) ───
+   Directorio a la izquierda y ficha de la cuenta a la derecha; bajo 992 px, una columna y la
+   ficha como panel fijo con "Volver a la lista". Solo tokens existentes. */
+.users-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    min-height: 660px;
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-xl);
+    box-shadow: var(--mt-shadow);
+    overflow: hidden;
+}
+.users-list {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid var(--mt-border);
+}
+.users-list-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mt-space-3);
+    padding: 20px 20px 14px;
+}
+.users-list-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--mt-space-3);
+}
+.users-eyebrow {
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.users-title { margin: 0; font-size: 1.5rem; line-height: 1.2; }
+/* En el encabezado (columna flex) el buscador no usa su flex-basis de 380 px como alto. */
+.users-list-head .admin-search { flex: none; }
+.users-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+}
+.users-summary b { color: var(--mt-text); }
+.users-row {
+    display: flex;
+    align-items: center;
+    gap: var(--mt-space-3);
+    width: 100%;
+    min-height: 62px;
+    padding: 10px 20px;
+    border: 0;
+    border-top: 1px solid var(--mt-border);
+    background: transparent;
+    color: var(--mt-text);
+    font-size: .9375rem;
+    text-align: left;
+    cursor: pointer;
+}
+.users-row:hover { background: var(--mt-surface-2); }
+.users-row.is-selected {
+    background: var(--mt-accent-soft);
+    box-shadow: inset 0 0 0 2px var(--mt-accent);
+}
+.users-avatar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--mt-surface-2);
+    border: 1px solid var(--mt-border);
+    font-size: var(--mt-fs-small);
+    font-weight: 700;
+}
+.users-avatar.is-admin {
+    background: var(--mt-accent-soft);
+    color: var(--mt-accent);
+    border-color: transparent;
+}
+.users-row-name { min-width: 0; flex: 1; }
+.users-row-name b {
+    display: block;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.users-row-sub { display: block; color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.users-row-ok {
     display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--mt-muted);
+    font-size: var(--mt-fs-small);
+    white-space: nowrap;
+}
+.users-tag-you {
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--mt-accent-soft);
+    color: var(--mt-accent);
+    font-size: .75rem;
+    font-weight: 700;
+}
+.users-list .mt-pager { margin-top: auto; border-top: 1px solid var(--mt-border); }
+
+.users-detail { min-width: 0; background: var(--mt-surface); }
+.users-pane { display: flex; flex-direction: column; min-width: 0; }
+.users-pane[hidden] { display: none; }
+.users-pane-head {
+    display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--mt-space-2);
+    gap: var(--mt-space-4);
+    padding: 24px 28px;
+    background-color: var(--mt-brand-bg);
+    background-image:
+        linear-gradient(var(--mt-brand-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--mt-brand-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--mt-on-brand);
 }
-.admin-area-edit .form-select { width: auto; min-width: 12rem; }
-.admin-icon-btn { padding-inline: .5rem; }
+.users-pane-head:focus { outline: none; }
+.users-pane-avatar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--mt-on-brand);
+    color: var(--mt-brand-bg);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.users-pane-name { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+.users-pane-sub { color: var(--mt-on-brand-2); font-size: .875rem; }
+.users-pane-badges { display: flex; flex-wrap: wrap; gap: var(--mt-space-2); }
+.users-detail .users-back { margin-left: auto; display: none; }
+.users-sec { padding: 20px 28px; border-top: 1px solid var(--mt-border); }
+.users-sec-k {
+    margin-bottom: var(--mt-space-3);
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.users-act {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    padding: var(--mt-space-3) 0;
+    border-top: 1px solid var(--mt-border);
+}
+.users-act:first-of-type { border-top: 0; padding-top: 0; }
+.users-act-t { flex: 1 1 240px; line-height: 1.35; }
+.users-act-t b { display: block; font-weight: 600; }
+.users-act-t small { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.users-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px 20px;
+    margin: 0;
+}
+.users-facts > div { display: flex; flex-direction: column; line-height: 1.3; }
+.users-facts dt { color: var(--mt-muted); font-size: .75rem; font-weight: 600; }
+.users-facts dd { margin: 0; font-size: .9375rem; font-weight: 600; }
+.users-facts dd.users-facts-sub { color: var(--mt-muted); font-size: var(--mt-fs-small); font-weight: 400; }
+.users-area-groups { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+.users-area-title {
+    margin-bottom: 6px;
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+.users-area-opts { display: flex; flex-wrap: wrap; gap: var(--mt-space-2); }
+.users-area-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    min-height: var(--mt-control-h);
+    padding: 0 14px;
+    border: 1px solid var(--mt-field-border);
+    border-radius: var(--mt-radius);
+    background: var(--mt-surface);
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.users-area-opt.is-selected {
+    border-color: var(--mt-accent);
+    background: var(--mt-accent-soft);
+    color: var(--mt-accent);
+    box-shadow: inset 0 0 0 1px var(--mt-accent);
+}
+.users-area-opt input { accent-color: var(--mt-accent); width: 18px; height: 18px; margin: 0; }
+.users-area-edit-actions { display: flex; flex-wrap: wrap; gap: var(--mt-space-2); }
+.users-danger {
+    margin: 4px 28px 28px;
+    padding: 16px 18px;
+    border: 1px solid var(--mt-bad);
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-bad-soft);
+}
+.users-danger h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--mt-space-2);
+    margin: 0;
+    color: var(--mt-bad);
+    font-size: .9375rem;
+}
+.users-danger p { margin: 6px 0 12px; font-size: .875rem; }
+.users-create-form { display: flex; flex-direction: column; gap: var(--mt-space-4); max-width: 520px; }
+.users-scrim { display: none; }
+@media (max-width: 991.98px) {
+    .users-shell { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .users-list { border-right: 0; }
+    .users-detail { display: none; }
+    .users-shell.is-open .users-detail {
+        display: block;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 66;
+        width: min(560px, 100%);
+        overflow-y: auto;
+    }
+    .users-shell.is-open .users-scrim {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 65;
+        background: var(--mt-backdrop);
+    }
+    .users-detail .users-back { display: inline-flex; }
+    .users-pane-head { padding: 20px; }
+    .users-sec { padding: 18px 20px; }
+    .users-danger { margin: 4px 20px 24px; }
+}
 
 /* ── Guías (spec 022, alternativa 2b; D-233, D-234) ────────────
    Encabezado del panel con el conteo por tipo y nota al pie del orden. */

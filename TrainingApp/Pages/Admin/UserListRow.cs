@@ -36,5 +36,29 @@ namespace TrainingApp.Pages.Admin
         public string ConfirmReset { get; set; }
         public string ConfirmUnlock { get; set; }
         public string ConfirmDelete { get; set; }
+
+        // Consola de cuentas (spec 022, brief 8): textos del directorio y de la ficha.
+        public string Initials { get; set; }
+        public bool IsAdmin { get; set; }
+
+        // Directorio: la cuenta con problema (bloqueada o con la contraseña por cambiar) lleva su
+        // insignia corta; las demás, "Activa". La clasificación es StateOf de la BLL.
+        public bool IsProblem { get; set; }
+        public string StateShort { get; set; }
+
+        // Sin área: un Operator sin área elegida.
+        public bool NoArea { get; set; }
+        public string AreaShort { get; set; }
+        public string AreaNote { get; set; }
+
+        // Ficha: Acceso, Cuenta y Borrar.
+        public string HintIcon { get; set; }
+        public string LongHint { get; set; }
+        public string LastAgoText { get; set; }
+        public string SessionsText { get; set; }
+        public string DeleteNote { get; set; }
+
+        // La cuenta abierta en la ficha (HfSelected, o la primera con problema).
+        public bool IsSelected { get; set; }
     }
 }
