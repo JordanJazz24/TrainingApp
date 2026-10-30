@@ -64,8 +64,8 @@ planeación, "desarrollo").
 
 - El traspaso es el repo: lo que sale de Reuniones y Dudas, en el roadmap y
   `docs/ui-reference/`; la spec y el plan aprobados, en `docs/specs/`. Además, las sesiones
-  se avisan por mensaje (hallazgo de reunión, spec o plan aprobado, entrega cerrada, algo
-  que no cierra).
+  se avisan por mensaje (hallazgo de reunión, spec o plan aprobado, spec o fase cerrada,
+  algo que no cierra). Una entrega cerrada **no** se avisa: queda en su plan (D-244).
 - Si al ejecutar algo de la spec o del plan no cierra, Desarrollo avisa a Arquitectura y
   Planeación, que propone la enmienda al usuario y la registra **antes** de que se toque
   código. Las decisiones menores que no cambian ni la spec ni el plan las toma Desarrollo con
@@ -83,11 +83,37 @@ planeación, "desarrollo").
   `docs/history.md`. Antes eran secciones de un solo roadmap y las dos sesiones editaban el
   mismo archivo. Cuando Desarrollo cierra una fase, le avisa a Arquitectura y Planeación para
   que la marque ✅ en la tabla de fases.
+- **Estado por tiempo (D-244, usuario, 2026-10-30):** el **pasado** está en git, en las casillas
+  de cada plan y, al cerrar una spec, fase o plan directo, en `docs/history.md`; el
+  **presente**, en `docs/status.md` → "Estado actual" (40 líneas como máximo, se reescribe,
+  Desarrollo); el **futuro**, en `docs/roadmap.md` → "Siguiente" (15 líneas como máximo,
+  Planeación). Nada de eso se copia en otro archivo. La numeración D-n y B-n vive solo en el
+  encabezado de `docs/decisions.md`. Lo cerrado del roadmap se mueve a `docs/archivo/` (D-245).
+- **Sin sesión de documentación aparte (D-243):** quien decide, registra. Planeación escribe
+  specs, planes, enmiendas y D-n; Desarrollo, los cierres de su entrega (`/cerrar-entrega`).
+- **Modelo y esfuerzo (D-246, usuario, 2026-10-30):** Arquitectura y Planeación, Opus 5.5 en
+  `medium` (`high` en specs, planes y enmiendas); Desarrollo, Sonnet 5.5 en `medium` (`high` en
+  entregas con BLL o SQL, o ante un bug difícil); el `/code-review`, en Opus; los subagentes,
+  Sonnet por defecto; Reuniones y Dudas, Sonnet 5.5 en `medium`. Generador barato, verificador
+  fuerte: el review es poco del uso y ahí se atrapan los bugs. Cada sesión lo fija con `/model`
+  y `/effort`; si no coincide, lo dice en una línea al iniciar.
+- **Coordinación por mecanismos (D-247, usuario, 2026-10-30):** cada sesión viva tiene un
+  **nombre único y fijo** ("Planeación", "Desarrollo", "Reuniones"), y los mensajes van por ese
+  nombre, que sigue sirviendo aunque cambie su dirección. Si dos sesiones comparten nombre, el
+  usuario renombra una (`/rename`). **Ninguna sesión crea otra** (usuario, 2026-10-30): si la
+  destinataria no está viva, se le pregunta al usuario. Cada sesión arranca con
+  `/rol <planeacion|desarrollo|reuniones>`. Lo que se puede bloquear (git) lo bloquea un hook
+  de proyecto, no una regla escrita.
+- **Higiene de sesión (D-248, usuario, 2026-10-30):** `/clear` al cambiar de tarea (el estado
+  vive en el repo, no en la conversación: una sesión larga relee todo su contexto en cada
+  turno); cerrar las sesiones que terminaron su trabajo (todas comparten la ventana de 5 h);
+  `/usage` de la semana los viernes, junto con el reporte. Datos del 2026-10-30:
+  `docs/specs/proceso-eficiente-plan.md` → "Datos de partida".
 
 #### Variante temporal: specs y planes en la nube (usuario, 2026-10-27)
 
-**Temporal:** cuando el usuario lo pida, se vuelve al flujo normal (specs y planes en la
-sesión local de Arquitectura y Planeación) y esta subsección se quita.
+**Temporal:** termina al cerrar la 022 (E8, D-249): se vuelve al flujo normal (specs y planes
+en la sesión local de Arquitectura y Planeación) y esta subsección se quita.
 
 - **Remotes:** `azure` es el repo oficial (Azure DevOps, `SimulatorMES`); `origin` es GitHub
   (`JordanJazz24/TrainingApp`, privado, con la Claude GitHub App), el puente que ve la nube.
@@ -290,8 +316,10 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
 
 | Al… | Actualizar |
 |---|---|
-| Cerrar una entrega o una sesión de trabajo relevante | `docs/status.md` → "📍 Estado actual" (corto: lo cerrado se resume ahí en una línea) y la casilla del plan |
-| Cerrar una fase, una spec o un plan directo | Su sección en `docs/history.md`: resultado, commits y fecha (Desarrollo); la tabla de fases del roadmap (Arquitectura y Planeación) |
+| Cerrar una entrega | `/cerrar-entrega`: la casilla y el hash en el plan; `docs/status.md` → "📍 Estado actual" solo si cambió lo que está en curso (máx. 40 líneas, se reescribe; D-244) |
+| Cerrar una fase, una spec o un plan directo | Su sección en `docs/history.md`: resultado, commits y fecha (Desarrollo); la tabla de fases y "Siguiente" del roadmap (Arquitectura y Planeación) |
+| Cambiar el orden o lo que sigue | `docs/roadmap.md` → "Siguiente" (máx. 15 líneas, Arquitectura y Planeación) |
+| Dejar una sección del roadmap cerrada | Se mueve a `docs/archivo/` en el siguiente corte (D-245) |
 | Fijar una regla de negocio del dominio (flujo, intentos, pesos, flags, catálogos) | `docs/domain.md`, en **un solo lugar**; los demás documentos la referencian |
 | Fijar una regla general (capas, seguridad, convención, comando) | `CLAUDE.md`, en **un solo lugar**. Mantenerlo corto: se carga en cada turno; lo que solo hace falta para cierta tarea va a un doc con su puntero en el mapa |
 | Cerrar una decisión de diseño o cambiar la estructura del código | `docs/architecture.md` |
