@@ -32,24 +32,6 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Literal LitPrinted;
 
         /// <summary>
-        /// PhCurves control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder PhCurves;
-
-        /// <summary>
-        /// RptCurves control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptCurves;
-
-        /// <summary>
         /// LitName control.
         /// </summary>
         /// <remarks>
@@ -70,6 +52,10 @@ namespace TrainingApp.Pages.Admin
         /// <summary>
         /// LitArea control.
         /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
         protected global::System.Web.UI.WebControls.Literal LitArea;
 
         /// <summary>
@@ -82,49 +68,49 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Repeater RptGuides;
 
         /// <summary>
-        /// LblAreaNote control.
+        /// PhAreaNote control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LblAreaNote;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhAreaNote;
 
         /// <summary>
-        /// PhOtherGuides control.
+        /// LitAreaNote control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder PhOtherGuides;
+        protected global::System.Web.UI.WebControls.Literal LitAreaNote;
 
         /// <summary>
-        /// DetOtherGuides control.
+        /// PhAreaHint control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl DetOtherGuides;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhAreaHint;
 
         /// <summary>
-        /// RptOtherGuides control.
+        /// LitAreaHintTitle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptOtherGuides;
+        protected global::System.Web.UI.WebControls.Literal LitAreaHintTitle;
 
         /// <summary>
-        /// LitAlsoTrained control.
+        /// LitAreaHintText control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal LitAlsoTrained;
+        protected global::System.Web.UI.WebControls.Literal LitAreaHintText;
 
         /// <summary>
         /// RptReinforcement control.
@@ -145,22 +131,85 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Panel PnlNoReinforcement;
 
         /// <summary>
-        /// RptSessions control.
+        /// PhOtherSteps control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater RptSessions;
+        protected global::System.Web.UI.WebControls.PlaceHolder PhOtherSteps;
 
         /// <summary>
-        /// PhSessions control.
+        /// LitSessions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder PhSessions;
+        protected global::System.Web.UI.WebControls.Literal LitSessions;
+
+        /// <summary>
+        /// PhLastSession control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhLastSession;
+
+        /// <summary>
+        /// LitLastSession control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitLastSession;
+
+        /// <summary>
+        /// PhMix control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhMix;
+
+        /// <summary>
+        /// PhAlsoTrained control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhAlsoTrained;
+
+        /// <summary>
+        /// LitAlsoTrained control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal LitAlsoTrained;
+
+        /// <summary>
+        /// PhHistory control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhHistory;
+
+        /// <summary>
+        /// RptHistory control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptHistory;
 
         /// <summary>
         /// LblNoSessions control.
@@ -170,5 +219,23 @@ namespace TrainingApp.Pages.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label LblNoSessions;
+
+        /// <summary>
+        /// PhPrintSessions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhPrintSessions;
+
+        /// <summary>
+        /// RptSessions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptSessions;
     }
 }

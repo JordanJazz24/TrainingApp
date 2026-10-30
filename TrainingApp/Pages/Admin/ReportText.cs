@@ -163,6 +163,49 @@ namespace TrainingApp.Pages.Admin
             return days.Value == 1 ? "hace 1 día" : "hace " + days.Value + " días";
         }
 
+        // El día y la hora de la planta por separado (Operador, spec 022 brief 7: la tabla de
+        // sesiones los muestra en dos líneas).
+        public static string Day(DateTime? utc)
+            => utc.HasValue ? SessionHelper.ToLocal(utc.Value).ToString("dd/MM/yyyy") : None;
+
+        public static string Time(DateTime? utc)
+            => utc.HasValue ? SessionHelper.ToLocal(utc.Value).ToString("HH:mm") : string.Empty;
+
+        // "5.5 puntos menos que su mejor", "Igual que su mejor"; vacío sin Assessment (Operador,
+        // spec 022 brief 7). lastMinusBest: último menos mejor puntaje, de 0 a 1.
+        public static string ScoreGap(decimal? lastMinusBest)
+        {
+            if (!lastMinusBest.HasValue) return string.Empty;
+            decimal points = Math.Round(-lastMinusBest.Value * 100m, 1);
+            return points <= 0m ? "Igual que su mejor" : points.ToString("F1") + " puntos menos que su mejor";
+        }
+
+        // "1 sesión", "11 sesiones".
+        public static string Sessions(int count)
+            => count == 1 ? "1 sesión" : count + " sesiones";
+
+        // El color de cada modo, el mismo de la Actividad del Resumen (--mt-m1 a --mt-m3).
+        public static string ModeCss(SessionMode mode)
+        {
+            switch (mode)
+            {
+                case SessionMode.Assessment:   return "summary-dot summary-mode-3";
+                case SessionMode.FreePractice: return "summary-dot summary-mode-2";
+                default:                       return "summary-dot summary-mode-1";
+            }
+        }
+
+        // El ícono del estado de una sesión, junto a su texto.
+        public static string StatusIcon(SessionStatus status)
+        {
+            switch (status)
+            {
+                case SessionStatus.Completed: return "bi bi-check2";
+                case SessionStatus.Abandoned: return "bi bi-x-lg";
+                default:                      return "bi bi-hourglass-split";
+            }
+        }
+
         // Qué hacer con el grupo elegido en Operadores (spec 022, brief 6): state null = Todos.
         // Solo presentación: quién está en cada grupo lo decide OperatorArea.
         public static OperatorHint StateHint(ReadinessState? state, bool withoutArea)
