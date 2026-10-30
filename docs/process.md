@@ -166,19 +166,23 @@ en la sesión local de Arquitectura y Planeación) y esta subsección se quita.
   la variante de la spec 024 (abajo). La 022 va
   sin capturas: ni Desarrollo las toma ni se le piden al usuario (D-242, que deja sin efecto D-240).
 - **Handoff local de Claude Design (spec 022, D-251; usuario, 2026-10-30; desde la E7 Usuarios):**
-  para ahorrar tokens, el usuario aprueba el mockup en Claude Design y copia su prompt de handoff
-  a **Desarrollo**, que importa el diseño con el MCP `claude_design` y lo implementa en local, sin
-  sesión de la nube ni rama `cloud/022-<pantalla>`. El prompt lo genera Diseño UI/UX, con todo lo
-  de esta lista.
-  - Antes de implementar, Desarrollo escribe `docs/specs/022-design/<pantalla>.md`: la
-    alternativa elegida y sus cambios frente al v1 (tokens, componentes, estructura,
-    comportamiento y textos).
-  - **Se detiene ante un desvío de alcance**: datos nuevos (SQL o tablas), una regla de negocio
-    nueva, otro comportamiento (otros controles, postbacks o flujo de errores), tocar los masters
-    o tokens que cambien pantallas ya cerradas. Le avisa a Planeación, que le propone la enmienda
-    al usuario con una D-n local. Una métrica derivada de presentación en la BLL (sin test, como
-    D-235 a D-304) no lo detiene: la anota en el `.md`.
-  - Ciclo normal (sección 2). Tras el "funciona", commitea con el `.md` y "D-n pendientes".
+  para ahorrar tokens, **Claude Design hace lo que hacía la sesión de diseño de la nube (D-284)**:
+  diseña, itera con el usuario y, al aprobarse, entrega en su handoff todo lo que esa sesión dejaba
+  en su rama. Lo guía un **prompt para Claude Design** que genera Diseño UI/UX (en `022-briefs.md`),
+  para que desde la primera iteración sepa qué tiene que incluir. El usuario copia el handoff a
+  **Desarrollo**, que lo trae en local con el MCP `claude_design`, sin sesión de la nube ni rama
+  `cloud/022-<pantalla>`.
+  - El handoff trae la lista de cambios para `docs/specs/022-design/<pantalla>.md` (la
+    alternativa elegida, el resumen de su crítica, los cambios frente al v1 en tokens,
+    componentes, estructura, comportamiento y textos, las métricas derivadas y lo que Desarrollo
+    debe revisar) y señala los desvíos de alcance. Desarrollo la guarda tal cual.
+  - **Desarrollo se detiene ante un desvío de alcance**, lo señale o no el handoff: datos nuevos
+    (SQL o tablas), una regla de negocio nueva, otro comportamiento (otros controles, postbacks o
+    flujo de errores), tocar los masters o tokens que cambien pantallas ya cerradas. Le avisa a
+    Planeación, que le propone la enmienda al usuario con una D-n local. Una métrica derivada de
+    presentación en la BLL (sin test, como D-235 a D-304) no lo detiene.
+  - Desarrollo implementa, valida y compila con el ciclo normal (sección 2). Tras el "funciona",
+    commitea con el `.md` y "D-n pendientes".
   - Diseño UI/UX numera las D-n después, desde ese commit integrado, y las registra en la spec.
   - El handoff por la nube (D-226) sigue como alternativa, y la sesión de diseño en la nube
     (D-284), para cuando Claude Design no esté disponible.

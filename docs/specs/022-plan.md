@@ -81,8 +81,8 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
 > commit con el ciclo normal. Nunca se integra tal cual.
 >
 > **Enmienda 2026-10-30 (D-251, handoff local, desde la E7):** la precondición es el mockup
-> aprobado en Claude Design; la lista de cambios la escribe Desarrollo antes de implementar y las
-> D-n las registra Diseño UI/UX después del commit ("D-n pendientes").
+> aprobado en Claude Design; la lista de cambios llega en su handoff, Desarrollo la guarda antes de
+> implementar y las D-n las registra Diseño UI/UX después del commit ("D-n pendientes").
 
 ## E1 · Sistema de diseño (P-8)
 
@@ -343,12 +343,13 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
 está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.) *Enmendado 2026-10-30
 (D-251): basta con el mockup aprobado en Claude Design; las D-n llegan después del commit.*
 
-**Punto de partida (D-251, handoff local):** el prompt de handoff de Claude Design, que el usuario
-le pasa a Desarrollo; Desarrollo importa el diseño con el MCP `claude_design`, sin rama de la nube.
+**Punto de partida (D-251, handoff local):** el handoff de Claude Design (diseñado con el prompt
+de Diseño UI/UX), que el usuario le pasa a Desarrollo; Desarrollo lo trae con el MCP
+`claude_design`, sin rama de la nube.
 
-- [ ] Antes de implementar: `022-design/usuarios.md` con la alternativa elegida y sus cambios
-      frente al v1. Si hay un desvío de alcance (`process.md` → "Handoff local de Claude
-      Design"), parar y avisar a Planeación.
+- [ ] Antes de implementar: guardar la lista de cambios del handoff como `022-design/usuarios.md`.
+      Si hay un desvío de alcance (`process.md` → "Handoff local de Claude Design"), parar y
+      avisar a Planeación.
 
 **Esfuerzo (D-250):** `medium`; `high` si toca la BLL de gestión de usuarios o SQL.
 
