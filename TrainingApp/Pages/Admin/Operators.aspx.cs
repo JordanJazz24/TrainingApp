@@ -72,8 +72,12 @@ namespace TrainingApp.Pages.Admin
         // (agrupado por producto, sin EventValidation): la BLL vuelve a validarla (P-4).
         protected void BtnFilter_Click(object sender, EventArgs e)
         {
-            Response.Redirect(BuildUrl(TxtSearch.Text.Trim(), DdlState.SelectedValue,
-                (Request.Form["area"] ?? string.Empty).Trim(), 1));
+            // El Estado viene de la barra (HfState); con "Sin área" no hay estado que aplicar
+            // (D-267), como al elegir ese tramo.
+            string area = (Request.Form["area"] ?? string.Empty).Trim();
+            string state = string.Equals(area, ReportFilters.AreaNone, StringComparison.OrdinalIgnoreCase)
+                ? string.Empty : HfState.Value;
+            Response.Redirect(BuildUrl(TxtSearch.Text.Trim(), state, area, 1));
         }
 
         private void Bind(OperatorFilter filter)
@@ -87,7 +91,7 @@ namespace TrainingApp.Pages.Admin
             string areaValue = applied.WithoutArea ? ReportFilters.AreaNone
                 : applied.AreaId.HasValue ? applied.AreaId.Value.ToString() : string.Empty;
             TxtSearch.Text = applied.Text;
-            DdlState.SelectedValue = stateValue;
+            HfState.Value  = stateValue;
 
             // Área (D-262): Todas, las áreas con guía publicada agrupadas por producto y Sin área.
             AreaAllSelected  = areaValue.Length == 0;
@@ -115,6 +119,81 @@ namespace TrainingApp.Pages.Admin
             LnkPrev.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, areaValue, result.Page - 1);
             LnkNext.NavigateUrl = BuildUrl(TxtSearch.Text, stateValue, areaValue, result.Page + 1);
             LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewOperators, Request.QueryString);
+
+            BindHeader(result, areaValue);
+        }
+
+        // El encabezado (spec 022, brief 6): el área en el antetítulo, la barra por estado (un
+        // tramo por estado y Sin área; su ancho, cuántos hay) y la línea de qué hacer. Los conteos
+        // salen de OperatorSummary; aquí solo se arman enlaces y anchos.
+        private void BindHeader(OperatorPage result, string areaValue)
+        {
+            var applied = result.Applied;
+            var sum = result.Summary;
+            var area = applied.AreaId.HasValue ? result.Areas.FirstOrDefault(a => a.AreaId == applied.AreaId.Value) : null;
+            LitAreaLabel.Text = HttpUtility.HtmlEncode(area != null ? area.ProductName + " · " + area.AreaName
+                : applied.WithoutArea ? "Sin área" : "Todas las áreas");
+
+            // Elegir un estado deja el área (salvo Sin área, que no tiene estado: vuelve a Todas).
+            string stateArea = applied.WithoutArea ? string.Empty : areaValue;
+            var states = new[] { ReadinessState.Failed, ReadinessState.NotStarted, ReadinessState.InTraining, ReadinessState.Passed };
+            var segments = states.Select(st => new OperatorMeterSegment
+            {
+                Label    = ReportText.State(st),
+                Icon     = ReportText.StateIcon(st),
+                Css      = MeterCss(st),
+                Count    = sum.CountOf(st),
+                Url      = BuildUrl(applied.Text, ReportFilters.StateValues.First(kv => kv.Value == st).Key, stateArea, 1),
+                Selected = !applied.WithoutArea && applied.State == st
+            }).ToList();
+            segments.Add(new OperatorMeterSegment
+            {
+                Label    = "Sin área",
+                Icon     = "bi bi-geo-alt",
+                Css      = "operators-seg-none",
+                Count    = sum.WithoutArea,
+                Url      = BuildUrl(applied.Text, string.Empty, ReportFilters.AreaNone, 1),
+                Selected = applied.WithoutArea
+            });
+
+            // Ancho: cuántos hay, con un mínimo (7% del total) para que el tramo se lea. Un estado
+            // vacío no sale, salvo que esté elegido.
+            int total = segments.Sum(s => s.Count);
+            int min = (int)Math.Ceiling(total * 0.07);
+            var shown = segments.Where(s => s.Count > 0 || s.Selected).ToList();
+            foreach (var s in shown)
+            {
+                s.Grow = Math.Max(1, Math.Max(s.Count, min));
+                s.ShareText = total == 0 ? string.Empty
+                    : (int)Math.Round(s.Count * 100.0 / total) + "% de la vista";
+            }
+            RptMeter.DataSource = shown;
+            RptMeter.DataBind();
+
+            bool all = !applied.WithoutArea && !applied.State.HasValue;
+            LnkAll.NavigateUrl = BuildUrl(applied.Text, string.Empty, stateArea, 1);
+            LnkAll.CssClass = all ? "operators-all is-selected" : "operators-all";
+            if (all) LnkAll.Attributes["aria-current"] = "true";
+            LitAllCount.Text = sum.All.ToString();
+
+            var hint = ReportText.StateHint(applied.State, applied.WithoutArea);
+            IcoHint.Attributes["class"] = hint.Icon + " " + hint.Tone;
+            LitHintTitle.Text = HttpUtility.HtmlEncode(hint.Title);
+            LitHintText.Text  = HttpUtility.HtmlEncode(hint.Text);
+            PhInactive.Visible = sum.Inactive > 0;
+            LitInactive.Text = HttpUtility.HtmlEncode(string.Format("{0} sin actividad en {1} días o más",
+                sum.Inactive, OperatorSummary.InactiveDays));
+        }
+
+        private static string MeterCss(ReadinessState state)
+        {
+            switch (state)
+            {
+                case ReadinessState.Failed:     return "operators-seg-bad";
+                case ReadinessState.NotStarted: return "operators-seg-idle";
+                case ReadinessState.InTraining: return "operators-seg-warn";
+                default:                        return "operators-seg-ok";
+            }
         }
 
         private static OperatorListRow ToRow(OperatorRow row)
@@ -126,6 +205,8 @@ namespace TrainingApp.Pages.Admin
                 Name             = row.Name,
                 AreaText         = row.AreaText,
                 LastActivityText = ReportText.Date(row.LastActivity),
+                AgoText          = ReportText.DaysAgo(row.DaysSinceActivity),
+                Inactive         = row.Inactive,
                 DetailUrl        = VirtualPathUtility.ToAbsolute("~/Pages/Admin/Operator.aspx") + "?id=" + row.UserId,
                 // "Sin iniciar" también es un estado con su insignia (P-2), no un "—"; sin guías que
                 // entrenar en su área, el texto atenuado (spec 024, D-267, P-5).
