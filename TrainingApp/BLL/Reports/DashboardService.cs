@@ -87,6 +87,9 @@ namespace TrainingApp.BLL.Reports
 
         // "Producto · Área" de la guía de la sesión (spec 024, D-269).
         public string AreaText { get; set; }
+
+        // Un Assessment completado con el puntaje mínimo (ReadinessPolicy.IsPassed).
+        public bool Passed { get; set; }
     }
 
     // Los pasos a reforzar de una guía.
@@ -124,6 +127,9 @@ namespace TrainingApp.BLL.Reports
 
         // La curva de aprendizaje de cada guía que entrenó (AC-15), con el mismo orden.
         public IList<GuideCurve> Curves { get; set; }
+
+        // Sesiones por modo y el historial de cada guía (spec 022, brief 7): métricas derivadas.
+        public OperatorActivity Activity { get; set; }
     }
 
     // Filtros de Pasos (spec 018 → Filtros; el período, spec 023). Los valida el servicio, como
@@ -445,6 +451,19 @@ namespace TrainingApp.BLL.Reports
             var view  = OperatorArea.For(user.AreaId, guides, sessions);
             var shown = view.AreaGuides.Concat(view.OtherGuides).Select(r => byId[r.TrainingGuideId]).ToList();
 
+            var rows = sessions
+                .OrderByDescending(s => s.StartedAt)
+                .Select(s => new OperatorSessionRow
+                {
+                    Session        = s,
+                    Duration       = StepRuns.SessionDuration(s),
+                    FailedAttempts = runs[s.SessionId].Sum(r => r.FailedAttempts),
+                    Score          = VisibleScore(s),
+                    AreaText       = areaText[s.TrainingGuideId],
+                    Passed         = ReadinessPolicy.IsPassed(s)
+                })
+                .ToList();
+
             return new OperatorDetail
             {
                 UserId      = user.Id,
@@ -455,17 +474,7 @@ namespace TrainingApp.BLL.Reports
                 AreaStatus  = view.Status,
                 AreaGuides  = view.AreaGuides,
                 OtherGuides = view.OtherGuides,
-                Sessions    = sessions
-                    .OrderByDescending(s => s.StartedAt)
-                    .Select(s => new OperatorSessionRow
-                    {
-                        Session        = s,
-                        Duration       = StepRuns.SessionDuration(s),
-                        FailedAttempts = runs[s.SessionId].Sum(r => r.FailedAttempts),
-                        Score          = VisibleScore(s),
-                        AreaText       = areaText[s.TrainingGuideId]
-                    })
-                    .ToList(),
+                Sessions    = rows,
                 Reinforcement = shown
                     .Select(g => new GuideReinforcement
                     {
@@ -482,7 +491,8 @@ namespace TrainingApp.BLL.Reports
                     .Where(g => sessions.Any(s => s.TrainingGuideId == g.Id))
                     .Select(g => LearningCurve.ForGuide(g.Id, sessions,
                         s => runs[s.SessionId].Sum(r => r.FailedAttempts), VisibleScore))
-                    .ToList()
+                    .ToList(),
+                Activity = OperatorActivity.For(rows, view.AreaGuides.Concat(view.OtherGuides).ToList(), _utcNow())
             };
         }
 

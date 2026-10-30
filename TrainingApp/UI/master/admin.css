@@ -1212,66 +1212,222 @@ body.mt-page {
     .mt-page .operators-seg { transition: none; }
 }
 
-/* ── Operadores / Operador por área (spec 024) ─────────────── */
+/* ── Operadores por área (spec 024) ────────────────────────── */
 /* Varias guías en su área (P-6, futuro): una debajo de otra. */
 .operators-area-guide + .operators-area-guide { margin-top: var(--mt-space-2); }
-/* Operador: "Otras áreas (entrenamiento cruzado)", un desplegable nativo (D-269, P-9). */
-.operator-other { margin-top: var(--mt-space-4); }
-.operator-other > summary { cursor: pointer; }
-.operator-other > .operator-guides { margin-top: var(--mt-space-3); }
 
-/* ── Operador (spec 018; D-160) ────────────────────────────── */
+/* ── Operador (spec 018; spec 022, brief 7, alternativa H "Tres preguntas con historial por
+   guía") ── */
+/* Arriba, tres preguntas en tarjetas (¿está listo?, ¿qué le falla?, ¿qué ha hecho?); debajo,
+   un bloque plegable por guía con su curva, su lectura y sus sesiones. Sin tokens nuevos: los
+   modos con --mt-m1 a --mt-m3 (.summary-mode-*, como la Actividad del Resumen) y el mínimo para
+   aprobar con --mt-ok. */
 /* Insignia grande: el estado de cada guía, lo primero que se ve. */
 .mt-badge-lg { gap: var(--mt-space-2); padding: 6px 14px 6px 12px; font-size: var(--mt-fs-body); }
 .mt-badge-lg .bi { font-size: 1.05em; }
 
-.operator-top { display: flex; flex-direction: column; gap: 22px; padding: 28px; margin-bottom: var(--mt-space-5); }
-.operator-guides {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: var(--mt-space-4);
-}
-.operator-guide {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--mt-space-3);
-    padding: 18px var(--mt-space-5);
-    border: 1px solid var(--mt-border);
-    border-radius: var(--mt-radius-lg);
-}
-.operator-guide-name { font-size: 1.125rem; font-weight: 600; }
-.operator-guide-data { display: grid; gap: var(--mt-space-1); width: 100%; margin: 0; font-size: .875rem; }
-.operator-guide-data > div { display: flex; justify-content: space-between; gap: var(--mt-space-3); }
-.operator-guide-data dt { font-weight: 400; color: var(--mt-muted); }
-.operator-guide-data dd { margin: 0; font-weight: 600; text-align: right; }
-
-.operator-reinforce {
-    display: flex;
-    flex-direction: column;
-    gap: var(--mt-space-4);
-    padding-top: 22px;
-    border-top: 1px solid var(--mt-border);
-}
-.operator-reinforce-guide { display: flex; flex-direction: column; gap: var(--mt-space-2); }
-.operator-reinforce-guide .mt-table-wrap { border: 1px solid var(--mt-border); border-radius: var(--mt-radius); }
-.operator-reinforce-none { display: inline-flex; align-items: center; gap: var(--mt-space-2); color: var(--mt-ok); font-weight: 600; }
-
-.operator-section { margin-bottom: var(--mt-space-5); }
-.operator-section-head {
+.operator-head {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
-    gap: var(--mt-space-3);
-    margin-bottom: var(--mt-space-4);
+    gap: var(--mt-space-3) var(--mt-space-5);
+    margin-bottom: 20px;
 }
-.operator-section-head p { max-width: 72ch; }
-.operator-curves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mt-space-4); }
-.operator-curve { display: flex; flex-direction: column; gap: var(--mt-space-3); min-width: 0; }
+.operator-head-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px var(--mt-space-3);
+    margin: var(--mt-space-1) 0 0;
+    color: var(--mt-muted);
+}
+/* Etiqueta "Su área" / "Otra área": la de su área en el acento, la otra neutra. */
+.operator-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px var(--mt-space-2);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-sm);
+    background: var(--mt-surface-2);
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.operator-tag.is-mine { border-color: var(--mt-accent); background: var(--mt-accent-soft); color: var(--mt-accent); }
 
+/* Las tres preguntas: la del medio (pasos) más ancha; en tablet, 2 + 1. */
+.operator-qs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: var(--mt-space-4);
+    align-items: stretch;
+    margin-bottom: 28px;
+}
+.operator-q { display: flex; flex-direction: column; gap: var(--mt-space-4); min-width: 0; padding: var(--mt-space-5); }
+.operator-q-title { margin: 0; font-size: 1.0625rem; line-height: 1.3; color: var(--mt-accent); }
+.operator-q-title small { display: block; margin-top: 2px; color: var(--mt-muted); font-size: var(--mt-fs-small); font-weight: 400; }
+.operator-q-guide { display: flex; flex-direction: column; align-items: flex-start; gap: var(--mt-space-3); }
+.operator-q-guide + .operator-q-guide { padding-top: var(--mt-space-4); border-top: 1px solid var(--mt-border); }
+.operator-q-name { font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+.operator-q-name small { display: block; margin-top: 2px; color: var(--mt-muted); font-size: .78rem; font-weight: 400; }
+.operator-q-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--mt-space-3);
+    width: 100%;
+    padding-top: 14px;
+    border-top: 1px solid var(--mt-border);
+}
+.operator-q-pair span { display: block; color: var(--mt-muted); font-size: var(--mt-fs-small); font-weight: 600; }
+.operator-q-pair b { display: block; font-size: 1.625rem; font-weight: 600; line-height: 1.15; }
+.operator-q-note { margin: 0; color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.operator-q-do {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    margin: auto 0 0;
+    padding: var(--mt-space-3) 14px;
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-surface-2);
+    font-size: .875rem;
+}
+.operator-q-do > .bi { margin-top: 2px; font-size: 1.05rem; }
+.operator-q-do b { font-weight: 700; }
+.operator-q-group { display: flex; flex-direction: column; }
+.operator-q-group[hidden] { display: none; }
+.operator-q-group-head { display: flex; align-items: center; gap: 10px; margin-bottom: var(--mt-space-1); }
+.operator-q-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 14px;
+    padding: 10px 0;
+    border-top: 1px solid var(--mt-border);
+}
+.operator-q-step-name { font-weight: 600; }
+.operator-q-step-why { color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.operator-q-step-fails { grid-row: 1 / span 2; grid-column: 2; text-align: right; line-height: 1.1; }
+.operator-q-step-fails b { display: block; font-size: 1.375rem; font-weight: 600; }
+.operator-q-step-fails span { color: var(--mt-muted); font-size: .75rem; }
+.operator-reinforce-none { display: inline-flex; align-items: center; gap: var(--mt-space-2); color: var(--mt-ok); font-weight: 600; }
+.operator-q-total { font-size: 1.75rem; font-weight: 600; line-height: 1.1; }
+.operator-q-also { padding-top: var(--mt-space-3); border-top: 1px solid var(--mt-border); }
+/* Las sesiones por modo: el ancho de cada tramo es su cuenta (flex), con el número al lado. */
+.operator-mix {
+    display: flex;
+    gap: 2px;
+    height: 22px;
+    overflow: hidden;
+    border-radius: var(--mt-radius-sm);
+    background: var(--mt-surface-2);
+}
+.operator-mix > span { display: block; min-width: 0; height: 100%; border: 1px solid var(--mt-border); }
+.operator-mix-counts { display: flex; flex-direction: column; gap: var(--mt-space-2); margin: 0; padding: 0; list-style: none; }
+.operator-mix-counts li { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .875rem; }
+.operator-mix-counts li > span { display: inline-flex; align-items: center; gap: var(--mt-space-2); }
+.operator-mix-counts b { font-size: 1.125rem; font-weight: 600; }
+
+/* Historial por guía: un <details> por guía; el resumen hace de tarjeta de la guía. */
+.operator-history-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--mt-space-2) var(--mt-space-4);
+    margin-bottom: 14px;
+}
+.operator-history-head p { max-width: 72ch; }
+.operator-hist { margin-bottom: var(--mt-space-4); overflow: hidden; }
+.operator-hist-sum {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1.3fr) minmax(0, 2fr) auto;
+    gap: var(--mt-space-2) 20px;
+    align-items: center;
+    padding: var(--mt-space-4) var(--mt-space-5);
+    cursor: pointer;
+    list-style: none;
+}
+.operator-hist-sum::-webkit-details-marker { display: none; }
+.operator-hist-chev { font-size: 1.1rem; transition: transform .15s; }
+.operator-hist[open] .operator-hist-chev { transform: rotate(90deg); }
+.operator-hist[open] > .operator-hist-sum { border-bottom: 1px solid var(--mt-border); }
+.operator-hist-name { font-size: 1.1875rem; font-weight: 600; line-height: 1.2; }
+.operator-hist-name small { display: block; margin-top: 2px; color: var(--mt-muted); font-size: .78rem; font-weight: 400; }
+.operator-hist-figs { display: flex; flex-wrap: wrap; gap: var(--mt-space-1) var(--mt-space-5); }
+.operator-hist-figs > span { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.25; }
+.operator-hist-figs > span > span:first-child { color: var(--mt-muted); font-size: .78rem; font-weight: 600; }
+.operator-hist-figs b { font-size: 1.0625rem; font-weight: 600; }
+.operator-hist-act { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.operator-hist-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(220px, 1fr);
+    gap: 20px 28px;
+    align-items: start;
+    padding: 20px var(--mt-space-5) var(--mt-space-2);
+}
+.operator-hist-chart { position: relative; height: 340px; min-width: 0; }
+.operator-hist-read { display: flex; flex-direction: column; gap: 14px; }
+.operator-hist-practice { margin: 0; padding: 10px var(--mt-space-3); border-radius: var(--mt-radius-lg); background: var(--mt-surface-2); font-size: .875rem; font-weight: 600; }
+.operator-hist-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--mt-space-2);
+    margin: 0;
+    padding-top: var(--mt-space-3);
+    border-top: 1px solid var(--mt-border);
+}
+.operator-hist-facts > div { display: flex; flex-direction: column; }
+.operator-hist-facts dt { order: 2; color: var(--mt-muted); font-size: .78rem; font-weight: 600; }
+.operator-hist-facts dd { order: 1; margin: 0; font-size: 1.5rem; font-weight: 600; line-height: 1.1; }
+.operator-hist-table { margin-top: var(--mt-space-2); border-top: 1px solid var(--mt-border); }
+.operator-hist-table .mt-table > :not(caption) > * > * { padding-top: 10px; padding-bottom: 10px; }
+
+/* Una sesión: día y hora en dos líneas, el modo con su color, el estado con ícono, el puntaje
+   con su medidor (la marca es el mínimo para aprobar, 70%) y "Aprobó / Sin aprobar", y los
+   intentos fallidos con una barrita. Nada se lee solo por el color. */
+.operator-day { display: block; font-weight: 600; }
+.operator-time { display: block; color: var(--mt-muted); font-size: .78rem; }
+.operator-mode { display: inline-flex; align-items: center; gap: var(--mt-space-2); font-weight: 600; white-space: nowrap; }
+.operator-status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.operator-status > .bi { color: var(--mt-muted); }
+.operator-score { display: inline-flex; flex-direction: column; align-items: flex-end; gap: var(--mt-space-1); min-width: 104px; }
+.operator-score-value { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.operator-meter { position: relative; width: 96px; height: 6px; border-radius: 3px; background: var(--mt-surface-2); }
+.operator-meter > i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 3px; background: var(--mt-bad); }
+.operator-meter > i.is-pass { background: var(--mt-ok); }
+.operator-meter::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: 70%;          /* ScoreCalculator.PassingScore */
+    width: 2px;
+    background: var(--mt-text);
+    opacity: .55;
+}
+.operator-verdict { font-size: .72rem; font-weight: 600; }
+.operator-verdict.is-pass { color: var(--mt-ok); }
+.operator-verdict.is-fail { color: var(--mt-bad); }
+.operator-fails { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--mt-space-2); }
+.operator-fails > i { display: block; min-width: 2px; height: 6px; border-radius: 3px; background: var(--mt-idle); }
+
+@media (max-width: 1199.98px) {
+    .operator-qs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .operator-q-wide { grid-column: 1 / -1; order: 3; }
+    .operator-hist-sum { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .operator-hist-figs { grid-column: 2 / -1; grid-row: 2; }
+}
 @media (max-width: 991.98px) {
-    .operator-curves { grid-template-columns: minmax(0, 1fr); }
+    .operator-hist-body { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 767.98px) {
+    .operator-qs { grid-template-columns: minmax(0, 1fr); }
+    .operator-q { padding: 18px; }
+    .operator-hist-sum { padding: 14px var(--mt-space-4); }
+    .operator-hist-body { padding: var(--mt-space-4) var(--mt-space-4) var(--mt-space-1); }
+    .operator-hist-act { display: none; }
 }
 
 /* ── Pasos (spec 018; brief 022, alternativa 4a "Mesa de enseñanza", encabezado H4; tokens de la app, D-280) ── */
@@ -1847,7 +2003,13 @@ body.mt-page {
     .card, .mt-panel, .mt-hero { break-inside: avoid; box-shadow: none; }
     /* Los estados de la ficha conservan su color al imprimir (también llevan texto e ícono). */
     .mt-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .operator-top { padding: 0; border: 0; }
+    /* Ficha del Operador (spec 022, brief 7): las tres preguntas una debajo de otra, todos los
+       pasos a reforzar (también los de otras áreas) y la tabla única de Sesiones. */
+    .operator-qs { display: block; margin-bottom: var(--mt-space-4); }
+    .operator-q { padding: var(--mt-space-3) var(--mt-space-4); margin-bottom: var(--mt-space-3); gap: var(--mt-space-3); }
+    .operator-q-group[hidden] { display: flex !important; }
+    .operator-q-do, .operator-mix > span { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .operator-print-sessions .mt-section-title { margin-bottom: var(--mt-space-2); }
     tr { break-inside: avoid; }
     .table { font-size: 0.8rem; }
 }
