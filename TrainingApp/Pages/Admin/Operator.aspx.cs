@@ -299,7 +299,7 @@ namespace TrainingApp.Pages.Admin
                 practice   = c.Points.Select(p => p.Mode == SessionMode.FreePractice ? (int?)p.FailedAttempts : null),
                 assessment = c.Points.Select(p => p.Mode == SessionMode.Assessment ? (int?)p.FailedAttempts : null),
                 scores     = c.Points.Select(p => p.Mode == SessionMode.Assessment && p.Score.HasValue ? (decimal?)Math.Round(p.Score.Value * 100m, 1) : null),
-                passed     = c.Points.Select(p => p.Mode == SessionMode.Assessment && p.Score.HasValue && ScoreCalculator.IsPassed(p.Score.Value)),
+                passed     = c.Points.Select(p => p.Passed),
                 passing    = ScoreCalculator.PassingScore * 100m
             }));
         }
