@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-242 (local, rango D-240 a D-259) · D-299 (nube, spec 022; rango D-280 a D-299; después, el bloque que asigne la sesión local desde D-300). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-299 (nube, spec 022; rango D-280 a D-299; después, el bloque que asigne Planeación desde D-300). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -50,9 +50,9 @@
 | D-15 | 2026-10-06 | La inyección de repositorios en `PodService` espera a retomar la cobertura de tests | audits/2026-10-06-auditoria-final.md | vigente |
 | D-16 | 2026-10-06 | Alcance de la auditoría final: E1-E4; AUD-40 y AUD-42 diferidos | audits/2026-10-06-auditoria-final.md | cerrada (AUD-40/42 siguen en la deuda) |
 | D-17 | 2026-10-09 | La cuenta local se llama `User` (tabla `Users`), nunca `Operator` | history.md → "Refactor `Operator` → `User`" | vigente |
-| D-18 | 2026-10-12 | `DEFAULT_PASSWORD` sigue versionada en `Constants`, con su valor de siempre | roadmap.md → "Fase 8.5" | vigente |
+| D-18 | 2026-10-12 | `DEFAULT_PASSWORD` sigue versionada en `Constants`, con su valor de siempre | archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
 | D-19 | 2026-10-12 | T1 se aprueba como preparación, sin probarlo en el servidor real | history.md → "T1" | pendiente (prueba en el servidor real: la prueba de humo de la E1 de la Fase 9) |
-| D-20 | 2026-10-13 | El reclamo de cuenta ajena no se cierra: solo detección, riesgo aceptado | specs/013-cuentas-roles-actividad.md; roadmap.md → "Fase 8.5" | vigente |
+| D-20 | 2026-10-13 | El reclamo de cuenta ajena no se cierra: solo detección, riesgo aceptado | specs/013-cuentas-roles-actividad.md; archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
 | D-21 | 2026-10-14 | Con la sesión de entrenamiento cerrada, Logout cierra la sesión de la app | specs/015-plan.md | vigente |
 | D-22 | 2026-10-14 | Complete saca del POD las filas completadas | specs/015-plan.md | vigente |
 | D-23 | 2026-10-14 | El grupo Trainer reemplaza en sitio el tercer grupo opcional en `05` y `08` | specs/015-plan.md | vigente |
@@ -153,14 +153,14 @@
 | D-118 | 2026-10-21 | M-10 y M-18 quedan fuera | specs/017-plan.md | vigente |
 | D-119 | 2026-10-21 | M-7 es un mensaje por pieza seleccionada; sin selección, M-4 | specs/017-plan.md (enmienda 4) | enmendada |
 | D-120 | 2026-10-21 | M-17 (`18117`) queda fuera: no se puede provocar en el simulador | specs/017-plan.md (enmienda 5) | vigente |
-| D-121 | 2026-10-21 | W23: 12NC simulado por área en `PodDefaults`, sin BD | roadmap.md → "Plan de la fila 12" | vigente |
-| D-122 | 2026-10-21 | W23: seriales consecutivos de 1 a 5 dígitos | roadmap.md → "Plan de la fila 12" | enmendada (2026-10-22: de 1 a 6 dígitos, como hoy) |
-| D-123 | 2026-10-21 | W23: el As-Built de Log NC muestra `{12NC}/A` | roadmap.md → "Plan de la fila 12" | vigente |
-| D-124 | 2026-10-21 | Quitar `RequiresNCComponent` recreando la BD con `00`–`09` | roadmap.md → "Plan de la fila 13" | vigente |
-| D-125 | 2026-10-21 | W23: el 12NC simulado se deriva del `Id` del área (puede cambiar entre BDs) | roadmap.md → "Plan de la fila 12" | vigente |
-| D-126 | 2026-10-21 | W23: el inicio del serial sortea primero sus dígitos (1 a 5) y después el número | roadmap.md → "Plan de la fila 12" | enmendada (2026-10-22: de 1 a 6 dígitos) |
-| D-127 | 2026-10-21 | W23: el lote NonSerialized no cambia (sin captura del SFC real) | roadmap.md → "Plan de la fila 12" | vigente |
-| D-128 | 2026-10-21 | W23: el BOM simulado del As-Built sigue con la Shop Order | roadmap.md → "Plan de la fila 12" | vigente |
+| D-121 | 2026-10-21 | W23: 12NC simulado por área en `PodDefaults`, sin BD | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | vigente |
+| D-122 | 2026-10-21 | W23: seriales consecutivos de 1 a 5 dígitos | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | enmendada (2026-10-22: de 1 a 6 dígitos, como hoy) |
+| D-123 | 2026-10-21 | W23: el As-Built de Log NC muestra `{12NC}/A` | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | vigente |
+| D-124 | 2026-10-21 | Quitar `RequiresNCComponent` recreando la BD con `00`–`09` | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 13" | vigente |
+| D-125 | 2026-10-21 | W23: el 12NC simulado se deriva del `Id` del área (puede cambiar entre BDs) | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | vigente |
+| D-126 | 2026-10-21 | W23: el inicio del serial sortea primero sus dígitos (1 a 5) y después el número | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | enmendada (2026-10-22: de 1 a 6 dígitos) |
+| D-127 | 2026-10-21 | W23: el lote NonSerialized no cambia (sin captura del SFC real) | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | vigente |
+| D-128 | 2026-10-21 | W23: el BOM simulado del As-Built sigue con la Shop Order | archivo/roadmap-hasta-2026-10-30.md → "Plan de la fila 12" | vigente |
 | D-129 | 2026-10-22 | MVP publicado hoy para recoger retroalimentación; la versión final es la de la 2.ª semana de noviembre | specs/fase-9-plan.md | vigente |
 | D-130 | 2026-10-22 | Los datos del MVP se descartan: la BD del servidor se recrea con `00`–`09`, sin `ALTER`, hasta la versión final | specs/fase-9-plan.md | vigente |
 | D-131 | 2026-10-22 | AUD-28 (lo barato) y AUD-29 (solo parches) en una 2.ª publicación; Bootstrap, SweetAlert2 y CodeDom fuera | specs/fase-9-plan.md | cerrada (2026-10-22: E2 probada) |
@@ -251,7 +251,7 @@
 | D-216 | 2026-10-27 | Spec 023: fechas con el selector nativo del navegador, sin librería | specs/023-filtro-periodo.md | vigente |
 | D-217 | 2026-10-27 | Spec 023: va antes del mockup de Pasos de la 022, con el sistema de diseño actual | specs/023-filtro-periodo.md | vigente |
 | D-218 | 2026-10-28 | Spec 023: propuestas P-1 a P-16 confirmadas (inicio de la sesión; días de la planta, también en Últimos 30 días; 7 atajos; anterior por atajo; flecha, valor, referencia y base; Este mes ante un rango inválido; URL; `@To` y una sola lectura; granularidad 31/366 días; Excel; Sesiones del período; un UserControl; rendimiento; textos; 4 entregas) | specs/023-filtro-periodo.md | vigente |
-| D-219 | 2026-10-28 | Orden de Desarrollo entre la 022 y la 023: 022 E1 (tokens) → 023 E1 a E4 → 022 E2a (Login) y el resto de la 022 con sus mockups; la E2 de la 022 se parte en E2a (Login) y E2b (Cambio de contraseña, con su mockup) | roadmap.md (Spec 023 → Orden) | vigente |
+| D-219 | 2026-10-28 | Orden de Desarrollo entre la 022 y la 023: 022 E1 (tokens) → 023 E1 a E4 → 022 E2a (Login) y el resto de la 022 con sus mockups; la E2 de la 022 se parte en E2a (Login) y E2b (Cambio de contraseña, con su mockup) | archivo/roadmap-hasta-2026-10-30.md (Spec 023 → Orden) | vigente |
 | D-220 | 2026-10-28 | Spec 022, Login: alternativa 3b, panel dividido (identidad + formulario; franja en tablet) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
 | D-221 | 2026-10-28 | Spec 022, Login: tokens nuevos `--mt-brand-bg`, `--mt-on-brand`, `--mt-on-brand-2`, `--mt-brand-line` (claro y oscuro); ninguno existente cambia | specs/022-mockups-por-pantalla.md | vigente |
 | D-222 | 2026-10-28 | Spec 022, Login: componentes `.auth-*` (solo login) y `.mt-status-line` (reutilizable) | specs/022-mockups-por-pantalla.md | vigente |
@@ -259,7 +259,7 @@
 | D-224 | 2026-10-28 | Spec 022, Login: errores en la línea de estado, no en SweetAlert; íconos en campos y en Entrar (`BtnLogin` → `LinkButton`) | specs/022-mockups-por-pantalla.md | vigente |
 | D-225 | 2026-10-28 | Spec 022, Login: textos nuevos (lead, panel de identidad y aviso de primer acceso) | specs/022-mockups-por-pantalla.md | vigente |
 | D-226 | 2026-10-28 | Spec 022: flujo con handoff — Claude Design manda el diseño a una sesión de la nube que implementa en `cloud/022-<pantalla>` ("no verificada"); la nube de planeación registra las D-n; Desarrollo verifica, el usuario prueba y se hace el commit en `TrainingApp` | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | vigente |
-| D-227 | 2026-10-28 | Spec 022: excepción a P-3 — en `022-design/` quedan capturas PNG y la lista de cambios (`<pantalla>.md`), no el HTML exportado (carga React) | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | enmendada (D-240: las capturas las hace Desarrollo) |
+| D-227 | 2026-10-28 | Spec 022: excepción a P-3 — en `022-design/` quedan capturas PNG y la lista de cambios (`<pantalla>.md`), no el HTML exportado (carga React) | specs/022-mockups-por-pantalla.md (enmienda 2026-10-28) | enmendada (D-240; D-242: sin capturas, queda la lista de cambios) |
 | D-228 | 2026-10-28 | Spec 022, Cambio de contraseña: alternativa 2a (franja de marca, tarjeta montada, 3 pasos en primer acceso, Nueva y Confirmar lado a lado, requisitos fijos) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
 | D-229 | 2026-10-28 | Spec 022, Cambio de contraseña: componentes `.pw-*` (solo esta pantalla) y `.mt-steps` / `.mt-step` (reutilizable); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-230 | 2026-10-28 | Spec 022, Cambio de contraseña: pantalla completa (`FullBleed`) siempre, también al llegar por URL sin estar obligado | specs/022-mockups-por-pantalla.md | vigente |
@@ -272,8 +272,17 @@
 | D-237 | 2026-10-29 | Spec 022: el v1 es referencia, no molde: al menos una alternativa por pantalla rompe con el v1 en estructura y en lo visual; cada cambio marca qué conlleva (tokens, pantallas ya hechas, componentes, esfuerzo). Precisa D-206 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-238 | 2026-10-29 | Spec 022: la barra superior (navbar horizontal, Admin.Master y Site.Master) entra como pantalla 0 con mockup propio y entrega E1b, antes de Seguimiento; marca siempre "TrainingApp"; la del operador la propone el diseño con datos existentes | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
 | D-239 | 2026-10-29 | Spec 022, Pasos: alternativa 4a "mesa de enseñanza" (franja con filtros, una columna por paso, panel del paso elegido sin postback, ranking completo abajo) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | enmendada (D-241: el ranking completo, plegado; D-289: la franja como tarjeta) |
-| D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | enmendada (D-285: sin captura de tablet) |
+| D-240 | 2026-10-28 | Spec 022: las capturas de `022-design/` (claro, oscuro y tablet) las hace Desarrollo, solo de la versión final aprobada de cada pantalla, no de cada iteración; si su contexto no alcanza, le pregunta al usuario antes de omitirlas o abaratarlas | roadmap.md (Fase 12) | sin efecto (D-242) |
 | D-241 | 2026-10-29 | Spec 022, Pasos: el ranking completo va plegado (`<details>`, "Mostrar / Ocultar"), porque repite las columnas y el panel del elegido; la lista no se quita. Enmienda D-239 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
+| D-242 | 2026-10-30 | Sin capturas en la 022 ni en los briefs de diseño que vengan (`process.md` → "Clasificar el pedido"); ni Desarrollo las toma ni se le piden al usuario (antes y después). El criterio es la lista de cambios `022-design/<pantalla>.md`, el canvas aprobado y el "funciona" del usuario en el navegador. Deja sin efecto D-240 y la parte de capturas de D-285; enmienda D-227 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-30) | vigente |
+| D-243 | 2026-10-30 | Sin sesión de documentación aparte: quien decide, registra (Planeación: specs, planes, enmiendas y D-n; Desarrollo: los cierres de su entrega) | specs/proceso-eficiente-plan.md | vigente |
+| D-244 | 2026-10-30 | Estado por tiempo, un dueño por archivo: pasado = git, casillas del plan y `history.md` al cerrar spec, fase o plan directo; presente = `status.md` → "Estado actual" (máx. 40 líneas, Desarrollo); futuro = roadmap → "Siguiente" (máx. 15, Planeación). Sin "Para retomar"; numeración solo en `decisions.md`; Desarrollo no avisa por entrega | specs/proceso-eficiente-plan.md | vigente |
+| D-245 | 2026-10-30 | Lo cerrado del roadmap pasa a `docs/archivo/roadmap-hasta-2026-10-30.md` (fases 7 a 11, specs 023 y 024, revisiones con negocio); los abiertos quedan listados en el roadmap | specs/proceso-eficiente-plan.md | vigente |
+| D-246 | 2026-10-30 | Modelo por trabajo: Planeación Opus 5.5 (`medium`; `high` en specs, planes y enmiendas); Desarrollo Sonnet 5.5 (`medium`; `high` con BLL/SQL o un bug difícil); review en Opus; subagentes en Sonnet; Reuniones Sonnet 5.5 `medium` | specs/proceso-eficiente-plan.md | enmendada (D-250: cómo va el review en Opus y el esfuerzo) |
+| D-247 | 2026-10-30 | Coordinación por mecanismos: nombre único y fijo por sesión y mensajes por nombre; hooks de git; skill `/rol`; `CLAUDE.md` no crece | specs/proceso-eficiente-plan.md | vigente |
+| D-248 | 2026-10-30 | Higiene de sesión: `/clear` al cambiar de tarea, cerrar sesiones que terminaron, `/usage` semanal los viernes | specs/proceso-eficiente-plan.md | vigente |
+| D-249 | 2026-10-30 | La variante de la nube (specs y planes en la nube) termina al cerrar la 022 (E8) | specs/proceso-eficiente-plan.md | vigente |
+| D-250 | 2026-10-30 | Enmienda D-246 (el patrón se confirma: `opusplan` de la doc oficial). Review en Opus con la skill `/revisar` (`model: opus`, `effort: high`; vale solo ese turno); el esfuerzo de cada entrega lo fija su plan (`high` si toca BLL o SQL o arregla un bug, `medium` si no); sin `CLAUDE_CODE_SUBAGENT_MODEL` (los subagentes heredan); verificación única con `/usage` y alternativa fijada (el review lo hace el propio turno de `/revisar`); el piloto de Sonnet se evalúa tras 3 entregas: si 2 o más necesitan más de una ronda de correcciones, Desarrollo pasa a Opus `medium` | process.md → "Tres sesiones" y "3. `/code-review` calibrado" | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
@@ -294,7 +303,7 @@
 | D-282 | 2026-10-29 | Spec 022, Pasos: Modo como control segmentado (`RblMode`), mismos valores y URL | specs/022-mockups-por-pantalla.md | vigente |
 | D-283 | 2026-10-29 | Spec 022, Pasos: textos nuevos; la parte de cada motivo en la BLL, sin test (como D-235) | specs/022-mockups-por-pantalla.md | vigente |
 | D-284 | 2026-10-29 | Spec 022: las sesiones de diseño de la nube hacen una vuelta de crítica con `design:design-critique` antes de que el usuario elija (una corrección, resumen en el artifact); sin revisión de accesibilidad ni textos con skills aparte | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
-| D-285 | 2026-10-29 | Spec 022: cada alternativa del mockup es una página responsive con el interruptor de tema, sin copias en claro, oscuro ni tablet; las capturas finales de Desarrollo quedan en claro y oscuro (sin tablet). Enmienda D-240 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | vigente |
+| D-285 | 2026-10-29 | Spec 022: cada alternativa del mockup es una página responsive con el interruptor de tema, sin copias en claro, oscuro ni tablet; las capturas finales de Desarrollo quedan en claro y oscuro (sin tablet). Enmienda D-240 | specs/022-mockups-por-pantalla.md (enmienda 2026-10-29) | enmendada (D-242: sin capturas finales) |
 | D-286 | 2026-10-29 | Spec 022, Barra superior: propuesta 1, banda de marca azul con el menú del admin en dos grupos ("Dashboard" y "Administración"), el área del operador y la cuenta con iniciales | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
 | D-287 | 2026-10-29 | Spec 022, Barra superior: tokens nuevos `--mt-brand-raise` y `--mt-brand-edge` (toda la app; ninguno existente cambia) | specs/022-mockups-por-pantalla.md | vigente |
 | D-288 | 2026-10-29 | Spec 022, Barra superior: componente `.mt-topbar` en lugar de `.admin-bar`, controles de presentación en los masters, `TopBar.cs`, menú plegado en `theme.js` y su responsive | specs/022-mockups-por-pantalla.md | vigente |

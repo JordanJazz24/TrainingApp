@@ -639,6 +639,12 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   `Admin.Master` y `Site.Master`, `TopBar.cs`, `wireMenu` en `theme.js` y la franja de Pasos en
   tarjeta. Sin cambios de Desarrollo. `/code-review low` sin hallazgos. Sin capturas. Probada
   por el usuario.
+- **E5 (Seguimiento, 2026-10-30, `11d4173`):** el mockup B ("cola de llamadas") con el
+  encabezado P1 desde `cloud/022-seguimiento` (`6f9042f`); el resumen de la cola en la BLL
+  (`FollowUpSummary`, sin test por decisión del usuario, como D-235/D-283); D-n pendientes
+  (Diseño UI/UX). `/code-review medium` sin bugs; se aplicó `ReportText.Operators`. El usuario
+  dejó como en el mockup la columna "En la cola" con la cola vacía y el formato de Code1. Sin
+  capturas. Probada por el usuario.
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver
@@ -664,3 +670,21 @@ worktree `.claude/worktrees/fase-11`, después de la 022 E1 (D-219).
 - Probada por el usuario entrega por entrega. Un timeout de SQL pasajero en la BD local del
   usuario durante la E2 no se repitió; la medición con volumen descartó el código.
 - **Queda abierto:** correr `10_spDashboard.sql` en la BD de producción antes de publicar.
+
+## Flujo de trabajo eficiente ✅ (2026-10-30, plan directo)
+
+Plan: `docs/specs/proceso-eficiente-plan.md` (D-243 a D-249). Lo pidió el usuario tras revisar
+`/usage` e `/insights`: menos tokens y menos relevos entre sesiones.
+- **E1 (Planeación):** `process.md` ("Tres sesiones de trabajo" y "Documentación"), roadmap
+  archivado en `docs/archivo/roadmap-hasta-2026-10-30.md` (687 a 147 líneas), skills `/rol` y
+  `/cerrar-entrega`, D-243 a D-249.
+- **E2 (`5ff7e13`):** `status.md` → "Estado actual" de unas 190 a 31 líneas.
+- **E3 (`4bdb449`, `cb103ff`):** `CLAUDE_CODE_SUBAGENT_MODEL=sonnet`; hook `git-guard.ps1`
+  (`PreToolUse` en Bash y PowerShell) que rechaza `git add -A`, `git add .`, `git commit -a` y
+  cualquier commit con `main` como rama actual, ignorando mensajes y cuerpos de heredoc;
+  `_users_*_git/` en `.gitignore`. El usuario lo vio rechazar un `git add -A` de prueba.
+- **Review en Opus:** la documentación no dice qué modelo usa `/code-review` ni que acepte un
+  agente de proyecto, así que no hay `revisor.md`: `/model opus` antes del review y `/model
+  sonnet` después (`process.md` → 3).
+- **Falso positivo corregido:** el hook leía el cuerpo de un heredoc (Planeación lo encontró con
+  un mensaje que citaba "git add -A").

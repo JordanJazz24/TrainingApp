@@ -217,6 +217,10 @@ en los masters.
 | D-297 | **Métricas derivadas (D-205) en la BLL, sin test** (como D-235, D-283 y D-293): `OperatorSummary` en `OperatorPage.Summary` cuenta por estado (con la búsqueda y el área, sin el filtro de estado; con Sin área, en todas las áreas), Todos, Sin área y los inactivos de la lista filtrada; `OperatorRow` suma `DaysSinceActivity` e `Inactive`. "Inactivo" = guía en su área, no Sin iniciar y 14 días o más desde `LastActivity`, con el mismo umbral de S-2 (`FollowUpRules.InactiveDays`): **no es una regla nueva** ni cambia `ReadinessPolicy`, `OperatorArea` ni las reglas de Seguimiento. `FindOperators` arma primero a todos los de la búsqueda y después aplica área y estado: filas, orden, total y paginación iguales |
 | D-298 | **Textos nuevos:** el antetítulo (se quita la bajada del v1), "Elige un tramo para ver ese grupo · el ancho es cuántos hay", "Ver todos", "N% de la vista", "N sin actividad en 14 días o más", "hoy / hace 1 día / hace N días", "Ver detalle" y las seis líneas de **qué hacer** (Reprobado, Sin iniciar, En entrenamiento, Aprobado, Sin área, Todos), en `ReportText.StateHint`. Las de qué hacer son **guía nueva para el admin: las valida negocio** antes de cerrar la E6 (si cambian, cambia solo el texto) |
 
+> **Integración 2026-10-30 (Desarrollo, `1afe5ed`):** ajustes de Desarrollo en el título, los
+> campos y "Ver detalle" (`.operators-go` con el color de acento del canvas, que la rama no traía).
+> Sin D-n nueva: es lo aprobado en D-295 y D-296.
+
 ### Seguimiento (2026-10-30, alternativa B con el encabezado P1, D-291 a D-294)
 
 Rama de partida: `cloud/022-seguimiento` (`6f9042f`, "no verificada"), desde `TrainingApp`.
@@ -228,6 +232,10 @@ Criterio: `022-design/seguimiento.md`. Cuatro rondas; sin tokens nuevos ni cambi
 | D-292 | **Componentes nuevos `.followup-*`**, solo de esta pantalla (encabezado y pestañas, etiqueta S-n con `is-alert` para S-1, distribución con columna lateral, tarjetas, filas compactas, vacío y barras); se borran `.followup-rules`, `.followup-table` y `.followup-chips`. `.mt-chip` sigue para Guías. `FollowUpListRow` cambia `Chips` por `Lines`; `ReportText.FollowUpLines` (Excel) mantiene el mismo texto |
 | D-293 | **Métrica derivada (D-205) en la BLL, sin test** (como D-235 y D-283): `FollowUpSummary` en `FollowUpReport.Summary` cuenta los casos con 2 reglas o más ("Llamar primero", `CallFirstMinRules = 2`) y con 1, los casos por regla y los operadores, solo sobre lo que `GetFollowUp` ya devuelve. "Llamar primero" es una **agrupación de presentación**, no una regla de seguimiento nueva: `FollowUpRules`, `ReadinessPolicy` y el orden no cambian |
 | D-294 | **Textos nuevos:** la bajada "A quién llamar primero y de qué hablarle…", las pestañas, los conteos ("N casos de N operadores"), "N de 3 reglas", "Última sesión de la guía", "Ver detalle", la columna "En la cola" con los nombres "Reprobados", "Sin practicar" y "Paso trabado", y el vacío "Nadie en la cola de <guía>". Las frases de las reglas no cambian (son las del Excel) |
+
+> **Integración 2026-10-30 (Desarrollo, `11d4173`):** por decisión del usuario quedan como en
+> el mockup la columna "En la cola" también con la cola vacía y el formato de Code1 ("· Code1 123"
+> en la tarjeta, "· 123" en "Después"). Sin D-n nueva: es lo aprobado en D-291 y D-294.
 
 ### Pasos (2026-10-29, alternativa 4a con el encabezado H4, D-239 y D-280 a D-283)
 
@@ -258,6 +266,16 @@ Rama de partida: `cloud/022-pasos` (`209383c`, "no verificada"), desde `Training
 > responsive con el interruptor de tema**, sin copias aparte en claro, oscuro ni tablet. La
 > regla de 768 px sin scroll horizontal (AC-4) no cambia. Las capturas finales de Desarrollo
 > (D-240) quedan en **claro y oscuro**, sin la de tablet.
+
+> **Enmienda 2026-10-30 (D-242, usuario: "quita esa regla, no pidas capturas"):** la 022 va
+> **sin capturas**. Desarrollo no las toma ni las pregunta, y al usuario no se le piden las de
+> antes. El criterio de cada pantalla es la lista de cambios `022-design/<pantalla>.md`, el
+> canvas aprobado en Claude Design y el "funciona" del usuario en el navegador, en claro, oscuro
+> y a 768 px. Deja sin efecto D-240 y la parte de capturas de D-285, y enmienda D-227 y AC-1 ("capturas
+> de antes y después en el plan"). Las capturas de `login-*.png` y `cambio-contrasena-*.png` que
+> ya están en `022-design/` se quedan. No cambia lo que el usuario adjunta a Claude Design como
+> entrada de cada brief ("Capturas:" en `022-briefs.md`). La regla general de los briefs de diseño (`process.md` →
+> "Clasificar el pedido") también queda sin capturas de antes y después.
 
 ## Decisiones del usuario (2026-10-27)
 

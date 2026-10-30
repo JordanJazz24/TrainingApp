@@ -462,10 +462,12 @@
     <Compile Include="BLL\Admin\GuideAdminService.cs" />
     <Compile Include="BLL\Reports\DashboardService.cs" />
     <Compile Include="BLL\Reports\OperatorArea.cs" />
+    <Compile Include="BLL\Reports\OperatorSummary.cs" />
     <Compile Include="BLL\Reports\ReadinessPolicy.cs" />
     <Compile Include="BLL\Reports\ReinforcementRule.cs" />
     <Compile Include="BLL\Reports\StepRuns.cs" />
     <Compile Include="BLL\Reports\FollowUpRules.cs" />
+    <Compile Include="BLL\Reports\FollowUpSummary.cs" />
     <Compile Include="BLL\Reports\LearningCurve.cs" />
     <Compile Include="BLL\Reports\ReportChange.cs" />
     <Compile Include="BLL\Reports\ReportPeriod.cs" />

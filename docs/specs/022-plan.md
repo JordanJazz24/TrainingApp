@@ -9,6 +9,10 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 "funciona" del usuario en el navegador **antes** del commit y commit solo con sus rutas
 (`git commit -- <rutas>`), con `docs/status.md` y la casilla de este plan en el mismo commit.
 
+> **Enmienda 2026-10-30 (D-250):** el review de cada entrega va con `/revisar` (en Opus) y el
+> cierre con `/cerrar-entrega`. **Esfuerzo** de las entregas que faltan (resto de la E6, E7 y
+> E8): `medium`, porque son de presentación; `high` solo si alguna termina tocando BLL o SQL.
+
 ## Reglas de este plan
 
 - **Bloqueo por mockup (D-202, P-7):** una entrega no empieza hasta que su exportación está
@@ -54,7 +58,8 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
 
 - [ ] Precondición: exportación aprobada en `022-design/` y registrada en la spec; la entrega
       de la 021 que la bloquea, cerrada.
-- [ ] Capturas de **antes** (claro y oscuro) guardadas por el usuario, para comparar.
+- [ ] ~~Capturas de **antes** (claro y oscuro) guardadas por el usuario, para comparar.~~
+      Sin efecto desde el 2026-10-30 (D-242).
 - [ ] Implementar según la exportación, con los tokens y componentes vigentes.
 - [ ] Verificación (Desarrollo): Rebuild; `aspnet_compiler` (markup tocado); tests si cambió la
       BLL (métricas derivadas).
@@ -65,15 +70,13 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
     vista (AC-3);
   - a 768 px y proyectado, sin scroll horizontal de página (AC-4);
   - los números son los mismos que antes (AC-5).
-- [ ] Capturas de **después** (enmendado 2026-10-28, D-240): las toma **Desarrollo**, solo de
-      la **versión final** aprobada de la pantalla (no de cada iteración), y las guarda como
-      `022-design/<pantalla>-claro.png` y `-oscuro.png` en el commit de la entrega (sin la de
-      tablet desde el 2026-10-29, D-285; la regla de los 768 px se sigue probando). Si su contexto no alcanza, le pregunta al usuario antes de omitirlas o
-      abaratarlas.
+- [ ] ~~Capturas de **después**~~ (D-240, D-285): **sin efecto desde el 2026-10-30 (D-242,
+      usuario)**. Ni Desarrollo las toma ni las pregunta; el criterio es la lista de cambios, el
+      canvas aprobado y el "funciona" del usuario (claro, oscuro y 768 px).
 
 > **Enmienda 2026-10-28 (D-226, D-227; D-240):** el bloqueo por mockup se cumple con la lista
 > de cambios en `022-design/<pantalla>.md` y las D-n registradas en la spec (ya no con un HTML
-> exportado). Las capturas no bloquean: las toma Desarrollo al final de la entrega (D-240). Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
+> exportado). Las capturas no bloquean: las toma Desarrollo al final de la entrega (D-240). (Sin capturas desde el 2026-10-30, D-242.) Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
 > verificada"): es el punto de partida de su entrega; Desarrollo la trae, verifica y hace el
 > commit con el ciclo normal. Nunca se integra tal cual.
 
@@ -245,20 +248,22 @@ orden de `admin.css` con Desarrollo.
 
 **Bloqueada hasta:** E1 y el mockup de Seguimiento.
 
-- [ ] **Punto de partida:** `cloud/022-seguimiento` (`6f9042f`, "no verificada"; sale de
-      `TrainingApp`). Estructura aprobada: B con el encabezado P1 (D-291, D-292).
-- [ ] `Pages/Admin/FollowUp.aspx`: mismo filtro por guía en la URL, Filtrar, Descargar, orden y
-      enlace al detalle. `FollowUpSummary` en la BLL, sin test (D-293); `FollowUpRules` no cambia.
-- [ ] Revisar en la rama (no se compiló, `seguimiento.md` → "Para revisar en Desarrollo"): el
-      `.designer.cs` escrito a mano; `<%: … %>` con constantes en `title`; `ExcelReportsTests`
-      en verde (mismo texto de `FollowUpLines`); solo casos de 1 regla, solo de 2 o más, vacío
-      con Todas y con una guía, S-3 con varios pasos; las anclas `#fu-first` y `#fu-later` con
-      la barra superior (`scroll-margin-top`); contraste de `.followup-tag.is-alert` y de la
-      pestaña `is-lead` en oscuro.
-- [ ] `/code-review low --max-findings 3`; `medium` si hay métricas.
-- [ ] Checklist común + filas con 1, 2 y 3 reglas, vacío y enlace al detalle.
+- [x] `Pages/Admin/FollowUp.aspx`: la estructura aprobada; chips con texto (S-1 a S-3), orden
+      por número de reglas, filtro por guía y Descargar.
+- [x] Métricas derivadas aprobadas (si hay): regla en la BLL con su test; las reglas de
+      `FollowUpRules` no cambian. *Desvío aceptado por el usuario: `FollowUpSummary` va sin
+      test, como D-235/D-283.*
+- [x] `/code-review low --max-findings 3`; `medium` si hay métricas.
+- [x] Checklist común + filas con 1, 2 y 3 reglas, vacío y enlace al detalle.
 
-**Hecho cuando:** el usuario confirma la lista y dice "funciona".
+> **Cerrada 2026-10-30 (Desarrollo):** mockup B ("cola de llamadas") con el encabezado P1, desde
+> `cloud/022-seguimiento` (`6f9042f`); el resumen de la cola, a la BLL (`FollowUpSummary`, sin
+> test). D-291 a D-294 (Diseño UI/UX, 2026-10-30). `/code-review medium` sin bugs; se aplicó
+> `ReportText.Operators`. Por decisión del usuario quedan como en el mockup la columna "En la
+> cola" con la cola vacía y el formato de Code1 ("· Code1 123" en la tarjeta, "· 123" en
+> "Después"). Queda sin uso `.mt-chip-alert` en `admin.css`. Sin capturas.
+
+**Hecho cuando:** el usuario confirma la lista y dice "funciona". ✅ Probada por el usuario.
 
 ## E6 · Operadores y Operador (después de la E5 de la 021)
 
@@ -279,21 +284,12 @@ orden de `admin.css` con Desarrollo.
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
 ficha ya existen.)
 
-- [ ] **Punto de partida de Operadores:** `cloud/022-operadores` (`94c0405`, "no verificada"; sale
-      de `TrainingApp` con la 024). Estructura aprobada: D con el encabezado K1 (D-295, D-296).
-      Operador sigue esperando su mockup (brief 7); Operadores se puede verificar antes, solo.
-- [ ] `Pages/Admin/Operators.aspx`: filtros en la URL (`q`, `state`, `area`, `page`), Descargar
-      (Excel sin cambios), orden y paginación de 50. `OperatorSummary` en la BLL, sin test
-      (D-297); `ReadinessPolicy`, `OperatorArea` y `FollowUpRules` no cambian.
-- [ ] Revisar en la rama (no se compiló, `operadores.md` → "Para revisar en Desarrollo"): el
-      `.designer.cs` escrito a mano (`IcoHint` como `HtmlGenericControl`, `aria-current` y
-      `style` con `<%# %>` en un `<a>` literal de `RptMeter`, el `PlaceHolder` anidado del
-      reloj); `DashboardServiceTests` y `DashboardPerformanceTests` en verde (cambió el armado de
-      `FindOperators`); Todas, un área y Sin área; cada estado; Sin área + Filtrar con estado
-      (lo quita); búsqueda vacía; un estado con 0; área sin guía publicada; páginas 2 y 3 (el
-      resumen cuenta todas); 768 px (dos tramos por fila, sin scroll horizontal); contraste de
-      los números en cada `*-soft` y del ámbar sobre `--mt-surface-2`.
-- [ ] Negocio valida los textos de qué hacer (D-298) antes de cerrar la E6.
+**Esfuerzo (D-250):** `medium` para el detalle y la ficha; `high` si el mockup aprobado agrega
+una métrica derivada en la BLL (como `OperatorSummary` en la lista).
+
+- [x] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
+      insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
+      50.
 - [ ] `Pages/Admin/Operator.aspx`: la estructura aprobada; estado por guía, pasos a reforzar,
       curva (Chart.js con `admin-charts.js`), sesiones y el área en el encabezado.
 - [ ] **Ficha impresa:** la disposición aprobada en el `@media print` de `admin.css`; sigue en
@@ -304,7 +300,16 @@ ficha ya existen.)
 - [ ] Checklist común + filtros por estado y guía, paginación, la ficha impresa (vista previa
       de impresión con tema oscuro activo) y la curva en los dos temas.
 
-**Hecho cuando:** el usuario confirma la lista, el detalle y la ficha impresa.
+> **Operadores (lista) cerrada 2026-10-30 (Desarrollo, `1afe5ed`):** alternativa D con el
+> encabezado K1 (barra proporcional) desde `cloud/022-operadores` (`94c0405`); el resumen por
+> estado, a la BLL (`OperatorSummary`, sin test, como D-235/D-283). D-295 a D-298 (Diseño
+> UI/UX, 2026-10-30). Los textos de qué hacer (D-298) los valida negocio antes de cerrar la E6. El `/code-review low` formal devolvió vacío; revisión manual de la BLL y el
+> code-behind, sin hallazgos. Ajustes de Desarrollo: título, campos y "Ver detalle"
+> (`.operators-go`, que la nube dejó sin el color de acento del canvas). El generador
+> `GenerateDashboardData.sql` pasa a 100 operadores con perfiles fijos. Sin capturas (D-242).
+> **Falta:** `Operator.aspx` (detalle), la ficha impresa y su `/code-review`; esperan su mockup.
+
+**Hecho cuando:** el usuario confirma la lista, el detalle y la ficha impresa. *(La lista ✅.)*
 
 ## E7 · Usuarios (después de la E4 de la 021)
 
@@ -313,6 +318,8 @@ ficha ya existen.)
 
 **Bloqueada hasta:** E1 y el mockup de Usuarios. (Enmendado 2026-10-27: la E4 de la 021 ya
 está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.)
+
+**Esfuerzo (D-250):** `medium`; `high` si toca la BLL de gestión de usuarios o SQL.
 
 - [ ] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
       `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext`; en la columna
@@ -330,6 +337,8 @@ está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.)
 
 **Bloqueada hasta:** E1 y el mockup del Inicio. (Enmendado 2026-10-27: la E3 de la 021 ya
 está cerrada; el área como texto y solo el selector de guía ya existen.)
+
+**Esfuerzo (D-250):** `medium`; `high` si toca `StartSession`, la BLL de Training o SQL.
 
 - [ ] `Pages/Training/StartSession.aspx` (y `Site.Master` si la estructura lo pide): la
       disposición aprobada; mismos `DdlGuide`, `RbGuided`/`RbFreePractice`/`RbAssessment`,

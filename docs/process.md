@@ -25,15 +25,16 @@ y **gana la primera que aplica**:
   qué tiene que ver primero; referencias visuales y restricciones (Bootstrap, marca, uso en
   planta); **primero el sistema de diseño** (tokens de color, tipografía y espaciado, y
   componentes compartidos en un CSS común) y después las pantallas; y criterios de aceptación
-  verificables (capturas de antes y después, contraste accesible, anclas `data-guide` y
-  postbacks intactos, los `.xlsx` abren bien en Excel).
+  verificables (contraste accesible, anclas `data-guide` y postbacks intactos, los `.xlsx`
+  abren bien en Excel), sin capturas de antes y después (D-242): el "funciona" del usuario en
+  el navegador las reemplaza.
 - Ante la duda, preguntarse si una spec es sobreingeniería para un simulador interno, y
   decirle al usuario en una línea qué camino se propone y por qué. Él suele pedir "considera
   si realmente necesita spec".
 - En una spec, las decisiones que propuso Claude (no las respondió el usuario) se listan
   aparte para que las confirme antes de aprobar.
 - **Plan grande** → `docs/specs/NNN-plan.md` (o `fase-N-plan.md`) con casillas, dividido en
-  **entregas** chicas en el orden del flujo.
+  **entregas** chicas en el orden del flujo, cada una con su **Esfuerzo** (D-250).
 - **Enmiendas:** si durante la implementación aparece un supuesto equivocado en una spec
   aprobada, o el usuario corrige algo al probar, parar, proponer la enmienda y registrarla
   con fecha en la spec ("enmendada AAAA-MM-DD") **antes** de tocar código. Nunca divergir en
@@ -63,8 +64,8 @@ planeación, "desarrollo").
 
 - El traspaso es el repo: lo que sale de Reuniones y Dudas, en el roadmap y
   `docs/ui-reference/`; la spec y el plan aprobados, en `docs/specs/`. Además, las sesiones
-  se avisan por mensaje (hallazgo de reunión, spec o plan aprobado, entrega cerrada, algo
-  que no cierra).
+  se avisan por mensaje (hallazgo de reunión, spec o plan aprobado, spec o fase cerrada,
+  algo que no cierra). Una entrega cerrada **no** se avisa: queda en su plan (D-244).
 - Si al ejecutar algo de la spec o del plan no cierra, Desarrollo avisa a Arquitectura y
   Planeación, que propone la enmienda al usuario y la registra **antes** de que se toque
   código. Las decisiones menores que no cambian ni la spec ni el plan las toma Desarrollo con
@@ -82,11 +83,46 @@ planeación, "desarrollo").
   `docs/history.md`. Antes eran secciones de un solo roadmap y las dos sesiones editaban el
   mismo archivo. Cuando Desarrollo cierra una fase, le avisa a Arquitectura y Planeación para
   que la marque ✅ en la tabla de fases.
+- **Estado por tiempo (D-244, usuario, 2026-10-30):** el **pasado** está en git, en las casillas
+  de cada plan y, al cerrar una spec, fase o plan directo, en `docs/history.md`; el
+  **presente**, en `docs/status.md` → "Estado actual" (40 líneas como máximo, se reescribe,
+  Desarrollo); el **futuro**, en `docs/roadmap.md` → "Siguiente" (15 líneas como máximo,
+  Planeación). Nada de eso se copia en otro archivo. La numeración D-n y B-n vive solo en el
+  encabezado de `docs/decisions.md`. Lo cerrado del roadmap se mueve a `docs/archivo/` (D-245).
+- **Sin sesión de documentación aparte (D-243):** quien decide, registra. Planeación escribe
+  specs, planes, enmiendas y D-n; Desarrollo, los cierres de su entrega (`/cerrar-entrega`).
+- **Modelo y esfuerzo (D-246, enmendada por D-250, usuario, 2026-10-30):** Opus planea y
+  Sonnet implementa, como el modo `opusplan` de la doc oficial. Arquitectura y Planeación, Opus
+  5.5 en `medium` (`high` en specs, planes y enmiendas); Desarrollo, Sonnet 5.5; Reuniones y
+  Dudas, Sonnet 5.5 en `medium`. El review va en Opus con la skill `/revisar` (sección 3):
+  generador barato, verificador fuerte. Ninguna sesión puede cambiar su propio `/model` ni su
+  `/effort`: los escribe el usuario.
+  - **Esfuerzo por entrega:** lo fija el plan en cada entrega ("Esfuerzo: `high`" si toca BLL o
+    SQL o arregla un bug; `medium` si no, según la guía oficial). Al empezar una entrega,
+    Desarrollo le pide al usuario una vez el `/effort` que indica el plan.
+  - **Subagentes:** heredan el modelo de su sesión (sin `CLAUDE_CODE_SUBAGENT_MODEL`). Cuando
+    Planeación lanza un subagente para leer o buscar, le fija `model: sonnet` al crearlo.
+  - **Piloto de Sonnet (regla fija, D-250):** tras 3 entregas con Desarrollo en Sonnet, si en 2 o
+    más el usuario necesitó más de una ronda de correcciones después de su primera prueba,
+    Desarrollo pasa a Opus 5.5 `medium` y nada más cambia; si no, queda Sonnet. Desarrollo anota
+    las rondas en la nota de cierre de cada entrega (`/cerrar-entrega`).
+- **Coordinación por mecanismos (D-247, usuario, 2026-10-30):** cada sesión viva tiene un
+  **nombre único y fijo** ("Planeación", "Desarrollo", "Reuniones"), y los mensajes van por ese
+  nombre, que sigue sirviendo aunque cambie su dirección. Si dos sesiones comparten nombre, el
+  usuario renombra una (`/rename`). **Ninguna sesión crea otra** (usuario, 2026-10-30): si la
+  destinataria no está viva, se le pregunta al usuario. Cada sesión arranca con
+  `/rol <planeacion|desarrollo|reuniones>`. Lo que se puede bloquear (git) lo bloquea un hook
+  de proyecto, no una regla escrita.
+- **Higiene de sesión (D-248, usuario, 2026-10-30):** `/clear` al cambiar de tarea (el estado
+  vive en el repo, no en la conversación: una sesión larga relee todo su contexto en cada
+  turno); cerrar las sesiones que terminaron su trabajo (todas comparten la ventana de 5 h);
+  `/usage` de la semana los viernes, junto con el reporte. Datos del 2026-10-30:
+  `docs/specs/proceso-eficiente-plan.md` → "Datos de partida".
 
 #### Variante temporal: specs y planes en la nube (usuario, 2026-10-27)
 
-**Temporal:** cuando el usuario lo pida, se vuelve al flujo normal (specs y planes en la
-sesión local de Arquitectura y Planeación) y esta subsección se quita.
+**Temporal:** termina al cerrar la 022 (E8, D-249): se vuelve al flujo normal (specs y planes
+en la sesión local de Arquitectura y Planeación) y esta subsección se quita.
 
 - **Remotes:** `azure` es el repo oficial (Azure DevOps, `SimulatorMES`); `origin` es GitHub
   (`JordanJazz24/TrainingApp`, privado, con la Claude GitHub App), el puente que ve la nube.
@@ -127,9 +163,8 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
   partida, con el ciclo normal (sección 2): Rebuild, `aspnet_compiler`, `/code-review`, el
   "funciona" del usuario y el commit en `TrainingApp`. Nunca se integra tal cual. La sesión
   local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`), salvo
-  la variante de la spec 024 (abajo). Las
-  capturas de `022-design/` las toma Desarrollo, solo de la versión final aprobada (claro,
-  oscuro y tablet); si su contexto no alcanza, pregunta antes al usuario (D-240).
+  la variante de la spec 024 (abajo). La 022 va
+  sin capturas: ni Desarrollo las toma ni se le piden al usuario (D-242, que deja sin efecto D-240).
 
 ## 2. Cada entrega
 
@@ -163,6 +198,17 @@ sesión local de Arquitectura y Planeación) y esta subsección se quita.
 Siempre con **nivel, archivos y foco**; nunca sin argumentos (sin nivel reusa el último y
 revisa todo el diff: una vez fueron ~16 min y ~220k tokens). Decirle al usuario en una línea
 qué nivel, qué archivos y por qué.
+
+**En Opus, con `/revisar` (D-250):** Desarrollo nunca llama `/code-review` directo: usa
+`/revisar <nivel> <rutas> — <foco>`, una skill con `model: opus` y `effort: high` que vale solo
+ese turno (la sesión vuelve sola a su modelo). Corre `/code-review` con nivel, rutas explícitas y
+foco, espera a que termine (en la terminal corre en segundo plano), verifica cada hallazgo y lista
+lo que se leyó: un review que no lista lo leído no cuenta. `low` solo reporta lo de más confianza:
+puede volver vacío.
+- **Verificación única:** después del primer `/revisar`, el usuario mira `/usage` → "Usage by
+  model". Si el review corrió en Opus, queda así. Si sus subagentes corrieron en Sonnet, se aplica
+  la alternativa ya decidida: `/revisar` deja de llamar `/code-review` y el propio turno en Opus
+  revisa las rutas con el foco. Se anota aquí cuál quedó.
 
 | Cambio | Review |
 |---|---|
@@ -290,8 +336,10 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
 
 | Al… | Actualizar |
 |---|---|
-| Cerrar una entrega o una sesión de trabajo relevante | `docs/status.md` → "📍 Estado actual" (corto: lo cerrado se resume ahí en una línea) y la casilla del plan |
-| Cerrar una fase, una spec o un plan directo | Su sección en `docs/history.md`: resultado, commits y fecha (Desarrollo); la tabla de fases del roadmap (Arquitectura y Planeación) |
+| Cerrar una entrega | `/cerrar-entrega`: la casilla y el hash en el plan; `docs/status.md` → "📍 Estado actual" solo si cambió lo que está en curso (máx. 40 líneas, se reescribe; D-244) |
+| Cerrar una fase, una spec o un plan directo | Su sección en `docs/history.md`: resultado, commits y fecha (Desarrollo); la tabla de fases y "Siguiente" del roadmap (Arquitectura y Planeación) |
+| Cambiar el orden o lo que sigue | `docs/roadmap.md` → "Siguiente" (máx. 15 líneas, Arquitectura y Planeación) |
+| Dejar una sección del roadmap cerrada | Se mueve a `docs/archivo/` en el siguiente corte (D-245) |
 | Fijar una regla de negocio del dominio (flujo, intentos, pesos, flags, catálogos) | `docs/domain.md`, en **un solo lugar**; los demás documentos la referencian |
 | Fijar una regla general (capas, seguridad, convención, comando) | `CLAUDE.md`, en **un solo lugar**. Mantenerlo corto: se carga en cada turno; lo que solo hace falta para cierta tarea va a un doc con su puntero en el mapa |
 | Cerrar una decisión de diseño o cambiar la estructura del código | `docs/architecture.md` |
