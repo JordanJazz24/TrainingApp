@@ -52,7 +52,7 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
 1. **022 (Fase 12):** sigue la E6 Operador y su ficha (Desarrollo, en Sonnet, Esfuerzo `high`),
    desde `cloud/022-operador` (`bfdad5c`, aprobada H, D-299 a D-305). Después, E7 Usuarios (brief 8,
-   en diseño) y E8 Inicio, cada una al aprobarse su mockup. Al cerrar la E8 termina la variante
+   en diseño; primera con el handoff local, D-251) y E8 Inicio, cada una al aprobarse su mockup. Al cerrar la E8 termina la variante
    de la nube (D-249).
 2. **Negocio:** validar los textos de "qué hacer" (D-298, también en Operador por D-305) antes de
    cerrar la E6. Diseño UI/UX (nube) sigue desde D-306; Planeación integra su rama.

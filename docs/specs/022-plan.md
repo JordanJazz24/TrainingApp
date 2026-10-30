@@ -79,6 +79,10 @@ Se repite en E2a a E8; cada entrega agrega lo suyo.
 > exportado). Las capturas no bloquean: las toma Desarrollo al final de la entrega (D-240). (Sin capturas desde el 2026-10-30, D-242.) Cada pantalla puede traer una rama de handoff `cloud/022-<pantalla>` ("no
 > verificada"): es el punto de partida de su entrega; Desarrollo la trae, verifica y hace el
 > commit con el ciclo normal. Nunca se integra tal cual.
+>
+> **Enmienda 2026-10-30 (D-251, handoff local, desde la E7):** la precondición es el mockup
+> aprobado en Claude Design; la lista de cambios la escribe Desarrollo antes de implementar y las
+> D-n las registra Diseño UI/UX después del commit ("D-n pendientes").
 
 ## E1 · Sistema de diseño (P-8)
 
@@ -336,7 +340,15 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
 > cambia con un lápiz en su columna.
 
 **Bloqueada hasta:** E1 y el mockup de Usuarios. (Enmendado 2026-10-27: la E4 de la 021 ya
-está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.)
+está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.) *Enmendado 2026-10-30
+(D-251): basta con el mockup aprobado en Claude Design; las D-n llegan después del commit.*
+
+**Punto de partida (D-251, handoff local):** el prompt de handoff de Claude Design, que el usuario
+le pasa a Desarrollo; Desarrollo importa el diseño con el MCP `claude_design`, sin rama de la nube.
+
+- [ ] Antes de implementar: `022-design/usuarios.md` con la alternativa elegida y sus cambios
+      frente al v1. Si hay un desvío de alcance (`process.md` → "Handoff local de Claude
+      Design"), parar y avisar a Planeación.
 
 **Esfuerzo (D-250):** `medium`; `high` si toca la BLL de gestión de usuarios o SQL.
 

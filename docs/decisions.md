@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-306 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-252 (local, rango D-240 a D-259) · D-306 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -286,6 +286,7 @@
 | D-248 | 2026-10-30 | Higiene de sesión: `/clear` al cambiar de tarea, cerrar sesiones que terminaron, `/usage` semanal los viernes | specs/proceso-eficiente-plan.md | vigente |
 | D-249 | 2026-10-30 | La variante de la nube (specs y planes en la nube) termina al cerrar la 022 (E8) | specs/proceso-eficiente-plan.md | vigente |
 | D-250 | 2026-10-30 | Enmienda D-246 (el patrón se confirma: `opusplan` de la doc oficial). Review en Opus con la skill `/revisar` (`model: opus`, `effort: high`; vale solo ese turno); el esfuerzo de cada entrega lo fija su plan (`high` si toca BLL o SQL o arregla un bug, `medium` si no); sin `CLAUDE_CODE_SUBAGENT_MODEL` (los subagentes heredan); verificación única con `/usage` y alternativa fijada (el review lo hace el propio turno de `/revisar`); el piloto de Sonnet se evalúa tras 3 entregas: si 2 o más necesitan más de una ronda de correcciones, Desarrollo pasa a Opus `medium` | process.md → "Tres sesiones" y "3. `/code-review` calibrado" | vigente |
+| D-251 | 2026-10-30 | Spec 022, handoff local (desde la E7): el mockup aprobado en Claude Design lo implementa Desarrollo en local (MCP `claude_design`, prompt de Diseño UI/UX), sin sesión de la nube; escribe `022-design/<pantalla>.md` antes de implementar y se detiene ante un desvío de alcance (datos, reglas, comportamiento, masters o tokens de pantallas cerradas; avisa a Planeación); commit con "D-n pendientes", que Diseño UI/UX numera después. D-226 y D-284 siguen como alternativas | process.md → "Tres sesiones" (Handoff local de Claude Design) | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
