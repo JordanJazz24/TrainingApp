@@ -245,10 +245,16 @@ orden de `admin.css` con Desarrollo.
 
 **Bloqueada hasta:** E1 y el mockup de Seguimiento.
 
-- [ ] `Pages/Admin/FollowUp.aspx`: la estructura aprobada; chips con texto (S-1 a S-3), orden
-      por número de reglas, filtro por guía y Descargar.
-- [ ] Métricas derivadas aprobadas (si hay): regla en la BLL con su test; las reglas de
-      `FollowUpRules` no cambian.
+- [ ] **Punto de partida:** `cloud/022-seguimiento` (`6f9042f`, "no verificada"; sale de
+      `TrainingApp`). Estructura aprobada: B con el encabezado P1 (D-291, D-292).
+- [ ] `Pages/Admin/FollowUp.aspx`: mismo filtro por guía en la URL, Filtrar, Descargar, orden y
+      enlace al detalle. `FollowUpSummary` en la BLL, sin test (D-293); `FollowUpRules` no cambia.
+- [ ] Revisar en la rama (no se compiló, `seguimiento.md` → "Para revisar en Desarrollo"): el
+      `.designer.cs` escrito a mano; `<%: … %>` con constantes en `title`; `ExcelReportsTests`
+      en verde (mismo texto de `FollowUpLines`); solo casos de 1 regla, solo de 2 o más, vacío
+      con Todas y con una guía, S-3 con varios pasos; las anclas `#fu-first` y `#fu-later` con
+      la barra superior (`scroll-margin-top`); contraste de `.followup-tag.is-alert` y de la
+      pestaña `is-lead` en oscuro.
 - [ ] `/code-review low --max-findings 3`; `medium` si hay métricas.
 - [ ] Checklist común + filas con 1, 2 y 3 reglas, vacío y enlace al detalle.
 

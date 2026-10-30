@@ -194,7 +194,7 @@ Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `Training
 
 Rama de partida: `cloud/022-barra-superior` (desde `TrainingApp`, "no verificada"); implementada y
 probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criterio:
-`022-design/barra-superior.md` (entra con `spec-022`). Se descartaron tres rondas antes (A a G).
+`022-design/barra-superior.md`. Se descartaron tres rondas antes (A a G).
 
 | D | Qué |
 |---|---|
@@ -203,6 +203,18 @@ probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criter
 | D-288 | **Componente `.mt-topbar`**, que reemplaza a `.admin-bar` (se borran `.admin-brand`, `.admin-nav-links`, `.admin-bar-end` y `.admin-user*`). Los masters suman controles de presentación (`LitCurrent`, `PhAdminGroup`, `UserAccount`, `LitInitials`; en `Site.Master` `PhArea`, `LitArea` y `ShowArea`, que llama `StartSession`) y `UI/master/TopBar.cs` (iniciales y título, solo presentación); `theme.js` abre y cierra el menú plegado sin postback. **Responsive:** bajo 1400 px el último acceso pasa al `title`; bajo 1200 px el menú se pliega en "Menú · <vista>"; a 991 px o menos, iniciales y botones con ícono; a 575 px o menos, la baldosa sola. La impresión la oculta |
 | D-289 | **Cambio a una pantalla cerrada (Pasos, E4):** la franja de Pasos pasa a ser una **tarjeta** (margen, esquinas de 16 px, sombra, al ancho de `.steps-wrap`), para no tener dos bandas azules seguidas bajo la barra. Precisa D-239 |
 | D-290 | **Textos:** `Site.Master` dice "TrainingApp" en la marca y el `<title>` (antes "Simulador de entrenamiento MES"); el admin ve su **nombre** (antes su Code1; si no hay nombre, el Code1); el operador "Code1 n" y "Tu área"; nuevos "Dashboard", "Administración" y "Menú" |
+
+### Seguimiento (2026-10-30, alternativa B con el encabezado P1, D-291 a D-294)
+
+Rama de partida: `cloud/022-seguimiento` (`6f9042f`, "no verificada"), desde `TrainingApp`.
+Criterio: `022-design/seguimiento.md`. Cuatro rondas; sin tokens nuevos ni cambios en los masters.
+
+| D | Qué |
+|---|---|
+| D-291 | **Alternativa B, "cola de llamadas", con el encabezado P1 "encabezado-índice":** una tarjeta con título, bajada y filtros, y debajo pestañas-índice con la cifra en grande ("N Llamar primero", "N Después") que son anclas sin postback, más los casos por regla y "N casos de N operadores". **Llamar primero** (2 reglas o más): una tarjeta por caso con las reglas como frases con su etiqueta S-n, la última sesión y "Ver detalle". **Después** (1 regla): una fila compacta por caso. **Columna lateral "En la cola":** el total y una barra por regla con su definición. Vacío propio. Orden, filtro en la URL, Descargar y enlace al detalle sin cambios |
+| D-292 | **Componentes nuevos `.followup-*`**, solo de esta pantalla (encabezado y pestañas, etiqueta S-n con `is-alert` para S-1, distribución con columna lateral, tarjetas, filas compactas, vacío y barras); se borran `.followup-rules`, `.followup-table` y `.followup-chips`. `.mt-chip` sigue para Guías. `FollowUpListRow` cambia `Chips` por `Lines`; `ReportText.FollowUpLines` (Excel) mantiene el mismo texto |
+| D-293 | **Métrica derivada (D-205) en la BLL, sin test** (como D-235 y D-283): `FollowUpSummary` en `FollowUpReport.Summary` cuenta los casos con 2 reglas o más ("Llamar primero", `CallFirstMinRules = 2`) y con 1, los casos por regla y los operadores, solo sobre lo que `GetFollowUp` ya devuelve. "Llamar primero" es una **agrupación de presentación**, no una regla de seguimiento nueva: `FollowUpRules`, `ReadinessPolicy` y el orden no cambian |
+| D-294 | **Textos nuevos:** la bajada "A quién llamar primero y de qué hablarle…", las pestañas, los conteos ("N casos de N operadores"), "N de 3 reglas", "Última sesión de la guía", "Ver detalle", la columna "En la cola" con los nombres "Reprobados", "Sin practicar" y "Paso trabado", y el vacío "Nadie en la cola de <guía>". Las frases de las reglas no cambian (son las del Excel) |
 
 ### Pasos (2026-10-29, alternativa 4a con el encabezado H4, D-239 y D-280 a D-283)
 
