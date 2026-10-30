@@ -217,45 +217,49 @@ namespace TrainingApp.Pages.Admin
             }
         }
 
-        // Una línea por regla de Seguimiento; S-3, una por paso (página y Excel).
+        // Una línea por regla de Seguimiento; S-3, una por paso (Excel). Las mismas frases que la
+        // página, unidas a su S-n.
         public static IEnumerable<string> FollowUpLines(FollowUpReason reason)
+            => FollowUpReasonLines(reason).Select(l => l.Code + " · " + l.Text);
+
+        // Una regla de Seguimiento como frase con su etiqueta S-n (spec 022, brief 5); S-3, una por
+        // paso. La de reprobados va en rojo con el ícono de alerta (P-2): nunca solo por color.
+        public static IEnumerable<FollowUpLine> FollowUpReasonLines(FollowUpReason reason)
         {
             switch (reason.Rule)
             {
                 case FollowUpRule.RepeatedFailures:
-                    return new[] { string.Format("S-1 · Reprobó {0} Assessment sin aprobar ninguno", reason.FailedAssessments) };
+                    return new[] { Line("S-1", true, "bi bi-exclamation-triangle",
+                        string.Format("Reprobó {0} Assessment sin aprobar ninguno", reason.FailedAssessments)) };
                 case FollowUpRule.Inactive:
-                    return new[] { string.Format("S-2 · {0} días sin sesiones de esta guía", reason.DaysInactive) };
+                    return new[] { Line("S-2", false, "bi bi-clock-history",
+                        string.Format("{0} días sin sesiones de esta guía", reason.DaysInactive)) };
                 case FollowUpRule.StuckStep:
-                    return reason.Steps.Select(s => string.Format("S-3 · {0}: sin acierto en {1} Assessment", s.StepName, s.Times));
+                    return reason.Steps.Select(s => Line("S-3", false, "bi bi-arrow-repeat",
+                        string.Format("{0}: sin acierto en {1} Assessment", s.StepName, s.Times)));
                 default:
                     throw new ArgumentOutOfRangeException(nameof(reason), reason.Rule, "Regla de seguimiento sin texto.");
             }
         }
 
-        // Una regla de Seguimiento como chip con texto (Fase 11, D-160); S-3, uno por paso. La de
-        // reprobados va en rojo con el ícono de alerta (P-2). El título lleva la línea completa
-        // con su S-n, la misma del Excel.
-        public static IEnumerable<FollowUpChip> FollowUpChips(FollowUpReason reason)
+        private static FollowUpLine Line(string code, bool alert, string icon, string text) => new FollowUpLine
         {
-            switch (reason.Rule)
-            {
-                case FollowUpRule.RepeatedFailures:
-                    return new[] { Chip(reason, 0, "mt-chip mt-chip-alert", "bi bi-exclamation-triangle",
-                        string.Format("Reprobó {0} Assessment", reason.FailedAssessments)) };
-                case FollowUpRule.Inactive:
-                    return new[] { Chip(reason, 0, "mt-chip", "bi bi-clock-history",
-                        string.Format("{0} días sin practicar", reason.DaysInactive)) };
-                case FollowUpRule.StuckStep:
-                    return reason.Steps.Select((s, i) => Chip(reason, i, "mt-chip", "bi bi-arrow-repeat",
-                        "Mismo paso sin acierto: " + s.StepName));
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(reason), reason.Rule, "Regla de seguimiento sin texto.");
-            }
-        }
+            Code   = code,
+            Text   = text,
+            Icon   = icon,
+            Css    = alert ? "is-alert" : string.Empty,
+            TagCss = alert ? "followup-tag is-alert" : "followup-tag"
+        };
 
-        private static FollowUpChip Chip(FollowUpReason reason, int line, string css, string icon, string text)
-            => new FollowUpChip { Css = css, Icon = icon, Text = text, Title = FollowUpLines(reason).ElementAt(line) };
+        // "3 de 3 reglas", "1 de 3 reglas": cuántas reglas cumple un caso (spec 022, brief 5).
+        public static string FollowUpRuleCount(int rules)
+            => string.Format("{0} de {1} reglas", rules, Enum.GetValues(typeof(FollowUpRule)).Length);
+
+        // "1 caso", "8 casos" (Seguimiento).
+        public static string Cases(int n) => n == 1 ? "1 caso" : n + " casos";
+
+        // "1 operador", "5 operadores" (Seguimiento).
+        public static string Operators(int n) => n == 1 ? "1 operador" : n + " operadores";
 
         // "45 s", "25 min 13 s", "1 h 05 min"; "—" sin duración (sesión en curso).
         public static string Duration(TimeSpan? duration)
