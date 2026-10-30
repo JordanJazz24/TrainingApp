@@ -279,9 +279,21 @@ orden de `admin.css` con Desarrollo.
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
 ficha ya existen.)
 
-- [ ] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
-      insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
-      50.
+- [ ] **Punto de partida de Operadores:** `cloud/022-operadores` (`94c0405`, "no verificada"; sale
+      de `TrainingApp` con la 024). Estructura aprobada: D con el encabezado K1 (D-295, D-296).
+      Operador sigue esperando su mockup (brief 7); Operadores se puede verificar antes, solo.
+- [ ] `Pages/Admin/Operators.aspx`: filtros en la URL (`q`, `state`, `area`, `page`), Descargar
+      (Excel sin cambios), orden y paginación de 50. `OperatorSummary` en la BLL, sin test
+      (D-297); `ReadinessPolicy`, `OperatorArea` y `FollowUpRules` no cambian.
+- [ ] Revisar en la rama (no se compiló, `operadores.md` → "Para revisar en Desarrollo"): el
+      `.designer.cs` escrito a mano (`IcoHint` como `HtmlGenericControl`, `aria-current` y
+      `style` con `<%# %>` en un `<a>` literal de `RptMeter`, el `PlaceHolder` anidado del
+      reloj); `DashboardServiceTests` y `DashboardPerformanceTests` en verde (cambió el armado de
+      `FindOperators`); Todas, un área y Sin área; cada estado; Sin área + Filtrar con estado
+      (lo quita); búsqueda vacía; un estado con 0; área sin guía publicada; páginas 2 y 3 (el
+      resumen cuenta todas); 768 px (dos tramos por fila, sin scroll horizontal); contraste de
+      los números en cada `*-soft` y del ámbar sobre `--mt-surface-2`.
+- [ ] Negocio valida los textos de qué hacer (D-298) antes de cerrar la E6.
 - [ ] `Pages/Admin/Operator.aspx`: la estructura aprobada; estado por guía, pasos a reforzar,
       curva (Chart.js con `admin-charts.js`), sesiones y el área en el encabezado.
 - [ ] **Ficha impresa:** la disposición aprobada en el `@media print` de `admin.css`; sigue en

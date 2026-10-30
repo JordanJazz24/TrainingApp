@@ -204,6 +204,19 @@ probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criter
 | D-289 | **Cambio a una pantalla cerrada (Pasos, E4):** la franja de Pasos pasa a ser una **tarjeta** (margen, esquinas de 16 px, sombra, al ancho de `.steps-wrap`), para no tener dos bandas azules seguidas bajo la barra. Precisa D-239 |
 | D-290 | **Textos:** `Site.Master` dice "TrainingApp" en la marca y el `<title>` (antes "Simulador de entrenamiento MES"); el admin ve su **nombre** (antes su Code1; si no hay nombre, el Code1); el operador "Code1 n" y "Tu área"; nuevos "Dashboard", "Administración" y "Menú" |
 
+### Operadores (2026-10-30, alternativa D con el encabezado K1, D-295 a D-298)
+
+Rama de partida: `cloud/022-operadores` (`94c0405`, "no verificada"), desde `TrainingApp` (con la
+024 integrada). Criterio: `022-design/operadores.md`. Cuatro rondas; sin tokens nuevos ni cambios
+en los masters.
+
+| D | Qué |
+|---|---|
+| D-295 | **Alternativa D, "pestañas por estado", con el encabezado K1 "barra proporcional"**, todo en una tarjeta como Seguimiento: antetítulo "Estado en la guía de su área · <área>", título y filtros (Buscar, Área, Filtrar, Descargar); debajo, la **barra por estado**, un tramo por estado (Reprobado, Sin iniciar, En entrenamiento, Aprobado) y uno para Sin área, cada uno un enlace con los filtros en la URL (`?state=`, `?area=none`), con su número, ícono, nombre y "N% de la vista"; ancho proporcional con un mínimo del 7%, un estado con 0 no sale salvo que esté elegido, el elegido con borde y `aria-current`; "Ver todos N". Al pie, la línea de **qué hacer** con el grupo elegido y "N sin actividad en 14 días o más". **Tabla:** la del v1 más "hace N días" bajo la última actividad (ámbar con reloj desde 14) y la columna "Ver detalle". Orden, paginación de 50, vacío, "Quitar filtros" y Excel sin cambios. Se quita `DdlState` (el estado aplicado viaja en `HfState`); elegir un estado conserva el área salvo Sin área, que vuelve a Todas (D-267). Sin postbacks nuevos. A 767 px o menos la barra pasa a dos tramos por fila |
+| D-296 | **Componentes nuevos `.operators-*`**, solo de esta pantalla (encabezado, barra y sus tramos `-seg-*`, línea de qué hacer `.operators-callout` con `.operators-tone-*`, `.operators-ago` y `.operators-go`); `.admin-page-head` ya no se usa aquí. `OperatorListRow` suma `AgoText`, `Inactive` y `HasAgo`, con `OperatorMeterSegment` y `OperatorHint`; el % y el ancho de cada tramo son presentación (code-behind) |
+| D-297 | **Métricas derivadas (D-205) en la BLL, sin test** (como D-235, D-283 y D-293): `OperatorSummary` en `OperatorPage.Summary` cuenta por estado (con la búsqueda y el área, sin el filtro de estado; con Sin área, en todas las áreas), Todos, Sin área y los inactivos de la lista filtrada; `OperatorRow` suma `DaysSinceActivity` e `Inactive`. "Inactivo" = guía en su área, no Sin iniciar y 14 días o más desde `LastActivity`, con el mismo umbral de S-2 (`FollowUpRules.InactiveDays`): **no es una regla nueva** ni cambia `ReadinessPolicy`, `OperatorArea` ni las reglas de Seguimiento. `FindOperators` arma primero a todos los de la búsqueda y después aplica área y estado: filas, orden, total y paginación iguales |
+| D-298 | **Textos nuevos:** el antetítulo (se quita la bajada del v1), "Elige un tramo para ver ese grupo · el ancho es cuántos hay", "Ver todos", "N% de la vista", "N sin actividad en 14 días o más", "hoy / hace 1 día / hace N días", "Ver detalle" y las seis líneas de **qué hacer** (Reprobado, Sin iniciar, En entrenamiento, Aprobado, Sin área, Todos), en `ReportText.StateHint`. Las de qué hacer son **guía nueva para el admin: las valida negocio** antes de cerrar la E6 (si cambian, cambia solo el texto) |
+
 ### Seguimiento (2026-10-30, alternativa B con el encabezado P1, D-291 a D-294)
 
 Rama de partida: `cloud/022-seguimiento` (`6f9042f`, "no verificada"), desde `TrainingApp`.
