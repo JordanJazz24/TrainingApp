@@ -10,9 +10,6 @@
   "enabledPlugins": {
     "dotnet-claude-kit@dotnet-claude-kit": true
   },
-  "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
-  },
   "hooks": {
     "PreToolUse": [
       {
