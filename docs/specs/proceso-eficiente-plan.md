@@ -73,28 +73,38 @@ movidas, actualizadas (11).
 
 ### E2 · `status.md` en 40 líneas (Desarrollo, donde esté su `status.md` más reciente)
 
-- [ ] "Estado actual" reescrito en 40 líneas como máximo: en curso, lo siguiente de
+- [x] "Estado actual" reescrito en 40 líneas como máximo: en curso, lo siguiente de
       Desarrollo y lo que le falta al usuario. Lo cerrado ya está en el plan, `history.md` y
       git: no se copia. "Deuda", "BD de desarrollo del usuario" y "Auditorías" quedan como
       están.
-- [ ] Commit solo de `docs/status.md`.
+- [x] Commit solo de `docs/status.md`.
+
+> **Cerrada 2026-10-30 (Desarrollo):** `5ff7e13` en `spec-022`; "Estado actual" en 31 líneas y la
+> deuda del generador de datos (ya no mide volumen).
 
 ### E3 · Configuración y hooks (Desarrollo, en `TrainingApp`)
 
-- [ ] `.claude/settings.json` (versionado): `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` (D-246).
-- [ ] Review en Opus: confirmar cómo elige modelo `/code-review` para sus subagentes. Si
+- [x] `.claude/settings.json` (versionado): `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` (D-246).
+- [x] Review en Opus: confirmar cómo elige modelo `/code-review` para sus subagentes. Si
       respeta un agente con `model: opus`, crear `.claude/agents/revisor.md`; si no, la regla
       es `/model opus` antes del review (cuesta una reconstrucción de caché por entrega).
       Informar a Planeación cuál quedó.
-- [ ] Averiguar por qué `/code-review` volvió vacío en la E6 de la 022 (y en la E1b "no informó
+- [x] Averiguar por qué `/code-review` volvió vacío en la E6 de la 022 (y en la E1b "no informó
       qué leyó"): un review que no reporta qué revisó no cuenta como review.
-- [ ] Hook `PreToolUse` (Bash y PowerShell) que rechaza `git add -A`, `git add .`,
+- [x] Hook `PreToolUse` (Bash y PowerShell) que rechaza `git add -A`, `git add .`,
       `git commit -a` y cualquier commit con `main` como rama actual (D-247). Probar que
       bloquea esos cuatro casos y deja pasar `git commit -m "…" -- <rutas>`.
-- [ ] `.gitignore`: la carpeta suelta `_users_*_git/` que aparece en los worktrees.
-- [ ] Rebuild no hace falta (no toca código de la app). Commit solo de esas rutas.
+- [x] `.gitignore`: la carpeta suelta `_users_*_git/` que aparece en los worktrees.
+- [x] Rebuild no hace falta (no toca código de la app). Commit solo de esas rutas.
 
-**Hecho cuando:** el usuario ve el hook rechazar un `git add -A` de prueba.
+**Hecho cuando:** el usuario ve el hook rechazar un `git add -A` de prueba. ⏳ Falta esa prueba.
+
+> **Hecha 2026-10-30 (Desarrollo, `4bdb449` en `TrainingApp`):** subagentes en Sonnet; hook
+> `.claude/hooks/git-guard.ps1` (rechaza con exit 2 los cuatro casos; probado en un repo temporal;
+> puede pedir reiniciar la sesión). **Sin agente revisor:** la doc no asegura que `/code-review` lo
+> respete; el review en Opus es `/model opus` antes del review (`process.md` → 3). **Review vacío:**
+> `low` solo reporta lo de más confianza, sin target compara contra el upstream y en la terminal
+> corre en segundo plano; se pasan rutas explícitas y se le pide listar lo leído.
 
 ### Lo que hace el usuario
 

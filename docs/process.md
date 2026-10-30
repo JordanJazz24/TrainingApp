@@ -190,6 +190,15 @@ Siempre con **nivel, archivos y foco**; nunca sin argumentos (sin nivel reusa el
 revisa todo el diff: una vez fueron ~16 min y ~220k tokens). Decirle al usuario en una línea
 qué nivel, qué archivos y por qué.
 
+**En Opus (D-246; cómo, desde el 2026-10-30, E3 del plan de flujo eficiente):** Desarrollo
+corre en Sonnet y el review va en Opus con `/model opus` antes del `/code-review` y `/model
+sonnet` al terminar. No hay agente revisor de proyecto: la doc no asegura que `/code-review`
+lo respete. Cambiar de modelo reconstruye la caché una vez por review; es el precio del
+verificador fuerte. Para que un review vacío signifique "sin hallazgos" y no "no revisó
+nada": pasar las rutas explícitas (`/code-review medium <rutas>`), pedirle que liste lo que
+leyó y esperar a que termine (en la terminal corre en segundo plano). `low` solo reporta lo de
+más confianza: puede volver vacío.
+
 | Cambio | Review |
 |---|---|
 | Solo markup, anclas o textos, o un ajuste de pocas líneas pedido al probar | Ninguno (MSBuild + `aspnet_compiler` + checklist lo cubren) |
