@@ -172,8 +172,8 @@ están en ningún worktree) · **Último commit de código:** 022 E5 (Seguimient
        de LocalDB se borraron. Tests: 459.
        - **Pendiente del usuario:** correr `10_spDashboard.sql` en la BD de producción antes de
          publicar (la local ya lo tiene).
-     - **Capturas de la 022** (usuario, 2026-10-28): las hace Desarrollo, solo de la versión
-       final aprobada de cada pantalla (claro, oscuro y tablet), no de cada iteración.
+     - **Capturas de la 022:** sin capturas desde el 2026-10-30 (D-242, deja sin efecto D-240):
+       ni las toma Desarrollo ni se le piden al usuario.
   6. **Spec 024 · Dashboard por área ✅** (2026-10-29, ver "Historial"; spec y plan
      `docs/specs/024-*.md`, D-260 a D-274): hecha en la nube (`cloud/024-dashboard-por-area`),
      revisada por Planeación y traída en la rama local `spec-024` (worktree
