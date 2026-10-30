@@ -3,9 +3,12 @@
 $payload = [Console]::In.ReadToEnd() | ConvertFrom-Json
 $cmd = [string]$payload.tool_input.command
 if (-not $cmd) { exit 0 }
-
-# Sin el texto entre comillas: un mensaje de commit puede decir "git add -A".
-$bare = [regex]::Replace($cmd, '"[^"]*"|''[^'']*''', '""')
+# Sin los cuerpos de heredoc (<<'EOF' ... EOF) ni here-strings de PowerShell (@' ... '@), y
+# sin el texto entre comillas: un mensaje de commit puede decir "git add -A".
+$bare = [regex]::Replace($cmd, '(?s)(?<!<)<<-?\s*[''"]?(\w+)[''"]?([^\r\n]*\r?\n).*?\r?\n\s*\1\b', '$2')
+$bare = [regex]::Replace($bare, '(?s)(?<!<)<<-?\s*[''"]?\w+[''"]?[^\r\n]*\r?\n.*$', '')
+$bare = [regex]::Replace($bare, '(?s)@([''"])\r?\n.*?\r?\n\1@', '""')
+$bare = [regex]::Replace($bare, '"[^"]*"|''[^'']*''', '""')
 
 function Block($why) { [Console]::Error.WriteLine("git-guard: $why"); exit 2 }
 
