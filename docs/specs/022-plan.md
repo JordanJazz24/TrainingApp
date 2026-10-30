@@ -281,7 +281,7 @@ orden de `admin.css` con Desarrollo.
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
 ficha ya existen.)
 
-- [ ] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
+- [x] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
       insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
       50.
 - [ ] `Pages/Admin/Operator.aspx`: la estructura aprobada; estado por guía, pasos a reforzar,
@@ -294,7 +294,16 @@ ficha ya existen.)
 - [ ] Checklist común + filtros por estado y guía, paginación, la ficha impresa (vista previa
       de impresión con tema oscuro activo) y la curva en los dos temas.
 
-**Hecho cuando:** el usuario confirma la lista, el detalle y la ficha impresa.
+> **Operadores (lista) cerrada 2026-10-30 (Desarrollo, `1afe5ed`):** alternativa D con el
+> encabezado K1 (barra proporcional) desde `cloud/022-operadores` (`94c0405`); el resumen por
+> estado, a la BLL (`OperatorSummary`, sin test, como D-235/D-283). D-n pendientes (Diseño
+> UI/UX). El `/code-review low` formal devolvió vacío; revisión manual de la BLL y el
+> code-behind, sin hallazgos. Ajustes de Desarrollo: título, campos y "Ver detalle"
+> (`.operators-go`, que la nube dejó sin el color de acento del canvas). El generador
+> `GenerateDashboardData.sql` pasa a 100 operadores con perfiles fijos. Sin capturas (D-242).
+> **Falta:** `Operator.aspx` (detalle), la ficha impresa y su `/code-review`; esperan su mockup.
+
+**Hecho cuando:** el usuario confirma la lista, el detalle y la ficha impresa. *(La lista ✅.)*
 
 ## E7 · Usuarios (después de la E4 de la 021)
 
