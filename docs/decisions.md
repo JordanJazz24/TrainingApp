@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-291 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-299 (nube, spec 022; rango D-280 a D-299; después, el bloque que asigne Planeación desde D-300). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -309,6 +309,14 @@
 | D-288 | 2026-10-29 | Spec 022, Barra superior: componente `.mt-topbar` en lugar de `.admin-bar`, controles de presentación en los masters, `TopBar.cs`, menú plegado en `theme.js` y su responsive | specs/022-mockups-por-pantalla.md | vigente |
 | D-289 | 2026-10-29 | Spec 022: la franja de Pasos pasa a tarjeta, para no tener dos bandas azules (precisa D-239) | specs/022-mockups-por-pantalla.md | vigente |
 | D-290 | 2026-10-29 | Spec 022, Barra superior: textos ("TrainingApp" en `Site.Master`, el nombre del admin en vez de su Code1, "Tu área", "Dashboard", "Administración", "Menú") | specs/022-mockups-por-pantalla.md | vigente |
+| D-291 | 2026-10-30 | Spec 022, Seguimiento: alternativa B "cola de llamadas" con el encabezado P1 (pestañas-índice, Llamar primero en tarjetas, Después en filas, columna "En la cola") | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-292 | 2026-10-30 | Spec 022, Seguimiento: componentes `.followup-*`; se borran las tablas y chips del v1; mismo texto en el Excel; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-293 | 2026-10-30 | Spec 022, Seguimiento: `FollowUpSummary` en la BLL, sin test (2 reglas o más = "Llamar primero", agrupación de presentación) | specs/022-mockups-por-pantalla.md | vigente |
+| D-294 | 2026-10-30 | Spec 022, Seguimiento: textos nuevos (bajada, pestañas, conteos, columna "En la cola", vacío) | specs/022-mockups-por-pantalla.md | vigente |
+| D-295 | 2026-10-30 | Spec 022, Operadores: alternativa D "pestañas por estado" con el encabezado K1 (barra proporcional por estado y Sin área como enlaces, línea de qué hacer, inactivos; "hace N días" y "Ver detalle" en la tabla; se quita `DdlState`) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-296 | 2026-10-30 | Spec 022, Operadores: componentes `.operators-*`; % y ancho de los tramos en el code-behind; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-297 | 2026-10-30 | Spec 022, Operadores: `OperatorSummary` en la BLL, sin test (conteos por estado, Sin área, inactivos con el umbral de S-2; no es regla nueva) | specs/022-mockups-por-pantalla.md | vigente |
+| D-298 | 2026-10-30 | Spec 022, Operadores: textos nuevos (antetítulo, barra, inactivos, "hace N días", "Ver detalle", líneas de qué hacer, que valida negocio) | specs/022-mockups-por-pantalla.md | vigente |
 
 ## Bugs que ya existían (B-n)
 

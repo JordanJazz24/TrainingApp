@@ -194,7 +194,7 @@ Rama de partida: `cloud/022-guias` (`f715fe1`, "no verificada"), desde `Training
 
 Rama de partida: `cloud/022-barra-superior` (desde `TrainingApp`, "no verificada"); implementada y
 probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criterio:
-`022-design/barra-superior.md` (entra con `spec-022`). Se descartaron tres rondas antes (A a G).
+`022-design/barra-superior.md`. Se descartaron tres rondas antes (A a G).
 
 | D | Qué |
 |---|---|
@@ -203,6 +203,39 @@ probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criter
 | D-288 | **Componente `.mt-topbar`**, que reemplaza a `.admin-bar` (se borran `.admin-brand`, `.admin-nav-links`, `.admin-bar-end` y `.admin-user*`). Los masters suman controles de presentación (`LitCurrent`, `PhAdminGroup`, `UserAccount`, `LitInitials`; en `Site.Master` `PhArea`, `LitArea` y `ShowArea`, que llama `StartSession`) y `UI/master/TopBar.cs` (iniciales y título, solo presentación); `theme.js` abre y cierra el menú plegado sin postback. **Responsive:** bajo 1400 px el último acceso pasa al `title`; bajo 1200 px el menú se pliega en "Menú · <vista>"; a 991 px o menos, iniciales y botones con ícono; a 575 px o menos, la baldosa sola. La impresión la oculta |
 | D-289 | **Cambio a una pantalla cerrada (Pasos, E4):** la franja de Pasos pasa a ser una **tarjeta** (margen, esquinas de 16 px, sombra, al ancho de `.steps-wrap`), para no tener dos bandas azules seguidas bajo la barra. Precisa D-239 |
 | D-290 | **Textos:** `Site.Master` dice "TrainingApp" en la marca y el `<title>` (antes "Simulador de entrenamiento MES"); el admin ve su **nombre** (antes su Code1; si no hay nombre, el Code1); el operador "Code1 n" y "Tu área"; nuevos "Dashboard", "Administración" y "Menú" |
+
+### Operadores (2026-10-30, alternativa D con el encabezado K1, D-295 a D-298)
+
+Rama de partida: `cloud/022-operadores` (`94c0405`, "no verificada"), desde `TrainingApp` (con la
+024 integrada). Criterio: `022-design/operadores.md`. Cuatro rondas; sin tokens nuevos ni cambios
+en los masters.
+
+| D | Qué |
+|---|---|
+| D-295 | **Alternativa D, "pestañas por estado", con el encabezado K1 "barra proporcional"**, todo en una tarjeta como Seguimiento: antetítulo "Estado en la guía de su área · <área>", título y filtros (Buscar, Área, Filtrar, Descargar); debajo, la **barra por estado**, un tramo por estado (Reprobado, Sin iniciar, En entrenamiento, Aprobado) y uno para Sin área, cada uno un enlace con los filtros en la URL (`?state=`, `?area=none`), con su número, ícono, nombre y "N% de la vista"; ancho proporcional con un mínimo del 7%, un estado con 0 no sale salvo que esté elegido, el elegido con borde y `aria-current`; "Ver todos N". Al pie, la línea de **qué hacer** con el grupo elegido y "N sin actividad en 14 días o más". **Tabla:** la del v1 más "hace N días" bajo la última actividad (ámbar con reloj desde 14) y la columna "Ver detalle". Orden, paginación de 50, vacío, "Quitar filtros" y Excel sin cambios. Se quita `DdlState` (el estado aplicado viaja en `HfState`); elegir un estado conserva el área salvo Sin área, que vuelve a Todas (D-267). Sin postbacks nuevos. A 767 px o menos la barra pasa a dos tramos por fila |
+| D-296 | **Componentes nuevos `.operators-*`**, solo de esta pantalla (encabezado, barra y sus tramos `-seg-*`, línea de qué hacer `.operators-callout` con `.operators-tone-*`, `.operators-ago` y `.operators-go`); `.admin-page-head` ya no se usa aquí. `OperatorListRow` suma `AgoText`, `Inactive` y `HasAgo`, con `OperatorMeterSegment` y `OperatorHint`; el % y el ancho de cada tramo son presentación (code-behind) |
+| D-297 | **Métricas derivadas (D-205) en la BLL, sin test** (como D-235, D-283 y D-293): `OperatorSummary` en `OperatorPage.Summary` cuenta por estado (con la búsqueda y el área, sin el filtro de estado; con Sin área, en todas las áreas), Todos, Sin área y los inactivos de la lista filtrada; `OperatorRow` suma `DaysSinceActivity` e `Inactive`. "Inactivo" = guía en su área, no Sin iniciar y 14 días o más desde `LastActivity`, con el mismo umbral de S-2 (`FollowUpRules.InactiveDays`): **no es una regla nueva** ni cambia `ReadinessPolicy`, `OperatorArea` ni las reglas de Seguimiento. `FindOperators` arma primero a todos los de la búsqueda y después aplica área y estado: filas, orden, total y paginación iguales |
+| D-298 | **Textos nuevos:** el antetítulo (se quita la bajada del v1), "Elige un tramo para ver ese grupo · el ancho es cuántos hay", "Ver todos", "N% de la vista", "N sin actividad en 14 días o más", "hoy / hace 1 día / hace N días", "Ver detalle" y las seis líneas de **qué hacer** (Reprobado, Sin iniciar, En entrenamiento, Aprobado, Sin área, Todos), en `ReportText.StateHint`. Las de qué hacer son **guía nueva para el admin: las valida negocio** antes de cerrar la E6 (si cambian, cambia solo el texto) |
+
+> **Integración 2026-10-30 (Desarrollo, `1afe5ed`):** ajustes de Desarrollo en el título, los
+> campos y "Ver detalle" (`.operators-go` con el color de acento del canvas, que la rama no traía).
+> Sin D-n nueva: es lo aprobado en D-295 y D-296.
+
+### Seguimiento (2026-10-30, alternativa B con el encabezado P1, D-291 a D-294)
+
+Rama de partida: `cloud/022-seguimiento` (`6f9042f`, "no verificada"), desde `TrainingApp`.
+Criterio: `022-design/seguimiento.md`. Cuatro rondas; sin tokens nuevos ni cambios en los masters.
+
+| D | Qué |
+|---|---|
+| D-291 | **Alternativa B, "cola de llamadas", con el encabezado P1 "encabezado-índice":** una tarjeta con título, bajada y filtros, y debajo pestañas-índice con la cifra en grande ("N Llamar primero", "N Después") que son anclas sin postback, más los casos por regla y "N casos de N operadores". **Llamar primero** (2 reglas o más): una tarjeta por caso con las reglas como frases con su etiqueta S-n, la última sesión y "Ver detalle". **Después** (1 regla): una fila compacta por caso. **Columna lateral "En la cola":** el total y una barra por regla con su definición. Vacío propio. Orden, filtro en la URL, Descargar y enlace al detalle sin cambios |
+| D-292 | **Componentes nuevos `.followup-*`**, solo de esta pantalla (encabezado y pestañas, etiqueta S-n con `is-alert` para S-1, distribución con columna lateral, tarjetas, filas compactas, vacío y barras); se borran `.followup-rules`, `.followup-table` y `.followup-chips`. `.mt-chip` sigue para Guías. `FollowUpListRow` cambia `Chips` por `Lines`; `ReportText.FollowUpLines` (Excel) mantiene el mismo texto |
+| D-293 | **Métrica derivada (D-205) en la BLL, sin test** (como D-235 y D-283): `FollowUpSummary` en `FollowUpReport.Summary` cuenta los casos con 2 reglas o más ("Llamar primero", `CallFirstMinRules = 2`) y con 1, los casos por regla y los operadores, solo sobre lo que `GetFollowUp` ya devuelve. "Llamar primero" es una **agrupación de presentación**, no una regla de seguimiento nueva: `FollowUpRules`, `ReadinessPolicy` y el orden no cambian |
+| D-294 | **Textos nuevos:** la bajada "A quién llamar primero y de qué hablarle…", las pestañas, los conteos ("N casos de N operadores"), "N de 3 reglas", "Última sesión de la guía", "Ver detalle", la columna "En la cola" con los nombres "Reprobados", "Sin practicar" y "Paso trabado", y el vacío "Nadie en la cola de <guía>". Las frases de las reglas no cambian (son las del Excel) |
+
+> **Integración 2026-10-30 (Desarrollo, `11d4173`):** por decisión del usuario quedan como en
+> el mockup la columna "En la cola" también con la cola vacía y el formato de Code1 ("· Code1 123"
+> en la tarjeta, "· 123" en "Después"). Sin D-n nueva: es lo aprobado en D-291 y D-294.
 
 ### Pasos (2026-10-29, alternativa 4a con el encabezado H4, D-239 y D-280 a D-283)
 

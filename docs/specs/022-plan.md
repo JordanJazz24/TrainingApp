@@ -258,7 +258,7 @@ orden de `admin.css` con Desarrollo.
 
 > **Cerrada 2026-10-30 (Desarrollo):** mockup B ("cola de llamadas") con el encabezado P1, desde
 > `cloud/022-seguimiento` (`6f9042f`); el resumen de la cola, a la BLL (`FollowUpSummary`, sin
-> test). D-n pendientes (Diseño UI/UX). `/code-review medium` sin bugs; se aplicó
+> test). D-291 a D-294 (Diseño UI/UX, 2026-10-30). `/code-review medium` sin bugs; se aplicó
 > `ReportText.Operators`. Por decisión del usuario quedan como en el mockup la columna "En la
 > cola" con la cola vacía y el formato de Code1 ("· Code1 123" en la tarjeta, "· 123" en
 > "Después"). Queda sin uso `.mt-chip-alert` en `admin.css`. Sin capturas.
@@ -284,6 +284,9 @@ orden de `admin.css` con Desarrollo.
 de la 021 ya está cerrada; la columna Área, después de Nombre, y el área en el encabezado y la
 ficha ya existen.)
 
+**Esfuerzo (D-250):** `medium` para el detalle y la ficha; `high` si el mockup aprobado agrega
+una métrica derivada en la BLL (como `OperatorSummary` en la lista).
+
 - [x] `Pages/Admin/Operators.aspx`: la estructura aprobada; columnas dinámicas por guía con la
       insignia (`ReportText.StateCss`/`StateIcon`), el Área, filtros, Descargar y paginación de
       50.
@@ -299,8 +302,8 @@ ficha ya existen.)
 
 > **Operadores (lista) cerrada 2026-10-30 (Desarrollo, `1afe5ed`):** alternativa D con el
 > encabezado K1 (barra proporcional) desde `cloud/022-operadores` (`94c0405`); el resumen por
-> estado, a la BLL (`OperatorSummary`, sin test, como D-235/D-283). D-n pendientes (Diseño
-> UI/UX). El `/code-review low` formal devolvió vacío; revisión manual de la BLL y el
+> estado, a la BLL (`OperatorSummary`, sin test, como D-235/D-283). D-295 a D-298 (Diseño
+> UI/UX, 2026-10-30). Los textos de qué hacer (D-298) los valida negocio antes de cerrar la E6. El `/code-review low` formal devolvió vacío; revisión manual de la BLL y el
 > code-behind, sin hallazgos. Ajustes de Desarrollo: título, campos y "Ver detalle"
 > (`.operators-go`, que la nube dejó sin el color de acento del canvas). El generador
 > `GenerateDashboardData.sql` pasa a 100 operadores con perfiles fijos. Sin capturas (D-242).
@@ -315,6 +318,8 @@ ficha ya existen.)
 
 **Bloqueada hasta:** E1 y el mockup de Usuarios. (Enmendado 2026-10-27: la E4 de la 021 ya
 está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.)
+
+**Esfuerzo (D-250):** `medium`; `high` si toca la BLL de gestión de usuarios o SQL.
 
 - [ ] `Pages/Admin/Users.aspx`: la estructura aprobada; mismos `BtnCreate`, `DdlNewRole`,
       `TxtNewCode1`, `TxtSearch`/`BtnSearch`, `RptUsers`, `BtnPrev`/`BtnNext`; en la columna
@@ -332,6 +337,8 @@ está cerrada e integrada; la columna Área con su lápiz y B-3 ya existen.)
 
 **Bloqueada hasta:** E1 y el mockup del Inicio. (Enmendado 2026-10-27: la E3 de la 021 ya
 está cerrada; el área como texto y solo el selector de guía ya existen.)
+
+**Esfuerzo (D-250):** `medium`; `high` si toca `StartSession`, la BLL de Training o SQL.
 
 - [ ] `Pages/Training/StartSession.aspx` (y `Site.Master` si la estructura lo pide): la
       disposición aprobada; mismos `DdlGuide`, `RbGuided`/`RbFreePractice`/`RbAssessment`,
