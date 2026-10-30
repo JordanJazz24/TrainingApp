@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using TrainingApp.BLL.Reports;
+using TrainingApp.Domain;
 using TrainingApp.Shared;
 
 namespace TrainingApp.Pages.Admin
@@ -73,9 +74,59 @@ namespace TrainingApp.Pages.Admin
             foreach (var g in report.Guides)
                 DdlGuide.Items.Add(new ListItem(g.AreaName, g.Id.ToString()) { Selected = g.Id == report.Applied.GuideId });
 
+            // La cola en dos partes (spec 022, brief 5): "Llamar primero" y "Después". Quién va en
+            // cada una lo decide FollowUpSummary; el orden es el de la BLL.
             var guides = report.Guides.ToDictionary(g => g.Id);
             var detailUrl = VirtualPathUtility.ToAbsolute("~/Pages/Admin/Operator.aspx") + "?id=";
-            RptRows.DataSource = report.Rows.Select(r => new FollowUpListRow
+            var first = report.Rows.Where(FollowUpSummary.IsCallFirst).ToList();
+            var later = report.Rows.Where(r => !FollowUpSummary.IsCallFirst(r)).ToList();
+            RptFirst.DataSource = first.Select(r => ListRow(r, guides, detailUrl)).ToList();
+            RptFirst.DataBind();
+            RptLater.DataSource = later.Select(r => ListRow(r, guides, detailUrl)).ToList();
+            RptLater.DataBind();
+            LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewFollowUp, Request.QueryString);
+
+            var sum = report.Summary;
+            bool any = sum.Cases > 0;
+            PhTabs.Visible   = any;
+            PhQueue.Visible  = any;
+            PnlEmpty.Visible = !any;
+            PhFirst.Visible    = sum.CallFirst > 0;
+            PnlNoFirst.Visible = sum.CallFirst == 0;
+            PhLater.Visible    = sum.Later > 0;
+            PhTabLater.Visible = sum.Later > 0;
+
+            LitTabFirst.Text   = sum.CallFirst.ToString();
+            LitTabLater.Text   = sum.Later.ToString();
+            LitS1.Text         = sum.RepeatedFailures.ToString();
+            LitS2.Text         = sum.Inactive.ToString();
+            LitS3.Text         = sum.StuckStep.ToString();
+            LitCount.Text      = HttpUtility.HtmlEncode(string.Format("{0} de {1}",
+                ReportText.Cases(sum.Cases), sum.Operators == 1 ? "1 operador" : sum.Operators + " operadores"));
+            LitFirstCount.Text = HttpUtility.HtmlEncode(ReportText.Cases(sum.CallFirst) + " con "
+                + FollowUpSummary.CallFirstMinRules + " o más reglas");
+            LitLaterCount.Text = HttpUtility.HtmlEncode(ReportText.Cases(sum.Later) + " con 1 regla");
+
+            DashboardGuide applied;
+            LitEmptyTitle.Text = HttpUtility.HtmlEncode(report.Applied.GuideId.HasValue
+                && guides.TryGetValue(report.Applied.GuideId.Value, out applied)
+                ? "Nadie en la cola de " + applied.AreaName
+                : "Nadie en la cola");
+
+            // Columna lateral: los casos de cada regla y su barra sobre el total.
+            LitTotal.Text     = sum.Cases.ToString();
+            LitTotalText.Text = HttpUtility.HtmlEncode((sum.Cases == 1 ? "caso" : "casos") + " de "
+                + (sum.Operators == 1 ? "1 operador" : sum.Operators + " operadores"));
+            LitBarS1.Text = sum.RepeatedFailures.ToString();
+            LitBarS2.Text = sum.Inactive.ToString();
+            LitBarS3.Text = sum.StuckStep.ToString();
+            BarS1.Style["width"] = Percent(sum.RepeatedFailures, sum.Cases);
+            BarS2.Style["width"] = Percent(sum.Inactive, sum.Cases);
+            BarS3.Style["width"] = Percent(sum.StuckStep, sum.Cases);
+        }
+
+        private static FollowUpListRow ListRow(FollowUpRow r, IDictionary<int, DashboardGuide> guides, string detailUrl)
+            => new FollowUpListRow
             {
                 Code1            = r.Code1,
                 Name             = r.Name,
@@ -85,18 +136,14 @@ namespace TrainingApp.Pages.Admin
                 StateCss         = ReportText.StateCss(r.State),
                 StateIcon        = ReportText.StateIcon(r.State),
                 LastActivityText = ReportText.Date(r.LastActivity),
-                Chips            = r.Reasons.SelectMany(ReportText.FollowUpChips).ToList(),
+                RuleCountText    = ReportText.FollowUpRuleCount(r.Reasons.Count),
+                Lines            = r.Reasons.SelectMany(ReportText.FollowUpReasonLines).ToList(),
                 DetailUrl        = detailUrl + r.UserId
-            }).ToList();
-            RptRows.DataBind();
-            LnkExport.NavigateUrl = ReportFilters.ExportUrl(ReportFilters.ViewFollowUp, Request.QueryString);
+            };
 
-            PhTable.Visible  = report.Rows.Count > 0;
-            PnlEmpty.Visible = report.Rows.Count == 0;
-            int operators = report.Rows.Select(r => r.UserId).Distinct().Count();
-            LitCount.Text = report.Rows.Count == 0 ? string.Empty : HttpUtility.HtmlEncode(string.Format(
-                "{0} operadores en {1} casos (operador y guía)", operators, report.Rows.Count));
-        }
+        // Ancho de la barra (solo presentación): la parte del total, en %.
+        private static string Percent(int n, int total)
+            => (total == 0 ? 0 : (int)Math.Round(n * 100.0 / total)) + "%";
 
     }
 }

@@ -267,6 +267,9 @@ namespace TrainingApp.BLL.Reports
 
         // Por guía (en el orden de Guides) y después por nombre.
         public IList<FollowUpRow> Rows { get; set; }
+
+        // Llamar primero / Después y casos por regla (spec 022, brief 5; métricas derivadas).
+        public FollowUpSummary Summary { get; set; }
     }
 
     // Dashboard de Training (spec 018). Lee lo que los SPs agregan y aplica las reglas
@@ -653,13 +656,15 @@ namespace TrainingApp.BLL.Reports
             // Primero quien cumple más reglas (Fase 11, D-160); a igual número, por guía y nombre.
             // Solo orden: qué reglas aplican lo decide FollowUpRules.
             var order = shown.Select((g, i) => new { g.Id, i }).ToDictionary(x => x.Id, x => x.i);
+            var ordered = rows.OrderByDescending(r => r.Reasons.Count)
+                              .ThenBy(r => order[r.TrainingGuideId])
+                              .ThenBy(r => r.Name, StringComparer.CurrentCulture).ToList();
             return new FollowUpReport
             {
                 Applied = new FollowUpFilter { GuideId = guideId },
                 Guides  = guides,
-                Rows    = rows.OrderByDescending(r => r.Reasons.Count)
-                              .ThenBy(r => order[r.TrainingGuideId])
-                              .ThenBy(r => r.Name, StringComparer.CurrentCulture).ToList()
+                Rows    = ordered,
+                Summary = FollowUpSummary.For(ordered)
             };
         }
 
