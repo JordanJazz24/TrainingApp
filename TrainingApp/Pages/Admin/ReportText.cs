@@ -155,6 +155,35 @@ namespace TrainingApp.Pages.Admin
         public static string Date(DateTime? utc)
             => utc.HasValue ? SessionHelper.ToLocal(utc.Value).ToString("dd/MM/yyyy HH:mm") : None;
 
+        // "hoy", "hace 1 día", "hace 26 días"; vacío sin actividad (Operadores, spec 022 brief 6).
+        public static string DaysAgo(int? days)
+        {
+            if (!days.HasValue) return string.Empty;
+            if (days.Value <= 0) return "hoy";
+            return days.Value == 1 ? "hace 1 día" : "hace " + days.Value + " días";
+        }
+
+        // Qué hacer con el grupo elegido en Operadores (spec 022, brief 6): state null = Todos.
+        // Solo presentación: quién está en cada grupo lo decide OperatorArea.
+        public static OperatorHint StateHint(ReadinessState? state, bool withoutArea)
+        {
+            if (withoutArea)
+                return new OperatorHint { Title = "Sin área:", Text = "todavía no elige su área; no cuenta como Sin iniciar.", Icon = "bi bi-geo-alt", Tone = "operators-tone-none" };
+            if (!state.HasValue)
+                return new OperatorHint { Title = "Todos los operadores.", Text = "Elige un estado para ver qué hacer con ese grupo.", Icon = "bi bi-people", Tone = "operators-tone-all" };
+            switch (state.Value)
+            {
+                case ReadinessState.Failed:
+                    return new OperatorHint { Title = "Reprobado:", Text = "repasar con él los pasos que falla y volver a evaluar.", Icon = StateIcon(state.Value), Tone = "operators-tone-bad" };
+                case ReadinessState.NotStarted:
+                    return new OperatorHint { Title = "Sin iniciar:", Text = "tiene área y ninguna sesión en su guía; arrancar con Guided.", Icon = StateIcon(state.Value), Tone = "operators-tone-idle" };
+                case ReadinessState.InTraining:
+                    return new OperatorHint { Title = "En entrenamiento:", Text = "practica sin aprobar todavía; evaluar cuando esté listo.", Icon = StateIcon(state.Value), Tone = "operators-tone-warn" };
+                default:
+                    return new OperatorHint { Title = "Aprobado:", Text = "ya aprobó la guía de su área.", Icon = StateIcon(state.Value), Tone = "operators-tone-ok" };
+            }
+        }
+
         // Los nombres de modo de la pantalla de inicio del operador.
         public static string Mode(SessionMode mode)
         {

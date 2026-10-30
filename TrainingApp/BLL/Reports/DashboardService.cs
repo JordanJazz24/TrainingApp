@@ -48,6 +48,12 @@ namespace TrainingApp.BLL.Reports
         // Inicio de su sesión más reciente en cualquier guía publicada (AC-13); null si nunca
         // entrenó.
         public DateTime? LastActivity { get; set; }
+
+        // Días completos desde LastActivity (null sin actividad) y si lleva OperatorSummary.InactiveDays
+        // o más sin practicar teniendo guía en su área y no siendo Sin iniciar (spec 022, brief 6;
+        // métrica derivada). Los pone OperatorSummary.MarkActivity.
+        public int? DaysSinceActivity { get; set; }
+        public bool Inactive { get; set; }
     }
 
     public class OperatorPage
@@ -62,6 +68,9 @@ namespace TrainingApp.BLL.Reports
         public int Total { get; set; }
         public int Page { get; set; }       // desde 1
         public int PageCount { get; set; }
+
+        // Operadores por estado y sin actividad reciente (spec 022, brief 6; métricas derivadas).
+        public OperatorSummary Summary { get; set; }
     }
 
     // Una sesión en el detalle del Operador (AC-14).
@@ -340,25 +349,44 @@ namespace TrainingApp.BLL.Reports
             var sessionsByUser = _dashboard.GetSessions(null, false)
                 .Where(s => guideIds.Contains(s.TrainingGuideId))
                 .ToLookup(s => s.UserId);
-            var rows = _dashboard.GetOperators(text)
-                .Where(o => withoutArea ? !o.AreaId.HasValue : !areaId.HasValue || o.AreaId == areaId)
+            // Todos los que coinciden con la búsqueda, de cualquier área: el resumen por estado del
+            // encabezado (spec 022, brief 6) cuenta sobre ellos; la lista aplica después el área y
+            // el estado.
+            var now = _utcNow();
+            var matched = _dashboard.GetOperators(text)
                 .Select(o =>
                 {
                     var mine = sessionsByUser[o.UserId].ToList();
                     var view = OperatorArea.For(o.AreaId, guides, mine);
-                    return new OperatorRow
+                    return new
                     {
-                        UserId       = o.UserId,
-                        Code1        = o.Code1,
-                        Name         = o.Name,
-                        AreaText     = AreaLabel.Of(o.ProductName, o.AreaName) ?? AreaLabel.NoArea,
-                        AreaStatus   = view.Status,
-                        AreaGuides   = view.AreaGuides,
-                        LastActivity = mine.Count > 0 ? mine.Max(s => s.StartedAt) : (DateTime?)null
+                        o.AreaId,
+                        Row = new OperatorRow
+                        {
+                            UserId       = o.UserId,
+                            Code1        = o.Code1,
+                            Name         = o.Name,
+                            AreaText     = AreaLabel.Of(o.ProductName, o.AreaName) ?? AreaLabel.NoArea,
+                            AreaStatus   = view.Status,
+                            AreaGuides   = view.AreaGuides,
+                            LastActivity = mine.Count > 0 ? mine.Max(s => s.StartedAt) : (DateTime?)null
+                        }
                     };
                 })
-                .Where(r => OperatorArea.Matches(r.AreaStatus, r.AreaGuides, state))
                 .ToList();
+            foreach (var m in matched)
+                OperatorSummary.MarkActivity(m.Row, now);
+
+            var inArea = matched
+                .Where(m => withoutArea ? !m.AreaId.HasValue : !areaId.HasValue || m.AreaId == areaId)
+                .Select(m => m.Row)
+                .ToList();
+            var rows = inArea.Where(r => OperatorArea.Matches(r.AreaStatus, r.AreaGuides, state)).ToList();
+
+            // Con "Sin área" elegida, los estados se cuentan en todas las áreas: elegir uno vuelve
+            // a Todas (un operador sin área no tiene estado, D-267).
+            var summary = OperatorSummary.For(withoutArea ? matched.Select(m => m.Row).ToList() : inArea,
+                matched.Count(m => !m.AreaId.HasValue), rows);
 
             var applied = new OperatorFilter { Text = text, State = state, AreaId = areaId, WithoutArea = withoutArea, Page = 1 };
             if (!paged)
@@ -369,7 +397,8 @@ namespace TrainingApp.BLL.Reports
                     Rows      = rows,
                     Total     = rows.Count,
                     Page      = 1,
-                    PageCount = 1
+                    PageCount = 1,
+                    Summary   = summary
                 };
 
             int pageCount = Math.Max(1, (rows.Count + PageSize - 1) / PageSize);
@@ -383,7 +412,8 @@ namespace TrainingApp.BLL.Reports
                 Rows      = rows.Skip((page - 1) * PageSize).Take(PageSize).ToList(),
                 Total     = rows.Count,
                 Page      = page,
-                PageCount = pageCount
+                PageCount = pageCount,
+                Summary   = summary
             };
         }
 
