@@ -17,7 +17,9 @@ entrega, para y pídeselo (`docs/process.md` → "2. Cada entrega").
      HTML, `<%# %>` en atributos de controles de servidor).
 3. **Git.** `git branch --show-current` (nunca `main`) y `git status` (sin carpetas de
    compilación ni basura). Commit solo de tus rutas: `git commit -m "…" -- <rutas>`.
-4. **Plan:** marca las casillas de la entrega y agrega la nota de cierre con el hash.
+4. **Plan:** marca las casillas de la entrega y agrega la nota de cierre con el hash y las
+   **rondas de corrección** que necesitó el usuario después de su primera prueba (D-250: el
+   piloto de Sonnet se evalúa con ese número).
 5. **Estado (D-244):** `docs/status.md` → "📍 Estado actual" solo si cambió lo que está en
    curso; se reescribe, 40 líneas como máximo. `docs/history.md` solo si la entrega cierra la
    spec, la fase o el plan directo; en ese caso, avisa a Planeación por nombre para que la

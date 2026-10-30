@@ -34,7 +34,7 @@ y **gana la primera que aplica**:
 - En una spec, las decisiones que propuso Claude (no las respondió el usuario) se listan
   aparte para que las confirme antes de aprobar.
 - **Plan grande** → `docs/specs/NNN-plan.md` (o `fase-N-plan.md`) con casillas, dividido en
-  **entregas** chicas en el orden del flujo.
+  **entregas** chicas en el orden del flujo, cada una con su **Esfuerzo** (D-250).
 - **Enmiendas:** si durante la implementación aparece un supuesto equivocado en una spec
   aprobada, o el usuario corrige algo al probar, parar, proponer la enmienda y registrarla
   con fecha en la spec ("enmendada AAAA-MM-DD") **antes** de tocar código. Nunca divergir en
@@ -91,12 +91,21 @@ planeación, "desarrollo").
   encabezado de `docs/decisions.md`. Lo cerrado del roadmap se mueve a `docs/archivo/` (D-245).
 - **Sin sesión de documentación aparte (D-243):** quien decide, registra. Planeación escribe
   specs, planes, enmiendas y D-n; Desarrollo, los cierres de su entrega (`/cerrar-entrega`).
-- **Modelo y esfuerzo (D-246, usuario, 2026-10-30):** Arquitectura y Planeación, Opus 5.5 en
-  `medium` (`high` en specs, planes y enmiendas); Desarrollo, Sonnet 5.5 en `medium` (`high` en
-  entregas con BLL o SQL, o ante un bug difícil); el `/code-review`, en Opus; los subagentes,
-  Sonnet por defecto; Reuniones y Dudas, Sonnet 5.5 en `medium`. Generador barato, verificador
-  fuerte: el review es poco del uso y ahí se atrapan los bugs. Cada sesión lo fija con `/model`
-  y `/effort`; si no coincide, lo dice en una línea al iniciar.
+- **Modelo y esfuerzo (D-246, enmendada por D-250, usuario, 2026-10-30):** Opus planea y
+  Sonnet implementa, como el modo `opusplan` de la doc oficial. Arquitectura y Planeación, Opus
+  5.5 en `medium` (`high` en specs, planes y enmiendas); Desarrollo, Sonnet 5.5; Reuniones y
+  Dudas, Sonnet 5.5 en `medium`. El review va en Opus con la skill `/revisar` (sección 3):
+  generador barato, verificador fuerte. Ninguna sesión puede cambiar su propio `/model` ni su
+  `/effort`: los escribe el usuario.
+  - **Esfuerzo por entrega:** lo fija el plan en cada entrega ("Esfuerzo: `high`" si toca BLL o
+    SQL o arregla un bug; `medium` si no, según la guía oficial). Al empezar una entrega,
+    Desarrollo le pide al usuario una vez el `/effort` que indica el plan.
+  - **Subagentes:** heredan el modelo de su sesión (sin `CLAUDE_CODE_SUBAGENT_MODEL`). Cuando
+    Planeación lanza un subagente para leer o buscar, le fija `model: sonnet` al crearlo.
+  - **Piloto de Sonnet (regla fija, D-250):** tras 3 entregas con Desarrollo en Sonnet, si en 2 o
+    más el usuario necesitó más de una ronda de correcciones después de su primera prueba,
+    Desarrollo pasa a Opus 5.5 `medium` y nada más cambia; si no, queda Sonnet. Desarrollo anota
+    las rondas en la nota de cierre de cada entrega (`/cerrar-entrega`).
 - **Coordinación por mecanismos (D-247, usuario, 2026-10-30):** cada sesión viva tiene un
   **nombre único y fijo** ("Planeación", "Desarrollo", "Reuniones"), y los mensajes van por ese
   nombre, que sigue sirviendo aunque cambie su dirección. Si dos sesiones comparten nombre, el
@@ -190,14 +199,16 @@ Siempre con **nivel, archivos y foco**; nunca sin argumentos (sin nivel reusa el
 revisa todo el diff: una vez fueron ~16 min y ~220k tokens). Decirle al usuario en una línea
 qué nivel, qué archivos y por qué.
 
-**En Opus (D-246; cómo, desde el 2026-10-30, E3 del plan de flujo eficiente):** Desarrollo
-corre en Sonnet y el review va en Opus con `/model opus` antes del `/code-review` y `/model
-sonnet` al terminar. No hay agente revisor de proyecto: la doc no asegura que `/code-review`
-lo respete. Cambiar de modelo reconstruye la caché una vez por review; es el precio del
-verificador fuerte. Para que un review vacío signifique "sin hallazgos" y no "no revisó
-nada": pasar las rutas explícitas (`/code-review medium <rutas>`), pedirle que liste lo que
-leyó y esperar a que termine (en la terminal corre en segundo plano). `low` solo reporta lo de
-más confianza: puede volver vacío.
+**En Opus, con `/revisar` (D-250):** Desarrollo nunca llama `/code-review` directo: usa
+`/revisar <nivel> <rutas> — <foco>`, una skill con `model: opus` y `effort: high` que vale solo
+ese turno (la sesión vuelve sola a su modelo). Corre `/code-review` con nivel, rutas explícitas y
+foco, espera a que termine (en la terminal corre en segundo plano), verifica cada hallazgo y lista
+lo que se leyó: un review que no lista lo leído no cuenta. `low` solo reporta lo de más confianza:
+puede volver vacío.
+- **Verificación única:** después del primer `/revisar`, el usuario mira `/usage` → "Usage by
+  model". Si el review corrió en Opus, queda así. Si sus subagentes corrieron en Sonnet, se aplica
+  la alternativa ya decidida: `/revisar` deja de llamar `/code-review` y el propio turno en Opus
+  revisa las rutas con el foco. Se anota aquí cuál quedó.
 
 | Cambio | Review |
 |---|---|

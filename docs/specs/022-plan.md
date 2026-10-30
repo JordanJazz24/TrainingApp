@@ -9,6 +9,10 @@ comandos de `CLAUDE.md` → "Correr local, compilar y probar", `/code-review` co
 "funciona" del usuario en el navegador **antes** del commit y commit solo con sus rutas
 (`git commit -- <rutas>`), con `docs/status.md` y la casilla de este plan en el mismo commit.
 
+> **Enmienda 2026-10-30 (D-250):** el review de cada entrega va con `/revisar` (en Opus) y el
+> cierre con `/cerrar-entrega`. **Esfuerzo** de las entregas que faltan (resto de la E6, E7 y
+> E8): `medium`, porque son de presentación; `high` solo si alguna termina tocando BLL o SQL.
+
 ## Reglas de este plan
 
 - **Bloqueo por mockup (D-202, P-7):** una entrega no empieza hasta que su exportación está

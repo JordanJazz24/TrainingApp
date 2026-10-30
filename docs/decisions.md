@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-250 (local, rango D-240 a D-259) · D-291 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-251 (local, rango D-240 a D-259) · D-291 (nube, spec 022; rango D-280 a D-299). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -278,10 +278,11 @@
 | D-243 | 2026-10-30 | Sin sesión de documentación aparte: quien decide, registra (Planeación: specs, planes, enmiendas y D-n; Desarrollo: los cierres de su entrega) | specs/proceso-eficiente-plan.md | vigente |
 | D-244 | 2026-10-30 | Estado por tiempo, un dueño por archivo: pasado = git, casillas del plan y `history.md` al cerrar spec, fase o plan directo; presente = `status.md` → "Estado actual" (máx. 40 líneas, Desarrollo); futuro = roadmap → "Siguiente" (máx. 15, Planeación). Sin "Para retomar"; numeración solo en `decisions.md`; Desarrollo no avisa por entrega | specs/proceso-eficiente-plan.md | vigente |
 | D-245 | 2026-10-30 | Lo cerrado del roadmap pasa a `docs/archivo/roadmap-hasta-2026-10-30.md` (fases 7 a 11, specs 023 y 024, revisiones con negocio); los abiertos quedan listados en el roadmap | specs/proceso-eficiente-plan.md | vigente |
-| D-246 | 2026-10-30 | Modelo por trabajo: Planeación Opus 5.5 (`medium`; `high` en specs, planes y enmiendas); Desarrollo Sonnet 5.5 (`medium`; `high` con BLL/SQL o un bug difícil); review en Opus; subagentes en Sonnet; Reuniones Sonnet 5.5 `medium` | specs/proceso-eficiente-plan.md | vigente |
+| D-246 | 2026-10-30 | Modelo por trabajo: Planeación Opus 5.5 (`medium`; `high` en specs, planes y enmiendas); Desarrollo Sonnet 5.5 (`medium`; `high` con BLL/SQL o un bug difícil); review en Opus; subagentes en Sonnet; Reuniones Sonnet 5.5 `medium` | specs/proceso-eficiente-plan.md | enmendada (D-250: cómo va el review en Opus y el esfuerzo) |
 | D-247 | 2026-10-30 | Coordinación por mecanismos: nombre único y fijo por sesión y mensajes por nombre; hooks de git; skill `/rol`; `CLAUDE.md` no crece | specs/proceso-eficiente-plan.md | vigente |
 | D-248 | 2026-10-30 | Higiene de sesión: `/clear` al cambiar de tarea, cerrar sesiones que terminaron, `/usage` semanal los viernes | specs/proceso-eficiente-plan.md | vigente |
 | D-249 | 2026-10-30 | La variante de la nube (specs y planes en la nube) termina al cerrar la 022 (E8) | specs/proceso-eficiente-plan.md | vigente |
+| D-250 | 2026-10-30 | Enmienda D-246 (el patrón se confirma: `opusplan` de la doc oficial). Review en Opus con la skill `/revisar` (`model: opus`, `effort: high`; vale solo ese turno); el esfuerzo de cada entrega lo fija su plan (`high` si toca BLL o SQL o arregla un bug, `medium` si no); sin `CLAUDE_CODE_SUBAGENT_MODEL` (los subagentes heredan); verificación única con `/usage` y alternativa fijada (el review lo hace el propio turno de `/revisar`); el piloto de Sonnet se evalúa tras 3 entregas: si 2 o más necesitan más de una ronda de correcciones, Desarrollo pasa a Opus `medium` | process.md → "Tres sesiones" y "3. `/code-review` calibrado" | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
