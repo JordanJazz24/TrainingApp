@@ -21,25 +21,10 @@
                 Text="Aún no tienes un área asignada. Cierra sesión y vuelve a entrar para elegirla, o pide a tu trainer que te la asigne." />
 
             <asp:PlaceHolder ID="PhStart" runat="server">
-            <div class="start-fields">
-                <%-- Spec 021 (D-167): el área es fija, como texto; solo se elige la guía. --%>
-                <div class="mt-field">
-                    <span class="mt-field-label">Área</span>
-                    <asp:Label ID="LblArea" runat="server" CssClass="fw-semibold" />
-                </div>
-
-                <div class="mt-field">
-                    <asp:Label runat="server" AssociatedControlID="DdlGuide" CssClass="mt-field-label">Guía</asp:Label>
-                    <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
-                    <asp:Label ID="LblNoGuides" runat="server" CssClass="mt-muted mt-small"
-                        Text="No hay guías disponibles para esta área." Visible="false" />
-                </div>
-            </div>
-
             <%-- Los modos son los mismos RadioButton (IDs y GroupName de siempre): la tarjeta es
                  su etiqueta y el radio se opera con el teclado como siempre (D-163). --%>
             <fieldset class="start-modes">
-                <legend class="mt-field-label">Modo</legend>
+                <legend class="mt-field-label">¿Cómo quieres entrenar?</legend>
                 <label class="start-mode">
                     <asp:RadioButton ID="RbGuided" runat="server" GroupName="Mode" Checked="true" />
                     <i class="bi bi-signpost-2" aria-hidden="true"></i>
@@ -60,8 +45,17 @@
                 </label>
             </fieldset>
 
-            <asp:Button ID="BtnStart" runat="server" Text="Iniciar"
-                CssClass="btn btn-primary w-100" OnClick="BtnStart_Click" />
+            <%-- Spec 022 (E8): Guía + Iniciar en la misma fila. El área ya está en la barra (D-286). --%>
+            <div class="start-row">
+                <div class="mt-field">
+                    <asp:Label runat="server" AssociatedControlID="DdlGuide" CssClass="mt-field-label">Guía · <asp:Literal ID="LitGuideCount" runat="server" /></asp:Label>
+                    <asp:DropDownList ID="DdlGuide" runat="server" CssClass="form-select" />
+                    <asp:Label ID="LblNoGuides" runat="server" CssClass="mt-muted mt-small"
+                        Text="No hay guías disponibles para esta área." Visible="false" />
+                </div>
+                <asp:Button ID="BtnStart" runat="server" Text="Iniciar"
+                    CssClass="btn btn-primary start-go" OnClick="BtnStart_Click" />
+            </div>
             </asp:PlaceHolder>
         </section>
     </div>
