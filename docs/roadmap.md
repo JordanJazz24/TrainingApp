@@ -34,7 +34,7 @@
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
-| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando en IIS 10, por `http://`; D-19 cerrada), E2 y E3 (D-144, `d98563a`); faltan la E4, la E5 y la E6, la 2.ª publicación (D-256, D-257) | 2026-10-22 | `fase-9-plan.md` |
+| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando en IIS 10, por `http://`; D-19 cerrada), E2, E3 (D-144, `d98563a`) y E4 (AUD-75 a AUD-78, `7a13625`); faltan la E5 y la E6, la 2.ª publicación (D-256, D-257) | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
@@ -53,7 +53,7 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
 1. **Fase 9 · 2.ª publicación (versión final, 2.ª semana de noviembre; D-256):** la auditoría
    pre-deploy (`docs/audits/2026-11-02-auditoria-pre-deploy.md`) dejó AUD-71 a AUD-80. Desarrollo
-   hizo la E3 (D-144) y sigue con la E4 (BLL y páginas) y la E5 (docs); el usuario, la E6: pedir
+   hizo la E3 (D-144) y la E4 (AUD-75 a AUD-78); sigue la E5 (docs); el usuario, la E6: pedir
    HTTPS a TI (D-257; con él, `requireSSL` y HSTS), rotar `sa` (AUD-71, D-8), scripts, republicar
    y el mensaje de lanzamiento. AUD-74 (clases grandes), spec después de publicar.
 2. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
