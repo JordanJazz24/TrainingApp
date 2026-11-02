@@ -54,7 +54,9 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 2. **022, E8b Resumen (D-252):** brief 10 listo (`022-briefs.md`); el usuario lo diseña en Claude
    Design con el prompt del handoff local y le pasa el handoff a Desarrollo. Sus D-n, D-320 a D-329. Después, la E9 de cierre, y
    con ella termina la variante de la nube (D-249).
-3. **Spec 025 · Fin de sesión (D-253):** `/spec` con Planeación local al cerrar la 022.
+3. **Spec 025 · Fin de sesión (D-253):** spec aprobada el 2026-11-02 (`025-fin-de-sesion.md`,
+   `aa85d33`; D-330 a D-339, la sesión "Planeación 025"); plan en curso. Se implementa después de
+   la E9. Candidatas sin fase: historial y métricas del operador, y su resultado visible para el admin.
 4. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
