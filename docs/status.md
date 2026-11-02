@@ -14,8 +14,8 @@ en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por en
 **En curso**
 - Nada abierto: la spec 022 está cerrada (E1 a E9, 2026-11-02; AC-7 medido, `docs/history.md`). Tests:
   461. Textos de ayuda validados por negocio (D-298, D-305, D-314); falta validar los de Usuarios.
-- Spec 025, Fin de sesión del POD (`docs/specs/025-plan.md`): E1, E3 y E4 hechas (`fc5630f`, `03419d9`, `87c8bb2`; 515 tests). Siguiente: E5,
-  últimas sesiones en el Inicio. Pendiente de
+- Spec 025, Fin de sesión del POD (`docs/specs/025-plan.md`): E1, E3, E4 y E5 hechas (`fc5630f`, `03419d9`, `87c8bb2`, `e322e4e`; 515 tests). Siguiente: E6,
+  cierre y docs. Pendiente de
   negocio: la cifra global «contados por guía» del Resumen (D-324). `/rol desarrollo` al
   iniciar y `/cerrar-entrega <plan> <entrega>` al cerrar.
 
@@ -46,6 +46,10 @@ final (D-16) repasó esta lista.
   perfiles fijos. Para medir rendimiento, después correr `GenerateDashboardVolume.sql` (1 600
   operadores, ~247 000 intentos). `TrainingApp_DashboardTest` está hoy con ese volumen: borrarla
   si ya no se usa (`process.md` §6).
+- **Entorno:** `aspnet_compiler` falla en este checkout porque `TrainingApp/obj/Release` y
+  `TrainingApp/Properties/publish` (restos de la publicación del 22 de oct., ignorados por git) traen
+  un `web.config` dentro de la app. Se compila una copia sin `obj`, `.vs` ni `publish` (`robocopy /XD`).
+  No borrarlas: la publicación al servidor de la Fase 9 sigue pendiente del usuario.
 - **B-20:** `PodService.StartSession` no revisa que la guía esté publicada (ya existía antes de
   R3; anotado por el usuario al cerrar R3, `docs/decisions.md`).
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).

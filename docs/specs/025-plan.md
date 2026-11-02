@@ -198,19 +198,21 @@ de la guía colgado).
 
 ## E5 · Últimas sesiones y preselección en el Inicio — Esfuerzo: `medium`
 
-- [ ] `StartSession.aspx(.cs)`, según el diseño (D-335, D-344): el bloque "Últimas sesiones"
+- [x] `StartSession.aspx(.cs)`, según el diseño (D-335, D-344): el bloque "Últimas sesiones"
       debajo del bloque de inicio, **plegado** (`<details class="steps-card steps-ranking">` con
       "Mostrar ▾", sin JS) y con filas `.last-*`, sin reordenar "Modo primero" (D-315); oculto sin
       sesiones (P-5).
-- [ ] Preselección (P-9): `?mode=&guide=` se pasan a la función de la E1 y se aplican a las tarjetas
+- [x] Preselección (P-9): `?mode=&guide=` se pasan a la función de la E1 y se aplican a las tarjetas
       de modo y a `DdlGuide` solo en la primera carga (no en postback). Iniciar, sin cambios.
-- [ ] `admin.css`: en el mismo bloque de la spec 025; `.start-*` de la 022, sin tocar.
-- [ ] Sin `/revisar` si es binding y markup; `low --max-findings 5` si la página decide algo.
+- [x] `admin.css`: en el mismo bloque de la spec 025; `.start-*` de la 022, sin tocar.
+- [x] Sin `/revisar` si es binding y markup; `low --max-findings 5` si la página decide algo.
 
 **Verifica Desarrollo:** Rebuild; `aspnet_compiler`. Checklist: AC-4 (cada acción sugerida de la
 tabla A.5 llega al Inicio con modo y guía elegidos y no crea una sesión; guía no iniciable = solo
 Ir al Inicio; `?mode=9&guide=abc` se ignora; modo válido con guía de otra área = solo el modo),
 AC-8 (con 0, con 3 y con más de 5 sesiones; una de otra área con su "Producto · Área"), AC-9.
+
+> **Cerrada 2026-11-03 (e322e4e).** `StartSession.aspx(.cs)`: el bloque «Últimas sesiones» (`<details class="steps-card steps-ranking">` plegado, filas `.last-*`) debajo del bloque de inicio, que no se reordena; oculto sin sesiones completadas; cada fila con el modo, la fecha y hora de la planta y «Ver resultado» (`SessionResultService.GetRecent`, `SessionResultText.Recent`). La preselección de `?mode=&guide=` pasa por `OperatorStartOptions.Preselect` y se aplica a las tarjetas de modo y a `DdlGuide` solo en la primera carga. Estilos `.last-*` en el bloque de la spec 025 de `admin.css`, sin tokens nuevos. Rebuild, `aspnet_compiler` y 515 tests en verde. Sin `/revisar` (binding y markup; la preselección ya está probada desde la E1). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor). Sin datos reales en la prueba para «más de 5 sesiones» ni «una de otra área»: los cubren los tests de `GetRecent`.
 
 ## E6 · Cierre — Esfuerzo: `medium`
 
