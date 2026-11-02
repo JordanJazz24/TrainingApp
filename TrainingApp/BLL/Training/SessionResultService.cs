@@ -66,6 +66,9 @@ namespace TrainingApp.BLL.Training
         // "Producto · Área" de la guía de la sesión.
         public string GuideText { get; set; }
 
+        // El área actual del operador ("Tu área" de la barra); null si no tiene.
+        public string UserAreaText { get; set; }
+
         // La acción principal (D-332): el modo sugerido, o Ir al Inicio si el modo no sugiere
         // ninguno o la guía ya no se puede iniciar.
         public SessionAction Primary { get; set; }
@@ -137,6 +140,7 @@ namespace TrainingApp.BLL.Training
                 GuideId    = guide.Id,
                 GuideTitle = guide.Title,
                 GuideText  = _source.AreaText(guide.AreaId),
+                UserAreaText = AreaLabel.Of(user.ProductName, user.AreaName),
                 Primary    = home,
                 Home       = home
             };

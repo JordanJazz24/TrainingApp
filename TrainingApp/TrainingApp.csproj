@@ -173,6 +173,7 @@
     <Content Include="Pages\Auth\ChangePassword.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="Pages\Training\SessionResult.aspx" />
     <Content Include="Pages\Training\StartSession.aspx">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
@@ -348,6 +349,14 @@
     <Compile Include="Pages\Auth\ChangePassword.aspx.designer.cs">
       <DependentUpon>ChangePassword.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Training\SessionResult.aspx.cs">
+      <DependentUpon>SessionResult.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Training\SessionResult.aspx.designer.cs">
+      <DependentUpon>SessionResult.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\Training\SessionResultText.cs" />
     <Compile Include="Pages\Training\StartSession.aspx.cs">
       <DependentUpon>StartSession.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

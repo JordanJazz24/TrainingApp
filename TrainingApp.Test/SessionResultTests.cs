@@ -478,6 +478,11 @@ namespace TrainingApp.Test
             Assert.That(result.GuideId, Is.EqualTo(SessionResultData.GuideId));
             Assert.That(result.GuideTitle, Is.EqualTo("Guía de prueba"));
             Assert.That(result.GuideText, Is.EqualTo("Sensores · LoFlo"));
+
+            _operator.ProductName = "Sensores";
+            _operator.AreaName    = "LoFlo";
+            Assert.That(_service.Get(SessionResultData.UserId, SessionResultData.SessionId).UserAreaText,
+                Is.EqualTo("Sensores · LoFlo"));
         }
 
         // ---- P-2: el dueño y el estado ----
