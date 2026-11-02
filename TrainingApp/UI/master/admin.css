@@ -2568,6 +2568,30 @@ body.mt-page {
     .res-page .meta { grid-template-columns: 1fr; }
 }
 
+/* Inicio: "Últimas sesiones" (spec 025, E5; D-344). Una tarjeta plegable como el ranking completo
+   de Pasos (.steps-card .steps-ranking); filas .last-*. Sin tokens nuevos. */
+.last-card { margin-top: 20px; }
+.last-note { margin: 0; padding: 12px var(--mt-space-5) 4px; color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.last-l { list-style: none; margin: 0; padding: 0 var(--mt-space-5) 8px; }
+.last-i {
+    display: grid;
+    grid-template-columns: minmax(150px, 1.2fr) minmax(0, 1.4fr) auto;
+    gap: 4px 16px;
+    align-items: center;
+    min-height: 56px;
+    padding: 8px 0;
+    border-top: 1px solid var(--mt-border);
+}
+.last-i:first-child { border-top: 0; }
+.last-m { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.last-m .bi { color: var(--mt-accent); font-size: 1.25rem; }
+.last-a { display: inline-flex; align-items: center; gap: 6px; color: var(--mt-muted); font-size: var(--mt-fs-small); }
+.last-link { display: inline-flex; align-items: center; gap: 6px; min-height: var(--mt-control-h); padding: 0 4px; font-weight: 600; }
+@media (max-width: 767.98px) {
+    .last-i { grid-template-columns: 1fr auto; }
+    .last-d { grid-column: 1 / -1; order: 3; }
+}
+
 /* ── Tablet (P-4): la barra se acomoda; las columnas secundarias se ocultan ── */
 @media (max-width: 991.98px) {
     .admin-main { padding-left: var(--mt-space-4); padding-right: var(--mt-space-4); }

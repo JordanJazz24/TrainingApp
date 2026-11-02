@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -11,6 +12,10 @@ namespace TrainingApp.Pages.Training
     public partial class StartSession : Page
     {
         private readonly TrainingGuideService _guideService = new TrainingGuideService();
+        private readonly SessionResultService _results = new SessionResultService();
+
+        // La nota del bloque "Últimas sesiones" (spec 025, D-344).
+        protected string RecentNote { get; private set; } = string.Empty;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -46,6 +51,7 @@ namespace TrainingApp.Pages.Training
             {
                 LblLastAccess.Text = HttpUtility.HtmlEncode(SessionHelper.LastAccessText() ?? string.Empty);
                 LoadStartOptions();
+                LoadRecentSessions();
             }
         }
 
@@ -82,6 +88,33 @@ namespace TrainingApp.Pages.Training
             LblNoGuides.Visible = options.Guides.Count == 0;
             foreach (var g in options.Guides)
                 DdlGuide.Items.Add(new ListItem(g.Title, g.Id.ToString()));
+
+            // El Inicio con todo elegido (spec 025, P-9, D-337): ?mode=&guide= de las acciones del fin
+            // de sesión, validados por separado por la BLL (uno inválido se ignora sin aviso). Solo en
+            // la primera carga; Iniciar sigue siendo el único camino que crea la sesión.
+            var chosen = options.Preselect(Request.QueryString["mode"], Request.QueryString["guide"]);
+            if (chosen.Mode.HasValue)
+            {
+                RbGuided.Checked       = chosen.Mode == SessionMode.Guided;
+                RbFreePractice.Checked = chosen.Mode == SessionMode.FreePractice;
+                RbAssessment.Checked   = chosen.Mode == SessionMode.Assessment;
+            }
+            if (chosen.GuideId.HasValue)
+                DdlGuide.SelectedValue = chosen.GuideId.Value.ToString();
+        }
+
+        // Spec 025 (D-335, D-344): las últimas 5 sesiones completadas del operador; sin ninguna,
+        // el bloque no aparece.
+        private void LoadRecentSessions()
+        {
+            var recent = _results.GetRecent((int)Session[Constants.SessionKeys.UserId]);
+            PhRecent.Visible = recent.Count > 0;
+            if (recent.Count == 0) return;
+
+            RecentNote = SessionResultText.RecentNote(recent);
+            RptRecent.DataSource = recent.Select(r => SessionResultText.Recent(r,
+                ResolveUrl("~/Pages/Training/SessionResult.aspx?sessionId=" + r.SessionId))).ToList();
+            RptRecent.DataBind();
         }
 
         private void ShowError(string message)

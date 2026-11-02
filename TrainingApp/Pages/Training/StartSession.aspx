@@ -58,5 +58,29 @@
             </div>
             </asp:PlaceHolder>
         </section>
+
+        <%-- Últimas sesiones (spec 025, E5, D-335, D-344): las 5 completadas más recientes del
+             operador, plegadas, debajo del bloque de inicio sin reordenarlo (D-315). Sin
+             sesiones completadas, el bloque no aparece. Cada fila lleva a su resultado. --%>
+        <asp:PlaceHolder ID="PhRecent" runat="server" Visible="false">
+            <details class="steps-card steps-ranking last-card">
+                <summary class="steps-list-head">
+                    <h2 class="steps-kicker">Últimas sesiones</h2>
+                    <span class="steps-ranking-toggle"></span>
+                </summary>
+                <p class="last-note"><%: RecentNote %></p>
+                <ul class="last-l">
+                    <asp:Repeater ID="RptRecent" runat="server">
+                        <ItemTemplate>
+                            <li class="last-i">
+                                <span class="last-m"><i class="bi <%#: Eval("ModeIcon") %>" aria-hidden="true"></i><%#: Eval("ModeText") %></span>
+                                <span class="last-d"><%#: Eval("DateText") %><asp:PlaceHolder runat="server" Visible='<%# Eval("AreaText") != null %>'><span class="last-a">&nbsp;·&nbsp;<i class="bi bi-layers" aria-hidden="true"></i><%#: Eval("AreaText") %></span></asp:PlaceHolder></span>
+                                <a class="last-link" href="<%#: Eval("Url") %>">Ver resultado<i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                            </li>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </ul>
+            </details>
+        </asp:PlaceHolder>
     </div>
 </asp:Content>

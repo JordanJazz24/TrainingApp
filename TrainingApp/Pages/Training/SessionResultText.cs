@@ -34,6 +34,18 @@ namespace TrainingApp.Pages.Training
         public string LostText { get; set; }
     }
 
+    // Una fila de "Últimas sesiones" del Inicio (spec 025, D-335): sin resultado ni puntaje.
+    public class RecentSessionView
+    {
+        public string ModeIcon { get; set; }
+        public string ModeText { get; set; }
+        public string DateText { get; set; }
+
+        // "Producto · Área" solo si es otra área que la actual; null si no.
+        public string AreaText { get; set; }
+        public string Url { get; set; }
+    }
+
     // La acción principal y la frase de "Qué hacer después" (D-343).
     public class SessionNextView
     {
@@ -108,6 +120,27 @@ namespace TrainingApp.Pages.Training
                 view.LostText = "−" + Points(lost) + " pts";
             }
             return view;
+        }
+
+        public static RecentSessionView Recent(RecentSession session, string url)
+            => new RecentSessionView
+            {
+                ModeIcon = ModeIcon(session.Mode),
+                ModeText = ReportText.Mode(session.Mode),
+                DateText = ReportText.Date(session.CompletedAt),
+                AreaText = session.AreaText,
+                Url      = url
+            };
+
+        // La nota del bloque (D-344): "Tus últimas N sesiones completadas." y, si alguna es de
+        // otra área, que se indica el área.
+        public static string RecentNote(IList<RecentSession> recent)
+        {
+            string count = recent.Count == 1 ? "Tu última sesión completada."
+                : "Tus últimas " + recent.Count + " sesiones completadas.";
+            return recent.Any(r => r.AreaText != null)
+                ? count + " Se indica el área si es otra que la actual."
+                : count;
         }
 
         private static string Failures(int n) => n + (n == 1 ? " fallo" : " fallos");
