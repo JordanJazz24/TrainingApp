@@ -8,7 +8,7 @@ namespace TrainingApp.Shared
     /// Registro en archivo de la app (AUD-28, Fase 9 E2): errores no controlados
     /// (Global.Application_Error) y logins fallidos y bloqueos (AuthService). Un archivo por
     /// día en App_Data/Logs (la identidad del App Pool necesita permiso de escritura:
-    /// docs/deploy.md); los de más de RetentionDays días se borran. Nunca contraseñas ni datos
+    /// docs/publicacion.md → 4); los de más de RetentionDays días se borran. Nunca contraseñas ni datos
     /// de formularios. Si no puede escribir, no hace nada: el registro no puede tumbar un
     /// request.
     /// </summary>

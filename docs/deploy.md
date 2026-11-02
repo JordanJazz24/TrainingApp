@@ -1,5 +1,8 @@
 # Instalación en el Servidor — MES TrainingApp
 
+Para TI. Lo que hace el dueño de la aplicación (base de datos, publicar, `connectionStrings.config`,
+republicar) está en `docs/publicacion.md`.
+
 ## Requisitos
 
 - **Conectividad HTTPS (puerto 443)** hacia `https://miappcr.com` para autenticación y registro de usuarios.

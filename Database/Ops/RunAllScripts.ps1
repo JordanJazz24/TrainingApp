@@ -1,12 +1,14 @@
 ﻿# ============================================================
-# RunAllScripts.ps1 — ejecuta Database/StoredProcedures/00–09 en orden
+# RunAllScripts.ps1 — ejecuta Database/StoredProcedures/00–12 en orden
 # numérico sobre una BD (docs/process.md → "Base de datos").
 #
 # Uso (desde la raíz del repo, en PowerShell):
-#   .\Database\Ops\RunAllScripts.ps1                       # BD existente (re-ejecutable)
-#   .\Database\Ops\RunAllScripts.ps1 -Recreate             # borra y crea la BD antes (D-124)
-#   .\Database\Ops\RunAllScripts.ps1 -User sa              # login SQL: pide la contraseña
+#   .\Database\Ops\RunAllScripts.ps1 -Server "localhost\SQLEXPRESS"              # BD existente (re-ejecutable)
+#   .\Database\Ops\RunAllScripts.ps1 -Server "localhost\SQLEXPRESS" -Recreate    # borra y crea la BD antes (D-124)
+#   .\Database\Ops\RunAllScripts.ps1 -Server "SERVIDOR\INSTANCIA" -User USUARIO   # login SQL: pide la contraseña
 #   .\Database\Ops\RunAllScripts.ps1 -Server "(localdb)\MSSQLLocalDB" -Database Prueba -Recreate
+#
+# -Server es obligatorio: ningún nombre de servidor queda versionado (AUD-79).
 #
 # Sin -User usa la autenticación de Windows. La contraseña no se pasa por la línea de
 # comandos: va a sqlcmd por la variable SQLCMDPASSWORD solo mientras corre el script.
@@ -16,13 +18,17 @@
 # Requiere: sqlcmd en el PATH.
 # ============================================================
 param(
-    [string]$Server   = "localhost\SQLEXPRESS",
+    [string]$Server,
     [string]$Database = "TrainingApp",
     [string]$User,
     [switch]$Recreate
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $Server) {
+    throw "Falta -Server (ej. -Server `"SERVIDOR\INSTANCIA`"): ningún servidor queda versionado en el script."
+}
 
 if (-not (Get-Command sqlcmd -ErrorAction SilentlyContinue)) {
     throw "No se encontró sqlcmd en el PATH."

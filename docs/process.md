@@ -248,7 +248,7 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
   `ALTER`.
 - **BD del servidor del MVP (D-130):** también es de pruebas hasta la versión final de
   noviembre, que instala una BD limpia. El usuario corre en ella los scripts nuevos o la
-  recrea con `RunAllScripts.ps1 -Recreate` + `CreateAdmin.sql` (`docs/deploy.md` → 2 y 7, desde
+  recrea con `RunAllScripts.ps1 -Recreate` + `CreateAdmin.sql` (`docs/publicacion.md` → 2 y 6, desde
   el 2026-10-22 lo hace él y no TI); no hace falta `ALTER`.
 - **SPs:** `CREATE OR ALTER`. Un SP que se elimina se borra de su script y se entrega un
   `DROP` aparte (los scripts no arrastran borrados viejos).

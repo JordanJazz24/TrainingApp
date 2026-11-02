@@ -15,7 +15,7 @@ worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los
 - Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 521. Textos de
   ayuda validados por negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
 - La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
-  E5 de `fase-9-plan.md` (la E3 y la E4 están cerradas) (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+  E6 de `fase-9-plan.md` (la E3, la E4 y la E5 están cerradas; la E6 la hace el usuario) (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
@@ -46,8 +46,6 @@ final (D-16) repasó esta lista.
   `TrainingApp/Properties/publish` (restos de la publicación del 22 de oct., ignorados por git) traen
   un `web.config` dentro de la app. Se compila una copia sin `obj`, `.vs` ni `publish` (`robocopy /XD`).
   No borrarlas: la publicación al servidor de la Fase 9 sigue pendiente del usuario.
-- **B-20:** `PodService.StartSession` no revisa que la guía esté publicada (ya existía antes de
-  R3; anotado por el usuario al cerrar R3, `docs/decisions.md`).
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).
   Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
