@@ -1,6 +1,6 @@
 # Brief de diseño 022: un mockup por pantalla (candidato a Fase 12)
 
-**Status:** **Approved 2026-10-27** (usuario) · plan `022-plan.md` · **Tipo:** brief de diseño
+**Status:** **Implemented 2026-11-02** (E1 a E9; aprobada 2026-10-27 por el usuario) · plan `022-plan.md` · **Tipo:** brief de diseño
 (`docs/process.md` → "1. Clasificar el pedido", fila 3), con métricas derivadas opcionales
 (D-205).
 **Date:** 2026-10-27 · dos rondas de preguntas con el usuario · **Sesión:** Arquitectura y

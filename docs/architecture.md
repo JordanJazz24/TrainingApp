@@ -653,8 +653,9 @@ Plan, enmiendas y mediciones: `docs/specs/018-plan.md`. Reglas de negocio:
   print` en `admin.css` y `d-print-none` ocultan el menú, los botones y la curva. Sale en
   claro aunque el tema oscuro esté activo (D-157). "Otras áreas" (un `<details>` nativo) no se
   imprime: va la línea "También entrenó" (spec 024, D-270).
-- **Rendimiento (AC-24, E7):** medido con `DashboardPerformanceTests` (explícito) contra la BD
-  del generador; las vistas y descargas en menos de 3 s, salvo las sesiones con "Todo" (D-148).
+- **Rendimiento (AC-24, E7; AC-7 de la 022, E9):** medido con `DashboardPerformanceTests`
+  (explícito) contra la BD del generador, con `Database/Ops/GenerateDashboardVolume.sql` para el
+  volumen; las vistas y descargas en menos de 3 s, salvo las sesiones con "Todo" (D-148).
 
 ## Sistema de diseño y tema (Fase 11, brief 019)
 
@@ -691,6 +692,21 @@ decisiones: `docs/specs/019-ui-ux-dashboard.md` y `019-plan.md` (D-153 a D-164).
   ve "Tu área" (`SiteMaster.ShowArea`, la llama `StartSession`). La cuenta muestra iniciales y
   nombre (`TopBar.Initials` y `AccountTitle`, solo presentación). El menú sigue con
   `CanViewReports` y `FullBleed` sigue ocultando la barra. La franja de Pasos es una tarjeta.
+- **Pantallas de la spec 022 (D-203, D-252):** cada una tiene su criterio en
+  `docs/specs/022-design/<pantalla>.md` (la lista de cambios del handoff de Claude Design: tokens,
+  componentes, estructura, comportamiento, textos y métricas) y sus D-n en
+  `docs/specs/022-mockups-por-pantalla.md` ("Pantallas aprobadas"). Los componentes son de cada
+  pantalla (`.steps-*`, `.users-*`, `.start-*`, `.summary-*`…) y los tokens, de todas.
+- **Resumen "Sala" (spec 022, E8b, D-320 a D-327):** un escenario (`.summary-stage`) con cuatro
+  pasos; cambiar de paso es solo cliente, en el `ScriptContent` de la página (pestañas
+  `role="tab"`, Anterior/Siguiente y ← / → fuera de los campos): sin postback, sin estado y sin
+  guardar el paso. La barra va con `hidden` hasta que el script la muestra, así sin JavaScript se
+  ven los cuatro pasos apilados. Los anillos son CSS (`conic-gradient`) con variables que pone el
+  servidor en `style` (`--ring-ok`, `--ring-bad`, `--ring-fill`). La actividad es un libro de
+  barras horizontales de Chart.js (`mtCharts`, `indexAxis: 'y'`); como mide 0 oculto, al mostrar
+  el paso 4 se llama `resize()`. El total global y su cambio salen de `SummaryTotals` (BLL, sin
+  test) con lo que `GetSummary` ya carga; `ChangeView` suma el veredicto (`PillCss`, `PillIcon`,
+  `PillText`, `VerdictLabel`, `Full`). Los filtros van siempre bajo el título (`.summary-head`).
 - **Impresión en claro:** el `@media print` del final de `admin.css` vuelve a poner los
   tokens claros dentro de `[data-bs-theme=dark]`. La ficha del Operador sale en claro con
   cualquier tema.

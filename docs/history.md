@@ -610,7 +610,7 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   tests en verde y `10_spDashboard.sql` en la BD del usuario. Probada por el usuario.
 - **Queda abierto:** correr `10_spDashboard.sql` en la BD de producción antes de publicar.
 
-## Spec 022 · Un mockup por pantalla (en curso, 2026-10-28)
+## Spec 022 · Un mockup por pantalla ✅ (2026-10-28 a 2026-11-02)
 **Objetivo:** rediseñar cada pantalla de `Admin.Master` según su mockup aprobado (spec
 `docs/specs/022-mockups-por-pantalla.md`, plan `022-plan.md`). Rama `spec-022`, en el worktree
 `.claude/worktrees/fase-11`, en el orden de D-219.
@@ -645,6 +645,28 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   (Diseño UI/UX). `/code-review medium` sin bugs; se aplicó `ReportText.Operators`. El usuario
   dejó como en el mockup la columna "En la cola" con la cola vacía y el formato de Code1. Sin
   capturas. Probada por el usuario.
+- **E6 (Operadores y Operador, `b34e721`, cierre `55931dd`, integrada en `c3f58d5`):** Operadores
+  (alternativa D con el encabezado K1, `1afe5ed`) y Operador con su ficha (H, "tres preguntas con
+  historial por guía", D-299 a D-305); el historial por guía en la BLL (curva con `Passed` de
+  `ReadinessPolicy`). Probada por el usuario.
+- **E7 (Usuarios, `8a9664c`, integrada en `a9ce811`):** la "Consola de cuentas" (CD-3, D-306 a
+  D-314), primera pantalla con el handoff local de Claude Design (D-251); `UserPageSummary` en la
+  BLL, sin test. Probada por el usuario.
+- **E8 (Inicio del operador, `3817e50`, integrada en `22bed84`):** alternativa D "Modo primero"
+  (D-315 a D-318); el área sale de la página (está en la barra) y `GuideCountText` en la BLL, sin
+  test. Review sin hallazgos (`90efca9`).
+- **E8b (Resumen "Sala", `c9d2c6c`, integrada en `fff2614`):** el Resumen entra en la spec por la
+  D-252; alternativa I (D-320 a D-327): cuatro pasos con pestañas y flechas de cliente (desvío
+  aprobado por el usuario), anillos CSS, veredicto por guía, libro de barras horizontales de
+  Actividad y `SummaryTotals` en la BLL, sin test. `/revisar medium`: 2 de 5 hallazgos aplicados.
+  Pendiente de negocio: la cifra global "contados por guía" (D-324).
+- **E9 (cierre, 2026-11-02):** AC-7 medido con `DashboardPerformanceTests` contra
+  `TrainingApp_DashboardTest` con 1 601 usuarios, 19 398 sesiones y 246 684 intentos
+  (`Database/Ops/GenerateDashboardVolume.sql`, nuevo): Resumen 1,08 s como máximo; la vista más
+  lenta, Pasos Práctica con Todo o Personalizado, 1,84 s. Las descargas pesadas siguen como en
+  D-148 (Excel de sesiones con Todo, 15 s; Operadores tardó 10 s la primera vez por el arranque y
+  0,5 s después). La variante de la nube termina (D-249). 461 tests en verde. El fin de sesión del
+  POD quedó para la spec 025 (D-253).
 
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver

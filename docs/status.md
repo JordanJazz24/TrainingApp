@@ -11,11 +11,11 @@
 en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por entrega (E8b en
 `fff2614`). Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
 
-**En curso (spec 022, un mockup por pantalla; plan `docs/specs/022-plan.md`)**
-- Hechas: E1 a E8 y E8b (Inicio del operador en `3817e50`; Resumen «Sala» en `c9d2c6c`). Sin capturas (D-242). Tests: 461.
-  Textos de ayuda validados por negocio (D-298, D-305, D-314). Falta validar los de Usuarios.
-- Siguiente: E9 (cierre de la 022); el fin de sesión del POD es la spec 025 (D-253). Pendiente
-  de negocio: la cifra global «contados por guía» del Resumen (D-324). `/rol desarrollo` al
+**En curso**
+- Nada abierto: la spec 022 está cerrada (E1 a E9, 2026-11-02; AC-7 medido, `docs/history.md`). Tests:
+  461. Textos de ayuda validados por negocio (D-298, D-305, D-314); falta validar los de Usuarios.
+- Siguiente: spec 025, Fin de sesión del POD (`docs/specs/025-plan.md`, E1). Pendiente de
+  negocio: la cifra global «contados por guía» del Resumen (D-324). `/rol desarrollo` al
   iniciar y `/cerrar-entrega <plan> <entrega>` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
@@ -41,9 +41,10 @@ en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por en
 Solo lo abierto; lo resuelto queda en la auditoría o la spec que lo cerró. La auditoría
 final (D-16) repasó esta lista.
 
-- **`Database/Ops/GenerateDashboardData.sql` ya no sirve para medir volumen:** desde el
-  2026-10-30 genera 100 operadores con perfiles fijos (para ver todos los estados), no los
-  1600 de la Fase 10. Para medir rendimiento hay que generar datos aparte.
+- **`GenerateDashboardData.sql` no sirve solo para medir volumen:** genera 100 operadores con
+  perfiles fijos. Para medir rendimiento, después correr `GenerateDashboardVolume.sql` (1 600
+  operadores, ~247 000 intentos). `TrainingApp_DashboardTest` está hoy con ese volumen: borrarla
+  si ya no se usa (`process.md` §6).
 - **B-20:** `PodService.StartSession` no revisa que la guía esté publicada (ya existía antes de
   R3; anotado por el usuario al cerrar R3, `docs/decisions.md`).
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).

@@ -42,7 +42,7 @@
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 | — · Filtro de período en Pasos y Resumen | ✅ (E1–E4: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`, en `spec-022`, integrada en `TrainingApp` en `f8aab65`; D-209 a D-218) | 2026-10-28 | `023-filtro-periodo.md`, `023-plan.md` |
 | — · Dashboard por área (Operadores y Operador) | ✅ (E1–E4 en la nube, revisada en local y verificada por Desarrollo en `spec-024`, cierre `ab81231`, integrada en `e86a9f3`; D-260 a D-274) | 2026-10-29 | `024-dashboard-por-area.md`, `024-plan.md` |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y Operadores (`1afe5ed`, cierre `866d80a`), integradas en `TrainingApp` (`4f59cbd`); E6 ✅ con Operador y su ficha (H, D-299 a D-305; `b34e721`, cierre `55931dd`, integrada en `c3f58d5`); E7 ✅ Usuarios (CD-3, handoff local D-251; `8a9664c`, cierre `733f70d`, integrada en `a9ce811`, D-306 a D-314); E8 ✅ Inicio (`3817e50`, review `90efca9`, integrada en `22bed84`); E8b ✅ Resumen «Sala» (D-252; `c9d2c6c`, cierre `c08b31f`, integrada en `fff2614`; D-320 a D-329 por numerar); falta la E9; el fin de sesión va a la spec 025 (D-253); sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| **12 · Mockups por pantalla** | ✅ (E1 a E9, 2026-11-02) brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y Operadores (`1afe5ed`, cierre `866d80a`), integradas en `TrainingApp` (`4f59cbd`); E6 ✅ con Operador y su ficha (H, D-299 a D-305; `b34e721`, cierre `55931dd`, integrada en `c3f58d5`); E7 ✅ Usuarios (CD-3, handoff local D-251; `8a9664c`, cierre `733f70d`, integrada en `a9ce811`, D-306 a D-314); E8 ✅ Inicio (`3817e50`, review `90efca9`, integrada en `22bed84`); E8b ✅ Resumen «Sala» (D-252; `c9d2c6c`, cierre `c08b31f`, integrada en `fff2614`; D-320 a D-327); E9 ✅ (AC-7 medido; cierre en este commit); el fin de sesión va a la spec 025 (D-253); sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 | — · Flujo de trabajo eficiente | ✅ (E1 `88b1ca3`, E2 `5ff7e13` en `spec-022`, E3 `4bdb449` + `cb103ff`; D-243 a D-249) | 2026-10-30 | `proceso-eficiente-plan.md` |
 | — · Fin de sesión del POD | ⏳ spec y plan aprobados el 2026-11-02 (`aa85d33`, `0a82f0b`; D-330 a D-339); arranca después de la E9 de la 022 | | `025-fin-de-sesion.md`, `025-plan.md` |
 
@@ -51,16 +51,13 @@
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **022 (Fase 12):** E8b Resumen «Sala» cerrada e integrada (`c9d2c6c`, `fff2614`). D-320 a
-   D-327 registradas (2026-11-02); negocio valida la aprobación global «contados por guía»
-   (`SummaryTotals`, D-324).
-2. **022, E9 de cierre:** Desarrollo, ya con esas D-n integradas. Con ella termina la variante de
-   la nube (D-249).
-3. **Spec 025 · Fin de sesión (D-253):** spec y plan aprobados (`aa85d33`, `0a82f0b`; 6 entregas,
-   E2 es el mockup del usuario en Claude Design con D-251). Desarrollo arranca la E1 al cerrar la
-   E9. Las D-n del diseño, desde D-340. Candidatas sin fase: historial y métricas del operador, y
-   su resultado visible para el admin (spec → "Candidatas para otra spec").
-4. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
+1. **Spec 025 · Fin de sesión (D-253):** la 022 está cerrada (E9, 2026-11-02; la variante de la
+   nube terminó, D-249). Spec y plan aprobados (`aa85d33`, `0a82f0b`; 6 entregas, E2 es el
+   mockup del usuario en Claude Design con D-251). Desarrollo arranca la E1. Las D-n del diseño,
+   desde D-340. Candidatas sin fase: historial y métricas del operador, y su resultado visible
+   para el admin (spec → "Candidatas para otra spec").
+2. **Negocio:** validar la aprobación global «contados por guía» del Resumen (D-324).
+3. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
 

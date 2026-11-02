@@ -433,11 +433,18 @@ D-251).
 
 ## E9 · Cierre
 
-- [ ] AC-7: rendimiento de las vistas con la BD de volumen (menos de 3 s,
+- [x] AC-7: rendimiento de las vistas con la BD de volumen (menos de 3 s,
       `DashboardPerformanceTests`), si hubo métricas derivadas.
-- [ ] Docs (Desarrollo): `docs/architecture.md` → "Sistema de diseño y tema" (tokens y
+- [x] Docs (Desarrollo): `docs/architecture.md` → "Sistema de diseño y tema" (tokens y
       componentes nuevos, la referencia a `022-design/`), `docs/decisions.md` (D-n de los
       mockups como vigentes), `docs/status.md` y `docs/history.md`. Avisar a Arquitectura y
       Planeación para el roadmap.
 
 **Hecho cuando:** todas las entregas tienen su "funciona" y la spec pasa a Implemented.
+
+> **Cerrada 2026-11-02.** AC-7: con `TrainingApp_DashboardTest` a 1 601 usuarios, 19 398 sesiones y
+> 246 684 intentos (nuevo `Database/Ops/GenerateDashboardVolume.sql`; la referencia era ~100 000
+> intentos), el Resumen tarda 1,08 s como máximo y la vista más lenta (Pasos Práctica con Todo o
+> Personalizado), 1,84 s. Las descargas no cambian (D-148). Docs: `architecture.md`, `history.md`,
+> `status.md` y `decisions.md` (D-320 a D-327 ya vigentes). La spec pasa a Implemented. 461 tests en
+> verde.
