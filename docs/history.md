@@ -668,6 +668,28 @@ Planeación (enmienda 1: D-272 a D-274) y traída por Desarrollo en la rama `spe
   0,5 s después). La variante de la nube termina (D-249). 461 tests en verde. El fin de sesión del
   POD quedó para la spec 025 (D-253).
 
+## Spec 025 · Fin de sesión del POD ✅ (2026-11-02)
+**Objetivo:** que al completar una sesión el operador vea su resultado, qué reforzar y qué hacer después,
+en una página propia (spec `docs/specs/025-fin-de-sesion.md`, plan `025-plan.md`, D-330 a D-345; diseño
+"Fin de sesión v3" en Claude Design, criterio en `docs/specs/025-design/fin-de-sesion.md`). Sin datos
+nuevos salvo un SP de lectura; ScoreCalculator, los pesos y lo que cuenta como intento no cambian (AC-10).
+- **E1 (`fc5630f`, datos y BLL):** `spTrainingSessionGetRecentCompleted` en `03`; `SessionResultRule` (puntos
+  por paso con `ScoreCalculator`, fallo/sin acierto/saltado con `StepRuns`; la suma da el `FinalScore`),
+  `ModePolicy.SuggestedNextMode`, `SessionResultService` (dueño y estado validados), `OperatorStartOptions.Preselect`
+  y `TrainingAccessRule.IsStartable`; 55 tests.
+- **E2 (diseño):** "Fin de sesión v3" aprobado por el usuario en Claude Design (Enmienda 1, D-340 a D-345).
+- **E3 (`03419d9`):** `SessionResult.aspx`: tarjeta de resultado, lista "Pasos" con selector A reforzar /
+  Todos en el cliente, "Qué hacer después" con los textos de D-343.
+- **E4 (`87c8bb2`):** el POD redirige al resultado (último paso, avance forzado o salto en el mismo request; la
+  limpieza de Logout navega al cerrar la consola; F5 o pestaña vieja también). Se borraron `PnlCompleted`,
+  `ShowCompletionPanel`, `PodService.AttemptSummary`, `StepAttemptSummary` y el modo `final` de la guía;
+  D-21 y D-86 quedaron sin efecto.
+- **E5 (`e322e4e`):** el Inicio con "Últimas sesiones" (5, plegado) y la preselección `?mode=&guide=`.
+- **E6 (cierre):** `domain.md`, `architecture.md` ("Fin de sesión") y `decisions.md` (D-330 a D-345 vigentes);
+  `/revisar low` de la spec: 2 de 5 aplicados (la URL del resultado en un solo lugar y que `LoadContext`
+  tolere un rol cambiado). 515 tests en verde. Rondas de corrección tras la primera prueba: 0 en las
+  cuatro entregas con navegador.
+
 ## Spec 023 · Filtro de período en Pasos y Resumen ✅ (2026-10-28)
 **Objetivo:** en Pasos y Resumen, elegir el período (cinco atajos, Todo y Personalizado) y ver
 cada número clave contra el período anterior, con su base (spec `docs/specs/023-filtro-periodo.md`,

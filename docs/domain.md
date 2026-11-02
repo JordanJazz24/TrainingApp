@@ -152,8 +152,8 @@ Cierre
  10. Logout           Clic en el ícono Logout del header (spec 015) y la limpieza al salir
                       (spec 016, D-65): "You have logged off" en Edge → cerrar Edge → el
                       script con el Code1 en el escritorio. El script cierra el paso y la
-                      sesión de entrenamiento; el resumen final sale al cerrar la consola.
-                      No cierra la sesión de la app.
+                      sesión de entrenamiento; al cerrar la consola el POD lleva a la
+                      página de resultado (spec 025). No cierra la sesión de la app.
 ```
 
 ## Modos de sesión (`TrainingSession.Mode`)
@@ -190,12 +190,32 @@ Cierre
     queda registrado como saltado y el POD como tras el avance forzado (ver "Qué cuenta como
     intento" → "Avance forzado").
   - El `FinalScore` se calcula sin penalización (un paso saltado vale 0) y no se muestra: ni
-    en el header ni en el resumen, que muestra los intentos por paso (1 = acertó a la
-    primera; "Saltado" o "Saltado (N fallos)"). Los intentos quedan separados por el modo de
-    la sesión.
+    en el header ni en el resultado, que muestra los intentos por paso (cada paso con sus
+    intentos y su desenlace: "A la primera", "Con N fallos", "Saltado" o "Saltado (N fallos)").
+    Los intentos quedan separados por el modo de la sesión.
 
 Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUDE.md` →
 "Capas".
+
+**Fin de sesión (spec 025).** Al completarse una sesión, el POD lleva a la página de resultado
+(`Pages/Training/SessionResult.aspx?sessionId=N`); ya no hay un resumen dentro del POD. Abandonar
+no la muestra (vuelve al Inicio). Es solo para el dueño y con la sesión completada. Reglas:
+- **Resultado según el modo (D-334):** Assessment, el veredicto (Aprobado o Reprobado contra el
+  70 %) y el puntaje; Guided, el puntaje sin veredicto; Práctica libre, sin puntaje (D-90): "N
+  de M pasos a la primera". Siempre la duración total (D-336).
+- **Pasos:** una lista con **A reforzar** y **Todos**. Cada paso con sus intentos, fallos
+  (por motivo: solo el tipo y el conteo, **nunca la respuesta correcta**) y desenlace; con
+  puntaje, los puntos obtenidos y posibles. La suma de los puntos por paso es el `FinalScore`.
+- **Qué reforzar (D-331):** los pasos con algún fallo o que terminaron sin acierto (avance
+  forzado); un paso saltado sin fallos no entra, uno saltado con fallos sí. En Assessment, con
+  los puntos perdidos.
+- **Qué hacer después (D-332):** una acción sugerida por la progresión de modos (Guided →
+  Práctica libre; Práctica libre sin fallos ni saltos → Assessment, con fallos o saltos →
+  Práctica libre de nuevo; Assessment reprobado → Práctica libre; aprobado → Ir al Inicio),
+  más Repetir (misma guía y modo; no aparece si es la misma que la principal) e Ir al Inicio
+  (Cerrar sesión ya está en la barra).
+  Llevan al Inicio con el modo y la guía elegidos y no inician la sesión (D-337). Si la guía ya no
+  se puede iniciar (no publicada o de otra área), solo Ir al Inicio.
 
 ## Qué cuenta como intento
 
@@ -271,9 +291,9 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
 - **Nunca cuentan:** navegación (Browse Work List, selección de filas, Abandon) y salir de
   un control sin responder (✗ / Return to POD). Logout dejó de ser navegación (spec 015):
   es el último paso; en ese paso el clic en el ícono no cuenta, empieza la limpieza (spec
-  016). Con la sesión de entrenamiento ya cerrada (resumen final), el ícono cierra la sesión
-  de la app (D-21). Para salir a mitad de una sesión queda Abandon (en el escritorio, desde la
-  barra del simulador).
+  016). Para salir a mitad de una sesión queda Abandon (en el escritorio, desde la barra del
+  simulador). Con la sesión ya cerrada el POD no se ve: el resultado tiene su página y la app se
+  cierra con "Cerrar sesión" de la barra (D-21 quedó sin efecto, spec 025, D-338).
 - **Avance forzado:** Ingreso a MES forzado deja ver el POD como si se hubiera entrado (spec
   016, P-5); Resource Setup forzado carga la orden por defecto (Shop Order
   `303406950`), ignorando lo capturado; Start forzado deja el POD como si Start se hubiera
@@ -281,7 +301,7 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
   aplica la disposición del hallazgo a su pieza (desecho: sale de la orden; reparación
   rápida: queda con el componente reemplazado; extendida: según la disposición); Complete
   forzado quita las filas del POD; Logout forzado (4.º fallo en la limpieza) cierra la sesión
-  con su resumen.
+  y lleva a su resultado.
 - **Mensajes del MES (spec 017):** cuando el operador provoca una situación que el MES real
   rechaza, se muestra su mensaje, en inglés y con número, en el banner del POD o en la franja
   de la ventana, **en los tres modos y sin cambiar la calificación** (D-92): lo que era
@@ -310,7 +330,7 @@ Qué hace cada modo vive en un solo lugar, `ModePolicy` (`BLL/Scoring/`): `CLAUD
 - **Paso saltado (Práctica libre, spec 012, P-9):** Saltar paso e Ir a… reusan el avance
   forzado: cada paso adelantado es un intento no correcto con `Reason = Skipped` (6) y
   `Action = Practice.Skip`, que resuelve el paso y deja el POD igual que el avance forzado
-  (lo parcial de Assembly o DC se descarta). Saltar Logout cierra la sesión con su resumen.
+  (lo parcial de Assembly o DC se descarta). Saltar Logout cierra la sesión y lleva a su resultado.
   Un destino que ya no está adelante (doble clic, F5) se ignora; uno fuera de la guía, o un
   salto en Guided o Assessment, es un invariante violado (excepción), no un intento.
 

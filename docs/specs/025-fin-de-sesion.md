@@ -1,6 +1,6 @@
 # Spec 025: Fin de sesión del POD
 
-**Status:** Approved 2026-11-02 (usuario) · **enmendada 2026-11-02** (enmienda 1, diseño de la E2:
+**Status:** **Implemented 2026-11-02** (E1 `fc5630f`, E3 `03419d9`, E4 `87c8bb2`, E5 `e322e4e`; E2, el diseño, en Claude Design) · Approved 2026-11-02 (usuario) · **enmendada 2026-11-02** (enmienda 1, diseño de la E2:
 D-340 a D-345) · plan `025-plan.md` (aprobado 2026-11-02, 6 entregas) · **Date:** 2026-11-02 · **Origen:** D-253 (`022-mockups-por-pantalla.md` →
 "Candidatas para otra spec") · **Sesión:** Planeación 025 (segunda sesión de Arquitectura y
 Planeación, local, a pedido de Planeación)

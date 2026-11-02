@@ -28,7 +28,10 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │                                     ReportText (textos), ExcelReports y
 │   │   │                                     XlsxStreamWriter (.xlsx), filas de cada vista
 │   │   └── Training/
-│   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo
+│   │       ├── StartSession.aspx + .cs    ← elegir Product → Area → Guía → modo; "Últimas sesiones"
+│   │       │                                 y preselección ?mode=&guide= (spec 025)
+│   │       ├── SessionResult.aspx + .cs   ← fin de sesión: el resultado (spec 025)
+│   │       ├── SessionResultText.cs       ← textos del fin de sesión (motivos, desenlaces, acciones)
 │   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
 │   │       ├── SessionPodStateStore.cs    ← IPodStateStore sobre la Session (spec 009)
 │   │       ├── StepHints.cs               ← pista de cada paso (Guided tras un fallo y Ver
@@ -112,7 +115,10 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   ├── PieceSelectionRule.cs      ← qué filas exige cada paso (Serialized)
 │   │   │   ├── StepTypes.cs               ← familia Log NC: IsLogNC y el método de cada tipo (spec 014)
 │   │   │   ├── StepNames.cs               ← nombre de un paso con su variante (spec 012)
-│   │   │   ├── StepAttemptSummary.cs      ← resumen de Práctica libre: intentos por paso (spec 012)
+│   │   │   ├── SessionResultRule.cs       ← el detalle del fin de sesión: pasos, qué reforzar,
+│   │   │   │                                 puntos por paso (spec 025)
+│   │   │   ├── SessionResultService.cs    ← resultado de una sesión propia y completada, acciones
+│   │   │   │                                 sugeridas y últimas 5 (spec 025)
 │   │   │   ├── NcFinding.cs               ← hallazgo de un paso de Log NC, NcDisposition y
 │   │   │   │                                 NcFindingGenerator (spec 014)
 │   │   │   ├── LogNCAnswer.cs             ← contrato JSON de la respuesta de Log NC (D-59)
@@ -342,9 +348,10 @@ diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de e
 - **Logout simulado (spec 015):** el ícono del header es el último paso
   (`PodService.ClickLogout`): con la sesión en curso pasa por `CheckSequence` y, en su paso,
   empieza la limpieza al salir (spec 016, ver "Ingreso a MES y limpieza"), que cierra la
-  sesión de entrenamiento con el resumen, sin tocar la sesión de la app. Sin
-  sesión en curso (resumen final, pestaña vieja), `GuidedTest.LoadContext` llama
-  `SessionHelper.Logout()` (D-21, AUD-33). Logout no tiene control de paso
+  sesión de entrenamiento y lleva a su resultado (ver "Fin de sesión"), sin tocar la sesión de
+  la app. Sin sesión en curso (pestaña vieja de una sesión abandonada), `GuidedTest.LoadContext`
+  llama `SessionHelper.Logout()` (AUD-33); si la sesión es propia y completada, redirige a su
+  resultado (D-338; D-21 quedó sin efecto). Logout no tiene control de paso
   (`GetStepControl` devuelve null). Complete quita las filas completadas de la orden (D-22),
   también al forzarse y al reconstruir el estado.
 
@@ -434,9 +441,45 @@ Reglas: `docs/domain.md` → "Modos de sesión" y "Qué cuenta como intento".
   Ingreso a MES y en Logout elige el texto por tramo con el mismo avance que usan los
   `ResumeName` de `GuideScriptBuilder` (`MesLoginProgress` y `State.Logout`). Lo usan Ver pista
   y la pista de Guided tras un fallo.
-- **Resumen (D-86):** `PodService.AttemptSummary(ctx)` → `StepAttemptSummary.Build`, con los
-  intentos que ya trae el contexto del cierre (sin consulta nueva); `ShowCompletionPanel` lo
-  muestra cuando `Summary = AttemptsPerStep`, sin puntaje ni resultado.
+- **Resumen de Práctica libre:** ya no está en el POD (D-86 quedó sin efecto, spec 025): lo
+  absorbe el fin de sesión (ver "Fin de sesión").
+
+## Fin de sesión (spec 025)
+
+El resultado de una sesión completada tiene su página, fuera del POD y sin guía visual:
+`Pages/Training/SessionResult.aspx?sessionId=N` (`Site.Master`). Reglas de negocio:
+`docs/domain.md` → "Modos de sesión" → "Fin de sesión". Diseño: `docs/specs/025-design/`.
+
+- **Invariante en la BLL (P-2):** `SessionResultService.Get(userId, sessionId)` devuelve el
+  resultado solo si la sesión es del usuario y está `Completed`; si no (ajena, en curso,
+  abandonada, inexistente, o un `sessionId` que no es un número), `null` y la página va al Inicio
+  sin avisar. Quien no puede entrenar es `UnauthorizedAccessException`. Lee por una interfaz
+  (`ISessionResultSource`, con `RepositorySessionResultSource` de producción) para probarse con
+  datos en memoria. El `sessionId` de la URL nunca se usa sin esa validación.
+- **Regla pura (`SessionResultRule`, P-3, P-7):** un renglón por paso de la guía con intentos,
+  fallos, motivos y desenlace, y qué reforzar. No repite reglas: la definición de fallo, sin
+  acierto y saltado es la de `StepRuns` (Pasos), y los puntos de cada paso salen de
+  `ScoreCalculator.CalculateSessionScore` paso por paso, así que su suma es el `FinalScore`
+  guardado. Los textos (motivos en español, desenlaces, "Qué hacer después") son presentación,
+  en `Pages/Training/SessionResultText`.
+- **Qué sugerir (D-332, P-8):** `ModePolicy.SuggestedNextMode(wentWell)`; el servicio calcula
+  si la guía sigue siendo iniciable con `TrainingAccessRule.IsStartable` (una sola definición con
+  `EnsureCanStart`) y arma las acciones como URL del Inicio con `?mode=&guide=` (D-337). Repetir
+  no aparece si es la misma que la principal (D-342).
+- **Preselección del Inicio (P-9):** `OperatorStartOptions.Preselect(mode, guide)` valida cada
+  valor por separado (modo definido; guía entre las iniciables del operador) y descarta el
+  inválido sin aviso; `StartSession` la aplica solo en la primera carga. Iniciar sigue siendo el
+  único camino que crea una sesión (`PodService.StartSession` vuelve a validar).
+- **Últimas sesiones (D-335):** `spTrainingSessionGetRecentCompleted` (script `03`, solo
+  `Status = 1`, sin filtrar por guía publicada) y `SessionResultService.GetRecent` (5, con
+  "Producto · Área" solo si es otra área que la actual).
+- **El POD redirige (D-338, P-10):** `GuidedTest.CompleteSession` redirige a la página en el
+  mismo request (último paso, salto o avance forzado). Con la limpieza de Logout cerrada por el
+  script, la consola muestra su salida y al cerrarla el cliente navega (`MesLoginView.CloseUrl`).
+  `GuidedTest.LoadContext` lleva al resultado una sesión propia y completada (F5, pestaña vieja).
+  Abandon y abandonar al iniciar otra siguen yendo al Inicio (D-333).
+- **Guía de Guided (P-11):** la página no lleva guía ni anclas `data-guide`; en la limpieza queda
+  solo el paso de cerrar la consola (se quitó el globo final y su modo `final`).
 
 ## Log NC: tres métodos (spec 014)
 

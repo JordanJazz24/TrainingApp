@@ -12,12 +12,11 @@ en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por en
 `fff2614`). Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso**
-- Nada abierto: la spec 022 está cerrada (E1 a E9, 2026-11-02; AC-7 medido, `docs/history.md`). Tests:
-  461. Textos de ayuda validados por negocio (D-298, D-305, D-314); falta validar los de Usuarios.
-- Spec 025, Fin de sesión del POD (`docs/specs/025-plan.md`): E1, E3, E4 y E5 hechas (`fc5630f`, `03419d9`, `87c8bb2`, `e322e4e`; 515 tests). Siguiente: E6,
-  cierre y docs. Pendiente de
-  negocio: la cifra global «contados por guía» del Resumen (D-324). `/rol desarrollo` al
-  iniciar y `/cerrar-entrega <plan> <entrega>` al cerrar.
+- Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 515. Textos de
+  ayuda validados por negocio (D-298, D-305, D-314); falta validar los de Usuarios.
+- Pendiente de negocio: la cifra global «contados por guía» del Resumen (D-324). Lo siguiente lo define
+  Planeación (`docs/roadmap.md` → «Siguiente»; candidatas: historial y métricas del operador, y el
+  resultado visible para el administrador). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).

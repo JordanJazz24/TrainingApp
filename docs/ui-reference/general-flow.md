@@ -1119,8 +1119,8 @@ de los demás banners del POD: `SFC {sfc} completed` (NonSerialized) o `{N} SFCs
    con el Code1 en el escritorio. Pantallas: `pre-sap-flow.md`.
 
 ### Reglas de la pantalla
-- No cierra la sesión de la app; el resumen final sale al cerrar la consola del script.
-- **Con la sesión ya cerrada** (resumen final): el ícono cierra la sesión de la app (D-21).
+- No cierra la sesión de la app; al cerrar la consola del script el simulador lleva a la página
+  de resultado (spec 025). Con la sesión ya cerrada el POD no se ve (D-21 quedó sin efecto).
 - **Guía de Guided:** el subpaso señala el ícono con la nota de la trainer ("Cierra sesión en
   MES siempre que dejes de usar activamente el sistema…").
 

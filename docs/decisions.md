@@ -61,7 +61,7 @@
 | D-18 | 2026-10-12 | `DEFAULT_PASSWORD` sigue versionada en `Constants`, con su valor de siempre | archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
 | D-19 | 2026-10-12 | T1 se aprueba como preparación, sin probarlo en el servidor real | history.md → "T1" | pendiente (prueba en el servidor real: la prueba de humo de la E1 de la Fase 9) |
 | D-20 | 2026-10-13 | El reclamo de cuenta ajena no se cierra: solo detección, riesgo aceptado | specs/013-cuentas-roles-actividad.md; archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
-| D-21 | 2026-10-14 | Con la sesión de entrenamiento cerrada, Logout cierra la sesión de la app | specs/015-plan.md | vigente; queda sin efecto al implementar la spec 025 (D-338) |
+| D-21 | 2026-10-14 | Con la sesión de entrenamiento cerrada, Logout cierra la sesión de la app | specs/015-plan.md | sin efecto (spec 025, D-338) |
 | D-22 | 2026-10-14 | Complete saca del POD las filas completadas | specs/015-plan.md | vigente |
 | D-23 | 2026-10-14 | El grupo Trainer reemplaza en sitio el tercer grupo opcional en `05` y `08` | specs/015-plan.md | vigente |
 | D-24 | 2026-10-14 | Nota del grupo Trainer en Guided: subpaso Info sobre su fila | specs/015-plan.md | vigente |
@@ -126,7 +126,7 @@
 | D-83 | 2026-10-20 | Saltar un paso = avance forzado voluntario | specs/012-plan.md | vigente |
 | D-84 | 2026-10-20 | Resultado del salto y repintado del POD | specs/012-plan.md | enmendada (enmienda 1: `Response.Redirect`) |
 | D-85 | 2026-10-20 | Nombres de los pasos con su variante (`StepNames.Display`) | specs/012-plan.md | vigente |
-| D-86 | 2026-10-20 | El resumen de Práctica libre sale del `PodContext` | specs/012-plan.md | vigente; la spec 025 lo reemplaza al implementarse (D-339, P-13) |
+| D-86 | 2026-10-20 | El resumen de Práctica libre sale del `PodContext` | specs/012-plan.md | sin efecto (spec 025, D-339, P-13) |
 | D-87 | 2026-10-20 | Las pistas salen del code-behind a `StepHints` | specs/012-plan.md | vigente |
 | D-88 | 2026-10-20 | Aviso "Ese no es el paso actual." sin intento en Práctica libre | specs/012-plan.md | vigente |
 | D-89 | 2026-10-20 | Barra de práctica a la derecha de Abandon | specs/012-plan.md | vigente |
@@ -356,22 +356,22 @@
 | D-325 | 2026-11-02 | Spec 022, Resumen, paso 4: Actividad como libro de barras horizontales (Chart.js, `indexAxis: 'y'`, total al final de cada barra); alto de 32 px por fila con tope de 560 px y desplazamiento interno (añadido en el review, no estaba en el handoff) | specs/022-mockups-por-pantalla.md | vigente |
 | D-326 | 2026-11-02 | Spec 022, Resumen: textos nuevos (pestañas, encabezados de los pasos, "Paso n.º 1", "con fallo", veredictos); el cambio dice "= 0 pts · Sin cambio" cuando no varía | specs/022-mockups-por-pantalla.md | vigente |
 | D-327 | 2026-11-02 | Spec 022, Resumen: ajustes de la prueba del usuario: los filtros siempre bajo el título (`.summary-head`, antes dependían del ancho del texto del rango), el aviso de "Todo" y el rango a la izquierda (`.summary-slow`) y la separación sin JavaScript solo entre pasos visibles | specs/022-mockups-por-pantalla.md | vigente |
-| D-330 | 2026-11-02 | Spec 025, fin de sesión: lo primero es el resultado y el puntaje (en Assessment, el veredicto contra el 70 %); debajo, qué reforzar y el detalle por paso | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-331 | 2026-11-02 | Spec 025: qué reforzar son los pasos con fallo, cuántos y de qué tipo, sin revelar la respuesta correcta; en Assessment, los puntos perdidos | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-332 | 2026-11-02 | Spec 025: acción principal sugerida por progresión de modos (regla en la BLL con tests); secundarias Repetir, Ir al Inicio y Cerrar sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-333 | 2026-11-02 | Spec 025: la página de resultado aplica solo al completar; abandonar sigue yendo al Inicio | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-334 | 2026-11-02 | Spec 025: puntaje por paso solo donde ya se ve (Assessment y Guided); Práctica libre sin puntaje (D-90 sigue) | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-335 | 2026-11-02 | Spec 025: en el Inicio, las últimas 5 sesiones completadas propias con su enlace, sin resultado, en un bloque debajo de "Modo primero" y sin tokens nuevos. Precisa D-315 | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-336 | 2026-11-02 | Spec 025: solo la duración total de la sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-337 | 2026-11-02 | Spec 025: la acción sugerida y Repetir llevan al Inicio con modo y guía elegidos (validados en la BLL); no inician la sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-338 | 2026-11-02 | Spec 025: el POD redirige al resultado al cerrar la consola de la limpieza (o en el request del salto o del avance forzado); sale el `PnlCompleted` y D-21 queda sin efecto | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-339 | 2026-11-02 | Spec 025: propuestas P-1 a P-16 confirmadas por el usuario (P-7 sin los saltados; P-5 y P-9 precisadas) | specs/025-fin-de-sesion.md | pendiente (spec 025) |
-| D-340 | 2026-11-02 | Spec 025, diseño: una sola lista "Pasos" con selector A reforzar / Todos (en el cliente, abre en A reforzar); reemplaza los bloques A.3 y A.4 sin cambiar sus reglas | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
-| D-341 | 2026-11-02 | Spec 025, diseño: sin el aviso "te llevamos al Inicio…" bajo los botones (D-337 sigue) | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
-| D-342 | 2026-11-02 | Spec 025, diseño: Repetir no aparece si coincide con la acción principal. Precisa D-332 | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
-| D-343 | 2026-11-02 | Spec 025, diseño: textos de "Qué hacer después", aprobados por el usuario tal como están (no pasan por negocio) | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
-| D-344 | 2026-11-02 | Spec 025, diseño: "Últimas sesiones" del Inicio, plegado (`.steps-card .steps-ranking`, "Mostrar ▾"). Precisa D-335 y D-315 | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
-| D-345 | 2026-11-02 | Spec 025, diseño aprobado "Fin de sesión v3" (Claude Design): estructura, componentes `.res`, `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next`, `.last-*`; sin tokens nuevos; JS solo el selector | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
+| D-330 | 2026-11-02 | Spec 025, fin de sesión: lo primero es el resultado y el puntaje (en Assessment, el veredicto contra el 70 %); debajo, qué reforzar y el detalle por paso | specs/025-fin-de-sesion.md | vigente |
+| D-331 | 2026-11-02 | Spec 025: qué reforzar son los pasos con fallo, cuántos y de qué tipo, sin revelar la respuesta correcta; en Assessment, los puntos perdidos | specs/025-fin-de-sesion.md | vigente |
+| D-332 | 2026-11-02 | Spec 025: acción principal sugerida por progresión de modos (regla en la BLL con tests); secundarias Repetir, Ir al Inicio y Cerrar sesión | specs/025-fin-de-sesion.md | vigente |
+| D-333 | 2026-11-02 | Spec 025: la página de resultado aplica solo al completar; abandonar sigue yendo al Inicio | specs/025-fin-de-sesion.md | vigente |
+| D-334 | 2026-11-02 | Spec 025: puntaje por paso solo donde ya se ve (Assessment y Guided); Práctica libre sin puntaje (D-90 sigue) | specs/025-fin-de-sesion.md | vigente |
+| D-335 | 2026-11-02 | Spec 025: en el Inicio, las últimas 5 sesiones completadas propias con su enlace, sin resultado, en un bloque debajo de "Modo primero" y sin tokens nuevos. Precisa D-315 | specs/025-fin-de-sesion.md | vigente |
+| D-336 | 2026-11-02 | Spec 025: solo la duración total de la sesión | specs/025-fin-de-sesion.md | vigente |
+| D-337 | 2026-11-02 | Spec 025: la acción sugerida y Repetir llevan al Inicio con modo y guía elegidos (validados en la BLL); no inician la sesión | specs/025-fin-de-sesion.md | vigente |
+| D-338 | 2026-11-02 | Spec 025: el POD redirige al resultado al cerrar la consola de la limpieza (o en el request del salto o del avance forzado); sale el `PnlCompleted` y D-21 queda sin efecto | specs/025-fin-de-sesion.md | vigente |
+| D-339 | 2026-11-02 | Spec 025: propuestas P-1 a P-16 confirmadas por el usuario (P-7 sin los saltados; P-5 y P-9 precisadas) | specs/025-fin-de-sesion.md | vigente |
+| D-340 | 2026-11-02 | Spec 025, diseño: una sola lista "Pasos" con selector A reforzar / Todos (en el cliente, abre en A reforzar); reemplaza los bloques A.3 y A.4 sin cambiar sus reglas | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
+| D-341 | 2026-11-02 | Spec 025, diseño: sin el aviso "te llevamos al Inicio…" bajo los botones (D-337 sigue) | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
+| D-342 | 2026-11-02 | Spec 025, diseño: Repetir no aparece si coincide con la acción principal. Precisa D-332 | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
+| D-343 | 2026-11-02 | Spec 025, diseño: textos de "Qué hacer después", aprobados por el usuario tal como están (no pasan por negocio) | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
+| D-344 | 2026-11-02 | Spec 025, diseño: "Últimas sesiones" del Inicio, plegado (`.steps-card .steps-ranking`, "Mostrar ▾"). Precisa D-335 y D-315 | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
+| D-345 | 2026-11-02 | Spec 025, diseño aprobado "Fin de sesión v3" (Claude Design): estructura, componentes `.res`, `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next`, `.last-*`; sin tokens nuevos; JS solo el selector | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
 
 ## Bugs que ya existían (B-n)
 

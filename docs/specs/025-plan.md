@@ -194,7 +194,7 @@ con la limpieza), AC-2 (Práctica libre cerrada con Saltar Logout; Guided comple
 resultado y en el POD de una sesión cerrada), AC-7 (Abandon), AC-10 (el POD igual, ningún globo
 de la guía colgado).
 
-> **Cerrada 2026-11-03 (87c8bb2).** Los tres cierres llevan al resultado: el último paso o el avance forzado y el salto redirigen en el mismo request (`CompleteSession`); la limpieza de Logout cerrada por el script deja la consola con su salida y, al cerrarla, el cliente navega (`MesLoginView.CloseUrl`, antes `CloseToSummary`); `LoadContext` lleva al resultado una sesión propia y completada (`SessionResultService.Get`, F5 o pestaña vieja). Se borraron `PnlCompleted` y su markup, `ShowCompletionPanel`, `LnkNewSession`, `RptAttemptSummary`, `PodService.AttemptSummary`, `StepAttemptSummary` (con su test, cubierto por `SessionResultRuleTests`), el CSS `.pod-completion*` y el modo `final` de la guía (C#, `pod-guide.js` y el ancla `pod-final`); la guía de Guided conserva solo el paso de cerrar la consola (P-11). Abandon sin cambios. Rebuild, `aspnet_compiler` y 515 tests en verde. `/revisar low`: 1 de 2 aplicado (la URL del resultado en un solo helper); descartado: Logout en una pestaña vieja ya cerrada lleva al resultado (D-338 deja sin efecto D-21). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor).
+> **Cerrada 2026-11-02 (87c8bb2).** Los tres cierres llevan al resultado: el último paso o el avance forzado y el salto redirigen en el mismo request (`CompleteSession`); la limpieza de Logout cerrada por el script deja la consola con su salida y, al cerrarla, el cliente navega (`MesLoginView.CloseUrl`, antes `CloseToSummary`); `LoadContext` lleva al resultado una sesión propia y completada (`SessionResultService.Get`, F5 o pestaña vieja). Se borraron `PnlCompleted` y su markup, `ShowCompletionPanel`, `LnkNewSession`, `RptAttemptSummary`, `PodService.AttemptSummary`, `StepAttemptSummary` (con su test, cubierto por `SessionResultRuleTests`), el CSS `.pod-completion*` y el modo `final` de la guía (C#, `pod-guide.js` y el ancla `pod-final`); la guía de Guided conserva solo el paso de cerrar la consola (P-11). Abandon sin cambios. Rebuild, `aspnet_compiler` y 515 tests en verde. `/revisar low`: 1 de 2 aplicado (la URL del resultado en un solo helper); descartado: Logout en una pestaña vieja ya cerrada lleva al resultado (D-338 deja sin efecto D-21). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor).
 
 ## E5 · Últimas sesiones y preselección en el Inicio — Esfuerzo: `medium`
 
@@ -212,20 +212,22 @@ tabla A.5 llega al Inicio con modo y guía elegidos y no crea una sesión; guía
 Ir al Inicio; `?mode=9&guide=abc` se ignora; modo válido con guía de otra área = solo el modo),
 AC-8 (con 0, con 3 y con más de 5 sesiones; una de otra área con su "Producto · Área"), AC-9.
 
-> **Cerrada 2026-11-03 (e322e4e).** `StartSession.aspx(.cs)`: el bloque «Últimas sesiones» (`<details class="steps-card steps-ranking">` plegado, filas `.last-*`) debajo del bloque de inicio, que no se reordena; oculto sin sesiones completadas; cada fila con el modo, la fecha y hora de la planta y «Ver resultado» (`SessionResultService.GetRecent`, `SessionResultText.Recent`). La preselección de `?mode=&guide=` pasa por `OperatorStartOptions.Preselect` y se aplica a las tarjetas de modo y a `DdlGuide` solo en la primera carga. Estilos `.last-*` en el bloque de la spec 025 de `admin.css`, sin tokens nuevos. Rebuild, `aspnet_compiler` y 515 tests en verde. Sin `/revisar` (binding y markup; la preselección ya está probada desde la E1). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor). Sin datos reales en la prueba para «más de 5 sesiones» ni «una de otra área»: los cubren los tests de `GetRecent`.
+> **Cerrada 2026-11-02 (e322e4e).** `StartSession.aspx(.cs)`: el bloque «Últimas sesiones» (`<details class="steps-card steps-ranking">` plegado, filas `.last-*`) debajo del bloque de inicio, que no se reordena; oculto sin sesiones completadas; cada fila con el modo, la fecha y hora de la planta y «Ver resultado» (`SessionResultService.GetRecent`, `SessionResultText.Recent`). La preselección de `?mode=&guide=` pasa por `OperatorStartOptions.Preselect` y se aplica a las tarjetas de modo y a `DdlGuide` solo en la primera carga. Estilos `.last-*` en el bloque de la spec 025 de `admin.css`, sin tokens nuevos. Rebuild, `aspnet_compiler` y 515 tests en verde. Sin `/revisar` (binding y markup; la preselección ya está probada desde la E1). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor). Sin datos reales en la prueba para «más de 5 sesiones» ni «una de otra área»: los cubren los tests de `GetRecent`.
 
 ## E6 · Cierre — Esfuerzo: `medium`
 
-- [ ] `docs/domain.md` → "Modos de sesión" (el resumen ya no está en el POD: va a la página de
+- [x] `docs/domain.md` → "Modos de sesión" (el resumen ya no está en el POD: va a la página de
       resultado, con sus reglas de qué reforzar y la sugerencia) y → "Qué cuenta como intento" →
       "Nunca cuentan" (sale la frase de D-21).
-- [ ] `docs/architecture.md`: el fin de sesión (la página, `SessionResultService`, el redirect del
+- [x] `docs/architecture.md`: el fin de sesión (la página, `SessionResultService`, el redirect del
       POD y la URL del Inicio con preselección); quitar lo de `ShowCompletionPanel` y D-86.
-- [ ] `docs/decisions.md`: D-330 a D-339 pasan a "vigente"; D-21 y D-86, a "sin efecto (spec 025)";
+- [x] `docs/decisions.md`: D-330 a D-339 pasan a "vigente"; D-21 y D-86, a "sin efecto (spec 025)";
       las D-n del diseño (E2), con su fila.
-- [ ] Spec: "Status" a Implemented con los commits; casillas de este plan.
-- [ ] `/revisar low` de todo el diff de la spec, foco en consistencia con la spec y AC-10.
-- [ ] Aviso a Planeación: spec cerrada (para el roadmap y sus candidatas).
+- [x] Spec: "Status" a Implemented con los commits; casillas de este plan.
+- [x] `/revisar low` de todo el diff de la spec, foco en consistencia con la spec y AC-10.
+- [x] Aviso a Planeación: spec cerrada (para el roadmap y sus candidatas).
 
 **Verifica Desarrollo:** que los docs coincidan con lo implementado; `docs/status.md` y
 `docs/history.md` en el commit.
+
+> **Cerrada 2026-11-02 (HASHE6).** `domain.md` ("Fin de sesión", y sin la frase de D-21), `architecture.md` (nueva sección «Fin de sesión», el árbol y el Logout simulado; sin `ShowCompletionPanel` ni D-86), `decisions.md` (D-330 a D-345 «vigente»; D-21 y D-86 «sin efecto») y `ui-reference/general-flow.md`; la spec pasa a Implemented. `/revisar low` de la spec: 2 de 5 aplicados (`SessionResultService.ResultUrl` como único lugar de la URL, `OwnCompleted` que tolera un rol cambiado); descartados: la fecha (corregida a 2026-11-02), «Cerrar sesión» en D-332 (es la de la barra), el redondeo del puntaje (`DECIMAL(5,2)`) y el costo de `Get` en la ruta rara de F5. Pendiente de Planeación: el roadmap y las candidatas.
