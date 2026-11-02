@@ -339,8 +339,8 @@ detalle aprobado agrega `OperatorActivity` (D-304), así que va en `high`.*
 > conflictos. `/revisar medium`: 5 hallazgos, 1 aplicado (la curva toma `Passed` de
 > `ReadinessPolicy` vía `CurvePoint.Passed`, ya no `ScoreCalculator` en el code-behind), 4
 > descartados. Rebuild, `aspnet_compiler` y 461 tests en verde. Probada por el usuario.
-> **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250). **Falta:** que
-> negocio valide los textos de qué hacer (D-298/D-305).
+> **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250). Los textos de qué
+> hacer (D-298/D-305) ✅ validados por negocio (usuario, 2026-11-02).
 
 ## E7 · Usuarios (después de la E4 de la 021)
 
@@ -380,7 +380,8 @@ de Diseño UI/UX), que el usuario le pasa a Desarrollo; Desarrollo lo trae con e
 > `aspnet_compiler` y 461 tests en verde. Probada por el usuario. **Rondas de corrección tras la
 > primera prueba: 1** (espacio bajo el buscador por `flex: 0 1 380px` de `.admin-search` y
 > "Volver a la lista" visible en escritorio: `.btn` le ganaba a `.users-back`; piloto de Sonnet,
-> D-250). **Falta:** que negocio valide los textos de "qué pasa" y de las acciones (D-314).
+> D-250). Los textos de "qué pasa" y de las acciones (D-314) ✅ validados por negocio (usuario,
+> 2026-11-02).
 > D-n: D-306 a D-314 (Diseño UI/UX, 2026-10-30); el área en la ficha, y no en una columna,
 > enmienda D-208 y la primera casilla de esta entrega (D-307).
 

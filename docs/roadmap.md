@@ -51,12 +51,10 @@ Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `do
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
 1. **022 (Fase 12):** E7 cerrada e integrada (`a9ce811`; D-306 a D-314). Sigue la E8 Inicio con el
-   handoff local (D-251): el usuario diseña en Claude Design con el prompt de `022-briefs.md` y le
-   pasa el handoff a Desarrollo. Sus D-n, D-315 a D-319. Al cerrar la E8 termina la variante de la
+   handoff local (D-251): el usuario la está diseñando en Claude Design (2026-11-02) y le pasa el
+   handoff a Desarrollo. Sus D-n, D-315 a D-319. Al cerrar la E8 termina la variante de la
    nube (D-249).
-2. **Negocio:** validar los textos de "qué hacer" (D-298, también en Operador por D-305) y los de
-   "qué pasa" y las acciones de Usuarios (D-314); si cambian, cambia solo el texto.
-3. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
+2. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
 
