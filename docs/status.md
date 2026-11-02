@@ -12,9 +12,9 @@ se trabajan en `spec-022` (worktree `.claude/worktrees/fase-11`), sin integrar. 
 está en los planes (`docs/specs/`), `docs/history.md` y `git log`; aquí solo lo vivo.
 
 **En curso (spec 022, un mockup por pantalla; plan `docs/specs/022-plan.md`)**
-- Hechas: E1 a E8 (E8 Inicio del operador en `3817e50`). Sin capturas (D-242). Tests: 461.
+- Hechas: E1 a E8 y E8b (Inicio del operador en `3817e50`; Resumen «Sala» en `c9d2c6c`). Sin capturas (D-242). Tests: 461.
   Textos de ayuda validados por negocio (D-298, D-305, D-314). Falta validar los de Usuarios.
-- Siguiente: pantallas Resumen y Sesión completada (por diseñar con Diseño UI/UX; alcance por
+- Siguiente: pantalla Sesión completada (por diseñar con Diseño UI/UX; alcance por
   confirmar con Planeación), luego E9 (cierre). `/rol desarrollo` al iniciar y
   `/cerrar-entrega <plan> <entrega>` al cerrar.
 
