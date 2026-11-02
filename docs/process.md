@@ -119,73 +119,28 @@ planeación, "desarrollo").
   `/usage` de la semana los viernes, junto con el reporte. Datos del 2026-10-30:
   `docs/specs/proceso-eficiente-plan.md` → "Datos de partida".
 
-#### Variante temporal: specs y planes en la nube (usuario, 2026-10-27)
+#### Diseño con Claude Design: handoff local (D-251, permanente por D-254)
 
-**Temporal:** termina al cerrar la 022 (E8, D-249): se vuelve al flujo normal (specs y planes
-en la sesión local de Arquitectura y Planeación) y esta subsección se quita.
+Cuando una spec o un brief de diseño pide un mockup, **Claude Design diseña, itera con el usuario
+y, al aprobarse, entrega un handoff**. Lo guía un prompt para Claude Design que escribe Planeación
+en la spec o el plan, para que desde la primera iteración sepa qué tiene que incluir. El usuario
+copia el handoff a **Desarrollo**, que lo trae en local con el MCP `claude_design`. Sin sesiones
+ni ramas de la nube: la variante de la nube terminó con la 022 (D-249).
 
-- **Remotes:** `azure` es el repo oficial (Azure DevOps, `SimulatorMES`); `origin` es GitHub
-  (`JordanJazz24/TrainingApp`, privado, con la Claude GitHub App), el puente que ve la nube.
-  La nube solo ve lo que está pusheado a `origin`.
-- **La nube hace de Arquitectura y Planeación** para las specs y los planes que el usuario le
-  asigne: `/spec` y plan por entregas, con las mismas reglas (sección 1). Trabaja en la rama
-  `cloud/NNN-slug` y hace push **solo a esa rama**, nunca a `TrainingApp` ni a `main`. No
-  compila ni prueba (VM Linux: sin .NET Framework, `aspnet_compiler`, vstest ni SQL Server):
-  a lo sumo propone cambios de BD o BLL con tests que corre el usuario.
-- **Integrar en local** (carpeta real, rama `TrainingApp`):
-  `git fetch origin` → `git merge origin/cloud/NNN-slug` → `git push azure TrainingApp` y
-  `git push origin TrainingApp`, para que la nube vea lo último.
-- **Avisos:** una sesión en la nube recibe mensajes pero no puede contestar ni avisar; el
-  usuario hace de mensajero. Cuando la spec o el plan entran en `TrainingApp`, el usuario le
-  pide a Desarrollo la E1, con su ciclo normal (sección 2).
-- **La sesión local de Arquitectura y Planeación sigue siendo dueña de `docs/roadmap.md`**:
-  revisa el alcance de lo que llega de la nube contra la fase en curso, registra la fase, el
-  plan y el orden, y no duplica la spec.
-- **Enmiendas:** en la nube (el usuario le pega el problema) o en la sesión local, si la de la
-  nube ya terminó.
-- **Sin diff antes de cada commit** (usuario, 2026-10-27): la nube no le muestra el diff de los
-  docs al usuario antes de commitear; la sesión local revisa la rama al integrarla.
-- **Numeración:** cada frente usa su rango de D-n y B-n (`docs/decisions.md` → encabezado). El
-  2026-10-27 la nube y la sesión local tomaron D-202 a la vez.
-- **Spec 024, de punta a punta en la nube (usuario, 2026-10-28):** la sesión de la nube
-  `TrainingApp-Desarrollo` hace la spec (con las preguntas al usuario), el plan, la
-  implementación y el `/code-review` en `cloud/024-<slug>`, con el código marcado "no
-  verificada" (no compila ni prueba). Al final, la sesión local revisa la rama **contra la misma
-  spec y el mismo plan**. Después, Desarrollo la trae con su ciclo normal (Rebuild,
-  `aspnet_compiler`, tests, el "funciona" del usuario y commit en `TrainingApp`). Ese ciclo
-  local no se salta.
-- **Handoff de Claude Design (spec 022, D-226; usuario, 2026-10-28):** el usuario aprueba un
-  mockup en Claude Design y lo manda, con el "Prompt de handoff" de `022-briefs.md`, a una
-  sesión de la nube que lo implementa en `cloud/022-<pantalla>`. El commit va marcado "no
-  verificada" y la rama trae `docs/specs/022-design/<pantalla>.md`. Esa sesión no numera
-  decisiones ni toca docs de estado. La nube de planeación de la 022 (`Diseño UI/UX`) registra
-  las D-n y enmienda la spec y el plan. **Desarrollo** trae la rama a su entrega como punto de
-  partida, con el ciclo normal (sección 2): Rebuild, `aspnet_compiler`, `/code-review`, el
-  "funciona" del usuario y el commit en `TrainingApp`. Nunca se integra tal cual. La sesión
-  local de Arquitectura y Planeación integra solo las ramas de docs (`cloud/NNN-slug`), salvo
-  la variante de la spec 024 (abajo). La 022 va
-  sin capturas: ni Desarrollo las toma ni se le piden al usuario (D-242, que deja sin efecto D-240).
-- **Handoff local de Claude Design (spec 022, D-251; usuario, 2026-10-30; desde la E7 Usuarios):**
-  para ahorrar tokens, **Claude Design hace lo que hacía la sesión de diseño de la nube (D-284)**:
-  diseña, itera con el usuario y, al aprobarse, entrega en su handoff todo lo que esa sesión dejaba
-  en su rama. Lo guía un **prompt para Claude Design** que genera Diseño UI/UX (en `022-briefs.md`),
-  para que desde la primera iteración sepa qué tiene que incluir. El usuario copia el handoff a
-  **Desarrollo**, que lo trae en local con el MCP `claude_design`, sin sesión de la nube ni rama
-  `cloud/022-<pantalla>`.
-  - El handoff trae la lista de cambios para `docs/specs/022-design/<pantalla>.md` (la
-    alternativa elegida, el resumen de su crítica, los cambios frente al v1 en tokens,
-    componentes, estructura, comportamiento y textos, las métricas derivadas y lo que Desarrollo
-    debe revisar) y señala los desvíos de alcance. Desarrollo la guarda tal cual.
-  - **Desarrollo se detiene ante un desvío de alcance**, lo señale o no el handoff: datos nuevos
-    (SQL o tablas), una regla de negocio nueva, otro comportamiento (otros controles, postbacks o
-    flujo de errores), tocar los masters o tokens que cambien pantallas ya cerradas. Le avisa a
-    Planeación, que le propone la enmienda al usuario con una D-n local. Una métrica derivada de
-    presentación en la BLL (sin test, como D-235 a D-304) no lo detiene.
-  - Desarrollo implementa, valida y compila con el ciclo normal (sección 2). Tras el "funciona",
-    commitea con el `.md` y "D-n pendientes".
-  - Diseño UI/UX numera las D-n después, desde ese commit integrado, y las registra en la spec.
-  - El handoff por la nube (D-226) sigue como alternativa, y la sesión de diseño en la nube
-    (D-284), para cuando Claude Design no esté disponible.
+- El handoff trae la lista de cambios para `docs/specs/NNN-design/<pantalla>.md` (la
+  alternativa elegida, el resumen de su crítica, los cambios en tokens, componentes, estructura,
+  comportamiento y textos, las métricas derivadas y lo que Desarrollo debe revisar) y señala los
+  desvíos de alcance. Desarrollo la guarda tal cual; si el proyecto trae solo el prototipo, la
+  escribe desde él **antes** de implementar (como la E3 de la 025).
+- **Desarrollo se detiene ante un desvío de alcance**, lo señale o no el handoff: datos nuevos
+  (SQL o tablas), una regla de negocio nueva, otro comportamiento (otros controles, postbacks o
+  flujo de errores), tocar los masters o tokens que cambien pantallas ya cerradas. Le avisa a
+  Planeación, que le propone la enmienda al usuario con una D-n. Una métrica derivada de
+  presentación en la BLL (sin test, como D-235 a D-324) no lo detiene.
+- Desarrollo implementa, valida y compila con el ciclo normal (sección 2) y, tras el "funciona",
+  commitea con el `.md`.
+- **Las D-n del diseño las numera Planeación:** en una enmienda de la spec antes de implementar
+  (como la 025, D-340 a D-345) o después, desde el commit integrado (como la 022).
 
 ## 2. Cada entrega
 
@@ -317,7 +272,8 @@ Los tests de la BLL con datos en memoria cubren reglas puras (`TrainingApp.Test/
 - `TrainingApp` es la rama de desarrollo y la carpeta real
   (`…\MES Training Simulator`) siempre está en ella: ahí apuntan VS, IIS Express y la
   terminal del usuario. A `main` sube los cambios finales el usuario (D-5): no tocarla. El
-  usuario hace push cuando quiere. **Antes de commitear en la carpeta real, revisar la rama**
+  usuario hace push cuando quiere, a los dos remotes: `azure` (Azure DevOps, `SimulatorMES`, el
+  oficial) y `origin` (GitHub `JordanJazz24/TrainingApp`, privado; era el puente de la nube). **Antes de commitear en la carpeta real, revisar la rama**
   (`git branch --show-current`): el 2026-10-27 quedó en `main` y un commit de docs entró ahí.
 - **Se trabaja en una rama y su worktree, y se integra a `TrainingApp` cuando el usuario lo
   aprueba** (usuario, 2026-10-22: "primero trabajamos en la branch o worktree y luego de

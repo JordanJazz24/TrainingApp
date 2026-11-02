@@ -7,16 +7,16 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-11-02 · **Rama de desarrollo:** `TrainingApp`. La 022 se trabaja
-en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por entrega (E8b en
-`fff2614`). Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
+**Última actualización:** 2026-11-02 · **Rama de desarrollo:** `TrainingApp`. Sin ramas ni
+worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los planes
+(`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso**
 - Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 515. Textos de
-  ayuda validados por negocio (D-298, D-305, D-314); falta validar los de Usuarios.
-- Pendiente de negocio: la cifra global «contados por guía» del Resumen (D-324). Lo siguiente lo define
-  Planeación (`docs/roadmap.md` → «Siguiente»; candidatas: historial y métricas del operador, y el
-  resultado visible para el administrador). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+  ayuda validados por negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
+- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
+  2.ª publicación (`docs/roadmap.md` → «Siguiente»): D-144, `removeServerHeader` en
+  `Web.Release.config`, antes de republicar. `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
@@ -25,16 +25,13 @@ en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por en
 - Antes de publicar a producción, correr en su BD: `00`, `01`, `02`, `03`, `05`, `10` (el
   `03` y el código van juntos), y `11` y `12` (guía de Subensamble 1; probarla en el navegador).
   Los scripts que cambiaron están en `Database/StoredProcedures/`.
-- Fase 9 (MVP): primer administrador en producción (`CreateAdmin.sql`), publicar con
-  `MVP.pubxml`, entregar a TI la carpeta y `docs/deploy.md`, prueba de humo en el servidor
-  (D-19), versión de IIS y HTTPS (D-144), mensaje de lanzamiento (D-132).
+- Fase 9: el MVP ya está publicado y funciona (IIS 10 con HTTPS, D-19 cerrada). Falta la 2.ª
+  publicación: los scripts de arriba en la BD del servidor, republicar (`docs/deploy.md`, paso 6)
+  y el mensaje de lanzamiento (D-132).
 - Avisar a los trainers que cada operador elegirá su área en su próximo ingreso (D-170).
-- Ramas y BDs viejas: `git branch -d fase-11 spec-021`; `git worktree prune`; borrar
-  `TrainingApp_Fase10` y `TrainingApp_Fase11` de LocalDB si ya no se usan (`process.md` §7).
+- BDs viejas: borrar `TrainingApp_Fase10` y `TrainingApp_Fase11` de LocalDB si ya no se usan.
 - Elegir la guía piloto de Custom Resource Setup (D-194; hoy todas son Standard).
-- Rotar la contraseña de `sa` local (D-8); revisar AUD-45 a AUD-70
-  (`docs/audits/2026-10-19-fidelidad-ui.md`); capturas de los 4 modales del Start de Moldeo.
-- Cerrar la sesión "Desarrollo" de Remote Control que quedó offline.
+- Capturas de los 4 modales del Start de Moldeo.
 
 ## Deuda y riesgos conocidos
 

@@ -92,8 +92,9 @@ están ✅.
 
 - [x] **Regresión local** antes de publicar, en Assessment: **LoFlo (Serialized) completa** y
   **Moldeo (NonSerialized) completa**, del login al resumen.
-- [ ] Publicar con el perfil `MVP` y pasarle a TI la carpeta, `Database/` y `docs/deploy.md`.
-- [ ] **Prueba de humo en el servidor**, cuando TI lo tenga listo (cierra D-19):
+- [x] Publicar con el perfil `MVP` y pasarle a TI la carpeta, `Database/` y `docs/deploy.md`.
+- [x] **Prueba de humo en el servidor**, cuando TI lo tenga listo (cierra D-19; usuario,
+  2026-11-02: publicado sin configuración especial, IIS 10 con HTTPS, la app funcionó):
   - el `web.config` publicado no tiene `debug="true"` y sí `customErrors`;
   - desde otra PC, ya autenticado, `…/Pages/Training/GuidedTest.aspx?sessionId=<b>`
     muestra el "Runtime Error" genérico, sin detalle;
@@ -173,6 +174,8 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
   - un error provocado queda en el archivo de log;
   - las cabeceras se ven en las herramientas del navegador;
   - una sesión completa de Serialized y una de NonSerialized (jQuery cambia).
+- [ ] **D-144 (2026-11-02):** TI tiene IIS 10, así que antes de republicar Desarrollo agrega
+  `removeServerHeader="true"` solo en `Web.Release.config` (enmienda 2).
 - [ ] Republicar (paso 6 de `docs/deploy.md`).
 
 ## No incluye

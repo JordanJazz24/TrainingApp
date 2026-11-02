@@ -34,7 +34,7 @@
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
-| 9 · Deploy del MVP | ✅ (en el servidor faltan la publicación, la prueba de humo, D-19, y el lanzamiento, a cargo del usuario y TI) | 2026-10-22 | `fase-9-plan.md` |
+| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando en el servidor, IIS 10 con HTTPS; D-19 cerrada); falta la E2, la 2.ª publicación, y el mensaje de lanzamiento | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
@@ -51,19 +51,20 @@
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **Por decidir (usuario):** la próxima spec. Candidatas de la 025 (spec → "Candidatas para otra
-   spec"): historial y métricas del operador, y su resultado visible para el admin desde el
-   dashboard. Siguiente D-n libre: D-346.
-2. **Negocio:** validar la aprobación global «contados por guía» del Resumen (D-324) y los textos
-   de ayuda de Usuarios (`docs/status.md`).
-3. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
-   los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
-   decida (D-5).
+1. **Fase 9, E2 · 2.ª publicación (versión final, 2.ª semana de noviembre):** Desarrollo agrega
+   `removeServerHeader` en `Web.Release.config` (D-144, IIS 10 confirmado); el usuario corre los
+   scripts que lista `docs/status.md` en la BD del servidor, republica (`docs/deploy.md`, paso 6) y
+   manda el mensaje de lanzamiento (D-132, D-134).
+2. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
+   para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-256.
+3. **Usuario:** avisar a los trainers que cada operador elige su área (D-170); la guía piloto de
+   Custom Resource Setup (D-194); las capturas de los 4 modales del Start de Moldeo; subir
+   `TrainingApp` a `main` cuando lo decida (D-5).
 
 ### Abiertos de secciones archivadas
 
 Pendientes que quedaron sin cerrar en secciones movidas a
-`docs/archivo/roadmap-hasta-2026-10-30.md`. Antes de retomarlos, confirmar si una spec posterior
+`docs/archivo/` (la Fase 12, archivada el 2026-11-02, no dejó ninguno). Antes de retomarlos, confirmar si una spec posterior
 ya los resolvió.
 
 - **Fase 8 → Revisión con SAP MES (2026-10-09):** variantes del flujo que entran (decidir con
@@ -82,6 +83,8 @@ lanzamiento, que hace el usuario). AUD-28 (lo barato) y AUD-29 (parches) se suma
 2.ª publicación (E2), que se hace **junto con la Fase 10** (D-135). Mientras tanto avanzan la
 Fase 10 y las mejoras, y la **versión final se entrega en la 2.ª semana de noviembre**. Los
 datos del MVP se descartan (D-130). Lo que sigue es el texto original de la fase.
+**2026-11-02 (usuario):** el MVP se publicó sin configuración especial del servidor (IIS 10, con
+HTTPS) y funcionó; D-19 cerrada. Falta la E2: republicar con D-144 y el mensaje de lanzamiento.
 
 **Objetivo:** deploy en servidor interno con IIS: connection string de producción, App Pool,
 permisos, prueba de humo. Incluye AUD-28/29.
@@ -90,56 +93,3 @@ permisos, prueba de humo. Incluye AUD-28/29.
   publicar: precompilar el sitio y configurar el App Pool con `startMode="AlwaysRunning"`,
   `preloadEnabled="true"` (Application Initialization) e idle timeout 0.
 **No incluye:** CI/CD automatizado, monitoreo avanzado.
-
-### Fase 12 — Mockups por pantalla (spec 022)
-
-**Brief de diseño aprobado el 2026-10-27: `docs/specs/022-mockups-por-pantalla.md`**, con su
-plan `022-plan.md` (9 entregas) y los briefs para Claude Design en `022-briefs.md`. Se hizo en la
-nube (`cloud/022-mockups-por-pantalla`, D-202 a D-207) y se integró el 2026-10-27. Nace de que
-al usuario no le gustaron las pantallas sin mockup de la Fase 11: reemplaza D-160 y el "sin
-mockup" de D-163.
-
-**Objetivo:** que cada pantalla tenga su propio mockup aprobado en Claude Design (3 alternativas
-que difieren en la estructura) y se implemente contra la exportación guardada en
-`docs/specs/022-design/<pantalla>.html`, que es su criterio de aceptación.
-
-**Incluye:** Login, Cambio de contraseña, Guías, Pasos, Seguimiento, Operadores, Operador (con la
-ficha impresa), Usuarios e Inicio del operador; cambios al sistema de diseño (cada uno una D-n,
-para toda la app; el Login fija el sistema); métricas derivadas en la BLL con los datos que la
-vista ya carga, cada una con su D-n (D-205).
-
-**No incluye:**
-- el Resumen (más allá de heredar tokens), "Elige tu área", el POD y los Excel;
-- datos, SPs o columnas nuevos; cambios de reglas, filtros, estados o cálculos;
-- acciones, filtros o descargas que hoy no existen;
-- React u otro framework, fuentes web, CDN y colores de marca corporativa.
-
-**Orden, en paralelo con la 021 (D-207, P-7):** cada entrega espera su mockup aprobado. E1
-(sistema de diseño), E2 (Login y Cambio de contraseña), E3 (Guías), E4 (Pasos) y E5
-(Seguimiento) son libres y se intercalan con la 021 cuando el usuario se lo pida a Desarrollo,
-nunca a la mitad de una entrega de la 021. E6 (Operadores y Operador) va después de la E5 de la
-021; E7 (Usuarios), después de su E4, y E8 (Inicio del operador), después de su E3. **La 021
-se cerró el 2026-10-27:** desde entonces ninguna entrega de la 022 espera a la 021, solo su mockup.
-- **Coordinación:** la 021 y la 022 tocan `admin.css` y `Users.aspx`. La 022 se implementa en su
-  propia rama (`spec-022`), y la E1 se coordina con Desarrollo para no pisar la 021.
-- **Enmiendas de la nube integradas (2026-10-28, `863f925`):** la 021 cerrada (ninguna entrega
-  la espera, solo la E1 y su mockup); Usuarios sin "Quitar área" (D-208), con el lápiz en la
-  columna Área; rango D-220 a D-239 y B-30 a B-39; los briefs se usan con Claude Design leyendo
-  el repo (rama `TrainingApp`) con un prompt corto por pantalla (`022-briefs.md` → "Cómo
-  usarlos").
-- **Login aprobado (2026-10-28, `f197a85`):** alternativa 3b, panel dividido (D-220 a D-225):
-  tokens `--mt-brand-*` y `--mt-on-brand*` (D-221), `.auth-*` y `.mt-status-line` (D-222),
-  `Admin.Master` con `FullBleed` solo en el login (D-223), errores en la línea de estado en vez
-  de SweetAlert (D-224) y textos nuevos (D-225). El criterio pasa a ser capturas PNG y
-  `022-design/<pantalla>.md`, no el HTML exportado (D-227, excepción a P-3). Flujo con handoff
-  de Claude Design (D-226, `process.md` → "Variante temporal"): la rama `cloud/022-login-3b`
-  (`c7294ee`, "no verificada") es el punto de partida de la E1 y la E2a; no se integra tal cual.
-- **Orden con la 023 (D-219):** ver "Spec 023 → Orden". La E2 se parte en E2a (Login) y E2b
-  (Cambio de contraseña).
-- **Cambio de contraseña aprobado (2026-10-28, `2fd0e8b`):** alternativa 2a (D-228): franja de
-  marca y una tarjeta montada, 3 pasos en primer acceso, Nueva y Confirmar lado a lado y los
-  requisitos fijos; `.pw-*` y `.mt-steps` reutilizable, sin tokens nuevos (D-229); pantalla
-  completa siempre, también en el cambio voluntario (D-230); errores en `.mt-status-line` y
-  botones `LinkButton` (D-231); textos nuevos (D-232). "Cancelar y cerrar sesión" solo nombra lo
-  que ya hacía Cancelar (`SessionHelper.Logout`). Rama de partida `cloud/022-cambio-contrasena`
-  (`221297f`, sale de la del Login): la E2b va después de la E2a.
