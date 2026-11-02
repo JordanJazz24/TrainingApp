@@ -50,8 +50,7 @@
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **022 (Fase 12):** E8 Inicio cerrada e integrada (`22bed84`). Diseño UI/UX numera sus D-n
-   (D-315 a D-319).
+1. **022 (Fase 12):** E8 Inicio cerrada e integrada (`22bed84`; D-315 a D-318).
 2. **022, E8b Resumen (D-252):** brief 10 listo (`022-briefs.md`); el usuario lo diseña en Claude
    Design con el prompt del handoff local y le pasa el handoff a Desarrollo. Sus D-n, D-320 a D-329. Después, la E9 de cierre, y
    con ella termina la variante de la nube (D-249).
