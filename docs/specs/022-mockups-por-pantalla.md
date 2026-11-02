@@ -211,6 +211,25 @@ probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criter
 | D-289 | **Cambio a una pantalla cerrada (Pasos, E4):** la franja de Pasos pasa a ser una **tarjeta** (margen, esquinas de 16 px, sombra, al ancho de `.steps-wrap`), para no tener dos bandas azules seguidas bajo la barra. Precisa D-239 |
 | D-290 | **Textos:** `Site.Master` dice "TrainingApp" en la marca y el `<title>` (antes "Simulador de entrenamiento MES"); el admin ve su **nombre** (antes su Code1; si no hay nombre, el Code1); el operador "Code1 n" y "Tu área"; nuevos "Dashboard", "Administración" y "Menú" |
 
+### Resumen (2026-11-02, alternativa I "Sala", D-320 a D-327)
+
+Implementada con el handoff local (D-251) en `c9d2c6c` (integrada en `fff2614`); `/revisar medium`
+en la misma entrega (2 de 5 hallazgos aplicados). Criterio: `022-design/resumen.md`, **guardada
+por Desarrollo antes de implementar** (D-251). Tres rondas de diseño (la actual recreada con A a C;
+D a F; G a I); el usuario eligió I sin ajustes. Sin tokens nuevos ni cambios en los masters;
+D-328 y D-329 quedan sin usar. Pendiente de negocio: la cifra global "contados por guía" (D-324).
+
+| D | Qué |
+|---|---|
+| D-320 | **Alternativa I, "Sala":** debajo de los filtros y el encabezado de siempre, cuatro pestañas y un escenario que muestra un paso a la vez: 1 Listos y mejor o peor, 2 Por guía, 3 Dónde se falla, 4 Actividad. Mismos controles (`PnlFilters`, `Period`, `DdlGuide`, `BtnFilter`, `LnkExport`, `RptGuides`, `RptTop`, `LnkFollowUp`, `LnkSteps`…), ids y postbacks; el período y la comparación de la 023 quedan intactos y los números no cambian (AC-5) |
+| D-321 | **Cliente, sin postback:** pestañas, Anterior/Siguiente y ← / → (solo fuera de campos) cambian de paso; entra siempre en el paso 1, también tras Filtrar; sin JavaScript se ven los cuatro apilados (la barra va oculta hasta que el script la muestra). Es el desvío de alcance de D-251: el usuario lo aprobó antes de implementar |
+| D-322 | **Componentes:** entran `.summary-tabs/-tab/-nav`, `.summary-stage/-slide`, los anillos (`conic-gradient`, con variables que pone el servidor), `.summary-glance`, `.summary-gcards`, `.summary-top1` y `.summary-ledger`; se borran los del v1. Sin tokens nuevos; `admin-charts.js` no cambia |
+| D-323 | **Paso 1:** anillo con los estados sumados, aprobación global (56 px) con su veredicto y una fila por guía con su tasa y su pastilla. Nunca solo color: ícono y palabra. Con Todo, "Sin comparación" |
+| D-324 | **`SummaryTotals`** en la BLL (aprobados totales, aprobación global y su cambio: el anterior pondera la tasa de cada guía por sus evaluados), presentación sin test y sin regla nueva (como D-235 a D-318). Los operadores se cuentan por guía: quien entrena en dos guías suma dos veces; **negocio debe validar esa cifra** |
+| D-325 | **Paso 4:** libro de barras horizontales de Chart.js, una fila por día, semana o mes apilada por modo y el total al final; 32 px por fila, con tope de 560 px y desplazamiento interno, y el tooltip por fila (`axis: 'y'`). Lo añadió Desarrollo en el review; no estaba en el handoff |
+| D-326 | **Textos:** pestañas, encabezados de cada paso, "Paso n.º 1", "con fallo" y los veredictos; los de las notas, los vacíos y los períodos no cambian |
+| D-327 | **Ajustes de la prueba:** los filtros siempre bajo el título (con Todo cabían al lado, porque el ancho de la barra seguía al texto del rango); el aviso de descarga lenta y el rango, a la izquierda; y la separación sin JavaScript solo entre pasos visibles |
+
 ### Inicio del operador (2026-11-02, alternativa D "Modo primero", D-315 a D-318)
 
 Implementada con el handoff local (D-251) en `3817e50`; review `90efca9` sin hallazgos. Criterio:

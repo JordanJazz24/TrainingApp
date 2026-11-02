@@ -7,16 +7,16 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-10-30 · **Rama de desarrollo:** `TrainingApp`. La 022 y la 023
-se trabajan en `spec-022` (worktree `.claude/worktrees/fase-11`), sin integrar. Lo cerrado
-está en los planes (`docs/specs/`), `docs/history.md` y `git log`; aquí solo lo vivo.
+**Última actualización:** 2026-11-02 · **Rama de desarrollo:** `TrainingApp`. La 022 se trabaja
+en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por entrega (E8b en
+`fff2614`). Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso (spec 022, un mockup por pantalla; plan `docs/specs/022-plan.md`)**
 - Hechas: E1 a E8 y E8b (Inicio del operador en `3817e50`; Resumen «Sala» en `c9d2c6c`). Sin capturas (D-242). Tests: 461.
   Textos de ayuda validados por negocio (D-298, D-305, D-314). Falta validar los de Usuarios.
-- Siguiente: pantalla Sesión completada (por diseñar con Diseño UI/UX; alcance por
-  confirmar con Planeación), luego E9 (cierre). `/rol desarrollo` al iniciar y
-  `/cerrar-entrega <plan> <entrega>` al cerrar.
+- Siguiente: E9 (cierre de la 022); el fin de sesión del POD es la spec 025 (D-253). Pendiente
+  de negocio: la cifra global «contados por guía» del Resumen (D-324). `/rol desarrollo` al
+  iniciar y `/cerrar-entrega <plan> <entrega>` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).

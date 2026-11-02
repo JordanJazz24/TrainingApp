@@ -1,5 +1,11 @@
 # Resumen · alternativa I "Sala" (aprobada 2026-11-02)
 
+> **Enmienda 2026-11-02 (D-320 a D-327):** lo de abajo es el handoff tal cual se guardó antes de
+> implementar. Cambió al probar: el libro de Actividad tiene tope de 560 px y desplazamiento
+> (D-325); los filtros van siempre bajo el título y el aviso de «Todo» y el rango a la izquierda
+> (D-327); `ChangeView.Full` dice «= 0 pts · Sin cambio» (D-326); la barra de pestañas va oculta
+> hasta que el script la muestra (D-321). El desvío de cliente lo aprobó el usuario (D-321).
+
 **Spec:** `../022-mockups-por-pantalla.md` · **Brief:** 10 de `../022-briefs.md` (D-252) · **Plan:** `../022-plan.md` → E8b · **Punto de partida:** `TrainingApp` (sin rama de handoff; el paquete es `design_handoff_resumen_sala/`, con el prototipo `Resumen Sala.dc.html` como referencia; incluye la pantalla actual recreada para comparar).
 
 Lista de cambios frente al v1 (el código actual de `Summary.aspx`), tal como se aprobó en el prototipo "Resumen · brief 10" (sesión de diseño, D-284). Tres rondas:

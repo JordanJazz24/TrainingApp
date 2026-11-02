@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-254 (local, rango D-240 a D-259) · D-320 (nube, spec 022; rango D-280 a D-299, D-300 a D-319 y después D-320 a D-329). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-254 (local, rango D-240 a D-259) · D-328 (nube, spec 022; rango D-280 a D-299, D-300 a D-319 y después D-320 a D-329). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -23,6 +23,7 @@
 >   El siguiente bloque libre es D-320.
 >   **2026-11-02:** para el Resumen (E8b, D-252) la nube sigue con **D-320 a D-329**, al agotar
 >   D-319. El siguiente bloque libre es D-330.
+>   **2026-11-02:** el Resumen (E8b) usó D-320 a D-327; a la nube de la 022 le quedan D-328 y D-329.
 >   **2026-11-02:** la spec 025 toma **D-330 a D-349** (y B-50 a B-59); el siguiente bloque
 >   libre es D-350.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
@@ -347,6 +348,14 @@
 | D-316 | 2026-11-02 | Spec 022, Inicio: el área ya no se repite en la página (está en la barra, D-286). Precisa D-167 | specs/022-mockups-por-pantalla.md | vigente |
 | D-317 | 2026-11-02 | Spec 022, Inicio: `.start-row` y `.start-go`; se borra `.start-fields`; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-318 | 2026-11-02 | Spec 022, Inicio: textos ("¿Cómo quieres entrenar?", "Guía · N guías") y `GuideCountText` en la BLL, sin test | specs/022-mockups-por-pantalla.md | vigente |
+| D-320 | 2026-11-02 | Spec 022, Resumen: alternativa I "Sala" (una pregunta a la vez: 4 pasos en un escenario, pensada para proyectar); la elegida entre tres rondas, sin ajustes | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-321 | 2026-11-02 | Spec 022, Resumen: cambiar de paso es de cliente, sin postback (pestañas, Anterior/Siguiente y ← / → fuera de los campos); Filtrar vuelve al paso 1 y sin JavaScript se ven los 4 apilados. Desvío de alcance aprobado por el usuario antes de implementar (D-251); mismos controles, ids, postbacks y filtros en la URL | specs/022-mockups-por-pantalla.md | vigente |
+| D-322 | 2026-11-02 | Spec 022, Resumen: componentes `.summary-*` de la Sala (se borran los del v1: `.summary-ready*`, `.summary-guide*`, `.summary-grid`, `.summary-block*`…); sin tokens nuevos; `admin-charts.js` no cambia | specs/022-mockups-por-pantalla.md | vigente |
+| D-323 | 2026-11-02 | Spec 022, Resumen, paso 1: anillo "46 de 90 aprobados" (estados con todo el historial, contados por guía), aprobación global del período con su cambio y, por guía, tasa y veredicto (Mejora, Empeora, Sin cambio, Sin datos, Sin comparación), siempre con ícono y palabra | specs/022-mockups-por-pantalla.md | vigente |
+| D-324 | 2026-11-02 | Spec 022, Resumen: `SummaryTotals` (BLL, `SummaryReport.Totals`) suma lo que `GetSummary` ya carga, sin SP nuevo ni test (como D-235 a D-318); `ChangeView` suma `VerdictLabel`, `Full` y la pastilla. La cifra global "contados por guía" la valida negocio | specs/022-mockups-por-pantalla.md | vigente; pendiente de negocio |
+| D-325 | 2026-11-02 | Spec 022, Resumen, paso 4: Actividad como libro de barras horizontales (Chart.js, `indexAxis: 'y'`, total al final de cada barra); alto de 32 px por fila con tope de 560 px y desplazamiento interno (añadido en el review, no estaba en el handoff) | specs/022-mockups-por-pantalla.md | vigente |
+| D-326 | 2026-11-02 | Spec 022, Resumen: textos nuevos (pestañas, encabezados de los pasos, "Paso n.º 1", "con fallo", veredictos); el cambio dice "= 0 pts · Sin cambio" cuando no varía | specs/022-mockups-por-pantalla.md | vigente |
+| D-327 | 2026-11-02 | Spec 022, Resumen: ajustes de la prueba del usuario: los filtros siempre bajo el título (`.summary-head`, antes dependían del ancho del texto del rango), el aviso de "Todo" y el rango a la izquierda (`.summary-slow`) y la separación sin JavaScript solo entre pasos visibles | specs/022-mockups-por-pantalla.md | vigente |
 | D-330 | 2026-11-02 | Spec 025, fin de sesión: lo primero es el resultado y el puntaje (en Assessment, el veredicto contra el 70 %); debajo, qué reforzar y el detalle por paso | specs/025-fin-de-sesion.md | pendiente (spec 025) |
 | D-331 | 2026-11-02 | Spec 025: qué reforzar son los pasos con fallo, cuántos y de qué tipo, sin revelar la respuesta correcta; en Assessment, los puntos perdidos | specs/025-fin-de-sesion.md | pendiente (spec 025) |
 | D-332 | 2026-11-02 | Spec 025: acción principal sugerida por progresión de modos (regla en la BLL con tests); secundarias Repetir, Ir al Inicio y Cerrar sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |

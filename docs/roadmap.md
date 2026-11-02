@@ -51,11 +51,11 @@
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **022 (Fase 12):** E8b Resumen «Sala» cerrada e integrada (`c9d2c6c`, `fff2614`). Diseño UI/UX
-   numera sus D-n (D-320 a D-329) desde `022-design/resumen.md` y los 4 desvíos que informó
-   Desarrollo; negocio valida la aprobación global «contados por guía» (`SummaryTotals`).
-2. **022, E9 de cierre:** Desarrollo, al integrarse esas D-n. Con ella termina la variante de la
-   nube (D-249).
+1. **022 (Fase 12):** E8b Resumen «Sala» cerrada e integrada (`c9d2c6c`, `fff2614`). D-320 a
+   D-327 registradas (2026-11-02); negocio valida la aprobación global «contados por guía»
+   (`SummaryTotals`, D-324).
+2. **022, E9 de cierre:** Desarrollo, ya con esas D-n integradas. Con ella termina la variante de
+   la nube (D-249).
 3. **Spec 025 · Fin de sesión (D-253):** spec y plan aprobados (`aa85d33`, `0a82f0b`; 6 entregas,
    E2 es el mockup del usuario en Claude Design con D-251). Desarrollo arranca la E1 al cerrar la
    E9. Las D-n del diseño, desde D-340. Candidatas sin fase: historial y métricas del operador, y
