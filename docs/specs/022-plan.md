@@ -404,7 +404,7 @@ está cerrada; el área como texto y solo el selector de guía ya existen.)
 
 **Hecho cuando:** el usuario inicia una sesión en los tres modos y dice "funciona".
 
-> **Cerrada 2026-11-02 (`3817e50`).** Alternativa D «Modo primero»: `.start-row`/`.start-go`, sin el campo Área, `OperatorStartOptions.GuideCountText`. Rebuild, `aspnet_compiler` y 461 tests en verde. Probada por el usuario. **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250). El `/code-review low` se corrió después con `/revisar`, sin hallazgos (`90efca9`).
+> **Cerrada 2026-11-02 (`3817e50`).** Alternativa D «Modo primero»: `.start-row`/`.start-go`, sin el campo Área, `OperatorStartOptions.GuideCountText`. Rebuild, `aspnet_compiler` y 461 tests en verde. Probada por el usuario. **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250). El `/code-review low` se corrió después con `/revisar`, sin hallazgos (`90efca9`). D-n: D-315 a D-318 (Diseño UI/UX, 2026-11-02). El handoff no se guardó como lista de cambios antes de implementar: `022-design/inicio-operador.md` lo reconstruyó Diseño UI/UX desde el diff.
 
 ## E8b · Resumen del dashboard (agregada 2026-11-02, D-252)
 
