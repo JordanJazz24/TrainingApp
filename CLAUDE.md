@@ -65,12 +65,6 @@ tutorial que se reutiliza tal cual se documenta; si cambia, se modela de nuevo e
 
 ## Arquitectura: N-Tier
 
-`TrainingApp/` (Web Forms): `Pages/` (Auth, Admin, Training) · `UI/Controls/Training/` (un
-UserControl por tipo de paso) · `BLL/` (Auth, Admin, Training, Scoring) · `DAL/` (un
-repositorio por tabla) · `Domain/` · `Shared/`. `TrainingApp.Test/` (NUnit 4) y `Database/`
-(`StoredProcedures/` 00-12, `Ops/`). Árbol con la responsabilidad de cada archivo:
-`docs/architecture.md`.
-
 **Regla de dependencias:** Pages → BLL → DAL → Domain. Ninguna capa referencia hacia arriba;
 el code-behind nunca llama al DAL.
 
@@ -172,8 +166,6 @@ lógica que cruza features (scoring, validación de pasos) va en `BLL/Scoring/`.
 - .NET Framework 4.7.2 · ASP.NET Web Forms (ASPX + code-behind) · ADO.NET + stored
   procedures de SQL Server · Visual Studio 2019/2022 + IIS Express. Es el estándar que exige
   la empresa (la app se audita): no proponer migrar a .NET moderno.
-- Forms Authentication · `HttpSessionState` (server-side, timeout 60 min) · PBKDF2.
-- Empleados: API `Constants.EmployeeApiUrl` · Tests: NUnit 4 (.NET FW 4.7.2).
 
 ## Correr local, compilar y probar
 
