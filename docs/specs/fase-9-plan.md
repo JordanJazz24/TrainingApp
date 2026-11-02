@@ -94,7 +94,8 @@ están ✅.
   **Moldeo (NonSerialized) completa**, del login al resumen.
 - [x] Publicar con el perfil `MVP` y pasarle a TI la carpeta, `Database/` y `docs/deploy.md`.
 - [x] **Prueba de humo en el servidor**, cuando TI lo tenga listo (cierra D-19; usuario,
-  2026-11-02: publicado sin configuración especial, IIS 10 con HTTPS, la app funcionó):
+  2026-11-02: publicado sin configuración especial, IIS 10, la app funcionó; corre en
+  `http://crapps.philips.com/` y HTTPS está sin confirmar, D-257):
   - el `web.config` publicado no tiene `debug="true"` y sí `customErrors`;
   - desde otra PC, ya autenticado, `…/Pages/Training/GuidedTest.aspx?sessionId=<b>`
     muestra el "Runtime Error" genérico, sin detalle;
@@ -183,6 +184,12 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 > publicar. Sin `/code-review` por carpetas: cada entrega ya pasó el suyo. Plan directo
 > (`process.md` → "1. Clasificar el pedido", fila 5): no cambia el comportamiento.
 
+> **Enmienda 4 · 2026-11-02 (usuario, con el cierre de la E3 de Desarrollo; D-257):** el sitio
+> corre en `http://crapps.philips.com/` y HTTPS **no está confirmado** (la app con HTTPS era otra).
+> Antes de la 2.ª publicación el usuario le pide a TI el certificado y que `http://` redirija a
+> `https://`. `requireSSL` y HSTS quedan comentados (E3) y se descomentan en la E6 cuando TI lo
+> tenga; si TI no llega a tiempo, se vuelve a decidir. AUD-72 sigue bloqueando.
+
 ## E3 · Configuración de Release — Esfuerzo: `medium`
 
 - [x] **D-144:** `removeServerHeader="true"` solo en `Web.Release.config` (IIS 10 confirmado).
@@ -240,7 +247,10 @@ un mensaje claro. Sin `/revisar`: no cambia código de la app.
 
 - [ ] **AUD-71 (D-8):** rotar la contraseña de `sa` en toda instancia que la use (la local
   incluida) y confirmar que producción entra con un login propio de mínimo privilegio, no `sa`.
-- [ ] Probar `http://` en el servidor: ¿redirige a `https://`? (condición de la E3).
+- [ ] **D-257:** pedirle a TI el certificado HTTPS y que `http://` redirija a `https://`.
+- [ ] Con HTTPS listo, descomentar los dos `requireSSL` y HSTS en `Web.Release.config` (casillas
+  AUD-72 y AUD-80 de la E3; Desarrollo, con Rebuild y la transformación revisada) y probar el
+  login por `http://` y por `https://`.
 - [ ] Correr en la BD del servidor los scripts que lista `docs/status.md`.
 - [ ] Republicar siguiendo `docs/publicacion.md` y `docs/deploy.md`; prueba de humo como la de
   la E1.

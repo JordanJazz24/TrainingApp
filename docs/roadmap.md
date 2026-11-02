@@ -34,7 +34,7 @@
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
-| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando, IIS 10 con HTTPS; D-19 cerrada) y E2; faltan la E3 a la E5 (auditoría pre-deploy, D-256) y la E6, la 2.ª publicación | 2026-10-22 | `fase-9-plan.md` |
+| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando en IIS 10, por `http://`; D-19 cerrada), E2 y E3 (D-144, `d98563a`); faltan la E4, la E5 y la E6, la 2.ª publicación (D-256, D-257) | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
@@ -53,9 +53,9 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
 1. **Fase 9 · 2.ª publicación (versión final, 2.ª semana de noviembre; D-256):** la auditoría
    pre-deploy (`docs/audits/2026-11-02-auditoria-pre-deploy.md`) dejó AUD-71 a AUD-80. Desarrollo
-   hace la E3 (Release: D-144, `requireSSL`, HSTS), la E4 (BLL y páginas) y la E5 (docs); el
-   usuario, la E6: rotar `sa` (AUD-71, D-8), probar si `http://` redirige, scripts, republicar y
-   el mensaje de lanzamiento. AUD-74 (clases grandes), spec después de publicar.
+   hizo la E3 (D-144) y sigue con la E4 (BLL y páginas) y la E5 (docs); el usuario, la E6: pedir
+   HTTPS a TI (D-257; con él, `requireSSL` y HSTS), rotar `sa` (AUD-71, D-8), scripts, republicar
+   y el mensaje de lanzamiento. AUD-74 (clases grandes), spec después de publicar.
 2. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
    para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-257.
 3. **Usuario:** avisar a los trainers que cada operador elige su área (D-170); la guía piloto de
@@ -84,8 +84,8 @@ lanzamiento, que hace el usuario). AUD-28 (lo barato) y AUD-29 (parches) se suma
 2.ª publicación (E2), que se hace **junto con la Fase 10** (D-135). Mientras tanto avanzan la
 Fase 10 y las mejoras, y la **versión final se entrega en la 2.ª semana de noviembre**. Los
 datos del MVP se descartan (D-130). Lo que sigue es el texto original de la fase.
-**2026-11-02 (usuario):** el MVP se publicó sin configuración especial del servidor (IIS 10, con
-HTTPS) y funcionó; D-19 cerrada. Falta la E2: republicar con D-144 y el mensaje de lanzamiento.
+**2026-11-02 (usuario):** el MVP se publicó sin configuración especial del servidor (IIS 10, en
+`http://crapps.philips.com/`; HTTPS sin confirmar, D-257) y funcionó; D-19 cerrada. Falta la E2: republicar con D-144 y el mensaje de lanzamiento.
 
 **Objetivo:** deploy en servidor interno con IIS: connection string de producción, App Pool,
 permisos, prueba de humo. Incluye AUD-28/29.

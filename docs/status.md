@@ -24,9 +24,9 @@ worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los
 - Antes de publicar a producción, correr en su BD: `00`, `01`, `02`, `03`, `05`, `10` (el
   `03` y el código van juntos), y `11` y `12` (guía de Subensamble 1; probarla en el navegador).
   Los scripts que cambiaron están en `Database/StoredProcedures/`.
-- Fase 9: el MVP ya está publicado y funciona (IIS 10 con HTTPS, D-19 cerrada). La 2.ª
-  publicación es la E6 de `fase-9-plan.md`: rotar `sa` (AUD-71, D-8, bloquea), probar si
-  `http://` redirige, los scripts de arriba en la BD del servidor, republicar y el mensaje de
+- Fase 9: el MVP ya está publicado y funciona (IIS 10, por `http://`; D-19 cerrada). La 2.ª
+  publicación es la E6 de `fase-9-plan.md`: pedirle a TI HTTPS con redirección (D-257, bloquea), rotar `sa`
+  (AUD-71, D-8, bloquea), los scripts de arriba en la BD del servidor, republicar y el mensaje de
   lanzamiento (D-132).
 - Avisar a los trainers que cada operador elegirá su área en su próximo ingreso (D-170).
 - BDs viejas: borrar `TrainingApp_Fase10` y `TrainingApp_Fase11` de LocalDB si ya no se usan.

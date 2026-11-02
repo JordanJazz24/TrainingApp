@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-257 (local, rango D-240 a D-259; después, D-350). Siguiente B-n: B-6 (local)**. La
+> - **Siguiente D-n: D-258 (local, rango D-240 a D-259; después, D-350). Siguiente B-n: B-6 (local)**. La
 >   nube terminó con la 022 (D-249, D-254): D-328, D-329 y B-30 a B-39 quedan sin usar. B-4 lo usó la 021; B-20, R3. La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -184,7 +184,7 @@
 | D-141 | 2026-10-22 | Dashboard: seguimiento S-1/S-2/S-3 por guía, sin período, y sale al aprobar | specs/018-dashboard-training.md | vigente |
 | D-142 | 2026-10-22 | Borrar un usuario avisa cuántas sesiones se pierden y que los indicadores cambian | specs/018-dashboard-training.md | vigente |
 | D-143 | 2026-10-22 | Dashboard: la lista de operadores la filtra y pagina la BLL (el SP no pagina), para no repetir la regla de Aprobado en SQL; plan B: el SP agrega sin reglas | specs/018-plan.md (enmienda 1) | vigente |
-| D-144 | 2026-10-22 | La cabecera `Server` se quita (`removeServerHeader`, solo en Release) si TI confirma IIS 10+; mientras tanto queda | specs/fase-9-plan.md (enmienda 2) | vigente (IIS 10 confirmado, con HTTPS, usuario, 2026-11-02; se agrega en la E3 de `fase-9-plan.md`) |
+| D-144 | 2026-10-22 | La cabecera `Server` se quita (`removeServerHeader`, solo en Release) si TI confirma IIS 10+; mientras tanto queda | specs/fase-9-plan.md (enmienda 2) | cerrada (IIS 10 confirmado, usuario, 2026-11-02; aplicado en `d98563a`, E3 de la Fase 9) |
 | D-145 | 2026-10-22 | El usuario prepara la BD de producción y entrega la carpeta publicada con su `connectionStrings.config`; TI solo instala el sitio, el App Pool y el permiso de `App_Data\Logs` | specs/fase-9-plan.md (enmienda 3) | vigente |
 | D-146 | 2026-10-23 | Dashboard, Pasos: el SP devuelve los intentos sin agregar y la BLL calcula todo con `StepRuns` (regla de "sin acierto" y mediana); plan B: una fila por sesión y paso, sin reglas | specs/018-plan.md (enmienda 3) | vigente |
 | D-147 | 2026-10-23 | Dashboard: con la guía en "Todas", Pasos, el top 5 del Resumen y el Excel de Pasos agrupan por tipo de paso (`StepNames.Display`), con todas las sesiones juntas; reemplaza DA-4 | specs/018-dashboard-training.md (enmienda 1) | vigente |
@@ -296,7 +296,8 @@
 | D-253 | 2026-11-02 | El fin de sesión del POD va a la spec 025, después de cerrar la 022: página propia de Training con `Site.Master` (el POD redirige al cerrar), detalle por paso en todos los modos (datos nuevos); para que el operador entienda su resultado, sepa qué reforzar y qué hacer después | specs/022-mockups-por-pantalla.md → "Candidatas para otra spec" | vigente (spec 025 aprobada 2026-11-02: `specs/025-fin-de-sesion.md`, D-330 a D-339) |
 | D-254 | 2026-11-02 | Al cerrar la 022 se quita de `process.md` la variante de la nube (D-249); el handoff local de Claude Design (D-251) queda como regla permanente para cualquier spec, y las D-n del diseño las numera Planeación, en una enmienda antes de implementar (como la 025) o después, desde el commit (como la 022). Sin sesiones ni ramas de la nube | process.md → "Tres sesiones" (Diseño con Claude Design) | vigente |
 | D-255 | 2026-11-02 | Se aceptan sin validar con negocio la aprobación global «contados por guía» del Resumen (D-324) y los textos de ayuda de Usuarios (D-314) | este índice (respuesta del usuario, 2026-11-02) | vigente |
-| D-256 | 2026-11-02 | Auditoría pre-deploy: antes de la 2.ª publicación se corrigen AUD-71 a AUD-73 y AUD-75 a AUD-80, junto con D-144 (E3 a E6 de la Fase 9); AUD-74 va a una spec después de publicar; sin `/code-review` por carpetas. `requireSSL` y HSTS se publican solo si `http://` redirige a `https://` | specs/fase-9-plan.md (enmienda 3) | vigente |
+| D-256 | 2026-11-02 | Auditoría pre-deploy: antes de la 2.ª publicación se corrigen AUD-71 a AUD-73 y AUD-75 a AUD-80, junto con D-144 (E3 a E6 de la Fase 9); AUD-74 va a una spec después de publicar; sin `/code-review` por carpetas. `requireSSL` y HSTS se publican solo si `http://` redirige a `https://` | specs/fase-9-plan.md (enmienda 3) | enmendada (D-257: `requireSSL` y HSTS esperan a que TI active HTTPS) |
+| D-257 | 2026-11-02 | HTTPS sin confirmar: el sitio corre en `http://crapps.philips.com/` (la app con HTTPS era otra; corrige lo anotado en D-19 y D-144). Antes de la 2.ª publicación el usuario le pide a TI el certificado y que `http://` redirija a `https://`; `requireSSL` y HSTS se descomentan en la E6 cuando esté. Si TI no llega a tiempo, se vuelve a decidir | specs/fase-9-plan.md (enmienda 4) | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
