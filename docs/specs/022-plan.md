@@ -398,8 +398,8 @@ está cerrada; el área como texto y solo el selector de guía ya existen.)
 - [x] "Elige tu área" (`ChooseArea.aspx`) hereda el lenguaje si cambia `Site.Master`; se revisa
       que siga bien (fuera de la spec, solo regresión).
 - [x] El POD (`Training.Master`) no cambia (D-154).
-- [ ] `/code-review low --max-findings 3`. Foco: el orden de redirecciones del `Page_Load`
-      intacto, ninguna lógica en la página.
+- [x] `/code-review low --max-findings 3`. Foco: el orden de redirecciones del `Page_Load`
+      intacto, ninguna lógica en la página. (2026-11-02: sin hallazgos.)
 - [x] Checklist común + iniciar una sesión en cada modo en tablet, sin área y sin guías.
 
 **Hecho cuando:** el usuario inicia una sesión en los tres modos y dice "funciona".
