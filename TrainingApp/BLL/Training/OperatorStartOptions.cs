@@ -10,5 +10,9 @@ namespace TrainingApp.BLL.Training
         public bool HasArea { get; set; }
         public string AreaText { get; set; }
         public IList<TrainingGuide> Guides { get; set; } = new List<TrainingGuide>();
+
+        // Presentación (spec 022, E8): "1 guía" / "N guías" para la etiqueta del selector.
+        public string GuideCountText =>
+            Guides.Count == 1 ? "1 guía" : Guides.Count + " guías";
     }
 }

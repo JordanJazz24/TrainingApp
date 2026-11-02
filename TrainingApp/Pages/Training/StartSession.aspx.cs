@@ -75,8 +75,8 @@ namespace TrainingApp.Pages.Training
             PhStart.Visible   = options.HasArea;
             if (!options.HasArea) return;
 
-            LblArea.Text = HttpUtility.HtmlEncode(options.AreaText);
-            // También en la barra superior ("Tu área", spec 022 brief 0).
+            LitGuideCount.Text = options.GuideCountText;
+            // El área, en en la barra superior ("Tu área", spec 022 brief 0).
             (Master as SiteMaster)?.ShowArea(options.AreaText);
             DdlGuide.Items.Clear();
             LblNoGuides.Visible = options.Guides.Count == 0;
