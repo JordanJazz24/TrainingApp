@@ -1189,17 +1189,171 @@ body.mt-page {
 .mt-page .swal2-styled:focus,
 .mt-page .swal2-styled:focus-visible { box-shadow: 0 0 0 3px var(--mt-focus); }
 
-/* ── Resumen (spec 018; mockup v1 de la Fase 11) ───────────── */
-/* ¿Quién está listo?: arriba, sin scroll, también proyectado y en tablet (AC-3). */
-.summary-ready { display: flex; flex-direction: column; gap: 22px; padding: 28px; margin-bottom: var(--mt-space-5); }
-.summary-ready-head {
+/* ── Resumen: Sala (spec 018; alternativa I de la spec 022, E8b, 022-design/resumen.md) ── */
+/* Los filtros siempre debajo del título: el ancho de la barra depende del texto del rango
+   ("Todo el historial" es corto y cabía al lado del título; los demás períodos no). */
+.summary-head > :first-child { flex-basis: 100%; }
+/* El rango y el aviso de descarga lenta (solo con Todo), pegados a la izquierda bajo los filtros. */
+.summary-head .mt-period-range { text-align: left; }
+.summary-slow { margin: calc(-1 * var(--mt-space-3)) 0 var(--mt-space-4); }
+/* Una pregunta a la vez, pensada para proyectar: cuatro pestañas y un escenario con un paso. Sin
+   JavaScript se ven los cuatro apilados (la barra de pestañas va oculta hasta que el script la
+   muestra). Los mismos tokens: ninguno nuevo. */
+.summary-bar {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--mt-space-4);
+    align-items: center;
+    gap: var(--mt-space-2);
+    margin-bottom: 14px;
 }
-.summary-ready-title { margin: 0 0 var(--mt-space-1); font-size: 1.375rem; }
+.summary-bar[hidden] { display: none; }
+.summary-tabs { display: flex; flex-wrap: wrap; gap: var(--mt-space-2); }
+.summary-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 18px 0 8px;
+    border: 1px solid var(--mt-border);
+    border-radius: 999px;
+    background: var(--mt-surface);
+    color: var(--mt-text);
+    font: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.summary-tab:hover { border-color: var(--mt-accent); }
+.summary-tab[aria-selected="true"] {
+    background: var(--mt-accent);
+    border-color: var(--mt-accent);
+    color: var(--mt-on-accent);
+}
+.summary-tab-n {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--mt-surface-2);
+    color: var(--mt-text);
+    font-weight: 700;
+}
+.summary-tab[aria-selected="true"] .summary-tab-n { background: var(--mt-on-accent); color: var(--mt-accent); }
+.summary-nav { display: inline-flex; gap: var(--mt-space-2); margin-left: auto; }
+.summary-nav-btn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-surface);
+    color: var(--mt-text);
+    font-size: 1.125rem;
+    cursor: pointer;
+}
+.summary-nav-btn:hover { border-color: var(--mt-accent); }
+.summary-tab:focus-visible,
+.summary-nav-btn:focus-visible { outline: 3px solid var(--mt-focus); outline-offset: 2px; }
+
+.summary-stage {
+    min-height: 560px;
+    padding: 36px;
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-xl);
+    box-shadow: var(--mt-shadow);
+}
+.summary-slide { display: flex; flex-direction: column; gap: 18px; }
+.summary-slide[hidden] { display: none; }
+/* Sin JavaScript se ven apilados: la separación solo entre dos pasos visibles. */
+.summary-slide:not([hidden]) ~ .summary-slide:not([hidden]) { margin-top: 40px; }
+.summary-eyebrow {
+    color: var(--mt-muted);
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.summary-h2 { margin: 4px 0 0; font-size: 1.75rem; }
+.summary-empty {
+    display: block;
+    padding: 24px;
+    background: var(--mt-surface);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-lg);
+    color: var(--mt-muted);
+}
+
+/* Anillos: conic-gradient con variables que pone el servidor en style. */
+.summary-ring {
+    display: grid;
+    place-items: center;
+    flex: none;
+    border-radius: 50%;
+}
+.summary-ring-hole {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--mt-surface);
+    line-height: 1.1;
+}
+.summary-ring-big { font-size: 2.25rem; font-weight: 700; }
+.summary-ring-cap { color: var(--mt-muted); font-size: .8125rem; }
+.summary-ring-global {
+    width: 260px;
+    height: 260px;
+    background: conic-gradient(
+        var(--mt-ok) 0 var(--ring-ok),
+        var(--mt-bad) var(--ring-ok) calc(var(--ring-ok) + var(--ring-bad)),
+        var(--mt-warn-bar) calc(var(--ring-ok) + var(--ring-bad)) 100%);
+}
+.summary-ring-global .summary-ring-hole { width: 190px; height: 190px; }
+.summary-ring-global .summary-ring-big { font-size: 2.5rem; font-weight: 600; }
+.summary-ring-global .summary-ring-cap { font-size: 1rem; }
+.summary-ring-fill {
+    width: 200px;
+    height: 200px;
+    background: conic-gradient(var(--mt-accent) 0 var(--ring-fill), var(--mt-surface) var(--ring-fill) 100%);
+}
+.summary-ring-fill .summary-ring-hole { width: 146px; height: 146px; }
+
+/* 1 · ¿Quién está listo? ¿Va mejor o peor? */
+.summary-s1 { display: flex; flex-wrap: wrap; align-items: center; gap: 32px 56px; }
+.summary-s1-ring {
+    flex: 0 1 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+}
+.summary-s1-main { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.summary-rate-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+.summary-rate-big { font-size: 3.5rem; font-weight: 600; line-height: 1.05; }
+.summary-rate-line .mt-badge {
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: var(--mt-radius-lg);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+.summary-glances { display: flex; flex-direction: column; margin-top: 14px; }
+.summary-glance {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    padding: 14px 0;
+    border-top: 1px solid var(--mt-border);
+}
+.summary-glance-name { flex: 1 1 190px; font-size: 1.25rem; font-weight: 600; }
+.summary-glance-rate { min-width: 96px; font-size: 2rem; font-weight: 600; }
+.summary-glance .mt-badge { font-size: .9375rem; }
+.summary-s1-foot { margin-top: 10px; }
 .summary-alert-link {
     display: inline-flex;
     align-items: center;
@@ -1225,47 +1379,97 @@ body.mt-page {
 .summary-mode-2 { background: var(--mt-m2); }
 .summary-mode-3 { background: var(--mt-m3); }
 
-.summary-guide {
+/* 2 · Por guía */
+.summary-gcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: var(--mt-space-4); }
+.summary-gcard {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--mt-space-3) 28px;
-    padding-top: 18px;
-    border-top: 1px solid var(--mt-border);
+    flex-direction: column;
+    gap: var(--mt-space-3);
+    padding: 20px;
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius-lg);
+    background: var(--mt-bg);
 }
-.summary-guide-name { flex: 0 0 150px; display: flex; flex-direction: column; }
-.summary-guide-title { font-size: 1.125rem; font-weight: 600; }
-.summary-guide-states { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: var(--mt-space-2); }
+.summary-gcard-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--mt-space-2); }
+.summary-gcard-name { display: flex; flex-direction: column; }
+.summary-gcard-title { font-size: 1.25rem; font-weight: 700; }
 .summary-stack {
     display: flex;
     gap: 2px;
-    height: 22px;
-    border-radius: var(--mt-radius-sm);
+    height: 16px;
+    border-radius: 5px;
     overflow: hidden;
     background: var(--mt-surface-2);
 }
-.summary-counts { display: flex; flex-wrap: wrap; gap: var(--mt-space-1) 18px; font-size: .875rem; }
-.summary-figures { flex: 0 1 auto; display: flex; flex-wrap: wrap; gap: var(--mt-space-3) 28px; }
-.summary-figures .mt-stat { min-width: 110px; }
-.summary-figure { font-size: 2rem; font-weight: 600; line-height: 1.15; }
+.summary-counts { display: flex; flex-wrap: wrap; gap: var(--mt-space-1) 14px; font-size: var(--mt-fs-small); }
+.summary-counts > span { display: inline-flex; align-items: center; gap: 5px; }
+.summary-counts .bi-check-circle { color: var(--mt-ok); }
+.summary-counts .bi-x-circle { color: var(--mt-bad); }
+.summary-counts .bi-hourglass-split { color: var(--mt-warn); }
+.summary-gfigs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.summary-figure { font-size: 1.75rem; font-weight: 600; line-height: 1.2; }
 .summary-note { margin: 0; color: var(--mt-muted); font-size: var(--mt-fs-small); }
 
-/* Actividad (7/12) y "Dónde se falla más" (5/12); se apilan en tablet. */
-.summary-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--mt-space-5); }
-.summary-block { display: flex; flex-direction: column; gap: var(--mt-space-4); min-width: 0; }
-.summary-block-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--mt-space-2); }
-.summary-block-title { margin: 0; font-size: 1.125rem; }
-.summary-chart { position: relative; height: 240px; }
+/* 3 · Dónde se falla */
+.summary-top { display: flex; flex-direction: column; gap: 22px; margin: 0; padding: 0; list-style: none; }
+.summary-top1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px 40px;
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--mt-accent-soft);
+}
+.summary-top1-body { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.summary-top1-tag {
+    color: var(--mt-accent);
+    font-size: .875rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.summary-top1-name { font-size: 2.25rem; font-weight: 600; line-height: 1.15; }
+.summary-top1-detail { font-size: 1.125rem; }
+.summary-top1-change { font-size: 1.0625rem; }
+.summary-top1-change .mt-change { font-size: 1.0625rem; font-weight: 700; }
+.summary-top-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    padding: 14px 4px;
+    border-top: 1px solid var(--mt-border);
+}
+.summary-top-rank { width: 28px; color: var(--mt-accent); font-size: 1.5rem; font-weight: 700; }
+.summary-top-name { flex: 1 1 220px; font-size: 1.25rem; font-weight: 600; }
+.summary-top-track { flex: 1 1 160px; height: 12px; border-radius: 6px; }
+.summary-top-track .mt-fill { border-radius: 0; }
+.summary-top-rate { min-width: 72px; font-size: 1.5rem; font-weight: 700; text-align: right; }
+.summary-top-change { min-width: 170px; }
+.summary-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: var(--mt-control-h);
+    font-weight: 600;
+    font-size: .9375rem;
+}
 
-.summary-top { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
-.summary-top li { display: flex; align-items: flex-start; gap: var(--mt-space-3); }
-.summary-top-rank { width: 18px; padding-top: 1px; color: var(--mt-muted); font-weight: 600; font-size: .875rem; }
-.summary-top-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.summary-top-line { display: flex; justify-content: space-between; gap: var(--mt-space-3); font-size: .875rem; }
-.summary-more { align-self: flex-start; font-weight: 600; font-size: .875rem; }
+/* 4 · Actividad: libro de barras horizontales (Chart.js; el alto lo pone el servidor). */
+.summary-s4-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; }
+.summary-sessions-n { font-size: 3rem; font-weight: 600; line-height: 1; }
+.summary-ledger-scroll { max-height: 560px; overflow-y: auto; }
+.summary-ledger { position: relative; }
 
 @media (max-width: 991.98px) {
-    .summary-grid { grid-template-columns: minmax(0, 1fr); }
+    .summary-stage { padding: 24px; }
+    .summary-ring-global { width: 200px; height: 200px; }
+    .summary-ring-global .summary-ring-hole { width: 146px; height: 146px; }
+    .summary-ring-global .summary-ring-big { font-size: 2rem; }
+    .summary-ring-global .summary-ring-cap { font-size: .875rem; }
+    .summary-rate-big { font-size: 2.75rem; }
+    .summary-top1-name { font-size: 1.75rem; }
 }
 
 /* ── Período y comparación (spec 023) ──────────────────────── */
@@ -1291,7 +1495,7 @@ body.mt-page {
 .mt-change-none { color: var(--mt-muted); }
 .mt-change-none { font-weight: 400; }
 .mt-change-ref { color: var(--mt-muted); font-size: var(--mt-fs-small); }
-.summary-sessions { align-items: flex-end; text-align: right; }
+.summary-sessions { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
 
 /* Aviso de período inválido (P-6). */
 .mt-alert-warn {

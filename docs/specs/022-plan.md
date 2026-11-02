@@ -415,19 +415,21 @@ D-251).
 
 **Punto de partida (D-251):** el handoff de Claude Design, que el usuario le pasa a Desarrollo.
 
-- [ ] Antes de implementar: guardar la lista de cambios del handoff como `022-design/resumen.md`.
+- [x] Antes de implementar: guardar la lista de cambios del handoff como `022-design/resumen.md`.
       Si hay un desvío de alcance (`process.md` → "Handoff local de Claude Design"), parar y
       avisar a Planeación.
-- [ ] `Pages/Admin/Summary.aspx`: la estructura aprobada; mismos controles, filtro de período
+- [x] `Pages/Admin/Summary.aspx`: la estructura aprobada; mismos controles, filtro de período
       (023), filtros en la URL, gráficas (`admin-charts.js`) y enlaces. Solo los datos que hoy
       carga el Resumen (D-205); lo que quitó D-164 sigue fuera.
-- [ ] Métricas derivadas aprobadas (si hay): en la BLL, sin test, como D-235 a D-313.
-- [ ] `/code-review low --max-findings 3`; `medium` si hay métricas. Foco: los números del
+- [x] Métricas derivadas aprobadas (si hay): en la BLL, sin test, como D-235 a D-313.
+- [x] `/code-review low --max-findings 3`; `medium` si hay métricas. Foco: los números del
       Resumen no cambian (AC-5), el período y la comparación de la 023 intactos.
-- [ ] Checklist común + cada período, la comparación con el anterior, sin datos y los enlaces
+- [x] Checklist común + cada período, la comparación con el anterior, sin datos y los enlaces
       a las otras vistas.
 
 **Hecho cuando:** el usuario revisa el Resumen con varios períodos y dice "funciona".
+
+> **Cerrada 2026-11-02 (`c9d2c6c`).** Alternativa I «Sala» (cuatro pasos, pestañas y flechas de cliente, desvío aprobado por el usuario): anillos CSS, veredictos por guía y libro de barras horizontales de Actividad; `BLL/Reports/SummaryTotals.cs` (aprobados totales y aprobación global con su cambio, sin test). Rebuild, `aspnet_compiler` y 461 tests en verde. `/revisar medium`: 2 de 5 aplicados (tooltip del libro con `axis: 'y'`, alto con tope de 560 px y desplazamiento), 3 descartados (`aria-live` y flechas fuera de campos, que pide el handoff; redondeo de `SummaryTotals`, exacto). **Rondas de corrección tras la primera prueba: 2** (filtros junto al título con Todo y hueco sobre los pasos 2 a 4; luego el aviso de descarga lenta) (piloto de Sonnet, D-250). Sesión de otro proveedor (clon de Desarrollo). Lista de cambios guardada antes de implementar: `022-design/resumen.md`. Para Planeación: D-n pendientes; la cifra global «contados por guía» la valida negocio; el tope de 560 px del libro no estaba en el handoff.
 
 ## E9 · Cierre
 

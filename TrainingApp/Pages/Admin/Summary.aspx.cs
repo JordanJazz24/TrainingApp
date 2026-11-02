@@ -35,6 +35,29 @@ namespace TrainingApp.Pages.Admin
         // Lo que dibuja la gráfica, para lectores de pantalla ("Sesiones por día y modo").
         protected string ActivityAria { get; private set; } = string.Empty;
 
+        // El período en palabras ("este mes"), para los encabezados de los pasos 1 y 4.
+        protected string PeriodText { get; private set; } = string.Empty;
+
+        // Alto del libro de actividad: una fila de 32 px por día, semana o mes y 40 px de eje.
+        protected int LedgerHeight { get; private set; }
+
+        // Paso 1 (Sala, E8b): el total de los estados y la aprobación global del período, que
+        // arma SummaryTotals (BLL). Aquí solo los textos.
+        protected bool HasStates { get; private set; }
+        protected string GlobalPassedText { get; private set; } = string.Empty;
+        protected string GlobalPassedDetail { get; private set; } = string.Empty;
+        protected string GlobalRateText { get; private set; } = string.Empty;
+        protected string GlobalRateDetail { get; private set; } = string.Empty;
+        protected ChangeView GlobalChange { get; private set; }
+        protected string GlobalVerdictCss { get; private set; } = string.Empty;
+        protected string GlobalVerdictIcon { get; private set; } = string.Empty;
+        protected string GlobalVerdictText { get; private set; } = string.Empty;
+        protected string GlobalChipRef { get; private set; } = string.Empty;
+
+        // Anchos (%) de los tramos del anillo: aprobados y reprobados; el resto, en entrenamiento.
+        protected string GlobalRingOk { get; private set; } = "0";
+        protected string GlobalRingBad { get; private set; } = "0";
+
         // Quien perdió la capacidad con el RoleCache vigente vuelve a su inicio, nunca al login
         // (AC-2), como en Operadores.
         protected override void OnError(EventArgs e)
@@ -94,7 +117,8 @@ namespace TrainingApp.Pages.Admin
 
             // Cada bloque dice a qué período corresponde (AC-9).
             string period = ReportText.PeriodOf(range);
-            LitReadyPeriod.Text    = HttpUtility.HtmlEncode("Estado con todo el historial. Tasas y puntaje: " + period + ".");
+            PeriodText = period;
+            LitReadyPeriod.Text   = HttpUtility.HtmlEncode("Estado con todo el historial. Tasas y puntaje: " + period + ".");
             LitActivityPeriod.Text = HttpUtility.HtmlEncode(
                 "Sesiones " + ReportText.Grain(report.Activity.Grain) + ", " + period);
             LitTopPeriod.Text      = HttpUtility.HtmlEncode(period);
@@ -113,10 +137,16 @@ namespace TrainingApp.Pages.Admin
             // Sin estados ni tasas no hay nada que mostrar en "¿Quién está listo?" (AC-11).
             bool hasStates = report.GuideSummaries.Any(s =>
                 s.Passed + s.Failed + s.InTraining + s.AssessedOperators + s.FirstAttemptOperators > 0);
+            HasStates = hasStates;
             PhStates.Visible    = hasStates;
             LblNoStates.Visible = !hasStates;
             RptGuides.DataSource = rows;
             RptGuides.DataBind();
+
+            // Paso 1: la aprobación global y sus estados sumados. PhGlobal enlaza también RptGlance.
+            BindGlobal(report.Totals, range, period);
+            RptGlance.DataSource = rows;
+            PhGlobal.DataBind();
 
             SessionsText   = report.Sessions.ToString();
             SessionsChange = ChangeView.Of(report.SessionsChange, range, "sesión", "sesiones");
@@ -126,6 +156,7 @@ namespace TrainingApp.Pages.Admin
             var buckets = report.Activity.Buckets;
             bool hasActivity = buckets.Count > 0;
             ActivityAria = "Sesiones " + ReportText.Grain(grain) + " y modo";
+            LedgerHeight = buckets.Count * 32 + 40;
             PhActivity.Visible    = hasActivity;
             LblNoActivity.Visible = !hasActivity;
             if (hasActivity)
@@ -141,7 +172,8 @@ namespace TrainingApp.Pages.Admin
                 StepName        = s.StepName,
                 FailureRateText = ReportText.Percent(s.FailureRate),
                 FailureWidth    = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
-                Detail          = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions),
+                RingFill        = ReportText.BarWidth((s.FailureRate ?? 0m) * 100m),
+                Detail         = ReportText.SessionsWithFailure(s.SessionsWithFailure, s.Sessions),
                 FailureRateChange = ChangeView.Of(s.FailureRateChange, range, "sesión", "sesiones")
             }).ToList();
             RptTop.DataBind();
@@ -161,11 +193,42 @@ namespace TrainingApp.Pages.Admin
             });
         }
 
+        // Paso 1 (Sala, E8b): "46 de 90 aprobados" con todo el historial, la aprobación global del
+        // período y su veredicto. Solo textos: las sumas y el cambio los calcula SummaryTotals.
+        private void BindGlobal(SummaryTotals totals, ReportRange range, string period)
+        {
+            int total = totals.Total;
+            GlobalPassedText   = total > 0 ? totals.Passed + " de " + total : ReportText.None;
+            GlobalPassedDetail = "operadores aprobados, contados por guía · "
+                                 + (total > 0 ? Math.Round(totals.Passed * 100m / total, MidpointRounding.AwayFromZero) : 0m)
+                                 + "% del historial";
+            GlobalRingOk  = ReportText.BarWidth(Share(totals.Passed, total));
+            GlobalRingBad = ReportText.BarWidth(Share(totals.Failed, total));
+
+            GlobalRateText = ReportText.Percent(totals.PassRate);
+            GlobalRateDetail = "Aprobación, " + period + " · " + (totals.AssessedOperators > 0
+                ? totals.PassedOperators + " de " + totals.AssessedOperators + " con Assessment"
+                : "Sin Assessment en el período");
+            GlobalChange = ChangeView.Of(totals.PassRateChange, range, "evaluado", "evaluados");
+
+            // La pastilla: "Mejora · ▲ 3.9 pts"; sin con qué comparar, solo "sin datos para
+            // comparar"; con Todo, "Sin comparación".
+            GlobalVerdictCss  = GlobalChange.PillCss;
+            GlobalVerdictIcon = GlobalChange.PillIcon;
+            GlobalVerdictText = !GlobalChange.Visible ? GlobalChange.PillText
+                              : string.IsNullOrEmpty(GlobalChange.VerdictLabel) ? GlobalChange.Text
+                              : GlobalChange.PillText + " · " + GlobalChange.Text;
+            GlobalChipRef = GlobalChange.Visible
+                ? GlobalChange.Reference + " · " + GlobalChange.Base
+                : "Con Todo no hay período anterior";
+        }
+
         // Una guía de "¿Quién está listo?": la barra apilada de estados y las tres cifras con su
         // detalle ("22 de 28 con Assessment").
         private static SummaryGuideRow GuideRow(GuideSummary s, DashboardGuide guide, ReportRange range)
         {
             int total = s.Passed + s.Failed + s.InTraining;
+            var change = ChangeView.Of(s.PassRateChange, range, "evaluado", "evaluados");
             return new SummaryGuideRow
             {
                 GuideName          = guide.AreaName,
@@ -183,7 +246,10 @@ namespace TrainingApp.Pages.Admin
                 PassRateDetail     = s.AssessedOperators > 0
                     ? s.PassedOperators + " de " + s.AssessedOperators + " con Assessment"
                     : "Sin Assessment en el período",
-                PassRateChange     = ChangeView.Of(s.PassRateChange, range, "evaluado", "evaluados"),
+                PassRateChange     = change,
+                VerdictCss         = change.PillCss,
+                VerdictIcon        = change.PillIcon,
+                VerdictText        = change.PillText,
                 FirstAttemptText   = ReportText.Percent(s.FirstAttemptRate),
                 FirstAttemptDetail = s.FirstAttemptOperators > 0
                     ? s.FirstAttemptPassed + " de " + s.FirstAttemptOperators
