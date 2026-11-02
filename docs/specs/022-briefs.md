@@ -207,6 +207,7 @@ Todas: `UI/master/admin.css`, `UI/master/theme.js` y el master de la pantalla
 | 7 | Operador | `Pages/Admin/Operator.aspx`, `Pages/Admin/OperatorDetailRows.cs`, `UI/master/admin-charts.js` |
 | 8 | Usuarios | `Pages/Admin/Users.aspx`, `Pages/Admin/UserListRow.cs` |
 | 9 | Inicio del operador | `Pages/Training/StartSession.aspx` |
+| 10 | Resumen (agregado 2026-11-02, D-252) | `Pages/Admin/Summary.aspx`, `Pages/Admin/SummaryRows.cs`, `UI/Controls/Admin/PeriodFilter.ascx`, `UI/master/admin-charts.js`, `Pages/Admin/ReportText.cs` y en `admin.css` los bloques `.summary-*`, `.mt-hero`, `.mt-stat`, `.mt-change*` y `.mt-track`/`.mt-fill` |
 
 ---
 
@@ -618,4 +619,48 @@ Estado sin área (red de seguridad, casi no se ve): aviso "Aún no tienes un ár
 sin selector ni Iniciar. Muéstralo también.
 
 Queda fuera: el simulador (POD) en sí, historial o puntajes del operador, elegir otra área.
+```
+
+## 10. Resumen → `022-design/resumen.md` (agregado 2026-11-02, D-252)
+
+> **Entra en la 022 por D-252** (enmienda D-203): pantalla 10, con el handoff local (D-251), en la
+> E8b. **Solo datos existentes** (D-205): lo que quitó D-164 ("N sin iniciar" y el número de
+> Seguimiento) sigue fuera. Se diseña con el "Prompt para Claude Design (handoff local)" (N = 10,
+> `Pages/Admin/Summary.aspx`, archivo `resumen`) y sobre el código, sin capturas (D-242). Fue el
+> v1 de la Fase 11 (spec 019) y es la pantalla de inicio del admin (spec 018).
+
+```text
+Pantalla: RESUMEN DEL DASHBOARD (inicio del administrador).
+Quién: gerencia y trainers; se proyecta en reuniones.
+Qué decide: cómo va el entrenamiento en el período y a dónde ir después (Operadores, Pasos o
+Seguimiento).
+Qué ve primero: ¿quién está listo? por guía, y si el período va mejor o peor que el anterior.
+
+Datos y acciones (los de hoy; ninguno nuevo):
+- encabezado: título, la bajada "Cómo va el entrenamiento en el simulador." y los filtros:
+  Período (el control PeriodFilter de la 023: Hoy, Esta semana, Este mes, Mes anterior,
+  Últimos 30 días, Todo y Personalizado… con Inicio y Fin), Guía, Filtrar y "Descargar
+  sesiones" (Excel; con Todo avisa que tarda). Un período inválido muestra el aviso y vale
+  Este mes;
+- ¿QUIÉN ESTÁ LISTO? (el bloque principal), una fila por guía:
+  - la barra apilada de estados con todo el historial (Aprobado, Reprobado, En entrenamiento)
+    con sus conteos y la leyenda;
+  - del período: Aprobados (% con su detalle y su cambio frente al período anterior, flecha
+    con --mt-ok / --mt-bad, referencia y base), Al primer intento (% y detalle) y Puntaje
+    promedio (Assessment);
+  - la nota que define Aprobados, Al primer intento y "—";
+  - el enlace "Ver seguimiento" (sin número, D-164);
+  - vacío: "Todavía no hay sesiones de entrenamiento.";
+- ACTIVIDAD: sesiones del período por día, semana o mes y por modo (Guided, Práctica libre,
+  Assessment; gráfica de Chart.js en admin-charts.js, con la leyenda), el total "Sesiones del
+  período" con su cambio y los totales por modo; vacío "Sin datos para este período…";
+- DÓNDE SE FALLA MÁS: top 5 de pasos por % de sesiones con fallo en Assessment, del período:
+  rango, nombre, %, barra, detalle y su cambio; "Ver todos los pasos" (a Pasos); vacío propio.
+
+Casos para diseñar: varias guías con estados mezclados; una guía sin Assessment en el período
+("—"); período sin actividad; Todo (sin comparación); Personalizado; período inválido.
+
+Queda fuera: datos nuevos o métricas que pidan SQL nuevo ("N sin iniciar", el número de
+Seguimiento, D-164), filtro por área, comparar operadores, el detalle de un operador o de un
+paso (son sus pantallas), y el fin de sesión del POD (spec 025, D-253).
 ```
