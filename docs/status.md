@@ -14,8 +14,8 @@ en `spec-022` (worktree `.claude/worktrees/fase-11`) y se integra entrega por en
 **En curso**
 - Nada abierto: la spec 022 está cerrada (E1 a E9, 2026-11-02; AC-7 medido, `docs/history.md`). Tests:
   461. Textos de ayuda validados por negocio (D-298, D-305, D-314); falta validar los de Usuarios.
-- Spec 025, Fin de sesión del POD (`docs/specs/025-plan.md`): E1 y E3 hechas (`fc5630f`, 03419d9; 516 tests). Siguiente: E4,
-  el POD redirige (`high`). Pendiente de
+- Spec 025, Fin de sesión del POD (`docs/specs/025-plan.md`): E1, E3 y E4 hechas (`fc5630f`, `03419d9`, `87c8bb2`; 515 tests). Siguiente: E5,
+  últimas sesiones en el Inicio. Pendiente de
   negocio: la cifra global «contados por guía» del Resumen (D-324). `/rol desarrollo` al
   iniciar y `/cerrar-entrega <plan> <entrega>` al cerrar.
 

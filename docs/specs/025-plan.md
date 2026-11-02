@@ -169,7 +169,7 @@ abandonada, inexistente, `abc`, admin), AC-9 en claro, oscuro y 768 px.
 
 ## E4 · El POD redirige — Esfuerzo: `high` (borra código de la BLL y toca el cierre del motor)
 
-- [ ] `GuidedTest.aspx.cs` (P-10, D-338): cuando la sesión se completa, sin panel:
+- [x] `GuidedTest.aspx.cs` (P-10, D-338): cuando la sesión se completa, sin panel:
       - limpieza de Logout: al cerrar la consola, el cliente navega a
         `SessionResult.aspx?sessionId=N` (hoy esa acción muestra el resumen, `CloseToSummary`);
       - salto que cierra la sesión (`BtnSkip_ServerClick`) y avance forzado de Logout: redirect en el
@@ -177,15 +177,15 @@ abandonada, inexistente, `abc`, admin), AC-9 en claro, oscuro y 768 px.
       - la sesión ya completada (F5, pestaña vieja): si `LoadContext` no la devuelve y la sesión es
         **propia y `Completed`** (`SessionResultService.Get` ≠ `null`), redirige al resultado; el
         resto, como hoy.
-- [ ] Se borran `PnlCompleted` y su markup, `ShowCompletionPanel`, `LnkNewSession`, `RptAttemptSummary`,
+- [x] Se borran `PnlCompleted` y su markup, `ShowCompletionPanel`, `LnkNewSession`, `RptAttemptSummary`,
       `PodService.AttemptSummary`, `StepAttemptSummary` (y `StepAttemptSummaryRow`) y la rama del
       ícono Logout con la sesión cerrada (D-21). Los tests de `StepAttemptSummary` pasan a la regla de
       la E1 si cubren algo que ella no cubre; si no, se borran.
-- [ ] Abandon y abandonar al iniciar otra guía, sin cambios (D-333, AC-7).
-- [ ] Guía de Guided (P-11): ajustar en `GuideScriptBuilder` el globo de `SessionCompleted` que
+- [x] Abandon y abandonar al iniciar otra guía, sin cambios (D-333, AC-7).
+- [x] Guía de Guided (P-11): ajustar en `GuideScriptBuilder` el globo de `SessionCompleted` que
       apuntaba al resumen del POD; el de la consola de la limpieza sigue. Anclas `data-guide` del
       panel que se borra, fuera.
-- [ ] `/revisar low --max-findings 5` sobre `GuidedTest.aspx.cs` y `GuideScriptBuilder.cs`. Foco: los
+- [x] `/revisar low --max-findings 5` sobre `GuidedTest.aspx.cs` y `GuideScriptBuilder.cs`. Foco: los
       tres caminos de cierre llegan al resultado, Abandon no cambia, nada del POD lee un panel que ya
       no existe, el redirect solo con una sesión propia y completada.
 
@@ -193,6 +193,8 @@ abandonada, inexistente, `abc`, admin), AC-9 en claro, oscuro y 768 px.
 con la limpieza), AC-2 (Práctica libre cerrada con Saltar Logout; Guided completo), AC-6 (F5 en el
 resultado y en el POD de una sesión cerrada), AC-7 (Abandon), AC-10 (el POD igual, ningún globo
 de la guía colgado).
+
+> **Cerrada 2026-11-03 (87c8bb2).** Los tres cierres llevan al resultado: el último paso o el avance forzado y el salto redirigen en el mismo request (`CompleteSession`); la limpieza de Logout cerrada por el script deja la consola con su salida y, al cerrarla, el cliente navega (`MesLoginView.CloseUrl`, antes `CloseToSummary`); `LoadContext` lleva al resultado una sesión propia y completada (`SessionResultService.Get`, F5 o pestaña vieja). Se borraron `PnlCompleted` y su markup, `ShowCompletionPanel`, `LnkNewSession`, `RptAttemptSummary`, `PodService.AttemptSummary`, `StepAttemptSummary` (con su test, cubierto por `SessionResultRuleTests`), el CSS `.pod-completion*` y el modo `final` de la guía (C#, `pod-guide.js` y el ancla `pod-final`); la guía de Guided conserva solo el paso de cerrar la consola (P-11). Abandon sin cambios. Rebuild, `aspnet_compiler` y 515 tests en verde. `/revisar low`: 1 de 2 aplicado (la URL del resultado en un solo helper); descartado: Logout en una pestaña vieja ya cerrada lleva al resultado (D-338 deja sin efecto D-21). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor).
 
 ## E5 · Últimas sesiones y preselección en el Inicio — Esfuerzo: `medium`
 
