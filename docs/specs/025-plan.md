@@ -25,15 +25,15 @@ cerró (E9, `e1f6665`): la 025 ya puede empezar.*
 
 ## E1 · Datos y BLL, con tests — Esfuerzo: `high`
 
-- [ ] **SQL** `03_spTrainingSession.sql`: `spTrainingSessionGetRecentCompleted(@UserId INT, @Top INT)`
+- [x] **SQL** `03_spTrainingSession.sql`: `spTrainingSessionGetRecentCompleted(@UserId INT, @Top INT)`
       (P-4) devuelve las sesiones `Status = 1` del usuario por `CompletedAt` descendente, `TOP (@Top)`,
       con `SessionId`, `TrainingGuideId`, `Mode`, `CompletedAt`, el `AreaId`, `AreaName` y
       `ProductName` de la guía. **No** filtra `IsPublished` (es su historial, P-4). Re-ejecutable
       (`CREATE OR ALTER`). Si no hay índice útil por `(UserId, Status, CompletedAt)`, Desarrollo lo
       mide con la BD de volumen y lo propone solo si hace falta.
-- [ ] **Domain:** un POCO para la fila de la lista (p. ej. `CompletedSessionItem`), sin lógica.
+- [x] **Domain:** un POCO para la fila de la lista (p. ej. `CompletedSessionItem`), sin lógica.
       DAL: `TrainingSessionRepository.GetRecentCompleted(userId, top)`.
-- [ ] **Regla pura del detalle** `BLL/Training/SessionResultRule.cs` (P-3, P-6, P-7, P-13). Con la
+- [x] **Regla pura del detalle** `BLL/Training/SessionResultRule.cs` (P-3, P-6, P-7, P-13). Con la
       sesión, los pasos de la guía con su `Weight` y los intentos, da:
       - un renglón por **cada paso de la guía**, en orden: nombre (`StepNames`), intentos, fallos
         (misma definición que `StepRuns.IsFailure`: incorrecto y no saltado; no se copia la
@@ -48,12 +48,12 @@ cerró (E9, `e1f6665`): la 025 ya puede empezar.*
         (`ScoreCalculator.IsPassed`), puntaje solo si `ShowsScore`; en Práctica libre, "N de M a la
         primera"; duración total (`CompletedAt − StartedAt`, P-12).
       Reemplaza a `StepAttemptSummary` (se borra en la E4, al quitar su único uso).
-- [ ] **Sugerencia en `ModePolicy`** (D-332, P-8): por modo, el modo sugerido si salió bien y si
+- [x] **Sugerencia en `ModePolicy`** (D-332, P-8): por modo, el modo sugerido si salió bien y si
       no (Guided → Práctica libre en los dos casos; Práctica libre → Assessment / Práctica libre;
       Assessment → ninguno, Ir al Inicio / Práctica libre). "Salió bien" lo calcula la regla de
       arriba (Assessment aprobado; Práctica libre sin fallos **ni saltos**). Sin `mode == …` fuera
       de `ModePolicy`.
-- [ ] **Servicio** `BLL/Training/SessionResultService.cs` (P-2): `Get(userId, sessionId)` devuelve el
+- [x] **Servicio** `BLL/Training/SessionResultService.cs` (P-2): `Get(userId, sessionId)` devuelve el
       resultado o `null` si la sesión no existe, no es del usuario o no está `Completed`. Usa
       `spTrainingSessionGetById`, `spStepAttemptGetBySession` y la guía con sus pasos (el
       repositorio de guías ya puebla `Steps`). Verifica `AccessPolicy.CanTrain`. Calcula si la guía
@@ -62,22 +62,24 @@ cerró (E9, `e1f6665`): la 025 ya puede empezar.*
       `?mode=&guide=` (D-337): la principal y las secundarias (Repetir y Ir al Inicio), **sin
       Repetir cuando coincide con la principal** (D-342), con un test. `GetRecent(userId)` = las últimas **5** (`const`), cada una con
       "Producto · Área" solo si el área no es la actual del usuario (P-5).
-- [ ] **Preselección del Inicio** (P-9): en `OperatorStartOptions` (o su servicio), una función que
+- [x] **Preselección del Inicio** (P-9): en `OperatorStartOptions` (o su servicio), una función que
       recibe el `mode` y el `guide` de la URL y devuelve los que valen, **cada uno por separado**: el
       modo si es un `SessionMode` definido (B-4); la guía si está en sus guías iniciables. Un valor
       inválido o ausente se ignora, sin aviso.
-- [ ] **Tests NUnit en memoria** (P-14): la regla del detalle en los tres modos (**suma de los
+- [x] **Tests NUnit en memoria** (P-14): la regla del detalle en los tres modos (**suma de los
       puntos = `FinalScore`** exacto, con aciertos al 1.º, 2.º y 3.º intento, avance forzado al 4.º,
       saltado y saltado con fallos); qué reforzar (vacío en Guided limpio, con fallos, sin los
       saltados limpios); la sugerencia de cada modo y resultado, y con la guía no iniciable; el
       servicio con una sesión ajena, en curso, abandonada o inexistente (`null`) y un admin
       (sin `CanTrain`); la preselección (modo inválido, guía de otra área, guía no publicada, modo
       válido con guía inválida = solo el modo). `ScoreCalculatorTests` y `StepRunsTests` en verde.
-- [ ] `/revisar medium` sobre `SessionResultRule.cs`, `SessionResultService.cs`, `ModePolicy.cs` y la
+- [x] `/revisar medium` sobre `SessionResultRule.cs`, `SessionResultService.cs`, `ModePolicy.cs` y la
       preselección. Foco: el dueño y el estado (invariante de P-2), que el puntaje por paso no
       duplique la fórmula, que la suma dé el `FinalScore` y que nada revele la respuesta correcta.
 
 **Verifica Desarrollo:** Rebuild; script `03` sobre su BD; tests en verde. Sin cambios visibles.
+
+> **Cerrada 2026-11-02 (`fc5630f`).** SP en `03` (probado en LocalDB y en la BD del usuario), `SessionResultRule`, `ModePolicy.SuggestedNextMode`, `SessionResultService`, `OperatorStartOptions.Preselect` y `TrainingAccessRule.IsStartable`; 55 tests nuevos (516 en verde). La suma de los puntos por paso da el `FinalScore` en los tres modos (los pesos reales son múltiplos de 0,05, exactos a 2 decimales). `/revisar medium`: 1 de 5 aplicado (las condiciones de inicio, en un solo lugar), 4 descartados (redondeo de `FinalScore` con pesos que no existen, paso sin intentos, dos consultas de `AreaText` y defensas baratas). Decisiones menores: un administrador provoca `UnauthorizedAccessException` en el servicio (no `null`); `FailureReasonCount` (el nombre `ReasonCount` ya existe en `BLL.Reports`). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor).
 
 ## E2 · Mockup en Claude Design — hecha (2026-11-02), antes de la E1
 
