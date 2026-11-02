@@ -1410,10 +1410,7 @@ namespace TrainingApp.Pages.Training
 
         // ── Fin de sesión (spec 025, D-338) ──────────────────────────────
         // El resultado tiene su propia página; el POD ya no lo muestra.
-        private static string ResultUrl(TrainingSession session) => ResultUrl(session.Id);
-
-        private static string ResultUrl(int sessionId)
-            => "~/Pages/Training/SessionResult.aspx?sessionId=" + sessionId.ToString(CultureInfo.InvariantCulture);
+        private static string ResultUrl(TrainingSession session) => SessionResultService.ResultUrl(session.Id);
 
         // La sesión se completó en este request (el último paso, un salto o un avance forzado):
         // redirige al resultado. Con la limpieza al salir cerrada por el script (P-12) la consola
@@ -1574,12 +1571,20 @@ namespace TrainingApp.Pages.Training
             {
                 // Propia y completada (SessionResultService lo valida: el sessionId de la URL
                 // nunca se usa sin eso): el resultado, no el Inicio.
-                if (hasId && _results.Get(CurrentUserId, sessionId) != null)
-                    return Leave(false, () => Response.Redirect(ResultUrl(sessionId)));
+                if (hasId && OwnCompleted(sessionId))
+                    return Leave(false, () => Response.Redirect(SessionResultService.ResultUrl(sessionId)));
                 return Leave(logoutClick, () => Response.Redirect("~/Pages/Training/StartSession.aspx"));
             }
 
             return ctx;
+        }
+
+        // Sesión propia y completada. Quien perdió la capacidad de entrenar desde el último chequeo
+        // (el servicio lo verifica con la BD) no tiene resultado que ver: va al Inicio.
+        private bool OwnCompleted(int sessionId)
+        {
+            try { return _results.Get(CurrentUserId, sessionId) != null; }
+            catch (UnauthorizedAccessException) { return false; }
         }
 
         private static PodContext Leave(bool logoutClick, Action redirect)

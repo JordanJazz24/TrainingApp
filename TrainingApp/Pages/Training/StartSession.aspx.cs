@@ -113,7 +113,7 @@ namespace TrainingApp.Pages.Training
 
             RecentNote = SessionResultText.RecentNote(recent);
             RptRecent.DataSource = recent.Select(r => SessionResultText.Recent(r,
-                ResolveUrl("~/Pages/Training/SessionResult.aspx?sessionId=" + r.SessionId))).ToList();
+                ResolveUrl(SessionResultService.ResultUrl(r.SessionId)))).ToList();
             RptRecent.DataBind();
         }
 

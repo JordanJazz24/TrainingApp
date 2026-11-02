@@ -101,6 +101,11 @@ namespace TrainingApp.BLL.Training
     public class SessionResultService
     {
         public const string StartUrl = "~/Pages/Training/StartSession.aspx";
+        public const string ResultPage = "~/Pages/Training/SessionResult.aspx";
+
+        // La página del resultado de una sesión (la lista del Inicio, el POD al cerrar y F5).
+        public static string ResultUrl(int sessionId)
+            => ResultPage + "?sessionId=" + sessionId.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         // Cuántas sesiones muestra el Inicio (D-335).
         public const int RecentCount = 5;
