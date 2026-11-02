@@ -143,27 +143,29 @@ sesiones abandonadas, vista del administrador, Excel o impresión, cambios al PO
 
 ## E3 · Página de resultado — Esfuerzo: `medium`
 
-- [ ] `Pages/Training/SessionResult.aspx(.cs)` con `Site.Master`, según el handoff (P-1): título
+- [x] `Pages/Training/SessionResult.aspx(.cs)` con `Site.Master`, según el handoff (P-1): título
       "Resultado de la sesión"; `Page_Load` con `EnsureUserSession` → `MustChangePassword` →
       `MustChooseArea` → `CanTrain` (sin la capacidad, `RedirectHome`, P-15); `sessionId` no
       numérico o `Get` = `null` → al Inicio, sin aviso (P-2). Solo binding: textos de motivos y
       desenlaces en una clase de presentación (como `MesErrorNotes`, P-6).
-- [ ] `Web.config`: la página queda bajo la protección de `Pages/Training` (revisar que la regla
+- [x] `Web.config`: la página queda bajo la protección de `Pages/Training` (revisar que la regla
       la cubra; no hace falta otra).
-- [ ] Según el diseño v3 (D-340 a D-345): la tarjeta de resultado; **una lista "Pasos"** con el
+- [x] Según el diseño v3 (D-340 a D-345): la tarjeta de resultado; **una lista "Pasos"** con el
       selector A reforzar / Todos (M), resuelto en el cliente y sin postback, que abre en A reforzar
       (las dos vistas se renderizan desde el servidor y el JS solo las alterna; sin JS se ve A
       reforzar); "Qué hacer después" con los textos de D-343, sin aviso debajo (D-341) y sin Repetir
       cuando coincide con la principal (D-342; esa regla va en la BLL de la E1, no en la página).
-- [ ] `docs/specs/025-design/fin-de-sesion.md` desde el diseño de Claude Design (ver E2).
-- [ ] `admin.css`: bloque "Resultado de la sesión (spec 025)", sin tokens nuevos: `.res`,
+- [x] `docs/specs/025-design/fin-de-sesion.md` desde el diseño de Claude Design (ver E2).
+- [x] `admin.css`: bloque "Resultado de la sesión (spec 025)", sin tokens nuevos: `.res`,
       `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next` (D-345).
-- [ ] Sin `/revisar` si es solo binding y markup (`process.md` → 3); `low --max-findings 5` si el
+- [x] Sin `/revisar` si es solo binding y markup (`process.md` → 3); `low --max-findings 5` si el
       code-behind toma decisiones.
 
 **Verifica Desarrollo:** Rebuild; `aspnet_compiler`. Para probarla antes de la E4, abrir la URL a
 mano con un `sessionId` completado propio. Checklist: AC-1 a AC-3 y AC-5 (ajena, en curso,
 abandonada, inexistente, `abc`, admin), AC-9 en claro, oscuro y 768 px.
+
+> **Cerrada 2026-11-02 (03419d9).** `SessionResult.aspx(.cs)` según el diseño v3 (D-340 a D-345), `SessionResultText` (motivos, desenlaces y los textos de D-343), bloque «Resultado de la sesión» en `admin.css` sin tokens nuevos y `docs/specs/025-design/fin-de-sesion.md` escrito desde el v3 antes de implementar (el proyecto de Claude Design solo trae el prototipo). `Web.config` ya cubría `Pages/Training`. `SessionResult.UserAreaText` en el servicio para la barra. Rebuild, `aspnet_compiler` (sobre una copia sin `obj` ni `Properties/publish`, que tienen restos de una publicación del 22 de oct.) y 516 tests en verde. Sin `/revisar` (solo binding, markup y textos). Probada por el usuario con sesiones reales (Assessment aprobado y reprobado, Guided, Práctica libre y las no válidas). **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250; sesión de otro proveedor). Decisión menor: la meta «Guía» muestra el título de la guía; «Producto · Área» va bajo el título de la página.
 
 ## E4 · El POD redirige — Esfuerzo: `high` (borra código de la BLL y toca el cierre del motor)
 
