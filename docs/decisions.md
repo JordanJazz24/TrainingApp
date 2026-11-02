@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-256 (local, rango D-240 a D-259; después, D-350). Siguiente B-n: B-5 (local)**. La
+> - **Siguiente D-n: D-257 (local, rango D-240 a D-259; después, D-350). Siguiente B-n: B-6 (local)**. La
 >   nube terminó con la 022 (D-249, D-254): D-328, D-329 y B-30 a B-39 quedan sin usar. B-4 lo usó la 021; B-20, R3. La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -48,7 +48,7 @@
 | D-5 | 2026-10-01 | No se toca `main`: `TrainingApp` es la rama de desarrollo; los worktrees salen de ella | audits/2026-10-01-auditoria.md (AUD-30) | vigente |
 | D-6 | 2026-10-01 | La pregunta de Line Clearance se queda en el código (igual en todas las operaciones) | audits/2026-10-01-auditoria.md (AUD-27) | vigente |
 | D-7 | 2026-10-01 | Endurecer el deploy y actualizar paquetes, en la Fase 9 | audits/2026-10-01-auditoria.md (AUD-28, 29) | cerrada (2026-10-22: E2 de la Fase 9) |
-| D-8 | 2026-10-01 | El usuario rota la contraseña de `sa` en su momento | audits/2026-10-01-auditoria.md (AUD-04) | cerrada (rotada, usuario, 2026-11-02) |
+| D-8 | 2026-10-01 | El usuario rota la contraseña de `sa` en su momento | audits/2026-10-01-auditoria.md (AUD-04) | pendiente (reabierta el 2026-11-02: no se había rotado, AUD-71; `fase-9-plan.md` → E6) |
 | D-9 | 2026-10-02 | Una sola sesión activa por operador: iniciar una guía o hacer logout abandona las demás | audits/2026-10-01-auditoria.md | vigente |
 | D-10 | 2026-10-02 | El estado del POD sigue en Session y la BLL lo reconstruye si falta | audits/2026-10-01-auditoria.md (AUD-26) | vigente |
 | D-11 | 2026-10-02 | Los datos de simulación de `GuidedTest` pasan a constantes de la BLL | audits/2026-10-01-auditoria.md | vigente |
@@ -184,7 +184,7 @@
 | D-141 | 2026-10-22 | Dashboard: seguimiento S-1/S-2/S-3 por guía, sin período, y sale al aprobar | specs/018-dashboard-training.md | vigente |
 | D-142 | 2026-10-22 | Borrar un usuario avisa cuántas sesiones se pierden y que los indicadores cambian | specs/018-dashboard-training.md | vigente |
 | D-143 | 2026-10-22 | Dashboard: la lista de operadores la filtra y pagina la BLL (el SP no pagina), para no repetir la regla de Aprobado en SQL; plan B: el SP agrega sin reglas | specs/018-plan.md (enmienda 1) | vigente |
-| D-144 | 2026-10-22 | La cabecera `Server` se quita (`removeServerHeader`, solo en Release) si TI confirma IIS 10+; mientras tanto queda | specs/fase-9-plan.md (enmienda 2) | vigente (IIS 10 confirmado, con HTTPS, usuario, 2026-11-02; falta agregar `removeServerHeader` en `Web.Release.config` antes de la 2.ª publicación) |
+| D-144 | 2026-10-22 | La cabecera `Server` se quita (`removeServerHeader`, solo en Release) si TI confirma IIS 10+; mientras tanto queda | specs/fase-9-plan.md (enmienda 2) | vigente (IIS 10 confirmado, con HTTPS, usuario, 2026-11-02; se agrega en la E3 de `fase-9-plan.md`) |
 | D-145 | 2026-10-22 | El usuario prepara la BD de producción y entrega la carpeta publicada con su `connectionStrings.config`; TI solo instala el sitio, el App Pool y el permiso de `App_Data\Logs` | specs/fase-9-plan.md (enmienda 3) | vigente |
 | D-146 | 2026-10-23 | Dashboard, Pasos: el SP devuelve los intentos sin agregar y la BLL calcula todo con `StepRuns` (regla de "sin acierto" y mediana); plan B: una fila por sesión y paso, sin reglas | specs/018-plan.md (enmienda 3) | vigente |
 | D-147 | 2026-10-23 | Dashboard: con la guía en "Todas", Pasos, el top 5 del Resumen y el Excel de Pasos agrupan por tipo de paso (`StepNames.Display`), con todas las sesiones juntas; reemplaza DA-4 | specs/018-dashboard-training.md (enmienda 1) | vigente |
@@ -296,6 +296,7 @@
 | D-253 | 2026-11-02 | El fin de sesión del POD va a la spec 025, después de cerrar la 022: página propia de Training con `Site.Master` (el POD redirige al cerrar), detalle por paso en todos los modos (datos nuevos); para que el operador entienda su resultado, sepa qué reforzar y qué hacer después | specs/022-mockups-por-pantalla.md → "Candidatas para otra spec" | vigente (spec 025 aprobada 2026-11-02: `specs/025-fin-de-sesion.md`, D-330 a D-339) |
 | D-254 | 2026-11-02 | Al cerrar la 022 se quita de `process.md` la variante de la nube (D-249); el handoff local de Claude Design (D-251) queda como regla permanente para cualquier spec, y las D-n del diseño las numera Planeación, en una enmienda antes de implementar (como la 025) o después, desde el commit (como la 022). Sin sesiones ni ramas de la nube | process.md → "Tres sesiones" (Diseño con Claude Design) | vigente |
 | D-255 | 2026-11-02 | Se aceptan sin validar con negocio la aprobación global «contados por guía» del Resumen (D-324) y los textos de ayuda de Usuarios (D-314) | este índice (respuesta del usuario, 2026-11-02) | vigente |
+| D-256 | 2026-11-02 | Auditoría pre-deploy: antes de la 2.ª publicación se corrigen AUD-71 a AUD-73 y AUD-75 a AUD-80, junto con D-144 (E3 a E6 de la Fase 9); AUD-74 va a una spec después de publicar; sin `/code-review` por carpetas. `requireSSL` y HSTS se publican solo si `http://` redirige a `https://` | specs/fase-9-plan.md (enmienda 3) | vigente |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
@@ -388,4 +389,5 @@ es global.
 | B-1 (011) | 2026-10-13 | Browse después del Start reescribía `TxtSFC` y la selección | specs/011-plan.md (E2) | corregido |
 | B-3 | 2026-10-22 | `Users.aspx` manda al login, y no al inicio del rol, cuando la BLL niega el acceso (spec 013) | specs/018-plan.md (enmienda 2, E2) | corregido (018, E2, `33a6a9d`); la 021 (12b, E4) lo verificó con Cambiar área (Quitar área salió por D-208) |
 | B-4 | 2026-10-27 | `PodService.StartSession` acepta un modo de sesión no definido: abandona la sesión en curso y guarda una que falla al cargar (POST manipulado) | specs/021-plan.md (E2, enmienda 1) | corregido (021, E2) |
+| B-5 | 2026-11-02 | El login toma toda `InvalidOperationException` como "API de empleados caída": una falla de BD no se registra, y `EmployeeRepository` reporta con `Trace.TraceWarning`, que en IIS se pierde (AUD-75) | specs/fase-9-plan.md (E4) | pendiente |
 | B-20 | 2026-10-26 | `PodService.StartSession` no revisa que la guía exista y esté publicada: solo protege la página (lista y EventValidation); un envío manipulado podría iniciar una versión despublicada (D-56) con sus pasos y pesos | specs/020-plan.md (E2, `/code-review`) | corregido (021, E2: `TrainingAccessRule.EnsureCanStart`) |

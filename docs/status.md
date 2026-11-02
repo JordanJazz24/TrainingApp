@@ -15,8 +15,7 @@ worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los
 - Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 515. Textos de
   ayuda validados por negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
 - La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
-  2.ª publicación (`docs/roadmap.md` → «Siguiente»): D-144, `removeServerHeader` en
-  `Web.Release.config`, antes de republicar. `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+  E3 a la E5 de `fase-9-plan.md` (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
@@ -25,9 +24,10 @@ worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los
 - Antes de publicar a producción, correr en su BD: `00`, `01`, `02`, `03`, `05`, `10` (el
   `03` y el código van juntos), y `11` y `12` (guía de Subensamble 1; probarla en el navegador).
   Los scripts que cambiaron están en `Database/StoredProcedures/`.
-- Fase 9: el MVP ya está publicado y funciona (IIS 10 con HTTPS, D-19 cerrada). Falta la 2.ª
-  publicación: los scripts de arriba en la BD del servidor, republicar (`docs/deploy.md`, paso 6)
-  y el mensaje de lanzamiento (D-132).
+- Fase 9: el MVP ya está publicado y funciona (IIS 10 con HTTPS, D-19 cerrada). La 2.ª
+  publicación es la E6 de `fase-9-plan.md`: rotar `sa` (AUD-71, D-8, bloquea), probar si
+  `http://` redirige, los scripts de arriba en la BD del servidor, republicar y el mensaje de
+  lanzamiento (D-132).
 - Avisar a los trainers que cada operador elegirá su área en su próximo ingreso (D-170).
 - BDs viejas: borrar `TrainingApp_Fase10` y `TrainingApp_Fase11` de LocalDB si ya no se usan.
 - Elegir la guía piloto de Custom Resource Setup (D-194; hoy todas son Standard).

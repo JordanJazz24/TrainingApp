@@ -34,7 +34,7 @@
 | 7 · Catálogo de LoFlo | ✅ | 2026-10-07 | plan directo |
 | 8 · Validación interna | ✅ | 2026-10-12 | revisiones y validación con técnicos |
 | 8.5 · Entrega de noviembre | ✅ | 2026-10-22 | specs 011-017, filas 1-13 |
-| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando en el servidor, IIS 10 con HTTPS; D-19 cerrada); falta la E2, la 2.ª publicación, y el mensaje de lanzamiento | 2026-10-22 | `fase-9-plan.md` |
+| 9 · Deploy del MVP | ✅ E1 (MVP publicado y funcionando, IIS 10 con HTTPS; D-19 cerrada) y E2; faltan la E3 a la E5 (auditoría pre-deploy, D-256) y la E6, la 2.ª publicación | 2026-10-22 | `fase-9-plan.md` |
 | 10 · Dashboard e historial por operador (T8) | ✅ (E1–E8; D-136 a D-150) | 2026-10-23 | `018-dashboard-training.md`, `018-plan.md` |
 | — · Guía Wires / Subensamble 1 para el MVP | ✅ (`0f01f11`; scripts `11` y `12`, sin C#) | 2026-10-26 | plan directo (D-161) |
 | 11 · UI/UX del dashboard y la administración | ✅ (E1–E6 y AC-7; D-153 a D-164) | 2026-10-27 | `019-ui-ux-dashboard.md` (brief de diseño), `019-plan.md` |
@@ -51,12 +51,13 @@
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **Fase 9, E2 · 2.ª publicación (versión final, 2.ª semana de noviembre):** Desarrollo agrega
-   `removeServerHeader` en `Web.Release.config` (D-144, IIS 10 confirmado); el usuario corre los
-   scripts que lista `docs/status.md` en la BD del servidor, republica (`docs/deploy.md`, paso 6) y
-   manda el mensaje de lanzamiento (D-132, D-134).
+1. **Fase 9 · 2.ª publicación (versión final, 2.ª semana de noviembre; D-256):** la auditoría
+   pre-deploy (`docs/audits/2026-11-02-auditoria-pre-deploy.md`) dejó AUD-71 a AUD-80. Desarrollo
+   hace la E3 (Release: D-144, `requireSSL`, HSTS), la E4 (BLL y páginas) y la E5 (docs); el
+   usuario, la E6: rotar `sa` (AUD-71, D-8), probar si `http://` redirige, scripts, republicar y
+   el mensaje de lanzamiento. AUD-74 (clases grandes), spec después de publicar.
 2. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
-   para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-256.
+   para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-257.
 3. **Usuario:** avisar a los trainers que cada operador elige su área (D-170); la guía piloto de
    Custom Resource Setup (D-194); las capturas de los 4 modales del Start de Moldeo; subir
    `TrainingApp` a `main` cuando lo decida (D-5).

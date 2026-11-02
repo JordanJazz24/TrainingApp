@@ -174,9 +174,72 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
   - un error provocado queda en el archivo de log;
   - las cabeceras se ven en las herramientas del navegador;
   - una sesión completa de Serialized y una de NonSerialized (jQuery cambia).
-- [ ] **D-144 (2026-11-02):** TI tiene IIS 10, así que antes de republicar Desarrollo agrega
-  `removeServerHeader="true"` solo en `Web.Release.config` (enmienda 2).
-- [ ] Republicar (paso 6 de `docs/deploy.md`).
+- La configuración de Release (D-144) y la republicación pasaron a la E3 y la E6 (enmienda 3).
+
+> **Enmienda 3 · 2026-11-02 (usuario, con la auditoría pre-deploy
+> `docs/audits/2026-11-02-auditoria-pre-deploy.md`; D-256):** antes de la 2.ª publicación se
+> corrigen los bloqueantes (AUD-71, AUD-72), AUD-73 y lo Bajo e Info (AUD-75 a AUD-80), en tres
+> entregas de Desarrollo más la del usuario. AUD-74 (clases grandes) va a una spec después de
+> publicar. Sin `/code-review` por carpetas: cada entrega ya pasó el suyo. Plan directo
+> (`process.md` → "1. Clasificar el pedido", fila 5): no cambia el comportamiento.
+
+## E3 · Configuración de Release — Esfuerzo: `medium`
+
+- [ ] **D-144:** `removeServerHeader="true"` solo en `Web.Release.config` (IIS 10 confirmado).
+- [ ] **AUD-72:** descomentar los dos `requireSSL` (`httpCookies` y `forms`) en
+  `Web.Release.config`.
+- [ ] **AUD-80:** `Strict-Transport-Security` solo en `Web.Release.config` (`max-age` corto para
+  empezar, sin `includeSubDomains` ni `preload`: el dominio es de TI).
+- [ ] **Condición (D-256):** AUD-72 y AUD-80 se publican solo si el usuario confirma que entrar
+  por `http://` lleva a `https://`. Si no redirige, quedan comentados con esa nota y D-144 va
+  igual.
+
+**Verificación:** Rebuild, transformación de Release revisada en la carpeta publicada (los tres
+cambios están; `Web.config` de Debug, sin cambios) y tests. `/revisar` `low`.
+
+## E4 · BLL y páginas (AUD-75 a AUD-78) — Esfuerzo: `high`
+
+- [ ] **AUD-76:** el largo mínimo de la contraseña (8) en `AuthService.ChangePassword`, con un
+  `ChangePasswordStatus` nuevo y su test; el `RegularExpressionValidator` queda como ayuda en el
+  cliente.
+- [ ] **AUD-77:** `ChangePassword.aspx.cs` usa `SessionHelper.RefreshUserSession()` en vez de
+  escribir `Session[IsFirstLogin]`.
+- [ ] **AUD-78:** `LineClearanceControl` usa `PlantTime.ToLocal(DateTime.UtcNow)`.
+- [ ] **AUD-75 (B-5):** una excepción propia para "API de empleados no disponible" en
+  `EmployeeRepository`, que el login captura en lugar de toda `InvalidOperationException`, y
+  `AppLog.Write` en sus tres fallas (en vez de `Trace.TraceWarning`). Una falla de BD vuelve a
+  llegar a `Application_Error`.
+
+**Verificación:** Rebuild, `aspnet_compiler` (en una copia sin `obj/Release` ni
+`Properties/publish`, `docs/status.md`), tests y `/revisar` `medium` sobre `BLL/Auth`,
+`Pages/Auth`, `EmployeeRepository` y `LineClearanceControl`. Checklist del usuario: cambio de
+contraseña con 7 caracteres (rechazado por la BLL si se salta el validador) y con 8, primer
+acceso, login con la API apagada (mensaje y línea en el log) y el banner de Line Clearance.
+
+## E5 · Docs y limpieza (AUD-73, AUD-79) — Esfuerzo: `medium`
+
+- [ ] **AUD-73:** restaurar desde `32dfca6^` el procedimiento del dueño de la aplicación en
+  `docs/publicacion.md` (copiar `connectionStrings.config` tras cada publicación y entregarla
+  por canal seguro, login de mínimo privilegio, permiso de `App_Data\Logs` y conservarlo al
+  republicar, `-Recreate`), al día con lo actual; `docs/deploy.md` queda para TI. Corregir las
+  referencias de `Web.config`, `Web.Release.config`, `AppLog.cs` y `docs/status.md`.
+- [ ] **AUD-79:** `docs/status.md` sin B-20 abierto; un solo `Database/Ops/RunAllScripts.ps1` con
+  `-Server` obligatorio, sin el nombre del servidor de producción versionado (se borra
+  `RunAllScripts-PROD-DB.ps1`); `TrainingApp.Test/Class1.cs` renombrado a
+  `StepValidatorTests.cs`.
+
+**Verificación:** Rebuild y tests (por el renombre); `RunAllScripts.ps1` sin `-Server` falla con
+un mensaje claro. Sin `/revisar`: no cambia código de la app.
+
+## E6 · Publicación — la hace el usuario
+
+- [ ] **AUD-71 (D-8):** rotar la contraseña de `sa` en toda instancia que la use (la local
+  incluida) y confirmar que producción entra con un login propio de mínimo privilegio, no `sa`.
+- [ ] Probar `http://` en el servidor: ¿redirige a `https://`? (condición de la E3).
+- [ ] Correr en la BD del servidor los scripts que lista `docs/status.md`.
+- [ ] Republicar siguiendo `docs/publicacion.md` y `docs/deploy.md`; prueba de humo como la de
+  la E1.
+- [ ] Mensaje de lanzamiento (D-132, D-134).
 
 ## No incluye
 
@@ -190,10 +253,11 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 
 ## Docs al cerrar
 
-- **Arquitectura y Planeación:** roadmap (Fase 8.5 ✅ hoy; Fase 9 ✅ al cerrar la E2) y
+- **Arquitectura y Planeación:** roadmap (Fase 8.5 ✅ hoy; Fase 9 ✅ al cerrar la E6) y
   `decisions.md`.
 - **Desarrollo:**
   - `status.md`: el estado, AUD-28/29 en "Deuda y riesgos", D-19 y D-8, que pasa a no
     aplicar en el servidor porque TI da su login;
   - `history.md`;
-  - la auditoría `2026-10-01` (AUD-28/29 ☑ vía la Fase 9).
+  - la auditoría `2026-10-01` (AUD-28/29 ☑ vía la Fase 9) y la `2026-11-02` (AUD-71 a AUD-73 y
+    AUD-75 a AUD-80 ☑ vía la Fase 9).
