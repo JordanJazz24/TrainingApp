@@ -23,6 +23,8 @@
 >   El siguiente bloque libre es D-320.
 >   **2026-11-02:** para el Resumen (E8b, D-252) la nube sigue con **D-320 a D-329**, al agotar
 >   D-319. El siguiente bloque libre es D-330.
+>   **2026-11-02:** la spec 025 toma **D-330 a D-349** (y B-50 a B-59); el siguiente bloque
+>   libre es D-350.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
 >   **D-260 a D-279** y **B-40 a B-49**. Cerrada el 2026-10-29: usó D-260 a D-274; D-275 a D-279
 >   y B-40 a B-49 quedan sin usar.
@@ -58,7 +60,7 @@
 | D-18 | 2026-10-12 | `DEFAULT_PASSWORD` sigue versionada en `Constants`, con su valor de siempre | archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
 | D-19 | 2026-10-12 | T1 se aprueba como preparación, sin probarlo en el servidor real | history.md → "T1" | pendiente (prueba en el servidor real: la prueba de humo de la E1 de la Fase 9) |
 | D-20 | 2026-10-13 | El reclamo de cuenta ajena no se cierra: solo detección, riesgo aceptado | specs/013-cuentas-roles-actividad.md; archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
-| D-21 | 2026-10-14 | Con la sesión de entrenamiento cerrada, Logout cierra la sesión de la app | specs/015-plan.md | vigente |
+| D-21 | 2026-10-14 | Con la sesión de entrenamiento cerrada, Logout cierra la sesión de la app | specs/015-plan.md | vigente; queda sin efecto al implementar la spec 025 (D-338) |
 | D-22 | 2026-10-14 | Complete saca del POD las filas completadas | specs/015-plan.md | vigente |
 | D-23 | 2026-10-14 | El grupo Trainer reemplaza en sitio el tercer grupo opcional en `05` y `08` | specs/015-plan.md | vigente |
 | D-24 | 2026-10-14 | Nota del grupo Trainer en Guided: subpaso Info sobre su fila | specs/015-plan.md | vigente |
@@ -123,7 +125,7 @@
 | D-83 | 2026-10-20 | Saltar un paso = avance forzado voluntario | specs/012-plan.md | vigente |
 | D-84 | 2026-10-20 | Resultado del salto y repintado del POD | specs/012-plan.md | enmendada (enmienda 1: `Response.Redirect`) |
 | D-85 | 2026-10-20 | Nombres de los pasos con su variante (`StepNames.Display`) | specs/012-plan.md | vigente |
-| D-86 | 2026-10-20 | El resumen de Práctica libre sale del `PodContext` | specs/012-plan.md | vigente |
+| D-86 | 2026-10-20 | El resumen de Práctica libre sale del `PodContext` | specs/012-plan.md | vigente; la spec 025 lo reemplaza al implementarse (D-339, P-13) |
 | D-87 | 2026-10-20 | Las pistas salen del code-behind a `StepHints` | specs/012-plan.md | vigente |
 | D-88 | 2026-10-20 | Aviso "Ese no es el paso actual." sin intento en Práctica libre | specs/012-plan.md | vigente |
 | D-89 | 2026-10-20 | Barra de práctica a la derecha de Abandon | specs/012-plan.md | vigente |
@@ -290,7 +292,7 @@
 | D-250 | 2026-10-30 | Enmienda D-246 (el patrón se confirma: `opusplan` de la doc oficial). Review en Opus con la skill `/revisar` (`model: opus`, `effort: high`; vale solo ese turno); el esfuerzo de cada entrega lo fija su plan (`high` si toca BLL o SQL o arregla un bug, `medium` si no); sin `CLAUDE_CODE_SUBAGENT_MODEL` (los subagentes heredan); verificación única con `/usage` y alternativa fijada (el review lo hace el propio turno de `/revisar`); el piloto de Sonnet se evalúa tras 3 entregas: si 2 o más necesitan más de una ronda de correcciones, Desarrollo pasa a Opus `medium` | process.md → "Tres sesiones" y "3. `/code-review` calibrado" | vigente |
 | D-251 | 2026-10-30 | Spec 022, handoff local (desde la E7): Claude Design hace lo de la sesión de diseño de la nube (D-284), guiado por un prompt que genera Diseño UI/UX, y su handoff trae la lista de cambios y los desvíos de alcance; Desarrollo lo trae en local (MCP `claude_design`), sin sesión de la nube, guarda `022-design/<pantalla>.md`, se detiene ante un desvío de alcance (datos, reglas, comportamiento, masters o tokens de pantallas cerradas; avisa a Planeación), implementa, valida y commitea con "D-n pendientes", que Diseño UI/UX numera después. D-226 y D-284 siguen como alternativas | process.md → "Tres sesiones" (Handoff local de Claude Design) | vigente |
 | D-252 | 2026-11-02 | Spec 022: el Resumen (`Summary.aspx`) entra como pantalla 10 (brief 10, handoff local), en la E8b antes de la E9; solo datos existentes (lo que quitó D-164 sigue fuera); sin efecto AC-6. Enmienda D-203 | specs/022-mockups-por-pantalla.md (enmienda 2026-11-02) | vigente |
-| D-253 | 2026-11-02 | El fin de sesión del POD va a la spec 025, después de cerrar la 022: página propia de Training con `Site.Master` (el POD redirige al cerrar), detalle por paso en todos los modos (datos nuevos); para que el operador entienda su resultado, sepa qué reforzar y qué hacer después | specs/022-mockups-por-pantalla.md → "Candidatas para otra spec" | pendiente (spec 025) |
+| D-253 | 2026-11-02 | El fin de sesión del POD va a la spec 025, después de cerrar la 022: página propia de Training con `Site.Master` (el POD redirige al cerrar), detalle por paso en todos los modos (datos nuevos); para que el operador entienda su resultado, sepa qué reforzar y qué hacer después | specs/022-mockups-por-pantalla.md → "Candidatas para otra spec" | vigente (spec 025 aprobada 2026-11-02: `specs/025-fin-de-sesion.md`, D-330 a D-339) |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
@@ -341,10 +343,20 @@
 | D-312 | 2026-10-30 | Spec 022, Usuarios: componentes `.users-*` (se borran `.admin-users` y afines); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-313 | 2026-10-30 | Spec 022, Usuarios: `UserPageSummary` en la BLL, sin test (solo la página abierta) | specs/022-mockups-por-pantalla.md | vigente |
 | D-314 | 2026-10-30 | Spec 022, Usuarios: textos nuevos (resumen, Acceso, Área, Cuenta, Borrar, Crear); los de "qué pasa" y las acciones los valida negocio | specs/022-mockups-por-pantalla.md | vigente |
-| D-315 | 2026-11-02 | Spec 022, Inicio del operador: alternativa D "Modo primero" (modos arriba; Guía e Iniciar en una fila) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-315 | 2026-11-02 | Spec 022, Inicio del operador: alternativa D "Modo primero" (modos arriba; Guía e Iniciar en una fila) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente; la spec 025 agrega un bloque debajo (D-335) |
 | D-316 | 2026-11-02 | Spec 022, Inicio: el área ya no se repite en la página (está en la barra, D-286). Precisa D-167 | specs/022-mockups-por-pantalla.md | vigente |
 | D-317 | 2026-11-02 | Spec 022, Inicio: `.start-row` y `.start-go`; se borra `.start-fields`; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-318 | 2026-11-02 | Spec 022, Inicio: textos ("¿Cómo quieres entrenar?", "Guía · N guías") y `GuideCountText` en la BLL, sin test | specs/022-mockups-por-pantalla.md | vigente |
+| D-330 | 2026-11-02 | Spec 025, fin de sesión: lo primero es el resultado y el puntaje (en Assessment, el veredicto contra el 70 %); debajo, qué reforzar y el detalle por paso | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-331 | 2026-11-02 | Spec 025: qué reforzar son los pasos con fallo, cuántos y de qué tipo, sin revelar la respuesta correcta; en Assessment, los puntos perdidos | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-332 | 2026-11-02 | Spec 025: acción principal sugerida por progresión de modos (regla en la BLL con tests); secundarias Repetir, Ir al Inicio y Cerrar sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-333 | 2026-11-02 | Spec 025: la página de resultado aplica solo al completar; abandonar sigue yendo al Inicio | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-334 | 2026-11-02 | Spec 025: puntaje por paso solo donde ya se ve (Assessment y Guided); Práctica libre sin puntaje (D-90 sigue) | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-335 | 2026-11-02 | Spec 025: en el Inicio, las últimas 5 sesiones completadas propias con su enlace, sin resultado, en un bloque debajo de "Modo primero" y sin tokens nuevos. Precisa D-315 | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-336 | 2026-11-02 | Spec 025: solo la duración total de la sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-337 | 2026-11-02 | Spec 025: la acción sugerida y Repetir llevan al Inicio con modo y guía elegidos (validados en la BLL); no inician la sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-338 | 2026-11-02 | Spec 025: el POD redirige al resultado al cerrar la consola de la limpieza (o en el request del salto o del avance forzado); sale el `PnlCompleted` y D-21 queda sin efecto | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-339 | 2026-11-02 | Spec 025: propuestas P-1 a P-16 confirmadas por el usuario (P-7 sin los saltados; P-5 y P-9 precisadas) | specs/025-fin-de-sesion.md | pendiente (spec 025) |
 
 ## Bugs que ya existían (B-n)
 
