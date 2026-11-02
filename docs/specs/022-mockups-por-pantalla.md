@@ -211,6 +211,20 @@ probada por el usuario en `spec-022` (E1b: `b34eafb` y cierre `feb1f4f`). Criter
 | D-289 | **Cambio a una pantalla cerrada (Pasos, E4):** la franja de Pasos pasa a ser una **tarjeta** (margen, esquinas de 16 px, sombra, al ancho de `.steps-wrap`), para no tener dos bandas azules seguidas bajo la barra. Precisa D-239 |
 | D-290 | **Textos:** `Site.Master` dice "TrainingApp" en la marca y el `<title>` (antes "Simulador de entrenamiento MES"); el admin ve su **nombre** (antes su Code1; si no hay nombre, el Code1); el operador "Code1 n" y "Tu área"; nuevos "Dashboard", "Administración" y "Menú" |
 
+### Inicio del operador (2026-11-02, alternativa D "Modo primero", D-315 a D-318)
+
+Implementada con el handoff local (D-251) en `3817e50`; review `90efca9` sin hallazgos. Criterio:
+`022-design/inicio-operador.md`, **reconstruida por Diseño UI/UX desde el diff**, porque el
+handoff no se guardó antes de implementar. Sin tokens nuevos ni cambios en `Site.Master`; D-319
+queda sin usar.
+
+| D | Qué |
+|---|---|
+| D-315 | **Alternativa D, "Modo primero":** la tarjeta pregunta primero "¿Cómo quieres entrenar?", con las 3 tarjetas de modo de siempre, y debajo va una sola fila con la Guía e Iniciar (Iniciar a todo el ancho a 767 px o menos). Mismos controles (`DdlGuide`, `RbGuided`/`RbFreePractice`/`RbAssessment`, `BtnStart`, `LblNoGuides`), postback, redirecciones del `Page_Load`, aviso sin área (D-168) y error del servidor |
+| D-316 | **El área sale de la página** (precisa D-167, P-5): ya no se repite como campo, porque está en la barra superior ("Tu área", D-286). Sigue a la vista y no se puede cambiar. Se borra `LblArea` |
+| D-317 | **Componentes:** se borra `.start-fields`; entran `.start-row` y `.start-go` (48 px de alto). Sin tokens nuevos |
+| D-318 | **Textos y presentación:** la leyenda "Modo" pasa a "¿Cómo quieres entrenar?" y la etiqueta a "Guía · N guías" (`LitGuideCount`), con `OperatorStartOptions.GuideCountText` en la BLL: presentación sin test y sin regla nueva (como D-235 a D-313) |
+
 ### Usuarios (2026-10-30, alternativa CD-3 "Consola de cuentas", D-306 a D-314)
 
 Primera pantalla con el handoff local de Claude Design (D-251): sin rama de la nube; Desarrollo

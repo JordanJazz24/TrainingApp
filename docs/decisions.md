@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-254 (local, rango D-240 a D-259) · D-315 (nube, spec 022; rango D-280 a D-299, D-300 a D-319 y después D-320 a D-329). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-254 (local, rango D-240 a D-259) · D-320 (nube, spec 022; rango D-280 a D-299, D-300 a D-319 y después D-320 a D-329). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -204,7 +204,7 @@
 | D-164 | 2026-10-26 | Fase 11, Resumen: se quitan del mockup "N sin iniciar" y el número de Seguimiento (serían datos nuevos); queda el enlace "Ver seguimiento" | specs/019-ui-ux-dashboard.md (ajuste del mockup) | vigente |
 | D-165 | 2026-10-27 | Spec 021: una sola área por operador (`Users.AreaId` nullable) | specs/021-area-operador.md | vigente |
 | D-166 | 2026-10-27 | Spec 021: el operador elige su área al autorregistrarse; el admin la corrige en Usuarios | specs/021-area-operador.md | vigente |
-| D-167 | 2026-10-27 | Spec 021: el inicio del operador muestra su área fija como texto y solo el selector de guía | specs/021-area-operador.md | vigente |
+| D-167 | 2026-10-27 | Spec 021: el inicio del operador muestra su área fija como texto y solo el selector de guía | specs/021-area-operador.md | precisada (D-316: el área se ve en la barra superior, no en la página) |
 | D-168 | 2026-10-27 | Spec 021: operador sin área: aviso y no entrena | specs/021-area-operador.md | vigente |
 | D-169 | 2026-10-27 | Spec 021: pantalla "Elige tu área" tras el cambio de contraseña; Training redirige ahí mientras no tenga área | specs/021-area-operador.md | vigente |
 | D-170 | 2026-10-27 | Spec 021: todo operador sin área (autorregistro, alta por admin y existentes) la elige en su próximo ingreso | specs/021-area-operador.md | vigente |
@@ -341,6 +341,10 @@
 | D-312 | 2026-10-30 | Spec 022, Usuarios: componentes `.users-*` (se borran `.admin-users` y afines); sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
 | D-313 | 2026-10-30 | Spec 022, Usuarios: `UserPageSummary` en la BLL, sin test (solo la página abierta) | specs/022-mockups-por-pantalla.md | vigente |
 | D-314 | 2026-10-30 | Spec 022, Usuarios: textos nuevos (resumen, Acceso, Área, Cuenta, Borrar, Crear); los de "qué pasa" y las acciones los valida negocio | specs/022-mockups-por-pantalla.md | vigente |
+| D-315 | 2026-11-02 | Spec 022, Inicio del operador: alternativa D "Modo primero" (modos arriba; Guía e Iniciar en una fila) | specs/022-mockups-por-pantalla.md (Pantallas aprobadas) | vigente |
+| D-316 | 2026-11-02 | Spec 022, Inicio: el área ya no se repite en la página (está en la barra, D-286). Precisa D-167 | specs/022-mockups-por-pantalla.md | vigente |
+| D-317 | 2026-11-02 | Spec 022, Inicio: `.start-row` y `.start-go`; se borra `.start-fields`; sin tokens nuevos | specs/022-mockups-por-pantalla.md | vigente |
+| D-318 | 2026-11-02 | Spec 022, Inicio: textos ("¿Cómo quieres entrenar?", "Guía · N guías") y `GuideCountText` en la BLL, sin test | specs/022-mockups-por-pantalla.md | vigente |
 
 ## Bugs que ya existían (B-n)
 
