@@ -211,16 +211,20 @@ cambios están; `Web.config` de Debug, sin cambios) y tests. `/revisar` `low`.
 
 ## E4 · BLL y páginas (AUD-75 a AUD-78) — Esfuerzo: `high`
 
-- [ ] **AUD-76:** el largo mínimo de la contraseña (8) en `AuthService.ChangePassword`, con un
+- [x] **AUD-76:** el largo mínimo de la contraseña (8) en `AuthService.ChangePassword`, con un
   `ChangePasswordStatus` nuevo y su test; el `RegularExpressionValidator` queda como ayuda en el
   cliente.
-- [ ] **AUD-77:** `ChangePassword.aspx.cs` usa `SessionHelper.RefreshUserSession()` en vez de
+- [x] **AUD-77:** `ChangePassword.aspx.cs` usa `SessionHelper.RefreshUserSession()` en vez de
   escribir `Session[IsFirstLogin]`.
-- [ ] **AUD-78:** `LineClearanceControl` usa `PlantTime.ToLocal(DateTime.UtcNow)`.
-- [ ] **AUD-75 (B-5):** una excepción propia para "API de empleados no disponible" en
+- [x] **AUD-78:** `LineClearanceControl` usa `PlantTime.ToLocal(DateTime.UtcNow)`.
+- [x] **AUD-75 (B-5):** una excepción propia para "API de empleados no disponible" en
   `EmployeeRepository`, que el login captura en lugar de toda `InvalidOperationException`, y
   `AppLog.Write` en sus tres fallas (en vez de `Trace.TraceWarning`). Una falla de BD vuelve a
   llegar a `Application_Error`.
+
+> **Cierre E4 (7a13625, 2026-11-02):** los cuatro hallazgos, con 521 tests y `aspnet_compiler` en verde.
+> Extras: `Users.aspx.cs` también captura la excepción nueva; `CheckNewPassword` rechaza solo espacios y
+> el log de empleados trae la causa interna (hallazgos del review `medium`). Rondas de corrección: 0.
 
 **Verificación:** Rebuild, `aspnet_compiler` (en una copia sin `obj/Release` ni
 `Properties/publish`, `docs/status.md`), tests y `/revisar` `medium` sobre `BLL/Auth`,

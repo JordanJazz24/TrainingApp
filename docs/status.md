@@ -12,10 +12,10 @@ worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los
 (`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso**
-- Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 515. Textos de
+- Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 521. Textos de
   ayuda validados por negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
 - La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
-  E3 a la E5 de `fase-9-plan.md` (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+  E5 de `fase-9-plan.md` (la E3 y la E4 están cerradas) (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
