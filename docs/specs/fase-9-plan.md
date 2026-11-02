@@ -234,15 +234,18 @@ acceso, login con la API apagada (mensaje y línea en el log) y el banner de Lin
 
 ## E5 · Docs y limpieza (AUD-73, AUD-79) — Esfuerzo: `medium`
 
-- [ ] **AUD-73:** restaurar desde `32dfca6^` el procedimiento del dueño de la aplicación en
+- [x] **AUD-73:** restaurar desde `32dfca6^` el procedimiento del dueño de la aplicación en
   `docs/publicacion.md` (copiar `connectionStrings.config` tras cada publicación y entregarla
   por canal seguro, login de mínimo privilegio, permiso de `App_Data\Logs` y conservarlo al
   republicar, `-Recreate`), al día con lo actual; `docs/deploy.md` queda para TI. Corregir las
   referencias de `Web.config`, `Web.Release.config`, `AppLog.cs` y `docs/status.md`.
-- [ ] **AUD-79:** `docs/status.md` sin B-20 abierto; un solo `Database/Ops/RunAllScripts.ps1` con
+- [x] **AUD-79:** `docs/status.md` sin B-20 abierto; un solo `Database/Ops/RunAllScripts.ps1` con
   `-Server` obligatorio, sin el nombre del servidor de producción versionado (se borra
   `RunAllScripts-PROD-DB.ps1`); `TrainingApp.Test/Class1.cs` renombrado a
   `StepValidatorTests.cs`.
+
+> **Cierre E5 (53df030, 2026-11-02):** el procedimiento del dueño quedó en `docs/publicacion.md` (no en `deploy.md`, que
+> sigue para TI); `RunAllScripts.ps1` falla sin `-Server`. 521 tests en verde. Rondas de corrección: 0.
 
 **Verificación:** Rebuild y tests (por el renombre); `RunAllScripts.ps1` sin `-Server` falla con
 un mensaje claro. Sin `/revisar`: no cambia código de la app.
