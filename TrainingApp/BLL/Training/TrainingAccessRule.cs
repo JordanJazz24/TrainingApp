@@ -17,18 +17,32 @@ namespace TrainingApp.BLL.Training
         // abandonaba la sesión en curso y quedaba una sesión que fallaba al cargar.
         public static void EnsureCanStart(User user, TrainingGuide guide, SessionMode mode)
         {
+            var blocker = StartBlocker(user, guide, mode);
+            if (blocker != null) throw blocker;
+        }
+
+        // Si el operador puede iniciar la guía hoy (publicada y de su área), sin lanzar: lo usa
+        // el fin de sesión para decidir si ofrece Repetir y una acción de modo (spec 025, P-8).
+        // Las mismas condiciones que EnsureCanStart: viven en StartBlocker, una sola vez.
+        public static bool IsStartable(User user, TrainingGuide guide)
+            => StartBlocker(user, guide, SessionMode.Guided) == null;
+
+        // Por qué no se puede iniciar (la excepción que lanza EnsureCanStart), o null si se puede.
+        private static Exception StartBlocker(User user, TrainingGuide guide, SessionMode mode)
+        {
             if (user == null || !AccessPolicy.CanTrain(user.Role))
-                throw new UnauthorizedAccessException("El usuario no puede entrenar.");
+                return new UnauthorizedAccessException("El usuario no puede entrenar.");
             if (!Enum.IsDefined(typeof(SessionMode), mode))
-                throw new ArgumentOutOfRangeException(nameof(mode), mode, "Modo de sesión inválido.");
+                return new ArgumentOutOfRangeException(nameof(mode), mode, "Modo de sesión inválido.");
             if (guide == null)
-                throw new ArgumentException("La guía no existe.", nameof(guide));
+                return new ArgumentException("La guía no existe.", nameof(guide));
             if (!guide.IsPublished)
-                throw new InvalidOperationException("La guía no está publicada.");
+                return new InvalidOperationException("La guía no está publicada.");
             if (user.AreaId == null)
-                throw new InvalidOperationException("El operador no tiene área.");
+                return new InvalidOperationException("El operador no tiene área.");
             if (guide.AreaId != user.AreaId.Value)
-                throw new InvalidOperationException("La guía es de otra área.");
+                return new InvalidOperationException("La guía es de otra área.");
+            return null;
         }
 
         // Elegible = con al menos una guía publicada (D-176); la lista la calcula spAreaGetEligible.

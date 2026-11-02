@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using TrainingApp.DAL.Infrastructure;
 using TrainingApp.Domain;
@@ -34,6 +35,32 @@ namespace TrainingApp.DAL.Repositories
                 if (reader.Read()) return Map(reader);
                 return null;
             }
+        }
+
+        // Las últimas sesiones completadas del operador, de la más reciente (spec 025, P-4).
+        public IList<CompletedSessionItem> GetRecentCompleted(int userId, int top)
+        {
+            var list = new List<CompletedSessionItem>();
+            using (var db = DatabaseFactory.Create())
+            using (var reader = db.ExecuteReader("spTrainingSessionGetRecentCompleted", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                cmd.Parameters.AddWithValue("@Top",    top);
+            }))
+            {
+                while (reader.Read())
+                    list.Add(new CompletedSessionItem
+                    {
+                        SessionId       = Convert.ToInt32(reader["SessionId"]),
+                        TrainingGuideId = Convert.ToInt32(reader["TrainingGuideId"]),
+                        Mode            = (SessionMode)Convert.ToInt32(reader["Mode"]),
+                        CompletedAt     = Convert.ToDateTime(reader["CompletedAt"]),
+                        AreaId          = Convert.ToInt32(reader["AreaId"]),
+                        AreaName        = reader["AreaName"].ToString(),
+                        ProductName     = reader["ProductName"].ToString()
+                    });
+            }
+            return list;
         }
 
         public void Abandon(int sessionId)

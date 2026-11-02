@@ -71,3 +71,29 @@ BEGIN
     AND    Status = 0;
 END;
 GO
+
+-- spTrainingSessionGetRecentCompleted — las últimas sesiones COMPLETADAS de un operador, de la
+-- más reciente a la más vieja (spec 025, P-4): para el bloque "Últimas sesiones" del Inicio.
+-- Solo Status = 1 (Abandoned también guarda CompletedAt). NO filtra IsPublished: es su propio
+-- historial, también de una guía que ya no está publicada. Trae el área y el producto de la
+-- guía para decir "Producto · Área" cuando es de otra área que la actual (entrenamiento
+-- cruzado). No es del dashboard: spDashboardSessions filtra guías publicadas y Role = 1.
+CREATE OR ALTER PROCEDURE dbo.spTrainingSessionGetRecentCompleted
+    @UserId INT,
+    @Top    INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT TOP (@Top)
+           s.Id AS SessionId, s.TrainingGuideId, s.Mode, s.CompletedAt,
+           g.AreaId, a.Name AS AreaName, p.Name AS ProductName
+    FROM   dbo.TrainingSessions s
+    JOIN   dbo.TrainingGuides   g ON g.Id = s.TrainingGuideId
+    JOIN   dbo.Areas            a ON a.Id = g.AreaId
+    JOIN   dbo.Products         p ON p.Id = a.ProductId
+    WHERE  s.UserId = @UserId
+    AND    s.Status = 1
+    AND    s.CompletedAt IS NOT NULL
+    ORDER  BY s.CompletedAt DESC, s.Id DESC;
+END;
+GO

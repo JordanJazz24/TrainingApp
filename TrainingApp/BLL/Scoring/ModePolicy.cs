@@ -27,19 +27,22 @@ namespace TrainingApp.BLL.Scoring
             showsGuide: true, enablesAllButtons: false,
             outOfSequence: OutOfSequenceHandling.Ignore, noLogicButtons: NoLogicButtonHandling.Disabled,
             penalizesRetries: false, forcesAdvance: false, failureFeedback: FailureFeedbackKind.Hint,
-            hintOnDemand: false, allowsSkip: false, showsScore: true, summary: SummaryKind.Score);
+            hintOnDemand: false, allowsSkip: false, showsScore: true, summary: SummaryKind.Score,
+            nextIfWell: SessionMode.FreePractice, nextIfNot: SessionMode.FreePractice);
 
         public static readonly ModePolicy Assessment = new ModePolicy(SessionMode.Assessment,
             showsGuide: false, enablesAllButtons: true,
             outOfSequence: OutOfSequenceHandling.RecordAttempt, noLogicButtons: NoLogicButtonHandling.RecordAttempt,
             penalizesRetries: true, forcesAdvance: true, failureFeedback: FailureFeedbackKind.RemainingAttempts,
-            hintOnDemand: false, allowsSkip: false, showsScore: true, summary: SummaryKind.ScoreAndResult);
+            hintOnDemand: false, allowsSkip: false, showsScore: true, summary: SummaryKind.ScoreAndResult,
+            nextIfWell: null, nextIfNot: SessionMode.FreePractice);
 
         public static readonly ModePolicy FreePractice = new ModePolicy(SessionMode.FreePractice,
             showsGuide: false, enablesAllButtons: true,
             outOfSequence: OutOfSequenceHandling.Notice, noLogicButtons: NoLogicButtonHandling.Inert,
             penalizesRetries: false, forcesAdvance: false, failureFeedback: FailureFeedbackKind.Incorrect,
-            hintOnDemand: true, allowsSkip: true, showsScore: false, summary: SummaryKind.AttemptsPerStep);
+            hintOnDemand: true, allowsSkip: true, showsScore: false, summary: SummaryKind.AttemptsPerStep,
+            nextIfWell: SessionMode.Assessment, nextIfNot: SessionMode.FreePractice);
 
         public static ModePolicy For(SessionMode mode)
         {
@@ -55,7 +58,8 @@ namespace TrainingApp.BLL.Scoring
         private ModePolicy(SessionMode mode, bool showsGuide, bool enablesAllButtons,
             OutOfSequenceHandling outOfSequence, NoLogicButtonHandling noLogicButtons,
             bool penalizesRetries, bool forcesAdvance, FailureFeedbackKind failureFeedback,
-            bool hintOnDemand, bool allowsSkip, bool showsScore, SummaryKind summary)
+            bool hintOnDemand, bool allowsSkip, bool showsScore, SummaryKind summary,
+            SessionMode? nextIfWell, SessionMode? nextIfNot)
         {
             ShowsScore        = showsScore;
             Mode              = mode;
@@ -69,7 +73,12 @@ namespace TrainingApp.BLL.Scoring
             HintOnDemand      = hintOnDemand;
             AllowsSkip        = allowsSkip;
             Summary           = summary;
+            _nextIfWell       = nextIfWell;
+            _nextIfNot        = nextIfNot;
         }
+
+        private readonly SessionMode? _nextIfWell;
+        private readonly SessionMode? _nextIfNot;
 
         public SessionMode Mode { get; }
 
@@ -102,6 +111,13 @@ namespace TrainingApp.BLL.Scoring
                 default: return 0.00m;
             }
         }
+
+        // Qué modo sugiere el fin de sesión para seguir (spec 025, D-332, P-8): el progreso de
+        // modos, Guided → Práctica libre → Assessment. wentWell lo calcula SessionResultRule
+        // (Assessment aprobado; Práctica libre sin fallos ni saltos). null = ningún modo (un
+        // Assessment aprobado: la acción es Ir al Inicio).
+        public SessionMode? SuggestedNextMode(bool wentWell)
+            => wentWell ? _nextIfWell : _nextIfNot;
 
         // El fallo siguiente al último intento con puntaje resuelve el paso (avance forzado).
         public bool ForcesAdvanceAt(int attemptNumber)

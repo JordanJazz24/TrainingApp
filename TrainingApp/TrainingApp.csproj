@@ -276,6 +276,7 @@
     <Compile Include="Domain\DashboardGuide.cs" />
     <Compile Include="Domain\DashboardOperator.cs" />
     <Compile Include="Domain\DashboardSession.cs" />
+    <Compile Include="Domain\CompletedSessionItem.cs" />
     <Compile Include="Domain\TrainingGuide.cs" />
     <Compile Include="Domain\TrainingStep.cs" />
     <Compile Include="Domain\TrainingSession.cs" />
@@ -301,6 +302,8 @@
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
     <Compile Include="BLL\Training\StepNames.cs" />
     <Compile Include="BLL\Training\StepAttemptSummary.cs" />
+    <Compile Include="BLL\Training\SessionResultRule.cs" />
+    <Compile Include="BLL\Training\SessionResultService.cs" />
     <Compile Include="BLL\Training\PreloadedEquipment.cs" />
     <Compile Include="BLL\Training\SerialSfcGenerator.cs" />
     <Compile Include="BLL\Training\StepTypes.cs" />
