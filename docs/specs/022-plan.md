@@ -392,17 +392,19 @@ está cerrada; el área como texto y solo el selector de guía ya existen.)
 
 **Esfuerzo (D-250):** `medium`; `high` si toca `StartSession`, la BLL de Training o SQL.
 
-- [ ] `Pages/Training/StartSession.aspx` (y `Site.Master` si la estructura lo pide): la
+- [x] `Pages/Training/StartSession.aspx` (y `Site.Master` si la estructura lo pide): la
       disposición aprobada; mismos `DdlGuide`, `RbGuided`/`RbFreePractice`/`RbAssessment`,
       `BtnStart` y `LblError`; el aviso sin área (D-168) y el de "no hay guías".
-- [ ] "Elige tu área" (`ChooseArea.aspx`) hereda el lenguaje si cambia `Site.Master`; se revisa
+- [x] "Elige tu área" (`ChooseArea.aspx`) hereda el lenguaje si cambia `Site.Master`; se revisa
       que siga bien (fuera de la spec, solo regresión).
-- [ ] El POD (`Training.Master`) no cambia (D-154).
+- [x] El POD (`Training.Master`) no cambia (D-154).
 - [ ] `/code-review low --max-findings 3`. Foco: el orden de redirecciones del `Page_Load`
       intacto, ninguna lógica en la página.
-- [ ] Checklist común + iniciar una sesión en cada modo en tablet, sin área y sin guías.
+- [x] Checklist común + iniciar una sesión en cada modo en tablet, sin área y sin guías.
 
 **Hecho cuando:** el usuario inicia una sesión en los tres modos y dice "funciona".
+
+> **Cerrada 2026-11-02 (`3817e50`).** Alternativa D «Modo primero»: `.start-row`/`.start-go`, sin el campo Área, `OperatorStartOptions.GuideCountText`. Rebuild, `aspnet_compiler` y 461 tests en verde. Probada por el usuario. **Rondas de corrección tras la primera prueba: 0** (piloto de Sonnet, D-250). Queda sin correr el `/code-review low` de la entrega.
 
 ## E9 · Cierre
 
