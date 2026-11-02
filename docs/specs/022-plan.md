@@ -380,8 +380,9 @@ de Diseño UI/UX), que el usuario le pasa a Desarrollo; Desarrollo lo trae con e
 > `aspnet_compiler` y 461 tests en verde. Probada por el usuario. **Rondas de corrección tras la
 > primera prueba: 1** (espacio bajo el buscador por `flex: 0 1 380px` de `.admin-search` y
 > "Volver a la lista" visible en escritorio: `.btn` le ganaba a `.users-back`; piloto de Sonnet,
-> D-250). **Falta:** que negocio valide los textos de "qué pasa" y de las acciones, y las D-n
-> pendientes (Diseño UI/UX).
+> D-250). **Falta:** que negocio valide los textos de "qué pasa" y de las acciones (D-314).
+> D-n: D-306 a D-314 (Diseño UI/UX, 2026-10-30); el área en la ficha, y no en una columna,
+> enmienda D-208 y la primera casilla de esta entrega (D-307).
 
 ## E8 · Inicio del operador (después de la E3 de la 021)
 
