@@ -5,6 +5,7 @@ namespace TrainingApp.BLL.Auth
         Success,
         InvalidCurrentPassword,
         NewPasswordIsDefault,
+        NewPasswordTooShort,
         UserNotFound
     }
 }

@@ -4,6 +4,10 @@ namespace TrainingApp.Shared
     {
         public const string DEFAULT_PASSWORD = "Sanjose1!";
 
+        // Largo mínimo de la contraseña nueva (AUD-76): lo exige AuthService; el validador de
+        // ChangePassword.aspx solo lo adelanta en el cliente.
+        public const int MinPasswordLength = 8;
+
         public const string EmployeeApiUrl =
             "https://miappcr.com/api/basico/generalData/allUser/basicInfo";
 

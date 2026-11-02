@@ -161,6 +161,7 @@
     <Compile Include="MesSequenceRuleTests.cs" />
     <Compile Include="MesErrorNotesTests.cs" />
     <Compile Include="GuideScriptReader.cs" />
+    <Compile Include="AuthPasswordRuleTests.cs" />
     <Compile Include="UserAdminServiceTests.cs" />
     <Compile Include="ClosedXmlSmokeTests.cs" />
     <Compile Include="ReadinessPolicyTests.cs" />

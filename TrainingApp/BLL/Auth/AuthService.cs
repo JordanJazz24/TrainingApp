@@ -138,10 +138,22 @@ namespace TrainingApp.BLL.Auth
             if (!PasswordHelper.Verify(currentPassword ?? string.Empty, user.PasswordHash))
                 return ChangePasswordStatus.InvalidCurrentPassword;
 
-            if (newPassword == Constants.DEFAULT_PASSWORD)
-                return ChangePasswordStatus.NewPasswordIsDefault;
+            var rule = CheckNewPassword(newPassword);
+            if (rule != ChangePasswordStatus.Success)
+                return rule;
 
             _userRepo.UpdatePassword(user.Id, PasswordHelper.Hash(newPassword));
+            return ChangePasswordStatus.Success;
+        }
+
+        // Reglas de la contraseña nueva (AUD-76): la BLL no confía en el validador del cliente.
+        // Success = cumple; si no, el motivo.
+        public static ChangePasswordStatus CheckNewPassword(string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < Constants.MinPasswordLength)
+                return ChangePasswordStatus.NewPasswordTooShort;
+            if (newPassword == Constants.DEFAULT_PASSWORD)
+                return ChangePasswordStatus.NewPasswordIsDefault;
             return ChangePasswordStatus.Success;
         }
     }

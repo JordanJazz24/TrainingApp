@@ -1,6 +1,7 @@
 using System;
 using System.Web.UI;
 using TrainingApp.BLL.Auth;
+using TrainingApp.Shared;
 using TrainingApp.UI.Master;
 
 namespace TrainingApp.Pages.Auth
@@ -32,7 +33,7 @@ namespace TrainingApp.Pages.Auth
             {
                 result = _authService.Login(TxtCode1.Text.Trim(), TxtPassword.Text);
             }
-            catch (InvalidOperationException)
+            catch (EmployeeApiUnavailableException)
             {
                 ShowError("El servicio de validación no está disponible. Intente más tarde.");
                 return;

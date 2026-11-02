@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Web.UI;
 using TrainingApp.Pages.Training.Models;
+using TrainingApp.Shared;
 
 namespace TrainingApp.UI.Controls.Training
 {
@@ -68,7 +69,7 @@ namespace TrainingApp.UI.Controls.Training
         public void ShowSaveConfirmation()
         {
             PnlSavedBanner.Visible = true;
-            LitLastCollected.Text  = DateTime.Now.ToString("MMM d, yyyy h:mm:ss tt",
+            LitLastCollected.Text  = PlantTime.ToLocal(DateTime.UtcNow).ToString("MMM d, yyyy h:mm:ss tt",
                 CultureInfo.GetCultureInfo("en-US"));
             Page.ClientScript.RegisterStartupScript(GetType(), "lcAfterSave",
                 "podAutoHide('.lc-save-banner', 5000);", true);

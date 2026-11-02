@@ -115,7 +115,7 @@ namespace TrainingApp.Pages.Admin
             {
                 result = _admin.Create(AdminUserId, code1, role);
             }
-            catch (InvalidOperationException)
+            catch (EmployeeApiUnavailableException)
             {
                 // La lista de empleados nunca se pudo descargar (EmployeeRepository).
                 ShowMessage("error", "El servicio de empleados no está disponible. Intente más tarde.");

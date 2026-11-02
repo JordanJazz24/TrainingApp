@@ -50,13 +50,22 @@ namespace TrainingApp.Pages.Auth
                     ShowError("La nueva contraseña no puede ser la contraseña por defecto.");
                     return;
 
+                case ChangePasswordStatus.NewPasswordTooShort:
+                    ShowError("La nueva contraseña debe tener al menos " + Constants.MinPasswordLength + " caracteres.");
+                    return;
+
                 case ChangePasswordStatus.UserNotFound:
                     // Cuenta eliminada con el login vigente: se cierra la sesión.
                     SessionHelper.Logout();
                     return;
             }
 
-            Session[Constants.SessionKeys.IsFirstLogin] = false;
+            // La Session se llena solo desde la BD (SetUserSession): ya sin IsFirstLogin.
+            if (!SessionHelper.RefreshUserSession())
+            {
+                SessionHelper.Logout();
+                return;
+            }
             SessionHelper.RedirectHome();
         }
 

@@ -249,6 +249,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Shared\AppLog.cs" />
+    <Compile Include="Shared\EmployeeApiUnavailableException.cs" />
     <Compile Include="Shared\Constants.cs" />
     <Compile Include="Shared\PasswordHelper.cs" />
     <Compile Include="Shared\PlantTime.cs" />

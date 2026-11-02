@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -55,7 +54,7 @@ namespace TrainingApp.DAL.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning("[EmployeeRepository] Falló la precarga de empleados: " + ex.Message);
+                    AppLog.Write("Empleados", "Falló la precarga de la lista: " + Describe(ex));
                 }
             });
         }
@@ -85,15 +84,24 @@ namespace TrainingApp.DAL.Repositories
                 catch (Exception ex)
                 {
                     _firstDownloadFailures++;
-                    Trace.TraceWarning("[EmployeeRepository] API no disponible y sin lista descargada. Error: " + ex.Message);
+                    AppLog.Write("Empleados", "API no disponible y sin lista descargada: " + Describe(ex));
                     throw Unavailable(ex);
                 }
             }
         }
 
-        private static InvalidOperationException Unavailable(Exception inner)
+        // La causa real (DNS, TLS, proxy) suele estar en la excepción más interna: el mensaje de la
+        // externa es genérico ("An error occurred while sending the request").
+        private static string Describe(Exception ex)
         {
-            return new InvalidOperationException(
+            var root = ex;
+            while (root.InnerException != null) root = root.InnerException;
+            return AppLog.Clean(ex.Message, 150) + (root == ex ? "" : " | causa: " + root.GetType().Name + ": " + AppLog.Clean(root.Message, 150));
+        }
+
+        private static EmployeeApiUnavailableException Unavailable(Exception inner)
+        {
+            return new EmployeeApiUnavailableException(
                 "El servicio de validación de empleados no está disponible y no existe una lista en caché.", inner);
         }
 
@@ -111,7 +119,7 @@ namespace TrainingApp.DAL.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Trace.TraceWarning("[EmployeeRepository] API no disponible, se sigue sirviendo la última lista. Error: " + ex.Message);
+                    AppLog.Write("Empleados", "API no disponible, se sigue sirviendo la última lista: " + Describe(ex));
                     // Misma lista con el próximo reintento; si otra escritura ya publicó una
                     // lista más nueva, no se pisa.
                     var retry = new EmployeeList(stale.Employees,
