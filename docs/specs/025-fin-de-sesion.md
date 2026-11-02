@@ -1,6 +1,6 @@
 # Spec 025: Fin de sesión del POD
 
-**Status:** Approved 2026-11-02 (usuario) · plan `025-plan.md` (pendiente) · **Date:** 2026-11-02 · **Origen:** D-253 (`022-mockups-por-pantalla.md` →
+**Status:** Approved 2026-11-02 (usuario) · plan `025-plan.md` (aprobado 2026-11-02, 6 entregas) · **Date:** 2026-11-02 · **Origen:** D-253 (`022-mockups-por-pantalla.md` →
 "Candidatas para otra spec") · **Sesión:** Planeación 025 (segunda sesión de Arquitectura y
 Planeación, local, a pedido de Planeación)
 **Decisiones:** D-330 a D-338, del usuario; las propuestas de Claude (P-1 a P-16), confirmadas
