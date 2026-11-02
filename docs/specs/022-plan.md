@@ -404,6 +404,29 @@ está cerrada; el área como texto y solo el selector de guía ya existen.)
 
 **Hecho cuando:** el usuario inicia una sesión en los tres modos y dice "funciona".
 
+## E8b · Resumen del dashboard (agregada 2026-11-02, D-252)
+
+**Bloqueada hasta:** el mockup del Resumen aprobado en Claude Design (brief 10, handoff local
+D-251).
+
+**Esfuerzo (D-250):** `medium`; `high` si el mockup aprobado agrega una métrica derivada en la BLL.
+
+**Punto de partida (D-251):** el handoff de Claude Design, que el usuario le pasa a Desarrollo.
+
+- [ ] Antes de implementar: guardar la lista de cambios del handoff como `022-design/resumen.md`.
+      Si hay un desvío de alcance (`process.md` → "Handoff local de Claude Design"), parar y
+      avisar a Planeación.
+- [ ] `Pages/Admin/Summary.aspx`: la estructura aprobada; mismos controles, filtro de período
+      (023), filtros en la URL, gráficas (`admin-charts.js`) y enlaces. Solo los datos que hoy
+      carga el Resumen (D-205); lo que quitó D-164 sigue fuera.
+- [ ] Métricas derivadas aprobadas (si hay): en la BLL, sin test, como D-235 a D-313.
+- [ ] `/code-review low --max-findings 3`; `medium` si hay métricas. Foco: los números del
+      Resumen no cambian (AC-5), el período y la comparación de la 023 intactos.
+- [ ] Checklist común + cada período, la comparación con el anterior, sin datos y los enlaces
+      a las otras vistas.
+
+**Hecho cuando:** el usuario revisa el Resumen con varios períodos y dice "funciona".
+
 ## E9 · Cierre
 
 - [ ] AC-7: rendimiento de las vistas con la BD de volumen (menos de 3 s,

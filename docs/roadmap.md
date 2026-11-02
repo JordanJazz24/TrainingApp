@@ -42,7 +42,7 @@
 | — · R3 Custom Resource Setup | ✅ (E1–E5: `144d845`, `a0c7c77`, `3a18960` + `82d000d`, `5d12e80`, `3336221`; D-180 a D-201) | 2026-10-27 | `020-custom-resource-setup.md`, `020-plan.md` |
 | — · Filtro de período en Pasos y Resumen | ✅ (E1–E4: `2ffb614`, `869f99a`, `5359a5a`, `9c318df`, en `spec-022`, integrada en `TrainingApp` en `f8aab65`; D-209 a D-218) | 2026-10-28 | `023-filtro-periodo.md`, `023-plan.md` |
 | — · Dashboard por área (Operadores y Operador) | ✅ (E1–E4 en la nube, revisada en local y verificada por Desarrollo en `spec-024`, cierre `ab81231`, integrada en `e86a9f3`; D-260 a D-274) | 2026-10-29 | `024-dashboard-por-area.md`, `024-plan.md` |
-| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y Operadores (`1afe5ed`, cierre `866d80a`), integradas en `TrainingApp` (`4f59cbd`); E6 ✅ con Operador y su ficha (H, D-299 a D-305; `b34e721`, cierre `55931dd`, integrada en `c3f58d5`); E7 ✅ Usuarios (CD-3, handoff local D-251; `8a9664c`, cierre `733f70d`, integrada en `a9ce811`, D-306 a D-314); falta la E8 según su mockup; sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
+| **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y Operadores (`1afe5ed`, cierre `866d80a`), integradas en `TrainingApp` (`4f59cbd`); E6 ✅ con Operador y su ficha (H, D-299 a D-305; `b34e721`, cierre `55931dd`, integrada en `c3f58d5`); E7 ✅ Usuarios (CD-3, handoff local D-251; `8a9664c`, cierre `733f70d`, integrada en `a9ce811`, D-306 a D-314); E8 ✅ Inicio (`3817e50`, en `spec-022` sin integrar); faltan la E8b Resumen (agregada el 2026-11-02, D-252) y la E9; el fin de sesión va a la spec 025 (D-253); sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 | — · Flujo de trabajo eficiente | ✅ (E1 `88b1ca3`, E2 `5ff7e13` en `spec-022`, E3 `4bdb449` + `cb103ff`; D-243 a D-249) | 2026-10-30 | `proceso-eficiente-plan.md` |
 
 ### ▶️ Siguiente (Planeación, 2026-11-02)
@@ -50,11 +50,13 @@
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **022 (Fase 12):** E7 cerrada e integrada (`a9ce811`; D-306 a D-314). Sigue la E8 Inicio con el
-   handoff local (D-251): el usuario la está diseñando en Claude Design (2026-11-02) y le pasa el
-   handoff a Desarrollo. Sus D-n, D-315 a D-319. Al cerrar la E8 termina la variante de la
-   nube (D-249).
-2. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
+1. **022 (Fase 12):** E8 Inicio cerrada en `spec-022` (`3817e50`); falta su `/code-review low`
+   y después se integra. Sus D-n, D-315 a D-319 (Diseño UI/UX).
+2. **022, E8b Resumen (D-252):** Diseño UI/UX escribe el brief 10; el usuario lo diseña en Claude
+   Design y le pasa el handoff a Desarrollo. Sus D-n, D-320 a D-329. Después, la E9 de cierre, y
+   con ella termina la variante de la nube (D-249).
+3. **Spec 025 · Fin de sesión (D-253):** `/spec` con Planeación local al cerrar la 022.
+4. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
 

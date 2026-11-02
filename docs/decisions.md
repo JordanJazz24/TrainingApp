@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-252 (local, rango D-240 a D-259) · D-315 (nube, spec 022; rango D-280 a D-299 y después D-300 a D-319). Siguiente B-n: B-5 (local) · B-30
+> - **Siguiente D-n: D-254 (local, rango D-240 a D-259) · D-315 (nube, spec 022; rango D-280 a D-299, D-300 a D-319 y después D-320 a D-329). Siguiente B-n: B-5 (local) · B-30
 >   (nube)** (B-4 lo usó la 021; B-20, R3). La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -21,6 +21,8 @@
 >   **2026-10-30:** a la nube de la 022 le queda D-299; al agotarlo sigue con **D-300 a D-319**
 >   (Operador, Usuarios e Inicio del operador; reservado por Planeación a pedido de Diseño UI/UX).
 >   El siguiente bloque libre es D-320.
+>   **2026-11-02:** para el Resumen (E8b, D-252) la nube sigue con **D-320 a D-329**, al agotar
+>   D-319. El siguiente bloque libre es D-330.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
 >   **D-260 a D-279** y **B-40 a B-49**. Cerrada el 2026-10-29: usó D-260 a D-274; D-275 a D-279
 >   y B-40 a B-49 quedan sin usar.
@@ -238,7 +240,7 @@
 | D-200 | 2026-10-26 | R3, enmienda 1: siempre 2 Tool Groups por sesión (antes 2 a 4), del mismo pool de 8 | specs/020-custom-resource-setup.md (enmienda 1) | vigente |
 | D-201 | 2026-10-26 | R3, enmienda 1: con la orden asociada, cada fila de Tool Group necesita su Tool Number en todos los modos (formato sin intento) | specs/020-custom-resource-setup.md (enmienda 1) | vigente |
 | D-202 | 2026-10-27 | Spec 022: cada pantalla con su propio mockup en Claude Design (3 alternativas por estructura); la exportación aprobada en `specs/022-design/` es su criterio. Reemplaza D-160 y el "sin mockup" de D-163 | specs/022-mockups-por-pantalla.md | vigente |
-| D-203 | 2026-10-27 | Spec 022: pantallas Login, Cambio de contraseña, Operadores, Operador, Pasos, Seguimiento, Guías, Usuarios e Inicio del operador; fuera el Resumen (v1) y "Elige tu área" | specs/022-mockups-por-pantalla.md | vigente |
+| D-203 | 2026-10-27 | Spec 022: pantallas Login, Cambio de contraseña, Operadores, Operador, Pasos, Seguimiento, Guías, Usuarios e Inicio del operador; fuera el Resumen (v1) y "Elige tu área" | specs/022-mockups-por-pantalla.md | enmendada (D-252: el Resumen entra) |
 | D-204 | 2026-10-27 | Spec 022: intención de UX (jerarquía en vez de tablas planas, guiar la decisión, identidad del login); la forma la proponen las alternativas | specs/022-mockups-por-pantalla.md | vigente |
 | D-205 | 2026-10-27 | Spec 022: métricas nuevas solo derivadas en la BLL con los datos que la vista ya carga, cada una con su D-n; las que piden datos nuevos van a otra spec | specs/022-mockups-por-pantalla.md | vigente |
 | D-206 | 2026-10-27 | Spec 022: tokens y componentes del v1 como base, cambios marcados y cada uno una D-n; aprobación pantalla por pantalla, la primera fija el sistema | specs/022-mockups-por-pantalla.md | enmendada (D-237: el v1 es referencia, no molde) |
@@ -287,6 +289,8 @@
 | D-249 | 2026-10-30 | La variante de la nube (specs y planes en la nube) termina al cerrar la 022 (E8) | specs/proceso-eficiente-plan.md | vigente |
 | D-250 | 2026-10-30 | Enmienda D-246 (el patrón se confirma: `opusplan` de la doc oficial). Review en Opus con la skill `/revisar` (`model: opus`, `effort: high`; vale solo ese turno); el esfuerzo de cada entrega lo fija su plan (`high` si toca BLL o SQL o arregla un bug, `medium` si no); sin `CLAUDE_CODE_SUBAGENT_MODEL` (los subagentes heredan); verificación única con `/usage` y alternativa fijada (el review lo hace el propio turno de `/revisar`); el piloto de Sonnet se evalúa tras 3 entregas: si 2 o más necesitan más de una ronda de correcciones, Desarrollo pasa a Opus `medium` | process.md → "Tres sesiones" y "3. `/code-review` calibrado" | vigente |
 | D-251 | 2026-10-30 | Spec 022, handoff local (desde la E7): Claude Design hace lo de la sesión de diseño de la nube (D-284), guiado por un prompt que genera Diseño UI/UX, y su handoff trae la lista de cambios y los desvíos de alcance; Desarrollo lo trae en local (MCP `claude_design`), sin sesión de la nube, guarda `022-design/<pantalla>.md`, se detiene ante un desvío de alcance (datos, reglas, comportamiento, masters o tokens de pantallas cerradas; avisa a Planeación), implementa, valida y commitea con "D-n pendientes", que Diseño UI/UX numera después. D-226 y D-284 siguen como alternativas | process.md → "Tres sesiones" (Handoff local de Claude Design) | vigente |
+| D-252 | 2026-11-02 | Spec 022: el Resumen (`Summary.aspx`) entra como pantalla 10 (brief 10, handoff local), en la E8b antes de la E9; solo datos existentes (lo que quitó D-164 sigue fuera); sin efecto AC-6. Enmienda D-203 | specs/022-mockups-por-pantalla.md (enmienda 2026-11-02) | vigente |
+| D-253 | 2026-11-02 | El fin de sesión del POD va a la spec 025, después de cerrar la 022: página propia de Training con `Site.Master` (el POD redirige al cerrar), detalle por paso en todos los modos (datos nuevos); para que el operador entienda su resultado, sepa qué reforzar y qué hacer después | specs/022-mockups-por-pantalla.md → "Candidatas para otra spec" | pendiente (spec 025) |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |

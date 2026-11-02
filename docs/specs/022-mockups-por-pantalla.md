@@ -58,6 +58,13 @@ reemplazada por la spec 022".
 - La **ficha impresa** del Operador sí entra, solo en su disposición: sigue en claro y sin menú,
   botones ni curva (D-157).
 
+> **Enmienda 2026-11-02 (D-252, usuario): el Resumen entra en la 022** como pantalla 10
+> (`Pages/Admin/Summary.aspx`, admin, brief 10), con el handoff local (D-251) y en la entrega
+> E8b, antes del cierre (E9). Solo datos existentes (D-205): lo que quitó D-164 sigue fuera.
+> Quedan sin efecto la línea "Resumen" de **Fuera** y AC-6. "Elige tu área", el POD y los Excel
+> siguen fuera. **El fin de sesión del POD no entra** (D-253): pide datos nuevos, una página
+> propia y cambiar la redirección del POD, así que va a la spec 025 ("Candidatas para otra spec").
+
 ## Restricciones fijas (todas las pantallas)
 
 - **Web Forms + Bootstrap 5.3.8 + Bootstrap Icons 1.13.2 locales.** Sin React, sin frameworks
@@ -362,17 +369,19 @@ Registradas como **D-207** al aprobar (2026-10-27). P-1, P-6 y P-7 cambiaron con
 - **AC-5** Cada métrica derivada aprobada tiene su D-n, su regla en el plan y su test de la BLL;
   ningún número existente cambia.
 - **AC-6** El Resumen sigue igual al v1, salvo los tokens y componentes aprobados (D-206).
+  *Sin efecto desde el 2026-11-02 (D-252): el Resumen se rediseña en la E8b.*
 - **AC-7** Rendimiento: las vistas siguen en menos de 3 s con la BD de volumen (AC-7 de la 019).
 
 ## Scope
 
 ### In
-- El diseño de las 9 pantallas de D-203, en claro y en oscuro.
+- El diseño de las 9 pantallas de D-203, en claro y en oscuro, más el Resumen (D-252).
 - Los cambios de tokens y componentes que se aprueben (D-206).
 - Las métricas derivadas que se aprueben (D-205).
 
 ### Out
-- El Resumen (más allá de heredar tokens), "Elige tu área", el POD y los Excel.
+- "Elige tu área", el POD (también su fin de sesión, D-253) y los Excel. (El Resumen salió de
+  esta lista el 2026-11-02, D-252.)
 - Datos, SPs o columnas nuevos; cambios de reglas, filtros, estados o cálculos.
 - Comportamiento nuevo: acciones, filtros o descargas que hoy no existen.
 - React u otro framework, fuentes web, CDN, colores de marca corporativa.
@@ -387,7 +396,14 @@ Desarrollo.
 
 ## Candidatas para otra spec
 
-_Ninguna todavía._
+- **Spec 025 · Fin de sesión (D-253, usuario, 2026-11-02):** rediseñar lo que ve el operador al
+  terminar una sesión (hoy el `PnlCompleted` del POD) para que **entienda su resultado, sepa qué
+  reforzar y qué hacer después**. Va en una **página propia de Training con `Site.Master`** (el
+  sistema de diseño y el tema, como el Inicio); el POD redirige a ella al cerrar la sesión y no
+  cambia de diseño (D-154). Trae el **detalle por paso en todos los modos** (intentos y puntaje
+  por paso): datos nuevos (SP y BLL con tests), por eso no entra en la 022 (D-205). El mockup, en
+  Claude Design con el prompt del handoff local. Se escribe con `/spec` en Planeación local
+  **después de cerrar la 022**.
 
 ## Open Questions
 
