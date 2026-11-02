@@ -78,6 +78,24 @@ namespace TrainingApp.Pages.Admin
         protected global::System.Web.UI.WebControls.Label LblExportSlow;
 
         /// <summary>
+        /// PhGlobal control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.PlaceHolder PhGlobal;
+
+        /// <summary>
+        /// RptGlance control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater RptGlance;
+
+        /// <summary>
         /// LitReadyPeriod control.
         /// </summary>
         /// <remarks>

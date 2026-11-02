@@ -475,6 +475,7 @@
     <Compile Include="BLL\Reports\ReportPeriod.cs" />
     <Compile Include="BLL\Reports\StepStatistics.cs" />
     <Compile Include="BLL\Reports\SummaryRules.cs" />
+    <Compile Include="BLL\Reports\SummaryTotals.cs" />
     <Compile Include="DAL\Repositories\IUserRepository.cs" />
     <Compile Include="Domain\UserSummary.cs" />
     <Compile Include="Pages\Admin\UserListRow.cs" />

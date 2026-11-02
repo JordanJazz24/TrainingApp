@@ -25,6 +25,11 @@ namespace TrainingApp.Pages.Admin
         public string FirstAttemptText { get; set; }
         public string FirstAttemptDetail { get; set; }
         public string AverageText { get; set; }
+
+        // El veredicto de la guía (Resumen "Sala", E8b): la pastilla sale de PassRateChange.
+        public string VerdictCss { get; set; }
+        public string VerdictIcon { get; set; }
+        public string VerdictText { get; set; }
     }
 
     public class SummaryTopRow
@@ -36,5 +41,8 @@ namespace TrainingApp.Pages.Admin
 
         // El cambio del % con fallo contra el período anterior (spec 023).
         public ChangeView FailureRateChange { get; set; }
+
+        // El relleno del anillo del paso n.º 1 (--ring-fill), en % con punto decimal.
+        public string RingFill { get; set; }
     }
 }

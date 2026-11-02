@@ -204,6 +204,9 @@ namespace TrainingApp.BLL.Reports
         // Una por guía mostrada (todas o la del filtro), en el orden de Guides.
         public IList<GuideSummary> GuideSummaries { get; set; }
 
+        // Los totales de las guías mostradas: estados sumados y aprobación global (E8b, D-252).
+        public SummaryTotals Totals { get; set; }
+
         // Sesiones del período por día, semana o mes y por modo.
         public ActivityChart Activity { get; set; }
 
@@ -615,6 +618,7 @@ namespace TrainingApp.BLL.Reports
                 Range          = range,
                 Guides         = guides,
                 GuideSummaries = summaries,
+                Totals         = SummaryTotals.Of(summaries, range.Compares),
                 Activity       = SummaryRules.Activity(sessions, range, now),
                 Sessions       = inPeriod,
                 SessionsChange = range.Compares

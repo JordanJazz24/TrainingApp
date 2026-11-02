@@ -28,7 +28,26 @@ namespace TrainingApp.Pages.Admin
         // "1 vs. 2 evaluados"; vacío sin comparación.
         public string Base { get; private set; }
 
-        private static readonly ChangeView Hidden = new ChangeView { Visible = false };
+        // "Mejora", "Empeora", "Sin cambio" o vacío (sin datos para comparar o sin comparación):
+        // la palabra del veredicto en el Resumen (E8b, D-252), siempre con el ícono, nunca solo color.
+        public string VerdictLabel { get; private set; } = string.Empty;
+
+        // El texto + " · " + la palabra; solo el texto si no hay veredicto.
+        public string Full => string.IsNullOrEmpty(VerdictLabel) ? Text : Text + " · " + VerdictLabel;
+
+        // La pastilla de veredicto del Resumen: "Mejora", "Empeora", "Sin cambio", "Sin datos" (hay
+        // comparación pero no con qué) o "Sin comparación" (con Todo). Con su clase y su ícono.
+        public string PillText { get; private set; }
+        public string PillCss { get; private set; }
+        public string PillIcon { get; private set; }
+
+        private static readonly ChangeView Hidden = new ChangeView
+        {
+            Visible  = false,
+            PillText = "Sin comparación",
+            PillCss  = "mt-badge mt-badge-idle",
+            PillIcon = "bi bi-slash-circle"
+        };
 
         // baseSingular/basePlural: cómo se cuentan ("evaluado"/"evaluados", "sesión"/"sesiones").
         public static ChangeView Of(ReportChange change, ReportRange range, string baseSingular, string basePlural)
@@ -47,6 +66,9 @@ namespace TrainingApp.Pages.Admin
                 view.Css     = "mt-change-none";
                 view.Text    = "sin datos para comparar";
                 view.Verdict = string.Empty;
+                view.PillText = "Sin datos";
+                view.PillCss  = "mt-badge mt-badge-idle";
+                view.PillIcon = "bi bi-question-circle";
                 return view;
             }
 
@@ -62,6 +84,24 @@ namespace TrainingApp.Pages.Admin
                      : change.IsImprovement == false ? "mt-change-bad" : "mt-change-same";
             view.Verdict = change.IsImprovement == true ? "mejora"
                          : change.IsImprovement == false ? "empeora" : string.Empty;
+            if (change.IsImprovement == true)
+            {
+                view.VerdictLabel = view.PillText = "Mejora";
+                view.PillCss  = "mt-badge mt-badge-ok";
+                view.PillIcon = "bi bi-graph-up-arrow";
+            }
+            else if (change.IsImprovement == false)
+            {
+                view.VerdictLabel = view.PillText = "Empeora";
+                view.PillCss  = "mt-badge mt-badge-bad";
+                view.PillIcon = "bi bi-graph-down-arrow";
+            }
+            else
+            {
+                view.VerdictLabel = view.PillText = "Sin cambio";
+                view.PillCss  = "mt-badge mt-badge-idle";
+                view.PillIcon = "bi bi-dash-lg";
+            }
             return view;
         }
     }
