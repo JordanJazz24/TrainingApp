@@ -52,8 +52,8 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
 1. **022 (Fase 12):** E8 Inicio cerrada en `spec-022` (`3817e50`); falta su `/code-review low`
    y después se integra. Sus D-n, D-315 a D-319 (Diseño UI/UX).
-2. **022, E8b Resumen (D-252):** Diseño UI/UX escribe el brief 10; el usuario lo diseña en Claude
-   Design y le pasa el handoff a Desarrollo. Sus D-n, D-320 a D-329. Después, la E9 de cierre, y
+2. **022, E8b Resumen (D-252):** brief 10 listo (`022-briefs.md`); el usuario lo diseña en Claude
+   Design con el prompt del handoff local y le pasa el handoff a Desarrollo. Sus D-n, D-320 a D-329. Después, la E9 de cierre, y
    con ella termina la variante de la nube (D-249).
 3. **Spec 025 · Fin de sesión (D-253):** `/spec` con Planeación local al cerrar la 022.
 4. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
