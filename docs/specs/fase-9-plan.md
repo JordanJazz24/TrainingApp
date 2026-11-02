@@ -185,14 +185,19 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 
 ## E3 · Configuración de Release — Esfuerzo: `medium`
 
-- [ ] **D-144:** `removeServerHeader="true"` solo en `Web.Release.config` (IIS 10 confirmado).
+- [x] **D-144:** `removeServerHeader="true"` solo en `Web.Release.config` (IIS 10 confirmado).
 - [ ] **AUD-72:** descomentar los dos `requireSSL` (`httpCookies` y `forms`) en
   `Web.Release.config`.
 - [ ] **AUD-80:** `Strict-Transport-Security` solo en `Web.Release.config` (`max-age` corto para
   empezar, sin `includeSubDomains` ni `preload`: el dominio es de TI).
-- [ ] **Condición (D-256):** AUD-72 y AUD-80 se publican solo si el usuario confirma que entrar
+- [x] **Condición (D-256):** AUD-72 y AUD-80 se publican solo si el usuario confirma que entrar
   por `http://` lleva a `https://`. Si no redirige, quedan comentados con esa nota y D-144 va
   igual.
+
+> **Cierre E3 (d98563a, 2026-11-02):** D-144 aplicado. El usuario no sabe si `http://` redirige a
+> `https://`, así que AUD-72 y AUD-80 quedan **comentados** en `Web.Release.config` (HSTS con
+> `max-age=300`) y pasan a la E6. Transformación verificada con `TransformXml`; sin Rebuild, tests
+> ni review (solo configuración). Rondas de corrección: 0.
 
 **Verificación:** Rebuild, transformación de Release revisada en la carpeta publicada (los tres
 cambios están; `Web.config` de Debug, sin cambios) y tests. `/revisar` `low`.
