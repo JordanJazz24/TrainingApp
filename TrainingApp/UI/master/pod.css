@@ -764,41 +764,6 @@ body {
 .nc-cell .nc-code { font-weight: 700; font-size: 1rem; }
 .nc-cell .nc-desc { margin-top: 12px; font-style: italic; font-size: 0.95rem; }
 
-/* ── Completion panel ────────────────────────────────────── */
-/* Overlay de resumen a pantalla completa (spec 007): tapa también el header (1050) y los
-   modales de Bootstrap (1055), pero queda debajo de SweetAlert2 (1060) para que el
-   alert de un force-advance en Complete siga visible. */
-.pod-completion {
-    position: fixed;
-    inset: 0;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1058;
-}
-
-.pod-completion-card {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 10px;
-    padding: 40px 48px;
-    text-align: center;
-    min-width: 360px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.1);
-}
-
-/* Resumen de Práctica libre (spec 012, P-10): intentos por paso. Más de un intento se
-   resalta; un paso saltado se atenúa. */
-.pod-attempt-summary {
-    max-height: 50vh;
-    overflow-y: auto;
-    text-align: left;
-    font-size: 0.85rem;
-}
-.pod-attempt-summary .summary-retried td { background: #fff7e6; font-weight: 600; }
-.pod-attempt-summary .summary-skipped td { color: #6c757d; font-style: italic; }
-
 /* ── Modales del MES (Fase 6.5, entrega 4) ──────────
    Barra de título estándar de todas las ventanas: [Título] [↗] [X] sobre gris claro.
    Debajo, el encabezado interno que muestra cada captura real:

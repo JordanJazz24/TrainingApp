@@ -89,7 +89,7 @@ namespace TrainingApp.BLL.Training
     // Reglas del fin de sesión (spec 025, P-3, P-6, P-7, P-13), puras y sin repositorios para
     // probarlas con datos en memoria. No repite la fórmula del puntaje ni la definición de
     // fallo: usa ScoreCalculator (puntos por paso) y StepRuns (fallo, sin acierto, saltado), las
-    // mismas del cierre de la sesión y de Pasos. Reemplaza a StepAttemptSummary.
+    // mismas del cierre de la sesión y de Pasos. Reemplazó a StepAttemptSummary (borrado en la E4).
     public static class SessionResultRule
     {
         // session: la sesión (completada); steps: los pasos de su guía con su Weight; attempts: los

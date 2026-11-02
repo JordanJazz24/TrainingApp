@@ -32,13 +32,13 @@
     // Un desplegable con respuesta esperada (decisión) también avanza con "Continuar", que se
     // habilita solo con el valor correcto; elegir no avanza solo (R11).
     function needsContinue(s) {
-        return s.mode === 'capture' || s.mode === 'verify' || s.mode === 'info' || s.mode === 'final' ||
+        return s.mode === 'capture' || s.mode === 'verify' || s.mode === 'info' ||
             (s.mode === 'change' && s.expect != null);
     }
 
     // Subpasos que solo se leen: lo resaltado no se toca (R11).
     function readOnly(s) {
-        return s.mode === 'info' || s.mode === 'final';
+        return s.mode === 'info';
     }
 
     // ── Elementos ────────────────────────────────────────────────────
@@ -186,7 +186,7 @@
     function render() {
         var s = current();
         globe.querySelector('.pg-step').textContent  = s.step;
-        globe.querySelector('.pg-count').textContent = s.mode === 'final' ? '' : 'Subpaso ' + s.index + ' de ' + s.total;
+        globe.querySelector('.pg-count').textContent = 'Subpaso ' + s.index + ' de ' + s.total;
         // HTML armado y codificado en el servidor (GuideScriptBuilder).
         globe.querySelector('.pg-text').innerHTML = s.html;
         // Nota de la trainer (T7), normal o alerta; oculta si el subpaso no la trae.
@@ -195,7 +195,7 @@
         note.style.display = s.note ? '' : 'none';
         note.classList.toggle('pg-note-alert', s.alert === true);
         globe.querySelector('.pg-actions').style.display = needsContinue(s) ? '' : 'none';
-        globe.querySelector('.pg-continue').textContent = s.mode === 'final' ? 'OK' : 'Continuar';
+        globe.querySelector('.pg-continue').textContent = 'Continuar';
         updateContinue();
     }
 
@@ -492,7 +492,7 @@
             (node.closest('[data-guide-free]') || node.closest('.swal2-container')));
     }
 
-    // Lo resaltado en un subpaso informativo (o el globo final) es de solo lectura (R11).
+    // Lo resaltado en un subpaso informativo es de solo lectura (R11).
     function targetEditable() {
         var s = current();
         return !!(target && s && !readOnly(s));

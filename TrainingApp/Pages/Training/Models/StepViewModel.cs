@@ -63,9 +63,9 @@ namespace TrainingApp.Pages.Training.Models
         // El Ingreso a MES o la limpieza al salir (MesLoginControl.Mode*, spec 016, P-6).
         public string Mode { get; set; }
 
-        // La limpieza terminó en este request: al cerrar la consola se ve el POD con el resumen
-        // (P-12).
-        public bool CloseToSummary { get; set; }
+        // La limpieza terminó en este request: al cerrar la consola, el cliente navega a esta URL
+        // (el resultado de la sesión, spec 025, D-338; P-12). null en los demás casos.
+        public string CloseUrl { get; set; }
     }
 
     // Ingreso a MES (spec 016, D-77): una pantalla enviada al servidor. Password solo dice si

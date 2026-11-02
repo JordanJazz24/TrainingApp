@@ -302,7 +302,6 @@
     <Compile Include="BLL\Scoring\StepValidator.cs" />
     <Compile Include="BLL\Training\StepSubmitResult.cs" />
     <Compile Include="BLL\Training\StepNames.cs" />
-    <Compile Include="BLL\Training\StepAttemptSummary.cs" />
     <Compile Include="BLL\Training\SessionResultRule.cs" />
     <Compile Include="BLL\Training\SessionResultService.cs" />
     <Compile Include="BLL\Training\PreloadedEquipment.cs" />

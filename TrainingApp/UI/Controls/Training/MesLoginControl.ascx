@@ -264,19 +264,12 @@
         }
 
         // Cerrar la consola sin responder no cuenta; con la salida del script, la cierra. Al
-        // terminar la limpieza la sesión ya se cerró: se ve el POD con el resumen (P-12).
+        // terminar la limpieza la sesión ya se cerró: navega a su resultado (P-12, spec 025).
         function closeConsole() {
             var wasDone = consoleDone;
             consoleDone = false;
             show('mesConsole', false);
-            if (wasDone && state.CloseToSummary) {
-                var screen = el('mesDesktop').closest('.mes-screen');
-                if (screen) screen.style.display = 'none';
-                var pod = document.querySelector('.pod-shell');
-                if (pod) pod.classList.remove('d-none');
-                var summary = document.querySelector('.pod-completion');
-                if (summary) summary.classList.remove('d-none');
-            }
+            if (wasDone && state.CloseUrl) window.location.href = state.CloseUrl;
         }
 
         function consoleOutput(code1) {

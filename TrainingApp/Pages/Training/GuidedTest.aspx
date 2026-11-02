@@ -47,9 +47,9 @@
                 <asp:Literal ID="LitModeBadge" runat="server" />
             </asp:Panel>
             <%-- Home y Help: solo visuales, como en el MES real. No hacen nada ni cuentan
-                 como intento (navegación). Logout es el último paso de la guía (spec 015):
-                 con la sesión de entrenamiento cerrada sale de la app (D-21). Un solo envío
-                 por render: un doble clic en el último paso no debe saltar el resumen. --%>
+                 como intento (navegación). Logout es el último paso de la guía (spec 015). Un
+                 solo envío por render: un doble clic en el último paso no debe saltarse la
+                 limpieza al salir. --%>
             <button type="button" class="pod-header-icon" title="Home" aria-label="Home">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
@@ -369,51 +369,6 @@
         <svg class="pod-order-label-barcode" data-guide="pod-label-barcode"
             data-value="<%: LabelShopOrder %>" onclick="scanOrderLabel(this)"
             role="img" aria-label="Shop Order <%: LabelShopOrder %>"></svg>
-    </asp:Panel>
-
-    <%-- ══ COMPLETION PANEL ══════════════════════════════════════════════ --%>
-    <asp:Panel ID="PnlCompleted" runat="server" Visible="false" CssClass="pod-completion">
-        <div class="pod-completion-card" data-guide="pod-final">
-            <h3 class="mb-4">Session Complete</h3>
-            <asp:Panel ID="PnlFinalScore" runat="server" CssClass="mb-3 fs-4">
-                Score: <strong><asp:Literal ID="LitFinalScore" runat="server" /></strong>
-            </asp:Panel>
-            <div class="mb-2">
-                Mode: <asp:Literal ID="LitFinalMode" runat="server" />
-            </div>
-            <div class="mb-2">
-                Area: <asp:Literal ID="LitFinalArea" runat="server" />
-                &nbsp;|&nbsp;
-                Product: <asp:Literal ID="LitFinalProduct" runat="server" />
-            </div>
-            <asp:Panel ID="PnlFinalResult" runat="server" CssClass="mb-4">
-                Result: <strong><asp:Literal ID="LitFinalResult" runat="server" /></strong>
-            </asp:Panel>
-            <%-- Práctica libre (spec 012, P-10): intentos por paso, sin puntaje ni resultado. --%>
-            <asp:Panel ID="PnlAttemptSummary" runat="server" Visible="false" CssClass="pod-attempt-summary mb-4">
-                <table class="table table-sm mb-0">
-                    <thead>
-                        <tr><th>Paso</th><th class="text-end">Intentos</th></tr>
-                    </thead>
-                    <tbody>
-                        <asp:Repeater ID="RptAttemptSummary" runat="server" EnableViewState="false"
-                            ItemType="TrainingApp.BLL.Training.StepAttemptSummaryRow">
-                            <ItemTemplate>
-                                <tr class="<%#: SummaryRowCss(Item) %>">
-                                    <td><%#: Item.StepName %></td>
-                                    <td class="text-end"><%#: SummaryAttemptsText(Item) %></td>
-                                </tr>
-                            </ItemTemplate>
-                        </asp:Repeater>
-                    </tbody>
-                </table>
-            </asp:Panel>
-            <asp:HyperLink ID="LnkNewSession" runat="server"
-                NavigateUrl="~/Pages/Training/StartSession.aspx"
-                CssClass="btn btn-primary">
-                Start New Session
-            </asp:HyperLink>
-        </div>
     </asp:Panel>
 
     <%-- ══ BROWSE WORK LIST MODAL ════════════════════════════════════════ --%>

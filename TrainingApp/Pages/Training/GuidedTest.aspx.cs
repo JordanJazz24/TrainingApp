@@ -72,8 +72,12 @@ namespace TrainingApp.Pages.Training
         private MesScreen? _mesScreen;
 
         // La limpieza al salir cerró la sesión en este request con el script (spec 016, P-12):
-        // la consola muestra su salida y el resumen se ve al cerrarla.
+        // la consola muestra su salida y, al cerrarla, el cliente navega al resultado (spec 025,
+        // D-338). En cualquier otro cierre la página redirige en el mismo request.
         private bool _cleanupCompleted;
+
+        // Quién valida que una sesión sea propia y completada antes de llevar a su resultado.
+        private readonly SessionResultService _results = new SessionResultService();
 
         private StepType? OpenStepType
         {
@@ -184,8 +188,9 @@ namespace TrainingApp.Pages.Training
             PnlBannerZone.Visible = false;
 
             // Logout (spec 015): con la sesión de entrenamiento en curso es un botón del POD
-            // (BtnLogout_ServerClick); sin ella (resumen final, pestaña vieja tras D-9) LoadContext
-            // cierra la sesión de la app, como antes (AUD-33, D-21).
+            // (BtnLogout_ServerClick); sin ella (pestaña vieja tras D-9) LoadContext cierra la
+            // sesión de la app, como antes (AUD-33). Una sesión propia ya completada (F5, pestaña
+            // vieja) lleva a su resultado (spec 025, D-338).
             _ctx = LoadContext();
             if (_ctx == null) return;
 
@@ -280,7 +285,7 @@ namespace TrainingApp.Pages.Training
         // escapa < > & ').
         private void ApplyPracticeBar()
         {
-            var current = _ctx != null && _ctx.Session.Status == SessionStatus.InProgress && !PnlCompleted.Visible
+            var current = _ctx != null && _ctx.Session.Status == SessionStatus.InProgress
                 ? _ctx.CurrentStepOrDefault
                 : null;
             bool hint = current != null && _ctx.Policy.HintOnDemand;
@@ -322,7 +327,7 @@ namespace TrainingApp.Pages.Training
 
         // Saltar paso / Ir a… (spec 012, D-83, D-84 enmendada): el destino viaja en
         // HfSkipTarget. La BLL ignora uno que ya no está adelante (doble clic, F5). Si el salto
-        // cierra la sesión, el resumen; si no (también si se ignoró), el POD se vuelve a armar
+        // cierra la sesión, el resultado; si no (también si se ignoró), el POD se vuelve a armar
         // desde su estado como en un F5 (sin selección ni control abierto): los pasos saltados
         // pueden ser varios y de tipos distintos, y el Ingreso a MES saltado muestra el POD.
         protected void BtnSkip_ServerClick(object sender, EventArgs e)
@@ -335,7 +340,7 @@ namespace TrainingApp.Pages.Training
             if (int.TryParse(raw, NumberStyles.None, CultureInfo.InvariantCulture, out int target) &&
                 Pod.Skip(_ctx, target).Step?.Outcome == StepSubmitOutcome.SessionCompleted)
             {
-                ShowCompletionPanel(session, area, guide);
+                CompleteSession(session);
                 return;
             }
             Response.Redirect(Request.RawUrl);
@@ -352,9 +357,6 @@ namespace TrainingApp.Pages.Training
             bool cleanup = _ctx != null && (_ctx.IsLogoutCleanup || _cleanupCompleted);
             MesScreenActive = login || cleanup;
             PnlMesScreen.Visible = MesScreenActive;
-            // El resumen (fijo, por encima del escritorio) espera a que se cierre la consola de
-            // la limpieza (P-12). CssClass persiste en ViewState: se asigna siempre.
-            PnlCompleted.CssClass = _cleanupCompleted ? "pod-completion d-none" : "pod-completion";
             if (!MesScreenActive) return;
 
             if (login)
@@ -376,7 +378,7 @@ namespace TrainingApp.Pages.Training
             {
                 // Limpieza al salir (P-6): "You have logged off" hasta cerrar Edge; después el
                 // escritorio y el script. Si el script cerró la sesión en este request, la
-                // consola muestra su salida y al cerrarla se ve el resumen (P-12).
+                // consola muestra su salida y al cerrarla el cliente va al resultado (P-12, D-338).
                 var screen = _cleanupCompleted ? MesScreen.ScriptOutput
                     : _mesScreen ?? _ctx.State.Logout.ResumeScreen();
                 CtrlMesLogin.View = new MesLoginView
@@ -386,7 +388,7 @@ namespace TrainingApp.Pages.Training
                     Screen         = MesLoginControl.ScreenFor(screen),
                     ResourceName   = _ctx.ResourceName,
                     ScriptCode1    = screen == MesScreen.ScriptOutput ? _ctx.Code1 : null,
-                    CloseToSummary = _cleanupCompleted
+                    CloseUrl       = _cleanupCompleted ? ResolveUrl(ResultUrl(_ctx.Session)) : null
                 };
             }
             LitMesArea.Text = HttpUtility.HtmlEncode(_ctx.Area.Name);
@@ -407,13 +409,14 @@ namespace TrainingApp.Pages.Training
             _mesScreen = result.MesScreen;
             if (result.Step != null)
             {
+                // Limpieza terminada con el script (no forzada): primero la salida de la consola.
+                // Se decide antes de aplicar el resultado: el cierre no redirige en ese caso.
+                _cleanupCompleted = cleanup && result.Step.Outcome == StepSubmitOutcome.SessionCompleted &&
+                                    result.MesScreen == MesScreen.ScriptOutput;
                 ApplySubmitResult(result.Step, session, guide, area, step, incorrectFeedback: null);
                 // La guía retoma en la pantalla que falló (spec 016, P-4).
                 if (result.Step.Outcome == StepSubmitOutcome.Incorrect)
                     _guideMoment = GuideMoment.Incorrect(step, result.MesScreen?.ToString());
-                // Limpieza terminada con el script (no forzada): primero la salida de la consola.
-                _cleanupCompleted = cleanup && result.Step.Outcome == StepSubmitOutcome.SessionCompleted &&
-                                    result.MesScreen == MesScreen.ScriptOutput;
                 if (_cleanupCompleted)
                     _guideMoment = GuideMoment.SessionCompleted(step, GuideMoment.CleanupDetail);
                 return;
@@ -437,7 +440,7 @@ namespace TrainingApp.Pages.Training
         private void ApplyNcFindingNote()
         {
             var finding = _ctx?.CurrentNcFinding;
-            PnlNcFinding.Visible = finding != null && !PnlCompleted.Visible;
+            PnlNcFinding.Visible = finding != null && _ctx.Session.Status == SessionStatus.InProgress;
             if (!PnlNcFinding.Visible) return;
 
             // Guided: la guía la muestra al llegar al paso y la deja resaltada (pod-guide.js);
@@ -484,7 +487,7 @@ namespace TrainingApp.Pages.Training
         private void ApplyOrderLabel()
         {
             var order = Order;
-            PnlOrderLabel.Visible = order != null && !PodOrderStarted && !PnlCompleted.Visible;
+            PnlOrderLabel.Visible = order != null && !PodOrderStarted && _ctx.Session.Status == SessionStatus.InProgress;
             LabelShopOrder = order?.ShopOrderInput ?? string.Empty;
         }
 
@@ -643,8 +646,8 @@ namespace TrainingApp.Pages.Training
         private void ContinueAfterStepResolved(TrainingSession session, TrainingGuide guide,
             Area area, TrainingStep step, StepSubmitOutcome outcome, PodCommandResult logNC = null)
         {
-            // Sesión completada: ShowCompletionPanel ya cerró todos los controles. La sesión ya
-            // refleja el intento registrado (PodService actualiza el contexto).
+            // Sesión completada: CompleteSession ya redirigió al resultado (o dejó la consola de la
+            // limpieza). La sesión ya refleja el intento registrado (PodService actualiza el contexto).
             if (session.Status != SessionStatus.InProgress) return;
 
             // Modal-overlay: se renderiza en esta respuesta para mostrar su confirmación y
@@ -895,7 +898,7 @@ namespace TrainingApp.Pages.Training
                 case StepSubmitOutcome.SessionCompleted:
                     _guideMoment = GuideMoment.SessionCompleted(step);
                     // PodService ya dejó en la sesión el puntaje final guardado.
-                    ShowCompletionPanel(session, area, guide);
+                    CompleteSession(session);
                     break;
             }
         }
@@ -1037,7 +1040,7 @@ namespace TrainingApp.Pages.Training
         {
             if (session.Status == SessionStatus.Completed)
             {
-                ShowCompletionPanel(session, area, guide);
+                CompleteSession(session);
                 return;
             }
 
@@ -1391,7 +1394,7 @@ namespace TrainingApp.Pages.Training
         // Logout con la sesión de entrenamiento en curso (spec 015): antes del último paso es un
         // botón más del POD (S2). En el último paso empieza la limpieza (spec 016, P-6): "You
         // have logged off" en Edge, sin intento; el script la termina (HandleMesAction). Sin
-        // sesión en curso no llega acá: LoadContext ya salió (D-21).
+        // sesión en curso no llega acá: LoadContext ya salió.
         protected void BtnLogout_ServerClick(object sender, EventArgs e)
         {
             var (session, guide, area, step) = GetContext();
@@ -1405,67 +1408,28 @@ namespace TrainingApp.Pages.Training
         private bool IsPostBackFrom(Control control)
             => Request.Form["__EVENTTARGET"] == control.UniqueID;
 
-        // ── Completion panel ─────────────────────────────────────────────
-        private void ShowCompletionPanel(TrainingSession session, Area area, TrainingGuide guide)
+        // ── Fin de sesión (spec 025, D-338) ──────────────────────────────
+        // El resultado tiene su propia página; el POD ya no lo muestra.
+        private static string ResultUrl(TrainingSession session) => ResultUrl(session.Id);
+
+        private static string ResultUrl(int sessionId)
+            => "~/Pages/Training/SessionResult.aspx?sessionId=" + sessionId.ToString(CultureInfo.InvariantCulture);
+
+        // La sesión se completó en este request (el último paso, un salto o un avance forzado):
+        // redirige al resultado. Con la limpieza al salir cerrada por el script (P-12) la consola
+        // muestra primero su salida y, al cerrarla, el cliente navega (MesLoginView.CloseUrl); el
+        // POD queda cerrado detrás.
+        private void CompleteSession(TrainingSession session)
         {
+            if (!_cleanupCompleted)
+            {
+                Response.Redirect(ResultUrl(session));
+                return;
+            }
             CloseStepControl();
-            PnlWorkList.Visible  = false;
-            PnlCompleted.Visible = true;
-            PnlScore.Visible     = false;
-            BtnAbandon.Disabled  = true;
-            // Con la sesión cerrada, Logout sale de la app (D-21, spec 015), también con el globo
-            // final de la guía en pantalla.
-            BtnLogout.Disabled   = false;
-            BtnLogout.Attributes["data-guide-free"] = string.Empty;
-
-            // P-11: Práctica libre calcula el puntaje pero no lo muestra.
-            PnlFinalScore.Visible = _ctx.Policy.ShowsScore;
-            decimal finalScore = session.FinalScore * 100m;
-            LitFinalScore.Text   = finalScore.ToString("F1") + "%";
-            LitFinalMode.Text    = ModeLabel(_ctx.Policy).Label;
-
-            LitFinalArea.Text    = Page.Server.HtmlEncode(area.Name);
-            LitFinalProduct.Text = Page.Server.HtmlEncode(_ctx.Product?.Name ?? "—");
-
-            if (_ctx.Policy.Summary == SummaryKind.ScoreAndResult)
-            {
-                PnlFinalResult.Visible = true;
-                LitFinalResult.Text    = _ctx.IsPassed
-                    ? "<span class=\"text-success\">✓ APROBADO</span>"
-                    : "<span class=\"text-danger\">✗ REPROBADO</span>";
-            }
-            else
-            {
-                PnlFinalResult.Visible = false;
-            }
-
-            // Práctica libre (P-10): los pasos con sus intentos, de la sesión que se cerró en este
-            // request (el resumen no se vuelve a ver después de cerrarlo).
-            PnlAttemptSummary.Visible = _ctx.Policy.Summary == SummaryKind.AttemptsPerStep;
-            if (PnlAttemptSummary.Visible)
-            {
-                RptAttemptSummary.DataSource = Pod.AttemptSummary(_ctx);
-                RptAttemptSummary.DataBind();
-            }
-        }
-
-        // Fila del resumen: resaltada si tuvo fallos (más de un intento, o fallos antes de
-        // saltarse); atenuada si se saltó.
-        protected static string SummaryRowCss(StepAttemptSummaryRow row)
-        {
-            bool retried = row.Skipped ? row.Failures > 0 : row.Attempts > 1;
-            return string.Join(" ", new[] { retried ? "summary-retried" : null, row.Skipped ? "summary-skipped" : null }
-                .Where(c => c != null));
-        }
-
-        // "Saltado" o "Saltado (N fallos)" (punto confirmado 4); si no, cuántos intentos.
-        protected static string SummaryAttemptsText(StepAttemptSummaryRow row)
-        {
-            if (!row.Skipped) return row.Attempts.ToString(CultureInfo.InvariantCulture);
-            if (row.Failures == 0) return "Saltado";
-            return row.Failures == 1
-                ? "Saltado (1 fallo)"
-                : string.Format(CultureInfo.InvariantCulture, "Saltado ({0} fallos)", row.Failures);
+            PnlWorkList.Visible = false;
+            PnlScore.Visible    = false;
+            BtnAbandon.Disabled = true;
         }
 
         // ── StepViewModel builder ────────────────────────────────────────
@@ -1578,8 +1542,9 @@ namespace TrainingApp.Pages.Training
 
         // ── Session validation ───────────────────────────────────────────
         // Sin un contexto de entrenamiento en curso, el ícono Logout sale de la app, como antes
-        // (AUD-33, D-21 de la spec 015): no depende de la sesión de entrenamiento ni de los
-        // otros chequeos del usuario. Cualquier otro request va a su página.
+        // (AUD-33, spec 015): no depende de la sesión de entrenamiento ni de los otros chequeos
+        // del usuario. Una sesión propia ya completada (F5, pestaña vieja) lleva a su resultado
+        // (spec 025, D-338); cualquier otro request va al Inicio.
         private PodContext LoadContext()
         {
             bool logoutClick = IsPostBack && IsPostBackFrom(BtnLogout);
@@ -1602,10 +1567,17 @@ namespace TrainingApp.Pages.Training
                 return Leave(logoutClick, () => Response.Redirect(SessionHelper.ChooseAreaUrl));
 
             // null: la sesión no existe, es de otro operador o ya no está en curso.
-            var ctx = int.TryParse(Request.QueryString["sessionId"], out int sessionId)
-                ? Pod.LoadContext(sessionId, CurrentUserId) : null;
+            bool hasId = int.TryParse(Request.QueryString["sessionId"], NumberStyles.None,
+                CultureInfo.InvariantCulture, out int sessionId);
+            var ctx = hasId ? Pod.LoadContext(sessionId, CurrentUserId) : null;
             if (ctx == null)
+            {
+                // Propia y completada (SessionResultService lo valida: el sessionId de la URL
+                // nunca se usa sin eso): el resultado, no el Inicio.
+                if (hasId && _results.Get(CurrentUserId, sessionId) != null)
+                    return Leave(false, () => Response.Redirect(ResultUrl(sessionId)));
                 return Leave(logoutClick, () => Response.Redirect("~/Pages/Training/StartSession.aspx"));
+            }
 
             return ctx;
         }
@@ -1734,7 +1706,7 @@ namespace TrainingApp.Pages.Training
                 "<span class=\"{0}\">{1}</span>", badgeClass, label);
         }
 
-        // Nombre del modo en el header, la barra del simulador y el resumen, con su badge.
+        // Nombre del modo en el header y la barra del simulador, con su badge.
         private static (string Label, string BadgeClass) ModeLabel(ModePolicy policy)
         {
             switch (policy.Mode)

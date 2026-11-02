@@ -45,9 +45,10 @@ namespace TrainingApp.Pages.Training.Guide
                 }
             }
 
-            // Sesión completada (R6): un último globo sobre "Session Complete". Si la cerró el
-            // script de la limpieza (spec 016, P-12), antes se cierra la consola: el resumen
-            // aparece recién entonces.
+            // Sesión completada: el resultado tiene su propia página (spec 025, P-11) y la guía no
+            // la acompaña. Solo queda cerrar la consola de la limpieza (spec 016, P-12), que muestra
+            // la salida del script y al cerrarla lleva al resultado. En cualquier otro cierre la
+            // página redirige en el mismo request y no hay guion.
             if (moment.Kind == GuideMomentKind.SessionCompleted)
             {
                 if (moment.Detail == GuideMoment.CleanupDetail && moment.Step != null)
@@ -55,18 +56,8 @@ namespace TrainingApp.Pages.Training.Guide
                     var cleanup = new StepScript(moment.Step, "Logout");
                     AddCloseConsole(cleanup, last: true);
                     script.Substeps.AddRange(cleanup.Substeps);
+                    script.EntryKey = script.Substeps[0].Key;
                 }
-                script.Substeps.Add(new GuideSubstep
-                {
-                    Key       = "final",
-                    Anchor    = Anchor("pod-final"),
-                    Mode      = GuideMode.Final,
-                    StepLabel = "Guía completada",
-                    Index     = 1,
-                    Total     = 1,
-                    Html      = H("Completó la guía. Cuando se sienta listo, intente el ", B("Assessment"), ".")
-                });
-                script.EntryKey = script.Substeps[0].Key;
                 return script;
             }
 
