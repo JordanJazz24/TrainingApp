@@ -25,7 +25,7 @@
 >   D-319. El siguiente bloque libre es D-330.
 >   **2026-11-02:** el Resumen (E8b) usó D-320 a D-327; a la nube de la 022 le quedan D-328 y D-329.
 >   **2026-11-02:** la spec 025 toma **D-330 a D-349** (y B-50 a B-59); el siguiente bloque
->   libre es D-350.
+>   libre es D-350. Usadas D-330 a D-345; la siguiente de la 025 es D-346.
 > - **Spec 024 (Dashboard por área, nube `TrainingApp-Desarrollo`, desde el 2026-10-28):**
 >   **D-260 a D-279** y **B-40 a B-49**. Cerrada el 2026-10-29: usó D-260 a D-274; D-275 a D-279
 >   y B-40 a B-49 quedan sin usar.
@@ -366,6 +366,12 @@
 | D-337 | 2026-11-02 | Spec 025: la acción sugerida y Repetir llevan al Inicio con modo y guía elegidos (validados en la BLL); no inician la sesión | specs/025-fin-de-sesion.md | pendiente (spec 025) |
 | D-338 | 2026-11-02 | Spec 025: el POD redirige al resultado al cerrar la consola de la limpieza (o en el request del salto o del avance forzado); sale el `PnlCompleted` y D-21 queda sin efecto | specs/025-fin-de-sesion.md | pendiente (spec 025) |
 | D-339 | 2026-11-02 | Spec 025: propuestas P-1 a P-16 confirmadas por el usuario (P-7 sin los saltados; P-5 y P-9 precisadas) | specs/025-fin-de-sesion.md | pendiente (spec 025) |
+| D-340 | 2026-11-02 | Spec 025, diseño: una sola lista "Pasos" con selector A reforzar / Todos (en el cliente, abre en A reforzar); reemplaza los bloques A.3 y A.4 sin cambiar sus reglas | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
+| D-341 | 2026-11-02 | Spec 025, diseño: sin el aviso "te llevamos al Inicio…" bajo los botones (D-337 sigue) | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
+| D-342 | 2026-11-02 | Spec 025, diseño: Repetir no aparece si coincide con la acción principal. Precisa D-332 | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
+| D-343 | 2026-11-02 | Spec 025, diseño: textos de "Qué hacer después", aprobados por el usuario tal como están (no pasan por negocio) | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
+| D-344 | 2026-11-02 | Spec 025, diseño: "Últimas sesiones" del Inicio, plegado (`.steps-card .steps-ranking`, "Mostrar ▾"). Precisa D-335 y D-315 | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
+| D-345 | 2026-11-02 | Spec 025, diseño aprobado "Fin de sesión v3" (Claude Design): estructura, componentes `.res`, `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next`, `.last-*`; sin tokens nuevos; JS solo el selector | specs/025-fin-de-sesion.md (Enmienda 1) | pendiente (spec 025) |
 
 ## Bugs que ya existían (B-n)
 

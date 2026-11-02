@@ -1,6 +1,7 @@
 # Spec 025: Fin de sesión del POD
 
-**Status:** Approved 2026-11-02 (usuario) · plan `025-plan.md` (aprobado 2026-11-02, 6 entregas) · **Date:** 2026-11-02 · **Origen:** D-253 (`022-mockups-por-pantalla.md` →
+**Status:** Approved 2026-11-02 (usuario) · **enmendada 2026-11-02** (enmienda 1, diseño de la E2:
+D-340 a D-345) · plan `025-plan.md` (aprobado 2026-11-02, 6 entregas) · **Date:** 2026-11-02 · **Origen:** D-253 (`022-mockups-por-pantalla.md` →
 "Candidatas para otra spec") · **Sesión:** Planeación 025 (segunda sesión de Arquitectura y
 Planeación, local, a pedido de Planeación)
 **Decisiones:** D-330 a D-338, del usuario; las propuestas de Claude (P-1 a P-16), confirmadas
@@ -134,6 +135,33 @@ registran juntas como **D-339**.
 | P-14 | **Tests (NUnit, en memoria):** la regla del detalle en los tres modos (suma = `FinalScore`, avance forzado, saltado, saltado con fallos), qué reforzar (vacío y con fallos), la sugerencia de cada modo y resultado (incluida la guía no iniciable), el invariante de P-2 (ajena, en curso, abandonada, inexistente → nada) y la validación de la preselección de P-9. El SP de P-4 y las páginas se prueban en el navegador. `ScoreCalculatorTests` sigue en verde |
 | P-15 | **El administrador no ve esta página** (no entrena, spec 013): sin la capacidad vuelve a su inicio, como en el resto de Training |
 | P-16 | **Diseño por entregas:** primero la BLL y el SQL (sin UI), después el mockup en Claude Design (página y bloque del Inicio en un solo brief) y después las páginas; el brief lo escribe esta sesión en el plan |
+
+## Enmienda 1 (2026-11-02, diseño de la E2)
+
+El usuario aprobó en Claude Design el diseño "Fin de sesión v3" (ronda 3, "E con la tarjeta de
+A"; proyecto "Fin de sesión del POD (spec 025)",
+<https://claude.ai/design/p/e5a1ad16-3f88-4db5-8175-3f4e96a95b77?file=Fin+de+sesi%C3%B3n+v3.dc.html>;
+las rondas 1 y 2, en "Fin de sesión v1" y "v2"). La sesión de diseño señaló cinco desvíos de
+esta spec y el usuario los aceptó uno por uno:
+
+| ID | Decisión |
+|---|---|
+| D-340 | **Una sola lista "Pasos"** con un selector "A reforzar (N) / Todos (M)", que abre en A reforzar; M es la cantidad de pasos de la guía. Reemplaza los dos bloques de A.3 y A.4: "Qué reforzar" es la vista A reforzar y el detalle por paso es la vista Todos. Las reglas de D-331, D-334 y P-7 no cambian. El selector se resuelve en el cliente, sin postback (como en la 022, "Comportamiento intacto"); sin JavaScript se ve A reforzar. Con 0 a reforzar, "Ningún paso con fallos." |
+| D-341 | **Sin aviso** "te llevamos al Inicio…" debajo de los botones. D-337 sigue igual: las acciones no inician la sesión |
+| D-342 | **Repetir no aparece** cuando coincide con la acción principal (Práctica libre con fallos o saltos). Precisa D-332 |
+| D-343 | **Textos de "Qué hacer después", aprobados por el usuario tal como están** (no pasan por negocio). Acción principal y frase: Guided → "Practicar en Práctica libre" / "Ahora sin la guía visual, para afianzar lo aprendido."; Práctica libre sin fallos ni saltos → "Hacer el Assessment" / "Sin fallos ni saltos: ya puedes evaluarte."; Práctica libre con fallos o saltos → "Practicar de nuevo en Práctica libre" / "Aún hay pasos por afianzar."; Assessment aprobado → "Ir al Inicio" / "Aprobaste este Assessment."; Assessment reprobado → "Practicar en Práctica libre" / "Repasa los pasos marcados sin la presión del puntaje."; guía no iniciable → "Ir al Inicio" / "Esta guía ya no se puede iniciar.". Secundarias: "Repetir <modo>" e "Ir al Inicio" |
+| D-344 | En el Inicio, **"Últimas sesiones" aparece plegado**: un `<details class="steps-card steps-ranking">` con "Mostrar ▾", como el Ranking completo de Pasos, y filas `.last-*`. Sin sesiones completadas, no aparece. Precisa D-335 y D-315 |
+| D-345 | **Diseño aprobado** (v3): título "Resultado de la sesión" con "Producto · Área" debajo; tarjeta de resultado con el veredicto, la cifra y la barra contra el 70 % a la izquierda, y Guía, Modo, Fecha y Duración a la derecha; la lista "Pasos" (D-340); "Qué hacer después" al final. Componentes nuevos en `admin.css`, bloque "Resultado de la sesión": `.res`, `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next` y `.last-*`. **Sin tokens nuevos**, masters sin cambio y JavaScript solo para el selector |
+
+**Notas para Desarrollo** (sin decisión nueva):
+- El mockup usa pesos y pasos de ejemplo. Los reales salen de la BD (`docs/domain.md` →
+  "Ponderación"), y "Todos (M)" es la cantidad de pasos de la guía, no 13 fijo.
+- "Producto · Área" va con el texto estándar de la 021 (`AreaLabel`, como la barra). En el mockup,
+  el título y la barra lo muestran en distinto orden.
+- La verificación del diseño fue parcial: hubo capturas, pero no se midió el contraste ni se
+  probaron los clics en un navegador real. AC-9 se verifica en la E3 y la E5.
+- **Orden:** la 022 ya cerró (E9 en `e1f6665`), así que la 025 puede arrancar. Ya no hay riesgo
+  de cruce en `StartSession.aspx` ni en `admin.css`.
 
 ## Acceptance criteria
 

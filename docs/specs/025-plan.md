@@ -1,9 +1,10 @@
 # Plan 025: Fin de sesión del POD
 
 **Spec:** `025-fin-de-sesion.md` (aprobada 2026-11-02, `aa85d33`) · **Plan aprobado:** 2026-11-02
-(usuario) · **Decisiones:** D-330 a D-339 ·
+(usuario) · **Decisiones:** D-330 a D-339 y, por la enmienda 1 de la spec (diseño), D-340 a D-345 ·
 **Sesión:** Desarrollo (local), con el ciclo de `docs/process.md` → 2. Arranca **después de cerrar
-la 022** (E8b Resumen y E9); el orden lo registra Planeación en el roadmap.
+la 022** (E8b Resumen y E9); el orden lo registra Planeación en el roadmap. *2026-11-02: la 022
+cerró (E9, `e1f6665`): la 025 ya puede empezar.*
 
 ## Cómo se trabaja este plan
 
@@ -58,7 +59,8 @@ la 022** (E8b Resumen y E9); el orden lo registra Planeación en el roadmap.
       repositorio de guías ya puebla `Steps`). Verifica `AccessPolicy.CanTrain`. Calcula si la guía
       **sigue siendo iniciable** con `TrainingAccessRule` (publicada y del área actual): si no, sin
       acción sugerida de modo ni Repetir (P-8). Las acciones salen como URL del Inicio con
-      `?mode=&guide=` (D-337). `GetRecent(userId)` = las últimas **5** (`const`), cada una con
+      `?mode=&guide=` (D-337): la principal y las secundarias (Repetir y Ir al Inicio), **sin
+      Repetir cuando coincide con la principal** (D-342), con un test. `GetRecent(userId)` = las últimas **5** (`const`), cada una con
       "Producto · Área" solo si el área no es la actual del usuario (P-5).
 - [ ] **Preselección del Inicio** (P-9): en `OperatorStartOptions` (o su servicio), una función que
       recibe el `mode` y el `guide` de la URL y devuelve los que valen, **cada uno por separado**: el
@@ -77,7 +79,13 @@ la 022** (E8b Resumen y E9); el orden lo registra Planeación en el roadmap.
 
 **Verifica Desarrollo:** Rebuild; script `03` sobre su BD; tests en verde. Sin cambios visibles.
 
-## E2 · Mockup en Claude Design — lo hace el usuario (sin `/effort`)
+## E2 · Mockup en Claude Design — hecha (2026-11-02), antes de la E1
+
+> **Hecha 2026-11-02:** el usuario aprobó "Fin de sesión v3" (spec → "Enmienda 1", D-340 a
+> D-345), antes de que se implementara la E1. El orden de implementación no cambia: E1 → E3 → E4
+> → E5 → E6. La fuente del diseño es el archivo de Claude Design. El `.md` del handoff
+> (`docs/specs/025-design/fin-de-sesion.md`, con el formato de `022-design/operador.md`) lo
+> guarda Desarrollo al empezar la E3, desde ese diseño, con D-340 a D-345 ya numeradas.
 
 El usuario pega en Claude Design el "Prompt para Claude Design" de `022-briefs.md` (D-251),
 con PANTALLA = "FIN DE SESIÓN y bloque del INICIO", brief = el de abajo, `<archivo>` =
@@ -124,12 +132,12 @@ Queda fuera: historial completo, filtros, tendencias o métricas del operador, r
 sesiones abandonadas, vista del administrador, Excel o impresión, cambios al POD.
 ```
 
-- [ ] El usuario aprueba una alternativa y copia el handoff a Desarrollo, que guarda
+- [x] El usuario aprueba una alternativa y copia el handoff a Desarrollo, que guarda
       `docs/specs/025-design/fin-de-sesion.md` tal cual (carpeta propia de la 025; el formato es
       el de `022-design/operador.md`; usuario, 2026-11-02). Ante un desvío de alcance del handoff, Desarrollo se detiene y avisa
       (`process.md` → "Handoff local").
-- [ ] Planeación 025 (o Planeación, si esa sesión ya cerró) numera las D-n del diseño (desde
-      D-340) cuando Desarrollo integre la E3; Desarrollo commitea con "D-n pendientes".
+- [x] Las D-n del diseño, numeradas por Planeación 025 antes de implementar: D-340 a D-345
+      (desde D-346 si la E3 encuentra otra cosa).
 
 ## E3 · Página de resultado — Esfuerzo: `medium`
 
@@ -140,7 +148,14 @@ sesiones abandonadas, vista del administrador, Excel o impresión, cambios al PO
       desenlaces en una clase de presentación (como `MesErrorNotes`, P-6).
 - [ ] `Web.config`: la página queda bajo la protección de `Pages/Training` (revisar que la regla
       la cubra; no hace falta otra).
-- [ ] `admin.css`: bloque "Resultado de la sesión (spec 025)", sin tokens nuevos.
+- [ ] Según el diseño v3 (D-340 a D-345): la tarjeta de resultado; **una lista "Pasos"** con el
+      selector A reforzar / Todos (M), resuelto en el cliente y sin postback, que abre en A reforzar
+      (las dos vistas se renderizan desde el servidor y el JS solo las alterna; sin JS se ve A
+      reforzar); "Qué hacer después" con los textos de D-343, sin aviso debajo (D-341) y sin Repetir
+      cuando coincide con la principal (D-342; esa regla va en la BLL de la E1, no en la página).
+- [ ] `docs/specs/025-design/fin-de-sesion.md` desde el diseño de Claude Design (ver E2).
+- [ ] `admin.css`: bloque "Resultado de la sesión (spec 025)", sin tokens nuevos: `.res`,
+      `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next` (D-345).
 - [ ] Sin `/revisar` si es solo binding y markup (`process.md` → 3); `low --max-findings 5` si el
       code-behind toma decisiones.
 
@@ -177,8 +192,10 @@ de la guía colgado).
 
 ## E5 · Últimas sesiones y preselección en el Inicio — Esfuerzo: `medium`
 
-- [ ] `StartSession.aspx(.cs)`, según el handoff (D-335): el bloque "Últimas sesiones" debajo del
-      bloque de inicio, sin reordenar "Modo primero" (D-315); oculto sin sesiones (P-5).
+- [ ] `StartSession.aspx(.cs)`, según el diseño (D-335, D-344): el bloque "Últimas sesiones"
+      debajo del bloque de inicio, **plegado** (`<details class="steps-card steps-ranking">` con
+      "Mostrar ▾", sin JS) y con filas `.last-*`, sin reordenar "Modo primero" (D-315); oculto sin
+      sesiones (P-5).
 - [ ] Preselección (P-9): `?mode=&guide=` se pasan a la función de la E1 y se aplican a las tarjetas
       de modo y a `DdlGuide` solo en la primera carga (no en postback). Iniciar, sin cambios.
 - [ ] `admin.css`: en el mismo bloque de la spec 025; `.start-*` de la 022, sin tocar.
