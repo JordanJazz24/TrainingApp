@@ -44,6 +44,7 @@
 | — · Dashboard por área (Operadores y Operador) | ✅ (E1–E4 en la nube, revisada en local y verificada por Desarrollo en `spec-024`, cierre `ab81231`, integrada en `e86a9f3`; D-260 a D-274) | 2026-10-29 | `024-dashboard-por-area.md`, `024-plan.md` |
 | **12 · Mockups por pantalla** | ▶️ brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y Operadores (`1afe5ed`, cierre `866d80a`), integradas en `TrainingApp` (`4f59cbd`); E6 ✅ con Operador y su ficha (H, D-299 a D-305; `b34e721`, cierre `55931dd`, integrada en `c3f58d5`); E7 ✅ Usuarios (CD-3, handoff local D-251; `8a9664c`, cierre `733f70d`, integrada en `a9ce811`, D-306 a D-314); E8 ✅ Inicio (`3817e50`, review `90efca9`, integrada en `22bed84`); faltan la E8b Resumen (agregada el 2026-11-02, D-252) y la E9; el fin de sesión va a la spec 025 (D-253); sin capturas desde el 2026-10-30 (D-242) | | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 | — · Flujo de trabajo eficiente | ✅ (E1 `88b1ca3`, E2 `5ff7e13` en `spec-022`, E3 `4bdb449` + `cb103ff`; D-243 a D-249) | 2026-10-30 | `proceso-eficiente-plan.md` |
+| — · Fin de sesión del POD | ⏳ spec y plan aprobados el 2026-11-02 (`aa85d33`, `0a82f0b`; D-330 a D-339); arranca después de la E9 de la 022 | | `025-fin-de-sesion.md`, `025-plan.md` |
 
 ### ▶️ Siguiente (Planeación, 2026-11-02)
 
@@ -54,9 +55,10 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 2. **022, E8b Resumen (D-252):** brief 10 listo (`022-briefs.md`); el usuario lo diseña en Claude
    Design con el prompt del handoff local y le pasa el handoff a Desarrollo. Sus D-n, D-320 a D-329. Después, la E9 de cierre, y
    con ella termina la variante de la nube (D-249).
-3. **Spec 025 · Fin de sesión (D-253):** spec aprobada el 2026-11-02 (`025-fin-de-sesion.md`,
-   `aa85d33`; D-330 a D-339, la sesión "Planeación 025"); plan en curso. Se implementa después de
-   la E9. Candidatas sin fase: historial y métricas del operador, y su resultado visible para el admin.
+3. **Spec 025 · Fin de sesión (D-253):** spec y plan aprobados (`aa85d33`, `0a82f0b`; 6 entregas,
+   E2 es el mockup del usuario en Claude Design con D-251). Desarrollo arranca la E1 al cerrar la
+   E9. Las D-n del diseño, desde D-340. Candidatas sin fase: historial y métricas del operador, y
+   su resultado visible para el admin (spec → "Candidatas para otra spec").
 4. **Usuario:** antes de publicar en producción, los scripts que lista `docs/status.md` y avisar a
    los trainers que los operadores eligen su área (D-170); subir `TrainingApp` a `main` cuando lo
    decida (D-5).
