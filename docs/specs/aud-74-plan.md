@@ -65,16 +65,23 @@ un Excel de cada uno, con el filtro de período.
 
 ## E2 · GuideScriptBuilder — Esfuerzo: `medium`
 
-- [ ] `partial class` en `Pages/Training/Guide/`: un archivo por paso (ResourceSetup,
+- [x] `partial class` en `Pages/Training/Guide/`: un archivo por paso (ResourceSetup,
   CustomResourceSetup, LineClearance, Start, Assembly, DataCollection, SfcSplit, LogNC, Complete,
   Logout, MesLogin) y `GuideScriptKit` con `StepScript`, `H`, `B`, `Bold`, `Anchor` y los helpers
   compartidos. `ScriptFor` sigue despachando por `StepType`.
-- [ ] `LogNC` (~133 líneas) y `DataCollection` (~84) partidos en métodos privados por pantalla,
+- [x] `LogNC` (~133 líneas) y `DataCollection` (~84) partidos en métodos privados por pantalla,
   con el mismo texto y el mismo orden.
 
 **Verificación:** Rebuild, tests (`MesErrorNotesTests`) y `/revisar` `low`. Checklist del
 usuario: una sesión Guided completa de Moldeo, una de LoFlo y la de Wires, mirando que la guía
 diga y señale lo mismo en cada paso (incluidos Split, Log NC y Custom Resource Setup).
+
+> **Cerrada 2026-11-03 (`066eda4`, rama `refactor-aud74`).** Archivos `GuideScriptBuilder.<Paso>.cs`
+> y `GuideScriptKit.cs` (la clase sigue siendo `GuideScriptBuilder`, ahora `partial`). `LogNC` quedó en
+> `AddFindingAndPiece`, `AddNcList`, `AddFastRepair`, `AddExtendedRepair` y `AddScrap`; `DataCollection`,
+> en `AddTrainerNote`, `AddGroupSubsteps` y `ApplyGroupProgress` (con `GroupKey`). 521 tests en verde.
+> `/revisar low`: sin hallazgos. Probada en el navegador por el usuario. Rondas de corrección
+> tras la primera prueba: 0.
 
 ## E3 · PodService: inyección (D-15, D-259) — Esfuerzo: `high`
 
