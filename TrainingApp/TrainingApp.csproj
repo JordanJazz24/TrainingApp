@@ -395,21 +395,27 @@
     </Compile>
     <Compile Include="Pages\Training\GuidedTest.Controls.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pages\Training\GuidedTest.Submit.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pages\Training\GuidedTest.Buttons.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pages\Training\GuidedTest.MesLogin.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pages\Training\GuidedTest.Paint.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pages\Training\GuidedTest.Lists.cs">
       <DependentUpon>GuidedTest.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Pages\Training\GuidedTestHelpers.cs" />
   </ItemGroup>
