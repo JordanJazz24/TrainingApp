@@ -170,17 +170,29 @@ una de LoFlo (Serialized, con Log NC), más una Guided con un error a propósito
 
 ## E6 · GuidedTest liviano (D-258) — Esfuerzo: `medium`
 
-- [ ] `partial class` por área, sin mover ni reordenar ninguna asignación: infraestructura del
+- [x] `partial class` por área, sin mover ni reordenar ninguna asignación: infraestructura del
   request, visibilidad y apertura de controles, submit de controles y su continuación, handlers
   de los botones del POD, pantalla MES Login y limpieza, pintado de barras y botones, listas y
   feedback.
-- [ ] Lo puro, a helpers estáticos en `Pages/Training/` (sin controles ni `Session`):
+- [x] Lo puro, a helpers estáticos en `Pages/Training/` (sin controles ni `Session`):
   `NoticeText`, `AttemptFeedback`, `ModeLabel`, `FormatScore`, `FindingDisposition` y similares.
-- [ ] **No** se extraen a otras clases los métodos que tocan controles del `.designer` ni se
+- [x] **No** se extraen a otras clases los métodos que tocan controles del `.designer` ni se
   cambia el patrón "`Visible` persiste en ViewState: se asigna en cada request".
 
 **Verificación:** Rebuild, `aspnet_compiler`, tests y `/revisar` `medium`. Checklist del usuario:
 la regresión de la E7 en Guided.
+
+> **Cerrada 2026-11-03 (`bb6e6b6`, rama `refactor-aud74`).** `GuidedTest.aspx.cs` pasó de 1 903 a ~200
+> líneas (campos, `Page_Load`, `OnPreRender`, `LoadContext`). Parciales `GuidedTest.{Controls, Submit,
+> Buttons, MesLogin, Paint, Lists}.cs`, con `DependentUpon` en el csproj. 12 helpers puros a
+> `GuidedTestHelpers` (`internal static`, con `using static`, así que ninguna llamada cambió):
+> `IsModalOverlay`, `FindingDisposition`, `MesErrorJs`, `AttemptFeedback`, `BuildIncorrectFeedback`,
+> `DescribeCurrentPiece`, `ParseRowIds`, `DescribeSelection`, `ModeLabel`, `NoticeText`, `FormatScore`
+> y `ResultUrl`. Los handlers cableados por el markup y las propiedades `protected` que el markup lee
+> quedaron con el mismo nombre y acceso; no se movió ninguna asignación dentro de un método. 558 tests y
+> `aspnet_compiler` en verde. `/revisar medium`: sin bugs; se movió `ResultUrl` por coherencia. Se dejó
+> igual la lectura repetida de la selección (ya existía) y el `F1` sin cultura (el sitio corre con
+> `es-CR`, es lo esperado). Rondas de corrección tras la primera prueba: 0.
 
 ## E7 · Regresión, integración y cierre — Esfuerzo: `medium`
 
