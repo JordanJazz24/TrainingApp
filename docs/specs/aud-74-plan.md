@@ -44,8 +44,8 @@ comportamiento.**
 
 ## E1 · DashboardService — Esfuerzo: `high`
 
-- [ ] Los DTOs (líneas 14-295) a `BLL/Reports/DashboardModels.cs`, mismo namespace.
-- [ ] Un colaborador interno por reporte (Operadores, Pasos, Resumen, Seguimiento, Export), con
+- [x] Los DTOs (líneas 14-295) a `BLL/Reports/DashboardModels.cs`, mismo namespace.
+- [x] Un colaborador interno por reporte (Operadores, Pasos, Resumen, Seguimiento, Export), con
   nombres que no choquen con los DTOs (`SummaryReport` ya existe). `DashboardService` queda como
   fachada: mismo constructor, mismos métodos, `RequireReports` (`CanViewReports`) se sigue
   verificando en cada método público.
@@ -53,6 +53,15 @@ comportamiento.**
 **Verificación:** Rebuild, tests (los 33 de `DashboardServiceTests` sin cambios) y `/revisar`
 `medium`. Checklist del usuario: Resumen, Seguimiento, Operadores, Operador (y su ficha), Pasos y
 un Excel de cada uno, con el filtro de período.
+
+> **Cerrada 2026-11-03 (`f51f7eb`, rama `refactor-aud74`).** Colaboradores: `OperatorsQuery`,
+> `StepsQuery`, `SummaryQuery`, `FollowUpQuery`, `ExportQuery`; los helpers compartidos, en
+> `DashboardQueryKit`. 521 tests en verde. `/revisar medium`: sin cambios de comportamiento; se
+> corrigieron 2 comentarios y 4 `using` sobrantes. Se dejó tal cual el fallback «Paso N» repetido
+> en tres sitios (ya existía; el plan es solo mover). Probada en el navegador con
+> `TrainingApp_DashboardTest`. Rondas de corrección tras la primera prueba: 0.
+> Para compilar en el worktree: `subst R: "<ruta del worktree>"` y trabajar desde `R:\` (la ruta
+> real supera los 260 caracteres).
 
 ## E2 · GuideScriptBuilder — Esfuerzo: `medium`
 

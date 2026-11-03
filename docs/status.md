@@ -7,15 +7,20 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-11-02 · **Rama de desarrollo:** `TrainingApp`. Sin ramas ni
-worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los planes
-(`docs/specs/`), `docs/history.md` y `git log`.
+**Última actualización:** 2026-11-03 · **Rama de desarrollo:** `TrainingApp`. Abierto el worktree
+`.claude/worktrees/refactor-aud74` (rama `refactor-aud74`) de la Fase 13; se integra con `--ff-only`
+al cerrar la E7. Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso**
-- Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 521. Textos de
-  ayuda validados por negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
-- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
-  E6 de `fase-9-plan.md` (la E3, la E4 y la E5 están cerradas; la E6 la hace el usuario, sin bloqueantes) (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+- **Fase 13, refactor AUD-74 / D-15** (`docs/specs/aud-74-plan.md`, 7 entregas): E1 (`DashboardService`)
+  cerrada (`f51f7eb`); sigue la E2 (`GuideScriptBuilder`). Tests: 521. Probar con la BD de LocalDB
+  `TrainingApp_DashboardTest` (admin con tu Code1) y, en el worktree, compilar desde `subst R:` (ruta larga).
+- Las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Textos de ayuda validados por
+  negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
+- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). La E6 de
+  `fase-9-plan.md` (2.ª publicación; la E3, la E4 y la E5 están cerradas; auditoría pre-deploy,
+  AUD-71 a AUD-80; D-256) espera a que se integre la E7 de la Fase 13 (D-258). `/rol desarrollo` al
+  iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
