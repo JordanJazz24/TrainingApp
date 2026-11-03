@@ -6,7 +6,7 @@ using TrainingApp.Domain;
 
 namespace TrainingApp.DAL.Repositories
 {
-    public class TrainingSessionRepository
+    public class TrainingSessionRepository : ITrainingSessionRepository
     {
         public int Insert(TrainingSession session)
         {

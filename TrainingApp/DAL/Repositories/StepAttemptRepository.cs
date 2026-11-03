@@ -6,7 +6,7 @@ using TrainingApp.Domain;
 
 namespace TrainingApp.DAL.Repositories
 {
-    public class StepAttemptRepository
+    public class StepAttemptRepository : IStepAttemptRepository
     {
         // Guarda el intento y, en la misma transacción, avanza la sesión a nextStepOrder o la
         // cierra con finalScore (auditoría AUD-06). Ambos null = solo el intento. stepOrder es

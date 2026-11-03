@@ -12,7 +12,7 @@ namespace TrainingApp.BLL.Training
     // sesión.
     public class PodContext
     {
-        private readonly TrainingGuideService _catalog;
+        private readonly IGuideCatalog _catalog;
 
         // Catálogos del área: se leen al primer uso y una sola vez por request (auditoría
         // AUD-39). La página y PodService los comparten en lugar de volver a consultarlos.
@@ -29,7 +29,7 @@ namespace TrainingApp.BLL.Training
 
         internal PodContext(int userId, TrainingSession session, TrainingGuide guide, Area area,
             IList<TrainingSessionStepAttempt> attempts, PodState state, decimal score,
-            TrainingGuideService catalog, Func<string> code1Loader)
+            IGuideCatalog catalog, Func<string> code1Loader)
         {
             UserId = userId;
             Session    = session;

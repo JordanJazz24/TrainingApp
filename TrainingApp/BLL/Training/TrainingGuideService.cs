@@ -5,7 +5,7 @@ using TrainingApp.Domain;
 
 namespace TrainingApp.BLL.Training
 {
-    public class TrainingGuideService
+    public class TrainingGuideService : IGuideCatalog
     {
         private readonly TrainingGuideRepository _guideRepo;
         private readonly AreaRepository _areaRepo;

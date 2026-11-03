@@ -335,6 +335,8 @@
     <Compile Include="BLL\Training\PodState.cs" />
     <Compile Include="BLL\Training\PodContext.cs" />
     <Compile Include="BLL\Training\PodService.cs" />
+    <Compile Include="BLL\Training\IGuideCatalog.cs" />
+    <Compile Include="BLL\Training\ITrainingSessionService.cs" />
     <Compile Include="BLL\Training\CustomResourceSetup.cs" />
     <Compile Include="BLL\Training\PodCommandResult.cs" />
     <Compile Include="Pages\Auth\Login.aspx.cs">
@@ -510,6 +512,8 @@
     <Compile Include="BLL\Reports\SummaryRules.cs" />
     <Compile Include="BLL\Reports\SummaryTotals.cs" />
     <Compile Include="DAL\Repositories\IUserRepository.cs" />
+    <Compile Include="DAL\Repositories\ITrainingSessionRepository.cs" />
+    <Compile Include="DAL\Repositories\IStepAttemptRepository.cs" />
     <Compile Include="Domain\UserSummary.cs" />
     <Compile Include="Pages\Admin\UserListRow.cs" />
     <Compile Include="Pages\UserPrincipal.cs" />

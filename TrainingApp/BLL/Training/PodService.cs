@@ -21,16 +21,32 @@ namespace TrainingApp.BLL.Training
     public class PodService
     {
         private readonly IPodStateStore             _store;
-        private readonly TrainingSessionRepository  _sessionRepo    = new TrainingSessionRepository();
-        private readonly StepAttemptRepository      _attemptRepo    = new StepAttemptRepository();
-        private readonly UserRepository             _userRepo       = new UserRepository();
-        private readonly TrainingGuideService       _guideService   = new TrainingGuideService();
-        private readonly TrainingSessionService     _sessionService = new TrainingSessionService();
-        private readonly ScoreCalculator            _scoreCalc      = new ScoreCalculator();
+        private readonly ITrainingSessionRepository _sessionRepo;
+        private readonly IStepAttemptRepository     _attemptRepo;
+        private readonly IUserRepository            _userRepo;
+        private readonly IGuideCatalog              _catalog;
+        private readonly ITrainingSessionService    _sessionService;
+        private readonly ScoreCalculator            _scoreCalc;
 
+        // La página y StartSession: el servidor real (repositorios y servicios con su BD).
         public PodService(IPodStateStore store)
+            : this(store, new TrainingSessionRepository(), new StepAttemptRepository(), new UserRepository(),
+                   new TrainingGuideService(), new TrainingSessionService(), new ScoreCalculator())
         {
-            _store = store ?? throw new ArgumentNullException(nameof(store));
+        }
+
+        // Para los tests (AUD-74, D-15, D-259): todo en memoria. ScoreCalculator es puro.
+        public PodService(IPodStateStore store, ITrainingSessionRepository sessionRepo,
+            IStepAttemptRepository attemptRepo, IUserRepository userRepo, IGuideCatalog catalog,
+            ITrainingSessionService sessionService, ScoreCalculator scoreCalc)
+        {
+            _store          = store ?? throw new ArgumentNullException(nameof(store));
+            _sessionRepo    = sessionRepo ?? throw new ArgumentNullException(nameof(sessionRepo));
+            _attemptRepo    = attemptRepo ?? throw new ArgumentNullException(nameof(attemptRepo));
+            _userRepo       = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
+            _catalog        = catalog ?? throw new ArgumentNullException(nameof(catalog));
+            _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
+            _scoreCalc      = scoreCalc ?? throw new ArgumentNullException(nameof(scoreCalc));
         }
 
         // Sesión, guía, área, intentos y estado del POD, una vez por request (AUD-25). null si
@@ -43,8 +59,8 @@ namespace TrainingApp.BLL.Training
                 session.Status != SessionStatus.InProgress)
                 return null;
 
-            var guide    = _guideService.GetById(session.TrainingGuideId);
-            var area     = _guideService.GetArea(guide.AreaId);
+            var guide    = _catalog.GetById(session.TrainingGuideId);
+            var area     = _catalog.GetArea(guide.AreaId);
             var attempts = _attemptRepo.GetBySessionId(sessionId);
 
             var state = _store.Load(sessionId);
@@ -55,7 +71,7 @@ namespace TrainingApp.BLL.Training
             }
 
             decimal score = _scoreCalc.CalculateSessionScore(guide.Steps, attempts, session.Mode);
-            var ctx = new PodContext(userId, session, guide, area, attempts, state, score, _guideService,
+            var ctx = new PodContext(userId, session, guide, area, attempts, state, score, _catalog,
                 () => _userRepo.GetById(userId)?.Code1);
 
             // Después de Resource Setup siempre hay orden: si falta, se perdió la Session. Después
@@ -121,7 +137,7 @@ namespace TrainingApp.BLL.Training
         // sin área o modo no definido (B-4): excepción, no intento.
         public TrainingSession StartSession(int userId, int guideId, SessionMode mode)
         {
-            var guide = _guideService.GetById(guideId);
+            var guide = _catalog.GetById(guideId);
             TrainingAccessRule.EnsureCanStart(_userRepo.GetById(userId), guide, mode);
             var session = _sessionService.Start(userId, guide, mode);
             _store.RemoveAll();

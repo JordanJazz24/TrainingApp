@@ -6,7 +6,7 @@ namespace TrainingApp.BLL.Training
 {
     // Ciclo de vida de una TrainingSession: iniciar y abandonar. Los pasos, el registro de
     // intentos y el estado del POD son de PodService (spec 009).
-    public class TrainingSessionService
+    public class TrainingSessionService : ITrainingSessionService
     {
         private readonly TrainingSessionRepository _sessionRepo = new TrainingSessionRepository();
 
