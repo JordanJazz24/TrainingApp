@@ -196,13 +196,13 @@ la regresión de la E7 en Guided.
 
 ## E7 · Regresión, integración y cierre — Esfuerzo: `medium`
 
-- [ ] Regresión completa del usuario en el worktree: Guided, Práctica libre y Assessment en
+- [x] Regresión completa del usuario en el worktree: Guided, Práctica libre y Assessment en
   Moldeo, LoFlo y Wires (con Split, Log NC, Custom Resource Setup, Skip, abandono, F5 y el fin de
   sesión con "Últimas sesiones"); Ingreso a MES y limpieza al salir; login, cambio de contraseña
   y Usuarios; las páginas del dashboard y sus Excel.
-- [ ] Integrar a `TrainingApp` con `git merge --ff-only refactor-aud74`, quitar el worktree y
+- [x] Integrar a `TrainingApp` con `git merge --ff-only refactor-aud74`, quitar el worktree y
   borrar la rama.
-- [ ] Docs (Desarrollo): `docs/architecture.md` (árbol del código: `Pod/`, `DashboardModels`,
+- [x] Docs (Desarrollo): `docs/architecture.md` (árbol del código: `Pod/`, `DashboardModels`,
   los parciales de la guía y de `GuidedTest`, las interfaces nuevas), `docs/status.md` (deuda y
   cobertura), `docs/history.md` y la auditoría (AUD-74 ☑). Avisar a Planeación para el roadmap,
   `decisions.md` (D-15 cerrada) y la E6 de la Fase 9.
@@ -210,6 +210,13 @@ la regresión de la E7 en Guided.
 **Hecho cuando:** las cuatro clases están partidas, `PodService` tiene tests de su núcleo, todos
 los tests pasan, la regresión tiene el "funciona" y el refactor está en `TrainingApp` antes de
 republicar.
+
+> **Cerrada 2026-11-03.** Regresión completa del usuario en el worktree con la BD de LocalDB
+> `TrainingApp_DashboardTest`, sin ninguna ronda de corrección. Integrada con `git merge --ff-only`
+> (el hash de integración queda en `git log`). Fase 13 completa: 558 tests (521 antes), 7 entregas
+> con 0 rondas de corrección tras la primera prueba. Pendiente de Planeación: roadmap (Fase 13 ✅),
+> `decisions.md` (D-15 y D-259 cerradas, y la enmienda de `LoadContext` devuelve `null` de la E4) y la
+> E6 de la Fase 9, que ya no espera.
 
 ## No incluye
 

@@ -7,24 +7,20 @@
 
 ## 📍 Estado actual
 
-**Última actualización:** 2026-11-03 · **Rama de desarrollo:** `TrainingApp`. Abierto el worktree
-`.claude/worktrees/refactor-aud74` (rama `refactor-aud74`) de la Fase 13; se integra con `--ff-only`
-al cerrar la E7. Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
+**Última actualización:** 2026-11-03 · **Rama de desarrollo:** `TrainingApp`. Sin ramas ni
+worktrees abiertos (el de `refactor-aud74` se quita al integrarla). Lo cerrado está en los planes
+(`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso**
-- **Fase 13, refactor AUD-74 / D-15** (`docs/specs/aud-74-plan.md`, 7 entregas): E1 (`DashboardService`)
-  (`f51f7eb`), E2 (`GuideScriptBuilder`, `066eda4`), E3 (inyección en `PodService`, `dc0cc46`) y E4
-  (tests del núcleo de `PodService`, `d35801a`) y E5 (`PodService` dividido por comando en
-  `BLL/Training/Pod/`, `7aa6ac3`) y E6 (`GuidedTest` en parciales y helpers, `bb6e6b6`) cerradas;
-  sigue la E7 (regresión completa del usuario, integración `--ff-only` a `TrainingApp` y docs
-  finales, esfuerzo `medium`). Tests: 558. Probar con la BD de LocalDB
-  `TrainingApp_DashboardTest` (admin con tu Code1) y, en el worktree, compilar desde `subst R:` (ruta larga).
+- Nada abierto: la **Fase 13** (refactor de AUD-74 y D-15, `docs/specs/aud-74-plan.md`) está cerrada
+  e integrada a `TrainingApp` con `--ff-only` (2026-11-03; `docs/history.md`). Tests: 558. El
+  refactor no cambió comportamiento, markup ni firmas públicas.
 - Las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Textos de ayuda validados por
   negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
-- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). La E6 de
-  `fase-9-plan.md` (2.ª publicación; la E3, la E4 y la E5 están cerradas; auditoría pre-deploy,
-  AUD-71 a AUD-80; D-256) espera a que se integre la E7 de la Fase 13 (D-258). `/rol desarrollo` al
-  iniciar y `/cerrar-entrega` al cerrar.
+- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
+  E6 de `fase-9-plan.md` (2.ª publicación; la E3, la E4 y la E5 están cerradas; auditoría
+  pre-deploy, AUD-71 a AUD-80; D-256): la hace el usuario y ya no espera a la Fase 13. `/rol
+  desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
@@ -104,6 +100,7 @@ corrió el usuario:
 | 2026-10-19 | ALTER de la spec 014 E3 + `02`, `05`, `08`, `09` | Spec 014 E3: `Operations.Sequence` y `Description` con 2 operaciones `SIM` por área, `spOperationGetByArea`, `StepType` 10 (versión nueva de las guías, DC 0.25); enmienda 5: `F_FR_GENERAL`/`F_FX_GENERAL` en LoFlo y Redefinity y se borran los `SIM_FR`/`SIM_FX` |
 | 2026-10-19 | `00`–`09` (BD recreada) | Spec 016 E2: `StepType` 11 (Ingreso a MES) primero en las tres guías, DC −0.05 |
 | 2026-10-22 | `00`–`09` (BD recreada con `RunAllScripts.ps1 -Recreate`) + `Ops/CreateAdmin` | Fila 13: sin la columna `Areas.RequiresNCComponent` (D-124) |
+| 2026-11-03 | `Ops/CreateAdmin` en `TrainingApp_DashboardTest` (LocalDB) | Fase 13, E1: cuenta de administrador para probar en el worktree con los datos del generador; esa BD sigue con su volumen (borrarla si ya no se usa) |
 
 `05_SeedData.sql` es **solo dev**: Redefinity (Serialized con Assembly, 2 DC Groups
 obligatorios + el grupo Trainer opcional, BOM `SIM-100001`/`SIM-100002`) y Subensamble 1.

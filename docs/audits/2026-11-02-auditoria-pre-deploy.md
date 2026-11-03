@@ -98,6 +98,16 @@ publicación.
 **Conteo:** Alto 1 · Medio 3 · Bajo 4 · Info 2. **Bloquean la publicación:** AUD-71 y AUD-72
 (más D-144, ya conocido).
 
+> **Enmienda 2026-11-03: AUD-74 ☑.** Cerrado en la Fase 13 (`docs/specs/aud-74-plan.md`, D-258 y
+> D-259): `DashboardService` (818 líneas) quedó como fachada con un colaborador por reporte y sus DTOs
+> aparte; `GuideScriptBuilder` (1 064), en parciales por paso y un kit común, con `LogNC` y
+> `DataCollection` partidos por pantalla; `PodService` (1 294), como fachada sobre 10 colaboradores de
+> `BLL/Training/Pod/`, con sus dependencias inyectadas por interfaces (D-15) y 37 tests del núcleo;
+> `GuidedTest.aspx.cs` (1 903), en parciales por área (~200 líneas en el archivo principal) y helpers
+> puros. Sin cambio de comportamiento, de markup ni de firmas públicas. Queda a la vista que
+> `GuidedTest.BuildStepViewModel` sigue siendo un método largo (~107 líneas): el plan no lo partía
+> (no se extraen métodos que tocan controles).
+
 ## Sugerencias (sin número)
 
 - `detect_antipatterns` de Roslyn está pensado para .NET moderno. Sus avisos de `DateTime.UtcNow`

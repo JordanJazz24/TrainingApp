@@ -32,13 +32,20 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │       │                                 y preselección ?mode=&guide= (spec 025)
 │   │       ├── SessionResult.aspx + .cs   ← fin de sesión: el resultado (spec 025)
 │   │       ├── SessionResultText.cs       ← textos del fin de sesión (motivos, desenlaces, acciones)
-│   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso
+│   │       ├── GuidedTest.aspx + .cs      ← el POD: host de los controles de paso. La clase es
+│   │       │                                 `partial` (AUD-74, E6): .cs (request: Page_Load,
+│   │       │                                 LoadContext), .Controls, .Submit, .Buttons, .MesLogin,
+│   │       │                                 .Paint y .Lists, uno por área; lo puro (NoticeText,
+│   │       │                                 ModeLabel, FormatScore…) en GuidedTestHelpers.cs
 │   │       ├── SessionPodStateStore.cs    ← IPodStateStore sobre la Session (spec 009)
 │   │       ├── StepHints.cs               ← pista de cada paso (Guided tras un fallo y Ver
 │   │       │                                 pista); por tramo en el Ingreso y en Logout (spec 012)
 │   │       ├── Guide/                     ← guía visual de Guided (spec 010): GuideScriptBuilder
-│   │       │                                 (guion por tipo de paso y textos), GuideSubstep,
-│   │       │                                 GuideMoment (qué dejó la página en pantalla)
+│   │       │                                 (`partial`, AUD-74 E2: GuideScriptBuilder.cs con Build
+│   │       │                                 y ScriptFor, un GuideScriptBuilder.<Paso>.cs por tipo
+│   │       │                                 de paso y GuideScriptKit.cs con StepScript y los
+│   │       │                                 helpers), GuideSubstep, GuideMoment (qué dejó la
+│   │       │                                 página en pantalla)
 │   │       └── Models/                    ← modelos de UI: StepViewModel (+ EventArgs),
 │   │                                         IStepControl, PodWorkListRow
 │   ├── UI/
@@ -72,7 +79,12 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │                                     va con las Custom primero y el conteo por tipo
 │   │   │                                     (PublishedGuideList, spec 022, D-235)
 │   │   ├── Reports/                       ← dashboard de Training (spec 018), solo lectura
-│   │   │   ├── DashboardService.cs        ← cada vista y descarga; verifica CanViewReports
+│   │   │   ├── DashboardService.cs        ← fachada de cada vista y descarga; verifica
+│   │   │   │                                 CanViewReports y delega en los colaboradores
+│   │   │   │                                 internos (AUD-74, E1): OperatorsQuery, StepsQuery,
+│   │   │   │                                 SummaryQuery, FollowUpQuery y ExportQuery, con
+│   │   │   │                                 DashboardQueryKit (helpers compartidos)
+│   │   │   ├── DashboardModels.cs         ← los DTOs: filtros, páginas y filas de cada vista
 │   │   │   ├── ReadinessPolicy.cs         ← Aprobado, Reprobado, En entrenamiento (D-136)
 │   │   │   ├── StepRuns.cs                ← cada paso de una sesión desde sus intentos:
 │   │   │   │                                 duración, fallos, saltos, sin acierto, resultado
@@ -86,12 +98,34 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   │   │                                 (ReportPeriods.Resolve, spec 023)
 │   │   │   └── ReportChange.cs            ← cambio contra el período anterior, con su base
 │   │   ├── Training/
-│   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products)
-│   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones
-│   │   │   ├── PodService.cs              ← motor del POD (spec 009): LoadContext (una vez
-│   │   │   │                                 por request) y comandos que registran intentos
-│   │   │   │                                 (intento + avance atómico con spStepAttemptRecord);
-│   │   │   │                                 arma el StepValidator con los catálogos del contexto
+│   │   │   ├── TrainingGuideService.cs    ← guías y catálogos (grupos DC, BOM, NC, Products);
+│   │   │   │                                 implementa IGuideCatalog (lo que piden PodService y
+│   │   │   │                                 PodContext, AUD-74 E3)
+│   │   │   ├── TrainingSessionService.cs  ← iniciar y abandonar sesiones; implementa
+│   │   │   │                                 ITrainingSessionService
+│   │   │   ├── PodService.cs              ← fachada del motor del POD (spec 009): LoadContext
+│   │   │   │                                 (una vez por request, con la reconstrucción D-10),
+│   │   │   │                                 StartSession, Abandon y sus 23 métodos públicos, que
+│   │   │   │                                 delegan en Pod/. Dos constructores: el de la página
+│   │   │   │                                 (crea las implementaciones concretas) y el que recibe
+│   │   │   │                                 todo (tests, D-15, D-259)
+│   │   │   ├── Pod/                       ← colaboradores internos de PodService (AUD-74, E5),
+│   │   │   │   │                             en capas sin ciclos:
+│   │   │   │   ├── PodCore.cs             ← núcleo del intento: RecordAttempt (intento + avance
+│   │   │   │   │                             atómico con spStepAttemptRecord), FailedAttempt,
+│   │   │   │   │                             SaveState (el único que persiste el estado),
+│   │   │   │   │                             DiscardProgress, EnsureInProgress/CurrentStep y el
+│   │   │   │   │                             StepValidator con los catálogos del contexto
+│   │   │   │   ├── PodSelection.cs        ← filas del POD enviadas y su selección
+│   │   │   │   ├── PodOrderEffects.cs     ← crear la orden, iniciar piezas, split por
+│   │   │   │   │                             defecto, disposición del hallazgo, quitar filas
+│   │   │   │   ├── PodForcedAdvance.cs    ← Skip y RestoreAfterForcedAdvance
+│   │   │   │   ├── PodSequence.cs         ← CheckSequence y OutOfSequence
+│   │   │   │   └── Pod{Setup,AssemblyDc,Split,LogNc,Completion}Commands.cs ← los comandos
+│   │   │   │                                 (Completion: Complete, Logout, acciones sin paso e
+│   │   │   │                                 Ingreso a MES)
+│   │   │   ├── IGuideCatalog.cs, ITrainingSessionService.cs ← interfaces mínimas que PodService
+│   │   │   │                                 inyecta (AUD-74, E3)
 │   │   │   ├── PodContext.cs              ← sesión, guía, área, intentos, puntaje, estado,
 │   │   │   │                                 Code1 del usuario y catálogos del área (perezosos,
 │   │   │   │                                 una vez por request)
@@ -150,7 +184,9 @@ MES Training Simulator/                    ← raíz del repositorio
 │   │   └── Repositories/                  ← uno por tabla: Employee (API, lista en memoria
 │   │                                         con precarga y refresco), User (+ IUserRepository
 │   │                                         para los tests de la gestión), Product, Area,
-│   │                                         TrainingGuide, TrainingSession, StepAttempt,
+│   │                                         TrainingGuide, TrainingSession (+ ITrainingSession-
+│   │                                         Repository) y StepAttempt (+ IStepAttempt-
+│   │                                         Repository), las dos para los tests de PodService,
 │   │                                         NCCode, DataCollectionGroup,
 │   │                                         DataCollectionParameter, AssemblyComponent,
 │   │                                         Operation; Dashboard (+ IDashboardRepository,
@@ -295,7 +331,7 @@ diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de e
 - Cada intento guarda `Reason` (`AttemptReason`: `None` si es correcto, `OutOfSequence`,
   `WrongDecision`, `InvalidAction`, `MissingSelection`, `EmptyRequiredField`) y `Action`
   (`AttemptActions`), en `spStepAttemptRecord`, en la misma transacción que el avance.
-- `PodService.RecordAttempt` los recibe de cada comando: `CheckSequence` con el botón
+- `PodCore.RecordAttempt` los recibe de cada comando: `PodSequence.CheckSequence` con el botón
   presionado, `SubmitStep` con la acción del envío (`AttemptActions.ForSubmit`), Assembly y
   DC con la suya, `FailedAttempt` con `MissingSelection`. Los botones de relleno pasan su
   acción desde la página (`GuidedTest.NonStepAction`).
@@ -327,9 +363,15 @@ diseño de SAP NetWeaver es del login de MES simulado, dentro de la sesión de e
   intento o como aviso, secuencia (`CheckSequence`), avance forzado y scrap.
   `spStepAttemptRecord` vuelve a validar en su transacción estado, paso y número de intento:
   si la sesión cambió, falla sin guardar nada.
-- **Código nuevo del POD** = un comando en `PodService`; la página solo traduce el
-  `PodCommandResult` (`PodNotice`, `MesErrors`, intento) a UI y elige los textos de los
-  avisos propios del simulador (los del MES vienen armados de la BLL, ver "Mensajes del MES").
+- **Código nuevo del POD** = un comando en el colaborador de `BLL/Training/Pod/` que le
+  corresponde (o uno nuevo) y su método delegado en la fachada `PodService`; no lógica directa en
+  la fachada (AUD-74, E5). La página solo traduce el `PodCommandResult` (`PodNotice`, `MesErrors`,
+  intento) a UI y elige los textos de los avisos propios del simulador (los del MES vienen
+  armados de la BLL, ver "Mensajes del MES"). Lo que se puede probar sin BD se prueba con
+  `PodServiceTests` (fakes en memoria de los repositorios y servicios inyectados, D-15, D-259).
+- **Dónde se registra y se persiste:** `PodCore.RecordAttempt` guarda el intento y el avance o el
+  cierre en una sola llamada y actualiza el `PodContext` después de guardar; `PodCore.SaveState`
+  es el único que persiste el estado del POD. Los demás colaboradores lo cambian a través de él.
 - **Estado (`PodState`)**: orden simulada + avance de Assembly y DC + equipos precargados
   de Resource Setup (spec 015: los genera `OpenResourceSetup` en cada apertura, viajan con el
   control en un campo oculto sin otro postback y se descartan al resolver el paso) +
@@ -368,7 +410,7 @@ Reglas: `docs/domain.md` → "Qué cuenta como intento" → "Mensajes del MES".
   `AssemblySubmitResult.MesError`, `DataCollectionSubmitResult.MesError` y, para el Split,
   `SFCSplitRequestedEventArgs.MesError`. El formato del Split (Qty como decimal) y del barcode
   de Assembly lo decide `PodService`, no el control.
-- **Fuera de turno:** `PodService.OutOfSequence` arma el estado con `MesSequenceState.Build`
+- **Fuera de turno:** `PodSequence.OutOfSequence` arma el estado con `MesSequenceState.Build`
   (función pura: pasos sin resolver, SFC iniciado y seleccionado, "No" del LC de apertura
   sacado de los intentos para que sobreviva a la reconstrucción D-10, DC pendiente por pieza
   solo para Complete) y `MesSequenceRule.For` devuelve el mensaje. Con `RecordAttempt` el
@@ -415,11 +457,11 @@ Reglas: `docs/domain.md` → "Modos de sesión" y "Qué cuenta como intento".
   `PenaltyFactor` y `ForcesAdvanceAt`. `ScoreCalculator` conserva sus firmas con
   `SessionMode` y delega en ella; `ModeLabel` (nombre y badge) es lo único de la página que
   mira el `SessionMode`.
-- **Aviso de otro paso (D-88):** con `Notice`, `PodService.OutOfSequence` y `MesFailure`
+- **Aviso de otro paso (D-88):** con `Notice`, `PodSequence.OutOfSequence` y `MesFailure`
   devuelven `PodCommandResult.NotCurrentStepNotice` sin intento y la página muestra "Ese no
   es el paso actual.". En el Ingreso y la limpieza solo el Repositorio fuera de turno es
   "otro paso" (`MesAction.OpenRepository`).
-- **Saltar e Ir a… (D-83, D-84 enmendada):** `PodService.Skip(ctx, targetOrder)` recorre
+- **Saltar e Ir a… (D-83, D-84 enmendada):** `PodService.Skip(ctx, targetOrder)` (en `PodForcedAdvance`) recorre
   desde el paso actual hasta el anterior al destino: `RecordAttempt(..., Skipped, resolve:
   true)` (sigue el camino del avance forzado, cada paso en su transacción de
   `spStepAttemptRecord`) y `RestoreAfterForcedAdvance`. El destino viaja en `HfSkipTarget`.
@@ -511,7 +553,7 @@ como intento".
   único lugar que lee el contrato (validador, registro de actividad y control).
   `StepValidator` lo compara con el hallazgo del paso (`StepValidationContext.NcFinding` y
   `SelectedRows`).
-- **Disposición:** al acertar o al forzar, `PodService` aplica la del hallazgo en la misma
+- **Disposición:** al acertar o al forzar, `PodService` (`PodOrderEffects`) aplica la del hallazgo en la misma
   transacción del intento: desecho y Return to any previous sacan la pieza; la reparación
   rápida y Local Rework la dejan activa. Las operaciones del banner de la extendida salen de
   `PodContext.Operations` (`SIM`, D-58); `PodDefaults.SimOperation` es el respaldo de un

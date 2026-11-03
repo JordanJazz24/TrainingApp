@@ -732,3 +732,33 @@ Plan: `docs/specs/proceso-eficiente-plan.md` (D-243 a D-249). Lo pidió el usuar
   sonnet` después (`process.md` → 3).
 - **Falso positivo corregido:** el hook leía el cuerpo de un heredoc (Planeación lo encontró con
   un mensaje que citaba "git add -A").
+
+## Fase 13 · Refactor de las clases grandes (AUD-74, D-15) ✅ (2026-11-03, plan por entregas)
+
+Plan: `docs/specs/aud-74-plan.md` (D-258, D-259). Rama `refactor-aud74` con su worktree; cero
+cambio de comportamiento, de markup ni de firmas públicas. Cada entrega la probó el usuario en el
+navegador sin ninguna ronda de corrección.
+- **E1 (`f51f7eb`):** `DashboardService` como fachada; DTOs a `DashboardModels.cs` y un colaborador
+  interno por reporte (`OperatorsQuery`, `StepsQuery`, `SummaryQuery`, `FollowUpQuery`, `ExportQuery`)
+  con `DashboardQueryKit`. `RequireReports` sigue en cada método público.
+- **E2 (`066eda4`):** `GuideScriptBuilder` en parciales por paso y `GuideScriptKit`; `LogNC` y
+  `DataCollection` partidos por pantalla.
+- **E3 (`dc0cc46`):** `PodService` con sus dependencias por interfaces (`ITrainingSessionRepository`,
+  `IStepAttemptRepository`, `IGuideCatalog`, `ITrainingSessionService`; `IUserRepository` ya existía)
+  y un constructor completo para los tests; el de la página crea las concretas (cierra D-15).
+- **E4 (`d35801a`):** `PodServiceTests`, 37 tests del núcleo sin BD (dueño de la sesión, intento y
+  avance juntos, los tres modos, Skip, avance forzado, Complete), con fakes que imitan
+  `spStepAttemptRecord`. Comprobados con mutaciones de `PodService`.
+- **E5 (`7aa6ac3`):** `PodService` como fachada de 23 métodos sobre `BLL/Training/Pod/` (10
+  colaboradores en capas sin ciclos).
+- **E6 (`bb6e6b6`):** `GuidedTest.aspx.cs` de 1 903 a ~200 líneas en parciales por área y 12 helpers
+  puros en `GuidedTestHelpers`.
+- **E7:** regresión completa del usuario en el worktree, integración `--ff-only` a `TrainingApp` y
+  docs (`architecture.md`, `status.md`, esta sección y la enmienda de AUD-74 en la auditoría).
+- Tests: 521 antes, 558 después. `/revisar` en cada entrega sin bugs de correctitud; los
+  hallazgos de cuidado (contratos del fake, comentarios, `using`s) se aplicaron.
+- **Enmienda del plan (E4):** `LoadContext` devuelve `null` (no una excepción) para una sesión ajena o
+  cerrada; los tests siguen el código.
+- **Queda:** `GuidedTest.BuildStepViewModel` (~107 líneas) y la duplicación entre `RebuildState` y
+  `RestoreAfterForcedAdvance` (el mapeo paso→efecto en el POD) siguen como estaban; el plan no los
+  incluía.
