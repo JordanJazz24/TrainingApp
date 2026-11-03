@@ -177,6 +177,7 @@
     <Compile Include="CustomResourceSetupTests.cs" />
     <Compile Include="OperatorAreaTests.cs" />
     <Compile Include="SessionResultTests.cs" />
+    <Compile Include="PodServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
