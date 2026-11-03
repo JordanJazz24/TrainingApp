@@ -13,8 +13,9 @@ al cerrar la E7. Lo cerrado está en los planes (`docs/specs/`), `docs/history.m
 
 **En curso**
 - **Fase 13, refactor AUD-74 / D-15** (`docs/specs/aud-74-plan.md`, 7 entregas): E1 (`DashboardService`)
-  (`f51f7eb`), E2 (`GuideScriptBuilder`, `066eda4`) y E3 (inyección en `PodService`, `dc0cc46`)
-  cerradas; sigue la E4 (tests del núcleo de `PodService`, esfuerzo `high`). Tests: 521. Probar con la BD de LocalDB
+  (`f51f7eb`), E2 (`GuideScriptBuilder`, `066eda4`), E3 (inyección en `PodService`, `dc0cc46`) y E4
+  (tests del núcleo de `PodService`, `d35801a`) cerradas; sigue la E5 (división de `PodService` por
+  comando, esfuerzo `high`). Tests: 558. Probar con la BD de LocalDB
   `TrainingApp_DashboardTest` (admin con tu Code1) y, en el worktree, compilar desde `subst R:` (ruta larga).
 - Las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Textos de ayuda validados por
   negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
@@ -53,11 +54,11 @@ final (D-16) repasó esta lista.
   Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
 - **Cobertura de tests:** `ScoreCalculator` cubierto (Fase 5); `StepValidator` con cobertura
-  parcial. `PodService` crea sus repositorios internamente, así que lo que hace alrededor
-  del puntaje (registrar el intento, avance forzado, guardar `FinalScore`) no se puede probar
-  sin BD; se probó en el navegador (spec 009, auditoría final). Cubrirlo sería otra fase
-  (interfaces de repositorio o integración contra LocalDB). Tampoco tiene test el orden
-  validar-antes-de-abandonar en `StartSession` (spec 021); la regla sí (`TrainingAccessRule`).
+  parcial. `PodService` tiene tests del núcleo sin BD (Fase 13, E4, `PodServiceTests`): `LoadContext`,
+  el registro del intento con el avance o el cierre, los tres modos, `Skip`, el avance forzado y
+  `Complete`. Siguen sin test en `PodService` Split, Log NC, Assembly y Data Collection (D-259).
+  Tampoco tiene test el orden validar-antes-de-abandonar en `StartSession` (spec 021); la regla sí
+  (`TrainingAccessRule`).
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
 - **Lo que quedó fuera de AUD-28/29** (☑ en la Fase 9, E2): la cabecera `Server` hasta que TI
   confirme IIS 10 o superior (D-144), `requireSSL` hasta que confirme HTTPS, CSP,

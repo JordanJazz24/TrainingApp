@@ -113,18 +113,29 @@ Práctica libre, y abandonar otra.
 Tests con fakes en memoria (como `FakeDashboardRepository`), sin BD. **No cambia código de
 producción.**
 
-- [ ] `LoadContext`: devuelve contexto solo para una sesión propia y en curso; otra sesión o una
+- [x] `LoadContext`: devuelve contexto solo para una sesión propia y en curso; otra sesión o una
   cerrada es una excepción, no un intento.
-- [ ] `RecordAttempt` (vía `SubmitStep`): el intento y el avance se registran juntos (una sola
+- [x] `RecordAttempt` (vía `SubmitStep`): el intento y el avance se registran juntos (una sola
   llamada a `Record` con el avance o el cierre) y el `PodContext` queda actualizado después.
-- [ ] `SubmitStep` correcto e incorrecto en Guided, Práctica libre y Assessment: qué se registra,
+- [x] `SubmitStep` correcto e incorrecto en Guided, Práctica libre y Assessment: qué se registra,
   el paso actual que define el servidor y el puntaje según `ModePolicy`.
-- [ ] `Skip` y el avance forzado (`RestoreAfterForcedAdvance`).
-- [ ] `Complete`: cierre de la sesión y `FinalScore`.
-- [ ] `docs/status.md` → "Cobertura de tests": se actualiza al cerrar.
+- [x] `Skip` y el avance forzado (`RestoreAfterForcedAdvance`).
+- [x] `Complete`: cierre de la sesión y `FinalScore`.
+- [x] `docs/status.md` → "Cobertura de tests": se actualiza al cerrar.
 
 **Verificación:** compilar `TrainingApp.Test` y correr todos los tests. `/revisar` `medium` sobre
 los tests y los fakes. Sin checklist de navegador (no cambia la app).
+
+> **Cerrada 2026-11-03 (`d35801a`, rama `refactor-aud74`).** `TrainingApp.Test/PodServiceTests.cs`: 37
+> tests (558 en total), sin BD y sin tocar código de producción. **Enmienda (Desarrollo, a confirmar por
+> Planeación):** `LoadContext` devuelve `null` (no una excepción) para una sesión ajena, cerrada o
+> inexistente, y la página vuelve a `StartSession`; así lo dice su comentario y `CLAUDE.md`. Los tests
+> siguen el código, no la redacción del primer punto. Los fakes imitan `spStepAttemptRecord` (sesión en
+> curso en ese paso, número de intento, avanzar y cerrar excluyentes, `DECIMAL(5,2)`). `/revisar medium`:
+> 5 hallazgos, todos aplicados (precondiciones y redondeo del fake, el avance forzado por clics fuera de
+> secuencia, el fallo de `Record` en un paso con avance parcial, y no guardar estado de una sesión
+> ajena). Se comprobó con 5 mutaciones temporales de `PodService` que los tests las detectan. Rondas
+> de corrección tras la primera prueba: 0.
 
 ## E5 · PodService: división por comando — Esfuerzo: `high`
 
