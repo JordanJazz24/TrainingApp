@@ -335,6 +335,16 @@
     <Compile Include="BLL\Training\PodState.cs" />
     <Compile Include="BLL\Training\PodContext.cs" />
     <Compile Include="BLL\Training\PodService.cs" />
+    <Compile Include="BLL\Training\Pod\PodCore.cs" />
+    <Compile Include="BLL\Training\Pod\PodSelection.cs" />
+    <Compile Include="BLL\Training\Pod\PodOrderEffects.cs" />
+    <Compile Include="BLL\Training\Pod\PodForcedAdvance.cs" />
+    <Compile Include="BLL\Training\Pod\PodSequence.cs" />
+    <Compile Include="BLL\Training\Pod\PodSetupCommands.cs" />
+    <Compile Include="BLL\Training\Pod\PodAssemblyDcCommands.cs" />
+    <Compile Include="BLL\Training\Pod\PodSplitCommands.cs" />
+    <Compile Include="BLL\Training\Pod\PodLogNcCommands.cs" />
+    <Compile Include="BLL\Training\Pod\PodCompletionCommands.cs" />
     <Compile Include="BLL\Training\IGuideCatalog.cs" />
     <Compile Include="BLL\Training\ITrainingSessionService.cs" />
     <Compile Include="BLL\Training\CustomResourceSetup.cs" />
