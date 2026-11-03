@@ -85,20 +85,28 @@ diga y señale lo mismo en cada paso (incluidos Split, Log NC y Custom Resource 
 
 ## E3 · PodService: inyección (D-15, D-259) — Esfuerzo: `high`
 
-- [ ] En `DAL/Interfaces/` (o donde viven `IUserRepository` e `IDashboardRepository`):
+- [x] En `DAL/Interfaces/` (o donde viven `IUserRepository` e `IDashboardRepository`):
   `ITrainingSessionRepository` (`GetById`) e `IStepAttemptRepository` (`GetBySessionId`,
   `Record`), solo con lo que usa `PodService`; las clases concretas las implementan.
-- [ ] En la BLL: `IGuideCatalog` (lo que `PodService` y `PodContext` piden a
+- [x] En la BLL: `IGuideCatalog` (lo que `PodService` y `PodContext` piden a
   `TrainingGuideService`) e `ITrainingSessionService` (`Start`, `Abandon`); los servicios
   concretos las implementan.
-- [ ] `PodService` con un constructor que recibe `IPodStateStore` y esas cinco interfaces (más
+- [x] `PodService` con un constructor que recibe `IPodStateStore` y esas cinco interfaces (más
   `ScoreCalculator`, que es puro); el de hoy delega creando las concretas. `PodContext` recibe
   `IGuideCatalog`.
-- [ ] Sin cambios en `GuidedTest.aspx.cs` ni en `StartSession.aspx.cs`.
+- [x] Sin cambios en `GuidedTest.aspx.cs` ni en `StartSession.aspx.cs`.
 
 **Verificación:** Rebuild, `aspnet_compiler` (copia sin `obj/Release` ni `Properties/publish`),
 tests y `/revisar` `medium`. Checklist del usuario: iniciar, avanzar y terminar una sesión de
 Práctica libre, y abandonar otra.
+
+> **Cerrada 2026-11-03 (`dc0cc46`, rama `refactor-aud74`).** Las interfaces viven donde `IUserRepository`
+> (`DAL/Repositories/`) y en `BLL/Training/`; `IUserRepository` ya existía y es la quinta. El
+> constructor completo de `PodService` recibe las cinco más `ScoreCalculator`. 521 tests en verde y
+> `aspnet_compiler` en verde. `/revisar medium`: sin bugs; se renombró `_guideService` a `_catalog` y se
+> documentaron en `IStepAttemptRepository` dos contratos que los fakes de la E4 deben respetar: la lista
+> de `GetBySessionId` tiene que ser modificable y `Record` con `finalScore` deja la sesión Completed y
+> legible por `ITrainingSessionRepository.GetById`. Rondas de corrección tras la primera prueba: 0.
 
 ## E4 · PodService: tests del núcleo (D-259) — Esfuerzo: `high`
 
