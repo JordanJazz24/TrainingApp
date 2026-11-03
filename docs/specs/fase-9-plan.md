@@ -254,11 +254,12 @@ un mensaje claro. Sin `/revisar`: no cambia código de la app.
 
 - [ ] **AUD-71 (D-8):** rotar la contraseña de `sa` en toda instancia que la use (la local
   incluida) y confirmar que producción entra con un login propio de mínimo privilegio, no `sa`.
-- [ ] **D-257:** pedirle a TI el certificado HTTPS y que `http://` redirija a `https://`.
+- [x] **D-257:** pedirle a TI el certificado HTTPS y que `http://` redirija a `https://` (TI lo
+  confirmó, usuario, 2026-11-03).
 - [ ] Con HTTPS listo, descomentar los dos `requireSSL` y HSTS en `Web.Release.config` (casillas
   AUD-72 y AUD-80 de la E3; Desarrollo, con Rebuild y la transformación revisada) y probar el
   login por `http://` y por `https://`.
-- [ ] Correr en la BD del servidor los scripts que lista `docs/status.md`.
+- [x] Correr en la BD del servidor los scripts que lista `docs/status.md` (usuario, 2026-11-03).
 - [ ] Republicar siguiendo `docs/publicacion.md` y `docs/deploy.md`; prueba de humo como la de
   la E1.
 - [ ] Mensaje de lanzamiento (D-132, D-134).
