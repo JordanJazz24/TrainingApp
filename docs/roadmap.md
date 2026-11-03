@@ -45,20 +45,22 @@
 | **12 · Mockups por pantalla** | ✅ (E1 a E9, 2026-11-02) brief y plan aprobados el 2026-10-27 (en la nube, D-202 a D-207); Login (3b, D-220 a D-227) y Cambio de contraseña (2a, D-228 a D-232) aprobados el 2026-10-28; E1 ✅ (`642cacd`, integrada en `f8aab65`); E2a ✅ Login (`53a9d52`) y E2b ✅ Cambio de contraseña (`8ccda11`), integradas en `TrainingApp` (`07363e3`); E3 ✅ Guías (`bb3c444`), E4 ✅ Pasos (`5a2ad7a`) y E1b ✅ barra superior (`feb1f4f`), integradas (`3544e69`); E5 ✅ Seguimiento (`11d4173`, cierre `2f29a62`) y Operadores (`1afe5ed`, cierre `866d80a`), integradas en `TrainingApp` (`4f59cbd`); E6 ✅ con Operador y su ficha (H, D-299 a D-305; `b34e721`, cierre `55931dd`, integrada en `c3f58d5`); E7 ✅ Usuarios (CD-3, handoff local D-251; `8a9664c`, cierre `733f70d`, integrada en `a9ce811`, D-306 a D-314); E8 ✅ Inicio (`3817e50`, review `90efca9`, integrada en `22bed84`); E8b ✅ Resumen «Sala» (D-252; `c9d2c6c`, cierre `c08b31f`, integrada en `fff2614`; D-320 a D-327); E9 ✅ (AC-7 medido, `e1f6665`); el fin de sesión va a la spec 025 (D-253); sin capturas desde el 2026-10-30 (D-242) | 2026-11-02 | `022-mockups-por-pantalla.md` (brief de diseño), `022-plan.md`, `022-briefs.md` |
 | — · Flujo de trabajo eficiente | ✅ (E1 `88b1ca3`, E2 `5ff7e13` en `spec-022`, E3 `4bdb449` + `cb103ff`; D-243 a D-249) | 2026-10-30 | `proceso-eficiente-plan.md` |
 | — · Fin de sesión del POD | ✅ (E1 `fc5630f`, E2 diseño v3, E3 `03419d9`, E4 `87c8bb2`, E5 `e322e4e`, review `157287b`, E6 `e7d3b58`; D-330 a D-345; D-21 y D-86 sin efecto) | 2026-11-02 | `025-fin-de-sesion.md`, `025-plan.md`, `025-design/` |
+| 13 · Refactor de las clases grandes (AUD-74) | ▶️ plan aprobado el 2026-11-03 (D-258, D-259); 7 entregas en `refactor-aud74`, antes de la 2.ª publicación | | `aud-74-plan.md` |
 
-### ▶️ Siguiente (Planeación, 2026-11-02)
+### ▶️ Siguiente (Planeación, 2026-11-03)
 
 Qué sigue y en qué orden (máx. 15 líneas, D-244). Lo que está en curso: `docs/status.md`; lo
 cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
-1. **Fase 9 · 2.ª publicación (versión final, 2.ª semana de noviembre; D-256):** la auditoría
-   pre-deploy (`docs/audits/2026-11-02-auditoria-pre-deploy.md`) dejó AUD-71 a AUD-80. Desarrollo
-   cerró la E3 a la E5. En la E6 (2026-11-03): HTTPS con redirección, BD recreada limpia
-   (D-130) y producción sin `sa`; `requireSSL` y HSTS listos sin commitear. Falta republicar con
-   `docs/publicacion.md`, el «funciona» y el mensaje de lanzamiento; rotar `sa` local, sin bloquear. AUD-74 (clases grandes), spec después de publicar.
-2. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
-   para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-257.
-3. **Usuario:** avisar a los trainers que cada operador elige su área (D-170); la guía piloto de
+1. **Fase 13 · Refactor de AUD-74 (D-258, D-259):** Desarrollo hace las E1 a E7 de
+   `aud-74-plan.md` en la rama `refactor-aud74`, sin cambiar comportamiento; se integra con la
+   regresión completa del usuario.
+2. **Fase 9 · 2.ª publicación, después de la Fase 13:** sin bloqueantes (E3 a E5 cerradas,
+   `requireSSL` y HSTS en `dd893e5`, BD limpia y producción sin `sa`). Falta republicar con
+   `docs/publicacion.md`, el «funciona» y el mensaje de lanzamiento; rotar `sa` local, sin bloquear.
+3. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
+   para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-350.
+4. **Usuario:** avisar a los trainers que cada operador elige su área (D-170); la guía piloto de
    Custom Resource Setup (D-194); las capturas de los 4 modales del Start de Moldeo; subir
    `TrainingApp` a `main` cuando lo decida (D-5).
 
