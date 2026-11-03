@@ -53,9 +53,9 @@ cerrado: las casillas de cada plan, `docs/history.md` y `docs/archivo/`.
 
 1. **Fase 9 · 2.ª publicación (versión final, 2.ª semana de noviembre; D-256):** la auditoría
    pre-deploy (`docs/audits/2026-11-02-auditoria-pre-deploy.md`) dejó AUD-71 a AUD-80. Desarrollo
-   cerró la E3 a la E5. En la E6, TI confirmó HTTPS con redirección y los scripts están
-   corridos (2026-11-03); faltan: Desarrollo activa `requireSSL` y HSTS, el usuario rota `sa`
-   (AUD-71, D-8), republica con `docs/publicacion.md` y manda el mensaje de lanzamiento. AUD-74 (clases grandes), spec después de publicar.
+   cerró la E3 a la E5. En la E6 (2026-11-03): HTTPS con redirección, BD recreada limpia
+   (D-130) y producción sin `sa`; `requireSSL` y HSTS listos sin commitear. Falta republicar con
+   `docs/publicacion.md`, el «funciona» y el mensaje de lanzamiento; rotar `sa` local, sin bloquear. AUD-74 (clases grandes), spec después de publicar.
 2. **Sin spec nueva por ahora (usuario, 2026-11-02).** Candidatas de la 025: el resultado visible
    para el admin desde el dashboard e historial y métricas del operador. Siguiente D-n: D-257.
 3. **Usuario:** avisar a los trainers que cada operador elige su área (D-170); la guía piloto de
