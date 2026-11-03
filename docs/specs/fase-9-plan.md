@@ -190,6 +190,14 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 > `https://`. `requireSSL` y HSTS quedan comentados (E3) y se descomentan en la E6 cuando TI lo
 > tenga; si TI no llega a tiempo, se vuelve a decidir. AUD-72 sigue bloqueando.
 
+> **Enmienda 5 · 2026-11-03 (usuario; D-350):** el usuario publicó con `requireSSL` y HSTS
+> (`dd893e5`) y el login entró en loop: el servidor **no tiene certificado** (lo confirmó un
+> compañero; `http://crapps.philips.com/TrainingApp/` responde sin redirigir y el 443 no conecta),
+> así que el navegador descarta las cookies `Secure`. Se revierten: quedan comentados en
+> `Web.Release.config`. Se descomentan solo cuando `curl -I` muestre que `https://` responde y que
+> `http://` redirige, antes de publicar. AUD-72 y AUD-80 vuelven a abiertos y **no bloquean** la
+> 2.ª publicación (corre por `http://`, como la 1.ª).
+
 ## E3 · Configuración de Release — Esfuerzo: `medium`
 
 - [x] **D-144:** `removeServerHeader="true"` solo en `Web.Release.config` (IIS 10 confirmado).
@@ -208,6 +216,8 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 
 > **Cierre AUD-72 y AUD-80 (2026-11-03):** TI confirmó HTTPS con redirección (D-257); `requireSSL` en los dos
 > lugares y HSTS (`max-age=300`) descomentados en `Web.Release.config`, transformación revisada.
+> **Revertido el mismo día (D-350, enmienda 5):** el servidor no tiene certificado y el login
+> entraba en loop; los tres vuelven a comentados.
 
 **Verificación:** Rebuild, transformación de Release revisada en la carpeta publicada (los tres
 cambios están; `Web.config` de Debug, sin cambios) y tests. `/revisar` `low`.
@@ -259,15 +269,17 @@ un mensaje claro. Sin `/revisar`: no cambia código de la app.
   contraseña (usuario, 2026-11-03: no usa `sa`).
 - [ ] **AUD-71 (D-8), sin bloquear:** rotar la contraseña de `sa` en la instancia local, cuando el
   usuario quiera.
-- [x] **D-257:** pedirle a TI el certificado HTTPS y que `http://` redirija a `https://` (TI lo
-  confirmó, usuario, 2026-11-03).
-- [ ] Con HTTPS listo, descomentar los dos `requireSSL` y HSTS en `Web.Release.config` (casillas
-  AUD-72 y AUD-80 de la E3; Desarrollo, con Rebuild y la transformación revisada) y probar el
-  login por `http://` y por `https://`.
+- [ ] **D-257, sin bloquear (D-350):** pedirle a TI el certificado HTTPS y que `http://` redirija a
+  `https://` (el «confirmado» del 2026-11-03 era falso: el servidor no tiene certificado).
+- [ ] Cuando `curl -I` muestre que `https://` responde y `http://` redirige (D-350), descomentar
+  los dos `requireSSL` y HSTS en `Web.Release.config` (casillas AUD-72 y AUD-80 de la E3;
+  Desarrollo, con Rebuild y la transformación revisada) y probar el login por `http://` y por
+  `https://`. Mientras tanto se publica por `http://`, como la 1.ª.
 - [x] Correr en la BD del servidor los scripts que lista `docs/status.md` (usuario, 2026-11-03:
   recreada limpia con `-Recreate` y `CreateAdmin.sql`, D-130).
-- [ ] Republicar siguiendo `docs/publicacion.md` y `docs/deploy.md`; prueba de humo como la de
-  la E1.
+- [x] Republicar siguiendo `docs/publicacion.md` y `docs/deploy.md`; prueba de humo como la de
+  la E1 (usuario, 2026-11-03: publicada y funcionando por `http://`, con `requireSSL` y HSTS
+  revertidos, D-350).
 - [ ] Mensaje de lanzamiento (D-132, D-134).
 
 ## No incluye

@@ -5,7 +5,7 @@
 > coincide con la fuente, manda la fuente. Creado el 2026-10-21 (antes, la última D-n se
 > buscaba con `grep`).
 >
-> - **Siguiente D-n: D-350 (local; el rango D-240 a D-259 se agotó el 2026-11-03). Siguiente B-n: B-6 (local)**. La
+> - **Siguiente D-n: D-351 (local; el rango D-240 a D-259 se agotó el 2026-11-03; D-350 abre el bloque D-350 a D-369). Siguiente B-n: B-6 (local)**. La
 >   nube terminó con la 022 (D-249, D-254): D-328, D-329 y B-30 a B-39 quedan sin usar. B-4 lo usó la 021; B-20, R3. La numeración es continua entre auditorías, specs,
 >   planes y planes directos (`docs/process.md` → "Clasificar el pedido").
 > - **Rangos por frente (desde el 2026-10-27):** la sesión local (Arquitectura y Planeación y
@@ -55,7 +55,7 @@
 | D-12 | 2026-10-02 | Spec 009 = refactor sin cambios visibles; los bugs previos se deciden aparte | audits/2026-10-01-auditoria.md | cerrada |
 | D-13 | 2026-10-06 | El ícono ⏻ cierra siempre la sesión de la app; `StartSession` gana logout | audits/2026-10-06-auditoria-final.md (AUD-33) | enmendada (spec 015: Logout es el último paso, D-21) |
 | D-14 | 2026-10-06 | El Start de NonSerialized queda como está (`TxtSFC` de solo lectura) | audits/2026-10-06-auditoria-final.md | superada (spec 011: escanear en `TxtSFC`) |
-| D-15 | 2026-10-06 | La inyección de repositorios en `PodService` espera a retomar la cobertura de tests | audits/2026-10-06-auditoria-final.md | vigente (se cumple en el refactor de AUD-74, D-259) |
+| D-15 | 2026-10-06 | La inyección de repositorios en `PodService` espera a retomar la cobertura de tests | audits/2026-10-06-auditoria-final.md | cerrada (D-259, Fase 13 integrada en `57f1e79`, 2026-11-03) |
 | D-16 | 2026-10-06 | Alcance de la auditoría final: E1-E4; AUD-40 y AUD-42 diferidos | audits/2026-10-06-auditoria-final.md | cerrada (AUD-40/42 siguen en la deuda) |
 | D-17 | 2026-10-09 | La cuenta local se llama `User` (tabla `Users`), nunca `Operator` | history.md → "Refactor `Operator` → `User`" | vigente |
 | D-18 | 2026-10-12 | `DEFAULT_PASSWORD` sigue versionada en `Constants`, con su valor de siempre | archivo/roadmap-hasta-2026-10-30.md → "Fase 8.5" | vigente |
@@ -297,9 +297,9 @@
 | D-254 | 2026-11-02 | Al cerrar la 022 se quita de `process.md` la variante de la nube (D-249); el handoff local de Claude Design (D-251) queda como regla permanente para cualquier spec, y las D-n del diseño las numera Planeación, en una enmienda antes de implementar (como la 025) o después, desde el commit (como la 022). Sin sesiones ni ramas de la nube | process.md → "Tres sesiones" (Diseño con Claude Design) | vigente |
 | D-255 | 2026-11-02 | Se aceptan sin validar con negocio la aprobación global «contados por guía» del Resumen (D-324) y los textos de ayuda de Usuarios (D-314) | este índice (respuesta del usuario, 2026-11-02) | vigente |
 | D-256 | 2026-11-02 | Auditoría pre-deploy: antes de la 2.ª publicación se corrigen AUD-71 a AUD-73 y AUD-75 a AUD-80, junto con D-144 (E3 a E6 de la Fase 9); AUD-74 va a una spec después de publicar; sin `/code-review` por carpetas. `requireSSL` y HSTS se publican solo si `http://` redirige a `https://` | specs/fase-9-plan.md (enmienda 3) | enmendada (D-257: `requireSSL` y HSTS esperan a que TI active HTTPS) |
-| D-257 | 2026-11-02 | HTTPS sin confirmar: el sitio corre en `http://crapps.philips.com/` (la app con HTTPS era otra; corrige lo anotado en D-19 y D-144). Antes de la 2.ª publicación el usuario le pide a TI el certificado y que `http://` redirija a `https://`; `requireSSL` y HSTS se descomentan en la E6 cuando esté. Si TI no llega a tiempo, se vuelve a decidir | specs/fase-9-plan.md (enmienda 4) | cerrada (TI confirmó HTTPS y la redirección de `http://` a `https://`, usuario, 2026-11-03; `requireSSL` y HSTS, E6) |
-| D-258 | 2026-11-03 | AUD-74: se parten las cuatro clases grandes (`PodService`, `GuideScriptBuilder`, `DashboardService` y `GuidedTest` solo en parciales y helpers puros), sin cambiar comportamiento, markup ni firmas públicas; se implementa ya, en la rama `refactor-aud74`, y la 2.ª publicación sale después de integrarlo | specs/aud-74-plan.md | vigente |
-| D-259 | 2026-11-03 | `PodService` recibe sus dependencias por interfaces mínimas (`ITrainingSessionRepository`, `IStepAttemptRepository`, `IGuideCatalog`, `ITrainingSessionService`; el constructor de hoy crea las concretas) y tests con fakes del núcleo del puntaje (dueño, intento y avance, Submit, Skip y avance forzado, Complete). Cierra D-15 al integrarse | specs/aud-74-plan.md | vigente |
+| D-257 | 2026-11-02 | HTTPS sin confirmar: el sitio corre en `http://crapps.philips.com/` (la app con HTTPS era otra; corrige lo anotado en D-19 y D-144). Antes de la 2.ª publicación el usuario le pide a TI el certificado y que `http://` redirija a `https://`; `requireSSL` y HSTS se descomentan en la E6 cuando esté. Si TI no llega a tiempo, se vuelve a decidir | specs/fase-9-plan.md (enmienda 4) | reabierta por D-350 (el «TI confirmó HTTPS» del 2026-11-03 era falso: sin certificado) |
+| D-258 | 2026-11-03 | AUD-74: se parten las cuatro clases grandes (`PodService`, `GuideScriptBuilder`, `DashboardService` y `GuidedTest` solo en parciales y helpers puros), sin cambiar comportamiento, markup ni firmas públicas; se implementa ya, en la rama `refactor-aud74`, y la 2.ª publicación sale después de integrarlo | specs/aud-74-plan.md | cumplida (Fase 13, `57f1e79`, 2026-11-03) |
+| D-259 | 2026-11-03 | `PodService` recibe sus dependencias por interfaces mínimas (`ITrainingSessionRepository`, `IStepAttemptRepository`, `IGuideCatalog`, `ITrainingSessionService`; el constructor de hoy crea las concretas) y tests con fakes del núcleo del puntaje (dueño, intento y avance, Submit, Skip y avance forzado, Complete). Cierra D-15 al integrarse | specs/aud-74-plan.md | cumplida (Fase 13, `57f1e79`, 2026-11-03; 558 tests) |
 | D-260 | 2026-10-28 | Spec 024: Operadores es la vista del trainer de un área (quién de su área falta, reprobó o está en entrenamiento) | specs/024-dashboard-por-area.md | vigente |
 | D-261 | 2026-10-28 | Spec 024: Operadores sin columnas por guía; una columna "Estado en su área" | specs/024-dashboard-por-area.md | vigente |
 | D-262 | 2026-10-28 | Spec 024: el filtro Área de Operadores arranca en Todas, con las áreas agrupadas por producto; sin producto completo | specs/024-dashboard-por-area.md | vigente |
@@ -378,6 +378,7 @@
 | D-343 | 2026-11-02 | Spec 025, diseño: textos de "Qué hacer después", aprobados por el usuario tal como están (no pasan por negocio) | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
 | D-344 | 2026-11-02 | Spec 025, diseño: "Últimas sesiones" del Inicio, plegado (`.steps-card .steps-ranking`, "Mostrar ▾"). Precisa D-335 y D-315 | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
 | D-345 | 2026-11-02 | Spec 025, diseño aprobado "Fin de sesión v3" (Claude Design): estructura, componentes `.res`, `.verdict`, `.bar`, `.meta`, `.mot`, `.oc`, `.seg`, `.pl`, `.es-next`, `.last-*`; sin tokens nuevos; JS solo el selector | specs/025-fin-de-sesion.md (Enmienda 1) | vigente |
+| D-350 | 2026-11-03 | Se revierten `requireSSL` y HSTS de `dd893e5`: publicados, el login entraba en loop porque el servidor no tiene certificado (sirve solo `http://`, el 443 no conecta) y el navegador descarta las cookies `Secure`. Quedan comentados en `Web.Release.config` hasta que `https://` responda y `http://` redirija, **comprobado con `curl -I` antes de publicar**, no solo con la confirmación de TI. AUD-72 y AUD-80 vuelven a abiertos, sin bloquear la 2.ª publicación | specs/fase-9-plan.md (enmienda 5) | vigente |
 
 ## Bugs que ya existían (B-n)
 

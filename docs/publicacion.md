@@ -97,13 +97,26 @@ identidad del App Pool necesita su usuario en la base de datos y el `GRANT EXECU
    IIS no sirve el contenido de `App_Data`: el log solo se lee desde el servidor.
 4. **Reciclar el App Pool.**
 
-## 5. HTTPS: `requireSSL` y HSTS (D-257)
+## 5. HTTPS: `requireSSL` y HSTS (D-257, D-350)
 
-TI confirmó HTTPS y que `http://` redirige a `https://`. `Web.Release.config` activa
-`requireSSL` (cookies de sesión y de login, AUD-72) y `Strict-Transport-Security` (AUD-80,
-`max-age=300`, sin `includeSubDomains` ni `preload`: el dominio es de TI). Si el sitio perdiera
-el HTTPS, el navegador no enviaría las cookies y nadie podría iniciar sesión. Para subir el
-`max-age` cuando todo funcione, cambiar el valor en `Web.Release.config`.
+El servidor **no tiene certificado**: la app corre solo por `http://`. Por eso `requireSSL`
+(cookies de sesión y de login, AUD-72) y `Strict-Transport-Security` (AUD-80) están
+**comentados** en `Web.Release.config`. Si se publican sin HTTPS, el navegador descarta las
+cookies `Secure` y el login entra en loop (pasó el 2026-11-03).
+
+Se descomentan solo cuando las dos pruebas pasen, **antes de publicar**:
+
+```bash
+curl -I https://crapps.philips.com/TrainingApp/   # responde (no "Could not connect")
+curl -I http://crapps.philips.com/TrainingApp/    # 301/302 con Location: https://...
+```
+
+HSTS empieza con `max-age=300`, sin `includeSubDomains` ni `preload` (el dominio es de TI); se
+sube en `Web.Release.config` cuando todo funcione.
+
+**Si el login entra en loop en el servidor:** en `D:\Sites\TrainingApp\Web.config`, quitar
+`requireSSL="true"` de `<httpCookies>` y de `<forms>` y borrar la línea
+`Strict-Transport-Security`; al guardar, IIS reinicia la app.
 
 ## 6. Recrear la base de datos (D-130)
 

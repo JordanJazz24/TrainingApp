@@ -127,8 +127,8 @@ producción.**
 los tests y los fakes. Sin checklist de navegador (no cambia la app).
 
 > **Cerrada 2026-11-03 (`d35801a`, rama `refactor-aud74`).** `TrainingApp.Test/PodServiceTests.cs`: 37
-> tests (558 en total), sin BD y sin tocar código de producción. **Enmienda (Desarrollo, a confirmar por
-> Planeación):** `LoadContext` devuelve `null` (no una excepción) para una sesión ajena, cerrada o
+> tests (558 en total), sin BD y sin tocar código de producción. **Enmienda (Desarrollo; aceptada por el
+> usuario, 2026-11-03):** `LoadContext` devuelve `null` (no una excepción) para una sesión ajena, cerrada o
 > inexistente, y la página vuelve a `StartSession`; así lo dice su comentario y `CLAUDE.md`. Los tests
 > siguen el código, no la redacción del primer punto. Los fakes imitan `spStepAttemptRecord` (sesión en
 > curso en ese paso, número de intento, avanzar y cerrar excluyentes, `DECIMAL(5,2)`). `/revisar medium`:
