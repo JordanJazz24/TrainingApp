@@ -14,8 +14,9 @@ al cerrar la E7. Lo cerrado está en los planes (`docs/specs/`), `docs/history.m
 **En curso**
 - **Fase 13, refactor AUD-74 / D-15** (`docs/specs/aud-74-plan.md`, 7 entregas): E1 (`DashboardService`)
   (`f51f7eb`), E2 (`GuideScriptBuilder`, `066eda4`), E3 (inyección en `PodService`, `dc0cc46`) y E4
-  (tests del núcleo de `PodService`, `d35801a`) cerradas; sigue la E5 (división de `PodService` por
-  comando, esfuerzo `high`). Tests: 558. Probar con la BD de LocalDB
+  (tests del núcleo de `PodService`, `d35801a`) y E5 (`PodService` dividido por comando en
+  `BLL/Training/Pod/`, `7aa6ac3`) cerradas; sigue la E6 (`GuidedTest` liviano, esfuerzo `medium`).
+  Tests: 558. Probar con la BD de LocalDB
   `TrainingApp_DashboardTest` (admin con tu Code1) y, en el worktree, compilar desde `subst R:` (ruta larga).
 - Las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Textos de ayuda validados por
   negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).

@@ -139,19 +139,34 @@ los tests y los fakes. Sin checklist de navegador (no cambia la app).
 
 ## E5 · PodService: división por comando — Esfuerzo: `high`
 
-- [ ] Colaboradores internos en `BLL/Training/Pod/` (o el nombre que encaje con el árbol de
+- [x] Colaboradores internos en `BLL/Training/Pod/` (o el nombre que encaje con el árbol de
   `docs/architecture.md`), uno por cluster: núcleo de intento (`RecordAttempt`, `FailedAttempt`,
   `SaveState`, `DiscardProgress`, `EnsureInProgress`, `EnsureCurrentStep`), Resource Setup / Line
   Clearance / Start, Assembly y Data Collection (`OpenDataCollection`, ~93 líneas, partido en
   métodos), Split, Log NC, Complete / Logout / acciones sin paso, y Skip / avance forzado (`Skip`,
   ~89 líneas, partido).
-- [ ] `PodService` queda como fachada con los mismos métodos públicos; el `PodContext` y el
+- [x] `PodService` queda como fachada con los mismos métodos públicos; el `PodContext` y el
   `PodState` se pasan, no se copian.
-- [ ] Los tests de la E4 pasan sin tocarlos.
+- [x] Los tests de la E4 pasan sin tocarlos.
 
 **Verificación:** Rebuild, `aspnet_compiler`, tests y `/revisar` `high` sobre `BLL/Training`.
 Checklist del usuario: una sesión de Assessment completa de Moldeo (NonSerialized, con Split) y
 una de LoFlo (Serialized, con Log NC), más una Guided con un error a propósito y un Skip.
+
+> **Cerrada 2026-11-03 (`7aa6ac3`, rama `refactor-aud74`).** `BLL/Training/Pod/`: `PodCore` (núcleo del
+> intento), `PodSelection`, `PodOrderEffects` (crear la orden, iniciar piezas, split por defecto,
+> disposición del hallazgo y quitar filas), `PodForcedAdvance` (`Skip` y `RestoreAfterForcedAdvance`),
+> `PodSequence` y cinco clases de comandos: `PodSetupCommands`, `PodAssemblyDcCommands`,
+> `PodSplitCommands`, `PodLogNcCommands` y `PodCompletionCommands` (Complete, Logout, acciones sin paso e
+> Ingreso a MES). Capas sin ciclos: núcleo → efectos → avance forzado → secuencia → comandos. La
+> fachada `PodService` conserva sus 23 métodos públicos, `LoadContext` con `RebuildState`, `StartSession`
+> y `Abandon`. `Skip` ya medía ~19 líneas (no ~89) y quedó entera; `SubmitDataCollectionGroup` se
+> partió en `RecordInvalidGroup` y `SaveValidGroup`. 558 tests en verde (los 37 de la E4 sin tocarlos) y
+> `aspnet_compiler` en verde. `/revisar high`: sin bugs; se corrigieron un comentario y los `using`
+> sobrantes. Quedan para la E7 la actualización de `docs/architecture.md` (árbol y menciones a
+> `PodService.RecordAttempt` y `OutOfSequence`) y, si Planeación lo quiere, mover `RebuildState` junto
+> al avance forzado (la duplicación del mapeo ya existía). Rondas de corrección tras la primera
+> prueba: 0.
 
 ## E6 · GuidedTest liviano (D-258) — Esfuerzo: `medium`
 
