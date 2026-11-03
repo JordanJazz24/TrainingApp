@@ -476,6 +476,13 @@
     <Compile Include="BLL\Admin\UserPageSummary.cs" />
     <Compile Include="BLL\Admin\GuideAdminService.cs" />
     <Compile Include="BLL\Reports\DashboardService.cs" />
+    <Compile Include="BLL\Reports\DashboardModels.cs" />
+    <Compile Include="BLL\Reports\DashboardQueryKit.cs" />
+    <Compile Include="BLL\Reports\OperatorsQuery.cs" />
+    <Compile Include="BLL\Reports\StepsQuery.cs" />
+    <Compile Include="BLL\Reports\SummaryQuery.cs" />
+    <Compile Include="BLL\Reports\FollowUpQuery.cs" />
+    <Compile Include="BLL\Reports\ExportQuery.cs" />
     <Compile Include="BLL\Reports\OperatorArea.cs" />
     <Compile Include="BLL\Reports\OperatorActivity.cs" />
     <Compile Include="BLL\Reports\OperatorSummary.cs" />
