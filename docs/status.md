@@ -15,19 +15,16 @@ worktrees abiertos (`spec-022` se borró el 2026-11-02). Lo cerrado está en los
 - Nada abierto: las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Tests: 521. Textos de
   ayuda validados por negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
 - La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
-  E6 de `fase-9-plan.md` (la E3, la E4 y la E5 están cerradas; la E6 la hace el usuario) (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+  E6 de `fase-9-plan.md` (la E3, la E4 y la E5 están cerradas; la E6 la hace el usuario, sin bloqueantes) (auditoría pre-deploy, AUD-71 a AUD-80; D-256). `/rol desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
 
 **Pendiente del usuario**
-- Antes de publicar a producción, correr en su BD: `00`, `01`, `02`, `03`, `05`, `10` (el
-  `03` y el código van juntos), y `11` y `12` (guía de Subensamble 1; probarla en el navegador).
-  Los scripts que cambiaron están en `Database/StoredProcedures/`.
-- Fase 9: el MVP ya está publicado y funciona (IIS 10, por `http://`; D-19 cerrada). La 2.ª
-  publicación es la E6 de `fase-9-plan.md`: pedirle a TI HTTPS con redirección (D-257, bloquea), rotar `sa`
-  (AUD-71, D-8, bloquea), los scripts de arriba en la BD del servidor, republicar y el mensaje de
-  lanzamiento (D-132).
+- Fase 9, 2.ª publicación (E6 de `fase-9-plan.md`): HTTPS con redirección confirmado por TI
+  (D-257), BD del servidor recreada limpia (D-130) y producción sin `sa`; ya no hay bloqueantes.
+  Falta probar la guía de Subensamble 1 en el navegador y el mensaje de lanzamiento (D-132).
+  Sin bloquear: rotar `sa` en la instancia local (AUD-71, D-8).
 - Avisar a los trainers que cada operador elegirá su área en su próximo ingreso (D-170).
 - BDs viejas: borrar `TrainingApp_Fase10` y `TrainingApp_Fase11` de LocalDB si ya no se usan.
 - Elegir la guía piloto de Custom Resource Setup (D-194; hoy todas son Standard).

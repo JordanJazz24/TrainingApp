@@ -193,9 +193,9 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 ## E3 · Configuración de Release — Esfuerzo: `medium`
 
 - [x] **D-144:** `removeServerHeader="true"` solo en `Web.Release.config` (IIS 10 confirmado).
-- [ ] **AUD-72:** descomentar los dos `requireSSL` (`httpCookies` y `forms`) en
+- [x] **AUD-72:** descomentar los dos `requireSSL` (`httpCookies` y `forms`) en
   `Web.Release.config`.
-- [ ] **AUD-80:** `Strict-Transport-Security` solo en `Web.Release.config` (`max-age` corto para
+- [x] **AUD-80:** `Strict-Transport-Security` solo en `Web.Release.config` (`max-age` corto para
   empezar, sin `includeSubDomains` ni `preload`: el dominio es de TI).
 - [x] **Condición (D-256):** AUD-72 y AUD-80 se publican solo si el usuario confirma que entrar
   por `http://` lleva a `https://`. Si no redirige, quedan comentados con esa nota y D-144 va
@@ -205,6 +205,9 @@ revisión de la carpeta publicada. Sin `/code-review`: no cambia código de la a
 > `https://`, así que AUD-72 y AUD-80 quedan **comentados** en `Web.Release.config` (HSTS con
 > `max-age=300`) y pasan a la E6. Transformación verificada con `TransformXml`; sin Rebuild, tests
 > ni review (solo configuración). Rondas de corrección: 0.
+
+> **Cierre AUD-72 y AUD-80 (2026-11-03):** TI confirmó HTTPS con redirección (D-257); `requireSSL` en los dos
+> lugares y HSTS (`max-age=300`) descomentados en `Web.Release.config`, transformación revisada.
 
 **Verificación:** Rebuild, transformación de Release revisada en la carpeta publicada (los tres
 cambios están; `Web.config` de Debug, sin cambios) y tests. `/revisar` `low`.

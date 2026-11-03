@@ -27,8 +27,8 @@ puesto al día (AUD-73, Fase 9 E5).
    - no trae archivos `.cs`;
    - `web.config` no tiene `debug="true"`, y sí `customErrors mode="RemoteOnly"`,
      `configSource="connectionStrings.config"` y `removeServerHeader="true"` (D-144);
-   - `requireSSL` y `Strict-Transport-Security` **solo si ya están descomentados** en
-     `Web.Release.config` (sección 5). Con `requireSSL` y sin HTTPS nadie puede entrar.
+   - `requireSSL="true"` en `httpCookies` y en `forms`, y la cabecera `Strict-Transport-Security`
+     (sección 5). Sin HTTPS nadie puede entrar.
 5. **Entregar la carpeta por un canal seguro** (carpeta compartida con acceso restringido o
    directo a TI): lleva la contraseña de la base de datos en texto plano. No dejar copias en
    correos ni en carpetas abiertas. La carpeta `publish\` no se versiona (`.gitignore`).
@@ -99,12 +99,11 @@ identidad del App Pool necesita su usuario en la base de datos y el `GRANT EXECU
 
 ## 5. HTTPS: `requireSSL` y HSTS (D-257)
 
-El sitio corre hoy por `http://`. `requireSSL` (cookies de sesión y de login, AUD-72) y
-`Strict-Transport-Security` (AUD-80) están **comentados** en `TrainingApp/Web.Release.config`.
-Se descomentan juntos en la publicación en que se cumplan las dos cosas: TI instaló el
-certificado y `http://` **redirige** a `https://` (probarlo en el navegador). Si se publican sin
-HTTPS, el navegador no envía las cookies y nadie puede iniciar sesión. HSTS empieza con
-`max-age` corto, sin `includeSubDomains` ni `preload` (el dominio es de TI).
+TI confirmó HTTPS y que `http://` redirige a `https://`. `Web.Release.config` activa
+`requireSSL` (cookies de sesión y de login, AUD-72) y `Strict-Transport-Security` (AUD-80,
+`max-age=300`, sin `includeSubDomains` ni `preload`: el dominio es de TI). Si el sitio perdiera
+el HTTPS, el navegador no enviaría las cookies y nadie podría iniciar sesión. Para subir el
+`max-age` cuando todo funcione, cambiar el valor en `Web.Release.config`.
 
 ## 6. Recrear la base de datos (D-130)
 
