@@ -8,8 +8,7 @@
 ## 📍 Estado actual
 
 **Última actualización:** 2026-11-03 · **Rama de desarrollo:** `TrainingApp`. Sin ramas ni
-worktrees abiertos (el de `refactor-aud74` se quita al integrarla). Lo cerrado está en los planes
-(`docs/specs/`), `docs/history.md` y `git log`.
+worktrees abiertos. Lo cerrado está en los planes (`docs/specs/`), `docs/history.md` y `git log`.
 
 **En curso**
 - Nada abierto: la **Fase 13** (refactor de AUD-74 y D-15, `docs/specs/aud-74-plan.md`) está cerrada
@@ -17,19 +16,18 @@ worktrees abiertos (el de `refactor-aud74` se quita al integrarla). Lo cerrado e
   refactor no cambió comportamiento, markup ni firmas públicas.
 - Las specs 022 y 025 están cerradas (2026-11-02; `docs/history.md`). Textos de ayuda validados por
   negocio (D-298, D-305); los de Usuarios, aceptados sin negocio (D-255).
-- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). Lo siguiente es la
-  E6 de `fase-9-plan.md` (2.ª publicación; la E3, la E4 y la E5 están cerradas; auditoría
-  pre-deploy, AUD-71 a AUD-80; D-256): la hace el usuario y ya no espera a la Fase 13. `/rol
-  desarrollo` al iniciar y `/cerrar-entrega` al cerrar.
+- La cifra global «contados por guía» del Resumen se aceptó sin negocio (D-255). La 2.ª publicación
+  (E6 de `fase-9-plan.md`) está hecha y funciona por `http://` (usuario, 2026-11-03); `requireSSL` y
+  HSTS se revirtieron porque el servidor no tiene certificado (D-350). `/rol desarrollo` al iniciar
+  y `/cerrar-entrega` al cerrar.
 
 **Plan de flujo eficiente (`docs/specs/proceso-eficiente-plan.md`)**
 - Mías: E2 (este archivo en 40 líneas) y E3 (settings, hook de git, `.gitignore`).
 
 **Pendiente del usuario**
-- Fase 9, 2.ª publicación (E6 de `fase-9-plan.md`): HTTPS con redirección confirmado por TI
-  (D-257), BD del servidor recreada limpia (D-130) y producción sin `sa`; ya no hay bloqueantes.
-  Falta probar la guía de Subensamble 1 en el navegador y el mensaje de lanzamiento (D-132).
-  Sin bloquear: rotar `sa` en la instancia local (AUD-71, D-8).
+- Fase 9, 2.ª publicación: falta el mensaje de lanzamiento (D-132). Sin bloquear: rotar `sa` en la
+  instancia local (AUD-71, D-8) y reactivar `requireSSL` y HSTS (AUD-72, AUD-80) solo cuando
+  `curl -I` muestre que `https://` responde y que `http://` redirige (D-350).
 - Avisar a los trainers que cada operador elegirá su área en su próximo ingreso (D-170).
 - BDs viejas: borrar `TrainingApp_Fase10` y `TrainingApp_Fase11` de LocalDB si ya no se usan.
 - Elegir la guía piloto de Custom Resource Setup (D-194; hoy todas son Standard).
@@ -47,7 +45,11 @@ final (D-16) repasó esta lista.
 - **Entorno:** `aspnet_compiler` falla en este checkout porque `TrainingApp/obj/Release` y
   `TrainingApp/Properties/publish` (restos de la publicación del 22 de oct., ignorados por git) traen
   un `web.config` dentro de la app. Se compila una copia sin `obj`, `.vs` ni `publish` (`robocopy /XD`).
-  No borrarlas: la publicación al servidor de la Fase 9 sigue pendiente del usuario.
+  No borrarlas sin que el usuario lo diga: son sus restos de publicación.
+- **Clases del POD con deuda menor (Fase 13 / AUD-74, sin bloquear; se toma en el próximo plan que
+  toque el POD):** `GuidedTest.BuildStepViewModel` sigue en ~107 líneas, y `PodService.RebuildState` y
+  `PodForcedAdvance.RestoreAfterForcedAdvance` repiten el mapeo paso→efecto sobre el POD. Si
+  aparece un paso con efecto nuevo, hay que cambiar los dos.
 - **Botón Atrás del navegador:** todavía puede reenviar un POST viejo (F5 sí está resuelto).
   Riesgo aceptado.
 - **B-2 de Log NC:** solo se da con manipulación del cliente (`docs/specs/009-plan.md`, E4).
