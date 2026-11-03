@@ -10,6 +10,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%: Page.Title %> - TrainingApp</title>
+    <link rel="icon" type="image/svg+xml" href="~/UI/master/imgs/logo/favicon.svg" runat="server" />
 
     <%-- Tema claro u oscuro antes de pintar (D-157); el POD no lo carga. --%>
     <script src="<%=ResolveUrl("~/UI/master/theme.js")%>"></script>
@@ -40,7 +41,7 @@
              pone theme.js (cliente, sin postback). --%>
         <header class="mt-topbar is-admin" runat="server" id="AdminBar">
             <span class="mt-topbar-brand">
-                <span class="mt-topbar-mark"><i class="bi bi-display" aria-hidden="true"></i></span>
+                <span class="mt-topbar-mark"><img runat="server" src="~/UI/master/imgs/logo/logo-mark-onbrand.svg" alt="" width="24" height="24" /></span>
                 <span class="mt-topbar-brand-text">TrainingApp</span>
             </span>
 

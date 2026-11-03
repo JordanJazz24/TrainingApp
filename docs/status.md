@@ -53,8 +53,6 @@ final (D-16) repasó esta lista.
   (interfaces de repositorio o integración contra LocalDB). Tampoco tiene test el orden
   validar-antes-de-abandonar en `StartSession` (spec 021); la regla sí (`TrainingAccessRule`).
 - **`CompleteControl`** sin UI (Complete se resuelve desde `BtnComplete`).
-- **Detalle por paso en el resumen final** (intentos y puntaje por paso): diferido
-  (spec 007) hasta que lo pida un instructor o la Fase 8.
 - **Lo que quedó fuera de AUD-28/29** (☑ en la Fase 9, E2): la cabecera `Server` hasta que TI
   confirme IIS 10 o superior (D-144), `requireSSL` hasta que confirme HTTPS, CSP,
   SweetAlert2 11.26 y CodeDom 4.x (D-131). Bootstrap 5.3.8 entró en la Fase 11, E1 (D-155). El inventario de paquetes suma JsBarcode

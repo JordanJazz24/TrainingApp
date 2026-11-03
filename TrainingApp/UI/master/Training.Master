@@ -6,6 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%: Page.Title %> - MES Training</title>
+    <link rel="icon" type="image/svg+xml" href="~/UI/master/imgs/logo/favicon.svg" runat="server" />
 
     <link href="<%=ResolveUrl("~/Content/bootstrap.min.css")%>" rel="stylesheet" />
     <link href="<%=ResolveUrl("~/UI/master/pod.css")%>"          rel="stylesheet" />

@@ -197,6 +197,8 @@
     <Content Include="Pages\Admin\Users.aspx" />
     <Content Include="Pages\Admin\Guides.aspx" />
     <Content Include="UI\master\imgs\login.jpg" />
+    <Content Include="UI\master\imgs\logo\favicon.svg" />
+    <Content Include="UI\master\imgs\logo\logo-mark-onbrand.svg" />
     <Content Include="UI\master\presap.css" />
     <Content Include="UI\master\imgs\presap\desktop.jpg" />
     <Content Include="UI\master\imgs\presap\icon-script.png" />

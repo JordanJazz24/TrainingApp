@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TrainingApp">
+<title>TrainingApp</title>
+<rect width="512" height="512" rx="112" fill="#16345F"/>
+<g transform="translate(63.8,66.9) scale(6.2)"><defs><clipPath id="c"><rect x="0" y="0" width="32" height="64"/></clipPath></defs>
+<path d="M15,33 V44 Q32,56 49,44 V33 L32,41 Z" fill="#C3D2EA" stroke="#C3D2EA" stroke-width="3" stroke-linejoin="round"/>
+<path d="M32,10 L60,24 L32,38 L4,24 Z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round"/>
+<g clip-path="url(#c)"><path d="M32,10 L60,24 L32,38 L4,24 Z" fill="#C3D2EA" stroke="#C3D2EA" stroke-width="4" stroke-linejoin="round"/></g>
+<path d="M56,26 V45" stroke="#F3C062" stroke-width="3" stroke-linecap="round"/><circle cx="56" cy="49" r="4" fill="#F3C062"/></g>
+</svg>

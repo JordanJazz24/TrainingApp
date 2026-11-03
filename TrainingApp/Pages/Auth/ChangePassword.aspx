@@ -10,7 +10,7 @@
   <div class="pw-page">
     <div class="pw-band">
       <div class="pw-band-top">
-        <span class="pw-logo"><span class="pw-logo-mark"><i class="bi bi-display" aria-hidden="true"></i></span>TrainingApp</span>
+        <span class="pw-logo"><span class="pw-logo-mark"><img runat="server" src="~/UI/master/imgs/logo/logo-mark-onbrand.svg" alt="" width="22" height="22" /></span>TrainingApp</span>
         <%-- Sin la barra superior, el interruptor va aquí; theme.js lo busca por este id. --%>
         <button type="button" id="mtThemeToggle" class="btn btn-secondary btn-sm" aria-label="Cambiar a modo oscuro">
           <i class="bi bi-moon" aria-hidden="true"></i><span>Oscuro</span>

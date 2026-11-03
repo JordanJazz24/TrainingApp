@@ -12,7 +12,7 @@
     <aside class="auth-brand" aria-label="TrainingApp">
         <i class="bi bi-display auth-watermark" aria-hidden="true"></i>
         <div class="auth-logo">
-            <span class="auth-logo-mark"><i class="bi bi-display" aria-hidden="true"></i></span>TrainingApp
+            <span class="auth-logo-mark"><img runat="server" src="~/UI/master/imgs/logo/logo-mark-onbrand.svg" alt="" width="28" height="28" /></span>TrainingApp
         </div>
         <div class="auth-pitch">
             <span class="auth-eyebrow">Simulador de entrenamiento · SAP MES</span>
