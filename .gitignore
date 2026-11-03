@@ -58,6 +58,8 @@ node_modules/
 
 # Cadena de conexión local (auditoría AUD-04; plantilla: connectionStrings.config.example)
 TrainingApp/connectionStrings.config
+# Script local del usuario con el servidor de producción (AUD-79: no se versiona)
+Database/Ops/RunAllScripts-PROD.ps1
 /.claude/worktrees/
 
 # Carpeta suelta que aparece en los worktrees
